@@ -41,3 +41,19 @@ You can also check out the [Next.js GitHub repository](https://github.com/vercel
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
 
 Check out the [Next.js deployment guide](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+## 🤝 Contributing
+
+We follow the [Gitflow branching strategy](https://medium.com/novai-devops-101/understanding-gitflow-a-simple-guide-to-git-branching-strategy-4f079c12edb9).
+
+### Allowed Branch Names
+- `feature/*` – for new features (branch off `develop`)
+- `bugfix/*` – for bug fixes (branch off `develop`)
+- `hotfix/*` – for urgent fixes discovered in production (branch off `master`)
+- `release/*` – for preparing production releases (branch off `master`)
+
+### Rules
+- **Never push directly** to `master` or `develop`.
+- Always open a **Pull Request (PR)**.
+- A reviewer must approve and merge your PR.
