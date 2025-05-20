@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"typescript.tsdk": "node_modules/typescript/lib",
+		// "editor.formatOnSave": true
+		"eslint.workingDirectories": [{ "mode": "auto" }],
+		
+		"editor.codeActionsOnSave": {
+			"source.fixAll": "explicit"
+		},
+		"eslint.useFlatConfig": true
+	}
+}
