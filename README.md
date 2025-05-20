@@ -4,7 +4,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## 🛠️ Tech Stack
 
-- [Next.js 13+ App Router](https://nextjs.org/docs/app)
+- [Next.js App Router](https://nextjs.org/docs/app)
 - [Chakra UI](https://chakra-ui.com)
 - [TypeScript](https://www.typescriptlang.org/)
 
