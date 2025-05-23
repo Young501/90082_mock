@@ -1,13 +1,16 @@
+'use client';
 
-import { Provider } from '@/components/ui/provider'
+import { ReactNode } from 'react';
+import ChakraProviders from '@components/ui/ChakraProviders';
 
-export default function RootLayout(props: { children: React.ReactNode }) {
-  const { children } = props
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <Provider>{children}</Provider>
+        <ChakraProviders>
+          {children}
+        </ChakraProviders>
       </body>
     </html>
-  )
+  );
 }
