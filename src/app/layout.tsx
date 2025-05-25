@@ -1,15 +1,15 @@
 'use client';
 
 import { ReactNode } from 'react';
-import ChakraProviders from '@components/ui/ChakraProviders';
+import Providers from '@/components/ui/providers';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ChakraProviders>
+        <Providers>
           {children}
-        </ChakraProviders>
+        </Providers>
       </body>
     </html>
   );

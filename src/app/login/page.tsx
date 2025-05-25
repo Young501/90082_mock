@@ -1,12 +1,12 @@
 'use client';
 
 import Providers from '@/components/ui/providers';
-import WelcomePage from './WelcomePage';
+import LoginPage from './LoginPage';
 
 export default function Page() {
   return (
     <Providers>
-      <WelcomePage />
+      <LoginPage />
     </Providers>
   );
 }
