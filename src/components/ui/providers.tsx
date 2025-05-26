@@ -8,7 +8,7 @@ import theme from '@/theme/theme';
 export default function Providers({ children }: { children: ReactNode }) {
   return (
     <ChakraProvider value={theme}>
-      <ThemeProvider attribute="class" disableTransitionOnChange>
+      <ThemeProvider attribute="class" defaultTheme='light' disableTransitionOnChange>
         {children}
       </ThemeProvider>
     </ChakraProvider>
