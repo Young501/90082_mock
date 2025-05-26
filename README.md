@@ -8,21 +8,33 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 - [Chakra UI](https://chakra-ui.com)
 - [TypeScript](https://www.typescriptlang.org/)
 
+## ⚙️ Environment Setup
+
+Before running the project, you need to create a `.env.local` file in the root directory and define the following:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+This environment variable is used to configure the backend API URL.
+
+> 🔁 If you pull new code and see changes in `package.json`, always re-run `npm install` (or your package manager of choice) to ensure dependencies are up to date.
+
 ## 🚀 Getting Started
 
-First, run the development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open [http://localhost:3000](http://localhost:3000) in your browser to see the app running.
 
 You can start editing the homepage by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
@@ -33,27 +45,21 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Chakra UI Docs](https://chakra-ui.com/docs)
 - [Learn Next.js](https://nextjs.org/learn)
-
-You can also check out the [Next.js GitHub repository](https://github.com/vercel/next.js) for community contributions and updates.
-
-## ☁️ Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
-
-Check out the [Next.js deployment guide](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
+- [Next.js GitHub](https://github.com/vercel/next.js)
 
 ## 🤝 Contributing
 
 We follow the [Gitflow branching strategy](https://medium.com/novai-devops-101/understanding-gitflow-a-simple-guide-to-git-branching-strategy-4f079c12edb9).
 
 ### Allowed Branch Names
+
 - `feature/*` – for new features (branch off `develop`)
 - `bugfix/*` – for bug fixes (branch off `develop`)
 - `hotfix/*` – for urgent fixes discovered in production (branch off `master`)
 - `release/*` – for preparing production releases (branch off `master`)
 
 ### Rules
+
 - **Never push directly** to `master` or `develop`.
 - Always open a **Pull Request (PR)**.
 - A reviewer must approve and merge your PR.
