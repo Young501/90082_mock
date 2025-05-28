@@ -10,31 +10,24 @@
   },
   "dependencies": {
     "@chakra-ui/react": "^3.19.1",
+    "@chakra-ui/theme": "^3.4.6",
+    "@chakra-ui/theme-tools": "^2.2.6",
     "@emotion/react": "^11.14.0",
-    "next": "15.3.2",
+    "@emotion/styled": "^11.14.0",
+    "framer-motion": "^12.12.1",
+    "next": "^15.3.2",
     "next-themes": "^0.4.6",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "react-icons": "^5.5.0"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.27.2",
-    "@babel/preset-react": "^7.27.1",
-    "@babel/preset-typescript": "^7.27.1",
     "@eslint/eslintrc": "^3",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.3.0",
-    "@types/jest": "^29.5.14",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/testing-library__react": "^10.0.1",
-    "babel-jest": "^29.7.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
-    "ts-jest": "^29.3.4",
     "typescript": "^5"
   }
 }
