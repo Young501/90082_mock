@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   Box,
   Heading,
@@ -32,7 +33,8 @@ export default function LoginPage() {
   const isEmailValid = EMAIL_REGEX.test(email);
   const isPasswordValid = password.length >= 8 && SPECIAL_CHAR_REGEX.test(password);
   const isFormValid = isEmailValid && isPasswordValid;
-
+  const params = useSearchParams();
+  const userType = params.get('userType');
   // Validate email in real-time
   useEffect(() => {
     if (!email) {
@@ -86,7 +88,8 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
-          password
+          password,
+          user_types: [userType]
         }),
       });
 
