@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, Suspense } from 'react';
 import Providers from '@/components/ui/providers';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -8,9 +8,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <body>
         <Providers>
-          {children}
+          <Suspense fallback={<div>Loading...</div>}>
+            {children}
+          </Suspense>
         </Providers>
       </body>
     </html>
   );
 }
+

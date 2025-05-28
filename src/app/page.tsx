@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Button, HStack } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
 
 const Demo = () => {
   const [clicked, setClicked] = useState(false);
@@ -19,18 +18,6 @@ const Demo = () => {
   );
 };
 
-export default function WelcomePage() {
-  const router = useRouter();
-
-  function handleSelect(userType: string) {
-    router.push(`/onboarding?userType=${userType}`);
-  }
-
-  return (
-    <div>
-      <h1>Select user type</h1>
-      <button onClick={() => handleSelect('student')}>Student</button>
-      <button onClick={() => handleSelect('partner')}>Partner</button>
-    </div>
-  );
+export default function HomePage() {
+  return <Demo />;
 }
