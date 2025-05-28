@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useContext } from 'react';
-import { UserTypeContext } from '@/contexts/UserTypeContext';
 import {
   Button,
   Flex,
@@ -58,12 +56,9 @@ export default function WelcomePage() {
       .finally(() => setLoading(false));
   }, []);
 
-  //global usertype
-  const { setUserType } = useContext(UserTypeContext);
   const handleSelect = (type: string) => {
-    setUserType(type);
-    router.push(`/login`);
-};
+    router.push(`/login?userType=${type}`);
+  };
 
   return (
     <Flex direction="column" align="center" p={8}>

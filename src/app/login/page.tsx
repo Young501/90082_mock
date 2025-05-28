@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Heading,
@@ -15,15 +15,12 @@ import {
   FormErrorMessage
 } from '@chakra-ui/form-control';
 import { Text } from '@chakra-ui/react';
-import { UserTypeContext } from '@/contexts/UserTypeContext';
 import { API_ENDPOINTS } from '@/utils/api';
 //Regular expressions for validation
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SPECIAL_CHAR_REGEX = /[^A-Za-z0-9]/;
 
 export default function LoginPage() {
-  //Access userType from context
-  const { userType } = useContext(UserTypeContext);
   //State for input values and messages
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -89,8 +86,7 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
-          password,
-          user_types: [userType]
+          password
         }),
       });
 
