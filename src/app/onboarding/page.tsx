@@ -3,16 +3,24 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { API_ENDPOINTS } from '@/utils/api';
+import { Box, Text } from '@chakra-ui/react';
+import { OnboardingProvider, useOnboarding, Page } from '@/components/onboarding/contexts/OnboardingContext';
+import { OnboardingPage } from '@/components/onboarding/pages/OnboardingPage';
 
-export default function OnboardingPage() {
+function OnboardingFlow() {
   const searchParams = useSearchParams();
   const userType = searchParams.get('userType');
-  const [steps, setSteps] = useState<string[]>([]);
+  const { initPages, currentPageId } = useOnboarding();
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchSteps() {
-      if (!userType) return;
+    async function fetchPages() {
+      if (!userType) {
+        setError('Missing userType in URL.');
+        setLoading(false);
+        return;
+      }
 
       try {
         const res = await fetch(API_ENDPOINTS.ONBOARDING_PAGES(userType));
@@ -22,8 +30,11 @@ export default function OnboardingPage() {
         }
 
         const data = await res.json();
-        setSteps(data);
-        setError(null);
+        const pages: Page[] = data.onboarding_pages;
+
+        if (currentPageId === -1) {
+          initPages(pages);
+        }
       } catch (err: unknown) {
         console.error(err);
         if (err instanceof Error) {
@@ -31,20 +42,30 @@ export default function OnboardingPage() {
         } else {
           setError('Unexpected error occurred');
         }
+      } finally {
+        setLoading(false);
       }
     }
 
-    fetchSteps();
-  }, [userType]);
+    if (currentPageId === -1) {
+      fetchPages();
+    }
+  }, [userType, currentPageId]);
+
+  if (loading) return <Text p={8}>Loading onboarding...</Text>;
+  if (error) return <Text color="red.500" p={8}>{error}</Text>;
 
   return (
-    <div>
-      <h1>Onboarding Steps</h1>
-      {error ? (
-        <p style={{ color: 'red' }}>Error: {error}</p>
-      ) : (
-        <pre>{JSON.stringify(steps, null, 2)}</pre>
-      )}
-    </div>
+    <Box maxW="600px" mx="auto" mt={10}>
+      <OnboardingPage userType={userType!}/>
+    </Box>
+  );
+}
+
+export default function OnboardingEntryPage() {
+  return (
+    <OnboardingProvider>
+      <OnboardingFlow />
+    </OnboardingProvider>
   );
 }

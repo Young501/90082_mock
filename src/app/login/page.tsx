@@ -15,7 +15,8 @@ import {
 
 import { API_ENDPOINTS } from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
-
+import { checkIfNeedsOnboarding } from '@/components/onboarding/util/onboardingUtil';
+import { useRouter } from 'next/navigation';
 
 const validateEmail = (email: string): string => {
   if (!email) return '';
@@ -33,6 +34,8 @@ const validatePassword = (password: string): string => {
 };
 
 export default function LoginPage() {
+  const router = useRouter();
+
   const { login, user } = useAuth();
   const userType = user?.user_types?.[0];
 
@@ -67,6 +70,9 @@ export default function LoginPage() {
     }else{
       setSuccessMsg('Login successful!');
       login(data.token, data.user);  // update context
+
+      await checkIfNeedsOnboarding(data.user, data.token, router); // check if this user need an onboarding process
+
       setErrorMsg('');
     }
   }
