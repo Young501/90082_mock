@@ -15,6 +15,4 @@ const config = defineConfig({
   },
 });
 
-const system = createSystem(defaultConfig, config);
-
-export default system;
+export const system = createSystem(defaultConfig, config);
