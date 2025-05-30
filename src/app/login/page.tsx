@@ -19,7 +19,7 @@ import { Text } from '@chakra-ui/react';
 import { API_ENDPOINTS } from '@/utils/api';
 
 
-import { useAuth } from '@/context/AuthContext';  // import useAuth() hook
+import { useAuth } from '../context/AuthContext';  // import useAuth() hook
 
 //Regular expressions for validation
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
