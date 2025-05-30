@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@chakra-ui/form-control": "^2.2.0",
     "@chakra-ui/react": "^3.19.1",
     "@chakra-ui/theme": "^3.4.6",
     "@emotion/react": "^11.14.0",

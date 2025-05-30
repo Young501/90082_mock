@@ -42,7 +42,8 @@ export default function LoginPage() {
   const [pwdErr, setPwdErr] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
+  const [isSignupLoading, setIsSignupLoading] = useState(false);
 
   const isFormValid = !emailErr && !pwdErr && email && password;
 
@@ -57,54 +58,46 @@ export default function LoginPage() {
   };
 
   const handleLogin = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(API_ENDPOINTS.LOGIN, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.message || 'Login failed');
-
+    setIsLoginLoading(true);
+    const res = await fetch(API_ENDPOINTS.LOGIN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    setIsLoginLoading(false);
+    if (!res.ok) {
+      console.log('Login failed:', data);
+      setErrorMsg(data.message
+        || data.detail || (data.non_field_errors?.join?.(', ') ?? 'Login failed'));
+      setSuccessMsg('');
+    }else{
       setSuccessMsg('Login successful!');
       setErrorMsg('');
-      resetForm();
-    } catch (err: unknown) {
-      console.error(err);
-      setErrorMsg(err instanceof Error ? err.message : 'Login failed');
-      setSuccessMsg('');
-    } finally {
-      setLoading(false);
     }
-  };
+  }
+
 
   const handleSignup = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(API_ENDPOINTS.SIGNUP, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          password,
-          user_types: [userType],
-        }),
-      });
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.message || 'Signup failed');
-
+    setIsSignupLoading(true);
+    const res = await fetch(API_ENDPOINTS.SIGNUP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        password,
+        user_types: [userType],
+      }),
+    });
+    const data = await res.json();
+    setIsSignupLoading(false);
+    if (!res.ok) {
+      console.log('Signup failed:', data);
+      setErrorMsg(data.message || (data.email?.join?.(', ') ?? 'Signup failed'));
+      setSuccessMsg('');
+    }else{
       setSuccessMsg(data.message || 'Signup successful!');
       setErrorMsg('');
-      resetForm();
-    } catch (err: unknown) {
-      console.error(err);
-      setErrorMsg(err instanceof Error ? err.message : 'Signup failed');
-      setSuccessMsg('');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -137,21 +130,19 @@ export default function LoginPage() {
 
         <HStack gap={4} justify="center">
           <Button
-            colorScheme="blue"
-            disabled={!isFormValid || loading}
+            disabled={!isFormValid || isLoginLoading}
             onClick={handleLogin}
             flex={1}
           >
-            {loading ? <Spinner size="sm" /> : 'Login'}
+            {isLoginLoading ? <Spinner size="sm" /> : 'Login'}
           </Button>
 
           <Button
-            colorScheme="green"
-            disabled={!isFormValid || loading}
+            disabled={!isFormValid || isSignupLoading}
             onClick={handleSignup}
             flex={1}
           >
-            {loading ? <Spinner size="sm" /> : 'Sign Up'}
+            {isSignupLoading ? <Spinner size="sm" /> : 'Sign Up'}
           </Button>
         </HStack>
 
