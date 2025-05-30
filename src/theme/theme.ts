@@ -1,6 +1,5 @@
 
 import { createSystem, defineConfig, defaultConfig } from '@chakra-ui/react';
-import type { Theme } from '@chakra-ui/react';
 
 const config = defineConfig({
   theme: {
