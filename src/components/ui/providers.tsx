@@ -15,7 +15,7 @@ export default function Providers({ children }: { children: ReactNode }) {
         disableTransitionOnChange
       >
         <AuthProvider>
-          {children}
+          {children}     
         </AuthProvider>
       </NextThemeProvider>
     </ChakraProvider>
