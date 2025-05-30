@@ -4,6 +4,8 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { ThemeProvider as NextThemeProvider } from 'next-themes';
 import { ReactNode } from 'react';
 import { system } from '@/theme/theme';
+import { AuthProvider } from '@/app/contexts/AuthContext';
+
 export default function Providers({ children }: { children: ReactNode }) {
   return (
     <ChakraProvider value={system}>
@@ -12,7 +14,9 @@ export default function Providers({ children }: { children: ReactNode }) {
         defaultTheme="light"
         disableTransitionOnChange
       >
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </NextThemeProvider>
     </ChakraProvider>
   );

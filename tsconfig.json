@@ -27,12 +27,12 @@
       "@/*": [
         "./src/*"
       ],
-      "@components/*": [
-        "./src/components/*"
+      "@/contexts/*": [
+        "./src/app/contexts/*"
       ],
-      "@contexts/*": [
-        "./src/contexts/*"
-      ]
+      "@/types/*": [
+        "./src/app/types/*"
+      ],
     }
   },
   "include": [

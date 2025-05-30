@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
 import {
   Box,
   Heading,
@@ -11,10 +10,11 @@ import {
   Button,
   Text,
   Spinner,
-  Field
+  Field,
 } from '@chakra-ui/react';
 
 import { API_ENDPOINTS } from '@/utils/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 
 const validateEmail = (email: string): string => {
@@ -33,8 +33,8 @@ const validatePassword = (password: string): string => {
 };
 
 export default function LoginPage() {
-  const params = useSearchParams();
-  const userType = params.get('userType');
+  const { login, user } = useAuth();
+  const userType = user?.user_types?.[0];
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -49,13 +49,6 @@ export default function LoginPage() {
 
   useEffect(() => setEmailErr(validateEmail(email)), [email]);
   useEffect(() => setPwdErr(validatePassword(password)), [password]);
-
-  const resetForm = () => {
-    setEmail('');
-    setPassword('');
-    setEmailErr('');
-    setPwdErr('');
-  };
 
   const handleLogin = async () => {
     setIsLoginLoading(true);
@@ -73,6 +66,7 @@ export default function LoginPage() {
       setSuccessMsg('');
     }else{
       setSuccessMsg('Login successful!');
+      login(data.token, data.user);  // update context
       setErrorMsg('');
     }
   }
@@ -104,7 +98,11 @@ export default function LoginPage() {
   return (
     <Box maxW="420px" mx="auto" mt={12} p={8} borderWidth={1} rounded="lg">
       <Heading size="lg" mb={6}>Login / Sign Up</Heading>
-
+      {userType && (
+        <Text fontSize="md" mb={2} color="gray.600">
+            You’re signing up as a <strong>{userType}</strong>
+        </Text>
+      )}
       <VStack align="stretch" gap={4}>
         <Field.Root id="email" invalid={!!emailErr}>
           <Field.Label>Email</Field.Label>
