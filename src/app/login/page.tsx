@@ -1,163 +1,148 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
 import {
   Box,
   Heading,
   VStack,
+  HStack,
   Input,
   Button,
+  Text,
+  Spinner,
+  Field,
 } from '@chakra-ui/react';
 
-import {
-  FormControl,
-  FormLabel,
-  FormErrorMessage
-} from '@chakra-ui/form-control';
-import { Text } from '@chakra-ui/react';
 import { API_ENDPOINTS } from '@/utils/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 
-import { useAuth } from '../context/AuthContext';  // import useAuth() hook
+const validateEmail = (email: string): string => {
+  if (!email) return '';
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!EMAIL_REGEX.test(email)) return 'Invalid email format';
+  return '';
+};
 
-//Regular expressions for validation
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const SPECIAL_CHAR_REGEX = /[^A-Za-z0-9]/;
+const validatePassword = (password: string): string => {
+  if (!password) return '';
+  if (password.length < 8) return 'Password must be at least 8 characters';
+  // const SPECIAL_CHAR_REGEX = /[^A-Za-z0-9]/;
+  // if (!SPECIAL_CHAR_REGEX.test(password)) return 'Include at least one special character';
+  return '';
+};
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
+  const userType = user?.user_types?.[0];
 
-  //State for input values and messages
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailErr, setEmailErr] = useState('');
   const [pwdErr, setPwdErr] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  //Validation checks
-  const isEmailValid = EMAIL_REGEX.test(email);
-  const isPasswordValid = password.length >= 8 && SPECIAL_CHAR_REGEX.test(password);
-  const isFormValid = isEmailValid && isPasswordValid;
-  const params = useSearchParams();
-  const userType = params.get('userType');
-  // Validate email in real-time
-  useEffect(() => {
-    if (!email) {
-      setEmailErr('');
-    } else if (!isEmailValid) {
-      setEmailErr('Invalid email format');
-    } else {
-      setEmailErr('');
-    }
-  }, [email]);
-  //Validate password in real-time
-  useEffect(() => {
-    if (!password) {
-      setPwdErr('');
-    } else if (password.length < 8) {
-      setPwdErr('Password must be at least 8 characters');
-    } else if (!SPECIAL_CHAR_REGEX.test(password)) {
-      setPwdErr('Password must include at least one special character');
-    } else {
-      setPwdErr('');
-    }
-  }, [password]);
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
+  const [isSignupLoading, setIsSignupLoading] = useState(false);
 
-  //Handle login API request
+  const isFormValid = !emailErr && !pwdErr && email && password;
+
+  useEffect(() => setEmailErr(validateEmail(email)), [email]);
+  useEffect(() => setPwdErr(validatePassword(password)), [password]);
+
   const handleLogin = async () => {
-      try {
-        const res = await fetch(API_ENDPOINTS.LOGIN, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          password
-        }),
-      });
-        if (!res.ok) throw new Error('Login failed');
+    setIsLoginLoading(true);
+    const res = await fetch(API_ENDPOINTS.LOGIN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    setIsLoginLoading(false);
+    if (!res.ok) {
+      console.log('Login failed:', data);
+      setErrorMsg(data.message
+        || data.detail || (data.non_field_errors?.join?.(', ') ?? 'Login failed'));
+      setSuccessMsg('');
+    }else{
+      setSuccessMsg('Login successful!');
+      login(data.token, data.user);  // update context
+      setErrorMsg('');
+    }
+  }
 
-        const data = await res.json();
-        login(data.token, data.user);  // update context
-        setSuccessMsg('Login successful!');
-        setErrorMsg('');
-      } catch (err) {
-        setErrorMsg('Invalid credentials');
-        setSuccessMsg('');
-      }
-    };
 
-
-  //Handle signup API request
   const handleSignup = async () => {
-    try {
-      const res = await fetch(API_ENDPOINTS.SIGNUP, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          password,
-          user_types: [userType]
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Signup failed');
-
+    setIsSignupLoading(true);
+    const res = await fetch(API_ENDPOINTS.SIGNUP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        password,
+        user_types: [userType],
+      }),
+    });
+    const data = await res.json();
+    setIsSignupLoading(false);
+    if (!res.ok) {
+      console.log('Signup failed:', data);
+      setErrorMsg(data.message || (data.email?.join?.(', ') ?? 'Signup failed'));
+      setSuccessMsg('');
+    }else{
       setSuccessMsg(data.message || 'Signup successful!');
       setErrorMsg('');
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Signup failed');
-      setSuccessMsg('');
     }
   };
 
   return (
     <Box maxW="420px" mx="auto" mt={12} p={8} borderWidth={1} rounded="lg">
       <Heading size="lg" mb={6}>Login / Sign Up</Heading>
-
-      <VStack align="stretch">
-        <FormControl isInvalid={!!emailErr}>
-          <FormLabel>Email</FormLabel>
+      {userType && (
+        <Text fontSize="md" mb={2} color="gray.600">
+            You’re signing up as a <strong>{userType}</strong>
+        </Text>
+      )}
+      <VStack align="stretch" gap={4}>
+        <Field.Root id="email" invalid={!!emailErr}>
+          <Field.Label>Email</Field.Label>
           <Input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
           />
-          <FormErrorMessage>{emailErr}</FormErrorMessage>
-        </FormControl>
+          <Field.ErrorText>{emailErr}</Field.ErrorText>
+        </Field.Root>
 
-        <FormControl isInvalid={!!pwdErr}>
-          <FormLabel>Password</FormLabel>
+        <Field.Root id="password" invalid={!!pwdErr}>
+          <Field.Label>Password</Field.Label>
           <Input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="********"
           />
-          <FormErrorMessage>{pwdErr}</FormErrorMessage>
-        </FormControl>
+          <Field.ErrorText>{pwdErr}</Field.ErrorText>
+        </Field.Root>
 
-        <VStack>
+        <HStack gap={4} justify="center">
           <Button
-            colorScheme="blue"
-            disabled={!isFormValid}
+            disabled={!isFormValid || isLoginLoading}
             onClick={handleLogin}
-            width="100%"
+            flex={1}
           >
-            Login
+            {isLoginLoading ? <Spinner size="sm" /> : 'Login'}
           </Button>
 
           <Button
-            colorScheme="green"
-            disabled={!isFormValid}
+            disabled={!isFormValid || isSignupLoading}
             onClick={handleSignup}
-            width="100%"
+            flex={1}
           >
-            Sign Up
+            {isSignupLoading ? <Spinner size="sm" /> : 'Sign Up'}
           </Button>
-        </VStack>
+        </HStack>
 
         {successMsg && <Text color="green.500">{successMsg}</Text>}
         {errorMsg && <Text color="red.500">{errorMsg}</Text>}

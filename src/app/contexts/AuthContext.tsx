@@ -1,13 +1,14 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User } from '../type/auth';
+import { User } from '@/types/user';
 
 type AuthContextType = {
   user: User | null;
   token: string | null;
-  login: (token: string, user: User) => void;
+  login: (_token: string, _user: User) => void;
   logout: () => void;
+  setUserType: (_userType: string) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,8 +41,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
+  const setUserType = (userType: string) => {
+    const updatedUser: User = {
+      ...(user ?? {}),
+      user_types: [userType],
+    };
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout, setUserType }}>
       {children}
     </AuthContext.Provider>
   );

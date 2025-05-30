@@ -21,7 +21,7 @@ import {
 import { IconType } from 'react-icons';
 import { useRouter } from 'next/navigation';
 import { API_ENDPOINTS } from '@/utils/api'
-
+import { useAuth } from '@/contexts/AuthContext';
 
 type UserType = {
   key: string;
@@ -47,6 +47,7 @@ export default function WelcomePage() {
   const [userTypes, setUserTypes] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { setUserType } = useAuth();
 
   useEffect(() => {
     fetch(API_ENDPOINTS.USER_TYPES)
@@ -57,7 +58,8 @@ export default function WelcomePage() {
   }, []);
 
   const handleSelect = (type: string) => {
-    router.push(`/login?userType=${type}`);
+    setUserType(type);
+    router.push('/login');
   };
 
   return (

@@ -4,7 +4,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { ThemeProvider as NextThemeProvider } from 'next-themes';
 import { ReactNode } from 'react';
 import { system } from '@/theme/theme';
-import { AuthProvider } from '@/app/context/AuthContext'; 
+import { AuthProvider } from '@/app/contexts/AuthContext';
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (
@@ -15,7 +15,7 @@ export default function Providers({ children }: { children: ReactNode }) {
         disableTransitionOnChange
       >
         <AuthProvider>
-          {children}     
+          {children}
         </AuthProvider>
       </NextThemeProvider>
     </ChakraProvider>
