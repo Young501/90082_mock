@@ -1,6 +1,5 @@
-import { FormControl, FormLabel } from '@chakra-ui/form-control';
 import { Question } from '@/components/onboarding/contexts/OnboardingContext';
-import { Box } from '@chakra-ui/react';
+import { Field } from '@chakra-ui/react';
 import { TextField } from './TextField';
 import { UrlField } from './UrlField';
 import { SelectField } from './SelectField';
@@ -28,11 +27,10 @@ export const FieldRenderer = ({ question, value, onChange }: Props) => {
     if (!Component) return null;
 
     return (
-      <Box mb={4}>
-			<FormControl isRequired={question.required}>
-				<FormLabel htmlFor={question.field}>{question.label}</FormLabel>
-				<Component question={question} value={value} onChange={onChange} />
-			</FormControl>
-      </Box>
+      <Field.Root id={question.field} invalid={question.required && (value === undefined || value === '' || (Array.isArray(value) && value.length === 0))}>
+        <Field.Label>{question.label}</Field.Label>
+        <Component question={question} value={value} onChange={onChange} />
+        <Field.ErrorText>Field is required</Field.ErrorText>
+      </Field.Root>
     );
 };
