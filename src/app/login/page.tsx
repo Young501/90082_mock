@@ -17,11 +17,17 @@ import {
 } from '@chakra-ui/form-control';
 import { Text } from '@chakra-ui/react';
 import { API_ENDPOINTS } from '@/utils/api';
+
+
+import { useAuth } from '@/context/AuthContext';  // import useAuth() hook
+
 //Regular expressions for validation
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SPECIAL_CHAR_REGEX = /[^A-Za-z0-9]/;
 
 export default function LoginPage() {
+  const { login } = useAuth();
+
   //State for input values and messages
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -60,26 +66,28 @@ export default function LoginPage() {
 
   //Handle login API request
   const handleLogin = async () => {
-  try {
-    const res = await fetch(API_ENDPOINTS.LOGIN, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email,
-        password
-      }),
-    });
+      try {
+        const res = await fetch(API_ENDPOINTS.LOGIN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password
+        }),
+      });
+        if (!res.ok) throw new Error('Login failed');
 
-    if (!res.ok) throw new Error('Login failed');
-    const data = await res.json();
+        const data = await res.json();
+        login(data.token, data.user);  // update context
+        setSuccessMsg('Login successful!');
+        setErrorMsg('');
+      } catch (err) {
+        setErrorMsg('Invalid credentials');
+        setSuccessMsg('');
+      }
+    };
 
-    setSuccessMsg('Login successful!');
-    setErrorMsg('');
-  } catch (err) {
-    setErrorMsg('Invalid credentials');
-    setSuccessMsg('');
-  }
-};
+
   //Handle signup API request
   const handleSignup = async () => {
     try {
