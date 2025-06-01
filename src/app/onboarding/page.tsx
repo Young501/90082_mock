@@ -1,15 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { API_ENDPOINTS } from '@/utils/api';
 import { Box, Text } from '@chakra-ui/react';
 import { OnboardingProvider, useOnboarding, Page } from '@/components/onboarding/contexts/OnboardingContext';
 import { OnboardingPage } from '@/components/onboarding/pages/OnboardingPage';
+import { useAuth } from '../contexts/AuthContext';
 
 function OnboardingFlow() {
-  const searchParams = useSearchParams();
-  const userType = searchParams.get('userType');
+  const { user } = useAuth();
+  const userType = user?.user_types?.[0];
   const { initPages, currentPageId } = useOnboarding();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

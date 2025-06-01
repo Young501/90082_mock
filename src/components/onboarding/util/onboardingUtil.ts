@@ -26,13 +26,13 @@ export const checkIfNeedsOnboarding = async (
     });
 
     if (profileRes.status === 404) {
-      router.push(`/onboarding?userType=${userType}`);
+      router.push(`/onboarding`);
     } else {
       alert('user profile exist, no need to onboard !');
       //router.push('/dashboard');
     }
   } catch (err) {
-    console.error('Error checking onboarding profile:', err);
-    router.push('/dashboard'); // fallback
+    alert('Error checking onboarding profile:');
+    //router.push('/dashboard'); // fallback
   }
 };
