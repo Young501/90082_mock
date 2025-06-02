@@ -44,18 +44,21 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 This project uses **ESLint Flat Config** (`eslint.config.mjs`) to ensure consistent code style.
 
-**Run lint**
+#### Use ESLint in VS Code (Recommended)
+1. Install the ESLint extension from the VS Code Marketplace.
+2. Open the project in workspace mode:
+    - Go to the menu bar: `File` > `Open Workspace from file`
+    - Select the `uniconnected2-frontend.code-workspace` file located in the project root
+    - Once opened, the VS Code window title will be `uniconnected2-frontend (Workspace)`
+3. With this setup:
+    - Linting errors and warnings will appear in real-time as you type
+    - Formatting issues (e.g., indentation, quotes, trailing spaces) will be auto-fixed on save
+
+#### Use ESLint in CLI (Not Recommended)
 ```bash
 npm run lint
-```
-**Auto-fix issues**
-```bash
 npm run lint:fix
 ```
-
-### ESLint in VS Code
-
-To get real-time linting and auto-formatting in your editor, install the **ESLint** extension from the VS Code Marketplace.
 
 ## 📚 Learn More
 
