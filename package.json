@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint . --ext .ts,.tsx --config eslint.config.mjs",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix --config eslint.config.mjs"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.19.1",

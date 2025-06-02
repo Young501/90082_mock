@@ -40,6 +40,23 @@ You can start editing the homepage by modifying `app/page.tsx`. The page auto-up
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family from Vercel.
 
+## 🧼 **ESLint** for Code Integrity
+
+This project uses **ESLint Flat Config** (`eslint.config.mjs`) to ensure consistent code style.
+
+**Run lint**
+```bash
+npm run lint
+```
+**Auto-fix issues**
+```bash
+npm run lint:fix
+```
+
+### ESLint in VS Code
+
+To get real-time linting and auto-formatting in your editor, install the **ESLint** extension from the VS Code Marketplace.
+
 ## 📚 Learn More
 
 - [Next.js Documentation](https://nextjs.org/docs)

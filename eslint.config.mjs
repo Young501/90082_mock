@@ -10,6 +10,17 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  {
+    ignores: [
+      '**/node_modules/**',
+      '**/.next/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/public/**',
+      '**/.env*'
+    ],
+  },
+
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
     rules: {
@@ -33,7 +44,8 @@ const eslintConfig = [
       // Enforce consistent spacing inside braces
       'object-curly-spacing': ['error', 'always'],
 
-      '@typescript-eslint/no-empty-object-type': 'off'
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-unused-vars': 'off'
     }
   }
 ];
