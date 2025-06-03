@@ -5,12 +5,11 @@ import {
   Box,
   Heading,
   VStack,
-  HStack,
-  Input,
   Button,
   Text,
   Spinner,
-  Field,
+  Input,
+  Field
 } from '@chakra-ui/react';
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,21 +20,17 @@ import { API_ENDPOINTS, apiRequest } from '@/utils/api';
 const validateEmail = (email: string): string => {
   if (!email) return '';
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!EMAIL_REGEX.test(email)) return 'Invalid email format';
-  return '';
+  return EMAIL_REGEX.test(email) ? '' : 'Invalid email format';
 };
 
 const validatePassword = (password: string): string => {
   if (!password) return '';
-  if (password.length < 8) return 'Password must be at least 8 characters';
-  // const SPECIAL_CHAR_REGEX = /[^A-Za-z0-9]/;
-  // if (!SPECIAL_CHAR_REGEX.test(password)) return 'Include at least one special character';
-  return '';
+  return password.length < 8 ? 'Password must be at least 8 characters' : '';
 };
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, token, login  } = useAuth();
+  const { user, token, login } = useAuth();
   const userType = user?.user_types?.[0];
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -53,68 +48,52 @@ export default function LoginPage() {
 
   const handleOnboardingCheck = async () => {
     const result = await checkOnboardingStatus(user!, token!);
-
-    switch (result.status) {
-    case 'needs_onboarding':
+    if (result.status === 'needs_onboarding') {
       router.push('/onboarding');
-      break;
-    case 'has_profile':
-    case 'multiple_user_types':
+    } else {
       router.push('/dashboard');
-      break;
-    case 'error':
-      console.error('Onboarding check failed:', result.error);
-      router.push('/dashboard');
-      break;
     }
   };
 
   const handleLogin = async () => {
     setIsLoginLoading(true);
-
     try {
-      // const { method, url, auth } = API_ENDPOINTS.LOGIN;
       const res = await apiRequest({
         endpoint: API_ENDPOINTS.LOGIN,
-        body: { 'email':email, 'password':password }
+        body: { email, password },
       });
       const data = await res.json();
-
       if (!res.ok) {
-        console.log('Login failed:', data);
         setErrorMsg(
           data.message || data.detail || (data.non_field_errors?.join?.(', ') ?? 'Login failed')
         );
         setSuccessMsg('');
-      }else{
+      } else {
         setSuccessMsg('Login successful!');
-        login(data.token, data.user);  // update context
+        login(data.token, data.user);
         handleOnboardingCheck();
         setErrorMsg('');
       }
-
     } catch (err) {
       console.error(err);
       setErrorMsg('Something went wrong. Please try again.');
     } finally {
       setIsLoginLoading(false);
     }
-  }
-
+  };
 
   const handleSignup = async () => {
     setIsSignupLoading(true);
     const res = await apiRequest({
       endpoint: API_ENDPOINTS.SIGNUP,
-      body: { email, password, user_types: [userType] }
+      body: { email, password, user_types: [userType] },
     });
     const data = await res.json();
     setIsSignupLoading(false);
     if (!res.ok) {
-      console.log('Signup failed:', data);
       setErrorMsg(data.message || (data.email?.join?.(', ') ?? 'Signup failed'));
       setSuccessMsg('');
-    }else{
+    } else {
       setSuccessMsg(data.message || 'Signup successful!');
       setErrorMsg('');
     }
@@ -125,53 +104,64 @@ export default function LoginPage() {
       <Heading size="lg" mb={6}>Login / Sign Up</Heading>
       {userType && (
         <Text fontSize="md" mb={2} color="gray.600">
-            You’re signing up as a <strong>{userType}</strong>
+          You’re signing up as a <strong>{userType}</strong>
         </Text>
       )}
-      <VStack align="stretch" gap={4}>
-        <Field.Root id="email" invalid={!!emailErr}>
-          <Field.Label>Email</Field.Label>
-          <Input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-          />
-          <Field.ErrorText>{emailErr}</Field.ErrorText>
-        </Field.Root>
 
-        <Field.Root id="password" invalid={!!pwdErr}>
-          <Field.Label>Password</Field.Label>
-          <Input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="********"
-          />
-          <Field.ErrorText>{pwdErr}</Field.ErrorText>
-        </Field.Root>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleLogin();
+        }}
+        autoComplete="on"
+      >
+        <VStack align="stretch" gap={4}>
+          <Field.Root id="email" invalid={!!emailErr}>
+            <Field.Label>Email</Field.Label>
+            <Input
+              type="email"
+              name="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+            />
+            <Field.ErrorText>{emailErr}</Field.ErrorText>
+          </Field.Root>
 
-        <HStack gap={4} justify="center">
+          <Field.Root id="password" invalid={!!pwdErr}>
+            <Field.Label>Password</Field.Label>
+            <Input
+              type="password"
+              name="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="********"
+            />
+            <Field.ErrorText>{pwdErr}</Field.ErrorText>
+          </Field.Root>
+
           <Button
+            type="submit"
             disabled={!isFormValid || isLoginLoading}
-            onClick={handleLogin}
-            flex={1}
+            width="100%"
           >
             {isLoginLoading ? <Spinner size="sm" /> : 'Login'}
           </Button>
 
           <Button
-            disabled={!isFormValid || isSignupLoading}
             onClick={handleSignup}
-            flex={1}
+            disabled={!isFormValid || isSignupLoading}
+            width="100%"
           >
             {isSignupLoading ? <Spinner size="sm" /> : 'Sign Up'}
           </Button>
-        </HStack>
 
-        {successMsg && <Text color="green.500">{successMsg}</Text>}
-        {errorMsg && <Text color="red.500">{errorMsg}</Text>}
-      </VStack>
+          {successMsg && <Text color="green.500">{successMsg}</Text>}
+          {errorMsg && <Text color="red.500">{errorMsg}</Text>}
+        </VStack>
+      </form>
     </Box>
   );
 }
