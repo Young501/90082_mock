@@ -15,8 +15,9 @@ import {
 
 import { API_ENDPOINTS } from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { checkIfNeedsOnboarding } from '@/components/onboarding/util/onboardingUtil';
+import { checkOnboardingStatus } from '@/app/onboarding/utils';
 import { useRouter } from 'next/navigation';
+import { apiRequest } from '@/utils/apiRequest';
 
 const validateEmail = (email: string): string => {
   if (!email) return '';
@@ -35,10 +36,9 @@ const validatePassword = (password: string): string => {
 
 export default function LoginPage() {
   const router = useRouter();
-
   const { login, user } = useAuth();
   const userType = user?.user_types?.[0];
-
+  const { token } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailErr, setEmailErr] = useState('');
@@ -53,25 +53,43 @@ export default function LoginPage() {
   useEffect(() => setEmailErr(validateEmail(email)), [email]);
   useEffect(() => setPwdErr(validatePassword(password)), [password]);
 
+  const handleOnboardingCheck = async () => {
+    const result = await checkOnboardingStatus(user!, token!);
+
+    switch (result.status) {
+    case 'needs_onboarding':
+      router.push('/onboarding');
+      break;
+    case 'has_profile':
+    case 'multiple_user_types':
+      router.push('/dashboard');
+      break;
+    case 'error':
+      console.error('Onboarding check failed:', result.error);
+      router.push('/dashboard');
+      break;
+    }
+  };
+
   const handleLogin = async () => {
     setIsLoginLoading(true);
 
     try {
-      const res = await fetch(API_ENDPOINTS.LOGIN, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const { method, url, auth } = API_ENDPOINTS.LOGIN;
+      const body = { 'email':email, 'password':password };
+      const res = await apiRequest({ method, url, auth, body });
       const data = await res.json();
 
       if (!res.ok) {
         console.log('Login failed:', data);
-        setErrorMsg(data.message || data.detail || (data.non_field_errors?.join?.(', ') ?? 'Login failed'));
+        setErrorMsg(
+          data.message || data.detail || (data.non_field_errors?.join?.(', ') ?? 'Login failed')
+        );
         setSuccessMsg('');
       }else{
         setSuccessMsg('Login successful!');
         login(data.token, data.user);  // update context
-        await checkIfNeedsOnboarding(data.user, data.token, router); // check if this user need an onboarding process
+        handleOnboardingCheck();
         setErrorMsg('');
       }
 
@@ -80,21 +98,15 @@ export default function LoginPage() {
       setErrorMsg('Something went wrong. Please try again.');
     } finally {
       setIsLoginLoading(false);
+    }
   }
-}
 
 
   const handleSignup = async () => {
     setIsSignupLoading(true);
-    const res = await fetch(API_ENDPOINTS.SIGNUP, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email,
-        password,
-        user_types: [userType],
-      }),
-    });
+    const { method, url, auth } = API_ENDPOINTS.SIGNUP;
+    const body = { email, password, user_types: [userType] };
+    const res = await apiRequest({ method, url, auth, body });
     const data = await res.json();
     setIsSignupLoading(false);
     if (!res.ok) {

@@ -50,7 +50,7 @@ export default function WelcomePage() {
   const { setUserType } = useAuth();
 
   useEffect(() => {
-    fetch(API_ENDPOINTS.USER_TYPES)
+    fetch(API_ENDPOINTS.USER_TYPES.url)
       .then((res) => res.json())
       .then((data) => setUserTypes(data))
       .catch((err) => console.error('Error fetching:', err))
