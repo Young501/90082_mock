@@ -28,7 +28,8 @@
         "./src/*"
       ],
       "@/contexts/*": [
-        "./src/app/contexts/*"
+        "./src/app/contexts/*",
+        "src/components/onboarding/contexts/*"
       ],
       "@/types/*": [
         "./src/app/types/*"

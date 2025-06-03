@@ -1,50 +1,30 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { API_ENDPOINTS } from '@/utils/api';
+import { Box, Text } from '@chakra-ui/react';
+import { OnboardingProvider, useOnboarding } from '@/app/onboarding/OnboardingContext';
+import { OnboardingSteps } from '@/app/onboarding/OnboardingSteps';
+import { useAuth } from '../contexts/AuthContext';
 
-export default function OnboardingPage() {
-  const searchParams = useSearchParams();
-  const userType = searchParams.get('userType');
-  const [steps, setSteps] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
+function OnboardingRenderer() {
+  const { user, token } = useAuth();
+  const userType = user?.user_types?.[0];
+  const { loading, error } = useOnboarding();
 
-  useEffect(() => {
-    async function fetchSteps() {
-      if (!userType) return;
-
-      try {
-        const res = await fetch(API_ENDPOINTS.ONBOARDING_PAGES(userType));
-        if (!res.ok) {
-          const statusText = res.statusText || 'Unknown error';
-          throw new Error(`Failed to fetch onboarding steps: ${res.status} ${statusText}`);
-        }
-
-        const data = await res.json();
-        setSteps(data);
-        setError(null);
-      } catch (err: unknown) {
-        console.error(err);
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError('Unexpected error occurred');
-        }
-      }
-    }
-
-    fetchSteps();
-  }, [userType]);
+  if (loading) return <Text p={8}>Loading onboarding...</Text>;
+  if (error) return <Text color="red.500" p={8}>{error}</Text>;
+  if (!userType || !token) return <Text p={8}>Redirecting...</Text>;
 
   return (
-    <div>
-      <h1>Onboarding Steps</h1>
-      {error ? (
-        <p style={{ color: 'red' }}>Error: {error}</p>
-      ) : (
-        <pre>{JSON.stringify(steps, null, 2)}</pre>
-      )}
-    </div>
+    <Box maxW="600px" mx="auto" mt={10}>
+      <OnboardingSteps userType={userType} token={token} />
+    </Box>
+  );
+}
+
+export default function OnboardingEntryPage() {
+  return (
+    <OnboardingProvider>
+      <OnboardingRenderer />
+    </OnboardingProvider>
   );
 }
