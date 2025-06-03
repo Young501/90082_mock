@@ -4,14 +4,14 @@ import { Progress, Box, Button, Heading, Text } from '@chakra-ui/react';
 import { useOnboarding } from '@/app/onboarding/OnboardingContext';
 import { FieldRenderer } from './FieldRenderer';
 import { submitOnboardingAnswers } from './utils';
-import { useAuth } from '../contexts/AuthContext';
-// import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 type Props = {
   userType: string;
+  token: string;
 };
 
-export const OnboardingPage = ({ userType } : Props) => {
+export const OnboardingSteps = ({ userType, token }: Props) => {
   const {
     pages,
     currentPageId,
@@ -21,12 +21,12 @@ export const OnboardingPage = ({ userType } : Props) => {
     goToPreviousPage,
     validateCurrentPage
   } = useOnboarding();
+  const router = useRouter();
+
 
   const page = pages.find(p => p.id === currentPageId);
   const currentPageIndex = pages.findIndex(p => p.id === currentPageId);
   const progressPercent = pages.length > 0 ? ((currentPageIndex + 1) / pages.length) * 100 : 0;
-  const { token } = useAuth();
-  // const router = useRouter();
 
   const handleValidation = () => {
     const validation = validateCurrentPage();
@@ -59,7 +59,7 @@ export const OnboardingPage = ({ userType } : Props) => {
       alert(errorMsg);
       console.error(errorMsg);
     }
-    // router.push('/dashboard');
+    router.push('/home');
   };
 
   if (!page) return <Text>No onboarding page found.</Text>;
@@ -79,12 +79,16 @@ export const OnboardingPage = ({ userType } : Props) => {
         {page.guide}
       </Heading>
 
-      {page.questions.map(question => (
+      {page.questions.map((question) => (
         <FieldRenderer
           key={question.field}
           question={question}
           value={answers[question.field]}
-          onChange={value => setAnswer(question.field, value)}
+          onChange={(value) => {
+            // console.log(`[DEBUG] Field: ${question.field}, Value:`
+            // , value, 'Type:', typeof value);
+            setAnswer(question.field, value);
+          }}
         />
       ))}
 

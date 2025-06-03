@@ -47,7 +47,6 @@ type OnboardingContextType = {
   loading: boolean;
   error: string | null;
   setAnswer: (_field: string, _value: AnswerValue) => void;
-  initPages: (_pages: Page[]) => void;
   goToNextPage: () => void;
   goToPreviousPage: () => void;
   goToPage: (_id: number) => void;
@@ -128,13 +127,6 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
     setAnswers(prev => ({ ...prev, [field]: value }));
   };
 
-  const initPages = (pages: Page[]) => {
-    if (pages.length === 0 || currentPageId !== -1) return;
-    setPages(pages);
-    if (pages.length > 0) setCurrentPageId(pages[0].id);
-    setAnswers({});
-  };
-
   const goToNextPage = () => {
     const page = pages.find(p => p.id === currentPageId);
     if (page?.follow_by) {
@@ -183,7 +175,6 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
     loading,
     error,
     setAnswer,
-    initPages,
     goToNextPage,
     goToPreviousPage,
     goToPage,

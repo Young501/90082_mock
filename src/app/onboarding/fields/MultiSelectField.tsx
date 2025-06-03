@@ -1,5 +1,3 @@
-'use client';
-
 import { Portal, Select, createListCollection } from '@chakra-ui/react';
 import { FieldProps } from '../FieldRenderer';
 

@@ -51,7 +51,7 @@ export default function LoginPage() {
     if (result.status === 'needs_onboarding') {
       router.push('/onboarding');
     } else {
-      router.push('/dashboard');
+      router.push('/home');
     }
   };
 
