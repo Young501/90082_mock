@@ -13,11 +13,10 @@ import {
   Field,
 } from '@chakra-ui/react';
 
-import { API_ENDPOINTS } from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { checkOnboardingStatus } from '@/app/onboarding/utils';
 import { useRouter } from 'next/navigation';
-import { apiRequest } from '@/utils/apiRequest';
+import { API_ENDPOINTS, apiRequest } from '@/utils/api';
 
 const validateEmail = (email: string): string => {
   if (!email) return '';
@@ -36,9 +35,8 @@ const validatePassword = (password: string): string => {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, user } = useAuth();
+  const { user, token, login  } = useAuth();
   const userType = user?.user_types?.[0];
-  const { token } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailErr, setEmailErr] = useState('');
@@ -75,9 +73,11 @@ export default function LoginPage() {
     setIsLoginLoading(true);
 
     try {
-      const { method, url, auth } = API_ENDPOINTS.LOGIN;
-      const body = { 'email':email, 'password':password };
-      const res = await apiRequest({ method, url, auth, body });
+      // const { method, url, auth } = API_ENDPOINTS.LOGIN;
+      const res = await apiRequest({
+        endpoint: API_ENDPOINTS.LOGIN,
+        body: { 'email':email, 'password':password }
+      });
       const data = await res.json();
 
       if (!res.ok) {
@@ -104,9 +104,10 @@ export default function LoginPage() {
 
   const handleSignup = async () => {
     setIsSignupLoading(true);
-    const { method, url, auth } = API_ENDPOINTS.SIGNUP;
-    const body = { email, password, user_types: [userType] };
-    const res = await apiRequest({ method, url, auth, body });
+    const res = await apiRequest({
+      endpoint: API_ENDPOINTS.SIGNUP,
+      body: { email, password, user_types: [userType] }
+    });
     const data = await res.json();
     setIsSignupLoading(false);
     if (!res.ok) {

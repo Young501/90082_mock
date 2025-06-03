@@ -2,9 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { API_ENDPOINTS } from '@/utils/api';
+import { API_ENDPOINTS, apiRequest } from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { apiRequest } from '@/utils/apiRequest';
 
 // ==== Define Type ====
 
@@ -90,8 +89,7 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
       }
 
       try {
-        const { method, url, auth } = API_ENDPOINTS.ONBOARDING_PAGES(userType);
-        const res = await apiRequest({ method, url, auth });
+        const res = await apiRequest({ endpoint: API_ENDPOINTS.ONBOARDING_PAGES(userType) });
 
         if (!res.ok) {
           const statusText = res.statusText || 'Unknown error';

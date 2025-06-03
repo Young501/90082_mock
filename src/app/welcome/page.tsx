@@ -20,7 +20,7 @@ import {
 } from 'react-icons/fa';
 import { IconType } from 'react-icons';
 import { useRouter } from 'next/navigation';
-import { API_ENDPOINTS } from '@/utils/api'
+import { API_ENDPOINTS, apiRequest } from '@/utils/api'
 import { useAuth } from '@/contexts/AuthContext';
 
 type UserType = {
@@ -50,11 +50,18 @@ export default function WelcomePage() {
   const { setUserType } = useAuth();
 
   useEffect(() => {
-    fetch(API_ENDPOINTS.USER_TYPES.url)
-      .then((res) => res.json())
-      .then((data) => setUserTypes(data))
-      .catch((err) => console.error('Error fetching:', err))
-      .finally(() => setLoading(false));
+    const fetchUserTypes = async () => {
+      try {
+        const res = await apiRequest({ endpoint: API_ENDPOINTS.USER_TYPES });
+        const data = await res.json();
+        setUserTypes(data);
+      } catch (err) {
+        console.error('Error fetching:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserTypes();
   }, []);
 
   const handleSelect = (type: string) => {

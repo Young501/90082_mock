@@ -1,8 +1,7 @@
 // src/utils/onboarding.ts
 
 import { User } from '@/types/user';
-import { API_ENDPOINTS } from '@/utils/api';
-import { apiRequest } from '@/utils/apiRequest';
+import { API_ENDPOINTS, apiRequest } from '@/utils/api';
 import { AnswerValue } from './OnboardingContext';
 
 export type OnboardingStatus =
@@ -35,8 +34,10 @@ export const checkOnboardingStatus = async (
   }
 
   try {
-    const { method, url, auth } = API_ENDPOINTS.USER_PROFILE(userType);
-    const profileRes = await apiRequest({ method, url, auth, token });
+    const profileRes = await apiRequest({
+      endpoint: API_ENDPOINTS.USER_PROFILE(userType),
+      token: token
+    });
 
     if (profileRes.status === 404) {
       console.log('User profile not found, needs onboarding');
@@ -68,12 +69,9 @@ export const submitOnboardingAnswers = async (
   }
 
   try {
-    const { method, url, auth } = API_ENDPOINTS.ONBOARDING_SUBMISSION(userType);
     const res = await apiRequest({
-      method,
-      url,
-      auth,
-      token,
+      endpoint: API_ENDPOINTS.ONBOARDING_SUBMISSION(userType),
+      token: token,
       body: answers
     });
 
