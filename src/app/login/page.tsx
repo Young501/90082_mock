@@ -40,6 +40,7 @@ export default function LoginPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [isLoginLoading, setIsLoginLoading] = useState(false);
   const [isSignupLoading, setIsSignupLoading] = useState(false);
+  const [isForgotPasswordLoading, setIsForgotPasswordLoading] = useState(false);
 
   const isFormValid = !emailErr && !pwdErr && email && password;
 
@@ -96,6 +97,44 @@ export default function LoginPage() {
     } else {
       setSuccessMsg(data.message || 'Signup successful!');
       setErrorMsg('');
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setErrorMsg('Please enter your email address first');
+      setSuccessMsg('');
+      return;
+    }
+
+    if (emailErr) {
+      setErrorMsg('Please enter a valid email address');
+      setSuccessMsg('');
+      return;
+    }
+
+    setIsForgotPasswordLoading(true);
+    try {
+      const res = await apiRequest({
+        endpoint: API_ENDPOINTS.PASSWORD_RESET,
+        body: { email },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrorMsg(data.message || data.detail || 'Failed to send reset email');
+        setSuccessMsg('');
+      } else {
+        setSuccessMsg(data.message || 'Password reset email sent! Please check your inbox.');
+        setErrorMsg('');
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMsg('Something went wrong. Please try again.');
+      setSuccessMsg('');
+    } finally {
+      setIsForgotPasswordLoading(false);
     }
   };
 
@@ -162,6 +201,17 @@ export default function LoginPage() {
           {errorMsg && <Text color="red.500">{errorMsg}</Text>}
         </VStack>
       </form>
+
+      <Button
+        variant="ghost"
+        onClick={handleForgotPassword}
+        disabled={isForgotPasswordLoading}
+        width="100%"
+        mt={2}
+      >
+        {isForgotPasswordLoading ? <Spinner size="sm" /> : 'Forgot Password?'}
+      </Button>
+
     </Box>
   );
 }
