@@ -148,7 +148,31 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
   const validateCurrentPage = (): ValidationResult => {
     if (!currentPage) return { isValid: true, missingFields: [] };
 
-    const missingFields = currentPage.questions.filter((q) => {
+    const getAllQuestionsToValidate = (questions: Question[]): Question[] => {
+      const result: Question[] = [];
+
+      const addQuestion = (q: Question) => {
+        result.push(q);
+
+        if (q.followup_question && answers[q.field]) {
+
+          const values = Array.isArray(answers[q.field])
+            ? answers[q.field] as string[] : [answers[q.field] as string];
+
+          values.forEach(val => {
+            const followup = q.followup_question![val];
+            if (followup) addQuestion(followup);
+          });
+        }
+      };
+
+      questions.forEach(addQuestion);
+      return result;
+    };
+
+    const allQuestions = getAllQuestionsToValidate(currentPage.questions);
+
+    const missingFields = allQuestions.filter((q) => {
       const val = answers[q.field];
       return q.required &&
         (val === undefined || val === '' || (Array.isArray(val) && val.length === 0));

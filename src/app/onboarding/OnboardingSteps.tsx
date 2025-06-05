@@ -84,11 +84,9 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
           key={question.field}
           question={question}
           value={answers[question.field]}
-          onChange={(value) => {
-            // console.log(`[DEBUG] Field: ${question.field}, Value:`
-            // , value, 'Type:', typeof value);
-            setAnswer(question.field, value);
-          }}
+          onChange={(value) => setAnswer(question.field, value)}
+          allAnswers={answers}
+          onAnswerChange={setAnswer}
         />
       ))}
 
