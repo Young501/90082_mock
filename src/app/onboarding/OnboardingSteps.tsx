@@ -54,12 +54,12 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
     if (result.success) {
       alert('Congrats! Your profile is ready!')
       console.log('Done, you can check your profile through Django admin now');
+      router.push('/home');
     } else {
       const errorMsg = `Submission failed: ${result.error || 'Unknown error'}`;
       alert(errorMsg);
       console.error(errorMsg);
     }
-    router.push('/home');
   };
 
   if (!page) return <Text>No onboarding page found.</Text>;
@@ -84,11 +84,9 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
           key={question.field}
           question={question}
           value={answers[question.field]}
-          onChange={(value) => {
-            // console.log(`[DEBUG] Field: ${question.field}, Value:`
-            // , value, 'Type:', typeof value);
-            setAnswer(question.field, value);
-          }}
+          onChange={(value) => setAnswer(question.field, value)}
+          allAnswers={answers}
+          onAnswerChange={setAnswer}
         />
       ))}
 
