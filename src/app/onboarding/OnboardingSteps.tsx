@@ -54,12 +54,12 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
     if (result.success) {
       alert('Congrats! Your profile is ready!')
       console.log('Done, you can check your profile through Django admin now');
+      router.push('/home');
     } else {
       const errorMsg = `Submission failed: ${result.error || 'Unknown error'}`;
       alert(errorMsg);
       console.error(errorMsg);
     }
-    router.push('/home');
   };
 
   if (!page) return <Text>No onboarding page found.</Text>;
