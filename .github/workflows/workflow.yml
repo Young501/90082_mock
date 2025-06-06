@@ -2,7 +2,7 @@ name: Deploy
 on:
   push:
     branches:
-      - feature/aws-deployment
+      - develop
 env:
   BUCKET_NAME: "uniconnected2-frontend"
   AWS_REGION: "ap-southeast-2"
