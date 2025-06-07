@@ -5,6 +5,7 @@ import { UrlField } from './fields/UrlField';
 import { SelectField } from './fields/SelectField';
 import { MultiSelectField } from './fields/MultiSelectField';
 import { FileField } from './fields/FileField';
+import { useOnboarding } from '@/app/onboarding/OnboardingContext';
 
 export type FieldProps = {
   question: Question;
@@ -19,23 +20,21 @@ const FIELD_TYPE_MAP: Record<string, React.FC<FieldProps>> = {
   url: UrlField,
   select: SelectField,
   'multi-select': MultiSelectField,
-  location:TextField,
-  number:TextField,
+  location: TextField,
+  number: TextField,
   file: FileField
 };
 
 export const FieldRenderer = (
   { question, value, onChange, allAnswers, onAnswerChange }: FieldProps
 ) => {
+  const { hasAttemptedValidation, fieldErrors } = useOnboarding();
   const Component = FIELD_TYPE_MAP[question.type];
 
   if (!Component) return null;
 
-  const isInvalid =
-    question.required &&
-    (value === undefined ||
-      value === '' ||
-      (Array.isArray(value) && value.length === 0));
+  const currentErrors = fieldErrors[question.field] || [];
+  const shouldShowErrors = hasAttemptedValidation && currentErrors.length > 0;
 
   const getFollowupQuestions = () => {
     if (!question.followup_question || !value) return [];
@@ -48,11 +47,13 @@ export const FieldRenderer = (
 
   const followupQuestions = getFollowupQuestions();
 
-
   return (
     <Box mb={4}>
-      <Field.Root id={question.field} invalid={isInvalid}>
-        <Field.Label>{question.label}</Field.Label>
+      <Field.Root id={question.field} invalid={shouldShowErrors}>
+        <Field.Label>
+          {question.label}
+          {question.required && <span style={{ color: 'red', marginLeft: '4px' }}>*</span>}
+        </Field.Label>
         <Component
           question={question}
           value={value}
@@ -60,7 +61,13 @@ export const FieldRenderer = (
           allAnswers={allAnswers}
           onAnswerChange={onAnswerChange}
         />
-        {isInvalid && <Field.ErrorText>Field is required</Field.ErrorText>}
+        {shouldShowErrors && (
+          <Field.ErrorText>
+            {currentErrors.map((error, index) => (
+              <div key={index}>{error}</div>
+            ))}
+          </Field.ErrorText>
+        )}
       </Field.Root>
 
       {/* Render followup questions */}
