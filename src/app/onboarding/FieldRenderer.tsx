@@ -4,13 +4,14 @@ import { TextField } from './fields/TextField';
 import { UrlField } from './fields/UrlField';
 import { SelectField } from './fields/SelectField';
 import { MultiSelectField } from './fields/MultiSelectField';
+import { FileField } from './fields/FileField';
 
 export type FieldProps = {
   question: Question;
-  value: string | number | string[] | undefined;
-  onChange: (_value: string | number | string[]) => void;
-  allAnswers?: { [field: string]: string | number | string[] | undefined };
-  onAnswerChange?: (_field: string, _value: string | number | string[] | undefined) => void;
+  value: string | number | string[] | File | undefined;
+  onChange: (_value: string | number | string[] | File) => void;
+  allAnswers?: { [field: string]: string | number | string[] | File | undefined };
+  onAnswerChange?: (_field: string, _value: string | number | string[] | File | undefined) => void;
 };
 
 const FIELD_TYPE_MAP: Record<string, React.FC<FieldProps>> = {
@@ -19,7 +20,8 @@ const FIELD_TYPE_MAP: Record<string, React.FC<FieldProps>> = {
   select: SelectField,
   'multi-select': MultiSelectField,
   location:TextField,
-  number:TextField
+  number:TextField,
+  file: FileField
 };
 
 export const FieldRenderer = (

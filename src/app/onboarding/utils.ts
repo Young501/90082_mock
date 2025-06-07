@@ -2,7 +2,7 @@
 
 import { User } from '@/types/user';
 import { API_ENDPOINTS, apiRequest } from '@/utils/api';
-import { AnswerValue } from './OnboardingContext';
+import { AnswerValue, Question } from './OnboardingContext';
 
 export type OnboardingStatus =
   | 'needs_onboarding'
@@ -59,25 +59,62 @@ export const checkOnboardingStatus = async (
   }
 }
 
+
+const uploadFile = async (file: File, endpoint: string, token: string): Promise<boolean> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await apiRequest({
+      endpoint: API_ENDPOINTS.FILE_UPLOAD(endpoint),
+      token: token,
+      body: formData
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error('File upload failed:', error);
+    return false;
+  }
+};
+
 export const submitOnboardingAnswers = async (
   answers: AnswerMap,
   userType: string,
-  token: string
+  token: string,
+  allQuestions: Question[]
 ): Promise<{ success: boolean; error?: string }> => {
   if (!token) {
     return { success: false, error: 'No access token found.' };
   }
 
   try {
+    // profile must exist before uploading files.
+    const profileData = Object.fromEntries(
+      Object.entries(answers).filter(([_, value]) => !(value instanceof File))
+    );
+
     const res = await apiRequest({
       endpoint: API_ENDPOINTS.ONBOARDING_SUBMISSION(userType),
       token: token,
-      body: answers
+      body: profileData
     });
 
     if (!res.ok) {
       const text = await res.text();
       return { success: false, error: text };
+    }
+
+    for (const [field, value] of Object.entries(answers)) {
+      if (value instanceof File) {
+        const question = allQuestions.find(q => q.field === field);
+        if (question?.upload_endpoint) {
+          const uploadSuccess = await uploadFile(value, question.upload_endpoint, token);
+          if (!uploadSuccess) {
+            return { success: false, error: `Failed to upload ${question.label}` };
+          }
+        }
+      }
     }
 
     return { success: true };

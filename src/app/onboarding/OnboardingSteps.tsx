@@ -49,7 +49,22 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
   const handleSubmit = async () => {
     if (!handleValidation()) return;
 
-    const result = await submitOnboardingAnswers(answers, userType, token!);
+    const allQuestions = pages.flatMap(page => {
+      const getQuestionsRecursively = (questions: typeof page.questions): typeof page.questions => {
+        return questions.flatMap(q => {
+          let result = [q];
+          if (q.followup_question) {
+            Object.values(q.followup_question).forEach(followup => {
+              result = [...result, ...getQuestionsRecursively([followup])];
+            });
+          }
+          return result;
+        });
+      };
+      return getQuestionsRecursively(page.questions);
+    });
+
+    const result = await submitOnboardingAnswers(answers, userType, token!, allQuestions);
 
     if (result.success) {
       alert('Congrats! Your profile is ready!')
