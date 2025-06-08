@@ -12,7 +12,6 @@ import {
   Field,
   InputGroup,
   IconButton,
-  Tooltip
 } from '@chakra-ui/react';
 
 import { Eye, EyeOff } from 'lucide-react';
