@@ -9,9 +9,13 @@ import {
   Text,
   Spinner,
   Input,
-  Field
+  Field,
+  InputGroup,
+  IconButton,
+  Tooltip
 } from '@chakra-ui/react';
 
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { checkOnboardingStatus } from '@/app/onboarding/utils';
 import { useRouter } from 'next/navigation';
@@ -34,6 +38,7 @@ export default function LoginPage() {
   const userType = user?.user_types?.[0];
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [emailErr, setEmailErr] = useState('');
   const [pwdErr, setPwdErr] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -170,14 +175,28 @@ export default function LoginPage() {
 
           <Field.Root id="password" invalid={!!pwdErr}>
             <Field.Label>Password</Field.Label>
-            <Input
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="********"
-            />
+            <InputGroup
+              endElement={
+                <IconButton
+                  variant="ghost"
+                  size="sm"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff /> : <Eye />}
+                </IconButton>
+              }
+            >
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="********"
+              />
+            </InputGroup>
             <Field.ErrorText>{pwdErr}</Field.ErrorText>
           </Field.Root>
 
