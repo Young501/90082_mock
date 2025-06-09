@@ -71,7 +71,14 @@ const uploadFile = async (file: File, endpoint: string, token: string): Promise<
       body: formData
     });
 
-    return response.ok;
+    if (!response.ok) {
+      const errorText = await response.text(); // Or use response.json() if you expect JSON
+      console.error(`Upload failed: ${response.status} ${response.statusText}`);
+      console.error('Error body:', errorText);
+      return false;
+    }
+
+    return true;
   } catch (error) {
     console.error('File upload failed:', error);
     return false;
