@@ -11,6 +11,7 @@ import {
 import { UserRound } from "lucide-react"
 import { ReactNode } from "react"
 import Logo from "@/components/Logo"
+import Footer from "./Footer"
 
 interface AuthLayoutProps {
     children: ReactNode
@@ -25,7 +26,7 @@ export default function AuthLayout({
     const containerMaxW = useBreakpointValue({ base: "100%", lg: maxWidth })
 
     return (
-        <Box h={["auto", 'auto', "100vh"]} minH="100vh" position="relative">
+        <Box h={["auto", "auto", "100vh"]} minH="100vh" position="relative">
             <Box p={0} h="100%" display="flex" flexDirection="column">
                 <Box
                     bg="rgba(255, 255, 255, 0.91)"
@@ -58,26 +59,7 @@ export default function AuthLayout({
                     </Container>
                 </Box>
 
-                <Box
-                    bg="#002157"
-                    h="180px"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    px={{ base: 4, lg: 8 }}
-                    color="white"
-                >
-                    <VStack align="start" gap={2}>
-                        <Text fontSize="20px" fontWeight="700">
-                            Need Help? Contact Us
-                        </Text>
-                        <Text fontSize="20px" fontWeight="700">
-                            Copyright © UniConnected 2025.
-                        </Text>
-                    </VStack>
-
-                    <Logo variant="footer" width="300px" height="80px" />
-                </Box>
+                <Footer />
             </Box>
         </Box>
     )
