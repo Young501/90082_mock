@@ -2,8 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { API_ENDPOINTS, apiRequest } from '@/utils/api';
-import { useAuth } from '@/contexts/AuthContext';
+import { useOnboardingPages, useAuth } from '@/api';
 
 // ==== Define Type ====
 
@@ -63,79 +62,53 @@ const OnboardingContext = createContext<OnboardingContextType | undefined>(undef
 export const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   const router = useRouter();
-  const [pages, setPages] = useState<Page[]>([]);
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [currentPageId, setCurrentPageId] = useState<number>(-1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   const userType = user?.user_types?.[0];
-  const currentPage = pages.find(p => p.id === currentPageId);
+  const { 
+    data: pagesData, 
+    isLoading, 
+    error: queryError 
+  } = useOnboardingPages(userType || '');
+  
+  const pages = pagesData?.onboarding_pages || [];
+  const currentPage = pages.find((p: Page) => p.id === currentPageId);
+  const error = queryError?.message || null;
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    const fetchPages = async () => {
-      if (!isMounted) return;
+    if (!isMounted) return;
 
-      if (!userType) {
-        console.log('No userType found, redirecting to onboarding start');
-        router.push('/onboarding');
-        return;
-      }
-
-      try {
-        const res = await apiRequest({ endpoint: API_ENDPOINTS.ONBOARDING_PAGES(userType) });
-
-        if (!res.ok) {
-          const statusText = res.statusText || 'Unknown error';
-          throw new Error(`Failed to fetch onboarding steps: ${res.status} ${statusText}`);
-        }
-
-        const data = await res.json();
-        const fetchedPages: Page[] = data.onboarding_pages;
-
-        setPages(fetchedPages);
-        if (fetchedPages.length > 0) {
-          setCurrentPageId(fetchedPages[0].id);
-        }
-        setAnswers({});
-      } catch (err: unknown) {
-        console.error(err);
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError('Unexpected error occurred');
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (currentPageId === -1) {
-      fetchPages();
-    } else {
-      setLoading(false);
+    if (!userType) {
+      console.log('No userType found, redirecting to onboarding start');
+      router.push('/onboarding');
+      return;
     }
-  }, [userType, currentPageId, router, isMounted]);
 
+    if (pages.length > 0 && currentPageId === -1) {
+      setCurrentPageId(pages[0].id);
+      setAnswers({});
+    }
+  }, [userType, pages, currentPageId, router, isMounted]);
 
   const setAnswer = (field: string, value: string | number | string[] | undefined) => {
     setAnswers(prev => ({ ...prev, [field]: value }));
   };
 
   const goToNextPage = () => {
-    const page = pages.find(p => p.id === currentPageId);
+    const page = pages.find((p: Page) => p.id === currentPageId);
     if (page?.follow_by) {
       setCurrentPageId(page.follow_by);
     }
   };
 
   const goToPreviousPage = () => {
-    const currentIndex = pages.findIndex(p => p.id === currentPageId);
+    const currentIndex = pages.findIndex((p: Page) => p.id === currentPageId);
     if (currentIndex > 0) {
       setCurrentPageId(pages[currentIndex - 1].id);
     }
@@ -155,7 +128,6 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
         result.push(q);
 
         if (q.followup_question && answers[q.field]) {
-
           const values = Array.isArray(answers[q.field])
             ? answers[q.field] as string[] : [answers[q.field] as string];
 
@@ -186,17 +158,15 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
 
   const reset = () => {
     setAnswers({});
-    setPages([]);
     setCurrentPageId(-1);
   };
-
 
   const contextValue: OnboardingContextType = {
     currentPageId,
     pages,
     answers,
     currentPage,
-    loading,
+    loading: isLoading,
     error,
     setAnswer,
     goToNextPage,
@@ -212,7 +182,6 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
     </OnboardingContext.Provider>
   );
 };
-
 
 export const useOnboarding = () => {
   const ctx = useContext(OnboardingContext);
