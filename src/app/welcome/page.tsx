@@ -376,6 +376,7 @@ export default function WelcomePage() {
                                             transition={{
                                                 duration: 0.4,
                                                 ease: "easeInOut",
+                                                delay: 0.3,
                                             }}
                                             borderRadius="50%"
                                             zIndex={40}
@@ -554,7 +555,7 @@ export default function WelcomePage() {
                         w="100%"
                         maxW="676px"
                         mx="auto"
-                        mt={{ base: 16, md: 16, lg: 32 }}
+                        mt={16}
                         px={{ base: 4, md: 0 }}
                     >
                         <Button
