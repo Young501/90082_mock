@@ -4,7 +4,6 @@ import { Progress, Box, Button, Heading, Text } from '@chakra-ui/react';
 import { Alert } from '@chakra-ui/react';
 import { useOnboarding } from '@/app/onboarding/OnboardingContext';
 import { FieldRenderer } from './FieldRenderer';
-import { submitOnboardingAnswers } from './utils';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -18,17 +17,12 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
     pages,
     currentPageId,
     answers,
-    setAnswer,
-    goToNextPage,
-    goToPreviousPage,
-    validateCurrentPage,
     hasAttemptedValidation,
-    setHasAttemptedValidation,
     fieldErrors,
-    setFieldErrors,
-    validateField,
-    getAllQuestionsFromPage,
-    getAllQuestionsRecursively,
+    setAnswer,
+    goToPreviousPage,
+    handleNext,
+    handleSubmit
   } = useOnboarding();
 
   const router = useRouter();
@@ -38,67 +32,25 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
   const currentPageIndex = pages.findIndex(p => p.id === currentPageId);
   const progressPercent = pages.length > 0 ? ((currentPageIndex + 1) / pages.length) * 100 : 0;
 
-  const performValidation = () => {
-    if (!page) return { isValid: true, hasErrors: false };
-
-    setHasAttemptedValidation(true);
-
-    const allQuestions = getAllQuestionsFromPage(page);
-
-    let hasErrors = false;
-    const newFieldErrors: { [field: string]: string[] } = {};
-
-    allQuestions.forEach(question => {
-      const errors = validateField(question.field, answers[question.field], question);
-      newFieldErrors[question.field] = errors;
-      if (errors.length > 0) {
-        hasErrors = true;
-      }
-    });
-
-    setFieldErrors(newFieldErrors);
-
-    const validation = validateCurrentPage();
-    return {
-      isValid: validation.isValid && !hasErrors,
-      hasErrors: hasErrors || !validation.isValid
-    };
+  const onNext = () => {
+    const success = handleNext();
+    setShowValidationMessage(!success);
   };
 
-  const handleNext = () => {
-    const { isValid, hasErrors } = performValidation();
-
-    if (!isValid || hasErrors) {
-      setShowValidationMessage(true);
-      return;
-    }
-
-    setShowValidationMessage(false);
-    goToNextPage();
-  };
-
-  const handleSubmit = async () => {
-    const { isValid, hasErrors } = performValidation();
-
-    if (!isValid || hasErrors) {
-      setShowValidationMessage(true);
-      return;
-    }
-
-    const allQuestions = pages.flatMap(page =>
-      getAllQuestionsRecursively(page.questions)
-    );
-
-    const result = await submitOnboardingAnswers(answers, userType, token!, allQuestions);
+  const onSubmit = async () => {
+    const result = await handleSubmit(userType, token);
 
     if (result.success) {
-      alert('Congrats! Your profile is ready!')
+      alert('Congrats! Your profile is ready!');
       console.log('Done, you can check your profile through Django admin now');
       router.push('/home');
     } else {
-      const errorMsg = `Submission failed: ${result.error || 'Unknown error'}`;
-      alert(errorMsg);
-      console.error(errorMsg);
+      setShowValidationMessage(true);
+      if (result.error && result.error !== 'Please complete all required information') {
+        const errorMsg = `Submission failed: ${result.error}`;
+        alert(errorMsg);
+        console.error(errorMsg);
+      }
     }
   };
 
@@ -153,7 +105,7 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
         {!page.follow_by ? (
           <Button
             colorScheme="blue"
-            onClick={handleSubmit}
+            onClick={onSubmit}
             disabled={hasAttemptedValidation && hasFieldErrors}
           >
             Submit
@@ -161,7 +113,7 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
         ) : (
           <Button
             colorScheme="blue"
-            onClick={handleNext}
+            onClick={onNext}
             disabled={hasAttemptedValidation && hasFieldErrors}
           >
             Next

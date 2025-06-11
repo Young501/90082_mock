@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { API_ENDPOINTS, apiRequest } from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { submitOnboardingAnswers } from './utils';
 
 // ==== Define Type ====
 
@@ -36,11 +37,6 @@ type AnswerMap = {
   [field: string]: AnswerValue;
 };
 
-export type ValidationResult = {
-  isValid: boolean;
-  missingFields: Question[];
-};
-
 type OnboardingContextType = {
   currentPageId: number;
   pages: Page[];
@@ -51,16 +47,11 @@ type OnboardingContextType = {
   hasAttemptedValidation: boolean;
   fieldErrors: { [field: string]: string[] };
   setAnswer: (_field: string, _value: AnswerValue) => void;
-  goToNextPage: () => void;
   goToPreviousPage: () => void;
-  goToPage: (_id: number) => void;
-  validateCurrentPage: () => ValidationResult;
-  setHasAttemptedValidation: (_value: boolean) => void;
-  setFieldErrors: (_errors: { [field: string]: string[] }) => void;
-  validateField: (_field: string, _value: AnswerValue, _question: Question) => string[];
-  getAllQuestionsFromPage: (_page: Page) => Question[];
-  findQuestionByField: (_field: string) => Question | undefined;
-  getAllQuestionsRecursively: (_questions: Question[]) => Question[];
+  handleNext: () => boolean;
+  handleSubmit: (
+    _userType: string,
+    _token: string) => Promise<{ success: boolean; error?: string }>;
   reset: () => void;
 };
 
@@ -160,6 +151,65 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
     });
   };
 
+  const validateCurrentPageAndSetErrors = (): { isValid: boolean; hasErrors: boolean } => {
+    if (!currentPage) return { isValid: true, hasErrors: false };
+
+    setHasAttemptedValidation(true);
+
+    const allQuestions = getAllQuestionsFromPage(currentPage);
+    let hasErrors = false;
+    const newFieldErrors: { [field: string]: string[] } = {};
+
+    allQuestions.forEach(question => {
+      const errors = validateField(question.field, answers[question.field], question);
+      newFieldErrors[question.field] = errors;
+      if (errors.length > 0) {
+        hasErrors = true;
+      }
+    });
+
+    setFieldErrors(newFieldErrors);
+
+    return {
+      isValid: !hasErrors,
+      hasErrors
+    };
+  };
+
+  const handleNext = (): boolean => {
+    const { isValid } = validateCurrentPageAndSetErrors();
+
+    if (!isValid) {
+      return false;
+    }
+
+    const page = pages.find(p => p.id === currentPageId);
+    if (page?.follow_by) {
+      setHasAttemptedValidation(false);
+      setFieldErrors({});
+      setCurrentPageId(page.follow_by);
+    }
+    return true;
+  };
+
+  const handleSubmit = async (
+    userType: string,
+    token: string
+  ): Promise<{ success: boolean; error?: string }> => {
+
+    const { isValid } = validateCurrentPageAndSetErrors();
+
+    if (!isValid) {
+      return { success: false, error: 'Please complete all required information' };
+    }
+
+    const allQuestions = pages.flatMap(page =>
+      getAllQuestionsRecursively(page.questions)
+    );
+
+    return await submitOnboardingAnswers(answers, userType, token, allQuestions);
+  };
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -221,15 +271,6 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
     }
   };
 
-  const goToNextPage = () => {
-    const page = pages.find(p => p.id === currentPageId);
-    if (page?.follow_by) {
-      setHasAttemptedValidation(false);
-      setFieldErrors({});
-      setCurrentPageId(page.follow_by);
-    }
-  };
-
   const goToPreviousPage = () => {
     const currentIndex = pages.findIndex(p => p.id === currentPageId);
     if (currentIndex > 0) {
@@ -239,36 +280,11 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
     }
   };
 
-  const goToPage = (targetId: number) => {
-    setCurrentPageId(targetId);
-  };
-
-  const validateCurrentPage = (): ValidationResult => {
-    if (!currentPage) return { isValid: true, missingFields: [] };
-
-    const allQuestions = getAllQuestionsFromPage(currentPage);
-
-    const missingFields = allQuestions.filter((q) => {
-      const val = answers[q.field];
-      return q.required &&
-        (val === undefined ||
-         val === '' ||
-         (Array.isArray(val) && val.length === 0) ||
-         (val instanceof File && !val));;
-    });
-
-    return {
-      isValid: missingFields.length === 0,
-      missingFields
-    };
-  };
-
   const reset = () => {
     setAnswers({});
     setPages([]);
     setCurrentPageId(-1);
   };
-
 
   const contextValue: OnboardingContextType = {
     currentPageId,
@@ -280,16 +296,9 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
     hasAttemptedValidation,
     fieldErrors,
     setAnswer,
-    goToNextPage,
     goToPreviousPage,
-    goToPage,
-    validateCurrentPage,
-    setHasAttemptedValidation,
-    setFieldErrors,
-    validateField,
-    getAllQuestionsFromPage,
-    findQuestionByField,
-    getAllQuestionsRecursively,
+    handleNext,
+    handleSubmit,
     reset
   };
 
