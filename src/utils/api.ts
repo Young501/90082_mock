@@ -42,12 +42,17 @@ export const API_ENDPOINTS = {
     url: `${BASE_URL}/api/v1/${userType}`,
     auth: true,
   }),
+  FILE_UPLOAD: (endpoint: string):ApiEndpoint => ({
+    method: 'POST',
+    url: `${BASE_URL}/api/v1${endpoint}`,
+    auth: true,
+  }),
 };
 
 
 type ApiRequestParams = {
   endpoint: ApiEndpoint;
-  body?: object;
+  body?: object | FormData;
   token?: string;
   headers?: Record<string, string>;
 };
@@ -64,12 +69,14 @@ export async function apiRequest({
   const reqHeaders: Record<string, string> = {
     ...headers,
     ...(auth && token ? { Authorization: `Token ${token}` } : {}),
-    ...(body ? { 'Content-Type': 'application/json' } : {}),
+    ...(body && !(body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}),
   };
 
   return fetch(url, {
     method,
     headers: reqHeaders,
-    ...(body ? { body: JSON.stringify(body) } : {}),
+    ...(body ? {
+      body: body instanceof FormData ? body : JSON.stringify(body)
+    } : {}),
   });
 }
