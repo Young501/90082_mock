@@ -38,7 +38,7 @@ export default function Layout({
                 marginTop: "126px",
                 minHeight: "calc(100vh - 305px)",
                 overflow: "auto",
-                padding: "43px 82px 0 82px"
+                padding: "0 82px 0 82px"
             }}>
                 <Container maxW={containerMaxW} w="100%"
                     px={0}
