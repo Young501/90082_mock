@@ -66,7 +66,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(({
     if (labelStyle === "floating") {
         return (
             <Field.Root invalid={!!error}>
-                <Box position="relative">
+                <Box position="relative" w="100%">
                     <Text
                         position="absolute"
                         left={6}

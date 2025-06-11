@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Button, HStack } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Demo = () => {
   const [clicked, setClicked] = useState(false);
@@ -21,10 +23,16 @@ const router = useRouter();
       <Button colorScheme="blue" onClick={() => router.push("/home")}>
         Home
       </Button>
+      <Button colorScheme="blue" onClick={() => router.push("/signup")}>Sign Up</Button>
     </HStack>
   );
 };
 
 export default function HomePage() {
-  return <Demo />;
+  return (
+    <div>
+      <Demo />
+      <ToastContainer />
+    </div>
+  );
 }

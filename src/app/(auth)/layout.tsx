@@ -23,15 +23,22 @@ export default function Layout({
 
     return (
         <div style={{ minHeight: "100vh", position: "relative", width: "100%" }}>
+            <div style={{position:"relative", display: "block"}}>
             <Header />
+            </div>
+
             <div style={{ 
                 padding: 0, 
-                height: "100%", 
-                display: "flex", 
+                height: "100%",
+                minHeight: "calc(100vh - 125px)",
+                display: "flex",
+                marginTop: "126px",
                 flexDirection: "column",
-                paddingTop: "80px"
+                paddingTop: "43px",
+                position: "relative",
+                width: "100%"
             }}>
-                <Container maxW={containerMaxW} p={0} h="100%" style={{ flex: 1 }}>
+                <Container maxW={containerMaxW} px={138} h="100%" style={{ flex: 1 }}>
                     {children}
                 </Container>
                 <Footer />

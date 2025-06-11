@@ -1,0 +1,185 @@
+"use client"
+
+import { useState } from "react"
+import {
+    Box,
+    Heading,
+    VStack,
+    Text,
+    Flex,
+    HStack,
+       
+    
+} from "@chakra-ui/react"
+
+import { useAuth, useSignup } from "@/api"
+import { useRouter } from "next/navigation"
+import { InputField, Button } from "@/components/ui"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { loginSchema, LoginFormData } from "../validation"
+import { toast } from "react-toastify"
+import Image from "next/image"
+
+ const SignupPage = () => {
+    const router = useRouter()
+    const { user, token } = useAuth()
+    const userType = user?.user_types?.[0]
+
+    const [isLoading, setIsLoading] = useState(false)
+
+    const signupMutation = useSignup()
+
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isValid },
+        watch,
+        setError,
+        reset,
+    } = useForm<LoginFormData>({
+        resolver: zodResolver(loginSchema),
+        mode: "onChange",
+    })
+
+    const emailValue = watch("email")
+
+
+    const onSubmit = async (data: LoginFormData) => {
+        try {
+            setIsLoading(true)
+            
+            await signupMutation.mutateAsync({
+                ...data,
+                user_types: userType ? [userType] : [],
+            })
+                toast.success("")
+                reset()
+                router.push("/email-verification")
+        } catch (error: any) {
+            toast.error(error.message)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+
+    return (
+        <div style={{ width: "100%", height: "100%" }}>
+            
+          <Flex
+            h={{ base: "auto", lg: "calc(100vh - 306px)" }}
+                w="100%"
+                position="relative"
+                overflow="hidden"
+                    align="center"
+                    justify="space-between"
+                    gap={{ base: 8, lg: 16 }}
+            direction={{ base: "column", lg: "row" }}
+                >
+                    <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        minW={{ base: "auto", lg: "200px" }}
+                    >
+                        <Image
+                            src="/assets/mini-logo.png"
+                            alt="logo"
+                            style={{ objectFit: "contain" }}
+                            width={124}
+                            height={124}
+                        />
+                    </Box>
+
+                    <Box
+                        w={{ base: "100%", md: "400px" }}
+                        maxW="400px"
+                        
+                    >
+                        <form onSubmit={handleSubmit(onSubmit)} autoComplete="on">
+                            <VStack align="stretch" gap={4}>
+                                <Heading
+                                    fontSize={{ base: "24px", md: "28px" }}
+                                    fontWeight="600"
+                                    textAlign="center"
+                                    mb={2}
+                                    color="#282F68"
+                                >
+                                    Login and Register
+                                </Heading>
+
+                                <InputField
+                                    label="EMAIL"
+                                    type="email"
+                                    autoComplete="email"
+                                    error={errors.email?.message}
+                                    labelStyle="floating"
+                                    {...register("email")}
+                                    value={emailValue || ""}
+                                />
+
+
+                                <Button
+                                    type="submit"
+                                    bg="#282F68"
+                                    color="#A2DDF0"
+                                    disabled={ signupMutation.isPending || isLoading}
+                                    isLoading={isLoading}
+                                    w="100%"
+                                    fontSize="20px"
+                                    fontWeight="400"
+                                >
+                                    SIGN UP
+                                </Button>
+
+                                <HStack my={4} justify="center">
+                                    <Text
+                                        fontSize="16px"
+                                        color="#000000"
+                                        fontWeight="700"
+                                        whiteSpace="nowrap"
+                                    >
+                                        OR
+                                    </Text>
+                                </HStack>
+
+                                <Button
+                                    type="button"
+                                    bg="#282F68"
+                                    color="#A2DDF0"
+                                    w="100%"
+                                    fontSize="20px"
+                                    fontWeight="400"
+                                >
+                                    @ |
+                                     CONNECT WITH UNIVERSITY ID
+                                </Button>
+
+                                <HStack justify="center" align="center" mt={4} gap={3}>
+                                    <Text fontSize="20px" fontWeight="700" color="#000000">
+                                        Already have a profile?
+                                    </Text>
+                                    <Button
+                                        variant="ghost"
+                                        p={0}
+                                        h="auto"
+                                        fontSize="20px"
+                                        color="#282F68"
+                                        fontWeight="700"
+                                    >
+                                        Login
+                                    </Button>
+                                </HStack>
+
+                                
+                            </VStack>
+                        </form>
+                    </Box>
+                </Flex>
+        </div>
+    )
+}
+
+export default SignupPage

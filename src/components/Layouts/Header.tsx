@@ -17,7 +17,7 @@ const Header = () => {
     const isMobile = useBreakpointValue({ base: true, md: false })
 
   return (
-      <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000 }}>
+      <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, width: "100%", maxHeight: "126px" }}>
           <Box
                     bg="rgba(255, 255, 255, 0.91)"
                     h="126px"
