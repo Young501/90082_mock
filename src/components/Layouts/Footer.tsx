@@ -1,6 +1,7 @@
 import { Box, Text, VStack } from "@chakra-ui/react"
 import React from "react"
 import Logo from "../Logo"
+import Image from "next/image"
 
 const Footer = () => {
     return (
@@ -22,7 +23,7 @@ const Footer = () => {
                 </Text>
             </VStack>
 
-            <Logo variant="footer" width="300px" height="80px" />
+            <Image alt="logo" src="/uni.png" width={300} height={80} />
         </Box>
     )
 }
