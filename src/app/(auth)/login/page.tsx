@@ -114,9 +114,6 @@ export default function LoginPage() {
 
     return (
         <div style={{ width: "100%", height: "100%" }}>   
-       
-            
-
                 <Flex
                     h={{ base: "auto", lg: "calc(100vh - 306px)" }}
                     w="100%"
@@ -125,12 +122,13 @@ export default function LoginPage() {
                     flex={1}
                     align="center"
                     justify="flex-end"
-                    zIndex={2}
+                zIndex={2}
+                px="0"
                 >
                     {!isMobile && (
                         <Box
                             position="absolute"
-                            left={{ base: "-100px"}}
+                            left={0}
                             top="0"
                             w={{ base: "600px", xl: "704px" }}
                             h="100%"
@@ -140,7 +138,7 @@ export default function LoginPage() {
                                 src="/assets/login-illustration.png"
                                 fill
                                 alt="UniConnected illustration"
-                                style={{ objectFit: "cover", objectPosition: "center" }}
+                                style={{ objectFit: "cover", objectPosition: "center", }}
                             />
                         </Box>
                     )}

@@ -22,27 +22,33 @@ export default function Layout({
     const containerMaxW = useBreakpointValue({ base: "100%", lg: maxWidth })
 
     return (
-        <div style={{ minHeight: "100vh", position: "relative", width: "100%" }}>
-            <div style={{position:"relative", display: "block"}}>
+        <div style={{ 
+            minHeight: "100vh", 
+            display: "flex", 
+            flexDirection: "column",
+            position: "relative",
+            width: "100%"
+        }}>
             <Header />
-            </div>
-
+            
             <div style={{ 
-                padding: 0, 
-                height: "100%",
-                minHeight: "calc(100vh - 125px)",
+                flex: 1,
                 display: "flex",
-                marginTop: "126px",
                 flexDirection: "column",
-                paddingTop: "43px",
-                position: "relative",
-                width: "100%"
+                marginTop: "126px",
+                minHeight: "calc(100vh - 305px)",
+                overflow: "auto",
+                padding: "0 169px 0 138px"
             }}>
-                <Container maxW={containerMaxW} px={138} h="100%" style={{ flex: 1 }}>
+                <Container maxW={containerMaxW} 
+                                    px={0}
+
+                    style={{ flex: 1 }}>
                     {children}
                 </Container>
-                <Footer />
             </div>
+
+            <Footer />
         </div>
     )
 }

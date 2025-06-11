@@ -176,20 +176,19 @@ export default function WelcomePage() {
     return (
         <Box
             display={["block", "block", "block", "flex"]}
-            justifyContent={"center"}
+            // justifyContent={"center"}
             flexDirection={"column"}
             w="100%"
             h="inherit"
             m={"auto"}
+            px="0"
             overflowY="auto"
         >
             <Flex
                 direction={{ base: "column", lg: "row" }}
                 align="center"
                 justify="space-between"
-                py={{ base: 4, md: 8, lg: 12 }}
-                px={{ base: 4, md: 6, lg: 8 }}
-                gap={{ base: 6, md: 8, lg: 12 }}
+                // gap={{ base: 6, md: 8 }}
                 flex="1"
             >
                 <VStack
