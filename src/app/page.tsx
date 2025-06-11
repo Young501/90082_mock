@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { Button, HStack } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
 
 const Demo = () => {
   const [clicked, setClicked] = useState(false);
-
+const router = useRouter();
   return (
     <HStack>
       <Button onClick={() => setClicked(!clicked)}>
@@ -13,6 +14,12 @@ const Demo = () => {
       </Button>
       <Button colorScheme="blue" onClick={() => alert('Hello from Chakra!')}>
         Alert!
+      </Button>
+      <Button colorScheme="blue" onClick={() => router.push("/welcome")}>
+        Welcome
+      </Button>
+      <Button colorScheme="blue" onClick={() => router.push("/home")}>
+        Home
       </Button>
     </HStack>
   );

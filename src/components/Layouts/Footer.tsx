@@ -5,6 +5,7 @@ import Image from "next/image"
 
 const Footer = () => {
     return (
+        <div style={{ marginTop: "auto", width: "100%", }}> 
         <Box
             bg="#002157"
             h="180px"
@@ -25,6 +26,7 @@ const Footer = () => {
 
             <Image alt="logo" src="/uni.png" width={300} height={80} />
         </Box>
+        </div>
     )
 }
 
