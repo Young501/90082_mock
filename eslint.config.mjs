@@ -25,9 +25,9 @@ const eslintConfig = [
   {
     rules: {
       // Indentation
-      indent: ['error', 2],
+      indent: ['error', 2, 4],
       // Quote style
-      quotes: ['error', 'single'],
+      quotes: ['error', 'single', 'double'],
 
       // No unused variables
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
