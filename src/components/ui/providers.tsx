@@ -31,6 +31,7 @@ export default function Providers({ children }: { children: ReactNode }) {
         <NextThemeProvider
           attribute="class"
           defaultTheme="light"
+          forcedTheme="light"
           disableTransitionOnChange
         >
           {children}
