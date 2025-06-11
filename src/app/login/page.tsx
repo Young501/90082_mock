@@ -1,55 +1,51 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import {
     Box,
     Heading,
     VStack,
-    Button,
     Text,
-    Spinner,
-    Input,
-    Field,
-    InputGroup,
-    IconButton,
+    Flex,
+    HStack,
+    useBreakpointValue,
 } from "@chakra-ui/react"
-
-import { Eye, EyeOff } from "lucide-react"
 import { useAuth, useLogin, useSignup, usePasswordReset } from "@/api"
 import { checkOnboardingStatus } from "@/app/onboarding/utils"
 import { useRouter } from "next/navigation"
-
-const validateEmail = (email: string): string => {
-    if (!email) return ""
-    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return EMAIL_REGEX.test(email) ? "" : "Invalid email format"
-}
-
-const validatePassword = (password: string): string => {
-    if (!password) return ""
-    return password.length < 8 ? "Password must be at least 8 characters" : ""
-}
+import { InputField, Button } from "@/components/ui"
+import Image from "next/image"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { loginSchema, LoginFormData } from "./validation"
 
 export default function LoginPage() {
     const router = useRouter()
     const { user, token } = useAuth()
     const userType = user?.user_types?.[0]
 
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
-    const [emailErr, setEmailErr] = useState("")
-    const [pwdErr, setPwdErr] = useState("")
     const [successMsg, setSuccessMsg] = useState("")
 
     const loginMutation = useLogin()
     const signupMutation = useSignup()
     const passwordResetMutation = usePasswordReset()
 
-    const isFormValid = !emailErr && !pwdErr && email && password
+    const isMobile = useBreakpointValue({ base: true, lg: false })
 
-    useEffect(() => setEmailErr(validateEmail(email)), [email])
-    useEffect(() => setPwdErr(validatePassword(password)), [password])
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isValid },
+        watch,
+        setError,
+    } = useForm<LoginFormData>({
+        resolver: zodResolver(loginSchema),
+        mode: "onChange",
+    })
+
+    const emailValue = watch("email")
+    const passwordValue = watch("password")
 
     const handleOnboardingCheck = async () => {
         const result = await checkOnboardingStatus(user!, token!)
@@ -60,36 +56,43 @@ export default function LoginPage() {
         }
     }
 
-    const handleLogin = async () => {
+    const onSubmit = async (data: LoginFormData) => {
         try {
-            await loginMutation.mutateAsync({ email, password })
+            await loginMutation.mutateAsync(data)
             setSuccessMsg("Login successful!")
             handleOnboardingCheck()
-        } catch (error) {}
+        } catch (error: any) {
+            if (error.message?.includes("email")) {
+                setError("email", { message: error.message })
+            } else if (error.message?.includes("password")) {
+                setError("password", { message: error.message })
+            }
+        }
     }
 
-    const handleSignup = async () => {
+    const handleSignup = async (data: LoginFormData) => {
         try {
             await signupMutation.mutateAsync({
-                email,
-                password,
+                ...data,
                 user_types: userType ? [userType] : [],
             })
             setSuccessMsg("Signup successful!")
-        } catch (error) {}
+        } catch (error: any) {
+            if (error.message?.includes("email")) {
+                setError("email", { message: error.message })
+            } else if (error.message?.includes("password")) {
+                setError("password", { message: error.message })
+            }
+        }
     }
 
     const handleForgotPassword = async () => {
-        if (!email) {
-            return
-        }
-
-        if (emailErr) {
+        if (!emailValue || errors.email) {
             return
         }
 
         try {
-            await passwordResetMutation.mutateAsync({ email })
+            await passwordResetMutation.mutateAsync({ email: emailValue })
             setSuccessMsg("Password reset email sent! Please check your inbox.")
         } catch (error) {}
     }
@@ -101,118 +104,149 @@ export default function LoginPage() {
         ""
 
     return (
-        <Box maxW="420px" mx="auto" mt={12} p={8} borderWidth={1} rounded="lg">
-            <Heading size="lg" mb={6}>
-                Login / Sign Up
-            </Heading>
-            {userType && (
-                <Text fontSize="md" mb={2} color="gray.600">
-                    You're signing up as a <strong>{userType}</strong>
-                </Text>
+        <Flex
+            h={{ base: "auto", lg: "calc(100vh - 306px)" }}
+            w="100%"
+            position="relative"
+            overflow="hidden"
+        >
+            {!isMobile && (
+                <Box
+                    position="absolute"
+                    left={{ base: "-100px", xl: "90px" }}
+                    top="0"
+                    w={{ base: "600px", xl: "704px" }}
+                    h="100%"
+                    zIndex={1}
+                >
+                    <Image
+                        src="/assets/login-illustration.png"
+                        fill
+                        alt="UniConnected illustration"
+                        style={{ objectFit: "cover", objectPosition: "center" }}
+                    />
+                </Box>
             )}
 
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault()
-                    handleLogin()
-                }}
-                autoComplete="on"
+            <Flex
+                flex={1}
+                align="center"
+                justify={{ base: "center", lg: "flex-end" }}
+                px={{ base: 4, md: 8, lg: 12 }}
+                position="relative"
+                zIndex={2}
             >
-                <VStack align="stretch" gap={4}>
-                    <Field.Root id="email" invalid={!!emailErr}>
-                        <Field.Label>Email</Field.Label>
-                        <Input
-                            type="email"
-                            name="email"
-                            autoComplete="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="you@example.com"
-                        />
-                        <Field.ErrorText>{emailErr}</Field.ErrorText>
-                    </Field.Root>
+                <Box
+                    w={{ base: "100%", md: "500px", lg: "450px" }}
+                    maxW="450px"
+                    mr={{ base: 0, lg: "140px", xl: "170px" }}
+                    py={{ base: 8, lg: 0 }}
+                >
+                    <form onSubmit={handleSubmit(onSubmit)} autoComplete="on">
+                        <VStack align="stretch" gap={6}>
+                            <Heading
+                                fontSize={{ base: "28px", md: "31px" }}
+                                fontWeight="700"
+                                color="black"
+                                textAlign="center"
+                                mb={4}
+                            >
+                                Login
+                            </Heading>
 
-                    <Field.Root id="password" invalid={!!pwdErr}>
-                        <Field.Label>Password</Field.Label>
-                        <InputGroup
-                            endElement={
-                                <IconButton
-                                    variant="ghost"
-                                    size="sm"
-                                    aria-label={
-                                        showPassword
-                                            ? "Hide password"
-                                            : "Show password"
-                                    }
-                                    title={
-                                        showPassword
-                                            ? "Hide password"
-                                            : "Show password"
-                                    }
-                                    onClick={() =>
-                                        setShowPassword(!showPassword)
-                                    }
+                            {userType && (
+                                <Text
+                                    fontSize="16px"
+                                    mb={2}
+                                    color="gray.600"
+                                    textAlign="center"
                                 >
-                                    {showPassword ? <EyeOff /> : <Eye />}
-                                </IconButton>
-                            }
-                        >
-                            <Input
-                                type={showPassword ? "text" : "password"}
-                                name="password"
-                                autoComplete="current-password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="********"
+                                    You're signing up as a{" "}
+                                    <strong>{userType}</strong>
+                                </Text>
+                            )}
+
+                            <InputField
+                                label="EMAIL"
+                                type="email"
+                                autoComplete="email"
+                                error={errors.email?.message}
+                                labelStyle="floating"
+                                {...register("email")}
+                                value={emailValue || ""}
                             />
-                        </InputGroup>
-                        <Field.ErrorText>{pwdErr}</Field.ErrorText>
-                    </Field.Root>
 
-                    <Button
-                        type="submit"
-                        disabled={!isFormValid || loginMutation.isPending}
-                        width="100%"
-                    >
-                        {loginMutation.isPending ? (
-                            <Spinner size="sm" />
-                        ) : (
-                            "Login"
-                        )}
-                    </Button>
+                            <InputField
+                                label="PASSWORD"
+                                autoComplete="current-password"
+                                error={errors.password?.message}
+                                showPasswordToggle
+                                showPassword={showPassword}
+                                onTogglePassword={() =>
+                                    setShowPassword(!showPassword)
+                                }
+                                labelStyle="floating"
+                                {...register("password")}
+                                value={passwordValue || ""}
+                            />
 
-                    <Button
-                        onClick={handleSignup}
-                        disabled={!isFormValid || signupMutation.isPending}
-                        width="100%"
-                    >
-                        {signupMutation.isPending ? (
-                            <Spinner size="sm" />
-                        ) : (
-                            "Sign Up"
-                        )}
-                    </Button>
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                disabled={!isValid || loginMutation.isPending}
+                                isLoading={loginMutation.isPending}
+                                w="100%"
+                                mt={4}
+                            >
+                                LOGIN
+                            </Button>
 
-                    {successMsg && <Text color="green.500">{successMsg}</Text>}
-                    {errorMsg && <Text color="red.500">{errorMsg}</Text>}
-                </VStack>
-            </form>
+                            {/* <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={handleSubmit(handleSignup)}
+                                disabled={!isValid || signupMutation.isPending}
+                                isLoading={signupMutation.isPending}
+                                w="100%"
+                            >
+                                SIGN UP
+                            </Button> */}
 
-            <Button
-                variant="ghost"
-                onClick={handleForgotPassword}
-                disabled={
-                    passwordResetMutation.isPending || !email || !!emailErr
-                }
-                width="100%"
-                mt={2}
-            >
-                {passwordResetMutation.isPending ? (
-                    <Spinner size="sm" />
-                ) : (
-                    "Forgot Password?"
-                )}
-            </Button>
-        </Box>
+                            <HStack justify="center" gap={1} mt={4}>
+                                <Text fontSize="20px" color="black">
+                                    forgot password?
+                                </Text>
+                                <Button
+                                    variant="ghost"
+                                    onClick={handleForgotPassword}
+                                    disabled={
+                                        passwordResetMutation.isPending ||
+                                        !emailValue ||
+                                        !!errors.email
+                                    }
+                                    isLoading={passwordResetMutation.isPending}
+                                    p={0}
+                                    h="auto"
+                                    fontSize="20px"
+                                >
+                                    reset here
+                                </Button>
+                            </HStack>
+
+                            {successMsg && (
+                                <Text color="green.500" textAlign="center">
+                                    {successMsg}
+                                </Text>
+                            )}
+                            {errorMsg && (
+                                <Text color="red.500" textAlign="center">
+                                    {errorMsg}
+                                </Text>
+                            )}
+                        </VStack>
+                    </form>
+                </Box>
+            </Flex>
+        </Flex>
     )
 }
