@@ -3,6 +3,7 @@
 import { User } from '@/types/user';
 import { API_ENDPOINTS, apiRequest } from '@/utils/api';
 import { AnswerValue, Question } from './OnboardingContext';
+import { uploadFile } from '@/utils/fileUpload';
 
 export type OnboardingStatus =
   | 'needs_onboarding'
@@ -59,25 +60,6 @@ export const checkOnboardingStatus = async (
   }
 }
 
-
-const uploadFile = async (file: File, endpoint: string, token: string): Promise<boolean> => {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  try {
-    const response = await apiRequest({
-      endpoint: API_ENDPOINTS.FILE_UPLOAD(endpoint),
-      token: token,
-      body: formData
-    });
-
-    return response.ok;
-  } catch (error) {
-    console.error('File upload failed:', error);
-    return false;
-  }
-};
-
 export const submitOnboardingAnswers = async (
   answers: AnswerMap,
   userType: string,
@@ -101,25 +83,42 @@ export const submitOnboardingAnswers = async (
     });
 
     if (!res.ok) {
-      const text = await res.text();
-      return { success: false, error: text };
+      try {
+        const errorData = await res.json();
+        const errorMessage = errorData.error || errorData.detail || 'Failed to create profile';
+        return { success: false, error: errorMessage };
+      } catch {
+        return { success: false, error: 'Failed to create profile' };
+      }
     }
+
+    const failedUploads: string[] = [];
 
     for (const [field, value] of Object.entries(answers)) {
       if (value instanceof File) {
         const question = allQuestions.find(q => q.field === field);
         if (question?.upload_endpoint) {
-          const uploadSuccess = await uploadFile(value, question.upload_endpoint, token);
-          if (!uploadSuccess) {
-            return { success: false, error: `Failed to upload ${question.label}` };
+          const result = await uploadFile(value, question.upload_endpoint, token);
+          if (!result.success) {
+            failedUploads.push(`${question.label}: ${result.error}`);
           }
         }
       }
     }
 
+    if (failedUploads.length > 0) {
+      const errorMsg = [
+        'Profile created successfully, but some files failed to upload:',
+        '',
+        failedUploads.join('\n'),
+        '',
+        'You can upload these files later in your profile page.'
+      ].join('\n');
+      return { success: true, error: errorMsg };
+    }
+
     return { success: true };
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-    return { success: false, error: errorMessage };
+    return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
   }
 };
