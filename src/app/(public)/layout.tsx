@@ -42,7 +42,10 @@ export default function Layout({
             }}>
                 <Container maxW={containerMaxW} w="100%"
                     px={0}
-                    style={{ flex: 1 }}>
+                    style={{ flex: 1 }}
+                    justifyContent="center"
+                    display="flex"
+                >
                     {children}
                 </Container>
             </div>
