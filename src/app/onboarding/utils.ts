@@ -1,10 +1,9 @@
 // src/utils/onboarding.ts
 
 import { User } from '@/types/user';
-import { API_ENDPOINTS, apiRequest } from '@/utils/api';
 import { AnswerValue, Question } from './OnboardingContext';
 import { uploadFile } from '@/utils/fileUpload';
-import { apiClient } from '@/api';
+import { API_ENDPOINTS, apiClient, apiRequest } from '@/api';
 
 export type OnboardingStatus =
     | "needs_onboarding"

@@ -14,9 +14,7 @@ import { motion, AnimatePresence, scale } from "framer-motion"
 import { ChevronLeft } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import Logo from "@/components/Logo"
-import AuthLayout from "@/components/Layouts/AuthLayout"
-import { useUserTypes, setUserType } from "@/api"
+import { setUserType } from "@/api"
 import Image from "next/image"
 
 const MotionBox = motion.create(Box)
