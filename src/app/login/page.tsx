@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import {
     Box,
     Heading,
@@ -13,92 +13,93 @@ import {
     InputGroup,
     IconButton,
 } from "@chakra-ui/react"
+import { useForm } from "react-hook-form"
+import { yupResolver } from "@hookform/resolvers/yup"
+import * as yup from "yup"
 
 import { Eye, EyeOff } from "lucide-react"
-import { useAuth, useLogin, useSignup, usePasswordReset } from "@/api"
-import { checkOnboardingStatus } from "@/app/onboarding/utils"
-import { useRouter } from "next/navigation"
+import { useOnboarding } from "@/hooks/onboarding"
 
-const validateEmail = (email: string): string => {
-    if (!email) return ""
-    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return EMAIL_REGEX.test(email) ? "" : "Invalid email format"
+interface FormData {
+    email: string
+    password: string
 }
 
-const validatePassword = (password: string): string => {
-    if (!password) return ""
-    return password.length < 8 ? "Password must be at least 8 characters" : ""
-}
+const validationSchema = yup.object({
+    email: yup
+        .string()
+        .required("Email is required")
+        .email("Invalid email format"),
+    password: yup
+        .string()
+        .required("Password is required")
+        .min(8, "Password must be at least 8 characters"),
+})
 
 export default function LoginPage() {
-    const router = useRouter()
-    const { user, token } = useAuth()
-    const userType = user?.user_types?.[0]
-
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
-    const [emailErr, setEmailErr] = useState("")
-    const [pwdErr, setPwdErr] = useState("")
     const [successMsg, setSuccessMsg] = useState("")
 
-    const loginMutation = useLogin()
-    const signupMutation = useSignup()
-    const passwordResetMutation = usePasswordReset()
+    const {
+        handleLogin,
+        handleSignup: onboardingSignup,
+        handleForgotPassword: onboardingForgotPassword,
+        isLoginLoading,
+        isSignupLoading,
+        isPasswordResetLoading,
+        user,
+        errorMsg,
+    } = useOnboarding()
 
-    const isFormValid = !emailErr && !pwdErr && email && password
+    const userType = user?.user_types?.[0]
 
-    useEffect(() => setEmailErr(validateEmail(email)), [email])
-    useEffect(() => setPwdErr(validatePassword(password)), [password])
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        watch,
+    } = useForm<FormData>({
+        resolver: yupResolver(validationSchema),
+        mode: "onSubmit",
+        defaultValues: {
+            email: "",
+            password: "",
+        },
+    })
 
-    const handleOnboardingCheck = async () => {
-        const result = await checkOnboardingStatus(user!, token!)
-        if (result.status === "needs_onboarding") {
-            router.push("/onboarding")
-        } else {
-            router.push("/home")
-        }
+    const email = watch("email")
+    const password = watch("password")
+
+    const onSubmitLogin = async (data: FormData) => {
+        await handleLogin({
+            email: data.email,
+            password: data.password,
+            callback: () => {
+                setSuccessMsg("Login successful!")
+            },
+        })
     }
 
-    const handleLogin = async () => {
-        try {
-            await loginMutation.mutateAsync({ email, password })
-            setSuccessMsg("Login successful!")
-            handleOnboardingCheck()
-        } catch (error) {}
+    const onSubmitSignup = async (data: FormData) => {
+        await onboardingSignup({
+            email: data.email,
+            password: data.password,
+            user_types: userType ? [userType] : [],
+            callback: () => {
+                setSuccessMsg("Signup successful!")
+            },
+        })
     }
 
-    const handleSignup = async () => {
-        try {
-            await signupMutation.mutateAsync({
-                email,
-                password,
-                user_types: userType ? [userType] : [],
-            })
-            setSuccessMsg("Signup successful!")
-        } catch (error) {}
-    }
-
-    const handleForgotPassword = async () => {
+    const handleForgotPasswordClick = async () => {
         if (!email) {
             return
         }
 
-        if (emailErr) {
-            return
-        }
-
-        try {
-            await passwordResetMutation.mutateAsync({ email })
-            setSuccessMsg("Password reset email sent! Please check your inbox.")
-        } catch (error) {}
+        await onboardingForgotPassword({
+            email,
+        })
     }
-
-    const errorMsg =
-        loginMutation.error?.message ||
-        signupMutation.error?.message ||
-        passwordResetMutation.error?.message ||
-        ""
 
     return (
         <Box maxW="420px" mx="auto" mt={12} p={8} borderWidth={1} rounded="lg">
@@ -111,28 +112,22 @@ export default function LoginPage() {
                 </Text>
             )}
 
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault()
-                    handleLogin()
-                }}
-                autoComplete="on"
-            >
+            <form onSubmit={handleSubmit(onSubmitLogin)} autoComplete="on">
                 <VStack align="stretch" gap={4}>
-                    <Field.Root id="email" invalid={!!emailErr}>
+                    <Field.Root id="email" invalid={!!errors.email}>
                         <Field.Label>Email</Field.Label>
                         <Input
                             type="email"
-                            name="email"
                             autoComplete="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
                             placeholder="you@example.com"
+                            {...register("email")}
                         />
-                        <Field.ErrorText>{emailErr}</Field.ErrorText>
+                        <Field.ErrorText>
+                            {errors.email?.message}
+                        </Field.ErrorText>
                     </Field.Root>
 
-                    <Field.Root id="password" invalid={!!pwdErr}>
+                    <Field.Root id="password" invalid={!!errors.password}>
                         <Field.Label>Password</Field.Label>
                         <InputGroup
                             endElement={
@@ -159,38 +154,30 @@ export default function LoginPage() {
                         >
                             <Input
                                 type={showPassword ? "text" : "password"}
-                                name="password"
                                 autoComplete="current-password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
                                 placeholder="********"
+                                {...register("password")}
                             />
                         </InputGroup>
-                        <Field.ErrorText>{pwdErr}</Field.ErrorText>
+                        <Field.ErrorText>
+                            {errors.password?.message}
+                        </Field.ErrorText>
                     </Field.Root>
 
                     <Button
                         type="submit"
-                        disabled={!isFormValid || loginMutation.isPending}
+                        disabled={isLoginLoading}
                         width="100%"
                     >
-                        {loginMutation.isPending ? (
-                            <Spinner size="sm" />
-                        ) : (
-                            "Login"
-                        )}
+                        {isLoginLoading ? <Spinner size="sm" /> : "Login"}
                     </Button>
 
                     <Button
-                        onClick={handleSignup}
-                        disabled={!isFormValid || signupMutation.isPending}
+                        onClick={handleSubmit(onSubmitSignup)}
+                        disabled={isSignupLoading}
                         width="100%"
                     >
-                        {signupMutation.isPending ? (
-                            <Spinner size="sm" />
-                        ) : (
-                            "Sign Up"
-                        )}
+                        {isSignupLoading ? <Spinner size="sm" /> : "Sign Up"}
                     </Button>
 
                     {successMsg && <Text color="green.500">{successMsg}</Text>}
@@ -200,14 +187,12 @@ export default function LoginPage() {
 
             <Button
                 variant="ghost"
-                onClick={handleForgotPassword}
-                disabled={
-                    passwordResetMutation.isPending || !email || !!emailErr
-                }
+                onClick={handleForgotPasswordClick}
+                disabled={isPasswordResetLoading || !email || !!errors.email}
                 width="100%"
                 mt={2}
             >
-                {passwordResetMutation.isPending ? (
+                {isPasswordResetLoading ? (
                     <Spinner size="sm" />
                 ) : (
                     "Forgot Password?"

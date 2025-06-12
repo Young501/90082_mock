@@ -13,11 +13,12 @@ type FollowupQuestionMap = {
 export type Question = {
   field: string;
   label: string;
-  type: 'text' | 'select' | 'url' | 'multi-select';
+  type: 'text' | 'select' | 'url' | 'multi-select' | 'file';
   required?: boolean;
   options?: string[];
   option?: string[];
   followup_question?: FollowupQuestionMap;
+  upload_endpoint?: string;
 };
 
 export type Page = {
@@ -27,7 +28,7 @@ export type Page = {
   follow_by?: number;
 };
 
-export type AnswerValue = string | number | string[] | undefined;
+export type AnswerValue = string | number | string[] | File | undefined;
 
 type AnswerMap = {
   [field: string]: AnswerValue;
@@ -96,7 +97,7 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
     }
   }, [userType, pages, currentPageId, router, isMounted]);
 
-  const setAnswer = (field: string, value: string | number | string[] | undefined) => {
+  const setAnswer = (field: string, value: string | number | string[] | File | undefined) => {
     setAnswers(prev => ({ ...prev, [field]: value }));
   };
 
@@ -147,7 +148,10 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
     const missingFields = allQuestions.filter((q) => {
       const val = answers[q.field];
       return q.required &&
-        (val === undefined || val === '' || (Array.isArray(val) && val.length === 0));
+        (val === undefined ||
+         val === '' ||
+         (Array.isArray(val) && val.length === 0) ||
+         (val instanceof File && !val));;
     });
 
     return {
