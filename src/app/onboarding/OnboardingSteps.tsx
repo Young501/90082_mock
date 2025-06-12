@@ -1,10 +1,11 @@
 'use client';
 
 import { Progress, Box, Button, Heading, Text } from '@chakra-ui/react';
+import { Alert } from '@chakra-ui/react';
 import { useOnboarding } from '@/app/onboarding/OnboardingContext';
 import { FieldRenderer } from './FieldRenderer';
-import { submitOnboardingAnswers } from './utils';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 type Props = {
   userType: string;
@@ -16,53 +17,46 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
     pages,
     currentPageId,
     answers,
+    hasAttemptedValidation,
+    fieldErrors,
     setAnswer,
-    goToNextPage,
     goToPreviousPage,
-    validateCurrentPage
+    handleNext,
+    handleSubmit
   } = useOnboarding();
-  const router = useRouter();
 
+  const router = useRouter();
+  const [showValidationMessage, setShowValidationMessage] = useState(false);
 
   const page = pages.find(p => p.id === currentPageId);
   const currentPageIndex = pages.findIndex(p => p.id === currentPageId);
   const progressPercent = pages.length > 0 ? ((currentPageIndex + 1) / pages.length) * 100 : 0;
 
-  const handleValidation = () => {
-    const validation = validateCurrentPage();
-
-    if (!validation.isValid) {
-      const missingLabels = validation.missingFields.map(f => '• ' + f.label).join('\n');
-      const errorMsg = `Please fill all required fields:\n\n${missingLabels}`;
-      alert(errorMsg);
-      return false;
-    }
-    return true;
+  const onNext = () => {
+    const success = handleNext();
+    setShowValidationMessage(!success);
   };
 
-  const handleNext = () => {
-    if (handleValidation()) {
-      goToNextPage();
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (!handleValidation()) return;
-
-    const result = await submitOnboardingAnswers(answers, userType, token!);
+  const onSubmit = async () => {
+    const result = await handleSubmit(userType, token);
 
     if (result.success) {
-      alert('Congrats! Your profile is ready!')
+      alert('Congrats! Your profile is ready!');
       console.log('Done, you can check your profile through Django admin now');
       router.push('/home');
     } else {
-      const errorMsg = `Submission failed: ${result.error || 'Unknown error'}`;
-      alert(errorMsg);
-      console.error(errorMsg);
+      setShowValidationMessage(true);
+      if (result.error && result.error !== 'Please complete all required information') {
+        const errorMsg = `Submission failed: ${result.error}`;
+        alert(errorMsg);
+        console.error(errorMsg);
+      }
     }
   };
 
   if (!page) return <Text>No onboarding page found.</Text>;
+
+  const hasFieldErrors = Object.values(fieldErrors).some(errors => errors.length > 0);
 
   return (
     <Box p={6}>
@@ -74,6 +68,10 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
           </Progress.Track>
         </Progress.Root>
       </Box>
+
+      <Text fontSize="sm" color="gray.600" mb={4}>
+        Required fields are marked with <Text as="span" color="red">*</Text>
+      </Text>
 
       <Heading size="md" mb={4}>
         {page.guide}
@@ -90,6 +88,13 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
         />
       ))}
 
+      {(showValidationMessage && (hasAttemptedValidation && hasFieldErrors)) && (
+        <Alert.Root status="error" mb={4}>
+          <Alert.Indicator />
+          <Alert.Title>Please complete all required information as indicated</Alert.Title>
+        </Alert.Root>
+      )}
+
       <Box mt={6} display="flex" justifyContent="space-between">
         {page.id !== 1 && (
           <Button onClick={goToPreviousPage}>
@@ -100,12 +105,17 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
         {!page.follow_by ? (
           <Button
             colorScheme="blue"
-            onClick={handleSubmit}
+            onClick={onSubmit}
+            disabled={hasAttemptedValidation && hasFieldErrors}
           >
             Submit
           </Button>
         ) : (
-          <Button colorScheme="blue" onClick={handleNext}>
+          <Button
+            colorScheme="blue"
+            onClick={onNext}
+            disabled={hasAttemptedValidation && hasFieldErrors}
+          >
             Next
           </Button>
         )}
