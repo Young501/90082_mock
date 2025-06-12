@@ -78,6 +78,7 @@ export const FileField = ({ question, value, onChange }: FieldProps) => {
         ref={fileInputRef}
         onChange={handleFileSelect}
         accept={config.accept}
+        id={question.field}
         style={{ display: 'none' }}
       />
 
