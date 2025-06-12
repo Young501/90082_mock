@@ -27,7 +27,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                     display="flex"
                     alignItems="center"
                     justifyContent="space-between"
-                    px={{ base: 4, lg: 8 }}
+                    px={{ base: 4, lg: 16 }}
                 >
                     <Image alt="logo" src="/uni.png" width={300} height={80} />
 
@@ -58,7 +58,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                       </Text>
                   </Link>
                   <Link href="/signup">
-                        <Image src={LinkIcon} alt="link" width={20} height={20} />
+                        <Image src={LinkIcon} alt="link" width={30} height={30} />
                   </Link>
                     </HStack>
                 </Box>)
