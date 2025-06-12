@@ -11,14 +11,60 @@ import { UserRound } from "lucide-react"
 import { ReactNode } from "react"
 import Link from "next/link"
 import Logo from "@/components/Logo"
+import Image from "next/image"
+import LinkIcon from "@/assets/LinkIcon.svg"
 // import {Link}
 
-const Header = () => {
+const Header = ({ isProtected }: { isProtected?: boolean }) => {
     const isMobile = useBreakpointValue({ base: true, md: false })
 
   return (
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, width: "100%", maxHeight: "126px" }}>
-          <Box
+          {isProtected ? 
+               (<Box
+                    bg="#002157"
+                    h="126px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    px={{ base: 4, lg: 8 }}
+                >
+                    <Image alt="logo" src="/uni.png" width={300} height={80} />
+
+                    <HStack gap={10} display={{ base: "none", md: "flex" }}>
+                  <Link href="/login">
+                        <Text fontSize="18px" fontWeight="700" color="white">
+                            SIGN IN
+                      </Text>
+                  </Link>
+                  <Link href="/home">
+                        <Text fontSize="18px" fontWeight="700" color="white">
+                            HOME
+                        </Text> 
+                      </Link>
+                      <Link href="/discover">
+                        <Text fontSize="18px" fontWeight="700" color="white">
+                        DISCOVER
+                          </Text>
+                  </Link>
+                  <Link href="/profile">
+                        <Text fontSize="18px" fontWeight="700" color="white">
+                            PROFILE
+                        </Text> 
+                      </Link>
+                      <Link href="/inbox">
+                        <Text fontSize="18px" fontWeight="700" color="white">
+                            INBOX
+                      </Text>
+                  </Link>
+                  <Link href="/signup">
+                        <Image src={LinkIcon} alt="link" width={20} height={20} />
+                  </Link>
+                    </HStack>
+                </Box>)
+            
+           : (
+            <Box
                     bg="rgba(255, 255, 255, 0.91)"
                     h="126px"
                     display="flex"
@@ -47,6 +93,9 @@ const Header = () => {
                   </Link>
                     </HStack>
                 </Box>
+           )
+           
+            }
     </div>
   )
 }

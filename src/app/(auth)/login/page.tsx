@@ -64,6 +64,7 @@ export default function LoginPage() {
             toast.success("Login successful!")
             handleOnboardingCheck()
             setIsLoading(false)
+            router.push("/home")
         } catch (error: any) {
             if (error.message?.includes("email")) {
                 setError("email", { message: error.message })
