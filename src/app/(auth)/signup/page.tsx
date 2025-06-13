@@ -39,7 +39,7 @@ const SignupPage = () => {
 
     useEffect(() => {
         if (!signupSelectedUserType) {
-            router.push("/user-type?login")
+            router.push("/user-type?signup=true")
         }
     }, [signupSelectedUserType, router])
 
