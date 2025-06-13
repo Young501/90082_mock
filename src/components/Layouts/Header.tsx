@@ -86,7 +86,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                             SIGN IN
                       </Text>
                   </Link>
-                  <Link href="/signup">
+                  <Link href="/user-type">
                         <Text fontSize="13px" fontWeight="700" color="black">
                             SIGN UP
                         </Text> 

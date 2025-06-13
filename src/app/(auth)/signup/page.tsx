@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
     Box,
     Heading,
@@ -8,10 +8,7 @@ import {
     Text,
     Flex,
     HStack,
-       
-    
 } from "@chakra-ui/react"
-
 import { useAuth, useSignup } from "@/api"
 import { useRouter } from "next/navigation"
 import { InputField, Button } from "@/components/ui"
@@ -21,6 +18,7 @@ import { toast } from "react-toastify"
 import Image from "next/image"
 import * as yup from "yup"
 import { useOnboarding } from "@/hooks/onboarding"
+import { useAuthStore } from "@/store/authStore"
 
 interface FormData {
     email: string
@@ -35,10 +33,15 @@ const validationSchema = yup.object({
 
 const SignupPage = () => {
     const router = useRouter()
-    const { user, token } = useAuth()
-    const userType = user?.user_types?.[0]
+    const signupSelectedUserType = useAuthStore(state => state.signupSelectedUserType)
     const [isLoading, setIsLoading] = useState(false)
     const { handleSignup } = useOnboarding()
+
+    useEffect(() => {
+        if (!signupSelectedUserType) {
+            router.push("/user-type?login")
+        }
+    }, [signupSelectedUserType, router])
 
     const {
         register,
@@ -63,7 +66,7 @@ const SignupPage = () => {
             await handleSignup({
                 email: data.email,
                 password: "",
-                user_types: userType ? [userType] : [],
+                user_types: signupSelectedUserType ? [signupSelectedUserType] : [],
                 callback: () => {
                     reset()
                     router.push("/email-verification")
