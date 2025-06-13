@@ -11,15 +11,13 @@ import Header from "@/components/Layouts/Header"
 
 interface AuthLayoutProps {
     children: ReactNode
-    maxWidth?: string
 }
 
 export default function Layout({
     children,
-    maxWidth = "1512px",
 }: AuthLayoutProps) {
     const isMobile = useBreakpointValue({ base: true, lg: false })
-    const containerMaxW = useBreakpointValue({ base: "100%", lg: maxWidth })
+    const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" })
 
     return (
        <div style={{ 
