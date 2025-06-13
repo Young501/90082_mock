@@ -3,7 +3,7 @@
 import { Box, Text } from '@chakra-ui/react';
 import { OnboardingProvider, useOnboarding } from '@/app/onboarding/OnboardingContext';
 import { OnboardingSteps } from '@/app/onboarding/OnboardingSteps';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '@/api';
 
 function OnboardingRenderer() {
   const { user, token } = useAuth();

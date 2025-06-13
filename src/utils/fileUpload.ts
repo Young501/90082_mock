@@ -1,4 +1,4 @@
-import { API_ENDPOINTS, apiRequest } from '@/utils/api';
+import { API_ENDPOINTS, apiRequest } from "@/api";
 
 export const uploadFile = async (file: File, endpoint: string, token: string):
 Promise<{ success: boolean; error?: string }> => {

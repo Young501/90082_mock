@@ -5,7 +5,7 @@ import { ClientOnly, IconButton, Skeleton, Span } from '@chakra-ui/react'
 import { ThemeProvider, useTheme } from 'next-themes'
 import type { ThemeProviderProps } from 'next-themes'
 import * as React from 'react'
-import { LuMoon, LuSun } from 'react-icons/lu'
+import { LuSun } from 'react-icons/lu'
 
 export interface ColorModeProviderProps extends ThemeProviderProps {}
 
@@ -24,25 +24,19 @@ export interface UseColorModeReturn {
 }
 
 export function useColorMode(): UseColorModeReturn {
-  const { resolvedTheme, setTheme } = useTheme()
-  const toggleColorMode = () => {
-    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
-  }
   return {
-    colorMode: resolvedTheme as ColorMode,
-    setColorMode: setTheme,
-    toggleColorMode,
+    colorMode: 'light' as ColorMode,
+    setColorMode: () => {},
+    toggleColorMode: () => {},
   }
 }
 
 export function useColorModeValue<T>(light: T, dark: T) {
-  const { colorMode: _colorMode } = useColorMode()
-  return _colorMode === 'dark' ? dark : light
+  return light
 }
 
 export function ColorModeIcon() {
-  const { colorMode } = useColorMode()
-  return colorMode === 'dark' ? <LuMoon /> : <LuSun />
+  return <LuSun />
 }
 
 interface ColorModeButtonProps extends Omit<IconButtonProps, 'aria-label'> {}
@@ -51,13 +45,11 @@ export const ColorModeButton = React.forwardRef<
   HTMLButtonElement,
   ColorModeButtonProps
 >(function ColorModeButton(props, ref) {
-  const { toggleColorMode } = useColorMode()
   return (
     <ClientOnly fallback={<Skeleton boxSize="8" />}>
       <IconButton
-        onClick={toggleColorMode}
         variant="ghost"
-        aria-label="Toggle color mode"
+        aria-label="Light mode"
         size="sm"
         ref={ref}
         {...props}
@@ -67,6 +59,7 @@ export const ColorModeButton = React.forwardRef<
             height: '5',
           },
         }}
+        disabled
       >
         <ColorModeIcon />
       </IconButton>
@@ -96,9 +89,9 @@ export const DarkMode = React.forwardRef<HTMLSpanElement, SpanProps>(
       <Span
         color="fg"
         display="contents"
-        className="chakra-theme dark"
+        className="chakra-theme light"
         colorPalette="gray"
-        colorScheme="dark"
+        colorScheme="light"
         ref={ref}
         {...props}
       />
