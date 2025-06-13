@@ -163,7 +163,7 @@ export default function WelcomePage() {
                             transition="all 0.2s ease"
                             minH={{ base: "24px", lg: "auto" }}
                         >
-                            LOGIN / REGISTER
+                            SIGN UP
                         </Button>
                     </VStack>
                 </Flex>

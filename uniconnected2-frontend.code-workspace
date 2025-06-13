@@ -6,7 +6,7 @@
 	],
 	"settings": {
 		"typescript.tsdk": "node_modules/typescript/lib",
-		// "editor.formatOnSave": true
+		"editor.formatOnSave": true,
 		"eslint.workingDirectories": [{ "mode": "auto" }],
 		
 		"editor.codeActionsOnSave": {
