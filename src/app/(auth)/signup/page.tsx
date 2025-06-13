@@ -16,20 +16,29 @@ import { useAuth, useSignup } from "@/api"
 import { useRouter } from "next/navigation"
 import { InputField, Button } from "@/components/ui"
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { loginSchema, LoginFormData } from "../validation"
+import { yupResolver } from "@hookform/resolvers/yup"
 import { toast } from "react-toastify"
 import Image from "next/image"
+import * as yup from "yup"
+import { useOnboarding } from "@/hooks/onboarding"
 
- const SignupPage = () => {
+interface FormData {
+    email: string
+}
+
+const validationSchema = yup.object({
+    email: yup
+        .string()
+        .required("Email is required")
+        .email("Invalid email format"),
+})
+
+const SignupPage = () => {
     const router = useRouter()
     const { user, token } = useAuth()
     const userType = user?.user_types?.[0]
-
     const [isLoading, setIsLoading] = useState(false)
-
-    const signupMutation = useSignup()
-
+    const { handleSignup } = useOnboarding()
 
     const {
         register,
@@ -38,32 +47,34 @@ import Image from "next/image"
         watch,
         setError,
         reset,
-    } = useForm<LoginFormData>({
-        resolver: zodResolver(loginSchema),
+    } = useForm<FormData>({
+        resolver: yupResolver(validationSchema),
         mode: "onChange",
+        defaultValues: {
+            email: "",
+        },
     })
 
     const emailValue = watch("email")
 
-
-    const onSubmit = async (data: LoginFormData) => {
+    const onSubmit = async (data: FormData) => {
         try {
             setIsLoading(true)
-            
-            await signupMutation.mutateAsync({
-                ...data,
+            await handleSignup({
+                email: data.email,
+                password: "",
                 user_types: userType ? [userType] : [],
+                callback: () => {
+                    reset()
+                    router.push("/email-verification")
+                },
             })
-                toast.success("")
-                reset()
-                router.push("/email-verification")
         } catch (error: any) {
             toast.error(error.message)
         } finally {
             setIsLoading(false)
         }
     }
-
 
     return (
         <div style={{ width: "100%", height: "100%" }}>
@@ -125,7 +136,7 @@ import Image from "next/image"
                                     type="submit"
                                     bg="#282F68"
                                     color="#A2DDF0"
-                                    disabled={ signupMutation.isPending || isLoading}
+                                    disabled={isLoading}
                                     isLoading={isLoading}
                                     w="100%"
                                     fontSize="20px"

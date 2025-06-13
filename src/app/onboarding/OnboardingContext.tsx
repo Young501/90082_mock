@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useOnboardingPages, useAuth } from "@/api"
-import { API_ENDPOINTS, apiRequest } from "@/utils/api"
+// import { API_ENDPOINTS, apiRequest } from "@/utils/api"
 import { submitOnboardingAnswers } from "./utils"
 
 // ==== Define Type ====
@@ -231,7 +231,7 @@ export const OnboardingProvider = ({
             return false
         }
 
-        const page = pages.find((p) => p.id === currentPageId)
+        const page = pages.find((p: any) => p.id === currentPageId)
         if (page?.follow_by) {
             setHasAttemptedValidation(false)
             setFieldErrors({})
@@ -253,7 +253,7 @@ export const OnboardingProvider = ({
             }
         }
 
-        const allQuestions = pages.flatMap((page) =>
+        const allQuestions = pages.flatMap((page: any) =>
             getAllQuestionsRecursively(page.questions)
         )
 
