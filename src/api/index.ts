@@ -52,9 +52,9 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  // headers: {
+  //   'Content-Type': 'application/json',
+  // },
 })
 
 const isAuthRequiredEndpoint = (url: string): boolean => {
