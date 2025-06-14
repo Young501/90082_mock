@@ -24,7 +24,7 @@ jobs:
         run: npm run build
         env:
           CI: false
-          NEXT_PUBLIC_API_URL: http://16.176.148.241:8000
+          NEXT_PUBLIC_API_URL: http://16.176.182.217:8000
       - name: Set AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
