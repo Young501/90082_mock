@@ -25,10 +25,7 @@ const eslintConfig = [
   {
     rules: {
       // Indentation
-      indent: ['error', 2, 4],
-      // Quote style
-      quotes: ['error', 'single', 'double'],
-
+      indent: ['error', 2],
       // No unused variables
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
 
@@ -44,8 +41,10 @@ const eslintConfig = [
       // Enforce consistent spacing inside braces
       'object-curly-spacing': ['error', 'always'],
 
+      '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-unused-vars': 'off'
+
     }
   }
 ];
