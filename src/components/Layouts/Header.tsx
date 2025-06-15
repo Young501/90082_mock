@@ -83,10 +83,10 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                   <UserRound size={20} color="black" />
                   <Link href="/login">
                         <Text fontSize="13px" fontWeight="700" color="black">
-                            SIGN IN
+                            LOGIN
                       </Text>
                   </Link>
-                  <Link href="/signup">
+                  <Link href="/user-type">
                         <Text fontSize="13px" fontWeight="700" color="black">
                             SIGN UP
                         </Text> 

@@ -16,6 +16,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { setUserType } from "@/api"
 import Image from "next/image"
+import { useAuthStore } from "@/store/authStore"
 
 const MotionBox = motion.create(Box)
 const MotionFlex = motion.create(Flex)
@@ -51,7 +52,7 @@ const userTypesData: UserTypeData[] = [
         shadowColor: "rgba(23, 61, 166, 0.36)",
     },
     {
-        key: "industry",
+        key: "partner",
         name: "INDUSTRY PARTNER",
         color: "#089C3F",
         bgColor: "#089C3F",
@@ -59,10 +60,11 @@ const userTypesData: UserTypeData[] = [
     },
 ]
 
-export default function WelcomePage() {
+export default function UserTypePage() {
     const router = useRouter()
     const [selectedType, setSelectedType] = useState<string | null>(null)
     const [isAnimating, setIsAnimating] = useState(false)
+    const setSignupSelectedUserType = useAuthStore(state => state.setSignupSelectedUserType)
 
     const boxSize = useBreakpointValue({
         base: { w: "280px", h: "200px" },
@@ -90,8 +92,8 @@ export default function WelcomePage() {
     }
 
     const handleLogin = (typeKey: string) => {
-        setUserType(typeKey)
-        router.push("/login")
+        setSignupSelectedUserType(typeKey)
+        router.push("/signup")
     }
 
     const getExpandedContent = (type: UserTypeData) => {

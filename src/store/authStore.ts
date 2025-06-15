@@ -12,6 +12,9 @@ export interface AuthState {
     getCurrentUser: () => User | null
     getCurrentToken: () => string | null
     getUserType: () => string | undefined
+    signupSelectedUserType: string | null
+    setSignupSelectedUserType: (userType: string | null) => void
+    getSignupSelectedUserType: () => string | null
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -20,6 +23,7 @@ export const useAuthStore = create<AuthState>()(
             user: null,
             token: null,
             isAuthenticated: false,
+            signupSelectedUserType: null,
 
             setAuthData: (token: string, user: User) => {
                 set({
@@ -56,6 +60,11 @@ export const useAuthStore = create<AuthState>()(
             getCurrentUser: () => get().user,
             getCurrentToken: () => get().token,
             getUserType: () => get().user?.user_types?.[0],
+
+            setSignupSelectedUserType: (userType: string | null) => {
+                set({ signupSelectedUserType: userType })
+            },
+            getSignupSelectedUserType: () => get().signupSelectedUserType,
         }),
         {
             name: "auth-storage",
