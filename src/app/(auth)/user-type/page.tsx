@@ -52,7 +52,7 @@ const userTypesData: UserTypeData[] = [
         shadowColor: "rgba(23, 61, 166, 0.36)",
     },
     {
-        key: "industry",
+        key: "partner",
         name: "INDUSTRY PARTNER",
         color: "#089C3F",
         bgColor: "#089C3F",
@@ -60,7 +60,7 @@ const userTypesData: UserTypeData[] = [
     },
 ]
 
-export default function WelcomePage() {
+export default function UserTypePage() {
     const router = useRouter()
     const [selectedType, setSelectedType] = useState<string | null>(null)
     const [isAnimating, setIsAnimating] = useState(false)

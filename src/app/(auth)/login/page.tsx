@@ -10,7 +10,6 @@ import {
     HStack,
     useBreakpointValue,
 } from "@chakra-ui/react"
-import { useAuth } from "@/api"
 import { checkOnboardingStatus } from "@/app/onboarding/utils"
 import { useRouter } from "next/navigation"
 import { InputField, Button } from "@/components/ui"
@@ -39,9 +38,6 @@ const validationSchema = yup.object({
 
 export default function LoginPage() {
     const router = useRouter()
-    const { user, token } = useAuth()
-    const userType = user?.user_types?.[0]
-
     const [showPassword, setShowPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
@@ -144,18 +140,6 @@ export default function LoginPage() {
                             >
                                 Login
                             </Heading>
-
-                            {userType && (
-                                <Text
-                                    fontSize="16px"
-                                    mb={2}
-                                    color="#282F68"
-                                    textAlign="center"
-                                >
-                                    You're signing up as a{" "}
-                                    <strong>{userType}</strong>
-                                </Text>
-                            )}
 
                             <InputField
                                 label="EMAIL"

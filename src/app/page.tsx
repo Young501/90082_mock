@@ -17,9 +17,6 @@ const router = useRouter();
       <Button colorScheme="blue" onClick={() => alert('Hello from Chakra!')}>
         Alert!
       </Button>
-      <Button colorScheme="blue" onClick={() => router.push("/welcome")}>
-        Welcome
-      </Button>
       <Button colorScheme="blue" onClick={() => router.push("/home")}>
         Home
       </Button>

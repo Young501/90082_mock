@@ -121,8 +121,20 @@ const SignupPage = () => {
                                     mb={2}
                                     color="#282F68"
                                 >
-                                    Login and Register
+                                    Register an account
                                 </Heading>
+                                {signupSelectedUserType && (
+                                    <Text
+                                        fontSize="16px"
+                                        mb={2}
+                                        color="#282F68"
+                                        textAlign="center"
+                                    >
+                                        You are signing up as{" "}
+                                        {signupSelectedUserType.toLowerCase() === 'student' ? 'a' : 'an'}{" "}
+                                        <strong>{signupSelectedUserType}</strong>
+                                    </Text>
+                                )}
 
                                 <InputField
                                     label="EMAIL"
