@@ -5,19 +5,19 @@ import {
     Box,
     Heading,
     VStack,
-    Button,
     Text,
-    Spinner,
-    Input,
-    Field,
-    InputGroup,
-    IconButton,
+    Flex,
+    HStack,
+    useBreakpointValue,
 } from "@chakra-ui/react"
+import { checkOnboardingStatus } from "@/app/onboarding/utils"
+import { useRouter } from "next/navigation"
+import { InputField, Button } from "@/components/ui"
+import Image from "next/image"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
-
-import { Eye, EyeOff } from "lucide-react"
+import { toast } from "react-toastify"
 import { useOnboarding } from "@/hooks/onboarding"
 
 interface FormData {
@@ -37,8 +37,9 @@ const validationSchema = yup.object({
 })
 
 export default function LoginPage() {
+    const router = useRouter()
     const [showPassword, setShowPassword] = useState(false)
-    const [successMsg, setSuccessMsg] = useState("")
+    const [isLoading, setIsLoading] = useState(false)
 
     const {
         handleLogin,
@@ -47,157 +48,157 @@ export default function LoginPage() {
         isLoginLoading,
         isSignupLoading,
         isPasswordResetLoading,
-        user,
         errorMsg,
     } = useOnboarding()
 
-    const userType = user?.user_types?.[0]
+    const isMobile = useBreakpointValue({ base: true, lg: false })
 
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, isValid },
         watch,
+        setError,
     } = useForm<FormData>({
         resolver: yupResolver(validationSchema),
-        mode: "onSubmit",
+        mode: "onChange",
         defaultValues: {
             email: "",
             password: "",
         },
     })
 
-    const email = watch("email")
-    const password = watch("password")
+    const emailValue = watch("email")
+    const passwordValue = watch("password")
 
-    const onSubmitLogin = async (data: FormData) => {
-        await handleLogin({
-            email: data.email,
-            password: data.password,
-            callback: () => {
-                setSuccessMsg("Login successful!")
-            },
-        })
-    }
-
-    const onSubmitSignup = async (data: FormData) => {
-        await onboardingSignup({
-            email: data.email,
-            password: data.password,
-            user_types: userType ? [userType] : [],
-            callback: () => {
-                setSuccessMsg("Signup successful!")
-            },
-        })
-    }
-
-    const handleForgotPasswordClick = async () => {
-        if (!email) {
-            return
+    const onSubmit = async (data: FormData) => {
+        try {
+            setIsLoading(true)
+            await handleLogin({
+                email: data.email,
+                password: data.password,
+                callback: () => {
+                    toast.success("Login successful!")
+                    router.push("/home")
+                },
+            })
+        } catch (error: any) {
+            toast.error(error.message)
+        } finally {
+            setIsLoading(false)
         }
+    }
 
-        await onboardingForgotPassword({
-            email,
-        })
+
+    const handleForgotPassword = async () => {
     }
 
     return (
-        <Box maxW="420px" mx="auto" mt={12} p={8} borderWidth={1} rounded="lg">
-            <Heading size="lg" mb={6}>
-                Login / Sign Up
-            </Heading>
-            {userType && (
-                <Text fontSize="md" mb={2} color="gray.600">
-                    You're signing up as a <strong>{userType}</strong>
-                </Text>
-            )}
-
-            <form onSubmit={handleSubmit(onSubmitLogin)} autoComplete="on">
-                <VStack align="stretch" gap={4}>
-                    <Field.Root id="email" invalid={!!errors.email}>
-                        <Field.Label>Email</Field.Label>
-                        <Input
-                            type="email"
-                            autoComplete="email"
-                            placeholder="you@example.com"
-                            {...register("email")}
-                        />
-                        <Field.ErrorText>
-                            {errors.email?.message}
-                        </Field.ErrorText>
-                    </Field.Root>
-
-                    <Field.Root id="password" invalid={!!errors.password}>
-                        <Field.Label>Password</Field.Label>
-                        <InputGroup
-                            endElement={
-                                <IconButton
-                                    variant="ghost"
-                                    size="sm"
-                                    aria-label={
-                                        showPassword
-                                            ? "Hide password"
-                                            : "Show password"
-                                    }
-                                    title={
-                                        showPassword
-                                            ? "Hide password"
-                                            : "Show password"
-                                    }
-                                    onClick={() =>
-                                        setShowPassword(!showPassword)
-                                    }
-                                >
-                                    {showPassword ? <EyeOff /> : <Eye />}
-                                </IconButton>
-                            }
-                        >
-                            <Input
-                                type={showPassword ? "text" : "password"}
-                                autoComplete="current-password"
-                                placeholder="********"
-                                {...register("password")}
-                            />
-                        </InputGroup>
-                        <Field.ErrorText>
-                            {errors.password?.message}
-                        </Field.ErrorText>
-                    </Field.Root>
-
-                    <Button
-                        type="submit"
-                        disabled={isLoginLoading}
-                        width="100%"
-                    >
-                        {isLoginLoading ? <Spinner size="sm" /> : "Login"}
-                    </Button>
-
-                    <Button
-                        onClick={handleSubmit(onSubmitSignup)}
-                        disabled={isSignupLoading}
-                        width="100%"
-                    >
-                        {isSignupLoading ? <Spinner size="sm" /> : "Sign Up"}
-                    </Button>
-
-                    {successMsg && <Text color="green.500">{successMsg}</Text>}
-                    {errorMsg && <Text color="red.500">{errorMsg}</Text>}
-                </VStack>
-            </form>
-
-            <Button
-                variant="ghost"
-                onClick={handleForgotPasswordClick}
-                disabled={isPasswordResetLoading || !email || !!errors.email}
-                width="100%"
-                mt={2}
+        <div style={{ width: "100%", height: "100%" }}>   
+            <Flex
+                h={{ base: "auto", lg: "calc(100vh - 306px)" }}
+                w="100%"
+                position="relative"
+                overflow="hidden"
+                flex={1}
+                align="center"
+                justify="flex-end"
+                zIndex={2}
+                px="0"
             >
-                {isPasswordResetLoading ? (
-                    <Spinner size="sm" />
-                ) : (
-                    "Forgot Password?"
+                {!isMobile && (
+                    <Box
+                        position="absolute"
+                        left={0}
+                        top="0"
+                        w={{ base: "600px", xl: "704px" }}
+                        h="100%"
+                        zIndex={1}
+                    >
+                        <Image
+                            src="/assets/login-illustration.png"
+                            fill
+                            alt="UniConnected illustration"
+                            style={{ objectFit: "cover", objectPosition: "center" }}
+                        />
+                    </Box>
                 )}
-            </Button>
-        </Box>
+                <Box
+                    w={{ base: "100%", md: "500px", lg: "450px" }}
+                    maxW="450px"
+                    mr={{ base: 0 }}
+                    py={{ base: 8, lg: 0 }}
+                >
+                    <form onSubmit={handleSubmit(onSubmit)} autoComplete="on">
+                        <VStack align="stretch" gap={6}>
+                            <Heading
+                                fontSize={{ base: "28px", md: "31px" }}
+                                fontWeight="700"
+                                textAlign="center"
+                                mb={4}
+                                color="#282F68"
+                            >
+                                Login
+                            </Heading>
+
+                            <InputField
+                                label="EMAIL"
+                                type="email"
+                                autoComplete="email"
+                                error={errors.email?.message}
+                                labelStyle="floating"
+                                {...register("email")}
+                                value={emailValue || ""}
+                            />
+
+                            <InputField
+                                label="PASSWORD"
+                                autoComplete="current-password"
+                                error={errors.password?.message}
+                                showPasswordToggle
+                                showPassword={showPassword}
+                                onTogglePassword={() =>
+                                    setShowPassword(!showPassword)
+                                }
+                                labelStyle="floating"
+                                {...register("password")}
+                                value={passwordValue || ""}
+                            />
+                            <Button
+                                type="submit"
+                                bg="#282F68"
+                                color="#2CA9DF"
+                                disabled={isLoginLoading || isLoading}
+                                isLoading={isLoading}
+                                w="100%"
+                                mt={4}
+                            >
+                                LOGIN
+                            </Button>
+
+                            <HStack justify="center" gap={1} mt={4}>
+                                <Text fontSize="20px" color="black">
+                                    forgot password?
+                                </Text>
+                                <Button
+                                    variant="ghost"
+                                    onClick={handleForgotPassword}
+                                    disabled={
+                                        isPasswordResetLoading 
+                                    }
+                                    isLoading={isPasswordResetLoading}
+                                    p={0}
+                                    h="auto"
+                                    fontSize="20px"
+                                    color="#2CA9DF"
+                                >
+                                    reset here
+                                </Button>
+                            </HStack>
+                        </VStack>
+                    </form>
+                </Box>
+            </Flex>
+        </div>
     )
 }
