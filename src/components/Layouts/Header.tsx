@@ -20,8 +20,8 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
 
   return (
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, width: "100%", maxHeight: "126px" }}>
-          {isProtected ? 
-               (<Box
+          {isProtected ? (
+               <Box
                     bg="#002157"
                     h="126px"
                     display="flex"
@@ -41,7 +41,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                         <Text fontSize="18px" fontWeight="700" color="white">
                             HOME
                         </Text> 
-                      </Link>
+                  </Link>
                       <Link href="/discover">
                         <Text fontSize="18px" fontWeight="700" color="white">
                         DISCOVER

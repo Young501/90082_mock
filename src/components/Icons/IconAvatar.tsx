@@ -25,6 +25,6 @@ const IconAvatar = () => {
             />
         </svg>
     )
-}
+};
 
-export default IconAvatar
+export default IconAvatar;

@@ -574,7 +574,7 @@ export default function UserTypePage() {
                             boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
                             transition="all 0.2s ease"
                         >
-                            I'm a Coordinator
+                            I&apos;m a Coordinator
                         </Button>
                     </Box>
                 </Box>
