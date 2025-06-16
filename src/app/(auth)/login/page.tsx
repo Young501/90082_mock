@@ -165,15 +165,6 @@ export default function LoginPage() {
                 {...register("email")}
                 value={emailValue || ""}
               />
-              <InputField
-                label="EMAIL"
-                type="email"
-                autoComplete="email"
-                error={errors.email?.message}
-                labelStyle="floating"
-                {...register("email")}
-                value={emailValue || ""}
-              />
 
               <InputField
                 label="PASSWORD"
