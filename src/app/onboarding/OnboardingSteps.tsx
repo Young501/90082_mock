@@ -154,7 +154,7 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
 
       return () => clearTimeout(timeoutId)
     }
-  }, [currentPage?.id, setValue, formData])
+  }, [setValue, formData, currentPage])
 
   useEffect(() => {
     if (hasAttemptedSubmit) {

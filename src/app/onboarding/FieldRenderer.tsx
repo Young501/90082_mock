@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react'
 import { UseFormRegister, Control, FieldErrors, useWatch } from 'react-hook-form'
 import { InputField, SelectField, FileField } from '@/components/fields'
 import { Question } from '@/types/onboarding'
-import { useMemo, useEffect, useRef } from 'react'
+import { useMemo, useEffect, useRef, useCallback } from 'react'
 
 interface FieldRendererProps {
   question: Question
@@ -46,16 +46,16 @@ export const FieldRenderer = ({
       .filter(Boolean)
   }, [question.followup_question, fieldValue])
 
-  const getAllChildFields = (q: Question): string[] => {
-    const fields: string[] = []
-    if (q.followup_question) {
-      Object.values(q.followup_question).forEach(followup => {
-        fields.push(followup.field)
-        fields.push(...getAllChildFields(followup))
-      })
-    }
-    return fields
+  const getAllChildFields = useCallback((q: Question): string[] => {
+  const fields: string[] = []
+  if (q.followup_question) {
+    Object.values(q.followup_question).forEach(followup => {
+      fields.push(followup.field)
+      fields.push(...getAllChildFields(followup))
+    })
   }
+  return fields
+}, [])
 
   useEffect(() => {
     if (!question.followup_question || !clearErrors || !unregister) return
@@ -77,7 +77,7 @@ export const FieldRenderer = ({
     }
 
     previousFieldValue.current = currentValue
-  }, [fieldValue, question, clearErrors, unregister])
+  }, [fieldValue, question, clearErrors, unregister, getAllChildFields])
 
   const renderField = () => {
     if (question.type === 'text' || question.type === 'location') {
