@@ -1,11 +1,13 @@
-import { Portal, Select, createListCollection } from '@chakra-ui/react';
-import { FieldProps } from '../FieldRenderer';
+import { Portal, Select, createListCollection } from "@chakra-ui/react";
+import { FieldProps } from "../FieldRenderer";
 
 export const MultiSelectField = ({ question, value, onChange }: FieldProps) => {
-  const options = (question.options || question.option || []).map((o: string) => ({
-    label: o,
-    value: o,
-  }));
+  const options = (question.options || question.option || []).map(
+    (o: string) => ({
+      label: o,
+      value: o,
+    })
+  );
 
   const collection = createListCollection({
     items: options,
@@ -22,7 +24,7 @@ export const MultiSelectField = ({ question, value, onChange }: FieldProps) => {
             ? [String(value)]
             : undefined
       }
-      onValueChange={details => onChange(details.value)}
+      onValueChange={(details) => onChange(details.value)}
       width="100%"
       size="md"
     >
