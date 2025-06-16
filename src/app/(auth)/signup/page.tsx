@@ -15,7 +15,6 @@ import { useAuthStore } from "@/store/authStore";
 
 interface FormData {
   email: string;
-  password: string;
 }
 
 const validationSchema = yup.object({
@@ -23,10 +22,6 @@ const validationSchema = yup.object({
     .string()
     .required("Email is required")
     .email("Invalid email format"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters"),
 });
 
 const SignupPage = () => {
@@ -35,8 +30,7 @@ const SignupPage = () => {
     (state) => state.signupSelectedUserType
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const { handleSignup, errorMsg } = useOnboarding();
+  const { handleSignup } = useOnboarding();
 
   useEffect(() => {
     if (!signupSelectedUserType) {
@@ -56,27 +50,25 @@ const SignupPage = () => {
     mode: "onChange",
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
   const emailValue = watch("email");
-  const passwordValue = watch("password");
 
   const onSubmit = async (data: FormData) => {
     try {
       setIsLoading(true);
       await handleSignup({
         email: data.email,
-        password: data.password,
+        password: "",
         user_types: signupSelectedUserType ? [signupSelectedUserType] : [],
         callback: () => {
           reset();
           router.push("/email-verification");
         },
       });
-    } catch (error) {
-      toast.error(errorMsg);
+    } catch (error: any) {
+      toast.error(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -139,19 +131,6 @@ const SignupPage = () => {
                 labelStyle="floating"
                 {...register("email")}
                 value={emailValue || ""}
-              />
-
-              <InputField
-                label="PASSWORD"
-                type={showPassword ? "text" : "password"}
-                autoComplete="new-password"
-                error={errors.password?.message}
-                showPasswordToggle
-                showPassword={showPassword}
-                onTogglePassword={() => setShowPassword(!showPassword)}
-                labelStyle="floating"
-                {...register("password")}
-                value={passwordValue || ""}
               />
 
               <Button
