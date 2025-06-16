@@ -1,28 +1,21 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import {
-  Box,
-  Heading,
-  VStack,
-  Text,
-  Flex,
-  HStack,
-} from "@chakra-ui/react"
-import { useAuth, useSignup } from "@/api"
-import { useRouter } from "next/navigation"
-import { InputField, Button } from "@/components/ui"
-import { useForm } from "react-hook-form"
-import { yupResolver } from "@hookform/resolvers/yup"
-import { toast } from "react-toastify"
-import Image from "next/image"
-import * as yup from "yup"
-import { useOnboarding } from "@/hooks/onboarding"
-import { useAuthStore } from "@/store/authStore"
+import { useState, useEffect } from "react";
+import { Box, Heading, VStack, Text, Flex, HStack } from "@chakra-ui/react";
+import { useAuth, useSignup } from "@/api";
+import { useRouter } from "next/navigation";
+import { InputField, Button } from "@/components/ui";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { toast } from "react-toastify";
+import Image from "next/image";
+import * as yup from "yup";
+import { useOnboarding } from "@/hooks/onboarding";
+import { useAuthStore } from "@/store/authStore";
 
 interface FormData {
-    email: string
-    password: string
+  email: string;
+  password: string;
 }
 
 const validationSchema = yup.object({
@@ -34,20 +27,22 @@ const validationSchema = yup.object({
     .string()
     .required("Password is required")
     .min(8, "Password must be at least 8 characters"),
-})
+});
 
 const SignupPage = () => {
-  const router = useRouter()
-  const [showPassword, setShowPassword] = useState(false)
-  const signupSelectedUserType = useAuthStore(state => state.signupSelectedUserType)
-  const [isLoading, setIsLoading] = useState(false)
-  const { handleSignup } = useOnboarding()
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const signupSelectedUserType = useAuthStore(
+    (state) => state.signupSelectedUserType
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const { handleSignup } = useOnboarding();
 
   useEffect(() => {
     if (!signupSelectedUserType) {
-      router.push("/user-type?signup=true")
+      router.push("/user-type?signup=true");
     }
-  }, [signupSelectedUserType, router])
+  }, [signupSelectedUserType, router]);
 
   const {
     register,
@@ -63,33 +58,32 @@ const SignupPage = () => {
       email: "",
       password: "",
     },
-  })
+  });
 
-  const emailValue = watch("email")
-  const passwordValue = watch("password")
+  const emailValue = watch("email");
+  const passwordValue = watch("password");
 
   const onSubmit = async (data: FormData) => {
     try {
-      setIsLoading(true)
+      setIsLoading(true);
       await handleSignup({
         email: data.email,
         password: data.password,
         user_types: signupSelectedUserType ? [signupSelectedUserType] : [],
         callback: () => {
-          reset()
-          router.push("/email-verification")
+          reset();
+          router.push("/email-verification");
         },
-      })
+      });
     } catch (error: any) {
-      toast.error(error.message)
+      toast.error(error.message);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div style={{ width: "100%", height: "100%" }}>
-
       <Flex
         h={{ base: "auto", lg: "calc(100vh - 306px)" }}
         w="100%"
@@ -115,11 +109,7 @@ const SignupPage = () => {
           />
         </Box>
 
-        <Box
-          w={{ base: "100%", md: "400px" }}
-          maxW="400px"
-
-        >
+        <Box w={{ base: "100%", md: "400px" }} maxW="400px">
           <form onSubmit={handleSubmit(onSubmit)} autoComplete="on">
             <VStack align="stretch" gap={4}>
               <Heading
@@ -129,17 +119,14 @@ const SignupPage = () => {
                 mb={2}
                 color="#282F68"
               >
-                                    Register an account
+                Register an account
               </Heading>
               {signupSelectedUserType && (
-                <Text
-                  fontSize="16px"
-                  mb={2}
-                  color="#282F68"
-                  textAlign="center"
-                >
-                                        You are signing up as{" "}
-                  {signupSelectedUserType.toLowerCase() === 'student' ? 'a' : 'an'}{" "}
+                <Text fontSize="16px" mb={2} color="#282F68" textAlign="center">
+                  You are signing up as{" "}
+                  {signupSelectedUserType.toLowerCase() === "student"
+                    ? "a"
+                    : "an"}{" "}
                   <strong>{signupSelectedUserType}</strong>
                 </Text>
               )}
@@ -159,9 +146,7 @@ const SignupPage = () => {
                 error={errors.password?.message}
                 showPasswordToggle
                 showPassword={showPassword}
-                onTogglePassword={() =>
-                  setShowPassword(!showPassword)
-                }
+                onTogglePassword={() => setShowPassword(!showPassword)}
                 labelStyle="floating"
                 {...register("password")}
                 value={passwordValue || ""}
@@ -177,7 +162,7 @@ const SignupPage = () => {
                 fontSize="20px"
                 fontWeight="400"
               >
-                                    SIGN UP
+                SIGN UP
               </Button>
 
               <HStack my={4} justify="center">
@@ -187,7 +172,7 @@ const SignupPage = () => {
                   fontWeight="700"
                   whiteSpace="nowrap"
                 >
-                                        OR
+                  OR
                 </Text>
               </HStack>
 
@@ -199,13 +184,12 @@ const SignupPage = () => {
                 fontSize="20px"
                 fontWeight="400"
               >
-                                    @ |
-                                     CONNECT WITH UNIVERSITY ID
+                @ | CONNECT WITH UNIVERSITY ID
               </Button>
 
               <HStack justify="center" align="center" mt={4} gap={3}>
                 <Text fontSize="20px" fontWeight="700" color="#000000">
-                                        Already have a profile?
+                  Already have a profile?
                 </Text>
                 <Button
                   variant="ghost"
@@ -215,17 +199,15 @@ const SignupPage = () => {
                   color="#282F68"
                   fontWeight="700"
                 >
-                                        Login
+                  Login
                 </Button>
               </HStack>
-
-
             </VStack>
           </form>
         </Box>
       </Flex>
     </div>
-  )
-}
+  );
+};
 
-export default SignupPage
+export default SignupPage;

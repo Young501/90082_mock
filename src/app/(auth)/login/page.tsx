@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   Box,
   Heading,
@@ -9,20 +9,20 @@ import {
   Flex,
   HStack,
   useBreakpointValue,
-} from "@chakra-ui/react"
-import { checkOnboardingStatus } from "@/app/onboarding/utils"
-import { useRouter } from "next/navigation"
-import { InputField, Button } from "@/components/ui"
-import Image from "next/image"
-import { useForm } from "react-hook-form"
-import { yupResolver } from "@hookform/resolvers/yup"
-import * as yup from "yup"
-import { toast } from "react-toastify"
-import { useOnboarding } from "@/hooks/onboarding"
+} from "@chakra-ui/react";
+import { checkOnboardingStatus } from "@/app/onboarding/utils";
+import { useRouter } from "next/navigation";
+import { InputField, Button } from "@/components/ui";
+import Image from "next/image";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { toast } from "react-toastify";
+import { useOnboarding } from "@/hooks/onboarding";
 
 interface FormData {
-    email: string
-    password: string
+  email: string;
+  password: string;
 }
 
 const validationSchema = yup.object({
@@ -34,12 +34,12 @@ const validationSchema = yup.object({
     .string()
     .required("Password is required")
     .min(8, "Password must be at least 8 characters"),
-})
+});
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     handleLogin,
@@ -49,9 +49,9 @@ export default function LoginPage() {
     isSignupLoading,
     isPasswordResetLoading,
     errorMsg,
-  } = useOnboarding()
+  } = useOnboarding();
 
-  const isMobile = useBreakpointValue({ base: true, lg: false })
+  const isMobile = useBreakpointValue({ base: true, lg: false });
 
   const {
     register,
@@ -66,32 +66,30 @@ export default function LoginPage() {
       email: "",
       password: "",
     },
-  })
+  });
 
-  const emailValue = watch("email")
-  const passwordValue = watch("password")
+  const emailValue = watch("email");
+  const passwordValue = watch("password");
 
   const onSubmit = async (data: FormData) => {
     try {
-      setIsLoading(true)
+      setIsLoading(true);
       await handleLogin({
         email: data.email,
         password: data.password,
         callback: () => {
-          toast.success("Login successful!")
-          router.push("/home")
+          toast.success("Login successful!");
+          router.push("/home");
         },
-      })
+      });
     } catch (error: any) {
-      toast.error(error.message)
+      toast.error(error.message);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-
-  const handleForgotPassword = async () => {
-  }
+  const handleForgotPassword = async () => {};
 
   return (
     <div style={{ width: "100%", height: "100%" }}>
@@ -138,7 +136,7 @@ export default function LoginPage() {
                 mb={4}
                 color="#282F68"
               >
-                                Login
+                Login
               </Heading>
 
               <InputField
@@ -157,9 +155,7 @@ export default function LoginPage() {
                 error={errors.password?.message}
                 showPasswordToggle
                 showPassword={showPassword}
-                onTogglePassword={() =>
-                  setShowPassword(!showPassword)
-                }
+                onTogglePassword={() => setShowPassword(!showPassword)}
                 labelStyle="floating"
                 {...register("password")}
                 value={passwordValue || ""}
@@ -173,26 +169,24 @@ export default function LoginPage() {
                 w="100%"
                 mt={4}
               >
-                                LOGIN
+                LOGIN
               </Button>
 
               <HStack justify="center" gap={1} mt={4}>
                 <Text fontSize="20px" color="black">
-                                    forgot password?
+                  forgot password?
                 </Text>
                 <Button
                   variant="ghost"
                   onClick={handleForgotPassword}
-                  disabled={
-                    isPasswordResetLoading
-                  }
+                  disabled={isPasswordResetLoading}
                   isLoading={isPasswordResetLoading}
                   p={0}
                   h="auto"
                   fontSize="20px"
                   color="#2CA9DF"
                 >
-                                    reset here
+                  reset here
                 </Button>
               </HStack>
             </VStack>
@@ -200,5 +194,5 @@ export default function LoginPage() {
         </Box>
       </Flex>
     </div>
-  )
+  );
 }

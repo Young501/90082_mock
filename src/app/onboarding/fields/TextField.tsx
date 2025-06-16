@@ -1,8 +1,8 @@
-import { Input } from '@chakra-ui/react';
-import { FieldProps } from '../FieldRenderer';
+import { Input } from "@chakra-ui/react";
+import { FieldProps } from "../FieldRenderer";
 
 export const TextField = ({ question, value, onChange }: FieldProps) => {
-  const stringValue = typeof value === 'string' ? value : '';
+  const stringValue = typeof value === "string" ? value : "";
 
   return (
     <Input
