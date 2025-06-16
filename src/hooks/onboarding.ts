@@ -115,6 +115,10 @@ export const useOnboarding = () => {
         }
       } else if (error?.message) {
         errorMessage = error.message;
+      } else if (error?.response?.data?.password) {
+        errorMessage = error.response.data.password[0];
+      } else if (error?.response?.data?.email) {
+        errorMessage = error.response.data.email[0];
       }
 
       setErrorMsg(errorMessage);
@@ -185,7 +189,7 @@ export const useOnboarding = () => {
         password: data.password,
       });
       data.callback?.();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login failed:", error);
       throw error;
     }
@@ -204,7 +208,7 @@ export const useOnboarding = () => {
         user_types: data.user_types,
       });
       data.callback?.();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Signup failed:", error);
       throw error;
     }

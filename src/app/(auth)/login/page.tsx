@@ -84,7 +84,7 @@ export default function LoginPage() {
         },
       });
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -96,15 +96,14 @@ export default function LoginPage() {
       return;
     } else if (emailValue) {
       try {
-        const response = await handleForgotPassword({
+        await handleForgotPassword({
           email: emailValue,
           callback: () => {
             setValue("email", "");
           },
         });
-        console.log(response);
       } catch (error: any) {
-        toast.error(error?.message);
+        toast.error(errorMsg);
       }
     }
   };
