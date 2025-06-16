@@ -72,7 +72,7 @@ const SignupPage = () => {
         user_types: signupSelectedUserType ? [signupSelectedUserType] : [],
         callback: () => {
           reset();
-          router.push("/email-verification");
+          //   router.push("/email-verification");
         },
       });
     } catch (error) {

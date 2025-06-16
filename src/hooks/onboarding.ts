@@ -81,6 +81,10 @@ export const useOnboarding = () => {
         }
       } else if (error?.message) {
         errorMessage = error.message;
+      } else if (error?.response?.data?.password) {
+        errorMessage = error.response.data.password[0];
+      } else if (error?.response?.data?.email) {
+        errorMessage = error.response.data.email[0];
       }
 
       setErrorMsg(errorMessage);
@@ -95,6 +99,9 @@ export const useOnboarding = () => {
         user_types: data.user_types,
       });
       return response.data;
+    },
+    onSuccess: (response) => {
+      toast.success(response?.message);
     },
     onError: (error: any) => {
       let errorMessage = "Signup failed";
