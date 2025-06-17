@@ -148,6 +148,11 @@ export const API_ENDPOINTS = {
     url: "/api/v1/password-reset-request",
     auth: false,
   },
+  EMAIL_VERIFICATION: {
+    method: 'GET',
+    url: '/api/v1/verify-email/',
+    auth: false,
+  },
   USER_TYPES: {
     method: "GET",
     url: "/api/v1/user-types",
@@ -222,6 +227,15 @@ interface PasswordResetData {
   email: string;
 }
 
+interface EmailVerificationData {
+  token: string;
+}
+
+interface EmailVerificationResponse {
+  success: boolean
+  message: string
+}
+
 export function loginMutation() {
   const queryClient = useQueryClient();
 
@@ -259,6 +273,20 @@ export function usePasswordReset() {
     },
   });
 }
+
+export function useEmailVerification() {
+  return useMutation({
+    mutationFn: async (data: EmailVerificationData): Promise<EmailVerificationResponse> => {
+      const endpoint = {
+        ...API_ENDPOINTS.EMAIL_VERIFICATION,
+        url: `${API_ENDPOINTS.EMAIL_VERIFICATION.url}?token=${encodeURIComponent(data.token)}`,
+      };
+      
+      return apiRequest({ endpoint });
+    },
+  });
+}
+
 
 export function useUserTypes() {
   return useQuery({
