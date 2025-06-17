@@ -1,26 +1,28 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button, HStack } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { useState } from "react";
+import { Button, HStack } from "@chakra-ui/react";
+import { useRouter } from "next/navigation";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Demo = () => {
   const [clicked, setClicked] = useState(false);
-const router = useRouter();
+  const router = useRouter();
   return (
     <HStack>
       <Button onClick={() => setClicked(!clicked)}>
-        {clicked ? 'You clicked me!' : 'Click me'}
+        {clicked ? "You clicked me!" : "Click me"}
       </Button>
-      <Button colorScheme="blue" onClick={() => alert('Hello from Chakra!')}>
+      <Button colorScheme="blue" onClick={() => alert("Hello from Chakra!")}>
         Alert!
       </Button>
       <Button colorScheme="blue" onClick={() => router.push("/home")}>
         Home
       </Button>
-      <Button colorScheme="blue" onClick={() => router.push("/signup")}>Sign Up</Button>
+      <Button colorScheme="blue" onClick={() => router.push("/signup")}>
+        Sign Up
+      </Button>
     </HStack>
   );
 };
@@ -28,8 +30,15 @@ const router = useRouter();
 export default function HomePage() {
   return (
     <div>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        theme="light"
+      />
       <Demo />
-      <ToastContainer />
     </div>
   );
 }

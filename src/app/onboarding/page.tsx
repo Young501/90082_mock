@@ -1,9 +1,12 @@
-'use client';
+"use client";
 
-import { Box, Text } from '@chakra-ui/react';
-import { OnboardingProvider, useOnboarding } from '@/app/onboarding/OnboardingContext';
-import { OnboardingSteps } from '@/app/onboarding/OnboardingSteps';
-import { useAuth } from '@/api';
+import { Box, Text } from "@chakra-ui/react";
+import {
+  OnboardingProvider,
+  useOnboarding,
+} from "@/app/onboarding/OnboardingContext";
+import { OnboardingSteps } from "@/app/onboarding/OnboardingSteps";
+import { useAuth } from "@/api";
 
 function OnboardingRenderer() {
   const { user, token } = useAuth();
@@ -11,7 +14,12 @@ function OnboardingRenderer() {
   const { loading, error } = useOnboarding();
 
   if (loading) return <Text p={8}>Loading onboarding...</Text>;
-  if (error) return <Text color="red.500" p={8}>{error}</Text>;
+  if (error)
+    return (
+      <Text color="red.500" p={8}>
+        {error}
+      </Text>
+    );
   if (!userType || !token) return <Text p={8}>Redirecting...</Text>;
 
   return (

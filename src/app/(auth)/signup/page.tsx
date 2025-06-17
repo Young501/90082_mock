@@ -76,8 +76,8 @@ const SignupPage = () => {
           //   router.push("/email-verification");
         },
       });
-    } catch (error) {
-      toast.error(errorMsg);
+    } catch (error: any) {
+      console.log("error", error);
     } finally {
       setIsLoading(false);
     }
