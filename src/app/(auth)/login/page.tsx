@@ -120,7 +120,7 @@ export default function LoginPage() {
         px="0"
         gap={{ base: "40px", lg: "0" }}
       >
-        <Box position="relative" display="block" w="100%">
+        <Box>
           <Image
             src="/assets/Login-illustration.png"
             alt="UniConnected illustration"

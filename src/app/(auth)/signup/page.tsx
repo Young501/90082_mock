@@ -72,27 +72,28 @@ const SignupPage = () => {
         password: data.password,
         user_types: signupSelectedUserType ? [signupSelectedUserType] : [],
         callback: () => {
-          // reset();
-          toast.success("Signup successful!");
+          reset();
           //   router.push("/email-verification");
         },
       });
     } catch (error: any) {
+      console.log("error", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div style={{ width: "100%", height: "100%" }}>
+    <>
       <Flex
-        h={{ base: "auto", lg: "calc(100vh - 306px)" }}
         w="100%"
         position="relative"
         overflow="hidden"
-        align="center"
-        justify="space-between"
+        align="space-between"
+        justify="center"
         gap={{ base: 8, lg: 16 }}
+        pb={{ base: 10, lg: 100 }}
+        h="100%"
         direction={{ base: "column", lg: "row" }}
       >
         <Box
@@ -233,7 +234,7 @@ const SignupPage = () => {
           </form>
         </Box>
       </Flex>
-    </div>
+    </>
   );
 };
 
