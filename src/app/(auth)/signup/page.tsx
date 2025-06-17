@@ -12,6 +12,7 @@ import Image from "next/image";
 import * as yup from "yup";
 import { useOnboarding } from "@/hooks/onboarding";
 import { useAuthStore } from "@/store/authStore";
+import { motion } from "framer-motion";
 
 interface FormData {
   email: string;
@@ -98,15 +99,39 @@ const SignupPage = () => {
           display="flex"
           alignItems="center"
           justifyContent="center"
+          gap={4}
           minW={{ base: "auto", lg: "200px" }}
+          position="relative"
         >
-          <Image
-            src="/assets/mini-logo.png"
-            alt="logo"
-            style={{ objectFit: "contain" }}
-            width={124}
-            height={124}
-          />
+          <motion.div
+            initial={{ x: -100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            style={{ zIndex: 2, position: "relative" }}
+          >
+            <Image
+              src="/assets/mini-logo.png"
+              alt="logo"
+              style={{ objectFit: "contain" }}
+              width={124}
+              height={124}
+            />
+          </motion.div>
+
+          <motion.div
+            initial={{ x: -100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.7, ease: "easeOut", delay: 0.5 }}
+            style={{ zIndex: 1, position: "relative" }}
+          >
+            <Image
+              src="/assets/uniconnectedLogo.png"
+              alt="logo"
+              style={{ objectFit: "contain" }}
+              width={523}
+              height={142}
+            />
+          </motion.div>
         </Box>
 
         <Box w={{ base: "100%", md: "400px" }} maxW="400px">

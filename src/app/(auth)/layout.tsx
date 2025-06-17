@@ -37,7 +37,14 @@ export default function Layout({ children }: AuthLayoutProps) {
           width: "100%",
         }}
       >
-        <Container maxW={containerMaxW} px={0} w="100%" style={{ flex: 1 }}>
+        <Container
+          maxW={containerMaxW}
+          minHeight={`calc(100vh - 305px)`}
+          px={0}
+          w="100%"
+          h="100%"
+          style={{ flex: 1 }}
+        >
           {children}
         </Container>
       </div>
