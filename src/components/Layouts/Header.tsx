@@ -5,6 +5,7 @@ import {
   Text,
   VStack,
   useBreakpointValue,
+  Button,
 } from "@chakra-ui/react";
 import React from "react";
 import { UserRound } from "lucide-react";
@@ -13,10 +14,20 @@ import Link from "next/link";
 import Logo from "@/components/Logo";
 import Image from "next/image";
 import LinkIcon from "@/assets/LinkIcon.svg";
+import { useRouter } from "next/navigation";
+import { useOnboarding } from "@/hooks/onboarding";
+import { useAuthStore } from "@/store/authStore";
 // import {Link}
 
 const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
+  const router = useRouter();
+  const { handleLogout } = useOnboarding();
+  const { logout } = useAuthStore();
+  const handleUserLogout = async () => {
+    await handleLogout();
+    logout();
+  };
 
   return (
     <div
@@ -42,11 +53,11 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
           <Image alt="logo" src="/uni.png" width={300} height={80} />
 
           <HStack gap={10} display={{ base: "none", md: "flex" }}>
-            <Link href="/login">
+            <Button onClick={() => handleUserLogout()} bg="transparent">
               <Text fontSize="18px" fontWeight="700" color="white">
-                SIGN IN
+                LOGOUT
               </Text>
-            </Link>
+            </Button>
             <Link href="/home">
               <Text fontSize="18px" fontWeight="700" color="white">
                 HOME

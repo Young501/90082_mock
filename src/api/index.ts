@@ -65,6 +65,7 @@ const isAuthRequiredEndpoint = (url: string): boolean => {
     "/api/v1/university",
     "/api/v1/user-profile",
     "/api/v1/onboarding",
+    "/api/v1/logout",
   ];
 
   return authEndpoints.some((endpoint) => url.includes(endpoint));
@@ -142,6 +143,11 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: "/api/v1/signup",
     auth: false,
+  },
+  LOGOUT: {
+    method: "POST",
+    url: "/api/v1/logout",
+    auth: true,
   },
   PASSWORD_RESET: {
     method: "POST",
