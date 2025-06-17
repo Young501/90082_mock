@@ -28,17 +28,12 @@ export default function VerifyEmailPage() {
     setHasVerified(true);
 
     try {
-      const result = await emailVerificationMutation.mutateAsync({ token });
+      await emailVerificationMutation.mutateAsync({ token });
 
-      if (result.success) {
-        router.push('/verify-email/success');
+      router.push('/verify-email/success');
 
-      } else {
-        router.push(`/verify-email/failed?message=${encodeURIComponent(result.message)}`);
-      }
     } catch (error: any) {   
-      const errorMessage = error?.response?.data?.message || 
-                      'Network error. Please check your connection and try again.';
+      const errorMessage = error?.response?.data?.detail || 'Network error. Please check your connection and try again.';
   
       router.push(`/verify-email/failed?message=${encodeURIComponent(errorMessage)}`);
     }

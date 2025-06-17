@@ -232,8 +232,7 @@ interface EmailVerificationData {
 }
 
 interface EmailVerificationResponse {
-  success: boolean
-  message: string
+  detail: string
 }
 
 export function loginMutation() {
