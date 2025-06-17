@@ -84,7 +84,6 @@ export default function LoginPage() {
         },
       });
     } catch (error: any) {
-      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +102,7 @@ export default function LoginPage() {
           },
         });
       } catch (error: any) {
-        toast.error(errorMsg);
+        console.log("error", error);
       }
     }
   };

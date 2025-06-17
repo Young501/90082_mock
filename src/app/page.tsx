@@ -30,8 +30,15 @@ const Demo = () => {
 export default function HomePage() {
   return (
     <div>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        theme="light"
+      />
       <Demo />
-      <ToastContainer />
     </div>
   );
 }

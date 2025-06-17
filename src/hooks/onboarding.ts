@@ -86,7 +86,7 @@ export const useOnboarding = () => {
       } else if (error?.response?.data?.email) {
         errorMessage = error.response.data.email[0];
       }
-
+      toast.error(errorMessage);
       setErrorMsg(errorMessage);
     },
   });
@@ -127,7 +127,7 @@ export const useOnboarding = () => {
       } else if (error?.response?.data?.email) {
         errorMessage = error.response.data.email[0];
       }
-
+      toast.error(errorMessage);
       setErrorMsg(errorMessage);
     },
   });
@@ -146,9 +146,6 @@ export const useOnboarding = () => {
         email: data.email,
       });
       return response.data;
-    },
-    onSuccess: (response) => {
-      toast.success(response?.message);
     },
     onError: (error: any) => {
       let errorMessage = "Failed to send password reset email";
@@ -226,10 +223,11 @@ export const useOnboarding = () => {
     callback?: () => void;
   }) => {
     try {
-      await passwordResetMutation.mutateAsync({
+      const response = await passwordResetMutation.mutateAsync({
         email: data.email,
       });
       data.callback?.();
+      toast.success(response?.message);
     } catch (error) {
       console.error("Password reset failed:", error);
       throw error;

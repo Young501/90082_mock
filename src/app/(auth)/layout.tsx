@@ -4,6 +4,8 @@ import { Box, Container, useBreakpointValue } from "@chakra-ui/react";
 import { ReactNode } from "react";
 import Footer from "@/components/Layouts/Footer";
 import Header from "@/components/Layouts/Header";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -23,6 +25,14 @@ export default function Layout({ children }: AuthLayoutProps) {
         width: "100%",
       }}
     >
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        theme="light"
+      />
       <Header />
 
       <div
