@@ -93,7 +93,7 @@ apiClient.interceptors.request.use(
     return config;
   },
   (error: AxiosError) => {
-    console.error("❌ Request interceptor error:", error);
+    // console.error("❌ Request interceptor error:", error);
     return Promise.reject(error);
   }
 );
@@ -113,13 +113,13 @@ apiClient.interceptors.response.use(
   },
   (error: AxiosError) => {
     if (process.env.NODE_ENV === "development") {
-      console.error(
-        `❌ ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
-        {
-          status: error.response?.status,
-          data: error.response?.data,
-        }
-      );
+      // console.error(
+      //   `❌ ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
+      //   {
+      //     status: error.response?.status,
+      //     data: error.response?.data,
+      //   }
+      // );
     }
     return Promise.reject(error);
   }

@@ -71,12 +71,12 @@ const SignupPage = () => {
         password: data.password,
         user_types: signupSelectedUserType ? [signupSelectedUserType] : [],
         callback: () => {
-          reset();
+          // reset();
+          toast.success("Signup successful!");
           //   router.push("/email-verification");
         },
       });
     } catch (error: any) {
-      console.log("error", error);
     } finally {
       setIsLoading(false);
     }

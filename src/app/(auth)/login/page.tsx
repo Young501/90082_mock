@@ -101,9 +101,7 @@ export default function LoginPage() {
             setValue("email", "");
           },
         });
-      } catch (error: any) {
-        console.log("error", error);
-      }
+      } catch (error: any) {}
     }
   };
 

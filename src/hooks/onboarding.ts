@@ -21,6 +21,65 @@ interface PasswordResetData {
   email: string;
 }
 
+const getErrorMessage = (error: any, defaultMessage: string): string => {
+  //  **********debug mode ********** //
+  console.log("Full error object:", error);
+  console.log("Error response:", error?.response);  
+  console.log("Error response data:", error?.response?.data);
+
+  if (!error?.response?.data) {
+    return error?.message || defaultMessage;
+  }
+
+  const data = error.response.data;
+
+  if (data.non_field_errors && Array.isArray(data.non_field_errors)) {
+    return data.non_field_errors[0];
+  }
+
+  if (data.error) {
+    return data.error;
+  }
+
+  if (data.detail) {
+    return Array.isArray(data.detail) ? data.detail[0] : data.detail;
+  }
+
+  if (data.message) {
+    return data.message;
+  }
+
+  if (data.password && Array.isArray(data.password)) {
+    return data.password[0];
+  }
+
+  if (data.email && Array.isArray(data.email)) {
+    return data.email[0];
+  }
+
+  if (typeof data === "object") {
+    const firstKey = Object.keys(data)[0];
+    if (firstKey && data[firstKey]) {
+      const value = data[firstKey];
+      return Array.isArray(value) ? value[0] : value;
+    }
+  }
+
+  return defaultMessage;
+};
+
+const getSuccessMessage = (response: any, defaultMessage: string): string => {
+  //  **********debug mode ********** //
+  console.log("Success response:", response);
+
+  return (
+    response?.message ||
+    response?.data?.detail ||
+    response?.detail ||
+    defaultMessage
+  );
+};
+
 export const useOnboarding = () => {
   const router = useRouter();
   const { setAuthData, user } = useAuthStore();
@@ -35,16 +94,13 @@ export const useOnboarding = () => {
     await apiClient
       .get(API_ENDPOINTS.USER_PROFILE(user?.user_types?.[0]).url)
       .then(() => {
-        console.log("User profile exists, no onboarding needed");
         router.push("/home");
       })
       .catch((error: AxiosError) => {
         if (error.response?.status === 404) {
-          console.log("User profile not found, needs onboarding");
           router.push("/onboarding");
           return;
         }
-        console.log("error", error.response);
         toast.error("Error checking onboarding status");
       });
   };
@@ -63,29 +119,7 @@ export const useOnboarding = () => {
       checkOnboardingStatus();
     },
     onError: (error: any) => {
-      let errorMessage = "Login failed";
-
-      if (error?.response?.data?.non_field_errors) {
-        errorMessage = error.response.data.non_field_errors[0];
-      } else if (error?.response?.data?.error) {
-        errorMessage = error.response.data.error;
-      } else if (error?.response?.data?.detail) {
-        errorMessage = error.response.data.detail;
-      } else if (
-        error?.response?.data &&
-        typeof error.response.data === "object"
-      ) {
-        const firstKey = Object.keys(error.response.data)[0];
-        if (firstKey && Array.isArray(error.response.data[firstKey])) {
-          errorMessage = error.response.data[firstKey][0];
-        }
-      } else if (error?.message) {
-        errorMessage = error.message;
-      } else if (error?.response?.data?.password) {
-        errorMessage = error.response.data.password[0];
-      } else if (error?.response?.data?.email) {
-        errorMessage = error.response.data.email[0];
-      }
+      const errorMessage = getErrorMessage(error, "Login failed");
       toast.error(errorMessage);
       setErrorMsg(errorMessage);
     },
@@ -101,32 +135,14 @@ export const useOnboarding = () => {
       return response.data;
     },
     onSuccess: (response) => {
-      toast.success(response?.message);
+      const successMessage = getSuccessMessage(
+        response,
+        "Account created successfully"
+      );
+      toast.success(successMessage);
     },
     onError: (error: any) => {
-      let errorMessage = "Signup failed";
-
-      if (error?.response?.data?.non_field_errors) {
-        errorMessage = error.response.data.non_field_errors[0];
-      } else if (error?.response?.data?.error) {
-        errorMessage = error.response.data.error;
-      } else if (error?.response?.data?.detail) {
-        errorMessage = error.response.data.detail;
-      } else if (
-        error?.response?.data &&
-        typeof error.response.data === "object"
-      ) {
-        const firstKey = Object.keys(error.response.data)[0];
-        if (firstKey && Array.isArray(error.response.data[firstKey])) {
-          errorMessage = error.response.data[firstKey][0];
-        }
-      } else if (error?.message) {
-        errorMessage = error.message;
-      } else if (error?.response?.data?.password) {
-        errorMessage = error.response.data.password[0];
-      } else if (error?.response?.data?.email) {
-        errorMessage = error.response.data.email[0];
-      }
+      const errorMessage = getErrorMessage(error, "Signup failed");
       toast.error(errorMessage);
       setErrorMsg(errorMessage);
     },
@@ -135,8 +151,12 @@ export const useOnboarding = () => {
   const logoutMutation = useMutation({
     mutationFn: async () => {
       const response = await apiClient.post(API_ENDPOINTS.LOGOUT.url);
-
       return response.data;
+    },
+    onError: (error: any) => {
+      const errorMessage = getErrorMessage(error, "Logout failed");
+      toast.error(errorMessage);
+      setErrorMsg(errorMessage);
     },
   });
 
@@ -147,27 +167,18 @@ export const useOnboarding = () => {
       });
       return response.data;
     },
+    onSuccess: (response) => {
+      const successMessage = getSuccessMessage(
+        response,
+        "Password reset email sent"
+      );
+      toast.success(successMessage);
+    },
     onError: (error: any) => {
-      let errorMessage = "Failed to send password reset email";
-
-      if (error?.response?.data?.non_field_errors) {
-        errorMessage = error.response.data.non_field_errors[0];
-      } else if (error?.response?.data?.error) {
-        errorMessage = error.response.data.error;
-      } else if (error?.response?.data?.detail) {
-        errorMessage = error.response.data.detail;
-      } else if (
-        error?.response?.data &&
-        typeof error.response.data === "object"
-      ) {
-        const firstKey = Object.keys(error.response.data)[0];
-        if (firstKey && Array.isArray(error.response.data[firstKey])) {
-          errorMessage = error.response.data[firstKey][0];
-        }
-      } else if (error?.message) {
-        errorMessage = error.message;
-      }
-
+      const errorMessage = getErrorMessage(
+        error,
+        "Failed to send password reset email"
+      );
       toast.error(errorMessage);
       setErrorMsg(errorMessage);
     },
@@ -177,7 +188,6 @@ export const useOnboarding = () => {
     try {
       await logoutMutation.mutateAsync();
     } catch (error) {
-      console.error("Logout failed:", error);
       throw error;
     }
   };
@@ -194,7 +204,6 @@ export const useOnboarding = () => {
       });
       data.callback?.();
     } catch (error: any) {
-      console.error("Login failed:", error);
       throw error;
     }
   };
@@ -213,7 +222,6 @@ export const useOnboarding = () => {
       });
       data.callback?.();
     } catch (error: any) {
-      console.error("Signup failed:", error);
       throw error;
     }
   };
@@ -223,11 +231,10 @@ export const useOnboarding = () => {
     callback?: () => void;
   }) => {
     try {
-      const response = await passwordResetMutation.mutateAsync({
+      await passwordResetMutation.mutateAsync({
         email: data.email,
       });
       data.callback?.();
-      toast.success(response?.message);
     } catch (error) {
       console.error("Password reset failed:", error);
       throw error;
