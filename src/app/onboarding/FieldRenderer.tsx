@@ -1,33 +1,42 @@
-import { Question } from '@/app/onboarding/OnboardingContext';
-import { Box, Field } from '@chakra-ui/react';
-import { TextField } from './fields/TextField';
-import { UrlField } from './fields/UrlField';
-import { SelectField } from './fields/SelectField';
-import { MultiSelectField } from './fields/MultiSelectField';
-import { FileField } from './fields/FileField';
-import { useOnboarding } from '@/app/onboarding/OnboardingContext';
+import { Question } from "@/app/onboarding/OnboardingContext";
+import { Box, Field } from "@chakra-ui/react";
+import { TextField } from "./fields/TextField";
+import { UrlField } from "./fields/UrlField";
+import { SelectField } from "./fields/SelectField";
+import { MultiSelectField } from "./fields/MultiSelectField";
+import { FileField } from "./fields/FileField";
+import { useOnboarding } from "@/app/onboarding/OnboardingContext";
 
 export type FieldProps = {
   question: Question;
   value: string | number | string[] | File | undefined;
   onChange: (_value: string | number | string[] | File) => void;
-  allAnswers?: { [field: string]: string | number | string[] | File | undefined };
-  onAnswerChange?: (_field: string, _value: string | number | string[] | File | undefined) => void;
+  allAnswers?: {
+    [field: string]: string | number | string[] | File | undefined;
+  };
+  onAnswerChange?: (
+    _field: string,
+    _value: string | number | string[] | File | undefined
+  ) => void;
 };
 
 const FIELD_TYPE_MAP: Record<string, React.FC<FieldProps>> = {
   text: TextField,
   url: UrlField,
   select: SelectField,
-  'multi-select': MultiSelectField,
+  "multi-select": MultiSelectField,
   location: TextField,
   number: TextField,
-  file: FileField
+  file: FileField,
 };
 
-export const FieldRenderer = (
-  { question, value, onChange, allAnswers, onAnswerChange }: FieldProps
-) => {
+export const FieldRenderer = ({
+  question,
+  value,
+  onChange,
+  allAnswers,
+  onAnswerChange,
+}: FieldProps) => {
   const { hasAttemptedValidation, fieldErrors } = useOnboarding();
   const Component = FIELD_TYPE_MAP[question.type];
 
@@ -41,7 +50,7 @@ export const FieldRenderer = (
 
     const values = Array.isArray(value) ? value : [value];
     return values
-      .map(val => question.followup_question![val as string])
+      .map((val) => question.followup_question![val as string])
       .filter(Boolean);
   };
 
@@ -52,7 +61,9 @@ export const FieldRenderer = (
       <Field.Root id={question.field} invalid={shouldShowErrors}>
         <Field.Label>
           {question.label}
-          {question.required && <span style={{ color: 'red', marginLeft: '4px' }}>*</span>}
+          {question.required && (
+            <span style={{ color: "red", marginLeft: "4px" }}>*</span>
+          )}
         </Field.Label>
         <Component
           question={question}
@@ -76,7 +87,9 @@ export const FieldRenderer = (
           <FieldRenderer
             question={followupQuestion}
             value={allAnswers?.[followupQuestion.field]}
-            onChange={(newValue) => onAnswerChange?.(followupQuestion.field, newValue)}
+            onChange={(newValue) =>
+              onAnswerChange?.(followupQuestion.field, newValue)
+            }
             allAnswers={allAnswers}
             onAnswerChange={onAnswerChange}
           />

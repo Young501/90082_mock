@@ -1,1 +1,1 @@
-export { useAuthStore, type AuthState } from './authStore'; 
+export { useAuthStore, type AuthState } from "./authStore";

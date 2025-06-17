@@ -1,32 +1,32 @@
-import { Box, Image, Text } from '@chakra-ui/react';
-import { FieldProps } from '../FieldRenderer';
-import { useRef } from 'react';
+import { Box, Image, Text } from "@chakra-ui/react";
+import { FieldProps } from "../FieldRenderer";
+import { useRef } from "react";
 
 // Field to file type mapping - all file upload fields must be defined here
-const FIELD_TYPE_MAP: Record<string, 'image' | 'resume'> = {
-  'profile_picture': 'image',
-  'resume': 'resume',
-  'logo': 'image',
+const FIELD_TYPE_MAP: Record<string, "image" | "resume"> = {
+  profile_picture: "image",
+  resume: "resume",
+  logo: "image",
 };
 
 // File type configurations
 const FILE_CONFIG = {
   image: {
-    accept: 'image/png,image/jpeg',
-    allowedTypes: ['image/png', 'image/jpeg'] as string[],
+    accept: "image/png,image/jpeg",
+    allowedTypes: ["image/png", "image/jpeg"] as string[],
     maxSize: 5, // MB
-    emptyText: '📸 Click to upload image',
-    helpText: 'Supports: PNG, JPEG (max 5MB)',
-    showPreview: true
+    emptyText: "📸 Click to upload image",
+    helpText: "Supports: PNG, JPEG (max 5MB)",
+    showPreview: true,
   },
   resume: {
-    accept: 'application/pdf',
-    allowedTypes: ['application/pdf'] as string[],
+    accept: "application/pdf",
+    allowedTypes: ["application/pdf"] as string[],
     maxSize: 10, // MB
-    emptyText: '📄 Click to upload resume',
-    helpText: 'Supports: PDF only (max 10MB)',
-    showPreview: false
-  }
+    emptyText: "📄 Click to upload resume",
+    helpText: "Supports: PDF only (max 10MB)",
+    showPreview: false,
+  },
 };
 
 export const FileField = ({ question, value, onChange }: FieldProps) => {
@@ -34,7 +34,9 @@ export const FileField = ({ question, value, onChange }: FieldProps) => {
 
   const fileType = FIELD_TYPE_MAP[question.field];
   if (!fileType) {
-    console.error(`File field '${question.field}' is not defined in FIELD_TYPE_MAP`);
+    console.error(
+      `File field '${question.field}' is not defined in FIELD_TYPE_MAP`
+    );
     return <Text color="red.500">File field configuration missing</Text>;
   }
 
@@ -58,7 +60,7 @@ export const FileField = ({ question, value, onChange }: FieldProps) => {
       const error = validateFile(file);
       if (error) {
         alert(error);
-        event.target.value = '';
+        event.target.value = "";
         return;
       }
       onChange(file);
@@ -79,7 +81,7 @@ export const FileField = ({ question, value, onChange }: FieldProps) => {
         onChange={handleFileSelect}
         accept={config.accept}
         id={question.field}
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
       />
 
       <Box
@@ -89,7 +91,7 @@ export const FileField = ({ question, value, onChange }: FieldProps) => {
         p={4}
         textAlign="center"
         cursor="pointer"
-        _hover={{ borderColor: 'blue.400' }}
+        _hover={{ borderColor: "blue.400" }}
         onClick={handleClick}
       >
         {displayValue ? (
@@ -113,9 +115,7 @@ export const FileField = ({ question, value, onChange }: FieldProps) => {
           </Box>
         ) : (
           <Box>
-            <Text mb={2}>
-              {config.emptyText}
-            </Text>
+            <Text mb={2}>{config.emptyText}</Text>
             <Text fontSize="sm" color="gray.500">
               {config.helpText}
             </Text>
