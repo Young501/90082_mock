@@ -1,11 +1,13 @@
-import { Portal, Select, createListCollection } from '@chakra-ui/react';
-import { FieldProps } from '../FieldRenderer';
+import { Portal, Select, createListCollection } from "@chakra-ui/react";
+import { FieldProps } from "../FieldRenderer";
 
 export const SelectField = ({ question, value, onChange }: FieldProps) => {
-  const options = (question.options || question.option || []).map((o: string) => ({
-    label: o,
-    value: o,
-  }));
+  const options = (question.options || question.option || []).map(
+    (o: string) => ({
+      label: o,
+      value: o,
+    })
+  );
 
   const collection = createListCollection({ items: options });
 
@@ -13,7 +15,7 @@ export const SelectField = ({ question, value, onChange }: FieldProps) => {
     <Select.Root
       collection={collection}
       value={value === undefined ? [] : [String(value)]}
-      onValueChange={details => onChange(details.value[0])}
+      onValueChange={(details) => onChange(details.value[0])}
       multiple={false}
       width="100%"
       size="md"
@@ -30,7 +32,7 @@ export const SelectField = ({ question, value, onChange }: FieldProps) => {
       <Portal>
         <Select.Positioner>
           <Select.Content>
-            {options.map(opt => (
+            {options.map((opt) => (
               <Select.Item item={opt} key={opt.value}>
                 {opt.label}
                 <Select.ItemIndicator />

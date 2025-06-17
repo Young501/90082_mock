@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { Progress, Box, Button, Heading, Text } from '@chakra-ui/react';
-import { Alert } from '@chakra-ui/react';
-import { useOnboarding } from '@/app/onboarding/OnboardingContext';
-import { FieldRenderer } from './FieldRenderer';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { Progress, Box, Button, Heading, Text } from "@chakra-ui/react";
+import { Alert } from "@chakra-ui/react";
+import { useOnboarding } from "@/app/onboarding/OnboardingContext";
+import { FieldRenderer } from "./FieldRenderer";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type Props = {
   userType: string;
@@ -22,15 +22,16 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
     setAnswer,
     goToPreviousPage,
     handleNext,
-    handleSubmit
+    handleSubmit,
   } = useOnboarding();
 
   const router = useRouter();
   const [showValidationMessage, setShowValidationMessage] = useState(false);
 
-  const page = pages.find(p => p.id === currentPageId);
-  const currentPageIndex = pages.findIndex(p => p.id === currentPageId);
-  const progressPercent = pages.length > 0 ? ((currentPageIndex + 1) / pages.length) * 100 : 0;
+  const page = pages.find((p) => p.id === currentPageId);
+  const currentPageIndex = pages.findIndex((p) => p.id === currentPageId);
+  const progressPercent =
+    pages.length > 0 ? ((currentPageIndex + 1) / pages.length) * 100 : 0;
 
   const onNext = () => {
     const success = handleNext();
@@ -41,12 +42,15 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
     const result = await handleSubmit(userType, token);
 
     if (result.success) {
-      alert('Congrats! Your profile is ready!');
-      console.log('Done, you can check your profile through Django admin now');
-      router.push('/home');
+      alert("Congrats! Your profile is ready!");
+      console.log("Done, you can check your profile through Django admin now");
+      router.push("/home");
     } else {
       setShowValidationMessage(true);
-      if (result.error && result.error !== 'Please complete all required information') {
+      if (
+        result.error &&
+        result.error !== "Please complete all required information"
+      ) {
         const errorMsg = `Submission failed: ${result.error}`;
         alert(errorMsg);
         console.error(errorMsg);
@@ -56,12 +60,16 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
 
   if (!page) return <Text>No onboarding page found.</Text>;
 
-  const hasFieldErrors = Object.values(fieldErrors).some(errors => errors.length > 0);
+  const hasFieldErrors = Object.values(fieldErrors).some(
+    (errors) => errors.length > 0
+  );
 
   return (
     <Box p={6}>
       <Box mb={6}>
-        <Text fontSize="sm" mb={1}>Progress: {Math.round(progressPercent)}%</Text>
+        <Text fontSize="sm" mb={1}>
+          Progress: {Math.round(progressPercent)}%
+        </Text>
         <Progress.Root value={progressPercent} max={100}>
           <Progress.Track>
             <Progress.Range />
@@ -70,7 +78,10 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
       </Box>
 
       <Text fontSize="sm" color="gray.600" mb={4}>
-        Required fields are marked with <Text as="span" color="red">*</Text>
+        Required fields are marked with{" "}
+        <Text as="span" color="red">
+          *
+        </Text>
       </Text>
 
       <Heading size="md" mb={4}>
@@ -88,19 +99,17 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
         />
       ))}
 
-      {(showValidationMessage && (hasAttemptedValidation && hasFieldErrors)) && (
+      {showValidationMessage && hasAttemptedValidation && hasFieldErrors && (
         <Alert.Root status="error" mb={4}>
           <Alert.Indicator />
-          <Alert.Title>Please complete all required information as indicated</Alert.Title>
+          <Alert.Title>
+            Please complete all required information as indicated
+          </Alert.Title>
         </Alert.Root>
       )}
 
       <Box mt={6} display="flex" justifyContent="space-between">
-        {page.id !== 1 && (
-          <Button onClick={goToPreviousPage}>
-            Previous
-          </Button>
-        )}
+        {page.id !== 1 && <Button onClick={goToPreviousPage}>Previous</Button>}
 
         {!page.follow_by ? (
           <Button
