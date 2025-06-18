@@ -30,17 +30,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-        width: "100%",
-        maxHeight: "126px",
-      }}
-    >
+    <>
       {isProtected ? (
         <Box
           bg="#002157"
@@ -49,6 +39,13 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
           alignItems="center"
           justifyContent="space-between"
           px={{ base: 4, lg: 16 }}
+          position="fixed"
+          top={0}
+          left={0}
+          right={0}
+          zIndex={1000}
+          width="100%"
+          maxHeight="126px"
         >
           <Image alt="logo" src="/uni.png" width={300} height={80} />
 
@@ -91,6 +88,13 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
           alignItems="center"
           justifyContent="space-between"
           px={{ base: 4, lg: 8 }}
+          position="fixed"
+          top={0}
+          left={0}
+          right={0}
+          zIndex={1000}
+          width="100%"
+          maxHeight="126px"
         >
           <Logo variant="header" width="200px" height="60px" />
 
@@ -114,7 +118,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
           </HStack>
         </Box>
       )}
-    </div>
+    </>
   );
 };
 
