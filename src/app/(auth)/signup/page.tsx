@@ -12,6 +12,7 @@ import Image from "next/image";
 import * as yup from "yup";
 import { useOnboarding } from "@/hooks/onboarding";
 import { useAuthStore } from "@/store/authStore";
+import { motion } from "framer-motion";
 import Link from "next/link";
 
 interface FormData {
@@ -78,36 +79,62 @@ const SignupPage = () => {
         },
       });
     } catch (error: any) {
+      console.log("error", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div style={{ width: "100%", height: "100%" }}>
+    <>
       <Flex
-        h={{ base: "auto", lg: "calc(100vh - 306px)" }}
         w="100%"
         position="relative"
         overflow="hidden"
-        align="center"
-        justify="space-between"
+        align="space-between"
+        justify="center"
         gap={{ base: 8, lg: 16 }}
+        pb={{ base: 10, lg: 100 }}
+        h="100%"
         direction={{ base: "column", lg: "row" }}
       >
         <Box
           display="flex"
           alignItems="center"
           justifyContent="center"
+          gap={4}
           minW={{ base: "auto", lg: "200px" }}
+          position="relative"
         >
-          <Image
-            src="/assets/mini-logo.png"
-            alt="logo"
-            style={{ objectFit: "contain" }}
-            width={124}
-            height={124}
-          />
+          <motion.div
+            initial={{ x: -100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            style={{ zIndex: 2, position: "relative" }}
+          >
+            <Image
+              src="/assets/mini-logo.png"
+              alt="logo"
+              style={{ objectFit: "contain" }}
+              width={124}
+              height={124}
+            />
+          </motion.div>
+
+          <motion.div
+            initial={{ x: -100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.7, ease: "easeOut", delay: 0.5 }}
+            style={{ zIndex: 1, position: "relative" }}
+          >
+            <Image
+              src="/assets/uniconnectedLogo.png"
+              alt="logo"
+              style={{ objectFit: "contain" }}
+              width={523}
+              height={142}
+            />
+          </motion.div>
         </Box>
 
         <Box w={{ base: "100%", md: "400px" }} maxW="400px">
@@ -196,7 +223,6 @@ const SignupPage = () => {
                 </Text>
                 <Link href="/login" passHref>
                   <Button
-                    as="a"
                     variant="ghost"
                     p={0}
                     h="auto"
@@ -212,7 +238,7 @@ const SignupPage = () => {
           </form>
         </Box>
       </Flex>
-    </div>
+    </>
   );
 };
 

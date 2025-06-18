@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Container, useBreakpointValue } from "@chakra-ui/react";
+import { Container, useBreakpointValue } from "@chakra-ui/react";
 import { ReactNode } from "react";
 import Footer from "@/components/Layouts/Footer";
 import Header from "@/components/Layouts/Header";
@@ -40,7 +40,6 @@ export default function Layout({ children }: AuthLayoutProps) {
           {children}
         </Container>
       </div>
-
       <Footer />
     </div>
   );

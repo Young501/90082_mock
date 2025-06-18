@@ -51,7 +51,7 @@ export default function LoginPage() {
     errorMsg,
   } = useOnboarding();
 
-  const isMobile = useBreakpointValue({ base: true, lg: false });
+  // const isMobile = useBreakpointValue({ base: true, lg: false });
 
   const {
     register,
@@ -113,28 +113,22 @@ export default function LoginPage() {
         position="relative"
         overflow="hidden"
         flex={1}
+        direction={{ base: "column", lg: "row" }}
         align="center"
-        justify="flex-end"
+        justify={{ base: "center", lg: "space-between" }}
         zIndex={2}
         px="0"
+        gap={{ base: "40px", lg: "0" }}
       >
-        {!isMobile && (
-          <Box
-            position="absolute"
-            left={0}
-            top="0"
-            w={{ base: "600px", xl: "704px" }}
-            h="100%"
-            zIndex={1}
-          >
-            <Image
-              src="/assets/login-illustration.png"
-              fill
-              alt="UniConnected illustration"
-              style={{ objectFit: "cover", objectPosition: "center" }}
-            />
-          </Box>
-        )}
+        <Box>
+          <Image
+            src="/assets/Login-illustration.png"
+            alt="UniConnected illustration"
+            width={704}
+            height={600}
+            style={{ objectFit: "cover", objectPosition: "center" }}
+          />
+        </Box>
         <Box
           w={{ base: "100%", md: "500px", lg: "450px" }}
           maxW="450px"
