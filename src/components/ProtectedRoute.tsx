@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/api";
 
@@ -10,15 +10,24 @@ export default function ProtectedRoute({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, token } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login");
-    }
-  }, [isAuthenticated, router]);
+    const checkAuth = async () => {
+      if (!isLoading && !isAuthenticated && !token) {
+        router.push("/login");
+      }
+      setIsLoading(false);
+    };
+    checkAuth();
+  }, [isAuthenticated, token, isLoading, router]);
 
-  if (!isAuthenticated) {
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!isAuthenticated || !token) {
     return null;
   }
 

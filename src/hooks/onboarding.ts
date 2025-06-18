@@ -121,6 +121,14 @@ export const useOnboarding = () => {
     },
   });
 
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiClient.post(API_ENDPOINTS.LOGOUT.url);
+
+      return response.data;
+    },
+  });
+
   const passwordResetMutation = useMutation({
     mutationFn: async (data: PasswordResetData) => {
       const response = await apiClient.post(API_ENDPOINTS.PASSWORD_RESET.url, {
@@ -156,6 +164,15 @@ export const useOnboarding = () => {
       setErrorMsg(errorMessage);
     },
   });
+
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+    } catch (error) {
+      console.error("Logout failed:", error);
+      throw error;
+    }
+  };
 
   const handleLogin = async (data: {
     email: string;
@@ -210,6 +227,7 @@ export const useOnboarding = () => {
 
   return {
     checkOnboardingStatus,
+    handleLogout,
     handleLogin,
     handleSignup,
     handleForgotPassword,
