@@ -223,7 +223,6 @@ const SignupPage = () => {
                 </Text>
                 <Link href="/login" passHref>
                   <Button
-                    as="a"
                     variant="ghost"
                     p={0}
                     h="auto"
