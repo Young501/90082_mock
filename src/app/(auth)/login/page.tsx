@@ -44,7 +44,7 @@ export default function LoginPage() {
   const {
     handleLogin,
     handleSignup: onboardingSignup,
-    handleForgotPassword: onboardingForgotPassword,
+    handleForgotPassword,
     isLoginLoading,
     isSignupLoading,
     isPasswordResetLoading,
@@ -59,6 +59,7 @@ export default function LoginPage() {
     formState: { errors, isValid },
     watch,
     setError,
+    setValue,
   } = useForm<FormData>({
     resolver: yupResolver(validationSchema),
     mode: "onChange",
@@ -83,13 +84,26 @@ export default function LoginPage() {
         },
       });
     } catch (error: any) {
-      toast.error(error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleForgotPassword = async () => {};
+  const handleUserForgotPassword = async () => {
+    if (!emailValue) {
+      setError("email", { message: "Email is required" });
+      return;
+    } else if (emailValue) {
+      try {
+        await handleForgotPassword({
+          email: emailValue,
+          callback: () => {
+            setValue("email", "");
+          },
+        });
+      } catch (error: any) {}
+    }
+  };
 
   return (
     <div style={{ width: "100%", height: "100%" }}>
@@ -178,7 +192,7 @@ export default function LoginPage() {
                 </Text>
                 <Button
                   variant="ghost"
-                  onClick={handleForgotPassword}
+                  onClick={handleUserForgotPassword}
                   disabled={isPasswordResetLoading}
                   isLoading={isPasswordResetLoading}
                   p={0}

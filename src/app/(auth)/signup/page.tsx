@@ -12,6 +12,7 @@ import Image from "next/image";
 import * as yup from "yup";
 import { useOnboarding } from "@/hooks/onboarding";
 import { useAuthStore } from "@/store/authStore";
+import Link from "next/link";
 
 interface FormData {
   email: string;
@@ -31,12 +32,12 @@ const validationSchema = yup.object({
 
 const SignupPage = () => {
   const router = useRouter();
-  const [showPassword, setShowPassword] = useState(false);
   const signupSelectedUserType = useAuthStore(
     (state) => state.signupSelectedUserType
   );
   const [isLoading, setIsLoading] = useState(false);
-  const { handleSignup } = useOnboarding();
+  const [showPassword, setShowPassword] = useState(false);
+  const { handleSignup, errorMsg } = useOnboarding();
 
   useEffect(() => {
     if (!signupSelectedUserType) {
@@ -71,12 +72,12 @@ const SignupPage = () => {
         password: data.password,
         user_types: signupSelectedUserType ? [signupSelectedUserType] : [],
         callback: () => {
-          router.push(`/verify-email/sent?email=${encodeURIComponent(data.email)}`);
-          reset();
+          router.push(
+            `/verify-email/sent?email=${encodeURIComponent(data.email)}`
+          );
         },
       });
     } catch (error: any) {
-      toast.error(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -140,9 +141,11 @@ const SignupPage = () => {
                 {...register("email")}
                 value={emailValue || ""}
               />
+
               <InputField
                 label="PASSWORD"
-                autoComplete="current-password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
                 error={errors.password?.message}
                 showPasswordToggle
                 showPassword={showPassword}
@@ -191,16 +194,19 @@ const SignupPage = () => {
                 <Text fontSize="20px" fontWeight="700" color="#000000">
                   Already have a profile?
                 </Text>
-                <Button
-                  variant="ghost"
-                  p={0}
-                  h="auto"
-                  fontSize="20px"
-                  color="#282F68"
-                  fontWeight="700"
-                >
-                  Login
-                </Button>
+                <Link href="/login" passHref>
+                  <Button
+                    as="a"
+                    variant="ghost"
+                    p={0}
+                    h="auto"
+                    fontSize="20px"
+                    color="#282F68"
+                    fontWeight="700"
+                  >
+                    Login
+                  </Button>
+                </Link>
               </HStack>
             </VStack>
           </form>

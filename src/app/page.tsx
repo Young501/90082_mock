@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { Button, HStack } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 const Demo = () => {
   const [clicked, setClicked] = useState(false);
@@ -31,7 +29,6 @@ export default function HomePage() {
   return (
     <div>
       <Demo />
-      <ToastContainer />
     </div>
   );
 }

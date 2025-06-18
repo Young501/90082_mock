@@ -93,7 +93,7 @@ apiClient.interceptors.request.use(
     return config;
   },
   (error: AxiosError) => {
-    console.error("❌ Request interceptor error:", error);
+    // console.error("❌ Request interceptor error:", error);
     return Promise.reject(error);
   }
 );
@@ -155,8 +155,8 @@ export const API_ENDPOINTS = {
     auth: false,
   },
   EMAIL_VERIFICATION: {
-    method: 'GET',
-    url: '/api/v1/verify-email/',
+    method: "GET",
+    url: "/api/v1/verify-email/",
     auth: false,
   },
   USER_TYPES: {
@@ -238,7 +238,7 @@ interface EmailVerificationData {
 }
 
 interface EmailVerificationResponse {
-  detail: string
+  detail: string;
 }
 
 export function loginMutation() {
@@ -281,17 +281,18 @@ export function usePasswordReset() {
 
 export function useEmailVerification() {
   return useMutation({
-    mutationFn: async (data: EmailVerificationData): Promise<EmailVerificationResponse> => {
+    mutationFn: async (
+      data: EmailVerificationData
+    ): Promise<EmailVerificationResponse> => {
       const endpoint = {
         ...API_ENDPOINTS.EMAIL_VERIFICATION,
         url: `${API_ENDPOINTS.EMAIL_VERIFICATION.url}?token=${encodeURIComponent(data.token)}`,
       };
-      
+
       return apiRequest({ endpoint });
     },
   });
 }
-
 
 export function useUserTypes() {
   return useQuery({
