@@ -4,7 +4,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { User } from "@/app/types/user";
+import { User } from "@/types/user";
 import { useAuthStore } from "@/store";
 
 // ============= AUTH UTILITIES =============
