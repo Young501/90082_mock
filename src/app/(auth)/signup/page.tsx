@@ -71,8 +71,8 @@ const SignupPage = () => {
         password: data.password,
         user_types: signupSelectedUserType ? [signupSelectedUserType] : [],
         callback: () => {
+          router.push(`/verify-email/sent?email=${encodeURIComponent(data.email)}`);
           reset();
-          router.push("/email-verification");
         },
       });
     } catch (error: any) {
