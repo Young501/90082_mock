@@ -10,7 +10,6 @@ import {
   HStack,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { checkOnboardingStatus } from "@/app/onboarding/utils";
 import { useRouter } from "next/navigation";
 import { InputField, Button } from "@/components/ui";
 import Image from "next/image";
