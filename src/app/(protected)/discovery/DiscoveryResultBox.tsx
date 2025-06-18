@@ -1,6 +1,7 @@
 import React from "react";
-import { Box, VStack, HStack, Heading, Text } from "@chakra-ui/react";
+import { Box, VStack, HStack, Heading, Text, SimpleGrid } from "@chakra-ui/react";
 import { UserProfile } from "@/types/discovery";
+import { StudentCard, PartnerCard } from "./cards";
 
 interface DiscoveryResultBoxProps {
   results: UserProfile[];
@@ -8,6 +9,7 @@ interface DiscoveryResultBoxProps {
   isLoading: boolean;
   hasSearched: boolean;
   show: boolean;
+  userType: string;
 }
 
 export function DiscoveryResultBox({
@@ -15,7 +17,8 @@ export function DiscoveryResultBox({
   count,
   isLoading,
   hasSearched,
-  show
+  show,
+  userType
 }: DiscoveryResultBoxProps) {
   if (!show) return null;
 
@@ -32,19 +35,17 @@ export function DiscoveryResultBox({
           <Text>Loading...</Text>
         </Box>
       ) : count > 0 ? (
-        <Box
-          p={4}
-          borderRadius="md"
-          border="1px solid"
-          borderColor="gray.200"
-          bg="white"
-          maxH="600px"
-          overflowY="auto"
-        >
-          <Text fontSize="sm" fontFamily="mono" whiteSpace="pre-wrap">
-            {JSON.stringify(results, null, 2)}
-          </Text>
-        </Box>
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
+          {results.map((user) => {
+            const key = user.id || Math.random();
+            
+            return userType === 'student' ? (
+              <StudentCard key={key} student={user} />
+            ) : (
+              <PartnerCard key={key} partner={user} />
+            );
+          })}
+        </SimpleGrid>
       ) : (
         <Box textAlign="center" py={8}>
           <Text color="gray.500">

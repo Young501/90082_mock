@@ -25,6 +25,19 @@ const createValidationSchema = (fields: ProcessedField[]) => {
   return yup.object().shape(shape);
 };
 
+const getDefaultValues = (fields: ProcessedField[]): FilterFormData => {
+    const defaultValues: FilterFormData = {};
+    fields.forEach(field => {
+      if (field.type === 'multi-select') {
+        defaultValues[field.field] = [];
+      } else {
+        defaultValues[field.field] = '';
+      }
+    });
+    return defaultValues;
+  };
+
+// ===== Main Hook =====
 export const useDiscovery = () => {
   const { user } = useAuthStore();
   const [filterableFields, setFilterableFields] = useState<ProcessedField[]>([]);
@@ -49,18 +62,6 @@ export const useDiscovery = () => {
     createValidationSchema(filterableFields), 
     [filterableFields]
   );
-
-  const getDefaultValues = (fields: ProcessedField[]): FilterFormData => {
-    const defaultValues: FilterFormData = {};
-    fields.forEach(field => {
-      if (field.type === 'multi-select') {
-        defaultValues[field.field] = [];
-      } else {
-        defaultValues[field.field] = '';
-      }
-    });
-    return defaultValues;
-  };
 
   const form = useForm<FilterFormData>({
     resolver: yupResolver(validationSchema),

@@ -18,12 +18,12 @@ export interface DependencyCondition {
   operator?: 'equals' | 'contains' | 'not_equals';
 }
 
-export interface UserProfile {
+export interface StudentProfile {
   id?: number;
   first_name?: string;
   last_name?: string;
   location?: string;
-  profile_picture?: string;
+  profile_picture_url?: string;
   course_name?: string;
   course_stream?: string;
   specialization?: string[] | string;
@@ -31,18 +31,25 @@ export interface UserProfile {
   skills?: string[];
   credentials?: string[];
   preferred_location?: string[];
-  [key: string]: any;
 }
+
+export interface PartnerProfile {
+  id?: number;
+  first_name?: string;
+  last_name?: string;
+  location?: string;
+  profile_picture_url?: string;
+  company_name?: string;
+  sector?: string;
+  industry?: string;
+  company_size?: string;
+  logo?: string;
+}
+
+export type UserProfile = StudentProfile | PartnerProfile;
 
 export interface UserSearchParams {
   user_type: string;
-  course_name?: string;
-  course_stream?: string;
-  specialization?: string;
-  course_progression?: string;
-  skills?: string;
-  credentials?: string;
-  preferred_location?: string;
   page?: number;
   page_size?: number;
   [key: string]: any;

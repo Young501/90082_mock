@@ -69,6 +69,7 @@ export default function DiscoveryPage() {
         isLoading={isSearching}
         hasSearched={hasSearched}
         show={showResults}
+        userType={targetUserType}
       />
     </Box>
   );
