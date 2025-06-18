@@ -1,0 +1,211 @@
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { useAuthStore } from "@/store";
+import { useOnboardingPages, useUserSearch } from "@/api";
+import { 
+  FilterFormData, 
+  ProcessedField, 
+  DependencyCondition, 
+  UserSearchParams 
+} from "@/types/discovery";
+
+const createValidationSchema = (fields: ProcessedField[]) => {
+  const shape: Record<string, any> = {};
+  
+  fields.forEach(field => {
+    if (field.type === 'multi-select') {
+      shape[field.field] = yup.array().of(yup.string());
+    } else {
+      shape[field.field] = yup.string();
+    }
+  });
+  
+  return yup.object().shape(shape);
+};
+
+export const useDiscovery = () => {
+  const { user } = useAuthStore();
+  const [filterableFields, setFilterableFields] = useState<ProcessedField[]>([]);
+  const [searchParams, setSearchParams] = useState<UserSearchParams | null>(null);
+
+  const userType = user?.user_types?.[0];
+  const targetUserType = useMemo(() => {
+    if (!userType) return null;
+    return userType === "student" ? "partner" : "student";
+  }, [userType]);
+
+  const { data: onboardingData, isLoading: isOnboardingLoading } = useOnboardingPages(targetUserType || "");
+  
+  const { 
+    data: searchData, 
+    isLoading: isSearchLoading, 
+    error: searchError,
+    isFetching
+  } = useUserSearch(searchParams);
+
+  const validationSchema = useMemo(() => 
+    createValidationSchema(filterableFields), 
+    [filterableFields]
+  );
+
+  const getDefaultValues = (fields: ProcessedField[]): FilterFormData => {
+    const defaultValues: FilterFormData = {};
+    fields.forEach(field => {
+      if (field.type === 'multi-select') {
+        defaultValues[field.field] = [];
+      } else {
+        defaultValues[field.field] = '';
+      }
+    });
+    return defaultValues;
+  };
+
+  const form = useForm<FilterFormData>({
+    resolver: yupResolver(validationSchema),
+    mode: 'onChange',
+    defaultValues: getDefaultValues(filterableFields)
+  });
+
+  useEffect(() => {
+    if (filterableFields.length > 0) {
+      const defaultValues = getDefaultValues(filterableFields);
+      form.reset(defaultValues);
+    }
+  }, [filterableFields, form]);
+
+  useEffect(() => {
+    if (targetUserType && !searchParams) {
+      setSearchParams({ user_type: targetUserType });
+    }
+  }, [targetUserType, searchParams]);
+
+  const processFollowupQuestions = useCallback((
+    field: any, 
+    parentDependencies: DependencyCondition[] = [],
+    processedFields: Map<string, ProcessedField> = new Map()
+  ): void => {
+    if (field.is_filter !== true) return;
+
+    const uniqueKey = parentDependencies.length === 0 
+      ? field.field 
+      : `${parentDependencies.map(d => `${d.field}=${d.value}`).join('_')}_${field.field}`;
+    
+    if (processedFields.has(uniqueKey)) return;
+
+    const displayHint = parentDependencies.length > 0
+      ? `(when ${parentDependencies.map(d => `${d.field} = ${d.value}`).join(' and ')})`
+      : undefined;
+    
+    const processedField: ProcessedField = {
+      ...field,
+      uniqueKey,
+      dependencyChain: [...parentDependencies],
+      displayHint
+    };
+    
+    processedFields.set(uniqueKey, processedField);
+    
+    if (field.followup_question && typeof field.followup_question === 'object') {
+      Object.entries(field.followup_question).forEach(([triggerValue, followupField]: [string, any]) => {
+        if (followupField && typeof followupField === 'object') {
+          const newDependency: DependencyCondition = {
+            field: field.field,
+            value: triggerValue,
+            operator: 'equals'
+          };
+          
+          processFollowupQuestions(
+            followupField, 
+            [...parentDependencies, newDependency], 
+            processedFields
+          );
+        }
+      });
+    }
+  }, []);
+
+  const checkDependencies = (field: ProcessedField, formValues: FilterFormData): boolean => {
+    if (field.dependencyChain.length === 0) return true;
+    
+    return field.dependencyChain.every(dependency => {
+      const currentValue = formValues[dependency.field];
+      
+      switch (dependency.operator || 'equals') {
+        case 'equals':
+          return currentValue === dependency.value;
+        case 'contains':
+          return Array.isArray(currentValue) && currentValue.includes(dependency.value);
+        case 'not_equals':
+          return currentValue !== dependency.value;
+        default:
+          return currentValue === dependency.value;
+      }
+    });
+  };
+
+  const handleSearch = (data: FilterFormData) => {
+    if (!targetUserType) return;
+    
+    const newSearchParams: UserSearchParams = {
+      user_type: targetUserType,
+      ...Object.fromEntries(
+        Object.entries(data).filter(([_, value]) => 
+          value && value !== '' && !(Array.isArray(value) && value.length === 0)
+        )
+      )
+    };
+
+    setSearchParams(newSearchParams);
+  };
+
+  const handleReset = () => {
+    form.reset();
+  
+    if (targetUserType) {
+      setSearchParams({ user_type: targetUserType });
+    }
+  };
+
+  useEffect(() => {
+    if (!onboardingData || !targetUserType) return;
+    
+    const processedFields = new Map<string, ProcessedField>();
+    const typedData = onboardingData as { onboarding_pages: any[] };
+    
+    if (typedData.onboarding_pages && Array.isArray(typedData.onboarding_pages)) {
+      typedData.onboarding_pages.forEach((page: any) => {
+        if (page.questions && Array.isArray(page.questions)) {
+          page.questions.forEach((field: any) => {
+            processFollowupQuestions(field, [], processedFields);
+          });
+        }
+      });
+    }
+    
+    setFilterableFields(Array.from(processedFields.values()));
+  }, [onboardingData, processFollowupQuestions, targetUserType]);
+
+  const hasSearchFilters = useMemo(() => {
+    if (!searchParams) return false;
+    return Object.keys(searchParams).length > 1;
+  }, [searchParams]);
+
+  return {
+    searchResults: searchData?.results || [],
+    hasSearched: hasSearchFilters,
+    filterableFields,
+    targetUserType,
+    isLoading: isOnboardingLoading || isSearchLoading,
+    isSearching: isFetching,
+    form,
+    handleSearch: form.handleSubmit(handleSearch),
+    handleReset,
+    checkDependencies,
+    resultsCount: searchData?.count || 0,
+    showResults: !!searchData?.results,
+    searchParams,
+    searchError
+  };
+};
