@@ -13,6 +13,7 @@ import * as yup from "yup";
 import { useOnboarding } from "@/hooks/onboarding";
 import { useAuthStore } from "@/store/authStore";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 interface FormData {
   email: string;
@@ -72,8 +73,9 @@ const SignupPage = () => {
         password: data.password,
         user_types: signupSelectedUserType ? [signupSelectedUserType] : [],
         callback: () => {
-          reset();
-          //   router.push("/email-verification");
+          router.push(
+            `/verify-email/sent?email=${encodeURIComponent(data.email)}`
+          );
         },
       });
     } catch (error: any) {
@@ -219,16 +221,19 @@ const SignupPage = () => {
                 <Text fontSize="20px" fontWeight="700" color="#000000">
                   Already have a profile?
                 </Text>
-                <Button
-                  variant="ghost"
-                  p={0}
-                  h="auto"
-                  fontSize="20px"
-                  color="#282F68"
-                  fontWeight="700"
-                >
-                  Login
-                </Button>
+                <Link href="/login" passHref>
+                  <Button
+                    as="a"
+                    variant="ghost"
+                    p={0}
+                    h="auto"
+                    fontSize="20px"
+                    color="#282F68"
+                    fontWeight="700"
+                  >
+                    Login
+                  </Button>
+                </Link>
               </HStack>
             </VStack>
           </form>

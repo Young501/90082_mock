@@ -4,7 +4,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { User } from "@/app/types/user";
+import { User } from "@/types/user";
 import { useAuthStore } from "@/store";
 
 // ============= AUTH UTILITIES =============
@@ -113,13 +113,13 @@ apiClient.interceptors.response.use(
   },
   (error: AxiosError) => {
     if (process.env.NODE_ENV === "development") {
-      // console.error(
-      //   `❌ ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
-      //   {
-      //     status: error.response?.status,
-      //     data: error.response?.data,
-      //   }
-      // );
+      console.error(
+        `❌ ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
+        {
+          status: error.response?.status,
+          data: error.response?.data,
+        }
+      );
     }
     return Promise.reject(error);
   }
@@ -152,6 +152,11 @@ export const API_ENDPOINTS = {
   PASSWORD_RESET: {
     method: "POST",
     url: "/api/v1/password-reset-request",
+    auth: false,
+  },
+  EMAIL_VERIFICATION: {
+    method: "GET",
+    url: "/api/v1/verify-email/",
     auth: false,
   },
   USER_TYPES: {
@@ -228,6 +233,14 @@ interface PasswordResetData {
   email: string;
 }
 
+interface EmailVerificationData {
+  token: string;
+}
+
+interface EmailVerificationResponse {
+  detail: string;
+}
+
 export function loginMutation() {
   const queryClient = useQueryClient();
 
@@ -262,6 +275,21 @@ export function usePasswordReset() {
         endpoint: API_ENDPOINTS.PASSWORD_RESET,
         body: data,
       });
+    },
+  });
+}
+
+export function useEmailVerification() {
+  return useMutation({
+    mutationFn: async (
+      data: EmailVerificationData
+    ): Promise<EmailVerificationResponse> => {
+      const endpoint = {
+        ...API_ENDPOINTS.EMAIL_VERIFICATION,
+        url: `${API_ENDPOINTS.EMAIL_VERIFICATION.url}?token=${encodeURIComponent(data.token)}`,
+      };
+
+      return apiRequest({ endpoint });
     },
   });
 }
