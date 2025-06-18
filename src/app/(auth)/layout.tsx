@@ -40,8 +40,8 @@ export default function Layout({ children }: AuthLayoutProps) {
           {children}
         </Container>
       </Box>
-
-      {isMobile ? null : <Footer />}
+      {/* TO DO: Mobile footer missing */}
+      {!isMobile && <Footer />}
     </div>
   );
 }
