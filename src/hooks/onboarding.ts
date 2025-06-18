@@ -1,5 +1,6 @@
 import { API_ENDPOINTS, apiClient, apiRequest, useAuth } from "@/api";
 import { useAuthStore } from "@/store";
+import { User } from "@/types/user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
@@ -27,7 +28,7 @@ export const useOnboarding = () => {
   const queryClient = useQueryClient();
   const [errorMsg, setErrorMsg] = useState("");
 
-  const checkOnboardingStatus = async () => {
+  const checkOnboardingStatus = async (user: User) => {
     if (!user?.user_types?.[0]) {
       return;
     }
@@ -60,7 +61,7 @@ export const useOnboarding = () => {
     onSuccess: (response) => {
       setAuthData(response.token, response.user);
       queryClient.invalidateQueries({ queryKey: ["user"] });
-      checkOnboardingStatus();
+      checkOnboardingStatus(response.user);
     },
     onError: (error: any) => {
       let errorMessage = "Login failed";
