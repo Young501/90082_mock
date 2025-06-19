@@ -19,7 +19,12 @@ export default function DiscoveryPage() {
     handleReset,
     checkDependencies,
     resultsCount,
-    showResults
+    showResults,
+    currentPage,
+    pageSize,
+    totalPages,
+    handlePageChange,
+    handlePageSizeChange
   } = useDiscovery();
 
   const { control, watch } = form;
@@ -70,6 +75,11 @@ export default function DiscoveryPage() {
         hasSearched={hasSearched}
         show={showResults}
         userType={targetUserType}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
       />
     </Box>
   );

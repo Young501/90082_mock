@@ -42,6 +42,8 @@ export const useDiscovery = () => {
   const { user } = useAuthStore();
   const [filterableFields, setFilterableFields] = useState<ProcessedField[]>([]);
   const [searchParams, setSearchParams] = useState<UserSearchParams | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   const userType = user?.user_types?.[0];
   const targetUserType = useMemo(() => {
@@ -78,9 +80,13 @@ export const useDiscovery = () => {
 
   useEffect(() => {
     if (targetUserType && !searchParams) {
-      setSearchParams({ user_type: targetUserType });
+      setSearchParams({ 
+        user_type: targetUserType,
+        page: currentPage,
+        page_size: pageSize
+      });
     }
-  }, [targetUserType, searchParams]);
+  }, [targetUserType, searchParams, currentPage, pageSize]);
 
   const processFollowupQuestions = useCallback((
     field: any, 
@@ -151,6 +157,8 @@ export const useDiscovery = () => {
     
     const newSearchParams: UserSearchParams = {
       user_type: targetUserType,
+      page: 1,
+      page_size: pageSize,
       ...Object.fromEntries(
         Object.entries(data).filter(([_, value]) => 
           value && value !== '' && !(Array.isArray(value) && value.length === 0)
@@ -158,15 +166,43 @@ export const useDiscovery = () => {
       )
     };
 
+    setCurrentPage(1);
     setSearchParams(newSearchParams);
   };
 
   const handleReset = () => {
     form.reset();
+    setCurrentPage(1);
   
     if (targetUserType) {
-      setSearchParams({ user_type: targetUserType });
+      setSearchParams({ 
+        user_type: targetUserType,
+        page: 1,
+        page_size: pageSize
+      });
     }
+  };
+
+  const handlePageChange = (page: number) => {
+    if (!searchParams) return;
+    
+    setCurrentPage(page);
+    setSearchParams({
+      ...searchParams,
+      page
+    });
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    if (!searchParams) return;
+    
+    setPageSize(newPageSize);
+    setCurrentPage(1);
+    setSearchParams({
+      ...searchParams,
+      page: 1,
+      page_size: newPageSize
+    });
   };
 
   useEffect(() => {
@@ -190,8 +226,14 @@ export const useDiscovery = () => {
 
   const hasSearchFilters = useMemo(() => {
     if (!searchParams) return false;
-    return Object.keys(searchParams).length > 1;
+    const { user_type, page, page_size, ...filters } = searchParams;
+    return Object.keys(filters).length > 0;
   }, [searchParams]);
+
+  const totalPages = useMemo(() => {
+    if (!searchData?.count) return 1;
+    return Math.ceil(searchData.count / pageSize);
+  }, [searchData?.count, pageSize]);
 
   return {
     searchResults: searchData?.results || [],
@@ -207,6 +249,11 @@ export const useDiscovery = () => {
     resultsCount: searchData?.count || 0,
     showResults: !!searchData?.results,
     searchParams,
-    searchError
+    searchError,
+    currentPage,
+    pageSize,
+    totalPages,
+    handlePageChange,
+    handlePageSizeChange
   };
 };
