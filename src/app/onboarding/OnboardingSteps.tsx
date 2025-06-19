@@ -218,29 +218,52 @@ export const OnboardingSteps = ({ userType, token }: Props) => {
       delete submissionData.profile_picture;
       delete submissionData.resume;
 
-      await submissionMutation.mutateAsync(submissionData);
+      const submissionResponse =
+        await submissionMutation.mutateAsync(submissionData);
+      toast.success(
+        submissionResponse?.detail || "Profile created successfully!"
+      );
 
       const profilePicture = allData.profile_picture;
       const resume = allData.resume;
       const uploadTasks = [];
+
       if (profilePicture instanceof File) {
         uploadTasks.push(profilePictureUpload.mutateAsync(profilePicture));
       }
       if (resume instanceof File) {
         uploadTasks.push(resumeUpload.mutateAsync(resume));
       }
+
       if (uploadTasks.length > 0) {
         const results = await Promise.allSettled(uploadTasks);
         const failed = results.find((r) => r.status === "rejected");
         if (failed) {
+          toast.error("File upload failed");
           setSubmitError("File upload failed");
           return;
         }
+
+        results.forEach((result, index) => {
+          if (result.status === "fulfilled") {
+            const response = result.value;
+            if (index === 0 && profilePicture instanceof File) {
+              toast.success(response?.detail);
+            } else if (index === 1 && resume instanceof File) {
+              toast.success(response?.detail);
+            }
+          }
+        });
       }
-      toast.success("Profile created successfully!");
+
       router.push("/home");
     } catch (error: any) {
-      setSubmitError("Submission failed");
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.response?.data?.detail ||
+        "Submission failed";
+      toast.error(errorMessage);
+      setSubmitError(errorMessage);
     }
   };
 

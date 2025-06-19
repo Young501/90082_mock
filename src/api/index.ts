@@ -6,7 +6,6 @@ import axios, {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { User } from "@/types/user";
 import { useAuthStore } from "@/store";
-import { toast } from "react-toastify";
 
 // ============= AUTH UTILITIES =============
 
@@ -369,15 +368,6 @@ export function useProfilePictureUpload(userType: string) {
         body: formData,
       });
     },
-    onSuccess: (response: any) => {
-      toast.success(
-        response?.detail || "Profile picture uploaded successfully"
-      );
-    },
-    onError: (error: any) => {
-      const errorMessage = error?.detail || "Profile picture upload failed";
-      toast.error(errorMessage);
-    },
   });
 }
 
@@ -391,13 +381,6 @@ export function useResumeUpload(userType: string) {
         token: getCurrentToken() || undefined,
         body: formData,
       });
-    },
-    onSuccess: (response: any) => {
-      toast.success(response.data?.detail || "Resume uploaded successfully");
-    },
-    onError: (error: any) => {
-      const errorMessage = error?.detail || "Resume upload failed";
-      toast.error(errorMessage);
     },
   });
 }
