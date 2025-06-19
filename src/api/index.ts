@@ -6,6 +6,7 @@ import axios, {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { User } from "@/types/user";
 import { useAuthStore } from "@/store";
+import { toast } from "react-toastify";
 
 // ============= AUTH UTILITIES =============
 
@@ -184,6 +185,16 @@ export const API_ENDPOINTS = {
     url: `${BASE_URL}/api/v1${endpoint}`,
     auth: true,
   }),
+  PROFILE_PICTURE_UPLOAD: (userType: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v1/${userType}/upload-picture`,
+    auth: true,
+  }),
+  RESUME_UPLOAD: (userType: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v1/${userType}/upload-resume`,
+    auth: true,
+  }),
 };
 
 type ApiRequestParams = {
@@ -339,10 +350,54 @@ export function useOnboardingSubmission(userType: string) {
         body: answers,
       });
     },
-    onSuccess: () => {
+    onSuccess: (response: any) => {
       queryClient.invalidateQueries({
         queryKey: ["user-profile", userType],
       });
+    },
+  });
+}
+
+export function useProfilePictureUpload(userType: string) {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return apiRequest({
+        endpoint: API_ENDPOINTS.PROFILE_PICTURE_UPLOAD(userType),
+        token: getCurrentToken() || undefined,
+        body: formData,
+      });
+    },
+    onSuccess: (response: any) => {
+      toast.success(
+        response?.detail || "Profile picture uploaded successfully"
+      );
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.detail || "Profile picture upload failed";
+      toast.error(errorMessage);
+    },
+  });
+}
+
+export function useResumeUpload(userType: string) {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return apiRequest({
+        endpoint: API_ENDPOINTS.RESUME_UPLOAD(userType),
+        token: getCurrentToken() || undefined,
+        body: formData,
+      });
+    },
+    onSuccess: (response: any) => {
+      toast.success(response.data?.detail || "Resume uploaded successfully");
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.detail || "Resume upload failed";
+      toast.error(errorMessage);
     },
   });
 }
