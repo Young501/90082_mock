@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React from "react";
 import { VStack, Heading, Flex, Text, HStack } from "@chakra-ui/react";
@@ -26,16 +26,18 @@ export function DiscoveryFilterBox({
   hasSearched,
   isSearching,
   onSubmit,
-  onReset
+  onReset,
 }: DiscoveryFilterBoxProps) {
   return (
     <form onSubmit={onSubmit}>
       <VStack align="stretch" gap={4}>
-        <Heading size="md" mb={4}>Filter Options</Heading>
+        <Heading size="md" mb={4}>
+          Filter Options
+        </Heading>
 
         {fields.length > 0 ? (
           <Flex wrap="wrap" gap={4}>
-            {fields.map(field => (
+            {fields.map((field) => (
               <FilterField
                 key={field.uniqueKey}
                 field={field}
@@ -46,7 +48,8 @@ export function DiscoveryFilterBox({
           </Flex>
         ) : (
           <Text color="gray.500" fontStyle="italic">
-            No filterable fields found. Make sure the target user type has fields marked with &quot;is_filter&quot;: true.
+            No filterable fields found. Make sure the target user type has
+            fields marked with &quot;is_filter&quot;: true.
           </Text>
         )}
 
@@ -56,7 +59,13 @@ export function DiscoveryFilterBox({
               Reset
             </Button>
           )}
-          <Button type="submit" bg="#282F68" color="#2CA9DF" isLoading={isSearching} disabled={isSearching}>
+          <Button
+            type="submit"
+            bg="#282F68"
+            color="#2CA9DF"
+            isLoading={isSearching}
+            disabled={isSearching}
+          >
             Search
           </Button>
         </HStack>

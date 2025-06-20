@@ -24,7 +24,7 @@ export default function DiscoveryPage() {
     pageSize,
     totalPages,
     handlePageChange,
-    handlePageSizeChange
+    handlePageSizeChange,
   } = useDiscovery();
 
   const { control, watch } = form;
@@ -34,8 +34,8 @@ export default function DiscoveryPage() {
     return (
       <Box p={8}>
         <Text>
-          {!targetUserType 
-            ? "Please log in to access discovery features..." 
+          {!targetUserType
+            ? "Please log in to access discovery features..."
             : "Loading configuration..."}
         </Text>
       </Box>
@@ -46,10 +46,12 @@ export default function DiscoveryPage() {
     <Box p={6} maxW="1200px" mx="auto">
       <VStack align="stretch" mb={8}>
         <Heading size="lg" color="#282F68">
-          Discover {targetUserType === 'student' ? 'Students' : 'Partners'}
+          Discover {targetUserType === "student" ? "Students" : "Partners"}
         </Heading>
         <Text color="gray.600">
-          Search and filter {targetUserType === 'student' ? 'students' : 'partners'} based on your criteria
+          Search and filter{" "}
+          {targetUserType === "student" ? "students" : "partners"} based on your
+          criteria
         </Text>
       </VStack>
 

@@ -15,7 +15,7 @@ export interface ProcessedField {
 export interface DependencyCondition {
   field: string;
   value: string;
-  operator?: 'equals' | 'contains' | 'not_equals';
+  operator?: "equals" | "contains" | "not_equals";
 }
 
 export interface StudentProfile {

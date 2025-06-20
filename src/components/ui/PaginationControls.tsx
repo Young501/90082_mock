@@ -1,11 +1,5 @@
 import React from "react";
-import { 
-  HStack, 
-  VStack, 
-  Text, 
-  Button, 
-  Input 
-} from "@chakra-ui/react";
+import { HStack, VStack, Text, Button, Input } from "@chakra-ui/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -37,7 +31,7 @@ const jumpToPageSchema = yup.object({
       if (!value) return false;
       const num = parseInt(value);
       return !isNaN(num) && num > 0;
-    })
+    }),
 });
 
 const pageSizeSchema = yup.object({
@@ -48,7 +42,7 @@ const pageSizeSchema = yup.object({
       if (!value) return false;
       const num = parseInt(value);
       return !isNaN(num) && num >= 1 && num <= 1000;
-    })
+    }),
 });
 
 export function PaginationControls({
@@ -58,19 +52,19 @@ export function PaginationControls({
   totalCount,
   onPageChange,
   onPageSizeChange,
-  isLoading = false
+  isLoading = false,
 }: PaginationControlsProps) {
   const [jumpError, setJumpError] = React.useState<string>("");
   const [pageSizeError, setPageSizeError] = React.useState<string>("");
 
   const jumpForm = useForm<JumpToPageForm>({
     resolver: yupResolver(jumpToPageSchema),
-    defaultValues: { pageNumber: "" }
+    defaultValues: { pageNumber: "" },
   });
 
   const pageSizeForm = useForm<PageSizeForm>({
     resolver: yupResolver(pageSizeSchema),
-    defaultValues: { pageSize: String(pageSize) }
+    defaultValues: { pageSize: String(pageSize) },
   });
 
   React.useEffect(() => {
@@ -93,17 +87,17 @@ export function PaginationControls({
 
   const handleJumpToPage = (data: JumpToPageForm) => {
     const page = parseInt(data.pageNumber);
-    
+
     if (isNaN(page) || page < 1) {
       setJumpError("Please enter a valid page number");
       return;
     }
-    
+
     if (page > totalPages) {
       setJumpError(`Page number exceeds total pages (${totalPages})`);
       return;
     }
-    
+
     onPageChange(page);
     jumpForm.reset();
     setJumpError("");
@@ -111,12 +105,12 @@ export function PaginationControls({
 
   const handlePageSizeChange = (data: PageSizeForm) => {
     const newPageSize = parseInt(data.pageSize);
-    
+
     if (isNaN(newPageSize) || newPageSize < 1 || newPageSize > 1000) {
       setPageSizeError("Please enter a valid page size (1-1000)");
       return;
     }
-    
+
     onPageSizeChange(newPageSize);
     setPageSizeError("");
   };
@@ -160,7 +154,12 @@ export function PaginationControls({
       <HStack gap={6} wrap="wrap" justify="center">
         <HStack gap={2}>
           <Text fontSize="sm">Page Size:</Text>
-          <form onSubmit={pageSizeForm.handleSubmit(handlePageSizeChange, handlePageSizeError)}>
+          <form
+            onSubmit={pageSizeForm.handleSubmit(
+              handlePageSizeChange,
+              handlePageSizeError
+            )}
+          >
             <HStack gap={2}>
               <Input
                 {...pageSizeForm.register("pageSize")}
@@ -184,7 +183,9 @@ export function PaginationControls({
 
         <HStack gap={2}>
           <Text fontSize="sm">Go to page:</Text>
-          <form onSubmit={jumpForm.handleSubmit(handleJumpToPage, handleJumpError)}>
+          <form
+            onSubmit={jumpForm.handleSubmit(handleJumpToPage, handleJumpError)}
+          >
             <HStack gap={2}>
               <Input
                 {...jumpForm.register("pageNumber")}
@@ -235,12 +236,14 @@ export function PaginationControls({
           )}
 
           {Array.from({ length: totalPages }, (_, i) => i + 1)
-            .filter(page => {
+            .filter((page) => {
               if (totalPages <= 5) return true;
-              return page >= Math.max(1, currentPage - 2) && 
-                     page <= Math.min(totalPages, currentPage + 2);
+              return (
+                page >= Math.max(1, currentPage - 2) &&
+                page <= Math.min(totalPages, currentPage + 2)
+              );
             })
-            .map(page => (
+            .map((page) => (
               <Button
                 key={page}
                 size="sm"

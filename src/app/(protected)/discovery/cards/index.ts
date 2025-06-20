@@ -1,2 +1,2 @@
-export { StudentCard } from './studentCard';
-export { PartnerCard } from './partnerCard';
+export { StudentCard } from "./studentCard";
+export { PartnerCard } from "./partnerCard";

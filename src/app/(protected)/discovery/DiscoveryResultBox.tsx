@@ -1,5 +1,12 @@
 import React from "react";
-import { Box, VStack, HStack, Heading, Text, SimpleGrid } from "@chakra-ui/react";
+import {
+  Box,
+  VStack,
+  HStack,
+  Heading,
+  Text,
+  SimpleGrid,
+} from "@chakra-ui/react";
 import { UserProfile } from "@/types/discovery";
 import { StudentCard, PartnerCard } from "./cards";
 import { PaginationControls } from "@/components/ui/PaginationControls";
@@ -29,7 +36,7 @@ export function DiscoveryResultBox({
   totalPages,
   pageSize,
   onPageChange,
-  onPageSizeChange
+  onPageSizeChange,
 }: DiscoveryResultBoxProps) {
   if (!show) return null;
 
@@ -37,7 +44,7 @@ export function DiscoveryResultBox({
     <VStack align="stretch" gap={6}>
       <HStack justify="space-between" align="center">
         <Heading size="md">
-          {hasSearched ? 'Search Results' : 'All Users'} ({count})
+          {hasSearched ? "Search Results" : "All Users"} ({count})
         </Heading>
       </HStack>
 
@@ -50,15 +57,15 @@ export function DiscoveryResultBox({
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
             {results.map((user) => {
               const key = user.id || Math.random();
-              
-              return userType === 'student' ? (
+
+              return userType === "student" ? (
                 <StudentCard key={key} student={user} />
               ) : (
                 <PartnerCard key={key} partner={user} />
               );
             })}
           </SimpleGrid>
-          
+
           <Box mt={6}>
             <PaginationControls
               currentPage={currentPage}
@@ -80,7 +87,7 @@ export function DiscoveryResultBox({
                 : "No users found."}
             </Text>
           </Box>
-          
+
           <Box mt={6}>
             <PaginationControls
               currentPage={1}
