@@ -15,7 +15,7 @@ import Logo from "@/components/Logo";
 import Image from "next/image";
 import LinkIcon from "@/assets/LinkIcon.svg";
 import { useRouter } from "next/navigation";
-import { useOnboarding } from "@/hooks/onboarding";
+import { useOnboarding } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
 // import {Link}
 

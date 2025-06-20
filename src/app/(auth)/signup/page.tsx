@@ -9,11 +9,11 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import * as yup from "yup";
-import { useOnboarding } from "@/hooks/onboarding";
+import { useOnboarding } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { authValidationSchema } from "@/utils";
+import { authValidationSchema } from "@/utils/validationSchemas";
 
 interface FormData {
   email: string;

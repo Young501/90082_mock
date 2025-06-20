@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { toast } from "react-toastify";
-import { useOnboarding } from "@/hooks/onboarding";
+import { useOnboarding } from "@/hooks/auth";
 import { authValidationSchema } from "@/utils/validationSchemas";
 
 interface FormData {
