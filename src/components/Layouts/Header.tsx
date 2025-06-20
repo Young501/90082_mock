@@ -9,11 +9,10 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { UserRound } from "lucide-react";
-import { ReactNode } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import Image from "next/image";
-import LinkIcon from "@/assets/LinkIcon.svg";
+import { LinkIcon, InboxIcon, FolderIcon } from "@/assets";
 import { useRouter } from "next/navigation";
 import { useOnboarding } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
@@ -50,11 +49,6 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
           <Image alt="logo" src="/uni.png" width={300} height={80} />
 
           <HStack gap={10} display={{ base: "none", md: "flex" }}>
-            <Button onClick={() => handleUserLogout()} bg="transparent">
-              <Text fontSize="18px" fontWeight="700" color="white">
-                LOGOUT
-              </Text>
-            </Button>
             <Link href="/home">
               <Text fontSize="18px" fontWeight="700" color="white">
                 HOME
@@ -71,13 +65,14 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               </Text>
             </Link>
             <Link href="/inbox">
-              <Text fontSize="18px" fontWeight="700" color="white">
-                INBOX
-              </Text>
+              <Image src={InboxIcon} alt="inbox" width={30} height={30} />
             </Link>
-            <Link href="/signup">
+            <Link href="/folder">
+              <Image src={FolderIcon} alt="folder" width={30} height={30} />
+            </Link>
+            <Button bg="transparent" p={0} onClick={() => handleUserLogout()}>
               <Image src={LinkIcon} alt="link" width={30} height={30} />
-            </Link>
+            </Button>
           </HStack>
         </Box>
       ) : (
