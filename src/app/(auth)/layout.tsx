@@ -32,11 +32,12 @@ export default function Layout({ children }: AuthLayoutProps) {
         mt="126px"
         minH="calc(100vh - 305px)"
         overflow="auto"
+        justifyContent="center"
         pt="0"
         pb="0"
-        px={{ base: "16px", md: "48px", lg: "138px" }}
+        px={{ base: "16px", md: "48px", lg: "130px" }}
       >
-        <Container maxW={containerMaxW} px={0} style={{ flex: 1 }}>
+        <Container maxW={containerMaxW} px={0}>
           {children}
         </Container>
       </Box>

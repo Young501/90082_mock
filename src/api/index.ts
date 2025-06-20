@@ -49,12 +49,12 @@ export const useAuth = (): AuthData => {
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
+/*********
+ * apiClient for making requests directly to the API root layer no token necessity interceptors not present
+ */
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,
-  // headers: {
-  //   'Content-Type': 'application/json',
-  // },
 });
 
 const isAuthRequiredEndpoint = (url: string): boolean => {
@@ -126,69 +126,56 @@ apiClient.interceptors.response.use(
 type ApiEndpoint = {
   method: string;
   url: string;
-  auth?: boolean;
 };
 
 export const API_ENDPOINTS = {
   LOGIN: {
     method: "POST",
     url: "/api/v1/login",
-    auth: false,
   },
   SIGNUP: {
     method: "POST",
     url: "/api/v1/signup",
-    auth: false,
   },
   LOGOUT: {
     method: "POST",
     url: "/api/v1/logout",
-    auth: true,
   },
   PASSWORD_RESET: {
     method: "POST",
     url: "/api/v1/password-reset-request",
-    auth: false,
   },
   EMAIL_VERIFICATION: {
     method: "GET",
     url: "/api/v1/verify-email/",
-    auth: false,
   },
   USER_TYPES: {
     method: "GET",
     url: "/api/v1/user-types",
-    auth: false,
   },
   ONBOARDING_PAGES: (userType: string): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/user-types/${userType}/onboarding-pages/`,
-    auth: false,
   }),
   ONBOARDING_SUBMISSION: (userType: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/${userType}`,
-    auth: true,
   }),
   USER_PROFILE: (userType: string): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/${userType}`,
-    auth: true,
   }),
   FILE_UPLOAD: (endpoint: string): ApiEndpoint => ({
     method: "POST",
     url: `${BASE_URL}/api/v1${endpoint}`,
-    auth: true,
   }),
   PROFILE_PICTURE_UPLOAD: (userType: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/${userType}/upload-picture`,
-    auth: true,
   }),
   RESUME_UPLOAD: (userType: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/${userType}/upload-resume`,
-    auth: true,
   }),
 };
 
@@ -199,6 +186,9 @@ type ApiRequestParams = {
   headers?: Record<string, string>;
 };
 
+/*********
+ * apiRequest for making mutations with token guided endpoints
+ */
 export async function apiRequest({
   endpoint,
   body,
@@ -245,44 +235,6 @@ interface EmailVerificationData {
 
 interface EmailVerificationResponse {
   detail: string;
-}
-
-export function loginMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (data: LoginData) => {
-      return apiRequest({
-        endpoint: API_ENDPOINTS.LOGIN,
-        body: data,
-      });
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["user"] });
-    },
-  });
-}
-
-export function useSignup() {
-  return useMutation({
-    mutationFn: async (data: SignupData) => {
-      return apiRequest({
-        endpoint: API_ENDPOINTS.SIGNUP,
-        body: data,
-      });
-    },
-  });
-}
-
-export function usePasswordReset() {
-  return useMutation({
-    mutationFn: async (data: PasswordResetData) => {
-      return apiRequest({
-        endpoint: API_ENDPOINTS.PASSWORD_RESET,
-        body: data,
-      });
-    },
-  });
 }
 
 export function useEmailVerification() {

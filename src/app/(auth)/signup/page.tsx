@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Box, Heading, VStack, Text, Flex, HStack } from "@chakra-ui/react";
-import { useAuth, useSignup } from "@/api";
 import { useRouter } from "next/navigation";
 import { InputField, Button } from "@/components/ui";
 import { useForm } from "react-hook-form";
