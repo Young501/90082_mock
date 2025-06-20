@@ -30,18 +30,6 @@ export default function DiscoveryPage() {
   const { control, watch } = form;
   const watchedValues = watch();
 
-  if (isLoading || !targetUserType) {
-    return (
-      <Box p={8}>
-        <Text>
-          {!targetUserType
-            ? "Please log in to access discovery features..."
-            : "Loading configuration..."}
-        </Text>
-      </Box>
-    );
-  }
-
   return (
     <Box p={6} maxW="1200px" mx="auto">
       <VStack align="stretch" mb={8}>
@@ -76,7 +64,7 @@ export default function DiscoveryPage() {
         isLoading={isSearching}
         hasSearched={hasSearched}
         show={showResults}
-        userType={targetUserType}
+        userType={targetUserType!}
         currentPage={currentPage}
         totalPages={totalPages}
         pageSize={pageSize}
