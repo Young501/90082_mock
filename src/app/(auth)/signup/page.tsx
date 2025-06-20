@@ -13,22 +13,12 @@ import { useOnboarding } from "@/hooks/onboarding";
 import { useAuthStore } from "@/store/authStore";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { authValidationSchema } from "@/utils";
 
 interface FormData {
   email: string;
   password: string;
 }
-
-const validationSchema = yup.object({
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("Invalid email format"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters"),
-});
 
 const SignupPage = () => {
   const router = useRouter();
@@ -53,7 +43,7 @@ const SignupPage = () => {
     setError,
     reset,
   } = useForm<FormData>({
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(authValidationSchema),
     mode: "onChange",
     defaultValues: {
       email: "",

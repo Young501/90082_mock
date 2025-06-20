@@ -18,22 +18,12 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { toast } from "react-toastify";
 import { useOnboarding } from "@/hooks/onboarding";
+import { authValidationSchema } from "@/utils/validationSchemas";
 
 interface FormData {
   email: string;
   password: string;
 }
-
-const validationSchema = yup.object({
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("Invalid email format"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters"),
-});
 
 export default function LoginPage() {
   const router = useRouter();
@@ -60,7 +50,7 @@ export default function LoginPage() {
     setError,
     setValue,
   } = useForm<FormData>({
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(authValidationSchema),
     mode: "onChange",
     defaultValues: {
       email: "",
