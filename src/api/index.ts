@@ -60,11 +60,7 @@ export const apiClient = axios.create({
 const isAuthRequiredEndpoint = (url: string): boolean => {
   const authEndpoints = [
     "/api/v1/student",
-    "/api/v1/teacher",
-    "/api/v1/employer",
-    "/api/v1/university",
-    "/api/v1/user-profile",
-    "/api/v1/onboarding",
+    "/api/v1/partner",
     "/api/v1/logout",
   ];
 
