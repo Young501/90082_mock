@@ -55,7 +55,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
     />
   );
 
-  const renderSelectField = (multiple = false) => {
+  const renderSelectField = () => {
     const selectCollection = createFieldCollection(field);
 
     return (
@@ -65,18 +65,10 @@ export const FilterField: React.FC<FilterFieldProps> = ({
         render={({ field: formField }) => (
           <Select.Root
             collection={selectCollection}
-            multiple={multiple}
+            multiple={true}
             size="sm"
-            value={
-              multiple
-                ? formField.value || []
-                : formField.value
-                  ? [formField.value]
-                  : []
-            }
-            onValueChange={(details) =>
-              formField.onChange(multiple ? details.value : details.value[0])
-            }
+            value={formField.value || []}
+            onValueChange={(details) => formField.onChange(details.value)}
           >
             <Select.Control>
               <Select.Trigger>
@@ -107,10 +99,8 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   const getFieldContent = () => {
     switch (field.type) {
       case "select":
-        return renderSelectField(false);
-
       case "multi-select":
-        return renderSelectField(true);
+        return renderSelectField();
 
       case "text":
       case "input":

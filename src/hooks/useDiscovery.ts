@@ -15,7 +15,7 @@ const createValidationSchema = (fields: ProcessedField[]) => {
   const shape: Record<string, any> = {};
 
   fields.forEach((field) => {
-    if (field.type === "multi-select") {
+    if (field.type === "multi-select" || field.type === "select") {
       shape[field.field] = yup.array().of(yup.string());
     } else {
       shape[field.field] = yup.string();
@@ -28,7 +28,7 @@ const createValidationSchema = (fields: ProcessedField[]) => {
 const getDefaultValues = (fields: ProcessedField[]): FilterFormData => {
   const defaultValues: FilterFormData = {};
   fields.forEach((field) => {
-    if (field.type === "multi-select") {
+    if (field.type === "multi-select" || field.type === "select") {
       defaultValues[field.field] = [];
     } else {
       defaultValues[field.field] = "";
@@ -159,6 +159,9 @@ export const useDiscovery = () => {
 
       switch (dependency.operator || "equals") {
         case "equals":
+          if (Array.isArray(currentValue)) {
+            return currentValue.includes(dependency.value);
+          }
           return currentValue === dependency.value;
         case "contains":
           return (
@@ -166,8 +169,14 @@ export const useDiscovery = () => {
             currentValue.includes(dependency.value)
           );
         case "not_equals":
+          if (Array.isArray(currentValue)) {
+            return !currentValue.includes(dependency.value);
+          }
           return currentValue !== dependency.value;
         default:
+          if (Array.isArray(currentValue)) {
+            return currentValue.includes(dependency.value);
+          }
           return currentValue === dependency.value;
       }
     });
