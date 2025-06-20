@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useOnboardingPages, useAuth } from "@/api";
+import { useOnboardingPages } from "@/services/userTypes";
+import { useAuth } from "@/api";
 import { Page } from "@/types/onboarding";
 
 export const useOnboardingLogic = () => {

@@ -9,7 +9,7 @@ import {
   useOnboardingSubmission,
   useProfilePictureUpload,
   useResumeUpload,
-} from "@/api";
+} from "@/services/student";
 import { useOnboardingLogic } from "@/hooks/useOnboardingLogic";
 import { createPageSchema } from "@/utils/validationSchemas";
 import { FieldRenderer } from "./FieldRenderer";

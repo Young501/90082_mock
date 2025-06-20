@@ -11,7 +11,7 @@ import {
   Icon,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { useEmailVerification } from "@/api";
+import { useEmailVerification } from "@/services/emailVerification";
 
 export default function VerifyEmailPage() {
   const searchParams = useSearchParams();
