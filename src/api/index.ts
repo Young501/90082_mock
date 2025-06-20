@@ -184,6 +184,16 @@ export const API_ENDPOINTS = {
     url: `${BASE_URL}/api/v1${endpoint}`,
     auth: true,
   }),
+  PROFILE_PICTURE_UPLOAD: (userType: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v1/${userType}/upload-picture`,
+    auth: true,
+  }),
+  RESUME_UPLOAD: (userType: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v1/${userType}/upload-resume`,
+    auth: true,
+  }),
 };
 
 type ApiRequestParams = {
@@ -339,9 +349,37 @@ export function useOnboardingSubmission(userType: string) {
         body: answers,
       });
     },
-    onSuccess: () => {
+    onSuccess: (response: any) => {
       queryClient.invalidateQueries({
         queryKey: ["user-profile", userType],
+      });
+    },
+  });
+}
+
+export function useProfilePictureUpload(userType: string) {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return apiRequest({
+        endpoint: API_ENDPOINTS.PROFILE_PICTURE_UPLOAD(userType),
+        token: getCurrentToken() || undefined,
+        body: formData,
+      });
+    },
+  });
+}
+
+export function useResumeUpload(userType: string) {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return apiRequest({
+        endpoint: API_ENDPOINTS.RESUME_UPLOAD(userType),
+        token: getCurrentToken() || undefined,
+        body: formData,
       });
     },
   });

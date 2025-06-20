@@ -25,7 +25,7 @@ interface PasswordResetData {
 const getErrorMessage = (error: any, defaultMessage: string): string => {
   //  **********debug mode ********** //
   console.log("Full error object:", error);
-  console.log("Error response:", error?.response);  
+  console.log("Error response:", error?.response);
   console.log("Error response data:", error?.response?.data);
 
   if (!error?.response?.data) {
