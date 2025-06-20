@@ -5,6 +5,7 @@ import axios, {
 } from "axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { User } from "@/types/user";
+import { UserSearchParams, UserSearchResponse } from "@/types/discovery";
 import { useAuthStore } from "@/store";
 
 // ============= AUTH UTILITIES =============
@@ -62,6 +63,7 @@ const isAuthRequiredEndpoint = (url: string): boolean => {
     "/api/v1/student",
     "/api/v1/partner",
     "/api/v1/logout",
+    "/api/v1/users/search",
   ];
 
   return authEndpoints.some((endpoint) => url.includes(endpoint));
@@ -159,6 +161,11 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: "/api/v1/user-types",
     auth: false,
+  },
+  USERS_SEARCH: {
+    method: "GET",
+    url: "/api/v1/users/search",
+    auth: true,
   },
   ONBOARDING_PAGES: (userType: string): ApiEndpoint => ({
     method: "GET",
@@ -378,5 +385,48 @@ export function useResumeUpload(userType: string) {
         body: formData,
       });
     },
+  });
+}
+
+export function useUserSearch(params: UserSearchParams | null) {
+  return useQuery({
+    queryKey: ["users", "search", params],
+    queryFn: async (): Promise<UserSearchResponse> => {
+      if (!params || !params.user_type) {
+        return { count: 0, next: null, previous: null, results: [] };
+      }
+
+      const queryParams = new URLSearchParams();
+
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          if (Array.isArray(value)) {
+            queryParams.append(key, value.join(","));
+          } else {
+            queryParams.append(key, value.toString());
+          }
+        }
+      });
+
+      const response = await apiClient.get(
+        `${API_ENDPOINTS.USERS_SEARCH.url}?${queryParams.toString()}`
+      );
+
+      const data = response.data;
+
+      if (Array.isArray(data)) {
+        return {
+          count: data.length,
+          next: null,
+          previous: null,
+          results: data,
+        };
+      }
+
+      return data;
+    },
+    enabled: !!params?.user_type,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 }
