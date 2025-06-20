@@ -1,6 +1,6 @@
 "use client";
 
-import { Container, useBreakpointValue } from "@chakra-ui/react";
+import { Container, useBreakpointValue, Box } from "@chakra-ui/react";
 import { ReactNode } from "react";
 import Footer from "@/components/Layouts/Footer";
 import Header from "@/components/Layouts/Header";
@@ -10,7 +10,7 @@ interface AuthLayoutProps {
 }
 
 export default function Layout({ children }: AuthLayoutProps) {
-  const isMobile = useBreakpointValue({ base: true, lg: false });
+  const isMobile = useBreakpointValue({ base: true, md: false });
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
 
   return (
@@ -25,22 +25,23 @@ export default function Layout({ children }: AuthLayoutProps) {
     >
       <Header />
 
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          marginTop: "126px",
-          minHeight: "calc(100vh - 305px)",
-          overflow: "auto",
-          padding: "0 169px 0 138px",
-        }}
+      <Box
+        flex="1"
+        display="flex"
+        flexDirection="column"
+        mt="126px"
+        minH="calc(100vh - 305px)"
+        overflow="auto"
+        pt="0"
+        pb="0"
+        px={{ base: "16px", md: "48px", lg: "138px" }}
       >
         <Container maxW={containerMaxW} px={0} style={{ flex: 1 }}>
           {children}
         </Container>
-      </div>
-      <Footer />
+      </Box>
+      {/* TO DO: Mobile footer missing */}
+      {!isMobile && <Footer />}
     </div>
   );
 }

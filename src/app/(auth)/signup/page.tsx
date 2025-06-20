@@ -91,7 +91,7 @@ const SignupPage = () => {
         w="100%"
         position="relative"
         overflow="hidden"
-        align="space-between"
+        align={{ base: "center", lg: "space-between" }}
         justify="center"
         gap={{ base: 8, lg: 16 }}
         pb={{ base: 10, lg: 100 }}
