@@ -24,7 +24,7 @@ import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
 
 const Header = ({ isProtected }: { isProtected?: boolean }) => {
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const isMobile = useBreakpointValue({ base: true, lg: false });
   const router = useRouter();
   const { handleLogout } = useAuth();
   const { logout } = useAuthStore();
