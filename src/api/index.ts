@@ -3,52 +3,16 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { User } from "@/types/user";
-import { UserSearchParams, UserSearchResponse } from "@/types/discovery";
 import { useAuthStore } from "@/store";
+import { ApiEndpoint, ApiRequestParams } from "@/types/api";
 
-// ============= AUTH UTILITIES =============
-
-export interface AuthData {
-  user: User | null;
-  token: string | null;
-  isAuthenticated: boolean;
-}
-
-export const getAuthData = (): AuthData => {
-  const { user, token, isAuthenticated } = useAuthStore.getState();
-  return { user, token, isAuthenticated };
-};
-
-export const logout = (): void => {
-  useAuthStore.getState().logout();
-};
-
-export const setUserType = (userType: string): void => {
-  useAuthStore.getState().setUserType(userType);
-};
-
-export const getCurrentUser = (): User | null => {
-  return useAuthStore.getState().getCurrentUser();
-};
-
-export const getCurrentToken = (): string | null => {
+const getCurrentToken = (): string | null => {
   return useAuthStore.getState().getCurrentToken();
-};
-
-export const getUserType = (): string | undefined => {
-  return useAuthStore.getState().getUserType();
-};
-
-export const useAuth = (): AuthData => {
-  const { user, token, isAuthenticated } = useAuthStore();
-  return { user, token, isAuthenticated };
 };
 
 // ============= AXIOS CONFIG =============
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 /*********
  * apiClient for making requests directly to the API root layer no token necessity interceptors not present
@@ -58,25 +22,12 @@ export const apiClient = axios.create({
   timeout: 15000,
 });
 
-const isAuthRequiredEndpoint = (url: string): boolean => {
-  const authEndpoints = [
-    "/api/v1/student",
-    "/api/v1/partner",
-    "/api/v1/logout",
-    "/api/v1/users/search",
-  ];
-
-  return authEndpoints.some((endpoint) => url.includes(endpoint));
-};
-
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = getCurrentToken();
 
-    if (token && config.url && isAuthRequiredEndpoint(config.url)) {
-      if (config.headers) {
-        config.headers.Authorization = `Token ${token}`;
-      }
+    if (token) {
+      config.headers.Authorization = `Token ${token}`;
     }
 
     if (process.env.NODE_ENV === "development") {
@@ -91,7 +42,9 @@ apiClient.interceptors.request.use(
     return config;
   },
   (error: AxiosError) => {
-    // console.error("❌ Request interceptor error:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("❌ Request interceptor error:", error);
+    }
     return Promise.reject(error);
   }
 );
@@ -124,11 +77,6 @@ apiClient.interceptors.response.use(
 );
 
 // ============= API ENDPOINTS =============
-
-type ApiEndpoint = {
-  method: string;
-  url: string;
-};
 
 export const API_ENDPOINTS = {
   LOGIN: {
@@ -186,34 +134,26 @@ export const API_ENDPOINTS = {
   }),
 };
 
-type ApiRequestParams = {
-  endpoint: ApiEndpoint;
-  body?: object | FormData;
-  token?: string;
-  headers?: Record<string, string>;
-};
-
 /*********
  * apiRequest for making mutations with token guided endpoints
  */
-export async function apiRequest({
+export async function apiRequest<T = any>({
   endpoint,
   body,
-  token,
   headers = {},
-}: ApiRequestParams): Promise<any> {
+}: ApiRequestParams): Promise<T> {
   const { method, url } = endpoint;
+  const token = getCurrentToken();
 
   const config = {
     method: method.toLowerCase() as "get" | "post" | "put" | "delete",
     url,
-    headers,
+    headers: {
+      ...headers,
+      ...(token && { Authorization: `Token ${token}` }),
+    },
     ...(body ? { data: body } : {}),
   };
-
-  if (token) {
-    config.headers.Authorization = `Token ${token}`;
-  }
 
   const response = await apiClient.request(config);
   return response.data;

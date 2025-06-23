@@ -8,16 +8,14 @@ import {
   Text,
   Flex,
   HStack,
-  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { InputField, Button } from "@/components/ui";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { toast } from "react-toastify";
-import { useOnboarding } from "@/hooks/auth";
+import { useAuth } from "@/hooks/auth";
 import { authValidationSchema } from "@/utils/validationSchemas";
 
 interface FormData {
@@ -32,20 +30,15 @@ export default function LoginPage() {
 
   const {
     handleLogin,
-    handleSignup: onboardingSignup,
     handleForgotPassword,
     isLoginLoading,
-    isSignupLoading,
     isPasswordResetLoading,
-    errorMsg,
-  } = useOnboarding();
-
-  // const isMobile = useBreakpointValue({ base: true, lg: false });
+  } = useAuth();
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
     watch,
     setError,
     setValue,

@@ -6,10 +6,8 @@ import { useRouter } from "next/navigation";
 import { InputField, Button } from "@/components/ui";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { toast } from "react-toastify";
 import Image from "next/image";
-import * as yup from "yup";
-import { useOnboarding } from "@/hooks/auth";
+import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -27,7 +25,7 @@ const SignupPage = () => {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { handleSignup, errorMsg } = useOnboarding();
+  const { handleSignup } = useAuth();
 
   useEffect(() => {
     if (!signupSelectedUserType) {
@@ -38,10 +36,8 @@ const SignupPage = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
     watch,
-    setError,
-    reset,
   } = useForm<FormData>({
     resolver: yupResolver(authValidationSchema),
     mode: "onChange",

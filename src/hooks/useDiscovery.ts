@@ -3,13 +3,13 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useAuthStore } from "@/store";
-import { useOnboardingPages, useUserSearch } from "@/api";
 import {
   FilterFormData,
   ProcessedField,
   DependencyCondition,
   UserSearchParams,
 } from "@/types/discovery";
+import { useOnboardingPages, useUserSearch } from "@/services/userTypes";
 
 const createValidationSchema = (fields: ProcessedField[]) => {
   const shape: Record<string, any> = {};

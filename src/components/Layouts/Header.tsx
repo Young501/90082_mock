@@ -20,13 +20,13 @@ import {
   closeIcon,
 } from "@/assets";
 import { useRouter } from "next/navigation";
-import { useOnboarding } from "@/hooks/auth";
+import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
 
 const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
   const router = useRouter();
-  const { handleLogout } = useOnboarding();
+  const { handleLogout } = useAuth();
   const { logout } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
