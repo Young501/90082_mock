@@ -12,12 +12,12 @@ const getCurrentToken = (): string | null => {
 
 // ============= AXIOS CONFIG =============
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 /*********
  * apiClient for making requests directly to the API root layer no token necessity interceptors not present
  */
-const apiClient = axios.create({
+export const apiClient = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,
 });
