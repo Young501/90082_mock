@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   Box,
@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { XCircle } from "lucide-react";
 
-export default function EmailVerifyFailedPage() {
+function EmailVerifyFailedContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
@@ -132,5 +132,13 @@ export default function EmailVerifyFailedPage() {
         </VStack>
       </Box>
     </Container>
+  );
+}
+
+export default function EmailVerifyFailedPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EmailVerifyFailedContent />
+    </Suspense>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Box,
   Container,
@@ -10,7 +10,7 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 
-export default function EmailSentPage() {
+function EmailSentContent() {
   const searchParams = useSearchParams();
   const [userEmail, setUserEmail] = useState("");
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
@@ -66,5 +66,13 @@ export default function EmailSentPage() {
         </VStack>
       </Box>
     </Container>
+  );
+}
+
+export default function EmailSentPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EmailSentContent />
+    </Suspense>
   );
 }

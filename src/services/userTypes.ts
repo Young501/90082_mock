@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import { UserSearchParams, UserSearchResponse } from "@/types/discovery";
-import { apiClient } from "@/api";
 
 export function useUserTypes() {
   return useQuery({
@@ -41,11 +40,12 @@ export function useUserSearch(params: UserSearchParams | null) {
         }
       });
 
-      const response = await apiClient.get(
-        `${API_ENDPOINTS.USERS_SEARCH.url}?${queryParams.toString()}`
-      );
-
-      const data = response.data;
+      const data = await apiRequest({
+        endpoint: {
+          method: "GET",
+          url: `${API_ENDPOINTS.USERS_SEARCH.url}?${queryParams.toString()}`,
+        }
+      });
 
       if (Array.isArray(data)) {
         return {

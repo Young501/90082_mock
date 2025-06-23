@@ -15,14 +15,14 @@ import Logo from "@/components/Logo";
 import Image from "next/image";
 import LinkIcon from "@/assets/LinkIcon.svg";
 import { useRouter } from "next/navigation";
-import { useOnboarding } from "@/hooks/auth";
+import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
 // import {Link}
 
 const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
   const router = useRouter();
-  const { handleLogout } = useOnboarding();
+  const { handleLogout } = useAuth();
   const { logout } = useAuthStore();
   const handleUserLogout = async () => {
     await handleLogout();

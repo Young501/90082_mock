@@ -20,10 +20,9 @@ import { useRouter } from "next/navigation";
 
 interface Props {
   userType: string;
-  token: string;
 }
 
-export const OnboardingSteps = ({ userType, token }: Props) => {
+export const OnboardingSteps = ({ userType }: Props) => {
   const router = useRouter();
   const {
     currentPage,

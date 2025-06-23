@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   Box,
@@ -8,12 +8,11 @@ import {
   Text,
   VStack,
   Spinner,
-  Icon,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { useEmailVerification } from "@/services/emailVerification";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
@@ -92,5 +91,13 @@ export default function VerifyEmailPage() {
         </VStack>
       </Box>
     </Container>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }

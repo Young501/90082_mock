@@ -1,13 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
+import { EmailVerificationData, EmailVerificationResponse } from "@/types/auth";
 
-interface EmailVerificationData {
-  token: string;
-}
 
-interface EmailVerificationResponse {
-  detail: string;
-}
 
 export function useEmailVerification() {
   return useMutation<EmailVerificationResponse, unknown, EmailVerificationData>(

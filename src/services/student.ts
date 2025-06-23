@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
-import { getCurrentToken } from "@/api";
 
 export function useUserProfile(userType: string) {
   return useQuery({
@@ -8,7 +7,6 @@ export function useUserProfile(userType: string) {
     queryFn: () =>
       apiRequest({
         endpoint: API_ENDPOINTS.USER_PROFILE(userType),
-        token: getCurrentToken() || undefined,
       }),
     enabled: !!userType,
     retry: (failureCount: number, error: any) => {
@@ -28,7 +26,6 @@ export function useOnboardingSubmission(userType: string) {
       return apiRequest({
         endpoint: API_ENDPOINTS.ONBOARDING_SUBMISSION(userType),
         body: answers,
-        token: getCurrentToken() || undefined,
       });
     },
     onSuccess: (_response: any, _variables, _context) => {
@@ -45,7 +42,6 @@ export function useProfilePictureUpload(userType: string) {
       formData.append("file", file);
       return apiRequest({
         endpoint: API_ENDPOINTS.PROFILE_PICTURE_UPLOAD(userType),
-        token: getCurrentToken() || undefined,
         body: formData,
       });
     },
@@ -63,7 +59,6 @@ export function useResumeUpload(userType: string) {
       formData.append("file", file);
       return apiRequest({
         endpoint: API_ENDPOINTS.RESUME_UPLOAD(userType),
-        token: getCurrentToken() || undefined,
         body: formData,
       });
     },
