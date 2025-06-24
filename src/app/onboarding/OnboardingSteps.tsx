@@ -9,6 +9,7 @@ import {
   useOnboardingSubmission,
   useProfilePictureUpload,
   useResumeUpload,
+  useLogoUpload,
 } from "@/services/shared";
 import { useOnboardingLogic } from "@/hooks/useOnboardingLogic";
 import { createPageSchema } from "@/utils/validationSchemas";
