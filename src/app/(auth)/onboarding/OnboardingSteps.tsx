@@ -19,6 +19,7 @@ import { Question } from "@/types/onboarding";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import ProgressTrack from "@/components/ProgressTrack";
+import { getPageTemplate } from "@/components/onboarding/PageTemplates";
 
 interface Props {
   userType: string;
@@ -292,6 +293,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
   if (!currentPage) return <Text>No onboarding page found.</Text>;
 
   const hasFormErrors = Object.keys(errors).length > 0;
+  const PageTemplate = getPageTemplate(currentPage.guide, userType);
 
   return (
     <Box p={6}>
@@ -307,17 +309,15 @@ export const OnboardingSteps = ({ userType }: Props) => {
       </Heading>
 
       <form onSubmit={handleFormSubmit}>
-        {currentPage.questions.map((question) => (
-          <FieldRenderer
-            key={question.field}
-            question={question}
-            register={register}
-            control={control}
-            errors={errors}
-            clearErrors={clearErrors}
-            unregister={unregister}
-          />
-        ))}
+        <PageTemplate
+          page={currentPage}
+          register={register}
+          control={control}
+          errors={errors}
+          clearErrors={clearErrors}
+          unregister={unregister}
+          userType={userType}
+        />
 
         {showValidationError && hasFormErrors && (
           <Alert.Root status="error" mb={4}>

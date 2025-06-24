@@ -1,6 +1,8 @@
-import { Box, Image, Text, Field } from "@chakra-ui/react";
+import { Box, Text, Field } from "@chakra-ui/react";
 import { useRef } from "react";
 import { Control, Controller } from "react-hook-form";
+import { imgplaceholder } from "@/assets";
+import Image from "next/image";
 
 export type FileFieldType = "image" | "resume";
 
@@ -15,12 +17,14 @@ export interface FileFieldConfig {
 
 interface FileFieldProps {
   name: string;
-  label: string;
+  label?: string;
   control: Control<any>;
   fileType: FileFieldType;
   error?: string;
   required?: boolean;
   config?: Partial<FileFieldConfig>;
+  labelPosition?: "top" | "bottom";
+  description?: "roundedImage" | "squareImage";
 }
 
 // Default configurations for different file types
@@ -51,6 +55,8 @@ export const FileField = ({
   error,
   required,
   config: customConfig,
+  labelPosition = "top",
+  description,
 }: FileFieldProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const config = { ...DEFAULT_CONFIGS[fileType], ...customConfig };
@@ -69,10 +75,14 @@ export const FileField = ({
 
   return (
     <Field.Root invalid={!!error}>
-      <Field.Label>
-        {label}
-        {required && <span style={{ color: "red", marginLeft: "4px" }}>*</span>}
-      </Field.Label>
+      {label && labelPosition === "top" && (
+        <Field.Label>
+          {label}
+          {required && (
+            <span style={{ color: "red", marginLeft: "4px" }}>*</span>
+          )}
+        </Field.Label>
+      )}
       <Controller
         name={name}
         control={control}
@@ -110,13 +120,15 @@ export const FileField = ({
               {field.value ? (
                 <Box>
                   {config.showPreview ? (
-                    <Image
-                      src={URL.createObjectURL(field.value)}
-                      alt="Preview"
-                      maxH="200px"
-                      mx="auto"
-                      mb={2}
-                    />
+                    <Box mb={2} display="flex" justifyContent="center">
+                      <Image
+                        src={URL.createObjectURL(field.value)}
+                        alt="Preview"
+                        width={200}
+                        height={200}
+                        style={{ objectFit: "cover" }}
+                      />
+                    </Box>
                   ) : (
                     <Text color="blue.500" mb={2}>
                       📄 {field.value.name}
@@ -128,7 +140,22 @@ export const FileField = ({
                 </Box>
               ) : (
                 <Box>
-                  <Text mb={2}>{config.emptyText}</Text>
+                  {description === "roundedImage" && fileType === "image" ? (
+                    <Box mb={2} display="flex" justifyContent="center">
+                      <Image
+                        src={imgplaceholder}
+                        alt="Placeholder"
+                        width={200}
+                        height={200}
+                        style={{
+                          objectFit: "cover",
+                          borderRadius: "50%",
+                        }}
+                      />
+                    </Box>
+                  ) : (
+                    <Text mb={2}>{config.emptyText}</Text>
+                  )}
                   <Text fontSize="sm" color="gray.500">
                     {config.helpText}
                   </Text>
@@ -138,6 +165,14 @@ export const FileField = ({
           </>
         )}
       />
+      {label && labelPosition === "bottom" && (
+        <Field.Label>
+          {label}
+          {required && (
+            <span style={{ color: "red", marginLeft: "4px" }}>*</span>
+          )}
+        </Field.Label>
+      )}
       {error && <Field.ErrorText>{error}</Field.ErrorText>}
     </Field.Root>
   );

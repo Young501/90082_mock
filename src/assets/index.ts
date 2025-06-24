@@ -4,6 +4,7 @@ import FolderIcon from "./folder.svg";
 import hamburgerIcon from "./hamburger.svg";
 import closeIcon from "./closeX.svg";
 import backgroundImage from "./background-image.png";
+import imgplaceholder from "./imgplaceholder.png";
 
 export {
   LinkIcon,
@@ -12,4 +13,5 @@ export {
   hamburgerIcon,
   closeIcon,
   backgroundImage,
+  imgplaceholder,
 };

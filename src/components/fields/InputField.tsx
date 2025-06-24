@@ -3,28 +3,40 @@ import { Input as ChakraInput, Field, Box } from "@chakra-ui/react";
 import { UseFormRegisterReturn } from "react-hook-form";
 
 interface InputFieldProps {
-  label: string;
+  label?: string;
   error?: string;
   register: UseFormRegisterReturn;
   placeholder?: string;
   type?: "text" | "url" | "number";
   required?: boolean;
+  inputProps?: any;
 }
 
 export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
   (
-    { label, error, register, type = "text", required, placeholder, ...props },
+    {
+      label,
+      error,
+      register,
+      type = "text",
+      required,
+      placeholder,
+      inputProps,
+      ...props
+    },
     _ref
   ) => (
     <Field.Root invalid={!!error}>
-      <Box mb={2}>
-        <Field.Label fontSize="20px" fontWeight="400" color="#282F68" mb={4}>
-          {label}
-          {required && (
-            <span style={{ color: "red", marginLeft: "4px" }}>*</span>
-          )}
-        </Field.Label>
-      </Box>
+      {label && (
+        <Box mb={2}>
+          <Field.Label fontSize="20px" fontWeight="400" color="#282F68" mb={4}>
+            {label}
+            {required && (
+              <span style={{ color: "red", marginLeft: "4px" }}>*</span>
+            )}
+          </Field.Label>
+        </Box>
+      )}
       <ChakraInput
         type={type}
         placeholder={placeholder}
@@ -44,6 +56,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
         }}
         {...register}
         {...props}
+        {...inputProps}
       />
       {error && <Field.ErrorText mt={2}>{error}</Field.ErrorText>}
     </Field.Root>

@@ -29,13 +29,19 @@ export interface Question {
     | "multi-select"
     | "file"
     | "location"
-    | "number";
+    | "number"
+    | "textarea";
   required?: boolean;
   options?: string[];
   option?: string[];
   max_selection?: number;
   followup_question?: FollowupQuestionMap;
   upload_endpoint?: string;
+  is_filter?: boolean;
+  allow_custom?: boolean;
+  min?: number;
+  max?: number;
+  unit?: string;
 }
 
 export interface Page {

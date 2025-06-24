@@ -88,11 +88,19 @@ export const FieldRenderer = ({
     if (question.type === "text" || question.type === "location") {
       return (
         <InputField
-          label={question.label}
           register={register(question.field)}
           error={error}
           required={question.required}
           placeholder={`Enter ${question.label.toLowerCase()}`}
+          inputProps={{
+            h: "50px",
+            borderRadius: "0px",
+            border: "1px solid",
+            borderColor: "#2CA9DF",
+            bg: "white",
+            fontSize: "16px",
+            px: 6,
+          }}
         />
       );
     }
@@ -127,7 +135,6 @@ export const FieldRenderer = ({
       return (
         <SelectField
           name={question.field}
-          label={question.label}
           control={control}
           options={fieldOptions}
           error={error}
@@ -168,6 +175,10 @@ export const FieldRenderer = ({
           fileType={fileType}
           error={error}
           required={question.required}
+          labelPosition="bottom"
+          description={
+            question.field === "profile_picture" ? "roundedImage" : undefined
+          }
         />
       );
     }
