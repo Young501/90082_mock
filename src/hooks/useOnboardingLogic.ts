@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { useOnboardingPages } from "@/services/userTypes";
+import { useOnboardingPages } from "@/services/shared";
 import { Page } from "@/types/onboarding";
 import { useAuthStore } from "@/store";
 
