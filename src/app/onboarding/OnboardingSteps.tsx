@@ -9,8 +9,7 @@ import {
   useOnboardingSubmission,
   useProfilePictureUpload,
   useResumeUpload,
-} from "@/services/student";
-import { useLogoUpload } from "@/services/partner";
+} from "@/services/shared";
 import { useOnboardingLogic } from "@/hooks/useOnboardingLogic";
 import { createPageSchema } from "@/utils/validationSchemas";
 import { FieldRenderer } from "./FieldRenderer";
