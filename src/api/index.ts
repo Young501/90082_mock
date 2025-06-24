@@ -120,10 +120,6 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v1/${userType}`,
   }),
-  FILE_UPLOAD: (endpoint: string): ApiEndpoint => ({
-    method: "POST",
-    url: `${BASE_URL}/api/v1${endpoint}`,
-  }),
   PROFILE_PICTURE_UPLOAD: (userType: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/${userType}/upload-picture`,
