@@ -5,9 +5,6 @@ import { resetPasswordValidationSchema } from "@/utils/validationSchemas";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useAuth } from "@/hooks/auth";
-import { useAuthStore } from "@/store/authStore";
-import { motion } from "framer-motion";
-import Link from "next/link";
 import { Button, InputField } from "@/components/ui";
 import { Box, Heading, Text } from "@chakra-ui/react";
 
@@ -16,8 +13,6 @@ interface FormData {
 }
 
 const ResetPassword = () => {
-  //   const [isPasswordResetLoading, setIsPasswordResetLoading] = useState(false);
-
   const { handleForgotPassword, isPasswordResetLoading } = useAuth();
 
   const {
