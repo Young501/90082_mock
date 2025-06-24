@@ -132,6 +132,10 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v1/${userType}/upload-resume`,
   }),
+  LOGO_UPLOAD: (userType: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v1/${userType}/upload-logo`,
+  }),
 };
 
 /*********
