@@ -17,7 +17,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 /*********
  * apiClient for making requests directly to the API root layer no token necessity interceptors not present
  */
-export const apiClient = axios.create({
+const apiClient = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,
 });
@@ -143,14 +143,12 @@ export async function apiRequest<T = any>({
   headers = {},
 }: ApiRequestParams): Promise<T> {
   const { method, url } = endpoint;
-  const token = getCurrentToken();
 
   const config = {
     method: method.toLowerCase() as "get" | "post" | "put" | "delete",
     url,
     headers: {
       ...headers,
-      ...(token && { Authorization: `Token ${token}` }),
     },
     ...(body ? { data: body } : {}),
   };
