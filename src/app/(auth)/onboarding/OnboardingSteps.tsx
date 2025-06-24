@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/Button";
 import { Question } from "@/types/onboarding";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import ProgressTrack from "@/components/ProgressTrack";
 
 interface Props {
   userType: string;
@@ -34,6 +35,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     isLastPage,
     goToPreviousPage,
     goToNextPage,
+    pages,
   } = useOnboardingLogic();
 
   const [submitError, setSubmitError] = useState<string>("");
@@ -293,17 +295,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
 
   return (
     <Box p={6}>
-      <Box mb={6}>
-        <Text fontSize="sm" mb={1}>
-          Progress: {progressPercent}%
-        </Text>
-        <Progress.Root value={progressPercent} max={100}>
-          <Progress.Track>
-            <Progress.Range />
-          </Progress.Track>
-        </Progress.Root>
-      </Box>
-
       <Text fontSize="sm" color="gray.600" mb={4}>
         Required fields are marked with{" "}
         <Text as="span" color="red.500">
@@ -311,7 +302,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
         </Text>
       </Text>
 
-      <Heading size="md" mb={4}>
+      <Heading fontSize={{ base: "28px", md: "35px" }} mb={4}>
         {currentPage.guide}
       </Heading>
 
@@ -370,6 +361,10 @@ export const OnboardingSteps = ({ userType }: Props) => {
             </Button>
           )}
         </Box>
+        <ProgressTrack
+          progressPercent={progressPercent}
+          totalSteps={pages.length}
+        />
       </form>
     </Box>
   );

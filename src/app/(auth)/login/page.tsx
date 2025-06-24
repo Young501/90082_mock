@@ -1,14 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Box,
-  Heading,
-  VStack,
-  Text,
-  Flex,
-  HStack,
-} from "@chakra-ui/react";
+import { Box, Heading, VStack, Text, Flex, HStack } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { InputField, Button } from "@/components/ui";
 import Image from "next/image";
