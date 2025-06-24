@@ -2,10 +2,10 @@
 
 import { Box, Text } from "@chakra-ui/react";
 import { OnboardingSteps } from "@/app/onboarding/OnboardingSteps";
-import { useAuth } from "@/api";
+import { useAuthStore } from "@/store";
 
 export default function OnboardingPage() {
-  const { user, token } = useAuth();
+  const { user, token } = useAuthStore()
   const userType = user?.user_types?.[0];
 
   if (!userType || !token) {
@@ -14,7 +14,7 @@ export default function OnboardingPage() {
 
   return (
     <Box maxW="600px" mx="auto" mt={10}>
-      <OnboardingSteps userType={userType} token={token} />
+      <OnboardingSteps userType={userType} />
     </Box>
   );
 }

@@ -8,32 +8,20 @@ import {
   Text,
   Flex,
   HStack,
-  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { InputField, Button } from "@/components/ui";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { toast } from "react-toastify";
-import { useOnboarding } from "@/hooks/onboarding";
+import { useAuth } from "@/hooks/auth";
+import { authValidationSchema } from "@/utils/validationSchemas";
 
 interface FormData {
   email: string;
   password: string;
 }
-
-const validationSchema = yup.object({
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("Invalid email format"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters"),
-});
 
 export default function LoginPage() {
   const router = useRouter();
@@ -42,25 +30,20 @@ export default function LoginPage() {
 
   const {
     handleLogin,
-    handleSignup: onboardingSignup,
     handleForgotPassword,
     isLoginLoading,
-    isSignupLoading,
     isPasswordResetLoading,
-    errorMsg,
-  } = useOnboarding();
-
-  // const isMobile = useBreakpointValue({ base: true, lg: false });
+  } = useAuth();
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
     watch,
     setError,
     setValue,
   } = useForm<FormData>({
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(authValidationSchema),
     mode: "onChange",
     defaultValues: {
       email: "",

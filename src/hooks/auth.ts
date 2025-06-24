@@ -1,87 +1,13 @@
-import { API_ENDPOINTS, apiClient, apiRequest, useAuth } from "@/api";
+import { API_ENDPOINTS, apiRequest } from "@/api";
 import { useAuthStore } from "@/store";
+import { LoginData, PasswordResetData, SignupData } from "@/types/auth";
 import { User } from "@/types/user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-interface LoginData {
-  email: string;
-  password: string;
-}
-
-interface SignupData {
-  email: string;
-  password: string;
-  user_types: string[];
-}
-
-interface PasswordResetData {
-  email: string;
-}
-
-const getErrorMessage = (error: any, defaultMessage: string): string => {
-  //  **********debug mode ********** //
-  console.log("Full error object:", error);
-  console.log("Error response:", error?.response);
-  console.log("Error response data:", error?.response?.data);
-
-  if (!error?.response?.data) {
-    return error?.message || defaultMessage;
-  }
-
-  const data = error.response.data;
-
-  if (data.non_field_errors && Array.isArray(data.non_field_errors)) {
-    return data.non_field_errors[0];
-  }
-
-  if (data.error) {
-    return data.error;
-  }
-
-  if (data.detail) {
-    return Array.isArray(data.detail) ? data.detail[0] : data.detail;
-  }
-
-  if (data.message) {
-    return data.message;
-  }
-
-  if (data.password && Array.isArray(data.password)) {
-    return data.password[0];
-  }
-
-  if (data.email && Array.isArray(data.email)) {
-    return data.email[0];
-  }
-
-  if (typeof data === "object") {
-    const firstKey = Object.keys(data)[0];
-    if (firstKey && data[firstKey]) {
-      const value = data[firstKey];
-      return Array.isArray(value) ? value[0] : value;
-    }
-  }
-
-  return defaultMessage;
-};
-
-const getSuccessMessage = (response: any, defaultMessage: string): string => {
-  //  **********debug mode ********** //
-  console.log("Success response:", response);
-
-  return (
-    response?.message ||
-    response?.data?.detail ||
-    response?.detail ||
-    defaultMessage
-  );
-};
-
-export const useOnboarding = () => {
+export const useAuth = () => {
   const router = useRouter();
   const { setAuthData, user } = useAuthStore();
   const queryClient = useQueryClient();
@@ -92,27 +18,29 @@ export const useOnboarding = () => {
       return;
     }
 
-    await apiClient
-      .get(API_ENDPOINTS.USER_PROFILE(user?.user_types?.[0]).url)
-      .then(() => {
-        router.push("/home");
-      })
-      .catch((error: AxiosError) => {
-        if (error.response?.status === 404) {
-          router.push("/onboarding");
-          return;
-        }
-        toast.error("Error checking onboarding status");
+    try {
+      await apiRequest({
+        endpoint: API_ENDPOINTS.USER_PROFILE(user.user_types[0]),
       });
+      router.push("/home");
+    } catch (error: any) {
+      if (error?.response?.status === 404) {
+        router.push("/onboarding");
+        return;
+      }
+      toast.error("Error checking onboarding status");
+    }
   };
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginData) => {
-      const response = await apiClient.post(API_ENDPOINTS.LOGIN.url, {
-        email: data.email,
-        password: data.password,
+      return apiRequest({
+        endpoint: API_ENDPOINTS.LOGIN,
+        body: {
+          email: data.email,
+          password: data.password,
+        },
       });
-      return response.data;
     },
     onSuccess: (response) => {
       setAuthData(response.token, response.user);
@@ -128,12 +56,14 @@ export const useOnboarding = () => {
 
   const signupMutation = useMutation({
     mutationFn: async (data: SignupData) => {
-      const response = await apiClient.post(API_ENDPOINTS.SIGNUP.url, {
-        email: data.email,
-        password: data.password,
-        user_types: data.user_types,
+      return apiRequest({
+        endpoint: API_ENDPOINTS.SIGNUP,
+        body: {
+          email: data.email,
+          password: data.password,
+          user_types: data.user_types,
+        },
       });
-      return response.data;
     },
     onSuccess: (response) => {
       const successMessage = getSuccessMessage(
@@ -151,8 +81,9 @@ export const useOnboarding = () => {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiClient.post(API_ENDPOINTS.LOGOUT.url);
-      return response.data;
+      return apiRequest({
+        endpoint: API_ENDPOINTS.LOGOUT,
+      });
     },
     onError: (error: any) => {
       const errorMessage = getErrorMessage(error, "Logout failed");
@@ -163,10 +94,12 @@ export const useOnboarding = () => {
 
   const passwordResetMutation = useMutation({
     mutationFn: async (data: PasswordResetData) => {
-      const response = await apiClient.post(API_ENDPOINTS.PASSWORD_RESET.url, {
-        email: data.email,
+      return apiRequest({
+        endpoint: API_ENDPOINTS.PASSWORD_RESET,
+        body: {
+          email: data.email,
+        },
       });
-      return response.data;
     },
     onSuccess: (response) => {
       const successMessage = getSuccessMessage(
@@ -260,4 +193,55 @@ export const useOnboarding = () => {
     user,
     errorMsg,
   };
+};
+
+const getErrorMessage = (error: any, defaultMessage: string): string => {
+  if (!error?.response?.data) {
+    return error?.message || defaultMessage;
+  }
+
+  const data = error.response.data;
+
+  if (data.non_field_errors && Array.isArray(data.non_field_errors)) {
+    return data.non_field_errors[0];
+  }
+
+  if (data.error) {
+    return data.error;
+  }
+
+  if (data.detail) {
+    return Array.isArray(data.detail) ? data.detail[0] : data.detail;
+  }
+
+  if (data.message) {
+    return data.message;
+  }
+
+  if (data.password && Array.isArray(data.password)) {
+    return data.password[0];
+  }
+
+  if (data.email && Array.isArray(data.email)) {
+    return data.email[0];
+  }
+
+  if (typeof data === "object") {
+    const firstKey = Object.keys(data)[0];
+    if (firstKey && data[firstKey]) {
+      const value = data[firstKey];
+      return Array.isArray(value) ? value[0] : value;
+    }
+  }
+
+  return defaultMessage;
+};
+
+const getSuccessMessage = (response: any, defaultMessage: string): string => {
+  return (
+    response?.message ||
+    response?.data?.detail ||
+    response?.detail ||
+    defaultMessage
+  );
 };

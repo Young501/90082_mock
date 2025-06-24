@@ -5,73 +5,26 @@ import {
   Button,
   Flex,
   Heading,
-  IconButton,
   Text,
   VStack,
-  useBreakpointValue,
 } from "@chakra-ui/react";
-import { motion, AnimatePresence, scale } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { setUserType } from "@/api";
 import Image from "next/image";
 import { useAuthStore } from "@/store/authStore";
+import { UserTypeData } from "@/types/auth";
+import { userTypesData } from "@/utils/constants";
 
 const MotionBox = motion.create(Box);
 const MotionFlex = motion.create(Flex);
-
-interface UserTypeData {
-  key: string;
-  name: string;
-  color: string;
-  bgColor: string;
-  shadowColor: string;
-}
-
-const userTypesData: UserTypeData[] = [
-  {
-    key: "student",
-    name: "STUDENT",
-    color: "#DC2626",
-    bgColor: "#DC2626",
-    shadowColor: "rgba(220, 38, 38, 0.25)",
-  },
-  {
-    key: "alumni",
-    name: "ALUMNI",
-    color: "#EAB308",
-    bgColor: "#EAB308",
-    shadowColor: "rgba(234, 179, 8, 0.15)",
-  },
-  {
-    key: "academic",
-    name: "ACADEMIC",
-    color: "#173DA6",
-    bgColor: "#183DA6",
-    shadowColor: "rgba(23, 61, 166, 0.36)",
-  },
-  {
-    key: "partner",
-    name: "INDUSTRY PARTNER",
-    color: "#089C3F",
-    bgColor: "#089C3F",
-    shadowColor: "rgba(8, 156, 63, 0.25)",
-  },
-];
 
 export default function UserTypePage() {
   const router = useRouter();
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const setSignupSelectedUserType = useAuthStore(
-    (state) => state.setSignupSelectedUserType
-  );
-
-  const boxSize = useBreakpointValue({
-    base: { w: "280px", h: "200px" },
-    md: { w: "326px", h: "233px" },
-  });
+  const { setSignupSelectedUserType } = useAuthStore();
 
   const handleSelect = async (typeKey: string) => {
     if (isAnimating) return;

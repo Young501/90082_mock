@@ -2,34 +2,21 @@
 
 import { useState, useEffect } from "react";
 import { Box, Heading, VStack, Text, Flex, HStack } from "@chakra-ui/react";
-import { useAuth, useSignup } from "@/api";
 import { useRouter } from "next/navigation";
 import { InputField, Button } from "@/components/ui";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { toast } from "react-toastify";
 import Image from "next/image";
-import * as yup from "yup";
-import { useOnboarding } from "@/hooks/onboarding";
+import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { authValidationSchema } from "@/utils/validationSchemas";
 
 interface FormData {
   email: string;
   password: string;
 }
-
-const validationSchema = yup.object({
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("Invalid email format"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters"),
-});
 
 const SignupPage = () => {
   const router = useRouter();
@@ -38,7 +25,7 @@ const SignupPage = () => {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { handleSignup, errorMsg } = useOnboarding();
+  const { handleSignup } = useAuth();
 
   useEffect(() => {
     if (!signupSelectedUserType) {
@@ -49,12 +36,10 @@ const SignupPage = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
     watch,
-    setError,
-    reset,
   } = useForm<FormData>({
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(authValidationSchema),
     mode: "onChange",
     defaultValues: {
       email: "",

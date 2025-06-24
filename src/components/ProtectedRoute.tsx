@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/api";
+import { useAuthStore } from "@/store";
 
 export default function ProtectedRoute({
   children,
@@ -10,7 +10,7 @@ export default function ProtectedRoute({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { isAuthenticated, token } = useAuth();
+  const { isAuthenticated, token } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

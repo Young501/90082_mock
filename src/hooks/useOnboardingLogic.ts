@@ -1,11 +1,10 @@
 import { useState, useMemo, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { useOnboardingPages, useAuth } from "@/api";
+import { useOnboardingPages } from "@/services/shared";
 import { Page } from "@/types/onboarding";
+import { useAuthStore } from "@/store";
 
 export const useOnboardingLogic = () => {
-  const { user } = useAuth();
-  const router = useRouter();
+  const { user } = useAuthStore();
   const [currentPageId, setCurrentPageId] = useState<number>(1);
 
   const userType = user?.user_types?.[0];
