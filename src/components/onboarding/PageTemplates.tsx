@@ -10,6 +10,7 @@ import {
 import { Page, Question } from "@/types/onboarding";
 import { FieldRenderer } from "@/app/(auth)/onboarding/FieldRenderer";
 import { UseFormRegister, Control, FieldErrors } from "react-hook-form";
+import { Button } from "@/components/ui/Button";
 
 interface PageTemplateProps {
   page: Page;
@@ -19,6 +20,10 @@ interface PageTemplateProps {
   clearErrors?: (name: string) => void;
   unregister?: (name: string) => void;
   userType?: string;
+  onNext?: () => void;
+  goToNextPage?: () => void;
+  isLastPage?: boolean;
+  isLoading?: boolean;
 }
 
 interface FieldGroupProps {
@@ -54,7 +59,7 @@ const FieldGroup = ({
     switch (layout) {
       case "horizontal":
         return (
-          <HStack spacing={spacing} align="start">
+          <HStack gap={spacing} align="start">
             {questions.map((question) => (
               <Box key={question.field} flex="1">
                 <FieldRenderer
@@ -72,7 +77,7 @@ const FieldGroup = ({
 
       case "grid":
         return (
-          <SimpleGrid columns={columns} spacing={spacing}>
+          <SimpleGrid columns={columns} gap={spacing}>
             {questions.map((question) => (
               <FieldRenderer
                 key={question.field}
@@ -97,7 +102,7 @@ const FieldGroup = ({
             bg={bgColor}
             shadow="sm"
           >
-            <VStack spacing={spacing} align="stretch">
+            <VStack gap={spacing} align="stretch">
               {questions.map((question) => (
                 <FieldRenderer
                   key={question.field}
@@ -115,7 +120,7 @@ const FieldGroup = ({
 
       default:
         return (
-          <VStack spacing={spacing} align="stretch">
+          <VStack gap={spacing} align="stretch">
             {questions.map((question) => (
               <FieldRenderer
                 key={question.field}
@@ -153,7 +158,7 @@ export const DefaultTemplate = ({
   unregister,
 }: PageTemplateProps) => {
   return (
-    <VStack spacing={6} align="stretch">
+    <VStack gap={6} align="stretch">
       {page.questions.map((question) => (
         <FieldRenderer
           key={question.field}
@@ -176,6 +181,9 @@ export const StudentProfileTemplate = ({
   errors,
   clearErrors,
   unregister,
+  onNext,
+  isLastPage,
+  isLoading,
 }: PageTemplateProps) => {
   const leftFields = page.questions.filter((q) =>
     ["first_name", "last_name", "status"].includes(q.field)
@@ -185,32 +193,54 @@ export const StudentProfileTemplate = ({
   );
 
   return (
-    <HStack align="start" spacing={12} w="100%">
-      <VStack flex={1} align="stretch" spacing={6}>
-        <FieldGroup
-          questions={leftFields}
-          register={register}
-          control={control}
-          errors={errors}
-          clearErrors={clearErrors}
-          unregister={unregister}
-          layout="vertical"
-          spacing={4}
-        />
-      </VStack>
-      <VStack flex={1} align="center" spacing={6}>
-        <FieldGroup
-          questions={rightFields}
-          register={register}
-          control={control}
-          errors={errors}
-          clearErrors={clearErrors}
-          unregister={unregister}
-          layout="vertical"
-          spacing={4}
-        />
-      </VStack>
-    </HStack>
+    <VStack gap={8} align="stretch" h="100%" w="100%">
+      <HStack align="start" gap={12} w="100%" h="100%">
+        <VStack flex={1} align="stretch" gap={68} maxW="588px" h="100%">
+          <FieldGroup
+            questions={leftFields}
+            register={register}
+            control={control}
+            errors={errors}
+            clearErrors={clearErrors}
+            unregister={unregister}
+            layout="vertical"
+            spacing={4}
+          />
+          {onNext && (
+            <Box
+              display="flex"
+              justifyContent="flex-start"
+              w="100%"
+              h="100%"
+              alignSelf="flex-end"
+            >
+              <Button
+                type="button"
+                onClick={onNext}
+                variant="primary"
+                isLoading={isLoading}
+                style={{ width: "271px", borderRadius: "0px" }}
+              >
+                {isLastPage ? "Submit" : "Next"}
+              </Button>
+            </Box>
+          )}
+        </VStack>
+
+        <VStack flex={1} align="center" gap={6} position="relative" top={-70}>
+          <FieldGroup
+            questions={rightFields}
+            register={register}
+            control={control}
+            errors={errors}
+            clearErrors={clearErrors}
+            unregister={unregister}
+            layout="vertical"
+            spacing={16}
+          />
+        </VStack>
+      </HStack>
+    </VStack>
   );
 };
 
@@ -223,7 +253,7 @@ export const StudentCourseTemplate = ({
   unregister,
 }: PageTemplateProps) => {
   return (
-    <VStack spacing={8} align="stretch">
+    <VStack gap={8} align="stretch">
       <FieldGroup
         questions={page.questions}
         register={register}
@@ -255,7 +285,7 @@ export const StudentSkillsTemplate = ({
   );
 
   return (
-    <VStack spacing={8} align="stretch">
+    <VStack gap={8} align="stretch">
       {skillsField && (
         <FieldGroup
           questions={[skillsField]}
@@ -306,7 +336,7 @@ export const StudentDiscoveryTemplate = ({
   );
 
   return (
-    <VStack spacing={8} align="stretch">
+    <VStack gap={8} align="stretch">
       {locationFields.length > 0 && (
         <FieldGroup
           questions={locationFields}
@@ -372,7 +402,7 @@ export const PartnerProfileTemplate = ({
   );
 
   return (
-    <VStack spacing={8} align="stretch">
+    <VStack gap={8} align="stretch">
       <FieldGroup
         questions={nameFields}
         register={register}
@@ -416,7 +446,7 @@ export const PartnerOrganizationTemplate = ({
   );
 
   return (
-    <VStack spacing={8} align="stretch">
+    <VStack gap={8} align="stretch">
       <FieldGroup
         questions={basicFields}
         register={register}
@@ -456,7 +486,7 @@ export const PartnerDiscoveryTemplate = ({
   unregister,
 }: PageTemplateProps) => {
   return (
-    <VStack spacing={8} align="stretch">
+    <VStack gap={8} align="stretch">
       <FieldGroup
         questions={page.questions}
         register={register}

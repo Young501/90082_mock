@@ -93,7 +93,7 @@ export const FieldRenderer = ({
           required={question.required}
           placeholder={`Enter ${question.label.toLowerCase()}`}
           inputProps={{
-            h: "50px",
+            h: "60px",
             borderRadius: "0px",
             border: "1px solid",
             borderColor: "#2CA9DF",

@@ -74,7 +74,7 @@ export const FileField = ({
   };
 
   return (
-    <Field.Root invalid={!!error}>
+    <Field.Root invalid={!!error} style={{ alignItems: "center" }}>
       {label && labelPosition === "top" && (
         <Field.Label>
           {label}
@@ -108,19 +108,16 @@ export const FileField = ({
             />
 
             <Box
-              border="2px dashed"
-              borderColor="gray.300"
-              borderRadius="md"
+              borderRadius="full"
               p={4}
               textAlign="center"
               cursor="pointer"
-              _hover={{ borderColor: "blue.400" }}
               onClick={() => fileInputRef.current?.click()}
             >
               {field.value ? (
                 <Box>
                   {config.showPreview ? (
-                    <Box mb={2} display="flex" justifyContent="center">
+                    <Box display="flex" justifyContent="center">
                       <Image
                         src={URL.createObjectURL(field.value)}
                         alt="Preview"
@@ -130,9 +127,7 @@ export const FileField = ({
                       />
                     </Box>
                   ) : (
-                    <Text color="blue.500" mb={2}>
-                      📄 {field.value.name}
-                    </Text>
+                    <Text color="blue.500">📄 {field.value.name}</Text>
                   )}
                   <Text fontSize="sm" color="gray.600">
                     Click to change file
@@ -141,7 +136,7 @@ export const FileField = ({
               ) : (
                 <Box>
                   {description === "roundedImage" && fileType === "image" ? (
-                    <Box mb={2} display="flex" justifyContent="center">
+                    <Box display="flex" justifyContent="center">
                       <Image
                         src={imgplaceholder}
                         alt="Placeholder"
@@ -154,7 +149,7 @@ export const FileField = ({
                       />
                     </Box>
                   ) : (
-                    <Text mb={2}>{config.emptyText}</Text>
+                    <Text>{config.emptyText}</Text>
                   )}
                   <Text fontSize="sm" color="gray.500">
                     {config.helpText}
@@ -167,7 +162,7 @@ export const FileField = ({
       />
       {label && labelPosition === "bottom" && (
         <Field.Label>
-          {label}
+          <span style={{ textAlign: "center", display: "block" }}>{label}</span>
           {required && (
             <span style={{ color: "red", marginLeft: "4px" }}>*</span>
           )}

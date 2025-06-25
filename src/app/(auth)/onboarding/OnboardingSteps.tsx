@@ -304,11 +304,11 @@ export const OnboardingSteps = ({ userType }: Props) => {
         </Text>
       </Text>
 
-      <Heading fontSize={{ base: "28px", md: "35px" }} mb={4}>
+      <Heading fontSize={{ base: "28px", md: "35px" }} mb={14}>
         {currentPage.guide}
       </Heading>
 
-      <form onSubmit={handleFormSubmit}>
+      <Box as="form" onSubmit={handleFormSubmit} ml={{ base: 0, md: "100px" }}>
         <PageTemplate
           page={currentPage}
           register={register}
@@ -317,6 +317,9 @@ export const OnboardingSteps = ({ userType }: Props) => {
           clearErrors={clearErrors}
           unregister={unregister}
           userType={userType}
+          onNext={isLastPage ? onSubmit : onNext}
+          isLastPage={isLastPage}
+          isLoading={submissionMutation.isPending}
         />
 
         {showValidationError && hasFormErrors && (
@@ -361,11 +364,13 @@ export const OnboardingSteps = ({ userType }: Props) => {
             </Button>
           )}
         </Box>
-        <ProgressTrack
-          progressPercent={progressPercent}
-          totalSteps={pages.length}
-        />
-      </form>
+        <Box maxW="588px">
+          <ProgressTrack
+            progressPercent={progressPercent}
+            totalSteps={pages.length}
+          />
+        </Box>
+      </Box>
     </Box>
   );
 };
