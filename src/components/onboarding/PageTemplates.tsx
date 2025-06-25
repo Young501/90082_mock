@@ -24,6 +24,8 @@ interface PageTemplateProps {
   goToNextPage?: () => void;
   isLastPage?: boolean;
   isLoading?: boolean;
+  isFirstPage?: boolean;
+  goToPreviousPage?: () => void;
 }
 
 interface FieldGroupProps {
@@ -251,22 +253,78 @@ export const StudentCourseTemplate = ({
   errors,
   clearErrors,
   unregister,
+  onNext,
+  isLastPage,
+  isLoading,
+  isFirstPage,
+  goToPreviousPage,
 }: PageTemplateProps) => {
+  const leftFields = page.questions.filter((q) =>
+    ["course_name"].includes(q.field)
+  );
+  const rightFields = page.questions.filter((q) =>
+    ["course_progression"].includes(q.field)
+  );
+
   return (
-    <VStack gap={8} align="stretch">
-      <FieldGroup
-        questions={page.questions}
-        register={register}
-        control={control}
-        errors={errors}
-        clearErrors={clearErrors}
-        unregister={unregister}
-        layout="card"
-        title="Academic Information"
-        bgColor="blue.50"
-        borderColor="blue.200"
-        spacing={6}
-      />
+    <VStack gap={8} align="stretch" h="100%" w="100%">
+      <HStack align="start" gap={12} w="100%" h="100%">
+        <VStack flex={1} align="stretch" gap={6} maxW="588px" h="100%">
+          <FieldGroup
+            questions={leftFields}
+            register={register}
+            control={control}
+            errors={errors}
+            clearErrors={clearErrors}
+            unregister={unregister}
+            title="Faculty"
+            spacing={6}
+          />
+          {onNext && (
+            <Box
+              display="flex"
+              justifyContent="flex-start"
+              w="100%"
+              h="100%"
+              alignSelf="flex-end"
+            >
+              {!isFirstPage && (
+                <Button
+                  type="button"
+                  onClick={goToPreviousPage}
+                  variant="primary"
+                  isLoading={isLoading}
+                  style={{ width: "271px", borderRadius: "0px" }}
+                >
+                  Previous
+                </Button>
+              )}
+              <Button
+                type="button"
+                onClick={onNext}
+                variant="primary"
+                isLoading={isLoading}
+                style={{ width: "271px", borderRadius: "0px" }}
+              >
+                {isLastPage ? "Submit" : "Next"}
+              </Button>
+            </Box>
+          )}
+        </VStack>
+
+        <VStack flex={1} align="stretch" gap={6} position="relative" top={0}>
+          <FieldGroup
+            questions={rightFields}
+            register={register}
+            control={control}
+            errors={errors}
+            clearErrors={clearErrors}
+            unregister={unregister}
+            title="Course Progression"
+            spacing={6}
+          />
+        </VStack>
+      </HStack>
     </VStack>
   );
 };

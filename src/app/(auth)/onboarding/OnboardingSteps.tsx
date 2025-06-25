@@ -320,6 +320,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
           onNext={isLastPage ? onSubmit : onNext}
           isLastPage={isLastPage}
           isLoading={submissionMutation.isPending}
+          isFirstPage={isFirstPage}
+          goToPreviousPage={goToPreviousPage}
         />
 
         {showValidationError && hasFormErrors && (
@@ -338,37 +340,59 @@ export const OnboardingSteps = ({ userType }: Props) => {
           </Alert.Root>
         )}
 
-        <Box mt={6} display="flex" justifyContent="space-between">
-          {!isFirstPage && (
-            <Button
-              type="button"
-              onClick={goToPreviousPage}
-              variant="secondary"
-            >
-              Previous
-            </Button>
-          )}
+        <Box
+          display="flex"
+          style={{
+            justifyContent: !isFirstPage ? "center" : "flex-start",
+            alignItems: "center",
+          }}
+        >
+          <Box
+            maxW="588px"
+            w="100%"
+            display="flex"
+            flexDirection="column"
+            gap={10}
+          >
+            <Box mt={6} display="flex" alignItems="center" gap={8}>
+              {!isFirstPage && (
+                <Button
+                  type="button"
+                  onClick={goToPreviousPage}
+                  variant="primary"
+                  style={{ width: "271px", borderRadius: "0px" }}
+                >
+                  Previous
+                </Button>
+              )}
 
-          {isLastPage ? (
-            <Button
-              type="button"
-              onClick={onSubmit}
-              variant="primary"
-              isLoading={submissionMutation.isPending}
-            >
-              Submit
-            </Button>
-          ) : (
-            <Button type="submit" variant="primary">
-              Next
-            </Button>
-          )}
-        </Box>
-        <Box maxW="588px">
-          <ProgressTrack
-            progressPercent={progressPercent}
-            totalSteps={pages.length}
-          />
+              {isLastPage ? (
+                <Button
+                  type="button"
+                  onClick={onSubmit}
+                  variant="primary"
+                  style={{ width: "271px", borderRadius: "0px" }}
+                  isLoading={submissionMutation.isPending}
+                >
+                  Submit
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  variant="primary"
+                  style={{ width: "271px", borderRadius: "0px" }}
+                >
+                  Next
+                </Button>
+              )}
+            </Box>
+            <Box>
+              <ProgressTrack
+                progressPercent={progressPercent}
+                totalSteps={pages.length}
+              />
+            </Box>
+          </Box>
         </Box>
       </Box>
     </Box>
