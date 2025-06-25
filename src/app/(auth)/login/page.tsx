@@ -1,14 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Box,
-  Heading,
-  VStack,
-  Text,
-  Flex,
-  HStack,
-} from "@chakra-ui/react";
+import { Box, Heading, VStack, Text, Flex, HStack } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { InputField, Button } from "@/components/ui";
 import Image from "next/image";
@@ -17,6 +10,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/auth";
 import { authValidationSchema } from "@/utils/validationSchemas";
+import Link from "next/link";
 
 interface FormData {
   email: string;
@@ -68,22 +62,6 @@ export default function LoginPage() {
     } catch (error: any) {
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleUserForgotPassword = async () => {
-    if (!emailValue) {
-      setError("email", { message: "Email is required" });
-      return;
-    } else if (emailValue) {
-      try {
-        await handleForgotPassword({
-          email: emailValue,
-          callback: () => {
-            setValue("email", "");
-          },
-        });
-      } catch (error: any) {}
     }
   };
 
@@ -166,18 +144,12 @@ export default function LoginPage() {
                 <Text fontSize="20px" color="black">
                   forgot password?
                 </Text>
-                <Button
-                  variant="ghost"
-                  onClick={handleUserForgotPassword}
-                  disabled={isPasswordResetLoading}
-                  isLoading={isPasswordResetLoading}
-                  p={0}
-                  h="auto"
-                  fontSize="20px"
-                  color="#2CA9DF"
+                <Link
+                  href="/reset-password"
+                  style={{ fontSize: "20px", color: "#2CA9DF" }}
                 >
                   reset here
-                </Button>
+                </Link>
               </HStack>
             </VStack>
           </form>
