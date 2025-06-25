@@ -24,7 +24,7 @@ interface FileFieldProps {
   required?: boolean;
   config?: Partial<FileFieldConfig>;
   labelPosition?: "top" | "bottom";
-  description?: "roundedImage" | "squareImage";
+  description?: string;
 }
 
 // Default configurations for different file types
@@ -135,7 +135,8 @@ export const FileField = ({
                 </Box>
               ) : (
                 <Box>
-                  {description === "roundedImage" && fileType === "image" ? (
+                  {description === "profile_picture" ||
+                  description === "logo" ? (
                     <Box display="flex" justifyContent="center">
                       <Image
                         src={imgplaceholder}

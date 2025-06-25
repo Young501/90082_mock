@@ -189,10 +189,10 @@ export const StudentProfileTemplate = ({
   isLoading,
 }: PageTemplateProps) => {
   const leftFields = page.questions.filter((q) =>
-    ["first_name", "last_name", "status"].includes(q.field)
+    ["first_name", "last_name", "status", "location"].includes(q.field)
   );
   const rightFields = page.questions.filter((q) =>
-    ["profile_picture", "location"].includes(q.field)
+    ["profile_picture"].includes(q.field)
   );
 
   return (
@@ -209,7 +209,7 @@ export const StudentProfileTemplate = ({
             layout="vertical"
             spacing={4}
           />
-          {onNext && (
+          {/* {onNext && (
             <Box
               display="flex"
               justifyContent="flex-start"
@@ -227,7 +227,7 @@ export const StudentProfileTemplate = ({
                 {isLastPage ? "Submit" : "Next"}
               </Button>
             </Box>
-          )}
+          )} */}
         </VStack>
 
         <VStack flex={1} align="center" gap={6} position="relative" top={-70}>
@@ -281,36 +281,6 @@ export const StudentCourseTemplate = ({
             title="Faculty"
             spacing={6}
           />
-          {onNext && (
-            <Box
-              display="flex"
-              justifyContent="flex-start"
-              w="100%"
-              h="100%"
-              alignSelf="flex-end"
-            >
-              {!isFirstPage && (
-                <Button
-                  type="button"
-                  onClick={goToPreviousPage}
-                  variant="primary"
-                  isLoading={isLoading}
-                  style={{ width: "271px", borderRadius: "0px" }}
-                >
-                  Previous
-                </Button>
-              )}
-              <Button
-                type="button"
-                onClick={onNext}
-                variant="primary"
-                isLoading={isLoading}
-                style={{ width: "271px", borderRadius: "0px" }}
-              >
-                {isLastPage ? "Submit" : "Next"}
-              </Button>
-            </Box>
-          )}
         </VStack>
 
         <VStack flex={1} align="stretch" gap={6} position="relative" top={0}>
@@ -375,31 +345,6 @@ export const StudentSkillsTemplate = ({
             />
           </Box>
         )}
-
-        {onNext && (
-          <HStack gap={4} justify="flex-start" w="100%">
-            {!isFirstPage && (
-              <Button
-                type="button"
-                onClick={goToPreviousPage}
-                variant="primary"
-                isLoading={isLoading}
-                style={{ width: "271px", borderRadius: "0px" }}
-              >
-                Previous
-              </Button>
-            )}
-            <Button
-              type="button"
-              onClick={onNext}
-              variant="primary"
-              isLoading={isLoading}
-              style={{ width: "271px", borderRadius: "0px" }}
-            >
-              {isLastPage ? "Submit" : "Next"}
-            </Button>
-          </HStack>
-        )}
       </VStack>
     </VStack>
   );
@@ -412,62 +357,71 @@ export const StudentDiscoveryTemplate = ({
   errors,
   clearErrors,
   unregister,
+  onNext,
+  isLastPage,
+  isLoading,
+  isFirstPage,
+  goToPreviousPage,
 }: PageTemplateProps) => {
+  const fileFields = page.questions.filter((q) => ["resume"].includes(q.field));
   const locationFields = page.questions.filter((q) =>
     ["preferred_location", "within_distance_km"].includes(q.field)
   );
-  const fileFields = page.questions.filter((q) => ["resume"].includes(q.field));
   const socialFields = page.questions.filter((q) =>
     ["homepage", "linkedln", "insta", "bluesky"].includes(q.field)
   );
 
+  const rightSideFields = [...locationFields, ...socialFields];
+
   return (
-    <VStack gap={8} align="stretch">
-      {locationFields.length > 0 && (
-        <FieldGroup
-          questions={locationFields}
-          register={register}
-          control={control}
-          errors={errors}
-          clearErrors={clearErrors}
-          unregister={unregister}
-          layout="card"
-          title="Location Preferences"
-          bgColor="purple.50"
-          borderColor="purple.200"
-        />
-      )}
+    <VStack gap={8} align="stretch" h="100%" w="100%">
+      <HStack align="start" gap={12} w="100%" h="100%">
+        <VStack flex={1} align="stretch" gap={6} maxW="588px" h="100%">
+          <Box
+            border="2px dashed"
+            borderColor="blue.300"
+            borderRadius="lg"
+            p={8}
+            bg="blue.50"
+            textAlign="center"
+            minH="300px"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            {fileFields.length > 0 && (
+              <FieldRenderer
+                question={fileFields[0]}
+                register={register}
+                control={control}
+                errors={errors}
+                clearErrors={clearErrors}
+                unregister={unregister}
+              />
+            )}
+          </Box>
 
-      {fileFields.length > 0 && (
-        <FieldGroup
-          questions={fileFields}
-          register={register}
-          control={control}
-          errors={errors}
-          clearErrors={clearErrors}
-          unregister={unregister}
-          layout="card"
-          title="Documents"
-          bgColor="orange.50"
-          borderColor="orange.200"
-        />
-      )}
+          <Box mt={4}>
+            <Text fontSize="sm" color="gray.600" textAlign="center">
+              It will increase your chances of finding your opportunity if you
+              do!
+            </Text>
+          </Box>
+        </VStack>
 
-      {socialFields.length > 0 && (
-        <FieldGroup
-          questions={socialFields}
-          register={register}
-          control={control}
-          errors={errors}
-          clearErrors={clearErrors}
-          unregister={unregister}
-          layout="grid"
-          columns={2}
-          title="Social Links"
-          bgColor="teal.50"
-          borderColor="teal.200"
-        />
-      )}
+        <VStack flex={1} align="stretch" gap={6}>
+          <FieldGroup
+            questions={rightSideFields}
+            register={register}
+            control={control}
+            errors={errors}
+            clearErrors={clearErrors}
+            unregister={unregister}
+            layout="vertical"
+            spacing={6}
+          />
+        </VStack>
+      </HStack>
     </VStack>
   );
 };

@@ -37,11 +37,13 @@ export const useOnboardingLogic = () => {
 
   const navigationInfo = useMemo(() => {
     const isFirstPage = currentPage?.id === 1;
+    const isThirdPage = currentPage?.id === 3;
     const isLastPage = !currentPage?.follow_by;
 
     return {
       isFirstPage,
       isLastPage,
+      isThirdPage,
     };
   }, [currentPage]);
 

@@ -85,7 +85,11 @@ export const FieldRenderer = ({
   }, [fieldValue, question, clearErrors, unregister, getAllChildFields]);
 
   const renderField = () => {
-    if (question.type === "text" || question.type === "location") {
+    if (
+      question.type === "text" ||
+      question.type === "location" ||
+      question.type === "url"
+    ) {
       return (
         <InputField
           register={register(question.field)}
@@ -118,18 +122,18 @@ export const FieldRenderer = ({
       );
     }
 
-    if (question.type === "url") {
-      return (
-        <InputField
-          label={question.label}
-          register={register(question.field)}
-          error={error}
-          required={question.required}
-          type="url"
-          placeholder="https://example.com"
-        />
-      );
-    }
+    // if (question.type === "url") {
+    //   return (
+    //     <InputField
+    //       label={question.label}
+    //       register={register(question.field)}
+    //       error={error}
+    //       required={question.required}
+    //       type="url"
+    //       placeholder="https://example.com"
+    //     />
+    //   );
+    // }
 
     if (question.type === "select") {
       return (
@@ -177,7 +181,9 @@ export const FieldRenderer = ({
           required={question.required}
           labelPosition="bottom"
           description={
-            question.field === "profile_picture" ? "roundedImage" : undefined
+            question.field === "profile_picture" || question.field === "logo"
+              ? question.field
+              : undefined
           }
         />
       );

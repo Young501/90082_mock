@@ -37,6 +37,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     goToPreviousPage,
     goToNextPage,
     pages,
+    isThirdPage,
   } = useOnboardingLogic();
 
   const [submitError, setSubmitError] = useState<string>("");
@@ -343,7 +344,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
         <Box
           display="flex"
           style={{
-            justifyContent: !isFirstPage ? "center" : "flex-start",
+            justifyContent:
+              !isFirstPage && !isThirdPage ? "center" : "flex-start",
             alignItems: "center",
           }}
         >
