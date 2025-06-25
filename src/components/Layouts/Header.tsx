@@ -27,8 +27,11 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
   const router = useRouter();
   const { handleLogout } = useAuth();
-  const { logout } = useAuthStore();
+  const { logout, getUserType } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const userType = getUserType();
+  const isCoordinator = userType === "coordinator";
 
   const handleUserLogout = async () => {
     await handleLogout();
@@ -117,40 +120,77 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                 h="100%"
                 pt={6}
               >
-                <Link href="/home" onClick={handleMenuItemClick}>
-                  <Text py={4} fontSize="16px" fontWeight="600" color="white">
-                    HOME
-                  </Text>
-                </Link>
+                {isCoordinator ? (
+                  <>
+                    <Link href="/home" onClick={handleMenuItemClick}>
+                      <Text
+                        py={4}
+                        fontSize="16px"
+                        fontWeight="600"
+                        color="white"
+                      >
+                        DASHBOARD
+                      </Text>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/home" onClick={handleMenuItemClick}>
+                      <Text
+                        py={4}
+                        fontSize="16px"
+                        fontWeight="600"
+                        color="white"
+                      >
+                        HOME
+                      </Text>
+                    </Link>
 
-                <Link href="/discover" onClick={handleMenuItemClick}>
-                  <Text py={4} fontSize="16px" fontWeight="600" color="white">
-                    DISCOVER
-                  </Text>
-                </Link>
+                    <Link href="/discover" onClick={handleMenuItemClick}>
+                      <Text
+                        py={4}
+                        fontSize="16px"
+                        fontWeight="600"
+                        color="white"
+                      >
+                        DISCOVER
+                      </Text>
+                    </Link>
 
-                <Link href="/profile" onClick={handleMenuItemClick}>
-                  <Text py={4} fontSize="16px" fontWeight="600" color="white">
-                    PROFILE
-                  </Text>
-                </Link>
+                    <Link href="/profile" onClick={handleMenuItemClick}>
+                      <Text
+                        py={4}
+                        fontSize="16px"
+                        fontWeight="600"
+                        color="white"
+                      >
+                        PROFILE
+                      </Text>
+                    </Link>
 
-                <Link href="/inbox" onClick={handleMenuItemClick}>
-                  <Box py={4}>
-                    <Image src={InboxIcon} alt="inbox" width={24} height={24} />
-                  </Box>
-                </Link>
+                    <Link href="/inbox" onClick={handleMenuItemClick}>
+                      <Box py={4}>
+                        <Image
+                          src={InboxIcon}
+                          alt="inbox"
+                          width={24}
+                          height={24}
+                        />
+                      </Box>
+                    </Link>
 
-                <Link href="/folder" onClick={handleMenuItemClick}>
-                  <Box py={4}>
-                    <Image
-                      src={FolderIcon}
-                      alt="folder"
-                      width={24}
-                      height={24}
-                    />
-                  </Box>
-                </Link>
+                    <Link href="/folder" onClick={handleMenuItemClick}>
+                      <Box py={4}>
+                        <Image
+                          src={FolderIcon}
+                          alt="folder"
+                          width={24}
+                          height={24}
+                        />
+                      </Box>
+                    </Link>
+                  </>
+                )}
 
                 <Button
                   bg="transparent"
@@ -247,32 +287,53 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               <Image alt="logo" src="/uni.png" width={300} height={80} />
             )}
 
-            <HStack gap={10} display={{ base: "none", md: "flex" }}>
-              <Link href="/home">
-                <Text fontSize="18px" fontWeight="700" color="white">
-                  HOME
-                </Text>
-              </Link>
-              <Link href="/discover">
-                <Text fontSize="18px" fontWeight="700" color="white">
-                  DISCOVER
-                </Text>
-              </Link>
-              <Link href="/profile">
-                <Text fontSize="18px" fontWeight="700" color="white">
-                  PROFILE
-                </Text>
-              </Link>
-              <Link href="/inbox">
-                <Image src={InboxIcon} alt="inbox" width={30} height={30} />
-              </Link>
-              <Link href="/folder">
-                <Image src={FolderIcon} alt="folder" width={30} height={30} />
-              </Link>
-              <Button bg="transparent" p={0} onClick={() => handleUserLogout()}>
-                <Image src={LinkIcon} alt="link" width={30} height={30} />
-              </Button>
-            </HStack>
+            {isCoordinator ? (
+              <HStack gap={10} display={{ base: "none", md: "flex" }}>
+                <Link href="/home">
+                  <Text fontSize="18px" fontWeight="700" color="white">
+                    DASHBOARD
+                  </Text>
+                </Link>
+                <Button
+                  bg="transparent"
+                  p={0}
+                  onClick={() => handleUserLogout()}
+                >
+                  <Image src={LinkIcon} alt="logout" width={30} height={30} />
+                </Button>
+              </HStack>
+            ) : (
+              <HStack gap={10} display={{ base: "none", md: "flex" }}>
+                <Link href="/home">
+                  <Text fontSize="18px" fontWeight="700" color="white">
+                    HOME
+                  </Text>
+                </Link>
+                <Link href="/discover">
+                  <Text fontSize="18px" fontWeight="700" color="white">
+                    DISCOVER
+                  </Text>
+                </Link>
+                <Link href="/profile">
+                  <Text fontSize="18px" fontWeight="700" color="white">
+                    PROFILE
+                  </Text>
+                </Link>
+                <Link href="/inbox">
+                  <Image src={InboxIcon} alt="inbox" width={30} height={30} />
+                </Link>
+                <Link href="/folder">
+                  <Image src={FolderIcon} alt="folder" width={30} height={30} />
+                </Link>
+                <Button
+                  bg="transparent"
+                  p={0}
+                  onClick={() => handleUserLogout()}
+                >
+                  <Image src={LinkIcon} alt="logout" width={30} height={30} />
+                </Button>
+              </HStack>
+            )}
 
             <Button
               aria-label="Open menu"

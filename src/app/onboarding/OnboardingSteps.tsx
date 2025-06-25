@@ -25,6 +25,7 @@ interface Props {
 export const OnboardingSteps = ({ userType }: Props) => {
   const router = useRouter();
   const {
+    pages,
     currentPage,
     isLoading,
     error,
@@ -34,6 +35,16 @@ export const OnboardingSteps = ({ userType }: Props) => {
     goToPreviousPage,
     goToNextPage,
   } = useOnboardingLogic();
+
+  useEffect(() => {
+    if (!isLoading && pages) {
+      if (!pages || pages.length === 0) {
+        toast.info("No onboarding required. Redirecting to Home");
+        router.push("/home");
+        return;
+      }
+    }
+  }, [isLoading, pages, router]);
 
   const [submitError, setSubmitError] = useState<string>("");
   const [showValidationError, setShowValidationError] =
