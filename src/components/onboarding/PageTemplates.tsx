@@ -11,6 +11,7 @@ import { Page, Question } from "@/types/onboarding";
 import { FieldRenderer } from "@/app/(auth)/onboarding/FieldRenderer";
 import { UseFormRegister, Control, FieldErrors } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
+import { SkillsPillField, CredentialsCheckboxField } from "@/components/fields";
 
 interface PageTemplateProps {
   page: Page;
@@ -336,6 +337,11 @@ export const StudentSkillsTemplate = ({
   errors,
   clearErrors,
   unregister,
+  onNext,
+  isLastPage,
+  isLoading,
+  isFirstPage,
+  goToPreviousPage,
 }: PageTemplateProps) => {
   const skillsField = page.questions.find((q) => q.field === "skills");
   const credentialsField = page.questions.find(
@@ -343,36 +349,58 @@ export const StudentSkillsTemplate = ({
   );
 
   return (
-    <VStack gap={8} align="stretch">
-      {skillsField && (
-        <FieldGroup
-          questions={[skillsField]}
-          register={register}
-          control={control}
-          errors={errors}
-          clearErrors={clearErrors}
-          unregister={unregister}
-          layout="card"
-          title="Skills & Experience"
-          bgColor="green.50"
-          borderColor="green.200"
-        />
-      )}
+    <VStack gap={8} align="stretch" h="100%" w="100%">
+      <VStack gap={6} align="stretch" maxW="588px" h="100%">
+        {credentialsField && (
+          <Box bg="white">
+            <CredentialsCheckboxField
+              name={credentialsField.field}
+              label={credentialsField.label}
+              options={credentialsField.options || []}
+              control={control}
+              required={credentialsField.required}
+            />
+          </Box>
+        )}
 
-      {credentialsField && (
-        <FieldGroup
-          questions={[credentialsField]}
-          register={register}
-          control={control}
-          errors={errors}
-          clearErrors={clearErrors}
-          unregister={unregister}
-          layout="card"
-          title="Certifications"
-          bgColor="green.50"
-          borderColor="green.200"
-        />
-      )}
+        {skillsField && (
+          <Box bg="white">
+            <SkillsPillField
+              name={skillsField.field}
+              label={skillsField.label}
+              options={skillsField.options || []}
+              control={control}
+              allowCustom={skillsField.allow_custom}
+              required={skillsField.required}
+            />
+          </Box>
+        )}
+
+        {onNext && (
+          <HStack gap={4} justify="flex-start" w="100%">
+            {!isFirstPage && (
+              <Button
+                type="button"
+                onClick={goToPreviousPage}
+                variant="primary"
+                isLoading={isLoading}
+                style={{ width: "271px", borderRadius: "0px" }}
+              >
+                Previous
+              </Button>
+            )}
+            <Button
+              type="button"
+              onClick={onNext}
+              variant="primary"
+              isLoading={isLoading}
+              style={{ width: "271px", borderRadius: "0px" }}
+            >
+              {isLastPage ? "Submit" : "Next"}
+            </Button>
+          </HStack>
+        )}
+      </VStack>
     </VStack>
   );
 };
