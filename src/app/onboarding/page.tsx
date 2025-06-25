@@ -5,7 +5,7 @@ import { OnboardingSteps } from "@/app/onboarding/OnboardingSteps";
 import { useAuthStore } from "@/store";
 
 export default function OnboardingPage() {
-  const { user, token } = useAuthStore()
+  const { user, token } = useAuthStore();
   const userType = user?.user_types?.[0];
 
   if (!userType || !token) {

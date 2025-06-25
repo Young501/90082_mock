@@ -9,4 +9,3 @@ export type ApiRequestParams = {
   token?: string;
   headers?: Record<string, string>;
 };
-
