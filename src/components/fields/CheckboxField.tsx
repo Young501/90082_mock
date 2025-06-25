@@ -1,7 +1,7 @@
 import { Box, VStack, Text, Checkbox } from "@chakra-ui/react";
 import { Control, useController } from "react-hook-form";
 
-interface CredentialsCheckboxFieldProps {
+interface CheckboxFieldProps {
   name: string;
   label: string;
   options: string[];
@@ -9,13 +9,13 @@ interface CredentialsCheckboxFieldProps {
   required?: boolean;
 }
 
-export const CredentialsCheckboxField = ({
+export const CheckboxField = ({
   name,
   label,
   options,
   control,
   required = false,
-}: CredentialsCheckboxFieldProps) => {
+}: CheckboxFieldProps) => {
   const {
     field: { value = [], onChange },
     fieldState: { error },

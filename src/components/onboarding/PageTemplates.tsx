@@ -11,7 +11,7 @@ import { Page, Question } from "@/types/onboarding";
 import { FieldRenderer } from "@/app/(auth)/onboarding/FieldRenderer";
 import { UseFormRegister, Control, FieldErrors } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
-import { SkillsPillField, CredentialsCheckboxField } from "@/components/fields";
+import { SkillsPillField, CheckboxField } from "@/components/fields";
 
 interface PageTemplateProps {
   page: Page;
@@ -323,7 +323,7 @@ export const StudentSkillsTemplate = ({
       <VStack gap={6} align="stretch" maxW="588px" h="100%">
         {credentialsField && (
           <Box bg="white">
-            <CredentialsCheckboxField
+            <CheckboxField
               name={credentialsField.field}
               label={credentialsField.label}
               options={credentialsField.options || []}
