@@ -9,6 +9,7 @@ import {
   useOnboardingSubmission,
   useProfilePictureUpload,
   useResumeUpload,
+  useLogoUpload,
 } from "@/services/shared";
 import { useOnboardingLogic } from "@/hooks/useOnboardingLogic";
 import { createPageSchema } from "@/utils/validationSchemas";
@@ -54,7 +55,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const submissionMutation = useOnboardingSubmission(userType);
   const profilePictureUpload = useProfilePictureUpload(userType);
   const resumeUpload = useResumeUpload(userType);
-
+  const logoUpload = useLogoUpload(userType);
   const schema = createPageSchema(currentPage?.questions || []);
 
   const {
@@ -227,6 +228,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
       const submissionData = { ...allData };
       delete submissionData.profile_picture;
       delete submissionData.resume;
+      delete submissionData.logo;
 
       const submissionResponse =
         await submissionMutation.mutateAsync(submissionData);
@@ -236,6 +238,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
 
       const profilePicture = allData.profile_picture;
       const resume = allData.resume;
+      const logo = allData.logo;
       const uploadTasks = [];
 
       if (profilePicture instanceof File) {
@@ -244,7 +247,9 @@ export const OnboardingSteps = ({ userType }: Props) => {
       if (resume instanceof File) {
         uploadTasks.push(resumeUpload.mutateAsync(resume));
       }
-
+      if (logo instanceof File) {
+        uploadTasks.push(logoUpload.mutateAsync(logo));
+      }
       if (uploadTasks.length > 0) {
         const results = await Promise.allSettled(uploadTasks);
         const failed = results.find((r) => r.status === "rejected");
@@ -260,6 +265,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
             if (index === 0 && profilePicture instanceof File) {
               toast.success(response?.detail);
             } else if (index === 1 && resume instanceof File) {
+              toast.success(response?.detail);
+            } else if (index === 2 && logo instanceof File) {
               toast.success(response?.detail);
             }
           }
