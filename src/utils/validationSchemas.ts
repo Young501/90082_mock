@@ -29,6 +29,26 @@ export const createPageSchema = (questions: Question[]) => {
           }
           return value;
         });
+    } else if (question.type === "tag-select") {
+      fieldSchema = yup
+        .array()
+        .of(yup.string())
+        .transform((value: any) => {
+          if (Array.isArray(value) && value.length === 0) {
+            return undefined;
+          }
+          return value;
+        });
+    } else if (question.type === "checkbox-group") {
+      fieldSchema = yup
+        .array()
+        .of(yup.string())
+        .transform((value: any) => {
+          if (Array.isArray(value) && value.length === 0) {
+            return undefined;
+          }
+          return value;
+        });
     } else if (question.type === "file") {
       fieldSchema = yup
         .mixed<File>()
@@ -41,7 +61,11 @@ export const createPageSchema = (questions: Question[]) => {
     }
 
     if (question.required) {
-      if (question.type === "multi-select") {
+      if (
+        question.type === "multi-select" ||
+        question.type === "tag-select" ||
+        question.type === "checkbox-group"
+      ) {
         fieldSchema = fieldSchema
           .required("This field is required")
           .min(1, "This field is required")

@@ -48,7 +48,8 @@ export const SkillsPillField = ({
 
   const handleAddSkill = (skill: string) => {
     if (skill && !value.includes(skill)) {
-      onChange([...value, skill]);
+      const cleanSkill = String(skill).trim();
+      onChange([...value, cleanSkill]);
       setSelectedOption("");
       setCustomSkill("");
       setShowDropdown(false);

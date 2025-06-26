@@ -1,7 +1,7 @@
 import { Box, Text, Field } from "@chakra-ui/react";
 import { useRef } from "react";
 import { Control, Controller } from "react-hook-form";
-import { imgplaceholder } from "@/assets";
+import { imgplaceholder, resume } from "@/assets";
 import Image from "next/image";
 
 export type FileFieldType = "image" | "resume";
@@ -149,9 +149,22 @@ export const FileField = ({
                         }}
                       />
                     </Box>
+                  ) : description === "resume" ? (
+                    <Box display="flex" justifyContent="center">
+                      <Image
+                        src={resume}
+                        alt="Placeholder"
+                        width={400}
+                        height={400}
+                        style={{
+                          maxWidth: "588px",
+                        }}
+                      />
+                    </Box>
                   ) : (
                     <Text>{config.emptyText}</Text>
                   )}
+
                   <Text fontSize="sm" color="gray.500">
                     {config.helpText}
                   </Text>

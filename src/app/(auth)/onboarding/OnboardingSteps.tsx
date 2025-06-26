@@ -37,7 +37,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     goToPreviousPage,
     goToNextPage,
     pages,
-    isThirdPage,
+    // isThirdPage,
   } = useOnboardingLogic();
 
   const [submitError, setSubmitError] = useState<string>("");
@@ -309,21 +309,24 @@ export const OnboardingSteps = ({ userType }: Props) => {
         {currentPage.guide}
       </Heading>
 
-      <Box as="form" onSubmit={handleFormSubmit} ml={{ base: 0, md: "100px" }}>
-        <PageTemplate
-          page={currentPage}
-          register={register}
-          control={control}
-          errors={errors}
-          clearErrors={clearErrors}
-          unregister={unregister}
-          userType={userType}
-          onNext={isLastPage ? onSubmit : onNext}
-          isLastPage={isLastPage}
-          isLoading={submissionMutation.isPending}
-          isFirstPage={isFirstPage}
-          goToPreviousPage={goToPreviousPage}
-        />
+      <Box
+        as="form"
+        onSubmit={handleFormSubmit}
+        maxW="588px"
+        w="100%"
+        ml={{ base: 0, md: "100px" }}
+      >
+        {currentPage.questions.map((question) => (
+          <FieldRenderer
+            key={question.field}
+            question={question}
+            register={register}
+            control={control}
+            errors={errors}
+            clearErrors={clearErrors}
+            unregister={unregister}
+          />
+        ))}
 
         {showValidationError && hasFormErrors && (
           <Alert.Root status="error" mb={4}>
@@ -344,8 +347,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
         <Box
           display="flex"
           style={{
-            justifyContent:
-              !isFirstPage && !isThirdPage ? "center" : "flex-start",
+            justifyContent: "center",
             alignItems: "center",
           }}
         >

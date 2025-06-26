@@ -7,6 +7,7 @@ interface CheckboxFieldProps {
   options: string[];
   control: Control<any>;
   required?: boolean;
+  maxSelections?: number;
 }
 
 export const CheckboxField = ({
@@ -15,6 +16,7 @@ export const CheckboxField = ({
   options,
   control,
   required = false,
+  maxSelections,
 }: CheckboxFieldProps) => {
   const {
     field: { value = [], onChange },
@@ -27,10 +29,22 @@ export const CheckboxField = ({
 
   const handleChange = (option: string, isChecked: boolean) => {
     if (isChecked) {
-      onChange([...value, option]);
+      if (maxSelections && value.length >= maxSelections) {
+        return;
+      }
+      const cleanOption = String(option).trim();
+      onChange([...value, cleanOption]);
     } else {
       onChange(value.filter((item: string) => item !== option));
     }
+  };
+
+  const isOptionDisabled = (option: string) => {
+    return (
+      !value.includes(option) &&
+      !!maxSelections &&
+      value.length >= maxSelections
+    );
   };
 
   return (
@@ -42,6 +56,12 @@ export const CheckboxField = ({
             *
           </Text>
         )}
+        {maxSelections && (
+          <Text fontSize="sm" color="gray.600" mt={1}>
+            (Select up to {maxSelections}{" "}
+            {maxSelections === 1 ? "option" : "options"})
+          </Text>
+        )}
       </Text>
 
       <VStack align="stretch" gap={2} ml={4}>
@@ -50,6 +70,7 @@ export const CheckboxField = ({
             key={option}
             checked={value.includes(option)}
             onCheckedChange={(checked) => handleChange(option, !!checked)}
+            disabled={isOptionDisabled(option)}
             size="md"
             colorPalette="blue"
             style={{
@@ -57,6 +78,7 @@ export const CheckboxField = ({
               borderRadius: "8px",
               padding: "12px",
               width: "260px",
+              opacity: isOptionDisabled(option) ? 0.5 : 1,
             }}
           >
             <Checkbox.HiddenInput />

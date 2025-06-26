@@ -30,7 +30,10 @@ export interface Question {
     | "file"
     | "location"
     | "number"
-    | "textarea";
+    | "textarea"
+    | "tag-select"
+    | "checkbox-group";
+
   required?: boolean;
   options?: string[];
   option?: string[];

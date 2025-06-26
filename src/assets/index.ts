@@ -5,6 +5,7 @@ import hamburgerIcon from "./hamburger.svg";
 import closeIcon from "./closeX.svg";
 import backgroundImage from "./background-image.png";
 import imgplaceholder from "./imgplaceholder.png";
+import resume from "./resume.png";
 
 export {
   LinkIcon,
@@ -14,4 +15,5 @@ export {
   closeIcon,
   backgroundImage,
   imgplaceholder,
+  resume,
 };

@@ -5,7 +5,13 @@ import {
   FieldErrors,
   useWatch,
 } from "react-hook-form";
-import { InputField, SelectField, FileField } from "@/components/fields";
+import {
+  InputField,
+  SelectField,
+  FileField,
+  CheckboxField,
+  SkillsPillField,
+} from "@/components/fields";
 import { Question } from "@/types/onboarding";
 import { useMemo, useEffect, useRef, useCallback } from "react";
 
@@ -162,6 +168,31 @@ export const FieldRenderer = ({
       );
     }
 
+    if (question.type === "tag-select") {
+      return (
+        <SkillsPillField
+          name={question.field}
+          label={question.label}
+          options={fieldOptions}
+          control={control}
+          allowCustom={question.allow_custom}
+          required={question.required}
+        />
+      );
+    }
+
+    if (question.type === "checkbox-group") {
+      return (
+        <CheckboxField
+          name={question.field}
+          label={question.label}
+          options={fieldOptions}
+          control={control}
+          required={question.required}
+        />
+      );
+    }
+
     if (question.type === "file") {
       const fileType =
         FILE_FIELD_TYPES[question.field as keyof typeof FILE_FIELD_TYPES];
@@ -181,7 +212,9 @@ export const FieldRenderer = ({
           required={question.required}
           labelPosition="bottom"
           description={
-            question.field === "profile_picture" || question.field === "logo"
+            question.field === "profile_picture" ||
+            question.field === "logo" ||
+            question.field === "resume"
               ? question.field
               : undefined
           }
