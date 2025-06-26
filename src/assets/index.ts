@@ -6,6 +6,11 @@ import closeIcon from "./closeX.svg";
 import backgroundImage from "./background-image.png";
 import imgplaceholder from "./imgplaceholder.png";
 import resume from "./resume.png";
+import employment from "./employment.svg";
+import student from "./student.svg";
+import internship from "./internship.svg";
+import mentoring from "./mentoring.svg";
+import research from "./research.svg";
 
 export {
   LinkIcon,
@@ -16,4 +21,9 @@ export {
   backgroundImage,
   imgplaceholder,
   resume,
+  employment,
+  student,
+  internship,
+  mentoring,
+  research,
 };

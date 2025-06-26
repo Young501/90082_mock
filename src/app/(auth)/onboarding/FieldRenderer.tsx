@@ -145,24 +145,12 @@ export const FieldRenderer = ({
       );
     }
 
-    // if (question.type === "url") {
-    //   return (
-    //     <InputField
-    //       label={question.label}
-    //       register={register(question.field)}
-    //       error={error}
-    //       required={question.required}
-    //       type="url"
-    //       placeholder="https://example.com"
-    //     />
-    //   );
-    // }
-
     if (question.type === "select") {
       return (
         <SelectField
           name={question.field}
           control={control}
+          label={question.label}
           options={fieldOptions}
           error={error}
           required={question.required}

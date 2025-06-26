@@ -18,32 +18,47 @@ export const CheckboxField = ({
   required = false,
   maxSelections,
 }: CheckboxFieldProps) => {
+  const isSingleSelect = maxSelections === 1;
+
   const {
-    field: { value = [], onChange },
+    field: { value, onChange },
     fieldState: { error },
   } = useController({
     name,
     control,
-    defaultValue: [],
+    defaultValue: isSingleSelect ? "" : [],
   });
 
+  const currentValue = isSingleSelect
+    ? value || ""
+    : Array.isArray(value)
+      ? value
+      : [];
+
   const handleChange = (option: string, isChecked: boolean) => {
-    if (isChecked) {
-      if (!!maxSelections && value.length >= maxSelections) {
-        return;
-      }
-      const cleanOption = String(option).trim();
-      onChange([...value, cleanOption]);
+    if (isSingleSelect) {
+      onChange(isChecked ? option : "");
     } else {
-      onChange(value.filter((item: string) => item !== option));
+      if (isChecked) {
+        if (!!maxSelections && currentValue.length >= maxSelections) {
+          return;
+        }
+        const cleanOption = String(option).trim();
+        onChange([...currentValue, cleanOption]);
+      } else {
+        onChange(currentValue.filter((item: string) => item !== option));
+      }
     }
   };
 
   const isOptionDisabled = (option: string) => {
+    if (isSingleSelect) {
+      return false;
+    }
     return (
-      !value.includes(option) &&
+      !currentValue.includes(option) &&
       !!maxSelections &&
-      value.length >= maxSelections
+      currentValue.length >= maxSelections
     );
   };
 
@@ -70,7 +85,11 @@ export const CheckboxField = ({
         {options.map((option) => (
           <Checkbox.Root
             key={option}
-            checked={value.includes(option)}
+            checked={
+              isSingleSelect
+                ? currentValue === option
+                : currentValue.includes(option)
+            }
             onCheckedChange={(details) =>
               handleChange(option, Boolean(details.checked))
             }

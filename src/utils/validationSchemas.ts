@@ -40,15 +40,32 @@ export const createPageSchema = (questions: Question[]) => {
           return value;
         });
     } else if (question.type === "checkbox-group") {
-      fieldSchema = yup
-        .array()
-        .of(yup.string())
-        .transform((value: any) => {
-          if (Array.isArray(value) && value.length === 0) {
+      const maxSelections =
+        question.max_selections ||
+        question.max_selection ||
+        question["max-selection"];
+      if (maxSelections === 1) {
+        fieldSchema = yup.string().transform((value: any) => {
+          if (value === "" || value === null || value === undefined) {
             return undefined;
           }
           return value;
         });
+      } else {
+        fieldSchema = yup
+          .array()
+          .of(yup.string())
+          .max(
+            maxSelections || Infinity,
+            `Maximum ${maxSelections} selections allowed`
+          )
+          .transform((value: any) => {
+            if (Array.isArray(value) && value.length === 0) {
+              return undefined;
+            }
+            return value;
+          });
+      }
     } else if (question.type === "file") {
       fieldSchema = yup
         .mixed<File>()
@@ -91,7 +108,10 @@ export const createPageSchema = (questions: Question[]) => {
       if (
         question.type === "multi-select" ||
         question.type === "tag-select" ||
-        question.type === "checkbox-group" ||
+        (question.type === "checkbox-group" &&
+          (question.max_selections ||
+            question.max_selection ||
+            question["max-selection"]) !== 1) ||
         (question.type === "card-select" &&
           (question.max_selections ||
             question.max_selection ||

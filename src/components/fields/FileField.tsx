@@ -61,8 +61,11 @@ export const FileField = ({
 }: FileFieldProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const config = { ...DEFAULT_CONFIGS[fileType], ...customConfig };
-  const setProfileImageUrl = useAuthStore((state) => state.setProfileImageUrl);
-  const setLogoUrl = useAuthStore((state) => state.setLogoUrl);
+
+  const { setProfileImageUrl, setLogoUrl } = useAuthStore();
+
+  // const setProfileImageUrl = useAuthStore((state) => state.setProfileImageUrl);
+  // const setLogoUrl = useAuthStore((state) => state.setLogoUrl);
 
   const validateFile = (file: File): string | null => {
     if (file.size > config.maxSize * 1024 * 1024) {
@@ -138,7 +141,12 @@ export const FileField = ({
                         alt="Preview"
                         width={200}
                         height={200}
-                        style={{ objectFit: "cover" }}
+                        style={{
+                          objectFit: "cover",
+                          borderRadius: "50%",
+                          width: "200px",
+                          height: "200px",
+                        }}
                       />
                     </Box>
                   ) : (
@@ -161,6 +169,8 @@ export const FileField = ({
                         style={{
                           objectFit: "cover",
                           borderRadius: "50%",
+                          width: "200px",
+                          height: "200px",
                         }}
                       />
                     </Box>
