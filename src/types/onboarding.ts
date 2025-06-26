@@ -32,12 +32,15 @@ export interface Question {
     | "number"
     | "textarea"
     | "tag-select"
-    | "checkbox-group";
+    | "checkbox-group"
+    | "card-select";
 
   required?: boolean;
   options?: string[];
   option?: string[];
   max_selection?: number;
+  max_selections?: number;
+  "max-selection"?: number;
   followup_question?: FollowupQuestionMap;
   upload_endpoint?: string;
   is_filter?: boolean;

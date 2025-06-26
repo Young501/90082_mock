@@ -145,7 +145,7 @@ export const SkillsPillField = ({
               backgroundColor: "#CFF3FF",
             }}
           >
-            + ADD MORE
+            + {value.length === 0 ? "ADD SKILLS" : "ADD MORE"}
           </ChakraButton>
         ) : (
           <VStack align="stretch" gap={3}>

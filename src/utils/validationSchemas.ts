@@ -56,6 +56,8 @@ export const createPageSchema = (questions: Question[]) => {
           if (!value) return true;
           return value instanceof File;
         });
+    } else if (question.type === "card-select") {
+      fieldSchema = yup.array().of(yup.string());
     } else {
       fieldSchema = yup.string();
     }

@@ -29,7 +29,7 @@ export const CheckboxField = ({
 
   const handleChange = (option: string, isChecked: boolean) => {
     if (isChecked) {
-      if (maxSelections && value.length >= maxSelections) {
+      if (!!maxSelections && value.length >= maxSelections) {
         return;
       }
       const cleanOption = String(option).trim();
@@ -49,27 +49,31 @@ export const CheckboxField = ({
 
   return (
     <Box>
-      <Text fontSize="18px" fontWeight="medium" mb={4}>
-        {label}
-        {required && (
-          <Text as="span" color="red.500" ml={1}>
-            *
-          </Text>
-        )}
+      <Box mb={4}>
+        <Text fontSize="18px" fontWeight="medium">
+          {label}
+          {required && (
+            <Text as="span" color="red.500" ml={1}>
+              *
+            </Text>
+          )}
+        </Text>
         {maxSelections && (
           <Text fontSize="sm" color="gray.600" mt={1}>
             (Select up to {maxSelections}{" "}
             {maxSelections === 1 ? "option" : "options"})
           </Text>
         )}
-      </Text>
+      </Box>
 
       <VStack align="stretch" gap={2} ml={4}>
         {options.map((option) => (
           <Checkbox.Root
             key={option}
             checked={value.includes(option)}
-            onCheckedChange={(checked) => handleChange(option, !!checked)}
+            onCheckedChange={(details) =>
+              handleChange(option, Boolean(details.checked))
+            }
             disabled={isOptionDisabled(option)}
             size="md"
             colorPalette="blue"

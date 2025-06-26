@@ -11,6 +11,8 @@ import {
   FileField,
   CheckboxField,
   SkillsPillField,
+  SliderField,
+  CardSelectField,
 } from "@/components/fields";
 import { Question } from "@/types/onboarding";
 import { useMemo, useEffect, useRef, useCallback } from "react";
@@ -116,6 +118,20 @@ export const FieldRenderer = ({
     }
 
     if (question.type === "number") {
+      if (question.min !== undefined && question.max !== undefined) {
+        return (
+          <SliderField
+            name={question.field}
+            label={question.label}
+            control={control}
+            min={question.min}
+            max={question.max}
+            unit={question.unit}
+            required={question.required}
+          />
+        );
+      }
+
       return (
         <InputField
           label={question.label}
@@ -189,6 +205,20 @@ export const FieldRenderer = ({
           options={fieldOptions}
           control={control}
           required={question.required}
+          maxSelections={question.max_selections || question["max-selection"]}
+        />
+      );
+    }
+
+    if (question.type === "card-select") {
+      return (
+        <CardSelectField
+          name={question.field}
+          label={question.label}
+          options={fieldOptions}
+          control={control}
+          required={question.required}
+          maxSelections={question.max_selections}
         />
       );
     }

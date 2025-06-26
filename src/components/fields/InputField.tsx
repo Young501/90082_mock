@@ -37,27 +37,43 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
           </Field.Label>
         </Box>
       )}
-      <ChakraInput
-        type={type}
-        placeholder={placeholder}
-        h="60px"
-        borderRadius="30px"
-        border="2px solid"
-        borderColor="#2CA9DF"
-        bg="white"
-        fontSize="16px"
-        px={6}
-        _focus={{
-          borderColor: "#2CA9DF",
-          boxShadow: "0 0 0 1px #2CA9DF",
+      <Box
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "4px",
+          width: "100%",
         }}
-        _hover={{
-          borderColor: "#2CA9DF",
-        }}
-        {...register}
-        {...props}
-        {...inputProps}
-      />
+      >
+        {!label && required && (
+          <Box>
+            {required && (
+              <span style={{ color: "red", marginLeft: "4px" }}>*</span>
+            )}
+          </Box>
+        )}
+        <ChakraInput
+          type={type}
+          placeholder={placeholder}
+          h="60px"
+          borderRadius="30px"
+          border="2px solid"
+          borderColor="#2CA9DF"
+          bg="white"
+          fontSize="16px"
+          px={6}
+          _focus={{
+            borderColor: "#2CA9DF",
+            boxShadow: "0 0 0 1px #2CA9DF",
+          }}
+          _hover={{
+            borderColor: "#2CA9DF",
+          }}
+          {...register}
+          {...props}
+          {...inputProps}
+        />
+      </Box>
       {error && <Field.ErrorText mt={2}>{error}</Field.ErrorText>}
     </Field.Root>
   )
