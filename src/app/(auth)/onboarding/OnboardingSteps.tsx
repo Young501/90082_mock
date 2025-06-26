@@ -19,7 +19,6 @@ import { Question } from "@/types/onboarding";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import ProgressTrack from "@/components/ProgressTrack";
-import { getPageTemplate } from "@/components/onboarding/PageTemplates";
 
 interface Props {
   userType: string;
@@ -294,7 +293,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
   if (!currentPage) return <Text>No onboarding page found.</Text>;
 
   const hasFormErrors = Object.keys(errors).length > 0;
-  const PageTemplate = getPageTemplate(currentPage.guide, userType);
 
   return (
     <Box p={6}>
