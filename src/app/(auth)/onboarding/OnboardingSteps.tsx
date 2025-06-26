@@ -36,7 +36,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
     isLastPage,
     goToPreviousPage,
     goToNextPage,
-    pages,
     // isThirdPage,
   } = useOnboardingLogic();
 

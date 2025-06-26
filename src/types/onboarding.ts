@@ -36,6 +36,7 @@ export interface Question {
     | "card-select";
 
   required?: boolean;
+  icon?: string;
   options?: string[];
   option?: string[];
   max_selection?: number;
