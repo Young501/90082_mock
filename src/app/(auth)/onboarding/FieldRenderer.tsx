@@ -104,6 +104,7 @@ export const FieldRenderer = ({
           error={error}
           required={question.required}
           placeholder={`Enter ${question.label.toLowerCase()}`}
+          icon={question.icon}
           inputProps={{
             h: "60px",
             borderRadius: "0px",
