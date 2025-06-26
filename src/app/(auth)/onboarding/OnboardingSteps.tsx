@@ -274,7 +274,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
         });
       }
 
-      router.push("/home");
+      router.push("/onboarding/success");
     } catch (error: any) {
       const errorMessage =
         error?.response?.data?.error ||

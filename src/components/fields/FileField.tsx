@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { Control, Controller } from "react-hook-form";
 import { imgplaceholder, resume } from "@/assets";
 import Image from "next/image";
+import { useAuthStore } from "@/store/authStore";
 
 export type FileFieldType = "image" | "resume";
 
@@ -60,6 +61,8 @@ export const FileField = ({
 }: FileFieldProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const config = { ...DEFAULT_CONFIGS[fileType], ...customConfig };
+  const setProfileImageUrl = useAuthStore((state) => state.setProfileImageUrl);
+  const setLogoUrl = useAuthStore((state) => state.setLogoUrl);
 
   const validateFile = (file: File): string | null => {
     if (file.size > config.maxSize * 1024 * 1024) {
@@ -71,6 +74,24 @@ export const FileField = ({
     }
 
     return null;
+  };
+
+  const handleFileChange = (file: File, onChange: (value: any) => void) => {
+    const error = validateFile(file);
+    if (error) {
+      alert(error);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    onChange(file);
+
+    const fileUrl = URL.createObjectURL(file);
+    if (description === "profile_picture") {
+      setProfileImageUrl(fileUrl);
+    } else if (description === "logo") {
+      setLogoUrl(fileUrl);
+    }
   };
 
   return (
@@ -94,13 +115,7 @@ export const FileField = ({
               onChange={(event) => {
                 const file = event.target.files?.[0];
                 if (file) {
-                  const error = validateFile(file);
-                  if (error) {
-                    alert(error);
-                    event.target.value = "";
-                    return;
-                  }
-                  field.onChange(file);
+                  handleFileChange(file, field.onChange);
                 }
               }}
               accept={config.accept}

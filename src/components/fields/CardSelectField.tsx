@@ -18,36 +18,60 @@ export const CardSelectField = ({
   required = false,
   maxSelections,
 }: CardSelectFieldProps) => {
+  const isSingleSelect = maxSelections === 1;
+
   const {
-    field: { value = [], onChange },
+    field: { value, onChange },
     fieldState: { error },
   } = useController({
     name,
     control,
-    defaultValue: [],
+    defaultValue: isSingleSelect ? "" : [],
   });
 
-  const handleCardClick = (option: string) => {
-    const isSelected = value.includes(option);
+  const currentValue = isSingleSelect
+    ? value || ""
+    : Array.isArray(value)
+      ? value
+      : [];
 
-    if (isSelected) {
-      onChange(value.filter((item: string) => item !== option));
+  const handleCardClick = (option: string) => {
+    if (isSingleSelect) {
+      const isSelected = currentValue === option;
+      onChange(isSelected ? "" : option);
     } else {
-      if (maxSelections && value.length >= maxSelections) {
-        return;
+      const valueArray = currentValue;
+      const isSelected = valueArray.includes(option);
+
+      if (isSelected) {
+        onChange(valueArray.filter((item: string) => item !== option));
+      } else {
+        if (maxSelections && valueArray.length >= maxSelections) {
+          return;
+        }
+        onChange([...valueArray, option]);
       }
-      onChange([...value, option]);
     }
   };
 
   const isCardDisabled = (option: string) => {
+    if (isSingleSelect) {
+      return false;
+    }
+    const valueArray = currentValue;
     return (
-      !value.includes(option) && maxSelections && value.length >= maxSelections
+      !valueArray.includes(option) &&
+      maxSelections &&
+      valueArray.length >= maxSelections
     );
   };
 
   const isCardSelected = (option: string) => {
-    return value.includes(option);
+    if (isSingleSelect) {
+      return currentValue === option;
+    }
+    const valueArray = currentValue;
+    return valueArray.includes(option);
   };
 
   return (
