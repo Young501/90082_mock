@@ -109,3 +109,10 @@ export const authValidationSchema = yup.object({
     .required("Password is required")
     .min(8, "Password must be at least 8 characters"),
 });
+
+export const resetPasswordValidationSchema = yup.object({
+  email: yup
+    .string()
+    .required("Email is required")
+    .email("Invalid email format"),
+});

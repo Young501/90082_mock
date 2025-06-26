@@ -9,8 +9,8 @@ import {
   useOnboardingSubmission,
   useProfilePictureUpload,
   useResumeUpload,
-} from "@/services/student";
-import { useLogoUpload } from "@/services/partner";
+  useLogoUpload,
+} from "@/services/shared";
 import { useOnboardingLogic } from "@/hooks/useOnboardingLogic";
 import { createPageSchema } from "@/utils/validationSchemas";
 import { FieldRenderer } from "./FieldRenderer";
@@ -27,6 +27,7 @@ interface Props {
 export const OnboardingSteps = ({ userType }: Props) => {
   const router = useRouter();
   const {
+    pages,
     currentPage,
     isLoading,
     error,
@@ -38,6 +39,16 @@ export const OnboardingSteps = ({ userType }: Props) => {
     pages,
     // isThirdPage,
   } = useOnboardingLogic();
+
+  useEffect(() => {
+    if (!isLoading && pages) {
+      if (!pages || pages.length === 0) {
+        toast.info("No onboarding required. Redirecting to Home");
+        router.push("/home");
+        return;
+      }
+    }
+  }, [isLoading, pages, router]);
 
   const [submitError, setSubmitError] = useState<string>("");
   const [showValidationError, setShowValidationError] =

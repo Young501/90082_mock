@@ -9,7 +9,8 @@ import {
   DependencyCondition,
   UserSearchParams,
 } from "@/types/discovery";
-import { useOnboardingPages, useUserSearch } from "@/services/userTypes";
+import { useUserSearch } from "@/services/user";
+import { useOnboardingPages } from "@/services/shared";
 
 const createValidationSchema = (fields: ProcessedField[]) => {
   const shape: Record<string, any> = {};
