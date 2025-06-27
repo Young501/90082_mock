@@ -9,7 +9,6 @@ import {
 } from "@chakra-ui/react";
 import { Calendar } from "lucide-react";
 import { UseMutationResult } from "@tanstack/react-query";
-import { useInviteStore } from "@/store";
 import { Opportunity, InviteAcceptResponse } from "@/types/invite";
 
 interface InviteCardProps {
@@ -20,11 +19,18 @@ interface InviteCardProps {
     any,
     { opportunityId: string; token: string },
     unknown
-  >;
+  > & {
+    formattedError: string | null;
+  };
 }
 
-export const InviteCard = ({ opportunity, onAccept }: InviteCardProps) => {
-  const { isAccepting, acceptError } = useInviteStore();
+export const InviteCard = ({
+  opportunity,
+  onAccept,
+  acceptInviteMutation,
+}: InviteCardProps) => {
+  const isAccepting = acceptInviteMutation.isPending;
+  const acceptError = acceptInviteMutation.formattedError;
 
   return (
     <Box

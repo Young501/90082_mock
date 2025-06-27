@@ -3,7 +3,6 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Container, useBreakpointValue } from "@chakra-ui/react";
-import { useInviteStore } from "@/store";
 import { useOpportunityDetail, useAcceptInvite } from "@/hooks/useInvite";
 import { InviteStatusPage } from "./InviteStatusPage";
 import { InviteCard } from "./InviteCard";
@@ -16,17 +15,12 @@ function InviteContent() {
   const opportunityId = searchParams.get("opportunity");
   const [countdown, setCountdown] = useState(3);
 
-  const { clearError } = useInviteStore();
   const acceptInviteMutation = useAcceptInvite();
   const {
     data: opportunity,
     isLoading,
     error,
   } = useOpportunityDetail(opportunityId || "");
-
-  useEffect(() => {
-    clearError();
-  }, [token, opportunityId, clearError]);
 
   useEffect(() => {
     if (acceptInviteMutation.isSuccess) {

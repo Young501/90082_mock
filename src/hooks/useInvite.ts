@@ -2,7 +2,6 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { getOpportunityDetail, acceptInvite } from "@/services/invite";
-import { useInviteStore } from "@/store";
 
 export const useOpportunityDetail = (opportunityId: string) => {
   const [minLoadingTime, setMinLoadingTime] = useState(true);
@@ -30,9 +29,8 @@ export const useOpportunityDetail = (opportunityId: string) => {
 
 export const useAcceptInvite = () => {
   const router = useRouter();
-  const { setAccepting, setAcceptError } = useInviteStore();
 
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: ({
       opportunityId,
       token,
@@ -40,23 +38,25 @@ export const useAcceptInvite = () => {
       opportunityId: string;
       token: string;
     }) => acceptInvite(opportunityId, token),
-    onMutate: () => {
-      setAccepting(true);
-      setAcceptError(null);
-    },
     onSuccess: () => {
-      setAccepting(false);
       setTimeout(() => {
         router.push("/home");
       }, 3000);
     },
-    onError: (error: any) => {
-      setAccepting(false);
-      const errorMessage =
-        error?.response?.data?.detail ||
-        error?.message ||
-        "Failed to accept invitation";
-      setAcceptError(errorMessage);
-    },
   });
+
+  const getFormattedError = () => {
+    if (!mutation.isError || !mutation.error) {
+      return null;
+    }
+
+    const error = mutation.error as any;
+
+    return error?.response?.data?.detail || "Failed to accept invitation";
+  };
+
+  return {
+    ...mutation,
+    formattedError: getFormattedError(),
+  };
 };

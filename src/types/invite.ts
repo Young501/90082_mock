@@ -17,11 +17,3 @@ export interface Opportunity {
   created_at: string;
   updated_at: string;
 }
-
-export interface InviteState {
-  isAccepting: boolean;
-  acceptError: string | null;
-  setAccepting: (isAccepting: boolean) => void;
-  setAcceptError: (error: string | null) => void;
-  clearError: () => void;
-}
