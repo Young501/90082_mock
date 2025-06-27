@@ -43,7 +43,9 @@ export interface PartnerProfile {
   sector?: string;
   industry?: string;
   company_size?: string;
-  logo?: string;
+  logo_url?: string;
+  email?: string;
+  availability?: string;
 }
 
 export type UserProfile = StudentProfile | PartnerProfile;

@@ -40,6 +40,9 @@ export function DiscoveryResultBox({
 }: DiscoveryResultBoxProps) {
   if (!show) return null;
 
+  console.log(results);
+  console.log(userType);
+
   return (
     <VStack align="stretch" gap={6}>
       <HStack justify="space-between" align="center">

@@ -11,6 +11,10 @@ import student from "./student.svg";
 import internship from "./internship.svg";
 import mentoring from "./mentoring.svg";
 import research from "./research.svg";
+import addIcon from "./addicon.svg";
+import calenderIcon from "./calenderIcon.svg";
+import emailIcon from "./emailicon.svg";
+import locationIcon from "./locationIcon.svg";
 
 export {
   LinkIcon,
@@ -26,4 +30,8 @@ export {
   internship,
   mentoring,
   research,
+  addIcon,
+  calenderIcon,
+  emailIcon,
+  locationIcon,
 };
