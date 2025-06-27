@@ -31,6 +31,7 @@ export interface StudentProfile {
   skills?: string[];
   credentials?: string[];
   preferred_location?: string[];
+  availability?: string;
 }
 
 export interface PartnerProfile {

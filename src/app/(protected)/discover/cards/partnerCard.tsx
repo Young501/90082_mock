@@ -38,7 +38,7 @@ export function PartnerCard({ partner }: PartnerCardProps) {
         <Box
           w={6}
           h={6}
-          bg="gray.600"
+          bg="transparent"
           borderRadius="md"
           display="flex"
           alignItems="center"
@@ -46,8 +46,8 @@ export function PartnerCard({ partner }: PartnerCardProps) {
           cursor="pointer"
         >
           <Image
-            width={16}
-            height={16}
+            width={20}
+            height={20}
             src={addIcon}
             alt="add"
             objectFit="contain"
@@ -89,76 +89,87 @@ export function PartnerCard({ partner }: PartnerCardProps) {
           </Box>
 
           <Box display="flex" flexDirection="column" gap={3} w="full">
-            <Heading fontSize="20px" fontWeight="bold" color="#000000">
+            <Heading
+              fontSize="20px"
+              textTransform="capitalize"
+              fontWeight="bold"
+              color="#000000"
+            >
               {partner.company_name || ""}
             </Heading>
 
             <Box display="flex" flexDirection="column" gap={2}>
-              <HStack gap={2} align="center">
-                <Box
-                  w="16px"
-                  h="16px"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  flexShrink={0}
-                >
-                  <Image
-                    width={10}
-                    height={10}
-                    src={locationIcon}
-                    alt="location"
-                    objectFit="contain"
-                  />
-                </Box>
-                <Text fontSize="sm" color="gray.600">
-                  {partner.location || ""}
-                </Text>
-              </HStack>
+              {partner.location && (
+                <HStack gap={2} align="center">
+                  <Box
+                    w="16px"
+                    h="16px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    flexShrink={0}
+                  >
+                    <Image
+                      width={12}
+                      height={12}
+                      src={locationIcon}
+                      alt="location"
+                      objectFit="contain"
+                    />
+                  </Box>
+                  <Text fontSize="sm" color="gray.600">
+                    {partner.location || ""}
+                  </Text>
+                </HStack>
+              )}
 
-              <HStack gap={2} align="center">
-                <Box
-                  w="16px"
-                  h="16px"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  flexShrink={0}
-                >
-                  <Image
-                    width={10}
-                    height={10}
-                    src={emailIcon}
-                    alt="email"
-                    objectFit="contain"
-                  />
-                </Box>
-                <Text fontSize="sm" color="gray.600">
-                  {partner.email || ""}
-                </Text>
-              </HStack>
+              {partner.email && (
+                <HStack gap={2} align="center">
+                  <Box
+                    w="16px"
+                    h="16px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    flexShrink={0}
+                  >
+                    <Image
+                      width={12}
+                      height={12}
+                      src={emailIcon}
+                      alt="email"
+                      objectFit="contain"
+                    />
+                  </Box>
+                  <Text fontSize="sm" color="gray.600">
+                    {partner.email || ""}
+                  </Text>
+                </HStack>
+              )}
 
-              <HStack gap={2} align="center">
-                <Box
-                  w="16px"
-                  h="16px"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  flexShrink={0}
-                >
-                  <Image
-                    width={10}
-                    height={10}
-                    src={calenderIcon}
-                    alt="calendar"
-                    objectFit="contain"
-                  />
-                </Box>
-                <Text fontSize="sm" color="gray.600">
-                  {partner.availability}
-                </Text>
-              </HStack>
+              {partner.availability && (
+                <HStack gap={2} align="center">
+                  <Box
+                    w="16px"
+                    h="16px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    flexShrink={0}
+                  >
+                    <Image
+                      width={12}
+                      height={12}
+                      src={calenderIcon}
+                      alt="calendar"
+                      objectFit="contain"
+                    />
+                  </Box>
+                  <Text fontSize="sm" color="gray.600">
+                    {partner.availability}
+                  </Text>
+                </HStack>
+              )}
             </Box>
           </Box>
         </Box>
