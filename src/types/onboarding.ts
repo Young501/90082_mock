@@ -30,6 +30,7 @@ export interface Question {
     | "file"
     | "location"
     | "number"
+    | "range"
     | "textarea"
     | "tag-select"
     | "checkbox-group"

@@ -84,7 +84,7 @@ export default function OnboardingSuccessPage() {
     router.push("/home");
   };
 
-  const handleExploreClick = () => {
+  const handleExploreClick = (): void => {
     router.push("/discover");
   };
 

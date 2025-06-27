@@ -119,20 +119,6 @@ export const FieldRenderer = ({
     }
 
     if (question.type === "number") {
-      if (question.min !== undefined && question.max !== undefined) {
-        return (
-          <SliderField
-            name={question.field}
-            label={question.label}
-            control={control}
-            min={question.min}
-            max={question.max}
-            unit={question.unit}
-            required={question.required}
-          />
-        );
-      }
-
       return (
         <InputField
           label={question.label}
@@ -141,6 +127,20 @@ export const FieldRenderer = ({
           required={question.required}
           type="number"
           placeholder={`Enter ${question.label.toLowerCase()}`}
+        />
+      );
+    }
+
+    if (question.type === "range") {
+      return (
+        <SliderField
+          name={question.field}
+          label={question.label}
+          control={control}
+          min={question.min}
+          max={question.max}
+          unit={question.unit}
+          required={question.required}
         />
       );
     }

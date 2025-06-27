@@ -11,6 +11,12 @@ export const createPageSchema = (questions: Question[]) => {
       fieldSchema = yup.string();
     } else if (question.type === "number") {
       fieldSchema = yup.number().typeError("Must be a number");
+    } else if (question.type === "range") {
+      fieldSchema = yup
+        .number()
+        .typeError("Must be a number")
+        .min(question.min || 0, `Value must be at least ${question.min}`)
+        .max(question.max || 200, `Value must be at most ${question.max}`);
     } else if (question.type === "url") {
       fieldSchema = yup.string().url("Invalid URL format");
     } else if (question.type === "select") {
@@ -122,6 +128,12 @@ export const createPageSchema = (questions: Question[]) => {
           .min(1, "This field is required")
           .test("not-empty-array", "This field is required", (value: any) => {
             return Array.isArray(value) && value.length > 0;
+          });
+      } else if (question.type === "range") {
+        fieldSchema = fieldSchema
+          .required("This field is required")
+          .test("is-range-required", "This field is required", (value: any) => {
+            return typeof value === "number" && !isNaN(value);
           });
       } else {
         fieldSchema = fieldSchema.required("This field is required");
