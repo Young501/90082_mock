@@ -281,7 +281,7 @@ export function StudentCard({ student, userType }: StudentCardProps) {
 
             {hasMoreSkills && (
               <Box
-                bg="#FEB2B2"
+                bg="#FFB3AC"
                 color="#000000"
                 borderRadius="xl"
                 py={2}
@@ -291,7 +291,7 @@ export function StudentCard({ student, userType }: StudentCardProps) {
                 cursor="pointer"
                 position="relative"
                 _hover={{
-                  bg: "#FCA5A5",
+                  bg: "#FFB3AC",
                 }}
                 title={remainingSkills.join(", ")}
               >
