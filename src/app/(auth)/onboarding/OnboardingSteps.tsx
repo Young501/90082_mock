@@ -304,25 +304,31 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const hasFormErrors = Object.keys(errors).length > 0;
 
   return (
-    <Box p={6}>
-      <Text fontSize="sm" color="gray.600" mb={4}>
+    <Box
+      p={6}
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      w="100%"
+      mx="auto"
+    >
+      <Text fontSize="sm" color="gray.600" mb={4} textAlign="center">
         Required fields are marked with{" "}
         <Text as="span" color="red.500">
           *
         </Text>
       </Text>
 
-      <Heading fontSize={{ base: "28px", md: "35px" }} mb={14}>
+      <Heading
+        fontSize={{ base: "28px", md: "35px" }}
+        mb={14}
+        textAlign="center"
+      >
         {currentPage.guide}
       </Heading>
 
-      <Box
-        as="form"
-        onSubmit={handleFormSubmit}
-        maxW="588px"
-        w="100%"
-        ml={{ base: 0, md: "100px" }}
-      >
+      <Box as="form" onSubmit={handleFormSubmit} w="100%" maxW="588px">
         {currentPage.questions.map((question) => (
           <FieldRenderer
             key={question.field}
@@ -358,14 +364,13 @@ export const OnboardingSteps = ({ userType }: Props) => {
             alignItems: "center",
           }}
         >
-          <Box
-            maxW="588px"
-            w="100%"
-            display="flex"
-            flexDirection="column"
-            gap={10}
-          >
-            <Box mt={6} display="flex" alignItems="center" gap={8}>
+          <Box w="100%" display="flex" flexDirection="column" gap={10}>
+            <Box
+              mt={6}
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+            >
               {!isFirstPage && (
                 <Button
                   type="button"

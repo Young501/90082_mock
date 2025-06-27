@@ -73,7 +73,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                 <i
                   className={icon}
                   style={{
-                    color: "#2CA9DF",
+                    color: "#C3C3C3",
                     fontSize: "18px",
                   }}
                 />
@@ -83,7 +83,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
               type={type === "location" ? "text" : type}
               placeholder={placeholder}
               h="60px"
-              borderRadius="30px"
+              borderRadius="40px"
               border="2px solid"
               borderColor="#2CA9DF"
               bg="white"
