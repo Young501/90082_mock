@@ -61,88 +61,79 @@ export function DiscoveryFilterBox({
       >
         {visibleFields.length > 0 ? (
           <Box w="100%" display="flex" flexDirection="column" gap={4}>
-            <Stack direction={{ base: "column", lg: "row" }} gap={4}>
-              <Box flex="1" w="100%">
-                <Flex
-                  wrap="wrap"
-                  gap={4}
-                  justify="flex-start"
-                  align="stretch"
+            <Flex
+              wrap="wrap"
+              gap={4}
+              justify="flex-start"
+              align="stretch"
+              w="100%"
+              direction={{ base: "column", md: "row" }}
+            >
+              {primaryFields.map((field) => (
+                <Box
+                  key={field.uniqueKey}
+                  flex={{
+                    base: "1 1 100%",
+                    md: "1 1 calc(50% - 8px)",
+                    lg: "1 1 calc(25% - 12px)",
+                  }}
                   w="100%"
-                  direction={{ base: "column", lg: "row" }}
                 >
-                  {primaryFields.map((field) => (
-                    <Box
-                      key={field.uniqueKey}
-                      flex={{
-                        base: "1 1 100%",
-                        md: "1 1 calc(50% - 8px)",
-                        lg: "1 1 calc(33.333% - 11px)",
-                      }}
-                      // minW={{ base: "100%", md: "200px" }}
-                      // maxW="250px"
-                      w="100%"
-                    >
-                      <FilterField
-                        field={field}
-                        control={control}
-                        isVisible={true}
-                      />
-                    </Box>
-                  ))}
-                </Flex>
-              </Box>
+                  <FilterField
+                    field={field}
+                    control={control}
+                    isVisible={true}
+                  />
+                </Box>
+              ))}
 
               <Flex
-                direction={{ base: "row", lg: "row" }}
+                direction="row"
                 align="center"
-                justify={{ base: "flex-end", lg: "flex-start" }}
+                justify="flex-start"
                 gap={2}
-                minW={{ base: "auto", lg: "250px" }}
-                w={{ base: "100%", lg: "auto" }}
+                flex={{
+                  base: "1 1 100%",
+                  md: "1 1 calc(50% - 8px)",
+                  lg: "1 1 calc(25% - 12px)",
+                }}
+                w="100%"
               >
-                <HStack
-                  gap={2}
-                  w={{ base: "auto", lg: "100%" }}
-                  justify={{ base: "flex-end", lg: "stretch" }}
-                >
-                  {hasSearched && (
-                    <Button
-                      variant="ghost"
-                      bg="#2CA9DF"
-                      color="white"
-                      onClick={onReset}
-                      disabled={isSearching}
-                      fontSize="16px"
-                      h="40px"
-                      minW="80px"
-                      flex={{ base: "0 0 auto", lg: "1" }}
-                    >
-                      Reset
-                    </Button>
-                  )}
+                {hasSearched && (
                   <Button
-                    type="submit"
+                    variant="ghost"
                     bg="#2CA9DF"
                     color="white"
-                    isLoading={isSearching}
+                    onClick={onReset}
                     disabled={isSearching}
                     fontSize="16px"
                     h="40px"
-                    minW="100px"
+                    flex="1"
                     borderRadius="15px"
-                    flex={{ base: "0 0 auto", lg: "1" }}
                   >
-                    <Image
-                      src={searchIcon}
-                      width={16}
-                      height={16}
-                      alt="search"
-                      style={{ marginRight: "8px" }}
-                    />
-                    Search
+                    Reset
                   </Button>
-                </HStack>
+                )}
+                <Button
+                  type="submit"
+                  bg="#2CA9DF"
+                  color="white"
+                  isLoading={isSearching}
+                  disabled={isSearching}
+                  fontSize="16px"
+                  h="40px"
+                  flex={hasSearched ? "1" : "2"}
+                  borderRadius="15px"
+                >
+                  <Image
+                    src={searchIcon}
+                    width={16}
+                    height={16}
+                    alt="search"
+                    style={{ marginRight: "8px" }}
+                  />
+                  Search
+                </Button>
 
                 {hasAdditionalFields && (
                   <Button
@@ -152,7 +143,7 @@ export function DiscoveryFilterBox({
                     color="#282F68"
                     _hover={{ bg: "gray.50" }}
                     h="40px"
-                    minW="40px"
+                    w="40px"
                     p={2}
                   >
                     {isExpanded ? (
@@ -174,7 +165,7 @@ export function DiscoveryFilterBox({
                   </Button>
                 )}
               </Flex>
-            </Stack>
+            </Flex>
             {hasAdditionalFields && isExpanded && (
               <Box w="100%">
                 <Flex
