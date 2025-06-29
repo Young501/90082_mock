@@ -60,8 +60,8 @@ export function DiscoveryFilterBox({
         borderRadius="15px"
       >
         {visibleFields.length > 0 ? (
-          <>
-            <Stack direction={{ base: "column", lg: "row" }}>
+          <Box w="100%" display="flex" flexDirection="column" gap={4}>
+            <Stack direction={{ base: "column", lg: "row" }} gap={4}>
               <Box flex="1" w="100%">
                 <Flex
                   wrap="wrap"
@@ -79,8 +79,9 @@ export function DiscoveryFilterBox({
                         md: "1 1 calc(50% - 8px)",
                         lg: "1 1 calc(33.333% - 11px)",
                       }}
-                      minW={{ base: "100%", md: "200px" }}
-                      maxW="100%"
+                      // minW={{ base: "100%", md: "200px" }}
+                      // maxW="250px"
+                      w="100%"
                     >
                       <FilterField
                         field={field}
@@ -97,7 +98,7 @@ export function DiscoveryFilterBox({
                 align="center"
                 justify={{ base: "flex-end", lg: "flex-start" }}
                 gap={2}
-                minW={{ base: "auto", lg: "200px" }}
+                minW={{ base: "auto", lg: "250px" }}
                 w={{ base: "100%", lg: "auto" }}
               >
                 <HStack
@@ -175,18 +176,23 @@ export function DiscoveryFilterBox({
               </Flex>
             </Stack>
             {hasAdditionalFields && isExpanded && (
-              <Box mt={4} pt={4} borderTop="1px solid" borderColor="gray.200">
-                <Flex wrap="wrap" gap={4} justify="flex-start" align="stretch">
+              <Box w="100%">
+                <Flex
+                  wrap="wrap"
+                  gap={4}
+                  justify="flex-start"
+                  align="stretch"
+                  direction={{ base: "column", md: "row" }}
+                >
                   {additionalFields.map((field) => (
                     <Box
                       key={field.uniqueKey}
                       flex={{
                         base: "1 1 100%",
                         md: "1 1 calc(50% - 8px)",
-                        lg: "1 1 calc(33.333% - 11px)",
+                        lg: "1 1 calc(25% - 12px)",
                       }}
-                      minW={{ base: "100%", md: "200px" }}
-                      maxW="100%"
+                      w="100%"
                     >
                       <FilterField
                         field={field}
@@ -198,7 +204,7 @@ export function DiscoveryFilterBox({
                 </Flex>
               </Box>
             )}
-          </>
+          </Box>
         ) : (
           <Text color="gray.500" fontStyle="italic" w="100%">
             No filterable fields found. Make sure the target user type has
