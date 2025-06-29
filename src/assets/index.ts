@@ -15,6 +15,10 @@ import addIcon from "./addicon.svg";
 import calenderIcon from "./calenderIcon.svg";
 import emailIcon from "./emailicon.svg";
 import locationIcon from "./locationIcon.svg";
+import educationIcon from "./educationIcon.svg";
+import certificationIcon from "./certificationIcon.svg";
+import searchIcon from "./searchIcon.svg";
+import arrowDownIcon from "./ArrowDownIcon.svg";
 
 export {
   LinkIcon,
@@ -34,4 +38,8 @@ export {
   calenderIcon,
   emailIcon,
   locationIcon,
+  educationIcon,
+  certificationIcon,
+  searchIcon,
+  arrowDownIcon,
 };

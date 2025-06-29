@@ -50,7 +50,19 @@ export const FilterField: React.FC<FilterFieldProps> = ({
       name={field.field}
       control={control}
       render={({ field: formField }) => (
-        <Input {...formField} placeholder={`Enter ${field.label}`} size="sm" />
+        <Input
+          {...formField}
+          placeholder={`Enter ${field.label}`}
+          size="sm"
+          w="100%"
+          bg="white"
+          borderRadius="10px"
+          border="none"
+          _focus={{
+            border: "none",
+            boxShadow: "none",
+          }}
+        />
       )}
     />
   );
@@ -67,10 +79,18 @@ export const FilterField: React.FC<FilterFieldProps> = ({
             collection={selectCollection}
             multiple={true}
             size="sm"
+            bg="white"
+            borderRadius="10px"
+            border="none"
+            w="100%"
+            _focus={{
+              border: "none",
+              boxShadow: "none",
+            }}
             value={formField.value || []}
             onValueChange={(details) => formField.onChange(details.value)}
           >
-            <Select.Control>
+            <Select.Control w="100%">
               <Select.Trigger>
                 <Select.ValueText placeholder={`Select ${field.label}`} />
               </Select.Trigger>
@@ -110,16 +130,16 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   };
 
   return (
-    <Box minW="200px">
+    <Box w="100%" h="100%">
       <Text fontSize="sm" mb={2} fontWeight="medium">
-        {field.label}
+        {/* {field.label} */}
         {field.displayHint && (
-          <Text as="span" fontSize="xs" color="gray.500" ml={2}>
+          <Text as="span" fontSize="xs" color="gray.500" ml={2} display="block">
             {field.displayHint}
           </Text>
         )}
       </Text>
-      {getFieldContent()}
+      <Box w="100%">{getFieldContent()}</Box>
     </Box>
   );
 };

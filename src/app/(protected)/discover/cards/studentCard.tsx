@@ -10,7 +10,14 @@ import {
   Heading,
 } from "@chakra-ui/react";
 import { StudentProfile } from "@/types/discovery";
-import { locationIcon, emailIcon, addIcon, calenderIcon } from "@/assets";
+import {
+  locationIcon,
+  emailIcon,
+  addIcon,
+  calenderIcon,
+  educationIcon,
+  certificationIcon,
+} from "@/assets";
 import Image from "next/image";
 
 interface StudentCardProps {
@@ -21,8 +28,9 @@ interface StudentCardProps {
 export function StudentCard({ student, userType }: StudentCardProps) {
   const getDisplayName = () => {
     const firstName = student.first_name || "";
-    const lastName = student.last_name || "";
-    return `${firstName} ${lastName}`.trim() || "No name provided";
+    // const lastName = student.last_name || "";
+    return firstName;
+    // return `${firstName} ${lastName}`.trim() || "No name provided";
   };
 
   const getProfileImage = () => {
@@ -174,7 +182,7 @@ export function StudentCard({ student, userType }: StudentCardProps) {
                     <Image
                       width={12}
                       height={12}
-                      src={emailIcon}
+                      src={educationIcon}
                       alt="course"
                       objectFit="contain"
                     />
@@ -222,7 +230,7 @@ export function StudentCard({ student, userType }: StudentCardProps) {
                     <Image
                       width={12}
                       height={12}
-                      src={calenderIcon}
+                      src={certificationIcon}
                       alt="specialization"
                       objectFit="contain"
                     />
@@ -248,7 +256,7 @@ export function StudentCard({ student, userType }: StudentCardProps) {
                     <Image
                       width={12}
                       height={12}
-                      src={locationIcon}
+                      src={calenderIcon}
                       alt="progress"
                       objectFit="contain"
                     />

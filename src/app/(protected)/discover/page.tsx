@@ -43,7 +43,7 @@ export default function DiscoveryPage() {
         </Text>
       </VStack>
 
-      <Box bg="gray.50" p={6} borderRadius="md" mb={8}>
+      <Box borderRadius="md" mb={8} w="100%">
         <DiscoveryFilterBox
           fields={filterableFields}
           control={control}
