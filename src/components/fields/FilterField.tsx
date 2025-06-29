@@ -55,12 +55,17 @@ export const FilterField: React.FC<FilterFieldProps> = ({
           placeholder={`Enter ${field.label}`}
           size="sm"
           w="100%"
+          h="40px"
           bg="white"
-          borderRadius="10px"
-          border="none"
+          borderRadius="15px"
+          border="1px solid"
+          borderColor="gray.200"
           _focus={{
-            border: "none",
-            boxShadow: "none",
+            borderColor: "#2CA9DF",
+            boxShadow: "0 0 0 1px #2CA9DF",
+          }}
+          _hover={{
+            borderColor: "gray.300",
           }}
         />
       )}
@@ -80,17 +85,24 @@ export const FilterField: React.FC<FilterFieldProps> = ({
             multiple={true}
             size="sm"
             bg="white"
-            borderRadius="10px"
-            border="none"
+            borderRadius="15px"
+            border="1px solid"
+            borderColor="gray.200"
             w="100%"
-            _focus={{
-              border: "none",
-              boxShadow: "none",
-            }}
             value={formField.value || []}
             onValueChange={(details) => formField.onChange(details.value)}
           >
-            <Select.Control w="100%">
+            <Select.Control
+              w="100%"
+              h="40px"
+              _focus={{
+                borderColor: "#2CA9DF",
+                boxShadow: "0 0 0 1px #2CA9DF",
+              }}
+              _hover={{
+                borderColor: "gray.300",
+              }}
+            >
               <Select.Trigger>
                 <Select.ValueText placeholder={`Select ${field.label}`} />
               </Select.Trigger>
@@ -139,7 +151,9 @@ export const FilterField: React.FC<FilterFieldProps> = ({
           </Text>
         )}
       </Text>
-      <Box w="100%">{getFieldContent()}</Box>
+      <Box w="100%" flex="1">
+        {getFieldContent()}
+      </Box>
     </Box>
   );
 };

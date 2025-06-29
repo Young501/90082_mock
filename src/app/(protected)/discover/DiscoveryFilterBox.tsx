@@ -1,7 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { VStack, Heading, Flex, Text, HStack, Box } from "@chakra-ui/react";
+import {
+  VStack,
+  Heading,
+  Flex,
+  Text,
+  HStack,
+  Box,
+  Stack,
+} from "@chakra-ui/react";
 import { Control } from "react-hook-form";
 import { Button } from "@/components/ui";
 import { FilterField } from "@/components/fields/FilterField";
@@ -42,59 +50,72 @@ export function DiscoveryFilterBox({
 
   return (
     <form onSubmit={onSubmit}>
-      <HStack
+      <Flex
+        direction={{ base: "column" }}
         align="stretch"
         gap={4}
         w="100%"
-        justify="space-between"
-        alignItems="flex-start"
         bg="#D9D9D9"
-        p={2}
-        borderRadius="10px"
+        p={4}
+        borderRadius="15px"
       >
         {visibleFields.length > 0 ? (
-          <Box>
-            <HStack
-              w="100%"
-              align="stretch"
-              justify="space-between"
-              wrap="wrap"
-            >
-              <Flex wrap="no-wrap" gap={4} justify="flex-start" w="100%">
-                {primaryFields.map((field) => (
-                  <Box
-                    key={field.uniqueKey}
-                    flex={{
-                      base: "1 1 100%",
-                      md: "1 1 calc(50% - 8px)",
-                      lg: "1 1 calc(33.333% - 11px)",
-                    }}
-                    minW="200px"
-                    maxW={{ base: "100%", lg: "300px" }}
-                  >
-                    <FilterField
-                      field={field}
-                      control={control}
-                      isVisible={true}
-                    />
-                  </Box>
-                ))}
-              </Flex>
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="flex-end"
-                w="100%"
+          <>
+            <Stack direction={{ base: "column", lg: "row" }}>
+              <Box flex="1" w="100%">
+                <Flex
+                  wrap="wrap"
+                  gap={4}
+                  justify="flex-start"
+                  align="stretch"
+                  w="100%"
+                  direction={{ base: "column", lg: "row" }}
+                >
+                  {primaryFields.map((field) => (
+                    <Box
+                      key={field.uniqueKey}
+                      flex={{
+                        base: "1 1 100%",
+                        md: "1 1 calc(50% - 8px)",
+                        lg: "1 1 calc(33.333% - 11px)",
+                      }}
+                      minW={{ base: "100%", md: "200px" }}
+                      maxW="100%"
+                    >
+                      <FilterField
+                        field={field}
+                        control={control}
+                        isVisible={true}
+                      />
+                    </Box>
+                  ))}
+                </Flex>
+              </Box>
+
+              <Flex
+                direction={{ base: "row", lg: "row" }}
+                align="center"
+                justify={{ base: "flex-end", lg: "flex-start" }}
+                gap={2}
+                minW={{ base: "auto", lg: "200px" }}
+                w={{ base: "100%", lg: "auto" }}
               >
-                <HStack justify="flex-end" maxW="200px" w="100%" maxH="60px">
+                <HStack
+                  gap={2}
+                  w={{ base: "auto", lg: "100%" }}
+                  justify={{ base: "flex-end", lg: "stretch" }}
+                >
                   {hasSearched && (
                     <Button
                       variant="ghost"
                       bg="#2CA9DF"
+                      color="white"
                       onClick={onReset}
                       disabled={isSearching}
-                      fontSize="20px"
-                      w="100%"
+                      fontSize="16px"
+                      h="40px"
+                      minW="80px"
+                      flex={{ base: "0 0 auto", lg: "1" }}
                     >
                       Reset
                     </Button>
@@ -105,49 +126,54 @@ export function DiscoveryFilterBox({
                     color="white"
                     isLoading={isSearching}
                     disabled={isSearching}
-                    fontSize="20px"
-                    w="100%"
+                    fontSize="16px"
+                    h="40px"
+                    minW="100px"
+                    borderRadius="15px"
+                    flex={{ base: "0 0 auto", lg: "1" }}
                   >
                     <Image
                       src={searchIcon}
-                      width={20}
-                      height={20}
+                      width={16}
+                      height={16}
                       alt="search"
+                      style={{ marginRight: "8px" }}
                     />
                     Search
                   </Button>
                 </HStack>
 
                 {hasAdditionalFields && (
-                  <Box maxW="33px" w="100%">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsExpanded(!isExpanded)}
-                      color="#282F68"
-                      _hover={{ bg: "gray.50" }}
-                    >
-                      {isExpanded ? (
-                        <Image
-                          src={arrowDownIcon}
-                          width={20}
-                          height={20}
-                          style={{ transform: "rotate(180deg)" }}
-                          alt="arrowDown"
-                        />
-                      ) : (
-                        <Image
-                          src={arrowDownIcon}
-                          width={33}
-                          height={20}
-                          alt="arrowDown"
-                        />
-                      )}
-                    </Button>
-                  </Box>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    color="#282F68"
+                    _hover={{ bg: "gray.50" }}
+                    h="40px"
+                    minW="40px"
+                    p={2}
+                  >
+                    {isExpanded ? (
+                      <Image
+                        src={arrowDownIcon}
+                        width={16}
+                        height={16}
+                        style={{ transform: "rotate(180deg)" }}
+                        alt="arrowUp"
+                      />
+                    ) : (
+                      <Image
+                        src={arrowDownIcon}
+                        width={16}
+                        height={16}
+                        alt="arrowDown"
+                      />
+                    )}
+                  </Button>
                 )}
-              </Box>
-            </HStack>
+              </Flex>
+            </Stack>
             {hasAdditionalFields && isExpanded && (
               <Box mt={4} pt={4} borderTop="1px solid" borderColor="gray.200">
                 <Flex wrap="wrap" gap={4} justify="flex-start" align="stretch">
@@ -159,8 +185,8 @@ export function DiscoveryFilterBox({
                         md: "1 1 calc(50% - 8px)",
                         lg: "1 1 calc(33.333% - 11px)",
                       }}
-                      minW="200px"
-                      maxW={{ base: "100%", lg: "300px" }}
+                      minW={{ base: "100%", md: "200px" }}
+                      maxW="100%"
                     >
                       <FilterField
                         field={field}
@@ -172,41 +198,14 @@ export function DiscoveryFilterBox({
                 </Flex>
               </Box>
             )}
-          </Box>
+          </>
         ) : (
-          <Text color="gray.500" fontStyle="italic">
+          <Text color="gray.500" fontStyle="italic" w="100%">
             No filterable fields found. Make sure the target user type has
             fields marked with &quot;is_filter&quot;: true.
           </Text>
         )}
-
-        {/* <HStack justify="flex-end" mt={6} maxW="200px" w="100%">
-          {hasSearched && (
-            <Button
-              variant="ghost"
-              bg="#2CA9DF"
-              onClick={onReset}
-              disabled={isSearching}
-              fontSize="20px"
-              w="100%"
-            >
-              Reset
-            </Button>
-          )}
-          <Button
-            type="submit"
-            bg="#2CA9DF"
-            color="white"
-            isLoading={isSearching}
-            disabled={isSearching}
-            fontSize="20px"
-            w="100%"
-          >
-            <Image src={searchIcon} width={20} height={20} alt="search" />
-            Search
-          </Button>
-        </HStack> */}
-      </HStack>
+      </Flex>
     </form>
   );
 }
