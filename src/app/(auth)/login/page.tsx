@@ -56,7 +56,7 @@ export default function LoginPage() {
         password: data.password,
         callback: () => {
           toast.success("Login successful!");
-          router.push("/home");
+          router.push("/home/");
         },
       });
     } catch (error: any) {
@@ -145,7 +145,7 @@ export default function LoginPage() {
                   forgot password?
                 </Text>
                 <Link
-                  href="/reset-password"
+                  href="/reset-password/"
                   style={{ fontSize: "20px", color: "#2CA9DF" }}
                 >
                   reset here

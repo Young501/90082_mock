@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthState>()(
         });
 
         if (typeof window !== "undefined") {
-          window.location.href = "/login";
+          window.location.href = "/login/";
         }
       },
 

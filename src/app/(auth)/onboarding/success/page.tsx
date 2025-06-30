@@ -76,15 +76,15 @@ export default function OnboardingSuccessPage() {
   }, [getUserType, getProfileImageUrl, getLogoUrl]);
 
   const handleProfileClick = () => {
-    router.push("/home");
+    router.push("/home/");
   };
 
   const handleOrgProfileClick = () => {
-    router.push("/home");
+    router.push("/home/");
   };
 
   const handleExploreClick = (): void => {
-    router.push("/discover");
+    router.push("/discover/");
   };
 
   const opportunities = [

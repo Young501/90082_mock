@@ -28,11 +28,11 @@ function EmailVerifyFailedContent() {
   }, [searchParams]);
 
   const handleSignupClick = () => {
-    router.push("/signup");
+    router.push("/signup/");
   };
 
   const handleLoginClick = () => {
-    router.push("/login");
+    router.push("/login/");
   };
 
   return (
