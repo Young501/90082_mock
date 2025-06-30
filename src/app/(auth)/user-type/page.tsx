@@ -41,7 +41,7 @@ export default function UserTypePage() {
 
   const handleLogin = (typeKey: string) => {
     setSignupSelectedUserType(typeKey);
-    router.push("/signup");
+    router.push("/signup/");
   };
 
   const getExpandedContent = (type: UserTypeData) => {

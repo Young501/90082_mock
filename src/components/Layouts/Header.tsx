@@ -12,13 +12,6 @@ import { UserRound, Menu, X } from "lucide-react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import Image from "next/image";
-import {
-  LinkIcon,
-  InboxIcon,
-  FolderIcon,
-  hamburgerIcon,
-  closeIcon,
-} from "@/assets";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
@@ -99,7 +92,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
         <Box p={0}>
           {isProtected ? (
             <VStack gap={0} p={6} align="stretch">
-              <Link href="/home" onClick={handleMenuItemClick}>
+              <Link href="/home/" onClick={handleMenuItemClick}>
                 <Box
                   display="flex"
                   pb={6}
@@ -122,7 +115,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               >
                 {isCoordinator ? (
                   <>
-                    <Link href="/home" onClick={handleMenuItemClick}>
+                    <Link href="/home/" onClick={handleMenuItemClick}>
                       <Text
                         py={4}
                         fontSize="16px"
@@ -135,7 +128,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                   </>
                 ) : (
                   <>
-                    <Link href="/home" onClick={handleMenuItemClick}>
+                    <Link href="/home/" onClick={handleMenuItemClick}>
                       <Text
                         py={4}
                         fontSize="16px"
@@ -146,7 +139,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                       </Text>
                     </Link>
 
-                    <Link href="/discover" onClick={handleMenuItemClick}>
+                    <Link href="/discover/" onClick={handleMenuItemClick}>
                       <Text
                         py={4}
                         fontSize="16px"
@@ -157,7 +150,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                       </Text>
                     </Link>
 
-                    <Link href="/profile" onClick={handleMenuItemClick}>
+                    <Link href="/profile/" onClick={handleMenuItemClick}>
                       <Text
                         py={4}
                         fontSize="16px"
@@ -168,10 +161,10 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                       </Text>
                     </Link>
 
-                    <Link href="/inbox" onClick={handleMenuItemClick}>
+                    <Link href="/inbox/" onClick={handleMenuItemClick}>
                       <Box py={4}>
                         <Image
-                          src={InboxIcon}
+                          src="/assets/inbox.svg"
                           alt="inbox"
                           width={24}
                           height={24}
@@ -179,10 +172,10 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                       </Box>
                     </Link>
 
-                    <Link href="/folder" onClick={handleMenuItemClick}>
+                    <Link href="/folder/" onClick={handleMenuItemClick}>
                       <Box py={4}>
                         <Image
-                          src={FolderIcon}
+                          src="/assets/folder.svg"
                           alt="folder"
                           width={24}
                           height={24}
@@ -199,7 +192,12 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                   onClick={handleUserLogout}
                 >
                   <Box py={4}>
-                    <Image src={LinkIcon} alt="logout" width={24} height={24} />
+                    <Image
+                      src="/assets/LinkIcon.svg"
+                      alt="logout"
+                      width={24}
+                      height={24}
+                    />
                   </Box>
                 </Button>
 
@@ -210,7 +208,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                     textAlign="center"
                     textDecoration="underline"
                   >
-                    <Link href="/contact">Need Help ? Contact Us</Link>
+                    <Link href="/contact/">Need Help ? Contact Us</Link>
                   </Text>
                   <Text fontSize="12px" color="#ffffff" textAlign="center">
                     Copyright
@@ -232,7 +230,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                 </HStack>
               </Box>
 
-              <Link href="/login" onClick={handleMenuItemClick}>
+              <Link href="/login/" onClick={handleMenuItemClick}>
                 <Box
                   p={6}
                   borderBottom="1px solid rgba(0, 0, 0, 0.1)"
@@ -244,7 +242,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                 </Box>
               </Link>
 
-              <Link href="/user-type" onClick={handleMenuItemClick}>
+              <Link href="/user-type/" onClick={handleMenuItemClick}>
                 <Box
                   p={6}
                   borderBottom="1px solid rgba(0, 0, 0, 0.1)"
@@ -299,38 +297,58 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                   p={0}
                   onClick={() => handleUserLogout()}
                 >
-                  <Image src={LinkIcon} alt="logout" width={30} height={30} />
+                  <Image
+                    src="/assets/LinkIcon.svg"
+                    alt="logout"
+                    width={30}
+                    height={30}
+                  />
                 </Button>
               </HStack>
             ) : (
               <HStack gap={10} display={{ base: "none", md: "flex" }}>
-                <Link href="/home">
+                <Link href="/home/">
                   <Text fontSize="18px" fontWeight="700" color="white">
                     HOME
                   </Text>
                 </Link>
-                <Link href="/discover">
+                <Link href="/discover/">
                   <Text fontSize="18px" fontWeight="700" color="white">
                     DISCOVER
                   </Text>
                 </Link>
-                <Link href="/profile">
+                <Link href="/profile/">
                   <Text fontSize="18px" fontWeight="700" color="white">
                     PROFILE
                   </Text>
                 </Link>
-                <Link href="/inbox">
-                  <Image src={InboxIcon} alt="inbox" width={30} height={30} />
+                <Link href="/inbox/">
+                  <Image
+                    src="/assets/inbox.svg"
+                    alt="inbox"
+                    width={30}
+                    height={30}
+                  />
                 </Link>
-                <Link href="/folder">
-                  <Image src={FolderIcon} alt="folder" width={30} height={30} />
+                <Link href="/folder/">
+                  <Image
+                    src="/assets/folder.svg"
+                    alt="folder"
+                    width={30}
+                    height={30}
+                  />
                 </Link>
                 <Button
                   bg="transparent"
                   p={0}
                   onClick={() => handleUserLogout()}
                 >
-                  <Image src={LinkIcon} alt="logout" width={30} height={30} />
+                  <Image
+                    src="/assets/LinkIcon.svg"
+                    alt="logout"
+                    width={30}
+                    height={30}
+                  />
                 </Button>
               </HStack>
             )}
@@ -342,7 +360,12 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               display={{ base: "flex", md: "none" }}
               onClick={handleMenuToggle}
             >
-              <Image src={hamburgerIcon} alt="menu" width={30} height={30} />
+              <Image
+                src="/assets/hamburger.svg"
+                alt="menu"
+                width={30}
+                height={30}
+              />
             </Button>
           </Box>
 
@@ -379,12 +402,12 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
 
             <HStack gap={6} display={{ base: "none", md: "flex" }}>
               <UserRound size={20} color="black" />
-              <Link href="/login">
+              <Link href="/login/">
                 <Text fontSize="13px" fontWeight="700" color="black">
                   LOGIN
                 </Text>
               </Link>
-              <Link href="/user-type">
+              <Link href="/user-type/">
                 <Text fontSize="13px" fontWeight="700" color="black">
                   SIGN UP
                 </Text>

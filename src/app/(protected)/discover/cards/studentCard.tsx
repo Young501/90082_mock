@@ -10,14 +10,6 @@ import {
   Heading,
 } from "@chakra-ui/react";
 import { StudentProfile } from "@/types/discovery";
-import {
-  locationIcon,
-  emailIcon,
-  addIcon,
-  calenderIcon,
-  educationIcon,
-  certificationIcon,
-} from "@/assets";
 import Image from "next/image";
 
 interface StudentCardProps {
@@ -82,7 +74,7 @@ export function StudentCard({ student, userType }: StudentCardProps) {
           <Image
             width={20}
             height={20}
-            src={addIcon}
+            src="/assets/addicon.svg"
             alt="add"
             objectFit="contain"
           />
@@ -182,7 +174,7 @@ export function StudentCard({ student, userType }: StudentCardProps) {
                     <Image
                       width={12}
                       height={12}
-                      src={educationIcon}
+                      src="/assets/educationIcon.svg"
                       alt="course"
                       objectFit="contain"
                     />
@@ -206,7 +198,7 @@ export function StudentCard({ student, userType }: StudentCardProps) {
                     <Image
                       width={12}
                       height={12}
-                      src={locationIcon}
+                      src="/assets/locationIcon.svg"
                       alt="location"
                       objectFit="contain"
                     />
@@ -230,7 +222,7 @@ export function StudentCard({ student, userType }: StudentCardProps) {
                     <Image
                       width={12}
                       height={12}
-                      src={certificationIcon}
+                      src="/assets/certificationIcon.svg"
                       alt="specialization"
                       objectFit="contain"
                     />
@@ -256,7 +248,7 @@ export function StudentCard({ student, userType }: StudentCardProps) {
                     <Image
                       width={12}
                       height={12}
-                      src={calenderIcon}
+                      src="/assets/calenderIcon.svg"
                       alt="progress"
                       objectFit="contain"
                     />

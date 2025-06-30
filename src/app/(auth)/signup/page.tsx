@@ -29,7 +29,7 @@ const SignupPage = () => {
 
   useEffect(() => {
     if (!signupSelectedUserType) {
-      router.push("/user-type?signup=true");
+      router.push("/user-type?signup=true/");
     }
   }, [signupSelectedUserType, router]);
 
@@ -59,7 +59,7 @@ const SignupPage = () => {
         user_types: signupSelectedUserType ? [signupSelectedUserType] : [],
         callback: () => {
           router.push(
-            `/verify-email/sent?email=${encodeURIComponent(data.email)}`
+            `/verify-email/sent?email=${encodeURIComponent(data.email)}/`
           );
         },
       });
@@ -206,7 +206,7 @@ const SignupPage = () => {
                 <Text fontSize="20px" fontWeight="700" color="#000000">
                   Already have a profile?
                 </Text>
-                <Link href="/login" passHref>
+                <Link href="/login/" passHref>
                   <Button
                     variant="ghost"
                     p={0}

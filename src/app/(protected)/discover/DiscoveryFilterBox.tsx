@@ -14,7 +14,6 @@ import { Control } from "react-hook-form";
 import { Button } from "@/components/ui";
 import { FilterField } from "@/components/fields/FilterField";
 import { ProcessedField, FilterFormData } from "@/types/discovery";
-import { searchIcon, arrowDownIcon } from "@/assets";
 import Image from "next/image";
 
 interface DiscoveryFilterBoxProps {
@@ -126,7 +125,7 @@ export function DiscoveryFilterBox({
                   borderRadius="15px"
                 >
                   <Image
-                    src={searchIcon}
+                    src="/assets/searchIcon.svg"
                     width={16}
                     height={16}
                     alt="search"
@@ -148,7 +147,7 @@ export function DiscoveryFilterBox({
                   >
                     {isExpanded ? (
                       <Image
-                        src={arrowDownIcon}
+                        src="/assets/ArrowDownIcon.svg"
                         width={16}
                         height={16}
                         style={{ transform: "rotate(180deg)" }}
@@ -156,7 +155,7 @@ export function DiscoveryFilterBox({
                       />
                     ) : (
                       <Image
-                        src={arrowDownIcon}
+                        src="/assets/ArrowDownIcon.svg"
                         width={16}
                         height={16}
                         alt="arrowDown"

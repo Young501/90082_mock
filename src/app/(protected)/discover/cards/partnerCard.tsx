@@ -10,7 +10,6 @@ import {
   Heading,
 } from "@chakra-ui/react";
 import { PartnerProfile } from "@/types/discovery";
-import { locationIcon, emailIcon, addIcon, calenderIcon } from "@/assets";
 import Image from "next/image";
 
 interface PartnerCardProps {
@@ -48,7 +47,7 @@ export function PartnerCard({ partner }: PartnerCardProps) {
           <Image
             width={20}
             height={20}
-            src={addIcon}
+            src="/assets/addicon.svg"
             alt="add"
             objectFit="contain"
           />
@@ -112,7 +111,7 @@ export function PartnerCard({ partner }: PartnerCardProps) {
                     <Image
                       width={12}
                       height={12}
-                      src={locationIcon}
+                      src="/assets/locationIcon.svg"
                       alt="location"
                       objectFit="contain"
                     />
@@ -136,7 +135,7 @@ export function PartnerCard({ partner }: PartnerCardProps) {
                     <Image
                       width={12}
                       height={12}
-                      src={emailIcon}
+                      src="/assets/emailicon.svg"
                       alt="email"
                       objectFit="contain"
                     />
@@ -160,7 +159,7 @@ export function PartnerCard({ partner }: PartnerCardProps) {
                     <Image
                       width={12}
                       height={12}
-                      src={calenderIcon}
+                      src="/assets/calenderIcon.svg"
                       alt="calendar"
                       objectFit="contain"
                     />
