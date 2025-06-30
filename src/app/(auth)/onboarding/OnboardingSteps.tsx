@@ -313,20 +313,17 @@ export const OnboardingSteps = ({ userType }: Props) => {
       w="100%"
       mx="auto"
     >
-      <Text fontSize="sm" color="gray.600" mb={4} textAlign="center">
-        Required fields are marked with{" "}
-        <Text as="span" color="red.500">
-          *
+      <Box w="100%" maxW="588px" textAlign="left" mb={8}>
+        <Heading fontSize={{ base: "28px", md: "35px" }} mb={4}>
+          {currentPage.guide}
+        </Heading>
+        <Text fontSize="sm" color="gray.600" mb={4} ml={1}>
+          Required fields are marked with{" "}
+          <Text as="span" color="red.500">
+            *
+          </Text>
         </Text>
-      </Text>
-
-      <Heading
-        fontSize={{ base: "28px", md: "35px" }}
-        mb={14}
-        textAlign="center"
-      >
-        {currentPage.guide}
-      </Heading>
+      </Box>
 
       <Box as="form" onSubmit={handleFormSubmit} w="100%" maxW="588px">
         {currentPage.questions.map((question) => (
