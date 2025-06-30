@@ -1,7 +1,6 @@
 import { Box, Text, Field } from "@chakra-ui/react";
 import { useRef } from "react";
 import { Control, Controller } from "react-hook-form";
-import { imgplaceholder, resume } from "@/assets";
 import Image from "next/image";
 import { useAuthStore } from "@/store/authStore";
 
@@ -162,7 +161,7 @@ export const FileField = ({
                   description === "logo" ? (
                     <Box display="flex" justifyContent="center">
                       <Image
-                        src={imgplaceholder}
+                        src="/assets/imgplaceholder.png"
                         alt="Placeholder"
                         width={200}
                         height={200}
@@ -177,7 +176,7 @@ export const FileField = ({
                   ) : description === "resume" ? (
                     <Box display="flex" justifyContent="center">
                       <Image
-                        src={resume}
+                        src="/assets/resume.png"
                         alt="Placeholder"
                         width={400}
                         height={400}

@@ -12,13 +12,6 @@ import { UserRound, Menu, X } from "lucide-react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import Image from "next/image";
-import {
-  LinkIcon,
-  InboxIcon,
-  FolderIcon,
-  hamburgerIcon,
-  closeIcon,
-} from "@/assets";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
@@ -171,7 +164,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                     <Link href="/inbox" onClick={handleMenuItemClick}>
                       <Box py={4}>
                         <Image
-                          src={InboxIcon}
+                          src="/assets/inbox.svg"
                           alt="inbox"
                           width={24}
                           height={24}
@@ -182,7 +175,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                     <Link href="/folder" onClick={handleMenuItemClick}>
                       <Box py={4}>
                         <Image
-                          src={FolderIcon}
+                          src="/assets/folder.svg"
                           alt="folder"
                           width={24}
                           height={24}
@@ -199,7 +192,12 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                   onClick={handleUserLogout}
                 >
                   <Box py={4}>
-                    <Image src={LinkIcon} alt="logout" width={24} height={24} />
+                    <Image
+                      src="/assets/LinkIcon.svg"
+                      alt="logout"
+                      width={24}
+                      height={24}
+                    />
                   </Box>
                 </Button>
 
@@ -299,7 +297,12 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                   p={0}
                   onClick={() => handleUserLogout()}
                 >
-                  <Image src={LinkIcon} alt="logout" width={30} height={30} />
+                  <Image
+                    src="/assets/LinkIcon.svg"
+                    alt="logout"
+                    width={30}
+                    height={30}
+                  />
                 </Button>
               </HStack>
             ) : (
@@ -320,17 +323,32 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                   </Text>
                 </Link>
                 <Link href="/inbox">
-                  <Image src={InboxIcon} alt="inbox" width={30} height={30} />
+                  <Image
+                    src="/assets/inbox.svg"
+                    alt="inbox"
+                    width={30}
+                    height={30}
+                  />
                 </Link>
                 <Link href="/folder">
-                  <Image src={FolderIcon} alt="folder" width={30} height={30} />
+                  <Image
+                    src="/assets/folder.svg"
+                    alt="folder"
+                    width={30}
+                    height={30}
+                  />
                 </Link>
                 <Button
                   bg="transparent"
                   p={0}
                   onClick={() => handleUserLogout()}
                 >
-                  <Image src={LinkIcon} alt="logout" width={30} height={30} />
+                  <Image
+                    src="/assets/LinkIcon.svg"
+                    alt="logout"
+                    width={30}
+                    height={30}
+                  />
                 </Button>
               </HStack>
             )}
@@ -342,7 +360,12 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               display={{ base: "flex", md: "none" }}
               onClick={handleMenuToggle}
             >
-              <Image src={hamburgerIcon} alt="menu" width={30} height={30} />
+              <Image
+                src="/assets/hamburger.svg"
+                alt="menu"
+                width={30}
+                height={30}
+              />
             </Button>
           </Box>
 

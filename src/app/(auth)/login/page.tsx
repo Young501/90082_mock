@@ -82,7 +82,7 @@ export default function LoginPage() {
       >
         <Box>
           <Image
-            src="/assets/Login-illustration.png"
+            src="/assets/login-illustration.png"
             alt="UniConnected illustration"
             width={704}
             height={600}

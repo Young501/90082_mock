@@ -17,7 +17,6 @@ import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/Button";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { employment, student, internship, mentoring, research } from "@/assets";
 
 interface OpportunityCardProps {
   icon: string;
@@ -89,11 +88,11 @@ export default function OnboardingSuccessPage() {
   };
 
   const opportunities = [
-    { icon: employment, label: "Employment" },
-    { icon: student, label: "Student" },
-    { icon: internship, label: "Internship" },
-    { icon: mentoring, label: "Mentoring" },
-    { icon: research, label: "Research" },
+    { icon: "/assets/employment.svg", label: "Employment" },
+    { icon: "/assets/student.svg", label: "Student" },
+    { icon: "/assets/internship.svg", label: "Internship" },
+    { icon: "/assets/mentoring.svg", label: "Mentoring" },
+    { icon: "/assets/research.svg", label: "Research" },
   ];
 
   return (
