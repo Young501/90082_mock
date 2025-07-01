@@ -29,13 +29,27 @@ export interface Question {
     | "multi-select"
     | "file"
     | "location"
-    | "number";
+    | "number"
+    | "range"
+    | "textarea"
+    | "tag-select"
+    | "checkbox-group"
+    | "card-select";
+
   required?: boolean;
+  icon?: string;
   options?: string[];
   option?: string[];
   max_selection?: number;
+  max_selections?: number;
+  "max-selection"?: number;
   followup_question?: FollowupQuestionMap;
   upload_endpoint?: string;
+  is_filter?: boolean;
+  allow_custom?: boolean;
+  min?: number;
+  max?: number;
+  unit?: string;
 }
 
 export interface Page {

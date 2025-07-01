@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/Button";
 import { Question } from "@/types/onboarding";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import ProgressTrack from "@/components/ProgressTrack";
 
 interface Props {
   userType: string;
@@ -273,7 +274,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
         });
       }
 
-      router.push("/home");
+      router.push("/onboarding/success");
     } catch (error: any) {
       const errorMessage =
         error?.response?.data?.error ||
@@ -303,30 +304,28 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const hasFormErrors = Object.keys(errors).length > 0;
 
   return (
-    <Box p={6}>
-      <Box mb={6}>
-        <Text fontSize="sm" mb={1}>
-          Progress: {progressPercent}%
+    <Box
+      p={6}
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      w="100%"
+      mx="auto"
+    >
+      <Box w="100%" maxW="588px" textAlign="left" mb={8}>
+        <Heading fontSize={{ base: "28px", md: "35px" }} mb={4}>
+          {currentPage.guide}
+        </Heading>
+        <Text fontSize="sm" color="gray.600" mb={4} ml={1}>
+          Required fields are marked with{" "}
+          <Text as="span" color="red.500">
+            *
+          </Text>
         </Text>
-        <Progress.Root value={progressPercent} max={100}>
-          <Progress.Track>
-            <Progress.Range />
-          </Progress.Track>
-        </Progress.Root>
       </Box>
 
-      <Text fontSize="sm" color="gray.600" mb={4}>
-        Required fields are marked with{" "}
-        <Text as="span" color="red.500">
-          *
-        </Text>
-      </Text>
-
-      <Heading size="md" mb={4}>
-        {currentPage.guide}
-      </Heading>
-
-      <form onSubmit={handleFormSubmit}>
+      <Box as="form" onSubmit={handleFormSubmit} w="100%" maxW="588px">
         {currentPage.questions.map((question) => (
           <FieldRenderer
             key={question.field}
@@ -355,33 +354,60 @@ export const OnboardingSteps = ({ userType }: Props) => {
           </Alert.Root>
         )}
 
-        <Box mt={6} display="flex" justifyContent="space-between">
-          {!isFirstPage && (
-            <Button
-              type="button"
-              onClick={goToPreviousPage}
-              variant="secondary"
+        <Box
+          display="flex"
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Box w="100%" display="flex" flexDirection="column" gap={10}>
+            <Box
+              mt={6}
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
             >
-              Previous
-            </Button>
-          )}
+              {!isFirstPage && (
+                <Button
+                  type="button"
+                  onClick={goToPreviousPage}
+                  variant="primary"
+                  style={{ width: "271px", borderRadius: "0px" }}
+                >
+                  Previous
+                </Button>
+              )}
 
-          {isLastPage ? (
-            <Button
-              type="button"
-              onClick={onSubmit}
-              variant="primary"
-              isLoading={submissionMutation.isPending}
-            >
-              Submit
-            </Button>
-          ) : (
-            <Button type="submit" variant="primary">
-              Next
-            </Button>
-          )}
+              {isLastPage ? (
+                <Button
+                  type="button"
+                  onClick={onSubmit}
+                  variant="primary"
+                  style={{ width: "271px", borderRadius: "0px" }}
+                  isLoading={submissionMutation.isPending}
+                >
+                  Submit
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  variant="primary"
+                  style={{ width: "271px", borderRadius: "0px" }}
+                >
+                  Next
+                </Button>
+              )}
+            </Box>
+            <Box>
+              <ProgressTrack
+                progressPercent={progressPercent}
+                totalSteps={pages.length}
+              />
+            </Box>
+          </Box>
         </Box>
-      </form>
+      </Box>
     </Box>
   );
 };

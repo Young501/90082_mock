@@ -6,6 +6,8 @@ export interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+  profileImageUrl: string | null;
+  logoUrl: string | null;
   setAuthData: (token: string, user: User) => void;
   logout: () => void;
   setUserType: (userType: string) => void;
@@ -15,6 +17,10 @@ export interface AuthState {
   signupSelectedUserType: string | null;
   setSignupSelectedUserType: (userType: string | null) => void;
   getSignupSelectedUserType: () => string | null;
+  setProfileImageUrl: (url: string) => void;
+  getProfileImageUrl: () => string | null;
+  setLogoUrl: (url: string) => void;
+  getLogoUrl: () => string | null;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -24,6 +30,8 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       isAuthenticated: false,
       signupSelectedUserType: null,
+      profileImageUrl: null,
+      logoUrl: null,
 
       setAuthData: (token: string, user: User) => {
         set({
@@ -38,6 +46,8 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           token: null,
           isAuthenticated: false,
+          profileImageUrl: null,
+          logoUrl: null,
         });
 
         if (typeof window !== "undefined") {
@@ -65,6 +75,16 @@ export const useAuthStore = create<AuthState>()(
         set({ signupSelectedUserType: userType });
       },
       getSignupSelectedUserType: () => get().signupSelectedUserType,
+
+      setProfileImageUrl: (url: string) => {
+        set({ profileImageUrl: url });
+      },
+      getProfileImageUrl: () => get().profileImageUrl,
+
+      setLogoUrl: (url: string) => {
+        set({ logoUrl: url });
+      },
+      getLogoUrl: () => get().logoUrl,
     }),
     {
       name: "auth-storage",
@@ -72,6 +92,8 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
+        profileImageUrl: state.profileImageUrl,
+        logoUrl: state.logoUrl,
       }),
     }
   )
