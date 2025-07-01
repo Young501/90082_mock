@@ -1,6 +1,6 @@
 import { Box, Text, Slider, HStack } from "@chakra-ui/react";
 import { Control, useController } from "react-hook-form";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useEffect } from "react";
 
 interface SliderFieldProps {
   name: string;
@@ -27,54 +27,32 @@ export const SliderField = ({
   } = useController({
     name,
     control,
-    defaultValue: min,
+    defaultValue: undefined,
   });
 
-  // TODO: slider values not in form values on submission
-
-  const [localValue, setLocalValue] = useState<number>(() => {
-    const initialValue = typeof value === "number" ? value : min;
-    return initialValue;
-  });
-
-  const previousValueRef = useRef(value);
-  const userInteractedRef = useRef(false);
-  const lastUserValueRef = useRef<number | null>(null);
+  const currentValue = typeof value === "number" ? value : min;
 
   useEffect(() => {
-    if (typeof value === "number" && value !== previousValueRef.current) {
-      if (
-        userInteractedRef.current &&
-        value === min &&
-        lastUserValueRef.current !== null &&
-        lastUserValueRef.current !== min
-      ) {
-        onChange(lastUserValueRef.current);
-        setLocalValue(lastUserValueRef.current);
-      } else {
-        setLocalValue(value);
-      }
-      previousValueRef.current = value;
+    if (value === undefined || value === null) {
+      const timeoutId = setTimeout(() => {
+        onChange(min);
+      }, 0);
+      return () => clearTimeout(timeoutId);
     }
-  }, [value, name, min, onChange]);
+  }, [min, onChange, name]);
 
-  const handleValueChange = useCallback(
-    (details: { value: number[] }) => {
-      const newValue = details.value[0];
-
-      userInteractedRef.current = true;
-      lastUserValueRef.current = newValue;
-
-      setLocalValue(newValue);
-      onChange(newValue);
-    },
-    [onChange, name]
-  );
+  const handleValueChange = (details: { value: number[] }) => {
+    const newValue = details.value[0];
+    console.log(
+      `SliderField [${name}]: Setting value from ${currentValue} to ${newValue}`
+    );
+    onChange(newValue);
+  };
 
   return (
     <Box>
       <Slider.Root
-        value={[localValue]}
+        value={[currentValue]}
         onValueChange={handleValueChange}
         min={min}
         max={max}
@@ -91,7 +69,7 @@ export const SliderField = ({
             )}
           </Text>
           <Text fontSize="16px" fontWeight="medium" color="blue.500">
-            {localValue} {unit}
+            {currentValue} {unit}
           </Text>
         </HStack>
 

@@ -132,6 +132,14 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v1/${userType}/upload-logo`,
   }),
+  OPPORTUNITY_DETAIL: (opportunityId: string): ApiEndpoint => ({
+    method: "GET",
+    url: `/api/v1/opportunities/${opportunityId}/`,
+  }),
+  INVITE_ACCEPT: (opportunityId: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v1/opportunities/${opportunityId}/accept/`,
+  }),
 };
 
 /*********

@@ -77,16 +77,34 @@ export const FieldRenderer = ({
     const currentValue = fieldValue;
 
     if (prevValue !== undefined && prevValue !== currentValue) {
-      const allChildFields = getAllChildFields(question);
+      const prevValues = Array.isArray(prevValue) ? prevValue : [prevValue];
+      const currentValues = Array.isArray(currentValue)
+        ? currentValue
+        : [currentValue];
 
-      const timeoutId = setTimeout(() => {
-        allChildFields.forEach((childField) => {
-          unregister(childField);
-          clearErrors(childField);
-        });
-      }, 0);
+      const removedValues = prevValues.filter(
+        (val) => !currentValues.includes(val)
+      );
 
-      return () => clearTimeout(timeoutId);
+      const fieldsToRemove: string[] = [];
+      removedValues.forEach((val) => {
+        const followup = question.followup_question![val as string];
+        if (followup) {
+          fieldsToRemove.push(followup.field);
+          fieldsToRemove.push(...getAllChildFields(followup));
+        }
+      });
+
+      if (fieldsToRemove.length > 0) {
+        const timeoutId = setTimeout(() => {
+          fieldsToRemove.forEach((childField) => {
+            unregister(childField);
+            clearErrors(childField);
+          });
+        }, 0);
+
+        return () => clearTimeout(timeoutId);
+      }
     }
 
     previousFieldValue.current = currentValue;
