@@ -48,7 +48,11 @@ export function DiscoveryFilterBox({
   const hasAdditionalFields = additionalFields.length > 0;
 
   return (
-    <form onSubmit={onSubmit}>
+    <form
+      onSubmit={(e) => {
+        onSubmit(e);
+      }}
+    >
       <Flex
         direction={{ base: "column" }}
         align="stretch"

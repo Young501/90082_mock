@@ -54,7 +54,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
           {...formField}
           placeholder={`Enter ${field.label}`}
           w="100%"
-          h="100%"
+          h="40px"
           bg="white"
           borderRadius="15px"
           border="1px solid"
@@ -64,7 +64,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
     />
   );
 
-  const renderSelectField = () => {
+  const renderSelectField = (isMultiple: boolean = false) => {
     const selectCollection = createFieldCollection(field);
 
     return (
@@ -74,16 +74,52 @@ export const FilterField: React.FC<FilterFieldProps> = ({
         render={({ field: formField }) => (
           <Select.Root
             collection={selectCollection}
-            multiple={true}
-            // size="sm"
+            multiple={isMultiple}
             bg="white"
             borderRadius="15px"
             border="1px solid"
             borderColor="gray.200"
             w="100%"
-            h="100%"
-            value={formField.value || []}
-            onValueChange={(details) => formField.onChange(details.value)}
+            h="40px"
+            value={formField.value || (isMultiple ? [] : "")}
+            onValueChange={(details) => {
+              let cleanValue: any = details.value;
+
+              if (
+                typeof cleanValue === "string" &&
+                (cleanValue as string).startsWith("[")
+              ) {
+                try {
+                  cleanValue = JSON.parse(cleanValue);
+                } catch (e) {
+                  console.log("Failed to parse as JSON, using as-is");
+                }
+              }
+
+              if (Array.isArray(cleanValue)) {
+                cleanValue = cleanValue.map((item: any) => {
+                  if (
+                    typeof item === "string" &&
+                    item.startsWith('"') &&
+                    item.endsWith('"')
+                  ) {
+                    return item.slice(1, -1); // Remove surrounding quotes
+                  }
+                  return item;
+                });
+              }
+
+              if (
+                (field.type === "tag-select" ||
+                  field.type === "checkbox-group" ||
+                  field.type === "multi-select") &&
+                !Array.isArray(cleanValue)
+              ) {
+                cleanValue = cleanValue ? [cleanValue] : [];
+              }
+
+              formField.onChange(cleanValue);
+            }}
           >
             <Select.Control w="100%" h="100%">
               <Select.Trigger>
@@ -111,31 +147,69 @@ export const FilterField: React.FC<FilterFieldProps> = ({
     );
   };
 
-  const getFieldContent = () => {
-    return renderSelectField();
-    // switch (field.type) {
-    //   case "select":
-    //   case "multi-select":
-    //     return renderSelectField();
+  const renderTagSelectField = () => {
+    return renderSelectField(true);
+  };
 
-    //   case "text":
-    //   case "input":
-    //   default:
-    //     return renderInputField();
-    // }
+  const renderCheckboxGroupField = () => {
+    return renderSelectField(true);
+  };
+
+  const renderRangeField = () => {
+    return (
+      <Controller
+        name={field.field}
+        control={control}
+        render={({ field: formField }) => (
+          <Input
+            {...formField}
+            type="number"
+            placeholder={`Enter ${field.label} ${(field as any).min && (field as any).max ? `(${(field as any).min}-${(field as any).max})` : ""}`}
+            w="100%"
+            h="40px"
+            bg="white"
+            borderRadius="15px"
+            border="1px solid"
+            borderColor="gray.200"
+            min={(field as any).min || 0}
+            max={(field as any).max || 100}
+          />
+        )}
+      />
+    );
+  };
+
+  const getFieldContent = () => {
+    switch (field.type) {
+      case "select":
+        return renderSelectField(false);
+
+      case "multi-select":
+        return renderSelectField(true);
+
+      case "tag-select":
+        return renderTagSelectField();
+
+      case "checkbox-group":
+        return renderCheckboxGroupField();
+
+      case "range":
+        return renderRangeField();
+
+      case "text":
+      case "input":
+      case "location":
+      case "url":
+        return renderInputField();
+
+      default:
+        return renderSelectField(false);
+    }
   };
 
   return (
-    <Box w="100%" h="100%">
-      <Text fontSize="sm" mb={2} fontWeight="medium">
-        {/* {field.label} */}
-        {/* {field.displayHint && (
-          <Text as="span" fontSize="xs" color="gray.500" ml={2} display="block">
-            {field.displayHint}
-          </Text>
-        )} */}
-      </Text>
-      <Box w="100%" flex="1">
+    <Box w="100%">
+      <Box w="100%" h="40px">
         {getFieldContent()}
       </Box>
     </Box>

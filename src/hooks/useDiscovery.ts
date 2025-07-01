@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -16,10 +16,20 @@ const createValidationSchema = (fields: ProcessedField[]) => {
   const shape: Record<string, any> = {};
 
   fields.forEach((field) => {
-    if (field.type === "multi-select" || field.type === "select") {
-      shape[field.field] = yup.array().of(yup.string());
-    } else {
-      shape[field.field] = yup.string();
+    if (
+      field.type === "multi-select" ||
+      field.type === "tag-select" ||
+      field.type === "checkbox-group"
+    ) {
+      shape[field.field] = yup.array().of(yup.string()).optional();
+    }
+    // Single select should validate as array or string
+    else if (field.type === "select") {
+      shape[field.field] = yup.mixed().optional(); // Allow both string and array
+    }
+    // Text fields as strings
+    else {
+      shape[field.field] = yup.string().optional();
     }
   });
 
@@ -29,9 +39,15 @@ const createValidationSchema = (fields: ProcessedField[]) => {
 const getDefaultValues = (fields: ProcessedField[]): FilterFormData => {
   const defaultValues: FilterFormData = {};
   fields.forEach((field) => {
-    if (field.type === "multi-select" || field.type === "select") {
+    if (
+      field.type === "multi-select" ||
+      field.type === "tag-select" ||
+      field.type === "checkbox-group"
+    ) {
       defaultValues[field.field] = [];
-    } else {
+    }
+    // Single select defaults to empty string
+    else {
       defaultValues[field.field] = "";
     }
   });
@@ -186,18 +202,16 @@ export const useDiscovery = () => {
   const handleSearch = (data: FilterFormData) => {
     if (!targetUserType) return;
 
+    const filteredEntries = Object.entries(data).filter(
+      ([_, value]) =>
+        value && value !== "" && !(Array.isArray(value) && value.length === 0)
+    );
+
     const newSearchParams: UserSearchParams = {
       user_type: targetUserType,
       page: 1,
       page_size: pageSize,
-      ...Object.fromEntries(
-        Object.entries(data).filter(
-          ([_, value]) =>
-            value &&
-            value !== "" &&
-            !(Array.isArray(value) && value.length === 0)
-        )
-      ),
+      ...Object.fromEntries(filteredEntries),
     };
 
     setCurrentPage(1);
@@ -282,7 +296,14 @@ export const useDiscovery = () => {
     isLoading: isOnboardingLoading || isSearchLoading,
     isSearching: isFetching,
     form,
-    handleSearch: form.handleSubmit(handleSearch),
+    handleSearch: form.handleSubmit(
+      (data) => {
+        handleSearch(data);
+      },
+      (errors) => {
+        console.log(errors);
+      }
+    ),
     handleReset,
     checkDependencies,
     resultsCount: searchData?.count || 0,

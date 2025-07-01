@@ -34,7 +34,7 @@ export default function DiscoveryPage() {
     targetUserType
   );
 
-  const { control, watch } = form;
+  const { control, watch, getValues } = form;
   const watchedValues = watch();
 
   return (
