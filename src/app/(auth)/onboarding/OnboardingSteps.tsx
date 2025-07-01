@@ -366,14 +366,15 @@ export const OnboardingSteps = ({ userType }: Props) => {
               mt={6}
               display="flex"
               alignItems="center"
-              justifyContent="space-between"
+              justifyContent={!isFirstPage ? "space-between" : "flex-end"}
+              gap={{ base: 4, md: 0 }}
             >
               {!isFirstPage && (
                 <Button
                   type="button"
                   onClick={goToPreviousPage}
                   variant="primary"
-                  w={{ base: "100%", md: "271px" }}
+                  w={{ base: "calc(50% - 8px)", md: "271px" }}
                   style={{ borderRadius: "0px" }}
                 >
                   Previous
@@ -385,7 +386,10 @@ export const OnboardingSteps = ({ userType }: Props) => {
                   type="button"
                   onClick={onSubmit}
                   variant="primary"
-                  w={{ base: "100%", md: "271px" }}
+                  w={{
+                    base: !isFirstPage ? "calc(50% - 8px)" : "100%",
+                    md: "271px",
+                  }}
                   style={{ borderRadius: "0px" }}
                   isLoading={submissionMutation.isPending}
                 >
@@ -395,7 +399,10 @@ export const OnboardingSteps = ({ userType }: Props) => {
                 <Button
                   type="submit"
                   variant="primary"
-                  w={{ base: "100%", md: "271px" }}
+                  w={{
+                    base: !isFirstPage ? "calc(50% - 8px)" : "100%",
+                    md: "271px",
+                  }}
                   style={{ borderRadius: "0px" }}
                 >
                   Next
