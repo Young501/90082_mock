@@ -171,7 +171,7 @@ export function PartnerCard({ partner }: PartnerCardProps) {
                   </HStack>
                 )}
 
-                {partner.availability && (
+                {partner.sector && (
                   <HStack gap={2} align="center">
                     <Box
                       w="16px"
@@ -190,7 +190,31 @@ export function PartnerCard({ partner }: PartnerCardProps) {
                       />
                     </Box>
                     <Text fontSize="sm" color="gray.600">
-                      {partner.availability}
+                      {partner.sector}
+                    </Text>
+                  </HStack>
+                )}
+
+                {partner.industry && (
+                  <HStack gap={2} align="center">
+                    <Box
+                      w="16px"
+                      h="16px"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      flexShrink={0}
+                    >
+                      <Image
+                        width={12}
+                        height={12}
+                        src="/assets/calenderIcon.svg"
+                        alt="calendar"
+                        objectFit="contain"
+                      />
+                    </Box>
+                    <Text fontSize="sm" color="gray.600">
+                      {partner.industry}
                     </Text>
                   </HStack>
                 )}
