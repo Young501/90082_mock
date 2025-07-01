@@ -79,7 +79,7 @@ function InviteContent() {
   }
 
   return (
-    <Container maxW={containerMaxW} p={0} h="100%">
+    <Container maxW={containerMaxW} p={0} pt={{ base: 6, md: 10 }} h="100%">
       <InviteCard
         opportunity={opportunity}
         onAccept={handleAcceptInvite}
