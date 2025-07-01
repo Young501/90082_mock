@@ -51,6 +51,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             alignItems: "flex-start",
             gap: "4px",
             width: "100%",
+            ...(required && { marginLeft: "-11px" }),
           }}
         >
           {!label && required && (
@@ -83,19 +84,20 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
               type={type === "location" ? "text" : type}
               placeholder={placeholder}
               h="60px"
-              borderRadius="40px"
-              border="2px solid"
-              borderColor="#2CA9DF"
               bg="white"
               fontSize="16px"
               px={icon ? 12 : 6}
               pl={icon ? "48px" : "24px"}
+              style={{
+                border: "1px solid #A2DDF0",
+                borderRadius: "8px",
+              }}
               _focus={{
-                borderColor: "#2CA9DF",
-                boxShadow: "0 0 0 1px #2CA9DF",
+                borderColor: "#A2DDF0",
+                boxShadow: "0 0 0 1px #A2DDF0",
               }}
               _hover={{
-                borderColor: "#2CA9DF",
+                borderColor: "#A2DDF0",
               }}
               {...register}
               {...props}

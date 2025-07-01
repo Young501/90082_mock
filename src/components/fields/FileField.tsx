@@ -178,8 +178,8 @@ export const FileField = ({
                       <Image
                         src="/assets/resume.png"
                         alt="Placeholder"
-                        width={400}
-                        height={400}
+                        width={350}
+                        height={350}
                         style={{
                           maxWidth: "588px",
                         }}

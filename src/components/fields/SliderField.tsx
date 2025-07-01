@@ -43,9 +43,6 @@ export const SliderField = ({
 
   const handleValueChange = (details: { value: number[] }) => {
     const newValue = details.value[0];
-    console.log(
-      `SliderField [${name}]: Setting value from ${currentValue} to ${newValue}`
-    );
     onChange(newValue);
   };
 

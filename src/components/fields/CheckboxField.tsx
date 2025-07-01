@@ -7,7 +7,7 @@ interface CheckboxFieldProps {
   options: string[];
   control: Control<any>;
   required?: boolean;
-  maxSelections?: number;
+  maxSelection?: number;
 }
 
 export const CheckboxField = ({
@@ -16,9 +16,9 @@ export const CheckboxField = ({
   options,
   control,
   required = false,
-  maxSelections,
+  maxSelection,
 }: CheckboxFieldProps) => {
-  const isSingleSelect = maxSelections === 1;
+  const isSingleSelect = maxSelection === 1;
 
   const {
     field: { value, onChange },
@@ -40,7 +40,7 @@ export const CheckboxField = ({
       onChange(isChecked ? option : "");
     } else {
       if (isChecked) {
-        if (!!maxSelections && currentValue.length >= maxSelections) {
+        if (!!maxSelection && currentValue.length >= maxSelection) {
           return;
         }
         const cleanOption = String(option).trim();
@@ -57,8 +57,8 @@ export const CheckboxField = ({
     }
     return (
       !currentValue.includes(option) &&
-      !!maxSelections &&
-      currentValue.length >= maxSelections
+      !!maxSelection &&
+      currentValue.length >= maxSelection
     );
   };
 
@@ -73,9 +73,9 @@ export const CheckboxField = ({
             </Text>
           )}
         </Text>
-        {maxSelections && maxSelections > 1 && (
+        {maxSelection && maxSelection > 1 && (
           <Text fontSize="sm" color="gray.600" mt={1}>
-            (Select up to {maxSelections} options)
+            (Select up to {maxSelection} options)
           </Text>
         )}
       </Box>
@@ -96,7 +96,7 @@ export const CheckboxField = ({
             size="md"
             colorPalette="blue"
             style={{
-              border: "1px solid rgba(57, 113, 185, 0.6)",
+              border: "1px solid #A2DDF0",
               borderRadius: "8px",
               padding: "12px",
               width: "260px",

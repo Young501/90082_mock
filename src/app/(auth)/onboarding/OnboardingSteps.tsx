@@ -19,6 +19,7 @@ import { Question } from "@/types/onboarding";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import ProgressTrack from "@/components/ProgressTrack";
+import { useAuthStore } from "@/store/authStore";
 
 interface Props {
   userType: string;
@@ -237,6 +238,14 @@ export const OnboardingSteps = ({ userType }: Props) => {
         submissionResponse?.detail || "Profile created successfully!"
       );
 
+      if (submissionResponse?.first_name && submissionResponse?.last_name) {
+        const { setOnboardingProfile } = useAuthStore.getState();
+        setOnboardingProfile({
+          first_name: submissionResponse.first_name,
+          last_name: submissionResponse.last_name,
+        });
+      }
+
       const profilePicture = allData.profile_picture;
       const resume = allData.resume;
       const logo = allData.logo;
@@ -366,14 +375,16 @@ export const OnboardingSteps = ({ userType }: Props) => {
               mt={6}
               display="flex"
               alignItems="center"
-              justifyContent="space-between"
+              justifyContent={!isFirstPage ? "space-between" : "flex-end"}
+              gap={{ base: 4, md: 0 }}
             >
               {!isFirstPage && (
                 <Button
                   type="button"
                   onClick={goToPreviousPage}
                   variant="primary"
-                  style={{ width: "271px", borderRadius: "0px" }}
+                  w={{ base: "calc(50% - 8px)", md: "271px" }}
+                  style={{ borderRadius: "0px" }}
                 >
                   Previous
                 </Button>
@@ -384,7 +395,11 @@ export const OnboardingSteps = ({ userType }: Props) => {
                   type="button"
                   onClick={onSubmit}
                   variant="primary"
-                  style={{ width: "271px", borderRadius: "0px" }}
+                  w={{
+                    base: !isFirstPage ? "calc(50% - 8px)" : "100%",
+                    md: "271px",
+                  }}
+                  style={{ borderRadius: "0px" }}
                   isLoading={submissionMutation.isPending}
                 >
                   Submit
@@ -393,7 +408,11 @@ export const OnboardingSteps = ({ userType }: Props) => {
                 <Button
                   type="submit"
                   variant="primary"
-                  style={{ width: "271px", borderRadius: "0px" }}
+                  w={{
+                    base: !isFirstPage ? "calc(50% - 8px)" : "100%",
+                    md: "271px",
+                  }}
+                  style={{ borderRadius: "0px" }}
                 >
                   Next
                 </Button>

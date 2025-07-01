@@ -46,10 +46,7 @@ export const createPageSchema = (questions: Question[]) => {
           return value;
         });
     } else if (question.type === "checkbox-group") {
-      const maxSelections =
-        question.max_selections ||
-        question.max_selection ||
-        question["max-selection"];
+      const maxSelections = question.max_selection;
       if (maxSelections === 1) {
         fieldSchema = yup.string().transform((value: any) => {
           if (value === "" || value === null || value === undefined) {
@@ -80,10 +77,7 @@ export const createPageSchema = (questions: Question[]) => {
           return value instanceof File;
         });
     } else if (question.type === "card-select") {
-      const maxSelections =
-        question.max_selections ||
-        question.max_selection ||
-        question["max-selection"];
+      const maxSelections = question.max_selection;
       if (maxSelections === 1) {
         fieldSchema = yup.string().transform((value: any) => {
           if (value === "" || value === null || value === undefined) {
@@ -114,14 +108,8 @@ export const createPageSchema = (questions: Question[]) => {
       if (
         question.type === "multi-select" ||
         question.type === "tag-select" ||
-        (question.type === "checkbox-group" &&
-          (question.max_selections ||
-            question.max_selection ||
-            question["max-selection"]) !== 1) ||
-        (question.type === "card-select" &&
-          (question.max_selections ||
-            question.max_selection ||
-            question["max-selection"]) !== 1)
+        (question.type === "checkbox-group" && question.max_selection !== 1) ||
+        (question.type === "card-select" && question.max_selection !== 1)
       ) {
         fieldSchema = fieldSchema
           .required("This field is required")
