@@ -5,7 +5,15 @@ import {
   FieldErrors,
   useWatch,
 } from "react-hook-form";
-import { InputField, SelectField, FileField } from "@/components/fields";
+import {
+  InputField,
+  SelectField,
+  FileField,
+  CheckboxField,
+  SkillsPillField,
+  SliderField,
+  CardSelectField,
+} from "@/components/fields";
 import { Question } from "@/types/onboarding";
 import { useMemo, useEffect, useRef, useCallback } from "react";
 
@@ -69,30 +77,61 @@ export const FieldRenderer = ({
     const currentValue = fieldValue;
 
     if (prevValue !== undefined && prevValue !== currentValue) {
-      const allChildFields = getAllChildFields(question);
+      const prevValues = Array.isArray(prevValue) ? prevValue : [prevValue];
+      const currentValues = Array.isArray(currentValue)
+        ? currentValue
+        : [currentValue];
 
-      const timeoutId = setTimeout(() => {
-        allChildFields.forEach((childField) => {
-          unregister(childField);
-          clearErrors(childField);
-        });
-      }, 0);
+      const removedValues = prevValues.filter(
+        (val) => !currentValues.includes(val)
+      );
 
-      return () => clearTimeout(timeoutId);
+      const fieldsToRemove: string[] = [];
+      removedValues.forEach((val) => {
+        const followup = question.followup_question![val as string];
+        if (followup) {
+          fieldsToRemove.push(followup.field);
+          fieldsToRemove.push(...getAllChildFields(followup));
+        }
+      });
+
+      if (fieldsToRemove.length > 0) {
+        const timeoutId = setTimeout(() => {
+          fieldsToRemove.forEach((childField) => {
+            unregister(childField);
+            clearErrors(childField);
+          });
+        }, 0);
+
+        return () => clearTimeout(timeoutId);
+      }
     }
 
     previousFieldValue.current = currentValue;
   }, [fieldValue, question, clearErrors, unregister, getAllChildFields]);
 
   const renderField = () => {
-    if (question.type === "text" || question.type === "location") {
+    if (
+      question.type === "text" ||
+      question.type === "location" ||
+      question.type === "url"
+    ) {
       return (
         <InputField
-          label={question.label}
           register={register(question.field)}
           error={error}
           required={question.required}
           placeholder={`Enter ${question.label.toLowerCase()}`}
+          icon={question.icon}
+          inputProps={{
+            h: "60px",
+            borderRadius: "0px",
+            border: "1px solid",
+            borderColor: "#2CA9DF",
+            bg: "white",
+            fontSize: "16px",
+            px: 6,
+          }}
         />
       );
     }
@@ -110,15 +149,16 @@ export const FieldRenderer = ({
       );
     }
 
-    if (question.type === "url") {
+    if (question.type === "range") {
       return (
-        <InputField
+        <SliderField
+          name={question.field}
           label={question.label}
-          register={register(question.field)}
-          error={error}
+          control={control}
+          min={question.min}
+          max={question.max}
+          unit={question.unit}
           required={question.required}
-          type="url"
-          placeholder="https://example.com"
         />
       );
     }
@@ -127,8 +167,8 @@ export const FieldRenderer = ({
       return (
         <SelectField
           name={question.field}
-          label={question.label}
           control={control}
+          label={question.label}
           options={fieldOptions}
           error={error}
           required={question.required}
@@ -151,6 +191,45 @@ export const FieldRenderer = ({
       );
     }
 
+    if (question.type === "tag-select") {
+      return (
+        <SkillsPillField
+          name={question.field}
+          label={question.label}
+          options={fieldOptions}
+          control={control}
+          allowCustom={question.allow_custom}
+          required={question.required}
+        />
+      );
+    }
+
+    if (question.type === "checkbox-group") {
+      return (
+        <CheckboxField
+          name={question.field}
+          label={question.label}
+          options={fieldOptions}
+          control={control}
+          required={question.required}
+          maxSelections={question.max_selections || question["max-selection"]}
+        />
+      );
+    }
+
+    if (question.type === "card-select") {
+      return (
+        <CardSelectField
+          name={question.field}
+          label={question.label}
+          options={fieldOptions}
+          control={control}
+          required={question.required}
+          maxSelections={question.max_selections}
+        />
+      );
+    }
+
     if (question.type === "file") {
       const fileType =
         FILE_FIELD_TYPES[question.field as keyof typeof FILE_FIELD_TYPES];
@@ -168,6 +247,14 @@ export const FieldRenderer = ({
           fileType={fileType}
           error={error}
           required={question.required}
+          labelPosition="bottom"
+          description={
+            question.field === "profile_picture" ||
+            question.field === "logo" ||
+            question.field === "resume"
+              ? question.field
+              : undefined
+          }
         />
       );
     }

@@ -32,12 +32,13 @@ export default function Layout({ children }: AuthLayoutProps) {
         mt="126px"
         minH="calc(100vh - 305px)"
         overflow="auto"
+        overflowX="hidden"
         justifyContent="center"
         pt="0"
         pb="0"
         px={{ base: "16px", md: "48px", lg: "130px" }}
       >
-        <Container maxW={containerMaxW} px={0}>
+        <Container maxW={containerMaxW} px={0} position="relative">
           {children}
         </Container>
       </Box>

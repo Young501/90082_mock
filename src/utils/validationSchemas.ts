@@ -11,6 +11,12 @@ export const createPageSchema = (questions: Question[]) => {
       fieldSchema = yup.string();
     } else if (question.type === "number") {
       fieldSchema = yup.number().typeError("Must be a number");
+    } else if (question.type === "range") {
+      fieldSchema = yup
+        .number()
+        .typeError("Must be a number")
+        .min(question.min || 0, `Value must be at least ${question.min}`)
+        .max(question.max || 200, `Value must be at most ${question.max}`);
     } else if (question.type === "url") {
       fieldSchema = yup.string().url("Invalid URL format");
     } else if (question.type === "select") {
@@ -29,6 +35,43 @@ export const createPageSchema = (questions: Question[]) => {
           }
           return value;
         });
+    } else if (question.type === "tag-select") {
+      fieldSchema = yup
+        .array()
+        .of(yup.string())
+        .transform((value: any) => {
+          if (Array.isArray(value) && value.length === 0) {
+            return undefined;
+          }
+          return value;
+        });
+    } else if (question.type === "checkbox-group") {
+      const maxSelections =
+        question.max_selections ||
+        question.max_selection ||
+        question["max-selection"];
+      if (maxSelections === 1) {
+        fieldSchema = yup.string().transform((value: any) => {
+          if (value === "" || value === null || value === undefined) {
+            return undefined;
+          }
+          return value;
+        });
+      } else {
+        fieldSchema = yup
+          .array()
+          .of(yup.string())
+          .max(
+            maxSelections || Infinity,
+            `Maximum ${maxSelections} selections allowed`
+          )
+          .transform((value: any) => {
+            if (Array.isArray(value) && value.length === 0) {
+              return undefined;
+            }
+            return value;
+          });
+      }
     } else if (question.type === "file") {
       fieldSchema = yup
         .mixed<File>()
@@ -36,17 +79,61 @@ export const createPageSchema = (questions: Question[]) => {
           if (!value) return true;
           return value instanceof File;
         });
+    } else if (question.type === "card-select") {
+      const maxSelections =
+        question.max_selections ||
+        question.max_selection ||
+        question["max-selection"];
+      if (maxSelections === 1) {
+        fieldSchema = yup.string().transform((value: any) => {
+          if (value === "" || value === null || value === undefined) {
+            return undefined;
+          }
+          return value;
+        });
+      } else {
+        fieldSchema = yup
+          .array()
+          .of(yup.string())
+          .max(
+            maxSelections || Infinity,
+            `Maximum ${maxSelections} selections allowed`
+          )
+          .transform((value: any) => {
+            if (Array.isArray(value) && value.length === 0) {
+              return undefined;
+            }
+            return value;
+          });
+      }
     } else {
       fieldSchema = yup.string();
     }
 
     if (question.required) {
-      if (question.type === "multi-select") {
+      if (
+        question.type === "multi-select" ||
+        question.type === "tag-select" ||
+        (question.type === "checkbox-group" &&
+          (question.max_selections ||
+            question.max_selection ||
+            question["max-selection"]) !== 1) ||
+        (question.type === "card-select" &&
+          (question.max_selections ||
+            question.max_selection ||
+            question["max-selection"]) !== 1)
+      ) {
         fieldSchema = fieldSchema
           .required("This field is required")
           .min(1, "This field is required")
           .test("not-empty-array", "This field is required", (value: any) => {
             return Array.isArray(value) && value.length > 0;
+          });
+      } else if (question.type === "range") {
+        fieldSchema = fieldSchema
+          .required("This field is required")
+          .test("is-range-required", "This field is required", (value: any) => {
+            return typeof value === "number" && !isNaN(value);
           });
       } else {
         fieldSchema = fieldSchema.required("This field is required");

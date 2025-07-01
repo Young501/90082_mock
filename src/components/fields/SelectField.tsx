@@ -4,7 +4,7 @@ import { Control, Controller } from "react-hook-form";
 
 interface SelectFieldProps {
   name: string;
-  label: string;
+  label?: string;
   control: Control<any>;
   options: string[];
   placeholder?: string;
@@ -48,10 +48,14 @@ export const SelectField = ({
 
   return (
     <Field.Root invalid={!!error}>
-      <Field.Label>
-        {label}
-        {required && <span style={{ color: "red", marginLeft: "4px" }}>*</span>}
-      </Field.Label>
+      {label && (
+        <Field.Label>
+          {label}
+          {required && (
+            <span style={{ color: "red", marginLeft: "4px" }}>*</span>
+          )}
+        </Field.Label>
+      )}
       <Controller
         name={name}
         control={control}

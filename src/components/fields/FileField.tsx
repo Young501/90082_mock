@@ -1,6 +1,9 @@
-import { Box, Image, Text, Field } from "@chakra-ui/react";
+import { Box, Text, Field } from "@chakra-ui/react";
 import { useRef } from "react";
 import { Control, Controller } from "react-hook-form";
+import { imgplaceholder, resume } from "@/assets";
+import Image from "next/image";
+import { useAuthStore } from "@/store/authStore";
 
 export type FileFieldType = "image" | "resume";
 
@@ -15,12 +18,14 @@ export interface FileFieldConfig {
 
 interface FileFieldProps {
   name: string;
-  label: string;
+  label?: string;
   control: Control<any>;
   fileType: FileFieldType;
   error?: string;
   required?: boolean;
   config?: Partial<FileFieldConfig>;
+  labelPosition?: "top" | "bottom";
+  description?: string;
 }
 
 // Default configurations for different file types
@@ -51,9 +56,16 @@ export const FileField = ({
   error,
   required,
   config: customConfig,
+  labelPosition = "top",
+  description,
 }: FileFieldProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const config = { ...DEFAULT_CONFIGS[fileType], ...customConfig };
+
+  const { setProfileImageUrl, setLogoUrl } = useAuthStore();
+
+  // const setProfileImageUrl = useAuthStore((state) => state.setProfileImageUrl);
+  // const setLogoUrl = useAuthStore((state) => state.setLogoUrl);
 
   const validateFile = (file: File): string | null => {
     if (file.size > config.maxSize * 1024 * 1024) {
@@ -67,12 +79,34 @@ export const FileField = ({
     return null;
   };
 
+  const handleFileChange = (file: File, onChange: (value: any) => void) => {
+    const error = validateFile(file);
+    if (error) {
+      alert(error);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    onChange(file);
+
+    const fileUrl = URL.createObjectURL(file);
+    if (description === "profile_picture") {
+      setProfileImageUrl(fileUrl);
+    } else if (description === "logo") {
+      setLogoUrl(fileUrl);
+    }
+  };
+
   return (
-    <Field.Root invalid={!!error}>
-      <Field.Label>
-        {label}
-        {required && <span style={{ color: "red", marginLeft: "4px" }}>*</span>}
-      </Field.Label>
+    <Field.Root invalid={!!error} style={{ alignItems: "center" }}>
+      {label && labelPosition === "top" && (
+        <Field.Label>
+          {label}
+          {required && (
+            <span style={{ color: "red", marginLeft: "4px" }}>*</span>
+          )}
+        </Field.Label>
+      )}
       <Controller
         name={name}
         control={control}
@@ -84,13 +118,7 @@ export const FileField = ({
               onChange={(event) => {
                 const file = event.target.files?.[0];
                 if (file) {
-                  const error = validateFile(file);
-                  if (error) {
-                    alert(error);
-                    event.target.value = "";
-                    return;
-                  }
-                  field.onChange(file);
+                  handleFileChange(file, field.onChange);
                 }
               }}
               accept={config.accept}
@@ -98,29 +126,31 @@ export const FileField = ({
             />
 
             <Box
-              border="2px dashed"
-              borderColor="gray.300"
-              borderRadius="md"
+              borderRadius="full"
               p={4}
               textAlign="center"
               cursor="pointer"
-              _hover={{ borderColor: "blue.400" }}
               onClick={() => fileInputRef.current?.click()}
             >
               {field.value ? (
                 <Box>
                   {config.showPreview ? (
-                    <Image
-                      src={URL.createObjectURL(field.value)}
-                      alt="Preview"
-                      maxH="200px"
-                      mx="auto"
-                      mb={2}
-                    />
+                    <Box display="flex" justifyContent="center">
+                      <Image
+                        src={URL.createObjectURL(field.value)}
+                        alt="Preview"
+                        width={200}
+                        height={200}
+                        style={{
+                          objectFit: "cover",
+                          borderRadius: "50%",
+                          width: "200px",
+                          height: "200px",
+                        }}
+                      />
+                    </Box>
                   ) : (
-                    <Text color="blue.500" mb={2}>
-                      📄 {field.value.name}
-                    </Text>
+                    <Text color="blue.500">📄 {field.value.name}</Text>
                   )}
                   <Text fontSize="sm" color="gray.600">
                     Click to change file
@@ -128,7 +158,38 @@ export const FileField = ({
                 </Box>
               ) : (
                 <Box>
-                  <Text mb={2}>{config.emptyText}</Text>
+                  {description === "profile_picture" ||
+                  description === "logo" ? (
+                    <Box display="flex" justifyContent="center">
+                      <Image
+                        src={imgplaceholder}
+                        alt="Placeholder"
+                        width={200}
+                        height={200}
+                        style={{
+                          objectFit: "cover",
+                          borderRadius: "50%",
+                          width: "200px",
+                          height: "200px",
+                        }}
+                      />
+                    </Box>
+                  ) : description === "resume" ? (
+                    <Box display="flex" justifyContent="center">
+                      <Image
+                        src={resume}
+                        alt="Placeholder"
+                        width={400}
+                        height={400}
+                        style={{
+                          maxWidth: "588px",
+                        }}
+                      />
+                    </Box>
+                  ) : (
+                    <Text>{config.emptyText}</Text>
+                  )}
+
                   <Text fontSize="sm" color="gray.500">
                     {config.helpText}
                   </Text>
@@ -138,6 +199,14 @@ export const FileField = ({
           </>
         )}
       />
+      {label && labelPosition === "bottom" && (
+        <Field.Label>
+          <span style={{ textAlign: "center", display: "block" }}>{label}</span>
+          {required && (
+            <span style={{ color: "red", marginLeft: "4px" }}>*</span>
+          )}
+        </Field.Label>
+      )}
       {error && <Field.ErrorText>{error}</Field.ErrorText>}
     </Field.Root>
   );
