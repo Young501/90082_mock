@@ -129,16 +129,17 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   };
 
   const getFieldContent = () => {
-    switch (field.type) {
-      case "select":
-      case "multi-select":
-        return renderSelectField();
+    return renderSelectField();
+    // switch (field.type) {
+    //   case "select":
+    //   case "multi-select":
+    //     return renderSelectField();
 
-      case "text":
-      case "input":
-      default:
-        return renderInputField();
-    }
+    //   case "text":
+    //   case "input":
+    //   default:
+    //     return renderInputField();
+    // }
   };
 
   return (
