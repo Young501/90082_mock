@@ -17,7 +17,7 @@ export default function EmailVerifySuccessPage() {
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
 
   const handleLoginClick = () => {
-    router.push("/login");
+    router.push("/login/");
   };
 
   return (

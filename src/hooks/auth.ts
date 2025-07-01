@@ -22,10 +22,10 @@ export const useAuth = () => {
       await apiRequest({
         endpoint: API_ENDPOINTS.USER_PROFILE(user.user_types[0]),
       });
-      router.push("/home");
+      router.push("/home/");
     } catch (error: any) {
       if (error?.response?.status === 404) {
-        router.push("/onboarding");
+        router.push("/onboarding/");
         return;
       }
       toast.error("Error checking onboarding status");

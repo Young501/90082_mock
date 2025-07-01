@@ -4,7 +4,6 @@ import { Box, Text, useBreakpointValue } from "@chakra-ui/react";
 import { OnboardingSteps } from "@/app/(auth)/onboarding/OnboardingSteps";
 import { useAuthStore } from "@/store";
 import Image from "next/image";
-import { backgroundImage } from "@/assets";
 
 export default function OnboardingPage() {
   const { user, token } = useAuthStore();
@@ -29,7 +28,7 @@ export default function OnboardingPage() {
           }}
         >
           <Image
-            src={backgroundImage}
+            src="/assets/background-image.png"
             alt="onboarding"
             style={{ position: "unset", width: "fit-content", height: "auto" }}
           />

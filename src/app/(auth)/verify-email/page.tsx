@@ -30,7 +30,7 @@ function VerifyEmailContent() {
       const message =
         "No verification token found. Please check your email link.";
       router.push(
-        `/verify-email/failed?message=${encodeURIComponent(message)}`
+        `/verify-email/failed?message=${encodeURIComponent(message)}/`
       );
       return;
     }
@@ -40,14 +40,14 @@ function VerifyEmailContent() {
     try {
       await emailVerificationMutation.mutateAsync({ token });
 
-      router.push("/verify-email/success");
+      router.push("/verify-email/success/");
     } catch (error: any) {
       const errorMessage =
         error?.response?.data?.detail ||
         "Network error. Please check your connection and try again.";
 
       router.push(
-        `/verify-email/failed?message=${encodeURIComponent(errorMessage)}`
+        `/verify-email/failed?message=${encodeURIComponent(errorMessage)}/`
       );
     }
   }, [hasVerified, searchParams, router, emailVerificationMutation]);

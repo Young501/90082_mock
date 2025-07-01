@@ -50,7 +50,24 @@ export const FilterField: React.FC<FilterFieldProps> = ({
       name={field.field}
       control={control}
       render={({ field: formField }) => (
-        <Input {...formField} placeholder={`Enter ${field.label}`} size="sm" />
+        <Input
+          {...formField}
+          placeholder={`Enter ${field.label}`}
+          size="sm"
+          w="100%"
+          h="40px"
+          bg="white"
+          borderRadius="15px"
+          border="1px solid"
+          borderColor="gray.200"
+          _focus={{
+            borderColor: "#2CA9DF",
+            boxShadow: "0 0 0 1px #2CA9DF",
+          }}
+          _hover={{
+            borderColor: "gray.300",
+          }}
+        />
       )}
     />
   );
@@ -67,10 +84,25 @@ export const FilterField: React.FC<FilterFieldProps> = ({
             collection={selectCollection}
             multiple={true}
             size="sm"
+            bg="white"
+            borderRadius="15px"
+            border="1px solid"
+            borderColor="gray.200"
+            w="100%"
             value={formField.value || []}
             onValueChange={(details) => formField.onChange(details.value)}
           >
-            <Select.Control>
+            <Select.Control
+              w="100%"
+              h="40px"
+              _focus={{
+                borderColor: "#2CA9DF",
+                boxShadow: "0 0 0 1px #2CA9DF",
+              }}
+              _hover={{
+                borderColor: "gray.300",
+              }}
+            >
               <Select.Trigger>
                 <Select.ValueText placeholder={`Select ${field.label}`} />
               </Select.Trigger>
@@ -97,29 +129,32 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   };
 
   const getFieldContent = () => {
-    switch (field.type) {
-      case "select":
-      case "multi-select":
-        return renderSelectField();
+    return renderSelectField();
+    // switch (field.type) {
+    //   case "select":
+    //   case "multi-select":
+    //     return renderSelectField();
 
-      case "text":
-      case "input":
-      default:
-        return renderInputField();
-    }
+    //   case "text":
+    //   case "input":
+    //   default:
+    //     return renderInputField();
+    // }
   };
 
   return (
-    <Box minW="200px">
+    <Box w="100%" h="100%">
       <Text fontSize="sm" mb={2} fontWeight="medium">
-        {field.label}
+        {/* {field.label} */}
         {field.displayHint && (
-          <Text as="span" fontSize="xs" color="gray.500" ml={2}>
+          <Text as="span" fontSize="xs" color="gray.500" ml={2} display="block">
             {field.displayHint}
           </Text>
         )}
       </Text>
-      {getFieldContent()}
+      <Box w="100%" flex="1">
+        {getFieldContent()}
+      </Box>
     </Box>
   );
 };

@@ -31,6 +31,7 @@ export interface StudentProfile {
   skills?: string[];
   credentials?: string[];
   preferred_location?: string[];
+  availability?: string;
 }
 
 export interface PartnerProfile {
@@ -43,7 +44,9 @@ export interface PartnerProfile {
   sector?: string;
   industry?: string;
   company_size?: string;
-  logo?: string;
+  logo_url?: string;
+  email?: string;
+  availability?: string;
 }
 
 export type UserProfile = StudentProfile | PartnerProfile;

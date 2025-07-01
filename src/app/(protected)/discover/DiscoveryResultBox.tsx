@@ -40,6 +40,9 @@ export function DiscoveryResultBox({
 }: DiscoveryResultBoxProps) {
   if (!show) return null;
 
+  console.log(results);
+  console.log(userType);
+
   return (
     <VStack align="stretch" gap={6}>
       <HStack justify="space-between" align="center">
@@ -54,12 +57,12 @@ export function DiscoveryResultBox({
         </Box>
       ) : count > 0 ? (
         <>
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
+          <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={4}>
             {results.map((user) => {
               const key = user.id || Math.random();
 
               return userType === "student" ? (
-                <StudentCard key={key} student={user} />
+                <StudentCard key={key} student={user} userType={userType} />
               ) : (
                 <PartnerCard key={key} partner={user} />
               );

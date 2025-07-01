@@ -42,7 +42,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     if (!isLoading && pages) {
       if (!pages || pages.length === 0) {
         toast.info("No onboarding required. Redirecting to Home");
-        router.push("/home");
+        router.push("/home/");
         return;
       }
     }

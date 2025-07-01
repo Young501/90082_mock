@@ -1,112 +1,189 @@
 import React from "react";
-import { Box, VStack, HStack, Text, Card, Avatar } from "@chakra-ui/react";
+import {
+  Box,
+  VStack,
+  HStack,
+  Text,
+  Card,
+  Avatar,
+  Button,
+  Heading,
+} from "@chakra-ui/react";
 import { PartnerProfile } from "@/types/discovery";
+import Image from "next/image";
 
 interface PartnerCardProps {
   partner: PartnerProfile;
 }
 
 export function PartnerCard({ partner }: PartnerCardProps) {
-  const getDisplayName = () => {
-    const firstName = partner.first_name || "";
-    const lastName = partner.last_name || "";
-    return `${firstName} ${lastName}`.trim() || "No name provided";
-  };
-
-  const getProfileImage = () => {
-    return partner.profile_picture_url || null;
+  const getCompanyLogo = () => {
+    return partner.logo_url || null;
   };
 
   return (
-    <Card.Root
-      p={4}
-      bg="white"
-      borderRadius="md"
+    <Box
+      bg="#D1D1D1"
+      borderRadius="2xl"
       border="1px solid"
       borderColor="gray.200"
+      boxShadow="0px 3.37px 6.74px 3.37px rgba(0, 0, 0, 0.25)"
+      overflow="hidden"
+      position="relative"
+      borderTopRightRadius="20px"
+      w="100%"
     >
-      <Card.Body>
-        <HStack align="start" gap={4}>
-          <Box flexShrink={0}>
-            <Avatar.Root size="md">
-              <Avatar.Fallback name={getDisplayName()} />
-              {getProfileImage() && (
-                <Avatar.Image
-                  src={getProfileImage()!}
-                  onError={(e) => {
-                    console.error("Failed to load image:", getProfileImage());
-                    console.error("Error details:", e);
-                  }}
-                  onLoad={() => {
-                    console.log(
-                      "Image loaded successfully:",
-                      getProfileImage()
-                    );
-                  }}
-                />
+      <Box position="absolute" top={4} right={4} zIndex={1}>
+        <Box
+          w={6}
+          h={6}
+          bg="transparent"
+          borderRadius="md"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          cursor="pointer"
+        >
+          <Image
+            width={20}
+            height={20}
+            src="/assets/addicon.svg"
+            alt="add"
+            objectFit="contain"
+          />
+        </Box>
+      </Box>
+
+      <Box
+        px="20px"
+        py="40px"
+        bg="white"
+        borderTopRightRadius="150px"
+        display="flex"
+        flexDirection="column"
+        boxShadow="0px 3.37px 6.74px 3.37px rgba(0, 0, 0, 0.25)"
+        gap={4}
+      >
+        <Box
+          display="flex"
+          flexDirection="row"
+          gap={2}
+          justifyContent="center"
+          w="full"
+        >
+          <Box flexShrink={0} w="130px" h="130px">
+            <Avatar.Root w="130px" h="130px" borderRadius="50%">
+              <Avatar.Fallback
+                name={partner.company_name || ""}
+                bg="blue.500"
+                color="white"
+                fontWeight="bold"
+                w="100%"
+                h="100%"
+              />
+              {getCompanyLogo() && (
+                <Avatar.Image src={getCompanyLogo()!} w="130px" h="130px" />
               )}
             </Avatar.Root>
           </Box>
 
-          <VStack align="start" flex={1} gap={2}>
-            <Text fontWeight="bold" fontSize="lg">
-              {getDisplayName()}
-            </Text>
+          <Box display="flex" flexDirection="column" gap={3} w="full">
+            <Heading
+              fontSize="20px"
+              textTransform="capitalize"
+              fontWeight="bold"
+              color="#000000"
+            >
+              {partner.company_name || ""}
+            </Heading>
 
-            {partner.location && (
-              <Text fontSize="sm" color="gray.600">
-                📍 {partner.location}
-              </Text>
-            )}
-
-            {Object.entries(partner).map(([key, value]) => {
-              if (
-                [
-                  "id",
-                  "first_name",
-                  "last_name",
-                  "location",
-                  "profile_picture",
-                ].includes(key)
-              ) {
-                return null;
-              }
-
-              if (value && typeof value === "string" && value.trim()) {
-                return (
-                  <Text key={key} fontSize="sm">
-                    <Text
-                      as="span"
-                      fontWeight="medium"
-                      textTransform="capitalize"
-                    >
-                      {key.replace(/_/g, " ")}:
-                    </Text>{" "}
-                    {value}
+            <Box display="flex" flexDirection="column" gap={2}>
+              {partner.location && (
+                <HStack gap={2} align="center">
+                  <Box
+                    w="16px"
+                    h="16px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    flexShrink={0}
+                  >
+                    <Image
+                      width={12}
+                      height={12}
+                      src="/assets/locationIcon.svg"
+                      alt="location"
+                      objectFit="contain"
+                    />
+                  </Box>
+                  <Text fontSize="sm" color="gray.600">
+                    {partner.location || ""}
                   </Text>
-                );
-              }
+                </HStack>
+              )}
 
-              if (Array.isArray(value) && value.length > 0) {
-                return (
-                  <Text key={key} fontSize="sm">
-                    <Text
-                      as="span"
-                      fontWeight="medium"
-                      textTransform="capitalize"
-                    >
-                      {key.replace(/_/g, " ")}:
-                    </Text>{" "}
-                    {value.join(", ")}
+              {partner.email && (
+                <HStack gap={2} align="center">
+                  <Box
+                    w="16px"
+                    h="16px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    flexShrink={0}
+                  >
+                    <Image
+                      width={12}
+                      height={12}
+                      src="/assets/emailicon.svg"
+                      alt="email"
+                      objectFit="contain"
+                    />
+                  </Box>
+                  <Text fontSize="sm" color="gray.600">
+                    {partner.email || ""}
                   </Text>
-                );
-              }
+                </HStack>
+              )}
 
-              return null;
-            })}
-          </VStack>
-        </HStack>
-      </Card.Body>
-    </Card.Root>
+              {partner.availability && (
+                <HStack gap={2} align="center">
+                  <Box
+                    w="16px"
+                    h="16px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    flexShrink={0}
+                  >
+                    <Image
+                      width={12}
+                      height={12}
+                      src="/assets/calenderIcon.svg"
+                      alt="calendar"
+                      objectFit="contain"
+                    />
+                  </Box>
+                  <Text fontSize="sm" color="gray.600">
+                    {partner.availability}
+                  </Text>
+                </HStack>
+              )}
+            </Box>
+          </Box>
+        </Box>
+        <Button
+          w="full"
+          bg="#22C45E"
+          color="white"
+          borderRadius="xl"
+          py={6}
+          fontSize="14px"
+          fontWeight="bold"
+        >
+          View Full Profile
+        </Button>
+      </Box>
+    </Box>
   );
 }
