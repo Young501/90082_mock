@@ -73,10 +73,9 @@ export const CheckboxField = ({
             </Text>
           )}
         </Text>
-        {maxSelections && (
+        {maxSelections && maxSelections > 1 && (
           <Text fontSize="sm" color="gray.600" mt={1}>
-            (Select up to {maxSelections}{" "}
-            {maxSelections === 1 ? "option" : "options"})
+            (Select up to {maxSelections} options)
           </Text>
         )}
       </Box>
