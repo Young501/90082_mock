@@ -373,7 +373,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
                   type="button"
                   onClick={goToPreviousPage}
                   variant="primary"
-                  style={{ width: "271px", borderRadius: "0px" }}
+                  w={{ base: "100%", md: "271px" }}
+                  style={{ borderRadius: "0px" }}
                 >
                   Previous
                 </Button>
@@ -384,7 +385,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
                   type="button"
                   onClick={onSubmit}
                   variant="primary"
-                  style={{ width: "271px", borderRadius: "0px" }}
+                  w={{ base: "100%", md: "271px" }}
+                  style={{ borderRadius: "0px" }}
                   isLoading={submissionMutation.isPending}
                 >
                   Submit
@@ -393,7 +395,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
                 <Button
                   type="submit"
                   variant="primary"
-                  style={{ width: "271px", borderRadius: "0px" }}
+                  w={{ base: "100%", md: "271px" }}
+                  style={{ borderRadius: "0px" }}
                 >
                   Next
                 </Button>

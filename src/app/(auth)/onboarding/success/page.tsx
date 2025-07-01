@@ -76,15 +76,7 @@ export default function OnboardingSuccessPage() {
   }, [getUserType, getProfileImageUrl, getLogoUrl]);
 
   const handleProfileClick = () => {
-    router.push("/home/");
-  };
-
-  const handleOrgProfileClick = () => {
-    router.push("/home/");
-  };
-
-  const handleExploreClick = (): void => {
-    router.push("/discover/");
+    router.push("/profile/");
   };
 
   const opportunities = [
@@ -130,34 +122,35 @@ export default function OnboardingSuccessPage() {
           {userType === "student"
             ? "You have successfully completed your Profile"
             : "You have successfully completed your Organisation Profile"}
-          {userType === "partner" && (
-            <Text as="span" display="block" fontSize="18px" mt={2}>
-              for the [Course] [CLLO]
-            </Text>
-          )}
         </Text>
         <Box
           display="flex"
           flexDirection="row"
           alignItems="center"
-          justifyContent="space-between"
+          justifyContent="center"
           w="100%"
           maxW="1512px"
+          mt={10}
         >
           <Box
             w="100%"
             display="flex"
-            flexDirection="row"
+            flexDirection={{ base: "column", md: "row" }}
             alignItems="center"
-            justifyContent="flex-start"
-            gap={4}
+            justifyContent="center"
+            gap={6}
           >
             <Box
               borderRadius="full"
               overflow="hidden"
               w={{ base: "100px", md: "210px" }}
               h={{ base: "100px", md: "210px" }}
-              border="10px solid #089C3F"
+              style={{
+                border:
+                  userType === "partner"
+                    ? "10px solid #089C3F"
+                    : "10px solid #DC2626",
+              }}
             >
               {imageUrl ? (
                 <Image
@@ -215,63 +208,7 @@ export default function OnboardingSuccessPage() {
               >
                 Go to My Profile
               </Button>
-
-              {userType === "partner" && (
-                <Button
-                  variant="secondary"
-                  onClick={handleOrgProfileClick}
-                  style={{
-                    borderRadius: "50px",
-                    maxWidth: "372x",
-                    width: "100%",
-                  }}
-                  bg="#282F68"
-                  color="white"
-                >
-                  Go the Org. Profile
-                </Button>
-              )}
             </Box>
-          </Box>
-
-          <Box w="100%" maxW="400px" mt={8}>
-            <Text
-              fontSize={{ base: "16px", md: "20px" }}
-              fontWeight="700"
-              mb={4}
-              color="#000000"
-            >
-              Explore other Opportunities
-            </Text>
-
-            <Flex justifyContent="center" mb={6}>
-              <Box
-                display="flex"
-                flexDirection="row"
-                alignItems="center"
-                justifyContent="center"
-                flexWrap="wrap"
-                gap={4}
-              >
-                {opportunities.map((opp, index) => (
-                  <GridItem key={index}>
-                    <OpportunityCard icon={opp.icon} label={opp.label} />
-                  </GridItem>
-                ))}
-              </Box>
-            </Flex>
-
-            <Button
-              variant="primary"
-              onClick={handleExploreClick}
-              style={{
-                borderRadius: "4px",
-                maxWidth: "272px",
-                width: "100%",
-              }}
-            >
-              EXPLORE
-            </Button>
           </Box>
         </Box>
       </Box>
