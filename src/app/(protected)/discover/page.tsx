@@ -27,6 +27,13 @@ export default function DiscoveryPage() {
     handlePageSizeChange,
   } = useDiscovery();
 
+  console.log(
+    "filterableFields",
+    filterableFields,
+    "targetUserType",
+    targetUserType
+  );
+
   const { control, watch } = form;
   const watchedValues = watch();
 

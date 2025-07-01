@@ -261,6 +261,8 @@ export const useDiscovery = () => {
     setFilterableFields(Array.from(processedFields.values()));
   }, [onboardingData, processFollowupQuestions, targetUserType]);
 
+  console.log("filterableFields", filterableFields);
+
   const hasSearchFilters = useMemo(() => {
     if (!searchParams) return false;
     const { user_type, page, page_size, ...filters } = searchParams;
