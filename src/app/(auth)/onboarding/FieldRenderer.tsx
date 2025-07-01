@@ -212,7 +212,7 @@ export const FieldRenderer = ({
           options={fieldOptions}
           control={control}
           required={question.required}
-          maxSelections={question.max_selections || question["max-selection"]}
+          maxSelection={question.max_selection}
         />
       );
     }
@@ -225,7 +225,7 @@ export const FieldRenderer = ({
           options={fieldOptions}
           control={control}
           required={question.required}
-          maxSelections={question.max_selections}
+          maxSelection={question.max_selection}
         />
       );
     }

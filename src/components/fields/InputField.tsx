@@ -51,7 +51,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             alignItems: "flex-start",
             gap: "4px",
             width: "100%",
-            marginLeft: "-11px",
+            ...(required && { marginLeft: "-11px" }),
           }}
         >
           {!label && required && (

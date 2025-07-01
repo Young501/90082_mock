@@ -7,7 +7,7 @@ interface CardSelectFieldProps {
   options: string[];
   control: Control<any>;
   required?: boolean;
-  maxSelections?: number;
+  maxSelection?: number;
 }
 
 export const CardSelectField = ({
@@ -16,9 +16,9 @@ export const CardSelectField = ({
   options,
   control,
   required = false,
-  maxSelections,
+  maxSelection,
 }: CardSelectFieldProps) => {
-  const isSingleSelect = maxSelections === 1;
+  const isSingleSelect = maxSelection === 1;
 
   const {
     field: { value, onChange },
@@ -46,7 +46,7 @@ export const CardSelectField = ({
       if (isSelected) {
         onChange(valueArray.filter((item: string) => item !== option));
       } else {
-        if (maxSelections && valueArray.length >= maxSelections) {
+        if (maxSelection && valueArray.length >= maxSelection) {
           return;
         }
         onChange([...valueArray, option]);
@@ -61,8 +61,8 @@ export const CardSelectField = ({
     const valueArray = currentValue;
     return (
       !valueArray.includes(option) &&
-      maxSelections &&
-      valueArray.length >= maxSelections
+      maxSelection &&
+      valueArray.length >= maxSelection
     );
   };
 
@@ -85,9 +85,9 @@ export const CardSelectField = ({
             </Text>
           )}
         </Text>
-        {maxSelections && (
+        {maxSelection && (
           <Text fontSize="sm" color="gray.600">
-            (Choose up to {maxSelections})
+            (Choose up to {maxSelection})
           </Text>
         )}
       </Box>
