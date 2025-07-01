@@ -96,7 +96,7 @@ export const CheckboxField = ({
             size="md"
             colorPalette="blue"
             style={{
-              border: "1px solid rgba(57, 113, 185, 0.6)",
+              border: "1px solid #A2DDF0",
               borderRadius: "8px",
               padding: "12px",
               width: "260px",

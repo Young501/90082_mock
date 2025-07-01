@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { Control, useController } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
+import { Plus, X } from "lucide-react";
 
 interface SkillsPillFieldProps {
   name: string;
@@ -111,7 +112,11 @@ export const SkillsPillField = ({
                 backgroundColor="#002157"
                 color="#A2DDF0"
                 fontSize="16px"
-                padding="10px 30px"
+                padding="10px 15px"
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                gap={2}
               >
                 <Tag.Label>{skill}</Tag.Label>
                 <IconButton
@@ -121,10 +126,9 @@ export const SkillsPillField = ({
                   backgroundColor="transparent"
                   variant="ghost"
                   onClick={() => handleRemoveSkill(skill)}
-                  ml={1}
                   display="contents"
                 >
-                  ×
+                  <X size={10} />
                 </IconButton>
               </Tag.Root>
             ))}
@@ -145,7 +149,7 @@ export const SkillsPillField = ({
               backgroundColor: "#CFF3FF",
             }}
           >
-            + {value.length === 0 ? "ADD SKILLS" : "ADD MORE"}
+            <Plus size={10} /> {value.length === 0 ? "ADD SKILLS" : "ADD MORE"}
           </ChakraButton>
         ) : (
           <VStack align="stretch" gap={3}>
