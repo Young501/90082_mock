@@ -19,6 +19,7 @@ import { Question } from "@/types/onboarding";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import ProgressTrack from "@/components/ProgressTrack";
+import { useAuthStore } from "@/store/authStore";
 
 interface Props {
   userType: string;
@@ -236,6 +237,14 @@ export const OnboardingSteps = ({ userType }: Props) => {
       toast.success(
         submissionResponse?.detail || "Profile created successfully!"
       );
+
+      if (submissionResponse?.first_name && submissionResponse?.last_name) {
+        const { setOnboardingProfile } = useAuthStore.getState();
+        setOnboardingProfile({
+          first_name: submissionResponse.first_name,
+          last_name: submissionResponse.last_name,
+        });
+      }
 
       const profilePicture = allData.profile_picture;
       const resume = allData.resume;

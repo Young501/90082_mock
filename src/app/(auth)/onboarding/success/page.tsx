@@ -8,59 +8,19 @@ import {
   VStack,
   Icon,
   useBreakpointValue,
-  Flex,
-  Grid,
-  GridItem,
 } from "@chakra-ui/react";
 import { CheckCircle } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/Button";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-
-interface OpportunityCardProps {
-  icon: string;
-  label: string;
-}
-
-const OpportunityCard = ({ icon, label }: OpportunityCardProps) => {
-  return (
-    <Box
-      border="1px solid #2CA9DF"
-      borderRadius="12px"
-      p={3}
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      gap={2}
-      bg="white"
-      boxShadow="0px 2px 4px rgba(0, 0, 0, 0.05)"
-      transition="all 0.2s ease"
-      cursor="pointer"
-      minW="80px"
-      maxW="100px"
-    >
-      <Box
-        w="45px"
-        h="45px"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Image src={icon} alt={label} width={24} height={24} />
-      </Box>
-      <Text fontSize="12px" textAlign="center" fontWeight="700" color="#2CA9DF">
-        {label}
-      </Text>
-    </Box>
-  );
-};
+import { getInitials } from "@/utils/getInitials";
 
 export default function OnboardingSuccessPage() {
   const router = useRouter();
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
-  const { getUserType, getProfileImageUrl, getLogoUrl } = useAuthStore();
+  const { getUserType, getProfileImageUrl, getLogoUrl, getOnboardingProfile } =
+    useAuthStore();
   const [userType, setUserType] = useState<string | undefined>("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
@@ -78,14 +38,6 @@ export default function OnboardingSuccessPage() {
   const handleProfileClick = () => {
     router.push("/profile/");
   };
-
-  const opportunities = [
-    { icon: "/assets/employment.svg", label: "Employment" },
-    { icon: "/assets/student.svg", label: "Student" },
-    { icon: "/assets/internship.svg", label: "Internship" },
-    { icon: "/assets/mentoring.svg", label: "Mentoring" },
-    { icon: "/assets/research.svg", label: "Research" },
-  ];
 
   return (
     <Container maxW={containerMaxW} pb={10} h="100%">
@@ -160,29 +112,29 @@ export default function OnboardingSuccessPage() {
                   height={200}
                   style={{ objectFit: "cover", width: "100%", height: "100%" }}
                 />
-              ) : userType === "partner" ? (
-                <Image
-                  src={getLogoUrl() || ""}
-                  alt="Organization Logo"
-                  width={200}
-                  height={200}
-                  style={{
-                    objectFit: "contain",
-                    width: "100%",
-                    height: "100%",
-                  }}
-                />
               ) : (
                 <Box
                   bg="#2CA9DF"
-                  w="200px"
-                  h="200px"
+                  w="100%"
+                  h="100%"
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <Text fontSize="2xl" fontWeight="bold" color="white">
-                    {userType?.charAt(0)?.toUpperCase() || ""}
+                  <Text
+                    fontSize={{ base: "2xl", md: "4xl" }}
+                    fontWeight="bold"
+                    color="white"
+                  >
+                    {(() => {
+                      const profile = getOnboardingProfile();
+                      const initials = profile
+                        ? getInitials(profile.first_name, profile.last_name)
+                        : "";
+                      return (
+                        initials || userType?.charAt(0)?.toUpperCase() || "U"
+                      );
+                    })()}
                   </Text>
                 </Box>
               )}
