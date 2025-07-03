@@ -121,7 +121,7 @@ export const FieldRenderer = ({
           register={register(question.field)}
           error={error}
           required={question.required}
-          placeholder={`Enter ${question.label.toLowerCase()}`}
+          placeholder={`${question.label}`}
           icon={question.icon}
           inputProps={{
             h: "60px",
