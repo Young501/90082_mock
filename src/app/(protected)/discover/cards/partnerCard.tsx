@@ -18,7 +18,7 @@ interface PartnerCardProps {
 
 export function PartnerCard({ partner }: PartnerCardProps) {
   const getCompanyLogo = () => {
-    return partner.logo_url || null;
+    return partner.logo_url || "/assets/imgplaceholder.png";
   };
 
   return (
@@ -62,92 +62,164 @@ export function PartnerCard({ partner }: PartnerCardProps) {
         display="flex"
         flexDirection="column"
         boxShadow="0px 3.37px 6.74px 3.37px rgba(0, 0, 0, 0.25)"
-        gap={4}
+        w="full"
+        h="full"
       >
-        <Box
-          display="flex"
-          flexDirection="row"
-          gap={2}
-          justifyContent="center"
-          w="full"
-        >
-          <Box flexShrink={0} w="130px" h="130px">
-            <Avatar.Root w="130px" h="130px" borderRadius="50%">
-              <Avatar.Fallback
-                name={partner.company_name || ""}
-                bg="blue.500"
+        <Box display="flex" flexDirection="column" gap={4} flex="1">
+          <Box
+            display="flex"
+            flexDirection="row"
+            gap={2}
+            justifyContent="center"
+            w="full"
+          >
+            <Box display="flex" flexDirection="column" gap={6}>
+              <Box flexShrink={0} w="130px" h="130px">
+                <Avatar.Root
+                  w="130px"
+                  h="130px"
+                  borderRadius="50%"
+                  border="4px solid"
+                  borderColor="#22C45E"
+                >
+                  <Avatar.Fallback
+                    name={partner.company_name || ""}
+                    bg="blue.500"
+                    color="white"
+                    fontWeight="bold"
+                    w="100%"
+                    h="100%"
+                  />
+                  {getCompanyLogo() && (
+                    <Avatar.Image src={getCompanyLogo()!} w="124px" h="124px" />
+                  )}
+                </Avatar.Root>
+              </Box>
+
+              <Box
+                bg="#22C45E"
                 color="white"
-                fontWeight="bold"
+                borderRadius="2xl"
+                py={2}
+                px={4}
+                fontSize="12px"
+                fontWeight="400"
                 w="100%"
-                h="100%"
-              />
-              {getCompanyLogo() && (
-                <Avatar.Image src={getCompanyLogo()!} w="130px" h="130px" />
-              )}
-            </Avatar.Root>
-          </Box>
+                display="flex"
+                justifyContent="center"
+              >
+                open to contact
+              </Box>
+            </Box>
 
-          <Box display="flex" flexDirection="column" gap={3} w="full">
-            <Heading
-              fontSize="20px"
-              textTransform="capitalize"
-              fontWeight="bold"
-              color="#000000"
-            >
-              {partner.company_name || ""}
-            </Heading>
+            <Box display="flex" flexDirection="column" gap={3} w="full">
+              <Heading
+                fontSize="20px"
+                textTransform="capitalize"
+                fontWeight="bold"
+                color="#000000"
+              >
+                {partner.company_name || ""}
+              </Heading>
 
-            <Box display="flex" flexDirection="column" gap={2}>
-              {partner.location && (
-                <HStack gap={2} align="center">
-                  <Box
-                    w="16px"
-                    h="16px"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    flexShrink={0}
-                  >
-                    <Image
-                      width={12}
-                      height={12}
-                      src="/assets/locationIcon.svg"
-                      alt="location"
-                      objectFit="contain"
-                    />
-                  </Box>
-                  <Text fontSize="sm" color="gray.600">
-                    {partner.location || ""}
-                  </Text>
-                </HStack>
-              )}
+              <Box display="flex" flexDirection="column" gap={2}>
+                {partner.location && (
+                  <HStack gap={2} align="center">
+                    <Box
+                      w="16px"
+                      h="16px"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      flexShrink={0}
+                    >
+                      <Image
+                        width={12}
+                        height={12}
+                        src="/assets/locationIcon.svg"
+                        alt="location"
+                        objectFit="contain"
+                      />
+                    </Box>
+                    <Text fontSize="sm" color="gray.600">
+                      {partner.location || ""}
+                    </Text>
+                  </HStack>
+                )}
 
-              {partner.email && (
-                <HStack gap={2} align="center">
-                  <Box
-                    w="16px"
-                    h="16px"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    flexShrink={0}
-                  >
-                    <Image
-                      width={12}
-                      height={12}
-                      src="/assets/emailicon.svg"
-                      alt="email"
-                      objectFit="contain"
-                    />
-                  </Box>
-                  <Text fontSize="sm" color="gray.600">
-                    {partner.email || ""}
-                  </Text>
-                </HStack>
-              )}
+                {partner.email && (
+                  <HStack gap={2} align="center">
+                    <Box
+                      w="16px"
+                      h="16px"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      flexShrink={0}
+                    >
+                      <Image
+                        width={12}
+                        height={12}
+                        src="/assets/emailicon.svg"
+                        alt="email"
+                        objectFit="contain"
+                      />
+                    </Box>
+                    <Text fontSize="sm" color="gray.600">
+                      {partner.email || ""}
+                    </Text>
+                  </HStack>
+                )}
 
-              {partner.availability && (
-                <HStack gap={2} align="center">
+                {partner.sector && (
+                  <HStack gap={2} align="center">
+                    <Box
+                      w="16px"
+                      h="16px"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      flexShrink={0}
+                    >
+                      <Image
+                        width={12}
+                        height={12}
+                        src="/assets/calenderIcon.svg"
+                        alt="calendar"
+                        objectFit="contain"
+                      />
+                    </Box>
+                    <Text fontSize="sm" color="gray.600">
+                      {partner.sector}
+                    </Text>
+                  </HStack>
+                )}
+
+                {partner.industry && (
+                  <HStack gap={2} align="center">
+                    <Box
+                      w="16px"
+                      h="16px"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      flexShrink={0}
+                    >
+                      <Image
+                        width={12}
+                        height={12}
+                        src="/assets/calenderIcon.svg"
+                        alt="calendar"
+                        objectFit="contain"
+                      />
+                    </Box>
+                    <Text fontSize="sm" color="gray.600">
+                      {partner.industry}
+                    </Text>
+                  </HStack>
+                )}
+
+                <HStack gap={2} align="start">
                   <Box
                     w="16px"
                     h="16px"
@@ -160,18 +232,19 @@ export function PartnerCard({ partner }: PartnerCardProps) {
                       width={12}
                       height={12}
                       src="/assets/calenderIcon.svg"
-                      alt="calendar"
+                      alt="progress"
                       objectFit="contain"
                     />
                   </Box>
                   <Text fontSize="sm" color="gray.600">
-                    {partner.availability}
+                    Available Immediately
                   </Text>
                 </HStack>
-              )}
+              </Box>
             </Box>
           </Box>
         </Box>
+
         <Button
           w="full"
           bg="#22C45E"
@@ -180,6 +253,7 @@ export function PartnerCard({ partner }: PartnerCardProps) {
           py={6}
           fontSize="14px"
           fontWeight="bold"
+          mt={4}
         >
           View Full Profile
         </Button>

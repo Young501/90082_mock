@@ -27,7 +27,7 @@ export default function DiscoveryPage() {
     handlePageSizeChange,
   } = useDiscovery();
 
-  const { control, watch } = form;
+  const { control, watch, getValues } = form;
   const watchedValues = watch();
 
   return (
