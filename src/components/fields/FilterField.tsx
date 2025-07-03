@@ -72,76 +72,78 @@ export const FilterField: React.FC<FilterFieldProps> = ({
         name={field.field}
         control={control}
         render={({ field: formField }) => (
-          <Select.Root
-            collection={selectCollection}
-            multiple={isMultiple}
-            bg="white"
-            borderRadius="15px"
-            border="1px solid"
-            borderColor="gray.200"
-            w="100%"
-            h="40px"
-            value={formField.value || (isMultiple ? [] : "")}
-            onValueChange={(details) => {
-              let cleanValue: any = details.value;
+          <>
+            <Select.Root
+              collection={selectCollection}
+              multiple={isMultiple}
+              bg="white"
+              borderRadius="15px"
+              border="1px solid"
+              borderColor="gray.200"
+              w="100%"
+              h="40px"
+              value={formField.value || (isMultiple ? [] : "")}
+              onValueChange={(details) => {
+                let cleanValue: any = details.value;
 
-              if (
-                typeof cleanValue === "string" &&
-                (cleanValue as string).startsWith("[")
-              ) {
-                try {
-                  cleanValue = JSON.parse(cleanValue);
-                } catch (e) {
-                  console.log("Failed to parse as JSON, using as-is");
-                }
-              }
-
-              if (Array.isArray(cleanValue)) {
-                cleanValue = cleanValue.map((item: any) => {
-                  if (
-                    typeof item === "string" &&
-                    item.startsWith('"') &&
-                    item.endsWith('"')
-                  ) {
-                    return item.slice(1, -1); // Remove surrounding quotes
+                if (
+                  typeof cleanValue === "string" &&
+                  (cleanValue as string).startsWith("[")
+                ) {
+                  try {
+                    cleanValue = JSON.parse(cleanValue);
+                  } catch (e) {
+                    console.log("Failed to parse as JSON, using as-is");
                   }
-                  return item;
-                });
-              }
+                }
 
-              if (
-                (field.type === "tag-select" ||
-                  field.type === "checkbox-group" ||
-                  field.type === "multi-select") &&
-                !Array.isArray(cleanValue)
-              ) {
-                cleanValue = cleanValue ? [cleanValue] : [];
-              }
+                if (Array.isArray(cleanValue)) {
+                  cleanValue = cleanValue.map((item: any) => {
+                    if (
+                      typeof item === "string" &&
+                      item.startsWith('"') &&
+                      item.endsWith('"')
+                    ) {
+                      return item.slice(1, -1); // Remove surrounding quotes
+                    }
+                    return item;
+                  });
+                }
 
-              formField.onChange(cleanValue);
-            }}
-          >
-            <Select.Control w="100%" h="100%">
-              <Select.Trigger>
-                <Select.ValueText placeholder={`Select ${field.label}`} />
-              </Select.Trigger>
-              <Select.IndicatorGroup>
-                <Select.Indicator />
-              </Select.IndicatorGroup>
-            </Select.Control>
-            <Portal>
-              <Select.Positioner>
-                <Select.Content>
-                  {selectCollection.items.map((option) => (
-                    <Select.Item item={option} key={option.value}>
-                      {option.label}
-                      <Select.ItemIndicator />
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select.Positioner>
-            </Portal>
-          </Select.Root>
+                if (
+                  (field.type === "tag-select" ||
+                    field.type === "checkbox-group" ||
+                    field.type === "multi-select") &&
+                  !Array.isArray(cleanValue)
+                ) {
+                  cleanValue = cleanValue ? [cleanValue] : [];
+                }
+
+                formField.onChange(cleanValue);
+              }}
+            >
+              <Select.Control w="100%" h="100%">
+                <Select.Trigger>
+                  <Select.ValueText placeholder={`Select ${field.label}`} />
+                </Select.Trigger>
+                <Select.IndicatorGroup>
+                  <Select.Indicator />
+                </Select.IndicatorGroup>
+              </Select.Control>
+              <Portal>
+                <Select.Positioner>
+                  <Select.Content>
+                    {selectCollection.items.map((option) => (
+                      <Select.Item item={option} key={option.value}>
+                        {option.label}
+                        <Select.ItemIndicator />
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Portal>
+            </Select.Root>
+          </>
         )}
       />
     );
