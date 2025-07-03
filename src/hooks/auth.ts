@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 
 export const useAuth = () => {
   const router = useRouter();
-  const { setAuthData, user } = useAuthStore();
+  const { setAuthData, user, setUserProfile } = useAuthStore();
   const queryClient = useQueryClient();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -19,9 +19,11 @@ export const useAuth = () => {
     }
 
     try {
-      await apiRequest({
+      const response = await apiRequest({
         endpoint: API_ENDPOINTS.USER_PROFILE(user.user_types[0]),
       });
+
+      setUserProfile(response);
       router.push("/home/");
     } catch (error: any) {
       if (error?.response?.status === 404) {
