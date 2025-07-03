@@ -82,41 +82,28 @@ export const FilterField: React.FC<FilterFieldProps> = ({
               borderColor="gray.200"
               w="100%"
               h="40px"
-              value={formField.value || (isMultiple ? [] : "")}
+              value={
+                isMultiple
+                  ? Array.isArray(formField.value)
+                    ? formField.value
+                    : formField.value
+                      ? [formField.value]
+                      : []
+                  : Array.isArray(formField.value)
+                    ? formField.value[0] || ""
+                    : formField.value || ""
+              }
               onValueChange={(details) => {
                 let cleanValue: any = details.value;
 
-                if (
-                  typeof cleanValue === "string" &&
-                  (cleanValue as string).startsWith("[")
-                ) {
-                  try {
-                    cleanValue = JSON.parse(cleanValue);
-                  } catch (e) {
-                    console.log("Failed to parse as JSON, using as-is");
-                  }
-                }
-
-                if (Array.isArray(cleanValue)) {
-                  cleanValue = cleanValue.map((item: any) => {
-                    if (
-                      typeof item === "string" &&
-                      item.startsWith('"') &&
-                      item.endsWith('"')
-                    ) {
-                      return item.slice(1, -1); // Remove surrounding quotes
-                    }
-                    return item;
-                  });
-                }
-
-                if (
-                  (field.type === "tag-select" ||
-                    field.type === "checkbox-group" ||
-                    field.type === "multi-select") &&
-                  !Array.isArray(cleanValue)
-                ) {
+                // For multi-select fields, ensure we have an array
+                if (isMultiple && !Array.isArray(cleanValue)) {
                   cleanValue = cleanValue ? [cleanValue] : [];
+                }
+
+                // For single-select fields, ensure we have a string
+                if (!isMultiple && Array.isArray(cleanValue)) {
+                  cleanValue = cleanValue[0] || "";
                 }
 
                 formField.onChange(cleanValue);
@@ -149,14 +136,6 @@ export const FilterField: React.FC<FilterFieldProps> = ({
     );
   };
 
-  const renderTagSelectField = () => {
-    return renderSelectField(true);
-  };
-
-  const renderCheckboxGroupField = () => {
-    return renderSelectField(true);
-  };
-
   const renderRangeField = () => {
     return (
       <Controller
@@ -187,13 +166,9 @@ export const FilterField: React.FC<FilterFieldProps> = ({
         return renderSelectField(false);
 
       case "multi-select":
-        return renderSelectField(true);
-
       case "tag-select":
-        return renderTagSelectField();
-
       case "checkbox-group":
-        return renderCheckboxGroupField();
+        return renderSelectField(true);
 
       case "range":
         return renderRangeField();
