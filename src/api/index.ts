@@ -116,6 +116,10 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v1/${userType}`,
   }),
+  PROFILE_UPDATE: (userType: string): ApiEndpoint => ({
+    method: "PUT",
+    url: `/api/v1/${userType}`,
+  }),
   USER_PROFILE: (userType: string): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/${userType}`,

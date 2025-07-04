@@ -51,6 +51,22 @@ export function useResumeUpload(userType: string) {
   });
 }
 
+export function useProfileUpdate(userType: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (answers: Record<string, any>) => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.PROFILE_UPDATE(userType),
+        body: answers,
+      });
+    },
+    onSuccess: (_response: any, _variables, _context) => {
+      queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
+    },
+  });
+}
+
 export function useOnboardingPages(userType: string) {
   return useQuery({
     queryKey: ["onboarding-pages", userType],

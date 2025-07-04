@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useAuthStore } from "@/store";
-import { useOnboardingPages } from "@/services/shared";
+import { useOnboardingPages, useProfileUpdate } from "@/services/shared";
 import {
   Box,
   Text,
@@ -11,69 +11,76 @@ import {
   Avatar,
   Progress,
 } from "@chakra-ui/react";
-import { User, Book, Info, Award, Eye, LucideIcon } from "lucide-react";
-
-interface OnboardingPage {
-  title: string;
-  short_title?: string;
-  [key: string]: any;
-}
-
-interface OnboardingData {
-  onboarding_pages: OnboardingPage[];
-}
-
-interface UserProfile {
-  first_name?: string;
-  last_name?: string;
-  location?: string;
-  faculty?: string;
-  course_name?: string;
-  skills?: string[];
-  credentials?: string[];
-  profile_picture_url?: string;
-  [key: string]: any;
-}
-
-interface Tab {
-  title: string;
-  icon: LucideIcon;
-}
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { StudentCard } from "../discover/cards/studentCard";
+import { PartnerCard } from "../discover/cards/partnerCard";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { createPageSchema } from "@/utils/validationSchemas";
+import { FieldRenderer } from "../../(auth)/onboarding/FieldRenderer";
+import { Question } from "@/types/onboarding";
+import Image from "next/image";
+import {
+  OnboardingPage,
+  OnboardingData,
+  UserProfile,
+  Tab,
+} from "@/types/profile";
+import { toast } from "react-toastify";
 
 const Profile = () => {
   const { user, getUserProfile } = useAuthStore();
   const userProfile: UserProfile | null = getUserProfile();
   const [activeTab, setActiveTab] = useState<number>(0);
+  console.log(userProfile);
 
   const userType: string = user?.user_types?.[0] || "";
 
   const { data: onboardingData, isLoading: isOnboardingLoading } =
     useOnboardingPages(userType);
+  const profileUpdateMutation = useProfileUpdate(userType);
 
-  const getTabIcon = (title: string): LucideIcon => {
-    const lowerTitle = title.toLowerCase();
-    if (lowerTitle.includes("about") || lowerTitle.includes("personal"))
-      return User;
-    if (lowerTitle.includes("degree") || lowerTitle.includes("education"))
-      return Book;
-    if (lowerTitle.includes("skill") || lowerTitle.includes("credential"))
-      return Award;
-    return Info;
-  };
+  const activePage = useMemo(
+    () => onboardingData?.onboarding_pages?.[activeTab],
+    [onboardingData, activeTab]
+  );
+  const schema = useMemo(
+    () => createPageSchema(activePage?.questions || []),
+    [activePage]
+  );
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    clearErrors,
+    unregister,
+  } = useForm({
+    resolver: yupResolver(schema),
+    mode: "onChange",
+  });
+
+  useEffect(() => {
+    if (userProfile) {
+      reset(userProfile);
+    }
+  }, [userProfile, reset, activeTab]);
 
   const tabs: Tab[] = useMemo(() => {
     if (!onboardingData?.onboarding_pages) return [];
 
     const onboardingTabs: Tab[] = onboardingData.onboarding_pages.map(
       (page: OnboardingPage) => ({
-        title: page.short_title || page.title || "Untitled",
-        icon: getTabIcon(page.short_title || page.title),
+        title: page.short_title || page.title,
+        icon: page.title_icon,
       })
     );
 
     onboardingTabs.push({
       title: "Profile Preview",
-      icon: Eye,
+      icon: "fa-solid fa-eye",
     });
 
     return onboardingTabs;
@@ -115,178 +122,189 @@ const Profile = () => {
 
   const completionPercentage = calculateProfileCompletion();
 
+  const handleUpdate = async (data: any) => {
+    try {
+      await profileUpdateMutation.mutateAsync(data);
+      toast.success("Profile updated successfully!");
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.response?.data?.detail ||
+        "Update failed";
+      toast.error(errorMessage);
+    }
+  };
+
   return (
     <Box p={6} maxW="1280px" mx="auto" mt="126px">
-      <Flex gap={6} direction={{ base: "column", lg: "row" }}>
-        {/* Sidebar */}
+      <Flex
+        justifyContent="space-between"
+        w="100%"
+        direction={{ base: "column", lg: "row" }}
+      >
         <Box
           bg="white"
-          borderRadius="xl"
+          borderRadius="22px"
           p={6}
-          shadow="sm"
-          border="1px solid"
-          borderColor="gray.100"
-          minW={{ lg: "320px" }}
+          maxW="444px"
+          w="100%"
           h="fit-content"
+          boxShadow="0px 2.65px 5.3px 1.99px rgba(0, 0, 0, 0.25)"
+          background={
+            userType === "student"
+              ? "linear-gradient(180deg, #F87C7C 0%, #FFFFFF 23.56%, #FFFFFF 37.02%, #FFFFFF 69.71%);"
+              : "linear-gradient(180deg, #089C3F 0%, #FFFFFF 23.56%, #FFFFFF 37.02%, #FFFFFF 69.71%);"
+          }
         >
-          {/* Profile Header */}
           <Box mb={6}>
-            <Flex align="center" gap={4} mb={4}>
-              <Avatar.Root size="lg">
+            <Flex align="center" gap={6} mb={6}>
+              <Avatar.Root
+                w={105}
+                h={105}
+                borderRadius="full"
+                border={
+                  userType === "student"
+                    ? "4px solid #DC2626"
+                    : "4px solid #089C3F"
+                }
+              >
                 <Avatar.Image src={userProfile?.profile_picture_url} />
                 <Avatar.Fallback>
                   {userProfile?.first_name?.charAt(0)}
                 </Avatar.Fallback>
               </Avatar.Root>
               <Box>
-                <Text fontSize="lg" fontWeight="bold" color="gray.800">
+                <Text fontSize="25px" fontWeight="bold" color="#000000">
                   {userProfile?.first_name} {userProfile?.last_name}
                 </Text>
-                <Text fontSize="sm" color="gray.600" textTransform="capitalize">
+                <Text
+                  fontSize="20px"
+                  color="#000000"
+                  textTransform="capitalize"
+                >
                   {userType}
                 </Text>
               </Box>
             </Flex>
 
-            {/* Profile Completion */}
             <Box>
-              <Flex justify="space-between" align="center" mb={2}>
-                <Text fontSize="sm" color="gray.600">
-                  Profile Completion
-                </Text>
-                <Text fontSize="sm" fontWeight="medium">
-                  {completionPercentage}%
-                </Text>
-              </Flex>
               <Progress.Root
                 value={completionPercentage}
                 max={100}
-                size="sm"
+                size="lg"
                 borderRadius="full"
-                colorPalette="blue"
+                mb={2}
               >
-                <Progress.Track>
-                  <Progress.Range />
+                <Progress.Track borderRadius="full">
+                  <Progress.Range
+                    borderRadius="full"
+                    style={{
+                      background:
+                        "radial-gradient(50% 50% at 50% 50%, #2CA9DF 0%, #167BB3 58.17%, #002157 100%)",
+                    }}
+                  />
                 </Progress.Track>
               </Progress.Root>
+              <Flex justify="space-between" align="center">
+                <Text fontSize="16px" color="#000000">
+                  Profile Completion
+                </Text>
+                <Text fontSize="16px">{completionPercentage}%</Text>
+              </Flex>
             </Box>
           </Box>
 
-          {/* Navigation Tabs */}
-          <Box>
+          <Box display="flex" flexDirection="column" gap={3} mb={6}>
             {tabs.map((tab: Tab, index: number) => {
-              const IconComponent = tab.icon;
               return (
                 <Button
                   key={index}
-                  variant={activeTab === index ? "solid" : "ghost"}
-                  colorPalette={activeTab === index ? "blue" : "gray"}
+                  variant="ghost"
+                  // colorPalette={activeTab === index ? "blue" : "gray"}
                   justifyContent="flex-start"
                   onClick={() => setActiveTab(index)}
-                  size="md"
-                  fontWeight="medium"
+                  borderLeft={
+                    activeTab === index && userType === "student"
+                      ? "4px solid #DC2626"
+                      : activeTab === index && userType === "partner"
+                        ? "4px solid #089C3F"
+                        : "none"
+                  }
+                  // size="lg"
+                  fontWeight="600"
                   w="full"
-                  mb={2}
+                  py={5}
+                  px={3}
+                  // mb={2}
                 >
-                  <Box as={IconComponent} width={16} height={16} mr={2} />
-                  {tab.title}
+                  {/* <FontAwesomeIcon icon={tab.icon as IconProp} /> */}
+                  <i
+                    className={tab.icon}
+                    style={{
+                      color: "#000000",
+                      fontSize: "18px",
+                    }}
+                  />
+                  <Text fontSize="16px" fontWeight="600" color="#000000">
+                    {tab.title}
+                  </Text>
                 </Button>
               );
             })}
           </Box>
         </Box>
 
-        {/* Main Content */}
-        <Box
-          bg="white"
-          borderRadius="xl"
-          p={6}
-          shadow="sm"
-          border="1px solid"
-          borderColor="gray.100"
-          flex={1}
-        >
-          <Text fontSize="xl" fontWeight="bold" mb={6} color="gray.800">
+        <Box maxW="57%" bg="white" p={6} flex={1}>
+          <Text fontSize="25px" fontWeight="bold" mb={6} color="#000000">
             {tabs[activeTab]?.title || "Tab Details"}
           </Text>
 
           {activeTab === tabs.length - 1 ? (
-            // Profile Preview Content
             <Box>
-              <Text mb={4}>Profile Preview Content</Text>
-              {userProfile && (
-                <Box>
-                  <Box mb={3}>
-                    <Text>
-                      <Text as="span" fontWeight="bold">
-                        Name:
-                      </Text>{" "}
-                      {userProfile.first_name} {userProfile.last_name}
-                    </Text>
-                  </Box>
-                  <Box mb={3}>
-                    <Text>
-                      <Text as="span" fontWeight="bold">
-                        Location:
-                      </Text>{" "}
-                      {userProfile.location}
-                    </Text>
-                  </Box>
-                  <Box mb={3}>
-                    <Text>
-                      <Text as="span" fontWeight="bold">
-                        Faculty:
-                      </Text>{" "}
-                      {userProfile.faculty}
-                    </Text>
-                  </Box>
-                  <Box mb={3}>
-                    <Text>
-                      <Text as="span" fontWeight="bold">
-                        Course:
-                      </Text>{" "}
-                      {userProfile.course_name}
-                    </Text>
-                  </Box>
-                  <Box mb={3}>
-                    <Text>
-                      <Text as="span" fontWeight="bold">
-                        Skills:
-                      </Text>{" "}
-                      {userProfile.skills?.join(", ")}
-                    </Text>
-                  </Box>
-                </Box>
-              )}
+              {userProfile &&
+                (userType === "student" ? (
+                  <StudentCard student={userProfile} userType={userType} />
+                ) : (
+                  <PartnerCard partner={userProfile} />
+                ))}
             </Box>
           ) : (
-            // Onboarding Content
-            <Box>
-              <Text mb={4}>Content for {tabs[activeTab]?.title}</Text>
-              {onboardingData?.onboarding_pages?.[activeTab] && (
-                <Box>
-                  <Text fontSize="sm" color="gray.600" mb={2}>
-                    Page Data:
-                  </Text>
-                  <Box
-                    bg="gray.50"
-                    p={4}
-                    borderRadius="md"
-                    fontSize="sm"
-                    maxH="400px"
-                    overflowY="auto"
-                  >
-                    <Text as="pre" whiteSpace="pre-wrap">
-                      {JSON.stringify(
-                        onboardingData.onboarding_pages[activeTab],
-                        null,
-                        2
-                      )}
-                    </Text>
-                  </Box>
-                </Box>
-              )}
-            </Box>
+            <form onSubmit={handleSubmit(handleUpdate)}>
+              {activePage?.questions?.map((question: Question) => (
+                <FieldRenderer
+                  key={question.field}
+                  question={question}
+                  register={register}
+                  control={control}
+                  errors={errors}
+                  clearErrors={clearErrors}
+                  unregister={unregister}
+                />
+              ))}
+              <Button
+                type="submit"
+                mt={10}
+                display="flex"
+                alignItems="center"
+                justifySelf="flex-end"
+                borderRadius="8px"
+                gap={2}
+                py={3}
+                px={6}
+                bg="#CFF3FF"
+                loading={profileUpdateMutation.isPending}
+              >
+                <Image
+                  src="/assets/saveicon.svg"
+                  alt="save"
+                  width={15}
+                  height={20}
+                />
+                <Text fontWeight="600" fontSize="15px" color="#000000">
+                  Save Changes
+                </Text>
+              </Button>
+            </form>
           )}
         </Box>
       </Flex>
