@@ -55,7 +55,7 @@ const Profile = () => {
     [onboardingData, activeTab]
   );
   const schema = useMemo(
-    () => createPageSchema(activePage?.questions || []),
+    () => createPageSchema(activePage?.questions || [], true),
     [activePage]
   );
 
