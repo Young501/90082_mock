@@ -14,9 +14,10 @@ import Image from "next/image";
 
 interface PartnerCardProps {
   partner: PartnerProfile;
+  maxW?: string;
 }
 
-export function PartnerCard({ partner }: PartnerCardProps) {
+export function PartnerCard({ partner, maxW }: PartnerCardProps) {
   const getCompanyLogo = () => {
     return partner.logo_url || "/assets/imgplaceholder.png";
   };
@@ -32,6 +33,7 @@ export function PartnerCard({ partner }: PartnerCardProps) {
       position="relative"
       borderTopRightRadius="20px"
       w="100%"
+      maxW={maxW}
     >
       <Box position="absolute" top={4} right={4} zIndex={1}>
         <Box

@@ -15,9 +15,10 @@ import Image from "next/image";
 interface StudentCardProps {
   student: StudentProfile;
   userType: string;
+  maxW?: string;
 }
 
-export function StudentCard({ student, userType }: StudentCardProps) {
+export function StudentCard({ student, userType, maxW }: StudentCardProps) {
   const getDisplayName = () => {
     const firstName = student.first_name || "";
     // const lastName = student.last_name || "";
@@ -59,6 +60,7 @@ export function StudentCard({ student, userType }: StudentCardProps) {
       position="relative"
       borderTopRightRadius="20px"
       w="100%"
+      maxW={maxW}
     >
       <Box position="absolute" top={4} right={4} zIndex={1}>
         <Box

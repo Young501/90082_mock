@@ -39,7 +39,6 @@ const Profile = () => {
   const userProfile: UserProfile | null = getUserProfile();
   const [activeTab, setActiveTab] = useState<number>(0);
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
-  console.log(userProfile);
 
   const userType: string = user?.user_types?.[0] || "";
 
@@ -195,13 +194,15 @@ const Profile = () => {
       <Flex
         justifyContent="space-between"
         w="100%"
-        direction={{ base: "column", lg: "row" }}
+        direction={{ base: "column", md: "row" }}
+        gap={{ base: 4, lg: 0 }}
       >
         <Box
           bg="white"
           borderRadius="22px"
           p={6}
-          maxW="444px"
+          mt={{ base: 6, lg: 0 }}
+          maxW={{ base: "100%", md: "350px", lg: "444px" }}
           w="100%"
           h="fit-content"
           boxShadow="0px 2.65px 5.3px 1.99px rgba(0, 0, 0, 0.25)"
@@ -269,7 +270,7 @@ const Profile = () => {
             </Box>
           </Box>
 
-          <Box display="flex" flexDirection="column" gap={3} mb={6}>
+          <Box display="flex" flexDirection="column" gap={3} mb={6} pl="20px">
             {tabs.map((tab: Tab, index: number) => {
               return (
                 <Button
@@ -305,7 +306,7 @@ const Profile = () => {
           </Box>
         </Box>
 
-        <Box maxW="57%" bg="white" p={6} flex={1}>
+        <Box maxW={{ base: "100%", lg: "57%" }} bg="white" p={6} flex={1}>
           <Text fontSize="25px" fontWeight="bold" mb={6} color="#000000">
             {tabs[activeTab]?.title || "Tab Details"}
           </Text>
@@ -314,9 +315,13 @@ const Profile = () => {
             <Box>
               {userProfile &&
                 (userType === "student" ? (
-                  <StudentCard student={userProfile} userType={userType} />
+                  <StudentCard
+                    student={userProfile}
+                    userType={userType}
+                    maxW="500px"
+                  />
                 ) : (
-                  <PartnerCard partner={userProfile} />
+                  <PartnerCard partner={userProfile} maxW="500px" />
                 ))}
             </Box>
           ) : (

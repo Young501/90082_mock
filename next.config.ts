@@ -6,6 +6,14 @@ const nextConfig: NextConfig = {
     // Disable Next.js optimizations for images (it's not available for static sites
     // and will throw an error)
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.s3.amazonaws.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
   },
 
   // This tells Next.js to export a static build to the `out` folder
