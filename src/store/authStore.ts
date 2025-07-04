@@ -2,18 +2,11 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { User } from "@/types/user";
 
-export interface OnboardingProfile {
-  first_name: string;
-  last_name: string;
-}
-
 export interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
-  profileImageUrl: string | null;
   logoUrl: string | null;
-  onboardingProfile: OnboardingProfile | null;
   setAuthData: (token: string, user: User) => void;
   logout: () => void;
   setUserType: (userType: string) => void;
@@ -23,12 +16,13 @@ export interface AuthState {
   signupSelectedUserType: string | null;
   setSignupSelectedUserType: (userType: string | null) => void;
   getSignupSelectedUserType: () => string | null;
-  setProfileImageUrl: (url: string) => void;
-  getProfileImageUrl: () => string | null;
   setLogoUrl: (url: string) => void;
   getLogoUrl: () => string | null;
-  setOnboardingProfile: (profile: OnboardingProfile) => void;
-  getOnboardingProfile: () => OnboardingProfile | null;
+  getUserFullName: () => string;
+  getUserFirstName: () => string;
+  getUserLastName: () => string;
+  getUserProfilePictureUrl: () => string | null;
+  updateUserProfilePicture: (url: string) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -38,9 +32,7 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       isAuthenticated: false,
       signupSelectedUserType: null,
-      profileImageUrl: null,
       logoUrl: null,
-      onboardingProfile: null,
 
       setAuthData: (token: string, user: User) => {
         set({
@@ -55,9 +47,7 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           token: null,
           isAuthenticated: false,
-          profileImageUrl: null,
           logoUrl: null,
-          onboardingProfile: null,
         });
 
         if (typeof window !== "undefined") {
@@ -86,20 +76,40 @@ export const useAuthStore = create<AuthState>()(
       },
       getSignupSelectedUserType: () => get().signupSelectedUserType,
 
-      setProfileImageUrl: (url: string) => {
-        set({ profileImageUrl: url });
-      },
-      getProfileImageUrl: () => get().profileImageUrl,
-
       setLogoUrl: (url: string) => {
         set({ logoUrl: url });
       },
       getLogoUrl: () => get().logoUrl,
 
-      setOnboardingProfile: (profile: OnboardingProfile) => {
-        set({ onboardingProfile: profile });
+      getUserFullName: () => {
+        const { user } = get();
+        if (!user?.first_name || !user?.last_name) return "";
+        return `${user.first_name} ${user.last_name}`.trim();
       },
-      getOnboardingProfile: () => get().onboardingProfile,
+
+      getUserFirstName: () => {
+        const { user } = get();
+        return user?.first_name || "";
+      },
+
+      getUserLastName: () => {
+        const { user } = get();
+        return user?.last_name || "";
+      },
+
+      getUserProfilePictureUrl: () => {
+        const { user } = get();
+        return user?.profile_picture_url || null;
+      },
+
+      updateUserProfilePicture: (url: string) => {
+        const { user } = get();
+        if (user) {
+          set({
+            user: { ...user, profile_picture_url: url },
+          });
+        }
+      },
     }),
     {
       name: "auth-storage",
@@ -107,9 +117,7 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
-        profileImageUrl: state.profileImageUrl,
         logoUrl: state.logoUrl,
-        onboardingProfile: state.onboardingProfile,
       }),
     }
   )

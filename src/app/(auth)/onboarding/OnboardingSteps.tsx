@@ -55,7 +55,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const submissionMutation = useOnboardingSubmission(userType);
-  const profilePictureUpload = useProfilePictureUpload(userType);
+  const profilePictureUpload = useProfilePictureUpload();
   const resumeUpload = useResumeUpload(userType);
   const logoUpload = useLogoUpload(userType);
   const schema = createPageSchema(currentPage?.questions || []);
@@ -237,14 +237,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
       toast.success(
         submissionResponse?.detail || "Profile created successfully!"
       );
-
-      if (submissionResponse?.first_name && submissionResponse?.last_name) {
-        const { setOnboardingProfile } = useAuthStore.getState();
-        setOnboardingProfile({
-          first_name: submissionResponse.first_name,
-          last_name: submissionResponse.last_name,
-        });
-      }
 
       const profilePicture = allData.profile_picture;
       const resume = allData.resume;
