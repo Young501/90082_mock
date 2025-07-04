@@ -22,13 +22,7 @@ const createValidationSchema = (fields: ProcessedField[]) => {
       field.type === "checkbox-group"
     ) {
       shape[field.field] = yup.array().of(yup.string()).optional();
-    }
-    // Single select should validate as array or string
-    else if (field.type === "select") {
-      shape[field.field] = yup.mixed().optional(); // Allow both string and array
-    }
-    // Text fields as strings
-    else {
+    } else {
       shape[field.field] = yup.string().optional();
     }
   });
@@ -45,9 +39,7 @@ const getDefaultValues = (fields: ProcessedField[]): FilterFormData => {
       field.type === "checkbox-group"
     ) {
       defaultValues[field.field] = [];
-    }
-    // Single select defaults to empty string
-    else {
+    } else {
       defaultValues[field.field] = "";
     }
   });

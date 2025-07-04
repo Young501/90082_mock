@@ -64,7 +64,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
     />
   );
 
-  const renderSelectField = (isMultiple: boolean = false) => {
+  const renderSingleSelectField = () => {
     const selectCollection = createFieldCollection(field);
 
     return (
@@ -74,51 +74,33 @@ export const FilterField: React.FC<FilterFieldProps> = ({
         render={({ field: formField }) => (
           <Select.Root
             collection={selectCollection}
-            multiple={isMultiple}
+            multiple={false}
             bg="white"
             borderRadius="15px"
             border="1px solid"
             borderColor="gray.200"
             w="100%"
             h="40px"
-            value={formField.value || (isMultiple ? [] : "")}
+            value={
+              Array.isArray(formField.value)
+                ? formField.value
+                : formField.value
+                  ? [formField.value]
+                  : []
+            }
             onValueChange={(details) => {
-              let cleanValue: any = details.value;
+              console.log(`[${field.field}] SINGLE onChange details:`, details);
 
-              if (
-                typeof cleanValue === "string" &&
-                (cleanValue as string).startsWith("[")
-              ) {
-                try {
-                  cleanValue = JSON.parse(cleanValue);
-                } catch (e) {
-                  console.log("Failed to parse as JSON, using as-is");
-                }
-              }
+              const stringValue = Array.isArray(details.value)
+                ? details.value[0] || ""
+                : details.value || "";
 
-              if (Array.isArray(cleanValue)) {
-                cleanValue = cleanValue.map((item: any) => {
-                  if (
-                    typeof item === "string" &&
-                    item.startsWith('"') &&
-                    item.endsWith('"')
-                  ) {
-                    return item.slice(1, -1); // Remove surrounding quotes
-                  }
-                  return item;
-                });
-              }
-
-              if (
-                (field.type === "tag-select" ||
-                  field.type === "checkbox-group" ||
-                  field.type === "multi-select") &&
-                !Array.isArray(cleanValue)
-              ) {
-                cleanValue = cleanValue ? [cleanValue] : [];
-              }
-
-              formField.onChange(cleanValue);
+              console.log(
+                `[${field.field}] SINGLE stringValue:`,
+                stringValue,
+                typeof stringValue
+              );
+              formField.onChange(stringValue);
             }}
           >
             <Select.Control w="100%" h="100%">
@@ -147,12 +129,61 @@ export const FilterField: React.FC<FilterFieldProps> = ({
     );
   };
 
-  const renderTagSelectField = () => {
-    return renderSelectField(true);
-  };
+  const renderMultiSelectField = () => {
+    const selectCollection = createFieldCollection(field);
 
-  const renderCheckboxGroupField = () => {
-    return renderSelectField(true);
+    return (
+      <Controller
+        name={field.field}
+        control={control}
+        render={({ field: formField }) => (
+          <Select.Root
+            collection={selectCollection}
+            multiple={true}
+            bg="white"
+            borderRadius="15px"
+            border="1px solid"
+            borderColor="gray.200"
+            w="100%"
+            h="40px"
+            value={Array.isArray(formField.value) ? formField.value : []}
+            onValueChange={(details) => {
+              console.log(`[${field.field}] MULTI onChange details:`, details);
+
+              const arrayValue = Array.isArray(details.value)
+                ? details.value
+                : details.value
+                  ? [details.value]
+                  : [];
+
+              console.log(`[${field.field}] MULTI arrayValue:`, arrayValue);
+              formField.onChange(arrayValue);
+            }}
+          >
+            <Select.Control w="100%" h="100%">
+              <Select.Trigger>
+                <Select.ValueText placeholder={`Select ${field.label}`} />
+              </Select.Trigger>
+              <Select.IndicatorGroup>
+                <Select.Indicator />
+              </Select.IndicatorGroup>
+            </Select.Control>
+            <Portal>
+              <Select.Positioner>
+                <Select.Content>
+                  {selectCollection.items.map((option) => (
+                    <Select.Item item={option} key={option.value}>
+                      {option.label}
+                      <Select.ItemIndicator />
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Positioner>
+            </Portal>
+          </Select.Root>
+        )}
+      />
+    );
   };
 
   const renderRangeField = () => {
@@ -182,16 +213,12 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   const getFieldContent = () => {
     switch (field.type) {
       case "select":
-        return renderSelectField(false);
+        return renderSingleSelectField();
 
       case "multi-select":
-        return renderSelectField(true);
-
       case "tag-select":
-        return renderTagSelectField();
-
       case "checkbox-group":
-        return renderCheckboxGroupField();
+        return renderMultiSelectField();
 
       case "range":
         return renderRangeField();
@@ -203,7 +230,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
         return renderInputField();
 
       default:
-        return renderSelectField(false);
+        return renderSingleSelectField();
     }
   };
 

@@ -96,11 +96,12 @@ export function DiscoveryFilterBox({
                 justify="flex-start"
                 gap={2}
                 flex={{
-                  base: "1 1 100%",
+                  base: "none",
                   md: "1 1 calc(50% - 8px)",
                   lg: "1 1 calc(25% - 12px)",
                 }}
-                w="100%"
+                w={{ base: "100%", md: "auto" }}
+                display={{ base: "none", md: "flex" }}
               >
                 {hasSearched && (
                   <Button
@@ -198,6 +199,81 @@ export function DiscoveryFilterBox({
                 </Flex>
               </Box>
             )}
+
+            <Flex
+              direction="row"
+              align="center"
+              justify="flex-start"
+              gap={2}
+              w="100%"
+              display={{ base: "flex", md: "none" }}
+            >
+              {hasSearched && (
+                <Button
+                  variant="ghost"
+                  bg="#2CA9DF"
+                  color="white"
+                  onClick={onReset}
+                  disabled={isSearching}
+                  fontSize="16px"
+                  h="40px"
+                  flex="1"
+                  borderRadius="15px"
+                >
+                  Reset
+                </Button>
+              )}
+              <Button
+                type="submit"
+                bg="#2CA9DF"
+                color="white"
+                isLoading={isSearching}
+                disabled={isSearching}
+                fontSize="16px"
+                h="40px"
+                flex={hasSearched ? "1" : "2"}
+                borderRadius="15px"
+              >
+                <Image
+                  src="/assets/searchIcon.svg"
+                  width={16}
+                  height={16}
+                  alt="search"
+                  style={{ marginRight: "8px" }}
+                />
+                Search
+              </Button>
+
+              {hasAdditionalFields && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  color="#282F68"
+                  _hover={{ bg: "gray.50" }}
+                  h="40px"
+                  w="40px"
+                  p={2}
+                >
+                  {isExpanded ? (
+                    <Image
+                      src="/assets/ArrowDownIcon.svg"
+                      width={16}
+                      height={16}
+                      style={{ transform: "rotate(180deg)" }}
+                      alt="arrowUp"
+                    />
+                  ) : (
+                    <Image
+                      src="/assets/ArrowDownIcon.svg"
+                      width={16}
+                      height={16}
+                      alt="arrowDown"
+                    />
+                  )}
+                </Button>
+              )}
+            </Flex>
           </Box>
         ) : (
           <Text color="gray.500" fontStyle="italic" w="100%">
