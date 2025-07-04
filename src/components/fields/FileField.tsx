@@ -1,5 +1,5 @@
 import { Box, Text, Field } from "@chakra-ui/react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Control, Controller } from "react-hook-form";
 import Image from "next/image";
 import { useAuthStore } from "@/store/authStore";
@@ -61,10 +61,7 @@ export const FileField = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const config = { ...DEFAULT_CONFIGS[fileType], ...customConfig };
 
-  const { setProfileImageUrl, setLogoUrl } = useAuthStore();
-
-  // const setProfileImageUrl = useAuthStore((state) => state.setProfileImageUrl);
-  // const setLogoUrl = useAuthStore((state) => state.setLogoUrl);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const validateFile = (file: File): string | null => {
     if (file.size > config.maxSize * 1024 * 1024) {
@@ -89,10 +86,13 @@ export const FileField = ({
     onChange(file);
 
     const fileUrl = URL.createObjectURL(file);
-    if (description === "profile_picture") {
-      setProfileImageUrl(fileUrl);
-    } else if (description === "logo") {
-      setLogoUrl(fileUrl);
+    setPreviewUrl(fileUrl);
+  };
+
+  const cleanupPreviewUrl = () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
     }
   };
 
@@ -117,6 +117,7 @@ export const FileField = ({
               onChange={(event) => {
                 const file = event.target.files?.[0];
                 if (file) {
+                  cleanupPreviewUrl();
                   handleFileChange(file, field.onChange);
                 }
               }}
@@ -136,7 +137,11 @@ export const FileField = ({
                   {config.showPreview ? (
                     <Box display="flex" justifyContent="center">
                       <Image
-                        src={URL.createObjectURL(field.value)}
+                        src={
+                          (typeof field.value === "string"
+                            ? field.value
+                            : previewUrl) || "/assets/imgplaceholder.png"
+                        }
                         alt="Preview"
                         width={200}
                         height={200}

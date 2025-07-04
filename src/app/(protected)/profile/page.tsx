@@ -1,7 +1,13 @@
 "use client";
 import React, { useState, useMemo, useEffect } from "react";
 import { useAuthStore } from "@/store";
-import { useOnboardingPages, useProfileUpdate } from "@/services/shared";
+import {
+  useOnboardingPages,
+  useProfileUpdate,
+  useProfilePictureUpload,
+  useResumeUpload,
+  useLogoUpload,
+} from "@/services/shared";
 import {
   Box,
   Text,
@@ -32,6 +38,7 @@ const Profile = () => {
   const { user, getUserProfile } = useAuthStore();
   const userProfile: UserProfile | null = getUserProfile();
   const [activeTab, setActiveTab] = useState<number>(0);
+  const [profileData, setProfileData] = useState<UserProfile | null>(null);
   console.log(userProfile);
 
   const userType: string = user?.user_types?.[0] || "";
@@ -39,6 +46,9 @@ const Profile = () => {
   const { data: onboardingData, isLoading: isOnboardingLoading } =
     useOnboardingPages(userType);
   const profileUpdateMutation = useProfileUpdate(userType);
+  const profilePictureUpload = useProfilePictureUpload(userType);
+  const resumeUpload = useResumeUpload(userType);
+  const logoUpload = useLogoUpload(userType);
 
   const activePage = useMemo(
     () => onboardingData?.onboarding_pages?.[activeTab],
@@ -57,6 +67,7 @@ const Profile = () => {
     reset,
     clearErrors,
     unregister,
+    getValues,
   } = useForm({
     resolver: yupResolver(schema),
     mode: "onChange",
@@ -64,9 +75,15 @@ const Profile = () => {
 
   useEffect(() => {
     if (userProfile) {
-      reset(userProfile);
+      setProfileData(userProfile);
     }
-  }, [userProfile, reset, activeTab]);
+  }, [userProfile]);
+
+  useEffect(() => {
+    if (profileData) {
+      reset(profileData);
+    }
+  }, [profileData, reset, activeTab]);
 
   const tabs: Tab[] = useMemo(() => {
     if (!onboardingData?.onboarding_pages) return [];
@@ -122,10 +139,48 @@ const Profile = () => {
 
   const completionPercentage = calculateProfileCompletion();
 
+  const handleTabChange = (newIndex: number) => {
+    const currentValues = getValues();
+    setProfileData((prev) => ({
+      ...(prev as UserProfile),
+      ...currentValues,
+    }));
+    setActiveTab(newIndex);
+  };
+
   const handleUpdate = async (data: any) => {
+    const allData = { ...profileData, ...data };
+    const submissionData = { ...allData };
+    delete submissionData.profile_picture;
+    delete submissionData.resume;
+    delete submissionData.logo;
+
     try {
-      await profileUpdateMutation.mutateAsync(data);
+      await profileUpdateMutation.mutateAsync(submissionData);
       toast.success("Profile updated successfully!");
+
+      const uploadTasks = [];
+      if (allData.profile_picture instanceof File) {
+        uploadTasks.push(
+          profilePictureUpload.mutateAsync(allData.profile_picture)
+        );
+      }
+      if (allData.resume instanceof File) {
+        uploadTasks.push(resumeUpload.mutateAsync(allData.resume));
+      }
+      if (allData.logo instanceof File) {
+        uploadTasks.push(logoUpload.mutateAsync(allData.logo));
+      }
+
+      if (uploadTasks.length > 0) {
+        const results = await Promise.allSettled(uploadTasks);
+        const failed = results.find((r) => r.status === "rejected");
+        if (failed) {
+          toast.error("A file upload failed.");
+        } else {
+          toast.success("All files uploaded successfully.");
+        }
+      }
     } catch (error: any) {
       const errorMessage =
         error?.response?.data?.error ||
@@ -220,9 +275,8 @@ const Profile = () => {
                 <Button
                   key={index}
                   variant="ghost"
-                  // colorPalette={activeTab === index ? "blue" : "gray"}
                   justifyContent="flex-start"
-                  onClick={() => setActiveTab(index)}
+                  onClick={() => handleTabChange(index)}
                   borderLeft={
                     activeTab === index && userType === "student"
                       ? "4px solid #DC2626"
@@ -230,14 +284,11 @@ const Profile = () => {
                         ? "4px solid #089C3F"
                         : "none"
                   }
-                  // size="lg"
                   fontWeight="600"
                   w="full"
                   py={5}
                   px={3}
-                  // mb={2}
                 >
-                  {/* <FontAwesomeIcon icon={tab.icon as IconProp} /> */}
                   <i
                     className={tab.icon}
                     style={{
