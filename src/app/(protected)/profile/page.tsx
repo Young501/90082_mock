@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store";
 import {
   useOnboardingPages,
@@ -33,12 +34,20 @@ import {
   Tab,
 } from "@/types/profile";
 import { toast } from "react-toastify";
+import { checkOnboardingStatus } from "@/hooks/auth";
 
 const Profile = () => {
-  const { user, getUserProfile } = useAuthStore();
+  const {
+    user,
+    getUserProfile,
+    setUserProfile,
+    getProfileImageUrl,
+    getLogoUrl,
+  } = useAuthStore();
   const userProfile: UserProfile | null = getUserProfile();
   const [activeTab, setActiveTab] = useState<number>(0);
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
+  const router = useRouter();
 
   const userType: string = user?.user_types?.[0] || "";
 
@@ -103,29 +112,52 @@ const Profile = () => {
   }, [onboardingData]);
 
   const calculateProfileCompletion = (): number => {
-    if (!userProfile) return 0;
+    if (!userProfile || !onboardingData?.onboarding_pages) return 0;
 
-    const fields: (keyof UserProfile)[] = [
-      "first_name",
-      "last_name",
-      "location",
-      "faculty",
-      "course_name",
-      "skills",
-      "credentials",
-    ];
+    const getAllFieldsFromPages = (pages: OnboardingPage[]): string[] => {
+      const fields: string[] = [];
 
-    const filledFields = fields.filter((field) => {
-      const value = userProfile[field];
+      const extractFieldsFromQuestion = (question: Question): string[] => {
+        const questionFields = [question.field];
+
+        if (question.followup_question) {
+          Object.values(question.followup_question).forEach(
+            (followupQuestion: Question) => {
+              questionFields.push(
+                ...extractFieldsFromQuestion(followupQuestion)
+              );
+            }
+          );
+        }
+
+        return questionFields;
+      };
+
+      pages.forEach((page) => {
+        page.questions.forEach((question: Question) => {
+          fields.push(...extractFieldsFromQuestion(question));
+        });
+      });
+
+      return [...new Set(fields)];
+    };
+
+    const allOnboardingFields = getAllFieldsFromPages(
+      onboardingData.onboarding_pages
+    );
+
+    const filledFields = allOnboardingFields.filter((field) => {
+      const value = userProfile[field as keyof UserProfile];
       return (
-        value &&
+        value !== undefined &&
+        value !== null &&
         (Array.isArray(value)
           ? value.length > 0
           : value.toString().trim() !== "")
       );
     });
 
-    return Math.round((filledFields.length / fields.length) * 100);
+    return Math.round((filledFields.length / allOnboardingFields.length) * 100);
   };
 
   if (isOnboardingLoading) {
@@ -155,9 +187,10 @@ const Profile = () => {
     delete submissionData.logo;
 
     try {
-      await profileUpdateMutation.mutateAsync(submissionData);
+      const profileUpdateResponse =
+        await profileUpdateMutation.mutateAsync(submissionData);
       toast.success("Profile updated successfully!");
-
+      setUserProfile(profileUpdateResponse);
       const uploadTasks = [];
       if (allData.profile_picture instanceof File) {
         uploadTasks.push(
@@ -224,7 +257,14 @@ const Profile = () => {
                     : "4px solid #089C3F"
                 }
               >
-                <Avatar.Image src={userProfile?.profile_picture_url} />
+                <Avatar.Image
+                  src={
+                    userProfile?.profile_picture_url ||
+                    getProfileImageUrl() ||
+                    getLogoUrl() ||
+                    ""
+                  }
+                />
                 <Avatar.Fallback>
                   {userProfile?.first_name?.charAt(0)}
                 </Avatar.Fallback>

@@ -58,6 +58,7 @@ export const FileField = ({
   labelPosition = "top",
   description,
 }: FileFieldProps) => {
+  const { setProfileImageUrl, setLogoUrl, getUserType } = useAuthStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const config = { ...DEFAULT_CONFIGS[fileType], ...customConfig };
 
@@ -87,6 +88,12 @@ export const FileField = ({
 
     const fileUrl = URL.createObjectURL(file);
     setPreviewUrl(fileUrl);
+
+    if (getUserType() === "student" && description === "profile_picture") {
+      setProfileImageUrl(fileUrl);
+    } else if (getUserType() === "partner" && description === "logo") {
+      setLogoUrl(fileUrl);
+    }
   };
 
   const cleanupPreviewUrl = () => {

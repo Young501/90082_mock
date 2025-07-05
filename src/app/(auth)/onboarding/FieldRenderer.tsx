@@ -205,6 +205,11 @@ export const FieldRenderer = ({
     }
 
     if (question.type === "checkbox-group") {
+      const isBoolean =
+        typeof fieldValue === "boolean" ||
+        question.field.startsWith("is_") ||
+        question.options?.length === 2;
+
       return (
         <CheckboxField
           name={question.field}
@@ -213,6 +218,7 @@ export const FieldRenderer = ({
           control={control}
           required={question.required}
           maxSelection={question.max_selection}
+          isBoolean={isBoolean}
         />
       );
     }

@@ -1,11 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { User, UserProfile } from "@/types/user";
-
-export interface OnboardingProfile {
-  first_name: string;
-  last_name: string;
-}
+import { User } from "@/types/user";
+import { UserProfile } from "@/types/profile";
 
 export interface AuthState {
   user: User | null;
@@ -13,7 +9,6 @@ export interface AuthState {
   isAuthenticated: boolean;
   profileImageUrl: string | null;
   logoUrl: string | null;
-  onboardingProfile: OnboardingProfile | null;
   userProfile: UserProfile | null;
   setAuthData: (token: string, user: User) => void;
   logout: () => void;
@@ -24,12 +19,11 @@ export interface AuthState {
   signupSelectedUserType: string | null;
   setSignupSelectedUserType: (userType: string | null) => void;
   getSignupSelectedUserType: () => string | null;
+  // images sent to seprate endpoints and doesnt return with user data on submission
   setProfileImageUrl: (url: string) => void;
   getProfileImageUrl: () => string | null;
   setLogoUrl: (url: string) => void;
   getLogoUrl: () => string | null;
-  setOnboardingProfile: (profile: OnboardingProfile) => void;
-  getOnboardingProfile: () => OnboardingProfile | null;
   setUserProfile: (profile: UserProfile) => void;
   getUserProfile: () => UserProfile | null;
 }
@@ -43,7 +37,6 @@ export const useAuthStore = create<AuthState>()(
       signupSelectedUserType: null,
       profileImageUrl: null,
       logoUrl: null,
-      onboardingProfile: null,
       userProfile: null,
 
       setAuthData: (token: string, user: User) => {
@@ -61,7 +54,6 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: false,
           profileImageUrl: null,
           logoUrl: null,
-          onboardingProfile: null,
           userProfile: null,
         });
 
@@ -101,11 +93,6 @@ export const useAuthStore = create<AuthState>()(
       },
       getLogoUrl: () => get().logoUrl,
 
-      setOnboardingProfile: (profile: OnboardingProfile) => {
-        set({ onboardingProfile: profile });
-      },
-      getOnboardingProfile: () => get().onboardingProfile,
-
       setUserProfile: (profile: UserProfile) => {
         set({ userProfile: profile });
       },
@@ -119,7 +106,6 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: state.isAuthenticated,
         profileImageUrl: state.profileImageUrl,
         logoUrl: state.logoUrl,
-        onboardingProfile: state.onboardingProfile,
         userProfile: state.userProfile,
       }),
     }

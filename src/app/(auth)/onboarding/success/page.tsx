@@ -19,7 +19,7 @@ import { getInitials } from "@/utils/getInitials";
 export default function OnboardingSuccessPage() {
   const router = useRouter();
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
-  const { getUserType, getProfileImageUrl, getLogoUrl, getOnboardingProfile } =
+  const { getUserType, getProfileImageUrl, getLogoUrl, getUserProfile } =
     useAuthStore();
   const [userType, setUserType] = useState<string | undefined>("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -29,6 +29,7 @@ export default function OnboardingSuccessPage() {
     setUserType(type);
     // images arent required for users
     if (type === "student") {
+      // images are gotten from the store since images url arent returned on  onboarding submission response
       setImageUrl(getProfileImageUrl());
     } else if (type === "partner") {
       setImageUrl(getLogoUrl() || getProfileImageUrl());
@@ -127,7 +128,7 @@ export default function OnboardingSuccessPage() {
                     color="white"
                   >
                     {(() => {
-                      const profile = getOnboardingProfile();
+                      const profile = getUserProfile();
                       const initials = profile
                         ? getInitials(profile.first_name, profile.last_name)
                         : "";

@@ -238,13 +238,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
         submissionResponse?.detail || "Profile created successfully!"
       );
 
-      if (submissionResponse?.first_name && submissionResponse?.last_name) {
-        const { setOnboardingProfile } = useAuthStore.getState();
-        setOnboardingProfile({
-          first_name: submissionResponse.first_name,
-          last_name: submissionResponse.last_name,
-        });
-      }
+      const { setUserProfile } = useAuthStore.getState();
+      setUserProfile(submissionResponse);
 
       const profilePicture = allData.profile_picture;
       const resume = allData.resume;
