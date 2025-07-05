@@ -8,6 +8,7 @@ interface CheckboxFieldProps {
   control: Control<any>;
   required?: boolean;
   maxSelection?: number;
+  isBoolean?: boolean;
 }
 
 export const CheckboxField = ({
@@ -17,8 +18,9 @@ export const CheckboxField = ({
   control,
   required = false,
   maxSelection,
+  isBoolean = false,
 }: CheckboxFieldProps) => {
-  const isSingleSelect = maxSelection === 1;
+  const isSingleSelect = maxSelection === 1 || isBoolean;
 
   const {
     field: { value, onChange },
