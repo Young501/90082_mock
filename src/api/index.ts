@@ -108,6 +108,10 @@ export const API_ENDPOINTS = {
     url: "/api/v1/users/search",
     auth: true,
   },
+  PROFILE_PICTURE_UPLOAD: {
+    method: "POST",
+    url: "/api/v1/user/profile-picture",
+  },
   ONBOARDING_PAGES: (userType: string): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/user-types/${userType}/onboarding-pages/`,
@@ -123,10 +127,6 @@ export const API_ENDPOINTS = {
   USER_PROFILE: (userType: string): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/${userType}`,
-  }),
-  PROFILE_PICTURE_UPLOAD: (userType: string): ApiEndpoint => ({
-    method: "POST",
-    url: `/api/v1/${userType}/upload-picture`,
   }),
   RESUME_UPLOAD: (userType: string): ApiEndpoint => ({
     method: "POST",

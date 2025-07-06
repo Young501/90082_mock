@@ -55,7 +55,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const submissionMutation = useOnboardingSubmission(userType);
-  const profilePictureUpload = useProfilePictureUpload(userType);
+  const profilePictureUpload = useProfilePictureUpload();
   const resumeUpload = useResumeUpload(userType);
   const logoUpload = useLogoUpload(userType);
   const schema = createPageSchema(currentPage?.questions || []);

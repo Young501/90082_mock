@@ -7,7 +7,6 @@ export interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
-  profileImageUrl: string | null;
   logoUrl: string | null;
   userProfile: UserProfile | null;
   setAuthData: (token: string, user: User) => void;
@@ -26,6 +25,13 @@ export interface AuthState {
   getLogoUrl: () => string | null;
   setUserProfile: (profile: UserProfile) => void;
   getUserProfile: () => UserProfile | null;
+  setLogoUrl: (url: string) => void;
+  getLogoUrl: () => string | null;
+  getUserFullName: () => string;
+  getUserFirstName: () => string;
+  getUserLastName: () => string;
+  getUserProfilePictureUrl: () => string | null;
+  updateUserProfilePicture: (url: string) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -35,7 +41,6 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       isAuthenticated: false,
       signupSelectedUserType: null,
-      profileImageUrl: null,
       logoUrl: null,
       userProfile: null,
 
@@ -52,7 +57,6 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           token: null,
           isAuthenticated: false,
-          profileImageUrl: null,
           logoUrl: null,
           userProfile: null,
         });
@@ -83,11 +87,6 @@ export const useAuthStore = create<AuthState>()(
       },
       getSignupSelectedUserType: () => get().signupSelectedUserType,
 
-      setProfileImageUrl: (url: string) => {
-        set({ profileImageUrl: url });
-      },
-      getProfileImageUrl: () => get().profileImageUrl,
-
       setLogoUrl: (url: string) => {
         set({ logoUrl: url });
       },
@@ -97,6 +96,35 @@ export const useAuthStore = create<AuthState>()(
         set({ userProfile: profile });
       },
       getUserProfile: () => get().userProfile,
+      getUserFullName: () => {
+        const { user } = get();
+        if (!user?.first_name || !user?.last_name) return "";
+        return `${user.first_name} ${user.last_name}`.trim();
+      },
+
+      getUserFirstName: () => {
+        const { user } = get();
+        return user?.first_name || "";
+      },
+
+      getUserLastName: () => {
+        const { user } = get();
+        return user?.last_name || "";
+      },
+
+      getUserProfilePictureUrl: () => {
+        const { user } = get();
+        return user?.profile_picture_url || null;
+      },
+
+      updateUserProfilePicture: (url: string) => {
+        const { user } = get();
+        if (user) {
+          set({
+            user: { ...user, profile_picture_url: url },
+          });
+        }
+      },
     }),
     {
       name: "auth-storage",
@@ -104,7 +132,6 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
-        profileImageUrl: state.profileImageUrl,
         logoUrl: state.logoUrl,
         userProfile: state.userProfile,
       }),

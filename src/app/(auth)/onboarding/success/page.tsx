@@ -19,22 +19,25 @@ import { getInitials } from "@/utils/getInitials";
 export default function OnboardingSuccessPage() {
   const router = useRouter();
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
-  const { getUserType, getProfileImageUrl, getLogoUrl, getUserProfile } =
-    useAuthStore();
+  const {
+    getUserType,
+    getLogoUrl,
+    getUserFirstName,
+    getUserLastName,
+    getUserProfilePictureUrl,
+  } = useAuthStore();
   const [userType, setUserType] = useState<string | undefined>("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const type = getUserType();
     setUserType(type);
-    // images arent required for users
-    if (type === "student") {
-      // images are gotten from the store since images url arent returned on  onboarding submission response
-      setImageUrl(getProfileImageUrl());
-    } else if (type === "partner") {
-      setImageUrl(getLogoUrl() || getProfileImageUrl());
-    }
-  }, [getUserType, getProfileImageUrl, getLogoUrl]);
+
+    const userProfilePicture = getUserProfilePictureUrl();
+    const logoUrl = type === "partner" ? getLogoUrl() : null;
+
+    setImageUrl(logoUrl || userProfilePicture);
+  }, [getUserType, getUserProfilePictureUrl, getLogoUrl]);
 
   const handleProfileClick = () => {
     router.push("/profile/");
@@ -128,10 +131,12 @@ export default function OnboardingSuccessPage() {
                     color="white"
                   >
                     {(() => {
-                      const profile = getUserProfile();
-                      const initials = profile
-                        ? getInitials(profile.first_name, profile.last_name)
-                        : "";
+                      const firstName = getUserFirstName();
+                      const lastName = getUserLastName();
+                      const initials =
+                        firstName && lastName
+                          ? getInitials(firstName, lastName)
+                          : "";
                       return (
                         initials || userType?.charAt(0)?.toUpperCase() || "U"
                       );
