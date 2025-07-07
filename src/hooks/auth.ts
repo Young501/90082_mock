@@ -14,11 +14,13 @@ export const checkOnboardingStatus = async ({
   router,
   setUserProfile,
   redirectOnSuccess = true,
+  setUserProfilePictureUrl,
 }: {
   user: User;
   router: AppRouterInstance;
   setUserProfile: (profile: UserProfile) => void;
   redirectOnSuccess?: boolean;
+  setUserProfilePictureUrl?: (url: string) => void;
 }) => {
   console.log("user", user);
   if (!user?.user_types?.[0]) {
@@ -31,6 +33,9 @@ export const checkOnboardingStatus = async ({
     });
 
     setUserProfile(response);
+    if (response.profile_picture_url && setUserProfilePictureUrl) {
+      setUserProfilePictureUrl(response.profile_picture_url);
+    }
     if (redirectOnSuccess) {
       router.push("/home/");
     }
@@ -45,7 +50,8 @@ export const checkOnboardingStatus = async ({
 
 export const useAuth = () => {
   const router = useRouter();
-  const { setAuthData, user, setUserProfile } = useAuthStore();
+  const { setAuthData, user, setUserProfile, setUserProfilePictureUrl } =
+    useAuthStore();
   const queryClient = useQueryClient();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -66,6 +72,7 @@ export const useAuth = () => {
         user: response.user,
         router,
         setUserProfile,
+        setUserProfilePictureUrl,
       });
     },
     onError: (error: any) => {
