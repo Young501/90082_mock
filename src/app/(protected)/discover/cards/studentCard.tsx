@@ -16,18 +16,26 @@ interface StudentCardProps {
   student: StudentProfile;
   userType: string;
   maxW?: string;
+  profilePictureUrl: string | null;
 }
 
-export function StudentCard({ student, userType, maxW }: StudentCardProps) {
+export function StudentCard({
+  student,
+  userType,
+  maxW,
+  profilePictureUrl,
+}: StudentCardProps) {
   const getDisplayName = () => {
     const firstName = student.first_name || "";
-    // const lastName = student.last_name || "";
     return firstName;
-    // return `${firstName} ${lastName}`.trim() || "No name provided";
   };
 
   const getProfileImage = () => {
-    return student.profile_picture_url || "/assets/imgplaceholder.png";
+    if (profilePictureUrl) {
+      return profilePictureUrl;
+    } else {
+      return student.profile_picture_url || "/assets/imgplaceholder.png";
+    }
   };
 
   const getSkillsData = () => {

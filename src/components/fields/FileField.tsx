@@ -2,6 +2,7 @@ import { Box, Text, Field } from "@chakra-ui/react";
 import { useRef, useState, useEffect } from "react";
 import { Control, Controller } from "react-hook-form";
 import Image from "next/image";
+import { useAuthStore } from "@/store";
 
 export type FileFieldType = "image" | "resume";
 
@@ -59,7 +60,7 @@ export const FileField = ({
 }: FileFieldProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const config = { ...DEFAULT_CONFIGS[fileType], ...customConfig };
-
+  const { getUserProfilePictureUrl } = useAuthStore();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const validateFile = (file: File): string | null => {
@@ -156,6 +157,7 @@ export const FileField = ({
                         <Image
                           src={
                             previewUrl ||
+                            getUserProfilePictureUrl() ||
                             (typeof field.value === "string"
                               ? field.value
                               : "/assets/imgplaceholder.png")

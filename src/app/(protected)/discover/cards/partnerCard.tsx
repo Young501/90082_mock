@@ -15,11 +15,20 @@ import Image from "next/image";
 interface PartnerCardProps {
   partner: PartnerProfile;
   maxW?: string;
+  profilePictureUrl?: string | null;
 }
 
-export function PartnerCard({ partner, maxW }: PartnerCardProps) {
+export function PartnerCard({
+  partner,
+  maxW,
+  profilePictureUrl,
+}: PartnerCardProps) {
   const getCompanyLogo = () => {
-    return partner.logo_url || "/assets/imgplaceholder.png";
+    if (profilePictureUrl) {
+      return profilePictureUrl;
+    } else {
+      return partner.logo_url || "/assets/imgplaceholder.png";
+    }
   };
 
   return (

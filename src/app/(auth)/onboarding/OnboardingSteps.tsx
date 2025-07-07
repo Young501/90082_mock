@@ -228,9 +228,9 @@ export const OnboardingSteps = ({ userType }: Props) => {
       const currentValues = getValues();
       const allData = { ...formData, ...currentValues };
       const submissionData = { ...allData };
-      delete submissionData.profile_picture;
-      delete submissionData.resume;
-      delete submissionData.logo;
+      delete submissionData.profile_picture_url;
+      delete submissionData.resume_url;
+      delete submissionData.logo_url;
 
       const submissionResponse =
         await submissionMutation.mutateAsync(submissionData);
@@ -238,12 +238,13 @@ export const OnboardingSteps = ({ userType }: Props) => {
         submissionResponse?.detail || "Profile created successfully!"
       );
 
-      const { setUserProfile, setUserProfilePicture } = useAuthStore.getState();
+      const { setUserProfile, setUserProfilePictureUrl } =
+        useAuthStore.getState();
       setUserProfile(submissionResponse);
 
-      const profilePicture = allData.profile_picture;
-      const resume = allData.resume;
-      const logo = allData.logo;
+      const profilePicture = allData.profile_picture_url;
+      const resume = allData.resume_url;
+      const logo = allData.logo_url;
       const uploadPromises = [];
 
       try {
@@ -252,7 +253,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
             .mutateAsync(profilePicture)
             .then((response) => {
               if (response?.profile_picture_url) {
-                setUserProfilePicture(response.profile_picture_url);
+                setUserProfilePictureUrl(response.profile_picture_url);
               }
               return response;
             });

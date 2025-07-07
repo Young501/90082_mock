@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store";
 import {
   useOnboardingPages,
@@ -18,7 +17,6 @@ import {
   Avatar,
   Progress,
 } from "@chakra-ui/react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { StudentCard } from "../discover/cards/studentCard";
 import { PartnerCard } from "../discover/cards/partnerCard";
 import { useForm } from "react-hook-form";
@@ -43,7 +41,7 @@ const Profile = () => {
     setUserProfile,
     getUserProfilePictureUrl,
     getLogoUrl,
-    setUserProfilePicture,
+    setUserProfilePictureUrl,
   } = useAuthStore();
   const userProfile: UserProfile | null = getUserProfile();
   const [activeTab, setActiveTab] = useState<number>(0);
@@ -185,9 +183,9 @@ const Profile = () => {
   const handleUpdate = async (data: any) => {
     const allData = { ...profileData, ...data };
     const submissionData = { ...allData };
-    delete submissionData.profile_picture;
-    delete submissionData.resume;
-    delete submissionData.logo;
+    delete submissionData.profile_picture_url;
+    delete submissionData.resume_url;
+    delete submissionData.logo_url;
 
     try {
       const profileUpdateResponse =
@@ -195,20 +193,20 @@ const Profile = () => {
       toast.success("Profile updated successfully!");
       setUserProfile(profileUpdateResponse);
       const uploadTasks = [];
-      if (allData.profile_picture instanceof File) {
+      if (allData.profile_picture_url instanceof File) {
         const response = await profilePictureUpload.mutateAsync(
-          allData.profile_picture
+          allData.profile_picture_url
         );
         if (response?.profile_picture_url) {
           setUpdatedProfilePicture(response.profile_picture_url);
-          setUserProfilePicture(response.profile_picture_url);
+          setUserProfilePictureUrl(response.profile_picture_url);
         }
       }
-      if (allData.resume instanceof File) {
-        uploadTasks.push(resumeUpload.mutateAsync(allData.resume));
+      if (allData.resume_url instanceof File) {
+        uploadTasks.push(resumeUpload.mutateAsync(allData.resume_url));
       }
-      if (allData.logo instanceof File) {
-        uploadTasks.push(logoUpload.mutateAsync(allData.logo));
+      if (allData.logo_url instanceof File) {
+        uploadTasks.push(logoUpload.mutateAsync(allData.logo_url));
       }
 
       if (uploadTasks.length > 0) {
@@ -266,7 +264,6 @@ const Profile = () => {
               >
                 <Avatar.Image
                   src={
-                    userProfile?.profile_picture_url ||
                     updatedProfilePicture ||
                     getUserProfilePictureUrl() ||
                     getLogoUrl() ||
@@ -365,11 +362,16 @@ const Profile = () => {
                 (userType === "student" ? (
                   <StudentCard
                     student={userProfile}
+                    profilePictureUrl={getUserProfilePictureUrl()}
                     userType={userType}
                     maxW="500px"
                   />
                 ) : (
-                  <PartnerCard partner={userProfile} maxW="500px" />
+                  <PartnerCard
+                    partner={userProfile}
+                    profilePictureUrl={getUserProfilePictureUrl()}
+                    maxW="500px"
+                  />
                 ))}
             </Box>
           ) : (

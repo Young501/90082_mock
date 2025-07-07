@@ -9,6 +9,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   logoUrl: string | null;
   userProfile: UserProfile | null;
+  userProfilePictureUrl: string | null;
   setAuthData: (token: string, user: User) => void;
   logout: () => void;
   setUserType: (userType: string) => void;
@@ -26,7 +27,7 @@ export interface AuthState {
   getUserFirstName: () => string;
   getUserLastName: () => string;
   getUserProfilePictureUrl: () => string | null;
-  setUserProfilePicture: (url: string) => void;
+  setUserProfilePictureUrl: (url: string) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -38,12 +39,13 @@ export const useAuthStore = create<AuthState>()(
       signupSelectedUserType: null,
       logoUrl: null,
       userProfile: null,
-
+      userProfilePictureUrl: null,
       setAuthData: (token: string, user: User) => {
         set({
           user,
           token,
           isAuthenticated: true,
+          userProfilePictureUrl: user?.profile_picture_url || null,
         });
       },
 
@@ -54,6 +56,7 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: false,
           logoUrl: null,
           userProfile: null,
+          userProfilePictureUrl: null,
         });
 
         if (typeof window !== "undefined") {
@@ -108,16 +111,20 @@ export const useAuthStore = create<AuthState>()(
       },
 
       getUserProfilePictureUrl: () => {
-        const { user } = get();
-        return user?.profile_picture_url || null;
+        return (
+          get().userProfilePictureUrl || get().user?.profile_picture_url || null
+        );
       },
 
-      setUserProfilePicture: (url: string) => {
+      setUserProfilePictureUrl: (url: string) => {
         const { user } = get();
         if (user) {
           set({
             user: { ...user, profile_picture_url: url },
+            userProfilePictureUrl: url,
           });
+        } else {
+          set({ userProfilePictureUrl: url });
         }
       },
     }),
@@ -129,6 +136,7 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: state.isAuthenticated,
         logoUrl: state.logoUrl,
         userProfile: state.userProfile,
+        userProfilePictureUrl: state.userProfilePictureUrl,
       }),
     }
   )
