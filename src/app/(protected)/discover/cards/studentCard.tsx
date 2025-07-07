@@ -27,7 +27,8 @@ export function StudentCard({
 }: StudentCardProps) {
   const getDisplayName = () => {
     const firstName = student.first_name || "";
-    return firstName;
+    const lastName = student.last_name || "";
+    return `${firstName} ${lastName}`.trim() || "No name provided";
   };
 
   const getProfileImage = () => {
