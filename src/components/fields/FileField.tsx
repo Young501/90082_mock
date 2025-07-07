@@ -185,8 +185,8 @@ export const FileField = ({
                   </Box>
                 ) : (
                   <Box>
-                    {description === "profile_picture" ||
-                    description === "logo" ? (
+                    {description === "profile_picture_url" ||
+                    description === "logo_url" ? (
                       <Box display="flex" justifyContent="center">
                         <Image
                           src="/assets/imgplaceholder.png"
@@ -201,7 +201,7 @@ export const FileField = ({
                           }}
                         />
                       </Box>
-                    ) : description === "resume" ? (
+                    ) : description === "resume_url" ? (
                       <Box display="flex" justifyContent="center">
                         <Image
                           src="/assets/resume.png"

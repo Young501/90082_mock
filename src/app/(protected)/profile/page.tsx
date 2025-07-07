@@ -266,6 +266,7 @@ const Profile = () => {
               >
                 <Avatar.Image
                   src={
+                    userProfile?.profile_picture_url ||
                     updatedProfilePicture ||
                     getUserProfilePictureUrl() ||
                     getLogoUrl() ||
