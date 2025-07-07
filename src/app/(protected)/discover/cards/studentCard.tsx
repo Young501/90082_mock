@@ -20,9 +20,9 @@ interface StudentCardProps {
 export function StudentCard({ student, userType }: StudentCardProps) {
   const getDisplayName = () => {
     const firstName = student.first_name || "";
-    // const lastName = student.last_name || "";
-    return firstName;
-    // return `${firstName} ${lastName}`.trim() || "No name provided";
+    const lastName = student.last_name || "";
+    // return firstName;
+    return `${firstName} ${lastName}`.trim() || "No name provided";
   };
 
   const getProfileImage = () => {
