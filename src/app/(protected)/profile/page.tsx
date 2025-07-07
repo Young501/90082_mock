@@ -41,20 +41,23 @@ const Profile = () => {
     user,
     getUserProfile,
     setUserProfile,
-    getProfileImageUrl,
+    getUserProfilePictureUrl,
     getLogoUrl,
+    setUserProfilePicture,
   } = useAuthStore();
   const userProfile: UserProfile | null = getUserProfile();
   const [activeTab, setActiveTab] = useState<number>(0);
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
-  const router = useRouter();
+  const [updatedProfilePicture, setUpdatedProfilePicture] = useState<
+    string | null
+  >(null);
 
   const userType: string = user?.user_types?.[0] || "";
 
   const { data: onboardingData, isLoading: isOnboardingLoading } =
     useOnboardingPages(userType);
   const profileUpdateMutation = useProfileUpdate(userType);
-  const profilePictureUpload = useProfilePictureUpload(userType);
+  const profilePictureUpload = useProfilePictureUpload();
   const resumeUpload = useResumeUpload(userType);
   const logoUpload = useLogoUpload(userType);
 
@@ -193,9 +196,13 @@ const Profile = () => {
       setUserProfile(profileUpdateResponse);
       const uploadTasks = [];
       if (allData.profile_picture instanceof File) {
-        uploadTasks.push(
-          profilePictureUpload.mutateAsync(allData.profile_picture)
+        const response = await profilePictureUpload.mutateAsync(
+          allData.profile_picture
         );
+        if (response?.profile_picture_url) {
+          setUpdatedProfilePicture(response.profile_picture_url);
+          setUserProfilePicture(response.profile_picture_url);
+        }
       }
       if (allData.resume instanceof File) {
         uploadTasks.push(resumeUpload.mutateAsync(allData.resume));
@@ -259,8 +266,8 @@ const Profile = () => {
               >
                 <Avatar.Image
                   src={
-                    userProfile?.profile_picture_url ||
-                    getProfileImageUrl() ||
+                    updatedProfilePicture ||
+                    getUserProfilePictureUrl() ||
                     getLogoUrl() ||
                     ""
                   }

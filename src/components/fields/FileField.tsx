@@ -1,8 +1,7 @@
 import { Box, Text, Field } from "@chakra-ui/react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Control, Controller } from "react-hook-form";
 import Image from "next/image";
-import { useAuthStore } from "@/store/authStore";
 
 export type FileFieldType = "image" | "resume";
 
@@ -58,7 +57,6 @@ export const FileField = ({
   labelPosition = "top",
   description,
 }: FileFieldProps) => {
-  const { setProfileImageUrl, setLogoUrl, getUserType } = useAuthStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const config = { ...DEFAULT_CONFIGS[fileType], ...customConfig };
 
@@ -88,12 +86,6 @@ export const FileField = ({
 
     const fileUrl = URL.createObjectURL(file);
     setPreviewUrl(fileUrl);
-
-    if (getUserType() === "student" && description === "profile_picture") {
-      setProfileImageUrl(fileUrl);
-    } else if (getUserType() === "partner" && description === "logo") {
-      setLogoUrl(fileUrl);
-    }
   };
 
   const cleanupPreviewUrl = () => {
@@ -102,6 +94,12 @@ export const FileField = ({
       setPreviewUrl(null);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      cleanupPreviewUrl();
+    };
+  }, []);
 
   return (
     <Field.Root invalid={!!error} style={{ alignItems: "center" }}>
@@ -116,99 +114,118 @@ export const FileField = ({
       <Controller
         name={name}
         control={control}
-        render={({ field }) => (
-          <>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) {
-                  cleanupPreviewUrl();
-                  handleFileChange(file, field.onChange);
-                }
-              }}
-              accept={config.accept}
-              style={{ display: "none" }}
-            />
+        render={({ field }) => {
+          useEffect(() => {
+            if (
+              field.value instanceof File &&
+              !previewUrl &&
+              config.showPreview
+            ) {
+              const fileUrl = URL.createObjectURL(field.value);
+              setPreviewUrl(fileUrl);
+            }
+          }, [field.value]);
 
-            <Box
-              borderRadius="full"
-              p={4}
-              textAlign="center"
-              cursor="pointer"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {field.value ? (
-                <Box>
-                  {config.showPreview ? (
-                    <Box display="flex" justifyContent="center">
-                      <Image
-                        src={
-                          (typeof field.value === "string"
-                            ? field.value
-                            : previewUrl) || "/assets/imgplaceholder.png"
-                        }
-                        alt="Preview"
-                        width={200}
-                        height={200}
-                        style={{
-                          objectFit: "cover",
-                          borderRadius: "50%",
-                          width: "200px",
-                          height: "200px",
-                        }}
-                      />
-                    </Box>
-                  ) : (
-                    <Text color="blue.500">📄 {field.value.name}</Text>
-                  )}
-                  <Text fontSize="sm" color="gray.600">
-                    Click to change file
-                  </Text>
-                </Box>
-              ) : (
-                <Box>
-                  {description === "profile_picture" ||
-                  description === "logo" ? (
-                    <Box display="flex" justifyContent="center">
-                      <Image
-                        src="/assets/imgplaceholder.png"
-                        alt="Placeholder"
-                        width={200}
-                        height={200}
-                        style={{
-                          objectFit: "cover",
-                          borderRadius: "50%",
-                          width: "200px",
-                          height: "200px",
-                        }}
-                      />
-                    </Box>
-                  ) : description === "resume" ? (
-                    <Box display="flex" justifyContent="center">
-                      <Image
-                        src="/assets/resume.png"
-                        alt="Placeholder"
-                        width={350}
-                        height={350}
-                        style={{
-                          maxWidth: "588px",
-                        }}
-                      />
-                    </Box>
-                  ) : (
-                    <Text>{config.emptyText}</Text>
-                  )}
+          return (
+            <>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) {
+                    cleanupPreviewUrl();
+                    handleFileChange(file, field.onChange);
+                  }
+                }}
+                accept={config.accept}
+                style={{ display: "none" }}
+              />
 
-                  <Text fontSize="sm" color="gray.500">
-                    {config.helpText}
-                  </Text>
-                </Box>
-              )}
-            </Box>
-          </>
-        )}
+              <Box
+                borderRadius="full"
+                p={4}
+                textAlign="center"
+                cursor="pointer"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {field.value ? (
+                  <Box>
+                    {config.showPreview ? (
+                      <Box display="flex" justifyContent="center">
+                        <Image
+                          src={
+                            previewUrl ||
+                            (typeof field.value === "string"
+                              ? field.value
+                              : "/assets/imgplaceholder.png")
+                          }
+                          alt="Preview"
+                          width={200}
+                          height={200}
+                          style={{
+                            objectFit: "cover",
+                            borderRadius: "50%",
+                            width: "200px",
+                            height: "200px",
+                          }}
+                        />
+                      </Box>
+                    ) : (
+                      <Text color="blue.500">
+                        📄{" "}
+                        {field.value instanceof File
+                          ? field.value.name
+                          : "File selected"}
+                      </Text>
+                    )}
+                    <Text fontSize="sm" color="gray.600">
+                      Click to change file
+                    </Text>
+                  </Box>
+                ) : (
+                  <Box>
+                    {description === "profile_picture" ||
+                    description === "logo" ? (
+                      <Box display="flex" justifyContent="center">
+                        <Image
+                          src="/assets/imgplaceholder.png"
+                          alt="Placeholder"
+                          width={200}
+                          height={200}
+                          style={{
+                            objectFit: "cover",
+                            borderRadius: "50%",
+                            width: "200px",
+                            height: "200px",
+                          }}
+                        />
+                      </Box>
+                    ) : description === "resume" ? (
+                      <Box display="flex" justifyContent="center">
+                        <Image
+                          src="/assets/resume.png"
+                          alt="Placeholder"
+                          width={350}
+                          height={350}
+                          style={{
+                            maxWidth: "588px",
+                          }}
+                        />
+                      </Box>
+                    ) : (
+                      <Text>{config.emptyText}</Text>
+                    )}
+
+                    <Text fontSize="sm" color="gray.500">
+                      {config.helpText}
+                    </Text>
+                  </Box>
+                )}
+              </Box>
+            </>
+          );
+        }}
       />
       {label && labelPosition === "bottom" && (
         <Field.Label>

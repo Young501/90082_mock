@@ -18,11 +18,6 @@ export interface AuthState {
   signupSelectedUserType: string | null;
   setSignupSelectedUserType: (userType: string | null) => void;
   getSignupSelectedUserType: () => string | null;
-  // images sent to seprate endpoints and doesnt return with user data on submission
-  setProfileImageUrl: (url: string) => void;
-  getProfileImageUrl: () => string | null;
-  setLogoUrl: (url: string) => void;
-  getLogoUrl: () => string | null;
   setUserProfile: (profile: UserProfile) => void;
   getUserProfile: () => UserProfile | null;
   setLogoUrl: (url: string) => void;
@@ -31,7 +26,7 @@ export interface AuthState {
   getUserFirstName: () => string;
   getUserLastName: () => string;
   getUserProfilePictureUrl: () => string | null;
-  updateUserProfilePicture: (url: string) => void;
+  setUserProfilePicture: (url: string) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -117,7 +112,7 @@ export const useAuthStore = create<AuthState>()(
         return user?.profile_picture_url || null;
       },
 
-      updateUserProfilePicture: (url: string) => {
+      setUserProfilePicture: (url: string) => {
         const { user } = get();
         if (user) {
           set({

@@ -238,48 +238,58 @@ export const OnboardingSteps = ({ userType }: Props) => {
         submissionResponse?.detail || "Profile created successfully!"
       );
 
-      const { setUserProfile } = useAuthStore.getState();
+      const { setUserProfile, setUserProfilePicture } = useAuthStore.getState();
       setUserProfile(submissionResponse);
 
       const profilePicture = allData.profile_picture;
       const resume = allData.resume;
       const logo = allData.logo;
-      const uploadTasks = [];
+      const uploadPromises = [];
 
-      if (profilePicture instanceof File) {
-        uploadTasks.push(profilePictureUpload.mutateAsync(profilePicture));
-      }
-      if (resume instanceof File) {
-        uploadTasks.push(resumeUpload.mutateAsync(resume));
-      }
-      if (logo instanceof File) {
-        uploadTasks.push(logoUpload.mutateAsync(logo));
-      }
-      if (uploadTasks.length > 0) {
-        const results = await Promise.allSettled(uploadTasks);
-        const failed = results.find((r) => r.status === "rejected");
-        if (failed) {
-          toast.error("File upload failed");
-          setSubmitError("File upload failed");
-          return;
+      try {
+        if (profilePicture instanceof File) {
+          const profilePromise = profilePictureUpload
+            .mutateAsync(profilePicture)
+            .then((response) => {
+              if (response?.profile_picture_url) {
+                setUserProfilePicture(response.profile_picture_url);
+              }
+              return response;
+            });
+          uploadPromises.push(profilePromise);
         }
 
-        results.forEach((result, index) => {
-          if (result.status === "fulfilled") {
-            const response = result.value;
-            if (index === 0 && profilePicture instanceof File) {
-              toast.success(response?.detail);
-            } else if (index === 1 && resume instanceof File) {
-              toast.success(response?.detail);
-            } else if (index === 2 && logo instanceof File) {
-              toast.success(response?.detail);
-            }
+        if (resume instanceof File) {
+          uploadPromises.push(resumeUpload.mutateAsync(resume));
+        }
+
+        if (logo instanceof File) {
+          uploadPromises.push(logoUpload.mutateAsync(logo));
+        }
+
+        if (uploadPromises.length > 0) {
+          const results = await Promise.allSettled(uploadPromises);
+          const failed = results.find((r) => r.status === "rejected");
+          if (failed) {
+            console.error("File upload failed:", failed.reason);
+            toast.error("Some files failed to upload");
+          } else {
+            results.forEach((result, index) => {
+              if (result.status === "fulfilled") {
+                const response = result.value;
+                toast.success(response?.detail || "File uploaded successfully");
+              }
+            });
           }
-        });
+        }
+      } catch (uploadError) {
+        console.error("Upload error:", uploadError);
+        toast.error("File upload failed, but profile was saved");
       }
 
       router.push("/onboarding/success");
     } catch (error: any) {
+      console.error(error);
       const errorMessage =
         error?.response?.data?.error ||
         error?.response?.data?.detail ||

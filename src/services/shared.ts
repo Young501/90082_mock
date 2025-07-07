@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
-import { useAuthStore } from "@/store";
 
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
@@ -29,16 +28,7 @@ export function useProfilePictureUpload() {
         body: formData,
       });
     },
-    onSuccess: (response) => {
-      if (response?.profile_picture_url) {
-        const { updateUserProfilePicture } = useAuthStore.getState();
-        updateUserProfilePicture(response.profile_picture_url);
-        console.log(
-          "Updated user profile picture URL:",
-          response.profile_picture_url
-        );
-      }
-
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-profile"] });
       queryClient.invalidateQueries({ queryKey: ["user"] });
     },
