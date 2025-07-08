@@ -4,10 +4,55 @@ import { LoginData, PasswordResetData, SignupData } from "@/types/auth";
 import { User } from "@/types/user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { UserProfile } from "@/types/profile";
+import { UserProfile } from "@/types/shared";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { useUserProfile } from "@/services/shared";
+
+export const useOnboardingStatus = (userType: string) => {
+  const router = useRouter();
+  const { setUserProfile, setUserProfilePictureUrl } = useAuthStore();
+
+  const {
+    data: userProfile,
+    error,
+    isLoading,
+    isError,
+  } = useUserProfile(userType);
+
+  useEffect(() => {
+    if (userProfile) {
+      setUserProfile(userProfile);
+      if (userProfile.profile_picture_url) {
+        setUserProfilePictureUrl(userProfile.profile_picture_url);
+      }
+    }
+  }, [userProfile, setUserProfile, setUserProfilePictureUrl]);
+
+  const handleOnboardingRedirect = (redirectOnSuccess: boolean = true) => {
+    if (isError && error?.response?.status === 404) {
+      router.push("/onboarding/");
+      return;
+    }
+
+    if (userProfile && redirectOnSuccess) {
+      router.push("/home/");
+    }
+
+    if (isError && error?.response?.status !== 404) {
+      toast.error("Error checking onboarding status");
+    }
+  };
+
+  return {
+    userProfile,
+    isLoading,
+    isError,
+    error,
+    handleOnboardingRedirect,
+  };
+};
 
 export const checkOnboardingStatus = async ({
   user,

@@ -32,6 +32,16 @@ export interface StudentProfile {
   credentials?: string[];
   preferred_location?: string[];
   availability?: string;
+  discovery_pools?: string;
+  position_type?: string;
+  within_distance_km?: string;
+  homepage?: string;
+  linkedin?: string;
+  instagram?: string;
+  bluesky?: string;
+  status?: "International" | string;
+  faculty?: string;
+  resume_url?: string;
 }
 
 export interface PartnerProfile {
@@ -47,20 +57,19 @@ export interface PartnerProfile {
   logo_url?: string;
   email?: string;
   availability?: string;
+  abn_acn?: string;
+  is_alum?: boolean;
+  university_name?: string;
+  employment_type?: string;
+  degree?: string;
+  about?: string;
+  logo?: string;
+  profile_picture?: string;
 }
-
-export type UserProfile = StudentProfile | PartnerProfile;
 
 export interface UserSearchParams {
   user_type: string;
   page?: number;
   page_size?: number;
   [key: string]: any;
-}
-
-export interface UserSearchResponse {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: UserProfile[];
 }
