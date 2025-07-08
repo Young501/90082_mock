@@ -59,7 +59,7 @@ const SignupPage = () => {
         user_types: signupSelectedUserType ? [signupSelectedUserType] : [],
         callback: () => {
           router.push(
-            `/verify-email/sent?email=${encodeURIComponent(data.email)}/`
+            `/verify-email/sent/?email=${encodeURIComponent(data.email)}`
           );
         },
       });
