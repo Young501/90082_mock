@@ -59,7 +59,12 @@ export function DiscoveryResultBox({
               const key = user.id || Math.random();
 
               return userType === "student" ? (
-                <StudentCard key={key} student={user} userType={userType} />
+                <StudentCard
+                  key={key}
+                  student={user}
+                  userType={userType}
+                  profilePictureUrl={user.profile_picture_url || null}
+                />
               ) : (
                 <PartnerCard key={key} partner={user} />
               );
