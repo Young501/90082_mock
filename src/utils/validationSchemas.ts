@@ -1,7 +1,10 @@
 import * as yup from "yup";
 import { Question } from "@/types/onboarding";
 
-export const createPageSchema = (questions: Question[]) => {
+export const createPageSchema = (
+  questions: Question[],
+  isProfilePage: boolean = false
+) => {
   const shape: Record<string, any> = {};
 
   const addQuestionToSchema = (question: Question) => {
@@ -71,11 +74,17 @@ export const createPageSchema = (questions: Question[]) => {
       }
     } else if (question.type === "file") {
       fieldSchema = yup
-        .mixed<File>()
-        .test("fileType", "Invalid file type", (value: any) => {
-          if (!value) return true;
-          return value instanceof File;
-        });
+        .mixed()
+        .test(
+          "fileOrUrl",
+          "Invalid file format. Only URL or file is acceptable.",
+          (value) => {
+            if (!value) return true;
+            if (typeof value === "string") return true;
+            if (value instanceof File) return true;
+            return false;
+          }
+        );
     } else if (question.type === "card-select") {
       const maxSelections = question.max_selection;
       if (maxSelections === 1) {
@@ -123,6 +132,10 @@ export const createPageSchema = (questions: Question[]) => {
           .test("is-range-required", "This field is required", (value: any) => {
             return typeof value === "number" && !isNaN(value);
           });
+      } else if (question.type === "file") {
+        if (question.required && !isProfilePage) {
+          fieldSchema = fieldSchema.required("This field is required");
+        }
       } else {
         fieldSchema = fieldSchema.required("This field is required");
       }

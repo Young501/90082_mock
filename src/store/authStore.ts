@@ -1,12 +1,15 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { User } from "@/types/user";
+import { UserProfile } from "@/types/profile";
 
 export interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
   logoUrl: string | null;
+  userProfile: UserProfile | null;
+  userProfilePictureUrl: string | null;
   setAuthData: (token: string, user: User) => void;
   logout: () => void;
   setUserType: (userType: string) => void;
@@ -16,13 +19,15 @@ export interface AuthState {
   signupSelectedUserType: string | null;
   setSignupSelectedUserType: (userType: string | null) => void;
   getSignupSelectedUserType: () => string | null;
+  setUserProfile: (profile: UserProfile) => void;
+  getUserProfile: () => UserProfile | null;
   setLogoUrl: (url: string) => void;
   getLogoUrl: () => string | null;
   getUserFullName: () => string;
   getUserFirstName: () => string;
   getUserLastName: () => string;
   getUserProfilePictureUrl: () => string | null;
-  updateUserProfilePicture: (url: string) => void;
+  setUserProfilePictureUrl: (url: string) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -33,12 +38,14 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       signupSelectedUserType: null,
       logoUrl: null,
-
+      userProfile: null,
+      userProfilePictureUrl: null,
       setAuthData: (token: string, user: User) => {
         set({
           user,
           token,
           isAuthenticated: true,
+          userProfilePictureUrl: user?.profile_picture_url || null,
         });
       },
 
@@ -48,6 +55,8 @@ export const useAuthStore = create<AuthState>()(
           token: null,
           isAuthenticated: false,
           logoUrl: null,
+          userProfile: null,
+          userProfilePictureUrl: null,
         });
 
         if (typeof window !== "undefined") {
@@ -81,6 +90,10 @@ export const useAuthStore = create<AuthState>()(
       },
       getLogoUrl: () => get().logoUrl,
 
+      setUserProfile: (profile: UserProfile) => {
+        set({ userProfile: profile });
+      },
+      getUserProfile: () => get().userProfile,
       getUserFullName: () => {
         const { user } = get();
         if (!user?.first_name || !user?.last_name) return "";
@@ -98,16 +111,20 @@ export const useAuthStore = create<AuthState>()(
       },
 
       getUserProfilePictureUrl: () => {
-        const { user } = get();
-        return user?.profile_picture_url || null;
+        return (
+          get().userProfilePictureUrl || get().user?.profile_picture_url || null
+        );
       },
 
-      updateUserProfilePicture: (url: string) => {
+      setUserProfilePictureUrl: (url: string) => {
         const { user } = get();
         if (user) {
           set({
             user: { ...user, profile_picture_url: url },
+            userProfilePictureUrl: url,
           });
+        } else {
+          set({ userProfilePictureUrl: url });
         }
       },
     }),
@@ -118,6 +135,8 @@ export const useAuthStore = create<AuthState>()(
         token: state.token,
         isAuthenticated: state.isAuthenticated,
         logoUrl: state.logoUrl,
+        userProfile: state.userProfile,
+        userProfilePictureUrl: state.userProfilePictureUrl,
       }),
     }
   )

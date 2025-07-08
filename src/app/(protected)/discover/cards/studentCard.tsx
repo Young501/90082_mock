@@ -15,18 +15,28 @@ import Image from "next/image";
 interface StudentCardProps {
   student: StudentProfile;
   userType: string;
+  maxW?: string;
+  profilePictureUrl: string | null;
 }
 
-export function StudentCard({ student, userType }: StudentCardProps) {
+export function StudentCard({
+  student,
+  userType,
+  maxW,
+  profilePictureUrl,
+}: StudentCardProps) {
   const getDisplayName = () => {
     const firstName = student.first_name || "";
     const lastName = student.last_name || "";
-    // return firstName;
     return `${firstName} ${lastName}`.trim() || "No name provided";
   };
 
   const getProfileImage = () => {
-    return student.profile_picture_url || "/assets/imgplaceholder.png";
+    if (profilePictureUrl) {
+      return profilePictureUrl;
+    } else {
+      return student.profile_picture_url || "/assets/imgplaceholder.png";
+    }
   };
 
   const getSkillsData = () => {
@@ -59,6 +69,7 @@ export function StudentCard({ student, userType }: StudentCardProps) {
       position="relative"
       borderTopRightRadius="20px"
       w="100%"
+      maxW={maxW}
     >
       <Box position="absolute" top={4} right={4} zIndex={1}>
         <Box

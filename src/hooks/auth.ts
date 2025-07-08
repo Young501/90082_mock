@@ -6,31 +6,54 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { UserProfile } from "@/types/profile";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+
+export const checkOnboardingStatus = async ({
+  user,
+  router,
+  setUserProfile,
+  redirectOnSuccess = true,
+  setUserProfilePictureUrl,
+}: {
+  user: User;
+  router: AppRouterInstance;
+  setUserProfile: (profile: UserProfile) => void;
+  redirectOnSuccess?: boolean;
+  setUserProfilePictureUrl?: (url: string) => void;
+}) => {
+  console.log("user", user);
+  if (!user?.user_types?.[0]) {
+    return;
+  }
+
+  try {
+    const response = await apiRequest({
+      endpoint: API_ENDPOINTS.USER_PROFILE(user.user_types[0]),
+    });
+
+    setUserProfile(response);
+    if (response.profile_picture_url && setUserProfilePictureUrl) {
+      setUserProfilePictureUrl(response.profile_picture_url);
+    }
+    if (redirectOnSuccess) {
+      router.push("/home/");
+    }
+  } catch (error: any) {
+    if (error?.response?.status === 404) {
+      router.push("/onboarding/");
+      return;
+    }
+    toast.error("Error checking onboarding status");
+  }
+};
 
 export const useAuth = () => {
   const router = useRouter();
-  const { setAuthData, user } = useAuthStore();
+  const { setAuthData, user, setUserProfile, setUserProfilePictureUrl } =
+    useAuthStore();
   const queryClient = useQueryClient();
   const [errorMsg, setErrorMsg] = useState("");
-
-  const checkOnboardingStatus = async (user: User) => {
-    if (!user?.user_types?.[0]) {
-      return;
-    }
-
-    try {
-      await apiRequest({
-        endpoint: API_ENDPOINTS.USER_PROFILE(user.user_types[0]),
-      });
-      router.push("/home/");
-    } catch (error: any) {
-      if (error?.response?.status === 404) {
-        router.push("/onboarding/");
-        return;
-      }
-      toast.error("Error checking onboarding status");
-    }
-  };
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginData) => {
@@ -45,12 +68,18 @@ export const useAuth = () => {
     onSuccess: (response) => {
       setAuthData(response.token, response.user);
       queryClient.invalidateQueries({ queryKey: ["user"] });
-      checkOnboardingStatus(response.user);
+      checkOnboardingStatus({
+        user: response.user,
+        router,
+        setUserProfile,
+        setUserProfilePictureUrl,
+      });
     },
     onError: (error: any) => {
       const errorMessage = getErrorMessage(error, "Login failed");
       toast.error(errorMessage);
       setErrorMsg(errorMessage);
+      throw error;
     },
   });
 

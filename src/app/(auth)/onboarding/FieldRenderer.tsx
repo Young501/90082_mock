@@ -27,9 +27,9 @@ interface FieldRendererProps {
 }
 
 const FILE_FIELD_TYPES = {
-  profile_picture: "image",
-  resume: "resume",
-  logo: "image",
+  profile_picture_url: "image",
+  resume_url: "resume",
+  logo_url: "image",
 } as const;
 
 export const FieldRenderer = ({
@@ -205,6 +205,11 @@ export const FieldRenderer = ({
     }
 
     if (question.type === "checkbox-group") {
+      const isBoolean =
+        typeof fieldValue === "boolean" ||
+        question.field.startsWith("is_") ||
+        question.options?.length === 2;
+
       return (
         <CheckboxField
           name={question.field}
@@ -213,6 +218,7 @@ export const FieldRenderer = ({
           control={control}
           required={question.required}
           maxSelection={question.max_selection}
+          isBoolean={isBoolean}
         />
       );
     }
@@ -249,9 +255,9 @@ export const FieldRenderer = ({
           required={question.required}
           labelPosition="bottom"
           description={
-            question.field === "profile_picture" ||
-            question.field === "logo" ||
-            question.field === "resume"
+            question.field === "profile_picture_url" ||
+            question.field === "logo_url" ||
+            question.field === "resume_url"
               ? question.field
               : undefined
           }
