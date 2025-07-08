@@ -179,7 +179,7 @@ export const FileField = ({
                           whiteSpace="nowrap"
                         >
                           {field.value instanceof File
-                            ? field.value.name
+                            ? field.value.name // effective on file change only actual file value doesnt exist on prepopulated fields
                             : "Resume.pdf"}
                         </Text>
                       </Flex>

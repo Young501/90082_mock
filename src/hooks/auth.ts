@@ -6,21 +6,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { UserProfile } from "@/types/shared";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 export const checkOnboardingStatus = async ({
   user,
   router,
-  setUserProfile,
   redirectOnSuccess = true,
-  setUserProfilePictureUrl,
 }: {
   user: User;
   router: AppRouterInstance;
-  setUserProfile: (profile: UserProfile) => void;
   redirectOnSuccess?: boolean;
-  setUserProfilePictureUrl?: (url: string) => void;
 }) => {
   console.log("user", user);
   if (!user?.user_types?.[0]) {
@@ -32,10 +27,6 @@ export const checkOnboardingStatus = async ({
       endpoint: API_ENDPOINTS.USER_PROFILE(user.user_types[0]),
     });
 
-    setUserProfile(response);
-    if (response.profile_picture_url && setUserProfilePictureUrl) {
-      setUserProfilePictureUrl(response.profile_picture_url);
-    }
     if (redirectOnSuccess) {
       router.push("/home/");
     }
@@ -50,8 +41,7 @@ export const checkOnboardingStatus = async ({
 
 export const useAuth = () => {
   const router = useRouter();
-  const { setAuthData, user, setUserProfile, setUserProfilePictureUrl } =
-    useAuthStore();
+  const { setAuthData, user } = useAuthStore();
   const queryClient = useQueryClient();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -71,8 +61,6 @@ export const useAuth = () => {
       checkOnboardingStatus({
         user: response.user,
         router,
-        setUserProfile,
-        setUserProfilePictureUrl,
       });
     },
     onError: (error: any) => {
