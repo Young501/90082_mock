@@ -69,7 +69,7 @@ export const FileField = ({
 }: FileFieldProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const config = { ...DEFAULT_CONFIGS[fileType], ...customConfig };
-  const { getUserProfilePictureUrl } = useAuthStore();
+  const { getUserProfilePictureUrl, getLogoUrl } = useAuthStore();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const validateFile = (file: File): string | null => {
@@ -230,7 +230,9 @@ export const FileField = ({
                         <Image
                           src={
                             previewUrl ||
-                            getUserProfilePictureUrl() ||
+                            (description === "logo_url"
+                              ? getLogoUrl()
+                              : getUserProfilePictureUrl()) ||
                             (typeof field.value === "string"
                               ? field.value
                               : "/assets/imgplaceholder.png")

@@ -7,7 +7,7 @@ import {
   Text,
   SimpleGrid,
 } from "@chakra-ui/react";
-import { UserProfile } from "@/types/discovery";
+import { UserProfile } from "@/types/shared";
 import { StudentCard, PartnerCard } from "./cards";
 import { PaginationControls } from "@/components/ui/PaginationControls";
 
