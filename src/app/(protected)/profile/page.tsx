@@ -30,7 +30,7 @@ import { OnboardingPage, OnboardingData, Tab } from "@/types/profile";
 import { UserProfile } from "@/types/shared";
 
 import { toast } from "react-toastify";
-import { useOnboardingStatus } from "@/hooks/auth";
+import { useProfile } from "@/hooks/useProfile";
 
 const Profile = () => {
   const {
@@ -54,7 +54,7 @@ const Profile = () => {
     userProfile: fetchedUserProfile,
     isLoading: isProfileLoading,
     handleOnboardingRedirect,
-  } = useOnboardingStatus(userType);
+  } = useProfile(userType);
 
   const { data: onboardingData, isLoading: isOnboardingLoading } =
     useOnboardingPages(userType);
