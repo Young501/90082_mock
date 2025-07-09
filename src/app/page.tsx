@@ -1,34 +1,5 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import { useState } from "react";
-import { Button, HStack } from "@chakra-ui/react";
-import { useRouter } from "next/navigation";
-
-const Demo = () => {
-  const [clicked, setClicked] = useState(false);
-  const router = useRouter();
-  return (
-    <HStack>
-      <Button onClick={() => setClicked(!clicked)}>
-        {clicked ? "You clicked me!" : "Click me"}
-      </Button>
-      <Button colorScheme="blue" onClick={() => alert("Hello from Chakra!")}>
-        Alert!
-      </Button>
-      <Button colorScheme="blue" onClick={() => router.push("/home")}>
-        Home
-      </Button>
-      <Button colorScheme="blue" onClick={() => router.push("/signup")}>
-        Sign Up
-      </Button>
-    </HStack>
-  );
-};
-
-export default function HomePage() {
-  return (
-    <div>
-      <Demo />
-    </div>
-  );
+export default function Home() {
+  redirect("/user-type/");
 }

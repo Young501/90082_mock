@@ -56,7 +56,7 @@ export default function LoginPage() {
         password: data.password,
         callback: () => {
           toast.success("Login successful!");
-          router.push("/home/");
+          router.push("/discover/");
         },
       });
     } catch (error: any) {
