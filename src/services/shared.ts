@@ -110,3 +110,33 @@ export function useUserProfile(userType: string) {
     },
   });
 }
+
+export function useStudentProfile(id: string) {
+  return useQuery({
+    queryKey: ["student-profile", id],
+    queryFn: () => apiRequest({ endpoint: API_ENDPOINTS.STUDENT_PROFILE(id) }),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+}
+
+export function usePartnerProfile(id: string) {
+  return useQuery({
+    queryKey: ["partner-profile", id],
+    queryFn: () => apiRequest({ endpoint: API_ENDPOINTS.PARTNER_PROFILE(id) }),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+}
