@@ -22,14 +22,8 @@ type SelectOption = {
   label: string;
 };
 
-const createFieldCollection = (
-  field: ProcessedField,
-  availableOptions?: string[]
-) => {
-  const options =
-    availableOptions && availableOptions.length > 0
-      ? availableOptions
-      : field.options || [];
+const createFieldCollection = (availableOptions?: string[]) => {
+  const options = availableOptions || [];
 
   if (options.length === 0) {
     return createListCollection<SelectOption>({
@@ -56,8 +50,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   }
 
   const hasAvailableOptions = availableOptions && availableOptions.length > 0;
-  const hasOriginalOptions = field.options && field.options.length > 0;
-  const hasAnyOptions = hasAvailableOptions || hasOriginalOptions;
+  const isDisabled = !hasAvailableOptions;
 
   const renderInputField = () => (
     <Controller
@@ -79,8 +72,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   );
 
   const renderSingleSelectField = () => {
-    const selectCollection = createFieldCollection(field, availableOptions);
-    const isDisabled = !hasAnyOptions;
+    const selectCollection = createFieldCollection(availableOptions);
 
     return (
       <Controller
@@ -90,13 +82,13 @@ export const FilterField: React.FC<FilterFieldProps> = ({
           <Select.Root
             collection={selectCollection}
             multiple={false}
-            bg="white"
+            bg={isDisabled ? "gray.100" : "white"}
             borderRadius="15px"
             border="1px solid"
-            borderColor="gray.200"
+            borderColor={isDisabled ? "gray.300" : "gray.200"}
             w="100%"
             h="40px"
-            disabled={isDisabled}
+            readOnly={isDisabled}
             value={
               Array.isArray(formField.value)
                 ? formField.value
@@ -104,29 +96,27 @@ export const FilterField: React.FC<FilterFieldProps> = ({
                   ? [formField.value]
                   : []
             }
-            onValueChange={(details) => {
-              console.log(`[${field.field}] SINGLE onChange details:`, details);
+            onValueChange={
+              isDisabled
+                ? undefined
+                : (details) => {
+                    const stringValue = Array.isArray(details.value)
+                      ? details.value[0] || ""
+                      : details.value || "";
 
-              const stringValue = Array.isArray(details.value)
-                ? details.value[0] || ""
-                : details.value || "";
-
-              console.log(
-                `[${field.field}] SINGLE stringValue:`,
-                stringValue,
-                typeof stringValue
-              );
-              formField.onChange(stringValue);
-            }}
+                    formField.onChange(stringValue);
+                  }
+            }
           >
             <Select.Control w="100%" h="100%">
-              <Select.Trigger>
+              <Select.Trigger cursor={isDisabled ? "not-allowed" : "pointer"}>
                 <Select.ValueText
                   placeholder={
                     isDisabled
                       ? `No ${field.label} options available`
                       : `Select ${field.label}`
                   }
+                  color={isDisabled ? "gray.400" : "inherit"}
                 />
               </Select.Trigger>
               <Select.IndicatorGroup>
@@ -154,8 +144,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   };
 
   const renderMultiSelectField = () => {
-    const selectCollection = createFieldCollection(field, availableOptions);
-    const isDisabled = !hasAnyOptions;
+    const selectCollection = createFieldCollection(availableOptions);
 
     return (
       <Controller
@@ -165,35 +154,37 @@ export const FilterField: React.FC<FilterFieldProps> = ({
           <Select.Root
             collection={selectCollection}
             multiple={true}
-            bg="white"
+            bg={isDisabled ? "gray.100" : "white"}
             borderRadius="15px"
             border="1px solid"
-            borderColor="gray.200"
+            borderColor={isDisabled ? "gray.300" : "gray.200"}
             w="100%"
             h="40px"
-            disabled={isDisabled}
+            readOnly={isDisabled}
             value={Array.isArray(formField.value) ? formField.value : []}
-            onValueChange={(details) => {
-              console.log(`[${field.field}] MULTI onChange details:`, details);
+            onValueChange={
+              isDisabled
+                ? undefined
+                : (details) => {
+                    const arrayValue = Array.isArray(details.value)
+                      ? details.value
+                      : details.value
+                        ? [details.value]
+                        : [];
 
-              const arrayValue = Array.isArray(details.value)
-                ? details.value
-                : details.value
-                  ? [details.value]
-                  : [];
-
-              console.log(`[${field.field}] MULTI arrayValue:`, arrayValue);
-              formField.onChange(arrayValue);
-            }}
+                    formField.onChange(arrayValue);
+                  }
+            }
           >
             <Select.Control w="100%" h="100%">
-              <Select.Trigger>
+              <Select.Trigger cursor={isDisabled ? "not-allowed" : "pointer"}>
                 <Select.ValueText
                   placeholder={
                     isDisabled
                       ? `No ${field.label} options available`
                       : `Select ${field.label}`
                   }
+                  color={isDisabled ? "gray.400" : "inherit"}
                 />
               </Select.Trigger>
               <Select.IndicatorGroup>
