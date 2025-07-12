@@ -40,7 +40,7 @@ export const useAcceptInvite = () => {
     }) => acceptInvite(opportunityId, token),
     onSuccess: () => {
       setTimeout(() => {
-        router.push("/home");
+        router.push("/discover");
       }, 3000);
     },
   });
