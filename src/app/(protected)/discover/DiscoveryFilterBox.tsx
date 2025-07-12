@@ -130,7 +130,7 @@ export function DiscoveryFilterBox({
                   borderRadius="15px"
                 >
                   <Image
-                    src="/assets/searchIcon.svg"
+                    src="/assets/SearchIcon.svg"
                     width={16}
                     height={16}
                     alt="search"
@@ -235,7 +235,7 @@ export function DiscoveryFilterBox({
                 borderRadius="15px"
               >
                 <Image
-                  src="/assets/searchIcon.svg"
+                  src="/assets/SearchIcon.svg"
                   width={16}
                   height={16}
                   alt="search"

@@ -28,7 +28,7 @@ export const checkOnboardingStatus = async ({
     });
 
     if (redirectOnSuccess) {
-      router.push("/home/");
+      router.push("/discover/");
     }
   } catch (error: any) {
     if (error?.response?.status === 404) {

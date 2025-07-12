@@ -115,7 +115,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               >
                 {isCoordinator ? (
                   <>
-                    <Link href="/home/" onClick={handleMenuItemClick}>
+                    <Link href="/dashboard/" onClick={handleMenuItemClick}>
                       <Text
                         py={4}
                         fontSize="16px"
@@ -128,17 +128,6 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                   </>
                 ) : (
                   <>
-                    <Link href="/home/" onClick={handleMenuItemClick}>
-                      <Text
-                        py={4}
-                        fontSize="16px"
-                        fontWeight="600"
-                        color="white"
-                      >
-                        HOME
-                      </Text>
-                    </Link>
-
                     <Link href="/discover/" onClick={handleMenuItemClick}>
                       <Text
                         py={4}
@@ -287,7 +276,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
 
             {isCoordinator ? (
               <HStack gap={10} display={{ base: "none", md: "flex" }}>
-                <Link href="/home">
+                <Link href="/dashboard/">
                   <Text fontSize="18px" fontWeight="700" color="white">
                     DASHBOARD
                   </Text>
@@ -307,11 +296,6 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               </HStack>
             ) : (
               <HStack gap={10} display={{ base: "none", md: "flex" }}>
-                <Link href="/home/">
-                  <Text fontSize="18px" fontWeight="700" color="white">
-                    HOME
-                  </Text>
-                </Link>
                 <Link href="/discover/">
                   <Text fontSize="18px" fontWeight="700" color="white">
                     DISCOVER
