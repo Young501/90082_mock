@@ -14,6 +14,7 @@ interface FilterFieldProps {
   field: ProcessedField;
   control: Control<any>;
   isVisible: boolean;
+  availableOptions?: string[];
 }
 
 type SelectOption = {
@@ -21,14 +22,22 @@ type SelectOption = {
   label: string;
 };
 
-const createFieldCollection = (field: ProcessedField) => {
-  if (!field.options || field.options.length === 0) {
+const createFieldCollection = (
+  field: ProcessedField,
+  availableOptions?: string[]
+) => {
+  const options =
+    availableOptions && availableOptions.length > 0
+      ? availableOptions
+      : field.options || [];
+
+  if (options.length === 0) {
     return createListCollection<SelectOption>({
       items: [],
     });
   }
 
-  const items: SelectOption[] = field.options.map((option) => ({
+  const items: SelectOption[] = options.map((option) => ({
     value: option,
     label: option,
   }));
@@ -40,10 +49,15 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   field,
   control,
   isVisible,
+  availableOptions,
 }) => {
   if (!isVisible) {
     return null;
   }
+
+  const hasAvailableOptions = availableOptions && availableOptions.length > 0;
+  const hasOriginalOptions = field.options && field.options.length > 0;
+  const hasAnyOptions = hasAvailableOptions || hasOriginalOptions;
 
   const renderInputField = () => (
     <Controller
@@ -65,7 +79,8 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   );
 
   const renderSingleSelectField = () => {
-    const selectCollection = createFieldCollection(field);
+    const selectCollection = createFieldCollection(field, availableOptions);
+    const isDisabled = !hasAnyOptions;
 
     return (
       <Controller
@@ -81,6 +96,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
             borderColor="gray.200"
             w="100%"
             h="40px"
+            disabled={isDisabled}
             value={
               Array.isArray(formField.value)
                 ? formField.value
@@ -105,24 +121,32 @@ export const FilterField: React.FC<FilterFieldProps> = ({
           >
             <Select.Control w="100%" h="100%">
               <Select.Trigger>
-                <Select.ValueText placeholder={`Select ${field.label}`} />
+                <Select.ValueText
+                  placeholder={
+                    isDisabled
+                      ? `No ${field.label} options available`
+                      : `Select ${field.label}`
+                  }
+                />
               </Select.Trigger>
               <Select.IndicatorGroup>
                 <Select.Indicator />
               </Select.IndicatorGroup>
             </Select.Control>
-            <Portal>
-              <Select.Positioner>
-                <Select.Content>
-                  {selectCollection.items.map((option) => (
-                    <Select.Item item={option} key={option.value}>
-                      {option.label}
-                      <Select.ItemIndicator />
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select.Positioner>
-            </Portal>
+            {!isDisabled && (
+              <Portal>
+                <Select.Positioner>
+                  <Select.Content>
+                    {selectCollection.items.map((option) => (
+                      <Select.Item item={option} key={option.value}>
+                        {option.label}
+                        <Select.ItemIndicator />
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Portal>
+            )}
           </Select.Root>
         )}
       />
@@ -130,7 +154,8 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   };
 
   const renderMultiSelectField = () => {
-    const selectCollection = createFieldCollection(field);
+    const selectCollection = createFieldCollection(field, availableOptions);
+    const isDisabled = !hasAnyOptions;
 
     return (
       <Controller
@@ -146,6 +171,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
             borderColor="gray.200"
             w="100%"
             h="40px"
+            disabled={isDisabled}
             value={Array.isArray(formField.value) ? formField.value : []}
             onValueChange={(details) => {
               console.log(`[${field.field}] MULTI onChange details:`, details);
@@ -162,24 +188,32 @@ export const FilterField: React.FC<FilterFieldProps> = ({
           >
             <Select.Control w="100%" h="100%">
               <Select.Trigger>
-                <Select.ValueText placeholder={`Select ${field.label}`} />
+                <Select.ValueText
+                  placeholder={
+                    isDisabled
+                      ? `No ${field.label} options available`
+                      : `Select ${field.label}`
+                  }
+                />
               </Select.Trigger>
               <Select.IndicatorGroup>
                 <Select.Indicator />
               </Select.IndicatorGroup>
             </Select.Control>
-            <Portal>
-              <Select.Positioner>
-                <Select.Content>
-                  {selectCollection.items.map((option) => (
-                    <Select.Item item={option} key={option.value}>
-                      {option.label}
-                      <Select.ItemIndicator />
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select.Positioner>
-            </Portal>
+            {!isDisabled && (
+              <Portal>
+                <Select.Positioner>
+                  <Select.Content>
+                    {selectCollection.items.map((option) => (
+                      <Select.Item item={option} key={option.value}>
+                        {option.label}
+                        <Select.ItemIndicator />
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Portal>
+            )}
           </Select.Root>
         )}
       />

@@ -25,6 +25,7 @@ interface DiscoveryFilterBoxProps {
   isSearching: boolean;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onReset: () => void;
+  filterOptions: Record<string, string[]>;
 }
 
 export function DiscoveryFilterBox({
@@ -36,6 +37,7 @@ export function DiscoveryFilterBox({
   isSearching,
   onSubmit,
   onReset,
+  filterOptions,
 }: DiscoveryFilterBoxProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -86,6 +88,7 @@ export function DiscoveryFilterBox({
                     field={field}
                     control={control}
                     isVisible={true}
+                    availableOptions={filterOptions[field.field]}
                   />
                 </Box>
               ))}
@@ -193,6 +196,7 @@ export function DiscoveryFilterBox({
                         field={field}
                         control={control}
                         isVisible={true}
+                        availableOptions={filterOptions[field.field]}
                       />
                     </Box>
                   ))}

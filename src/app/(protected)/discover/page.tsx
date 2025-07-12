@@ -11,6 +11,7 @@ export default function DiscoveryPage() {
     searchResults,
     hasSearched,
     filterableFields,
+    filterOptions,
     targetUserType,
     isLoading,
     isSearching,
@@ -53,6 +54,7 @@ export default function DiscoveryPage() {
           isSearching={isSearching}
           onSubmit={handleSearch}
           onReset={handleReset}
+          filterOptions={filterOptions}
         />
       </Box>
 
