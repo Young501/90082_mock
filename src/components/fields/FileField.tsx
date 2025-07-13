@@ -1,8 +1,17 @@
-import { Box, Text, Field } from "@chakra-ui/react";
+import {
+  Box,
+  Text,
+  Field,
+  Button,
+  Link,
+  Flex,
+  IconButton,
+} from "@chakra-ui/react";
 import { useRef, useState, useEffect } from "react";
 import { Control, Controller } from "react-hook-form";
 import Image from "next/image";
 import { useAuthStore } from "@/store";
+import { FileText, Upload, Download, Edit, X } from "lucide-react";
 
 export type FileFieldType = "image" | "resume";
 
@@ -60,7 +69,7 @@ export const FileField = ({
 }: FileFieldProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const config = { ...DEFAULT_CONFIGS[fileType], ...customConfig };
-  const { getUserProfilePictureUrl } = useAuthStore();
+  const { getUserProfilePictureUrl, getLogoUrl } = useAuthStore();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const validateFile = (file: File): string | null => {
@@ -127,6 +136,12 @@ export const FileField = ({
             }
           }, [field.value]);
 
+          const handleRemoveFile = () => {
+            cleanupPreviewUrl();
+            field.onChange(null);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+          };
+
           return (
             <>
               <input
@@ -143,21 +158,81 @@ export const FileField = ({
                 style={{ display: "none" }}
               />
 
-              <Box
-                borderRadius="full"
-                p={4}
-                textAlign="center"
-                cursor="pointer"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {field.value ? (
+              {fileType === "resume" && field.value ? (
+                <Box
+                  borderWidth="1px"
+                  borderRadius="md"
+                  p={4}
+                  width="100%"
+                  bg="gray.50"
+                  borderColor="#A2DDF0"
+                >
+                  <Flex direction="column" gap={3}>
+                    <Flex align="center" justify="space-between">
+                      <Flex align="center" gap={2}>
+                        <FileText size={24} />
+                        <Text
+                          fontWeight="medium"
+                          maxWidth="200px"
+                          overflow="hidden"
+                          textOverflow="ellipsis"
+                          whiteSpace="nowrap"
+                        >
+                          {field.value instanceof File
+                            ? field.value.name // effective on file change only actual file value doesnt exist on prepopulated fields
+                            : "Resume.pdf"}
+                        </Text>
+                      </Flex>
+                      <IconButton
+                        aria-label="Remove file"
+                        size="sm"
+                        variant="ghost"
+                        colorScheme="red"
+                        onClick={handleRemoveFile}
+                      />
+                    </Flex>
+
+                    <Flex justify="space-between" mt={2}>
+                      <Link
+                        href={
+                          previewUrl ||
+                          (typeof field.value === "string" ? field.value : "#")
+                        }
+                        target="_blank"
+                        _hover={{ textDecoration: "none" }}
+                      >
+                        <Button size="sm" variant="outline">
+                          View Resume
+                        </Button>
+                      </Link>
+
+                      <Button
+                        size="sm"
+                        variant="solid"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        Change File
+                      </Button>
+                    </Flex>
+                  </Flex>
+                </Box>
+              ) : fileType === "image" && field.value ? (
+                <Box
+                  borderRadius="full"
+                  p={4}
+                  textAlign="center"
+                  cursor="pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                >
                   <Box>
                     {config.showPreview ? (
                       <Box display="flex" justifyContent="center">
                         <Image
                           src={
                             previewUrl ||
-                            getUserProfilePictureUrl() ||
+                            (description === "logo_url"
+                              ? getLogoUrl()
+                              : getUserProfilePictureUrl()) ||
                             (typeof field.value === "string"
                               ? field.value
                               : "/assets/imgplaceholder.png")
@@ -185,7 +260,15 @@ export const FileField = ({
                       Click to change file
                     </Text>
                   </Box>
-                ) : (
+                </Box>
+              ) : (
+                <Box
+                  borderRadius={fileType === "image" ? "full" : "md"}
+                  p={4}
+                  textAlign="center"
+                  cursor="pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                >
                   <Box>
                     {description === "profile_picture_url" ||
                     description === "logo_url" ? (
@@ -219,12 +302,12 @@ export const FileField = ({
                       <Text>{config.emptyText}</Text>
                     )}
 
-                    <Text fontSize="sm" color="gray.500">
+                    <Text fontSize="sm" color="gray.500" mt={2}>
                       {config.helpText}
                     </Text>
                   </Box>
-                )}
-              </Box>
+                </Box>
+              )}
             </>
           );
         }}

@@ -94,3 +94,19 @@ export function useLogoUpload(userType: string) {
     },
   });
 }
+
+export function useUserProfile(userType: string) {
+  return useQuery({
+    queryKey: ["user-profile", userType],
+    queryFn: () =>
+      apiRequest({ endpoint: API_ENDPOINTS.USER_PROFILE(userType) }),
+    enabled: !!userType,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+}

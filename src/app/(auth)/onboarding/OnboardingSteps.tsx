@@ -240,7 +240,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
 
       const { setUserProfile, setUserProfilePictureUrl } =
         useAuthStore.getState();
-      setUserProfile(submissionResponse);
 
       const profilePicture = allData.profile_picture_url;
       const resume = allData.resume_url;

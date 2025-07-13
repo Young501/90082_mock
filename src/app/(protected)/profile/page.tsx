@@ -25,14 +25,12 @@ import { createPageSchema } from "@/utils/validationSchemas";
 import { FieldRenderer } from "../../(auth)/onboarding/FieldRenderer";
 import { Question } from "@/types/onboarding";
 import Image from "next/image";
-import {
-  OnboardingPage,
-  OnboardingData,
-  UserProfile,
-  Tab,
-} from "@/types/profile";
+import { OnboardingPage, OnboardingData, Tab } from "@/types/profile";
+
+import { UserProfile } from "@/types/shared";
+
 import { toast } from "react-toastify";
-import { checkOnboardingStatus } from "@/hooks/auth";
+import { useProfile } from "@/hooks/useProfile";
 
 const Profile = () => {
   const {
@@ -51,6 +49,12 @@ const Profile = () => {
   >(null);
 
   const userType: string = user?.user_types?.[0] || "";
+
+  const {
+    userProfile: fetchedUserProfile,
+    isLoading: isProfileLoading,
+    handleOnboardingRedirect,
+  } = useProfile(userType);
 
   const { data: onboardingData, isLoading: isOnboardingLoading } =
     useOnboardingPages(userType);
@@ -83,10 +87,23 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    if (userProfile) {
+    if (fetchedUserProfile) {
+      setProfileData(fetchedUserProfile);
+    } else if (userProfile) {
       setProfileData(userProfile);
     }
-  }, [userProfile]);
+  }, [fetchedUserProfile, userProfile]);
+
+  useEffect(() => {
+    if (!isProfileLoading && !fetchedUserProfile && userType) {
+      handleOnboardingRedirect(false);
+    }
+  }, [
+    isProfileLoading,
+    fetchedUserProfile,
+    userType,
+    handleOnboardingRedirect,
+  ]);
 
   useEffect(() => {
     if (profileData) {
@@ -186,6 +203,8 @@ const Profile = () => {
     delete submissionData.profile_picture_url;
     delete submissionData.resume_url;
     delete submissionData.logo_url;
+    delete submissionData.resume;
+    delete submissionData.logo;
 
     try {
       const profileUpdateResponse =
