@@ -1,6 +1,11 @@
 import { API_ENDPOINTS, apiRequest } from "@/api";
 import { useAuthStore } from "@/store";
-import { LoginData, PasswordResetData, SignupData } from "@/types/auth";
+import {
+  LoginData,
+  PasswordResetData,
+  SignupData,
+  PasswordResetConfirmData,
+} from "@/types/auth";
 import { User } from "@/types/user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -91,6 +96,31 @@ export const useAuth = () => {
     },
     onError: (error: any) => {
       const errorMessage = getErrorMessage(error, "Signup failed");
+      toast.error(errorMessage);
+      setErrorMsg(errorMessage);
+    },
+  });
+
+  const passwordResetConfirmMutation = useMutation({
+    mutationFn: async (data: PasswordResetConfirmData) => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.PASSWORD_RESET_CONFIRM,
+        body: {
+          token: data.token,
+          new_password: data.new_password,
+          confirm_password: data.confirm_password,
+        },
+      });
+    },
+    onSuccess: (response) => {
+      const successMessage = getSuccessMessage(
+        response,
+        "Password reset successfully"
+      );
+      toast.success(successMessage);
+    },
+    onError: (error: any) => {
+      const errorMessage = getErrorMessage(error, "Failed to reset password");
       toast.error(errorMessage);
       setErrorMsg(errorMessage);
     },
@@ -192,12 +222,32 @@ export const useAuth = () => {
     }
   };
 
+  const handlePasswordResetConfirm = async (data: {
+    token: string;
+    new_password: string;
+    confirm_password: string;
+    callback?: () => void;
+  }) => {
+    try {
+      await passwordResetConfirmMutation.mutateAsync({
+        token: data.token,
+        new_password: data.new_password,
+        confirm_password: data.confirm_password,
+      });
+      data.callback?.();
+    } catch (error) {
+      console.error("Password reset confirm failed:", error);
+      throw error;
+    }
+  };
+
   return {
     checkOnboardingStatus,
     handleLogout,
     handleLogin,
     handleSignup,
     handleForgotPassword,
+    handlePasswordResetConfirm,
     loginMutation,
     signupMutation,
     passwordResetMutation,
@@ -207,6 +257,9 @@ export const useAuth = () => {
     loginError: loginMutation.error,
     signupError: signupMutation.error,
     passwordResetError: passwordResetMutation.error,
+    passwordResetConfirmMutation,
+    isPasswordResetConfirmLoading: passwordResetConfirmMutation.isPending,
+    passwordResetConfirmError: passwordResetConfirmMutation.error,
     user,
     errorMsg,
   };
