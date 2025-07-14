@@ -286,7 +286,7 @@ const Folder = () => {
           </Box>
         ) : (
           <SimpleGrid
-            columns={{ base: 1, md: 2, xl: 3 }}
+            columns={{ base: 1, md: 2, lg: 3 }}
             gap={{ base: 10, md: 15, xl: 20 }}
             px={{ base: 10, md: 15, xl: 20 }}
           >
