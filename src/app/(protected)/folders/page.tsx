@@ -163,7 +163,7 @@ const Folder = () => {
                   </Text>
                 </Box>
               ) : (
-                <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
+                <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={6}>
                   {membersArray.map((member: any) => {
                     const userData = member.user || member;
                     const userType =
@@ -220,7 +220,7 @@ const Folder = () => {
       <VStack
         align="stretch"
         gap={20}
-        h={{ base: "100%", lg: "calc(100vh - 252px)" }}
+        h={{ base: "100%", lg: "calc(100vh - 300px)" }}
       >
         <Button
           onClick={() => folderModal.onOpen()}
@@ -269,15 +269,27 @@ const Folder = () => {
               <Text fontSize="35px" fontWeight="700" color="#282F68">
                 You haven&apos;t created any folders yet.
               </Text>
-              <Text fontSize="22px" color="#000000" maxW="530px">
-                Use folders to organize and save student profiles you&apos;re
-                interested in. Create a folder to start building your talent
-                pipeline.
-              </Text>
+              {user?.user_types?.[0] === "student" ? (
+                <Text fontSize="22px" color="#000000" maxW="530px">
+                  Use folders to organize and save student profiles you&apos;re
+                  interested in. Create a folder to start building your talent
+                  pipeline.
+                </Text>
+              ) : (
+                <Text fontSize="22px" color="#000000" maxW="530px">
+                  Use folders to organize and save organization profiles
+                  you&apos;re interested in. Create a folder to start building
+                  your talent pipeline.
+                </Text>
+              )}
             </VStack>
           </Box>
         ) : (
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={20} px={20}>
+          <SimpleGrid
+            columns={{ base: 1, md: 2, xl: 3 }}
+            gap={{ base: 10, md: 15, xl: 20 }}
+            px={{ base: 10, md: 15, xl: 20 }}
+          >
             {folders.map((folder) => (
               <FolderCard
                 key={folder.id}

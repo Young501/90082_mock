@@ -40,16 +40,11 @@ export const FolderCard: React.FC<FolderCardProps> = ({
       cursor="pointer"
       position="relative"
       w="100%"
-      maxW="350px"
+      maxW={{ base: "100%", lg: "350px" }}
       display="flex"
       flexDirection="column"
       alignItems="center"
       justifyContent="center"
-      onClick={onClick}
-      _hover={{
-        transform: "translateY(-2px)",
-        boxShadow: "-4px 6px 15px 4px #0000004D",
-      }}
     >
       {(onEdit || onDelete) && (
         <Box position="absolute" top={4} right={4} zIndex={10}>
@@ -70,14 +65,29 @@ export const FolderCard: React.FC<FolderCardProps> = ({
                   display="flex"
                   gap={1}
                   flexDirection="column"
-                  w="60px"
-                  h="60px"
+                  w={{ base: "40px", md: "45px", xl: "60px" }}
+                  h={{ base: "40px", md: "45px", xl: "60px" }}
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <Box bg="#7E7E7E" w="9px" h="9px" borderRadius="50%" />
-                  <Box bg="#7E7E7E" w="9px" h="9px" borderRadius="50%" />
-                  <Box bg="#7E7E7E" w="9px" h="9px" borderRadius="50%" />
+                  <Box
+                    bg="#7E7E7E"
+                    w={{ base: "4px", md: "5px", xl: "9px" }}
+                    h={{ base: "4px", md: "6px", xl: "9px" }}
+                    borderRadius="50%"
+                  />
+                  <Box
+                    bg="#7E7E7E"
+                    w={{ base: "4px", md: "5px", xl: "9px" }}
+                    h={{ base: "4px", md: "6px", xl: "9px" }}
+                    borderRadius="50%"
+                  />
+                  <Box
+                    bg="#7E7E7E"
+                    w={{ base: "4px", md: "5px", xl: "9px" }}
+                    h={{ base: "4px", md: "6px", xl: "9px" }}
+                    borderRadius="50%"
+                  />
                 </Box>
               </IconButton>
             </Menu.Trigger>
@@ -118,7 +128,6 @@ export const FolderCard: React.FC<FolderCardProps> = ({
                     <Menu.Item
                       value="delete"
                       onClick={() => setDeleteModalOpen(true)}
-                      _hover={{ bg: "#FEF2F2" }}
                       px={4}
                       py={2}
                       fontSize="14px"
@@ -141,7 +150,13 @@ export const FolderCard: React.FC<FolderCardProps> = ({
         </Box>
       )}
 
-      <VStack justify="center" align="center" w="100%" gap={4}>
+      <VStack
+        justify="center"
+        align="center"
+        w="100%"
+        gap={4}
+        onClick={onClick}
+      >
         <Box>
           <Image
             src="/assets/folderimage.png"
@@ -150,7 +165,11 @@ export const FolderCard: React.FC<FolderCardProps> = ({
             height={160}
           />
         </Box>
-        <Text fontSize="18px" fontWeight="600" color="#000000" mb={2}>
+        <Text
+          fontSize={{ base: "16px", lg: "18px" }}
+          fontWeight="600"
+          color="#000000"
+        >
           {folder.name}
         </Text>
       </VStack>

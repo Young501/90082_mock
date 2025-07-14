@@ -63,7 +63,7 @@ export const DeleteModal = ({
           </Text>
 
           <Box display="flex" gap={4} justifyContent="flex-end">
-            <Button
+            {/* <Button
               bg="transparent"
               color="#000000"
               borderRadius="8px"
@@ -75,7 +75,7 @@ export const DeleteModal = ({
               px={6}
             >
               Cancel
-            </Button>
+            </Button> */}
             <Button
               bg="#DC2626"
               color="white"

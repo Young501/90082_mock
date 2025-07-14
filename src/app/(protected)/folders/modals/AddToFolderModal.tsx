@@ -166,7 +166,7 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
                   >
                     Add
                   </Button>
-                  <Button
+                  {/* <Button
                     bg="transparent"
                     color="#000000"
                     borderRadius="8px"
@@ -179,7 +179,7 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
                     border="1px solid #000000"
                   >
                     Cancel
-                  </Button>
+                  </Button> */}
                 </Box>
               </VStack>
             </form>
