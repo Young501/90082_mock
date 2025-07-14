@@ -12,20 +12,26 @@ import {
 import { PartnerProfile } from "@/types/discovery";
 import Image from "next/image";
 import { FullProfileCard } from "./FullProfileCard";
+import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
 
 interface PartnerCardProps {
   partner: PartnerProfile;
   maxW?: string;
   profilePictureUrl?: string | null;
+  isInFolder?: boolean;
+  onRemoveFromFolder?: () => void;
 }
 
 export function PartnerCard({
   partner,
   maxW,
   profilePictureUrl,
+  isInFolder = false,
+  onRemoveFromFolder,
 }: PartnerCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
-
+  const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
+  const [clickBackground, setClickBackground] = useState(false);
   const getCompanyLogo = () => {
     if (profilePictureUrl) {
       return profilePictureUrl;
@@ -40,10 +46,21 @@ export function PartnerCard({
     }
   };
 
+  const handleAddToFolder = () => {
+    setClickBackground(true);
+    if (partner.id) {
+      if (isInFolder && onRemoveFromFolder) {
+        onRemoveFromFolder();
+      } else {
+        setShowAddToFolderModal(true);
+      }
+    }
+  };
+
   return (
     <>
       <Box
-        bg="#D1D1D1"
+        bg={clickBackground ? "#2CA9DF" : "#D1D1D1"}
         borderRadius="2xl"
         border="1px solid"
         borderColor="gray.200"
@@ -64,12 +81,17 @@ export function PartnerCard({
             alignItems="center"
             justifyContent="center"
             cursor="pointer"
+            _focus={{
+              outline: "none",
+              bg: "#2CA9DF",
+            }}
+            onClick={handleAddToFolder}
           >
             <Image
               width={20}
               height={20}
-              src="/assets/addicon.svg"
-              alt="add"
+              src={isInFolder ? "/assets/cancel.svg" : "/assets/addicon.svg"}
+              alt={isInFolder ? "remove" : "add"}
               objectFit="contain"
             />
           </Box>
@@ -292,6 +314,15 @@ export function PartnerCard({
           profileId={partner.id.toString()}
           profileType="partner"
           onClose={() => setShowFullProfile(false)}
+        />
+      )}
+
+      {showAddToFolderModal && partner.id && !isInFolder && (
+        <AddToFolderModal
+          isOpen={showAddToFolderModal}
+          onClose={() => setShowAddToFolderModal(false)}
+          userId={partner.id.toString()}
+          userName={partner.company_name || "Partner"}
         />
       )}
     </>
