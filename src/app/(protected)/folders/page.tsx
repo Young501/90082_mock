@@ -49,7 +49,7 @@ const Folder = () => {
       await deleteFolder.mutateAsync(folderId);
       toast.success("Folder deleted successfully!");
     } catch (error: any) {
-      toast.error("Failed to delete folder");
+      toast.error(error.response.data?.detail);
     }
   };
 
@@ -70,9 +70,10 @@ const Folder = () => {
 
     try {
       await removeMemberFromFolder.mutateAsync({ folderId, userId });
+      // awaiting test
       toast.success("User removed from folder successfully!");
     } catch (error: any) {
-      toast.error("Failed to remove user from folder");
+      toast.error(error.response.data?.detail);
     }
   };
 

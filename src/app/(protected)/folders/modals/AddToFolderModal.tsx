@@ -65,12 +65,12 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
       );
 
       toast.success(
-        `${userName} has been added to ${data.selectedFolders.length} folder(s)`
+        `${userName} has been added to ${data.selectedFolders.length} folder ${data.selectedFolders.length > 1 ? "s" : ""} `
       );
       handleClose();
     } catch (error: any) {
-      console.error("Error adding user to folders:", error);
-      toast.error("Failed to add user to folders. Please try again.");
+      console.error(error.response);
+      toast.error(error.response.data?.detail);
     } finally {
       setIsAdding(false);
     }
@@ -101,7 +101,6 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
         w="90%"
         maxW="500px"
         p={6}
-        boxShadow="0px 5.92px 11.84px 5.92px #00000040"
         onClick={(e) => e.stopPropagation()}
         position="relative"
       >

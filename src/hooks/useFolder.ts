@@ -9,17 +9,7 @@ import {
   useUpdateFolder,
 } from "@/services/folder";
 import { CreateFolderRequest, Folder } from "@/types/folder";
-
-const createFolderSchema = yup.object({
-  name: yup
-    .string()
-    .required("Folder name is required")
-    .min(1, "Folder name cannot be empty"),
-  description: yup
-    .string()
-    .required("Description is required")
-    .min(1, "Description cannot be empty"),
-});
+import { createFolderSchema } from "@/utils/validationSchemas";
 
 export function useFolderModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -68,6 +58,7 @@ export function useFolderModal() {
             description: data.description,
           },
         });
+
         toast.success("Folder updated successfully!");
       } else {
         await createFolderMutation.mutateAsync(data);
@@ -76,8 +67,8 @@ export function useFolderModal() {
       onClose();
     } catch (error: any) {
       const errorMessage = isEditMode
-        ? error?.response?.data?.error || "Failed to update folder"
-        : error?.response?.data?.error || "Failed to create folder";
+        ? error?.response?.data?.name[0] || "Failed to update folder"
+        : error?.response?.data?.name[0] || "Failed to create folder";
       toast.error(errorMessage);
     }
   };

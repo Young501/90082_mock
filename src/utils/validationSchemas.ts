@@ -178,3 +178,14 @@ export const resetPasswordValidationSchema = yup.object({
     .required("Email is required")
     .email("Invalid email format"),
 });
+
+export const createFolderSchema = yup.object({
+  name: yup
+    .string()
+    .required("Folder name is required")
+    .min(1, "Folder name cannot be empty"),
+  description: yup
+    .string()
+    .required("Description is required")
+    .min(1, "Description cannot be empty"),
+});
