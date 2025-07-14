@@ -17,64 +17,150 @@ import { StudentProfile, PartnerProfile } from "@/types/discovery";
 import { useStudentProfile, usePartnerProfile } from "@/services/shared";
 import Image from "next/image";
 import BadgeSection from "@/components/BadgeSection";
+import { Globe } from "lucide-react";
 
 interface FullProfileCardProps {
   profileId: string;
   profileType: "student" | "partner";
-  onClose: () => void;
+  onClose?: () => void;
+  isModal?: boolean;
+  studentProfile?: StudentProfile;
+  partnerProfile?: PartnerProfile;
 }
 
 export function FullProfileCard({
   profileId,
   profileType,
   onClose,
+  isModal = true,
+  studentProfile,
+  partnerProfile,
 }: FullProfileCardProps) {
+  const shouldFetchStudent = profileType === "student" && !studentProfile;
+  const shouldFetchPartner = profileType === "partner" && !partnerProfile;
+
   const {
     data: studentData,
     isLoading: isStudentLoading,
     error: studentError,
-  } = useStudentProfile(profileType === "student" ? profileId : "");
+  } = useStudentProfile(shouldFetchStudent ? profileId : "");
 
   const {
     data: partnerData,
     isLoading: isPartnerLoading,
     error: partnerError,
-  } = usePartnerProfile(profileType === "partner" ? profileId : "");
+  } = usePartnerProfile(shouldFetchPartner ? profileId : "");
 
   const isLoading = isStudentLoading || isPartnerLoading;
   const error = studentError || partnerError;
-  const profile = profileType === "student" ? studentData : partnerData;
+  const profile =
+    profileType === "student"
+      ? studentProfile || studentData
+      : partnerProfile || partnerData;
 
   if (isLoading) {
-    return (
-      <Box
-        position="fixed"
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
-        bg="blackAlpha.600"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        zIndex={1000}
-      >
+    if (isModal) {
+      return (
         <Box
-          bg="white"
-          borderRadius="xl"
-          p={8}
-          maxW="md"
-          w="90%"
-          textAlign="center"
+          position="fixed"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          bg="blackAlpha.600"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          zIndex={1000}
         >
-          <Spinner size="xl" color="blue.500" />
-          <Text mt={4}>Loading profile...</Text>
+          <Box
+            bg="white"
+            borderRadius="xl"
+            p={8}
+            maxW="md"
+            w="90%"
+            textAlign="center"
+          >
+            <Spinner size="xl" color="blue.500" />
+            <Text mt={4}>Loading profile...</Text>
+          </Box>
         </Box>
+      );
+    }
+    return (
+      <Box textAlign="center" p={8}>
+        <Spinner size="xl" color="blue.500" />
+        <Text mt={4}>Loading profile...</Text>
       </Box>
     );
   }
 
   if (error || !profile) {
+    if (isModal) {
+      return (
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          bg="blackAlpha.600"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          zIndex={1000}
+          onClick={onClose}
+        >
+          <Box
+            bg="white"
+            borderRadius="xl"
+            p={8}
+            maxW="md"
+            w="90%"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Alert.Root status="error">
+              <Alert.Content>
+                <Alert.Title>Error</Alert.Title>
+                <Alert.Indicator />
+                <Alert.Description>
+                  Failed to load profile. Please try again.
+                </Alert.Description>
+              </Alert.Content>
+            </Alert.Root>
+            <Button mt={4} onClick={onClose} w="full">
+              Close
+            </Button>
+          </Box>
+        </Box>
+      );
+    }
+    return (
+      <Alert.Root status="error">
+        <Alert.Content>
+          <Alert.Title>Error</Alert.Title>
+          <Alert.Indicator />
+          <Alert.Description>
+            Failed to load profile. Please try again.
+          </Alert.Description>
+        </Alert.Content>
+      </Alert.Root>
+    );
+  }
+
+  const profileContent = (
+    <Box>
+      <VStack gap={6} align="stretch">
+        {profileType === "student" ? (
+          <RenderStudentDetails student={profile as StudentProfile} />
+        ) : (
+          <RenderPartnerDetails partner={profile as PartnerProfile} />
+        )}
+      </VStack>
+    </Box>
+  );
+
+  if (isModal) {
     return (
       <Box
         position="fixed"
@@ -91,24 +177,48 @@ export function FullProfileCard({
       >
         <Box
           bg="white"
-          borderRadius="xl"
-          p={8}
-          maxW="md"
+          borderRadius="20px"
           w="90%"
+          boxShadow="0px 5.92px 11.84px 5.92px #00000040"
+          maxW="1000px"
+          maxH="90vh"
+          overflow="auto"
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }}
+          css={{
+            "&::-webkit-scrollbar": {
+              display: "none",
+            },
+          }}
           onClick={(e) => e.stopPropagation()}
+          position="relative"
         >
-          <Alert.Root status="error">
-            <Alert.Content>
-              <Alert.Title>Error</Alert.Title>
-              <Alert.Indicator />
-              <Alert.Description>
-                Failed to load profile. Please try again.
-              </Alert.Description>
-            </Alert.Content>
-          </Alert.Root>
-          <Button mt={4} onClick={onClose} w="full">
-            Close
+          <Button
+            position="sticky"
+            zIndex={1000}
+            size="sm"
+            variant="ghost"
+            w="100%"
+            display="flex"
+            justifyContent="end"
+            onClick={onClose}
+            pr={4}
+            pt={4}
+            bg="white"
+            borderRadius="full"
+            ml="auto"
+            mb={-10}
+          >
+            <Image
+              src="/assets/cancel.svg"
+              alt="Close"
+              width={25}
+              height={25}
+            />
           </Button>
+          {profileContent}
         </Box>
       </Box>
     );
@@ -116,67 +226,22 @@ export function FullProfileCard({
 
   return (
     <Box
-      position="fixed"
-      top={0}
-      left={0}
-      right={0}
-      bottom={0}
-      bg="blackAlpha.600"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      zIndex={1000}
-      onClick={onClose}
+      bg="white"
+      borderRadius="20px"
+      w="100%"
+      boxShadow="0px 5.92px 11.84px 5.92px #00000040"
+      overflow="auto"
+      style={{
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+      }}
+      css={{
+        "&::-webkit-scrollbar": {
+          display: "none",
+        },
+      }}
     >
-      <Box
-        bg="white"
-        borderRadius="20px"
-        w="90%"
-        boxShadow="0px 5.92px 11.84px 5.92px #00000040"
-        maxW="1000px"
-        maxH="90vh"
-        overflow="auto"
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-        css={{
-          "&::-webkit-scrollbar": {
-            display: "none",
-          },
-        }}
-        onClick={(e) => e.stopPropagation()}
-        position="relative"
-      >
-        <Button
-          position="sticky"
-          zIndex={1000}
-          size="sm"
-          variant="ghost"
-          w="100%"
-          display="flex"
-          justifyContent="end"
-          onClick={onClose}
-          pr={4}
-          pt={4}
-          bg="white"
-          borderRadius="full"
-          ml="auto"
-          mb={-10}
-        >
-          <Image src="/assets/cancel.svg" alt="Close" width={25} height={25} />
-        </Button>
-
-        <Box>
-          <VStack gap={6} align="stretch">
-            {profileType === "student" ? (
-              <RenderStudentDetails student={profile as StudentProfile} />
-            ) : (
-              <RenderPartnerDetails partner={profile as PartnerProfile} />
-            )}
-          </VStack>
-        </Box>
-      </Box>
+      {profileContent}
     </Box>
   );
 }
@@ -229,7 +294,7 @@ const RenderStudentDetails = ({ student }: { student: StudentProfile }) => (
 
       <VStack justify="start" w="full" gap={2} align="start">
         {student.email && (
-          <Box display="flex" gap={2} alignItems="start">
+          <Box display="flex" gap={2} alignItems="center">
             <Image
               src="/assets/mailicon.svg"
               alt="Mail"
@@ -240,8 +305,16 @@ const RenderStudentDetails = ({ student }: { student: StudentProfile }) => (
             <Text textDecoration="underline">{student?.email || "-"}</Text>
           </Box>
         )}
-        {student.instagram && (
-          <Box display="flex" gap={2} alignItems="start">
+        {student.homepage && (
+          <Box display="flex" gap={2} alignItems="center">
+            <Globe size={25} style={{ color: "#C3C3C3", fontWeight: "600" }} />
+            <Link href={student.homepage} target="_blank">
+              <Text textDecoration="underline">{student?.homepage || "-"}</Text>
+            </Link>
+          </Box>
+        )}
+        {student.linkedin && (
+          <Box display="flex" gap={2} alignItems="center">
             <Image
               src="/assets/linkedin.svg"
               alt="LinkedIn"
@@ -249,7 +322,12 @@ const RenderStudentDetails = ({ student }: { student: StudentProfile }) => (
               height={20}
               objectFit="contain"
             />
-            <Text textDecoration="underline">{student?.linkedin || "-"}</Text>
+            <Text
+              textDecoration="underline"
+              onClick={() => window.open(student.linkedin, "_blank")}
+            >
+              LinkedIn
+            </Text>
           </Box>
         )}
         {student.instagram && (
@@ -261,7 +339,12 @@ const RenderStudentDetails = ({ student }: { student: StudentProfile }) => (
               height={20}
               objectFit="contain"
             />
-            <Text textDecoration="underline">{student?.instagram || "-"}</Text>
+            <Text
+              textDecoration="underline"
+              onClick={() => window.open(student.instagram, "_blank")}
+            >
+              Instagram
+            </Text>
           </Box>
         )}
         {student.bluesky && (
@@ -272,11 +355,21 @@ const RenderStudentDetails = ({ student }: { student: StudentProfile }) => (
               width={20}
               height={20}
             />
-            <Text textDecoration="underline">{student?.bluesky || "-"}</Text>
+            <Text
+              textDecoration="underline"
+              onClick={() => window.open(student.bluesky, "_blank")}
+            >
+              Bluesky
+            </Text>
           </Box>
         )}
       </VStack>
-      <VStack gap={3} justify="center" w="full" align="end">
+      <VStack
+        gap={3}
+        justify="center"
+        w="full"
+        alignSelf={{ base: "center", lg: "end" }}
+      >
         <Button
           bg={"#DC2626"}
           color="white"
@@ -530,7 +623,7 @@ const RenderPartnerDetails = ({ partner }: { partner: PartnerProfile }) => (
           </HStack>
         )}
 
-        {partner.homepage && (
+        {partner.email && (
           <HStack gap={2} align="center">
             <Image
               src="/assets/emailicon.svg"
@@ -538,6 +631,21 @@ const RenderPartnerDetails = ({ partner }: { partner: PartnerProfile }) => (
               width={16}
               height={16}
             />
+            <Link
+              href={`mailto:${partner.email}`}
+              target="_blank"
+              fontSize="14px"
+              color="blue.500"
+              textDecoration="underline"
+            >
+              {partner.email}
+            </Link>
+          </HStack>
+        )}
+
+        {partner.homepage && (
+          <HStack gap={2} align="center">
+            <Globe size={16} color="#C3C3C3" />
             <Link
               href={partner.homepage}
               target="_blank"

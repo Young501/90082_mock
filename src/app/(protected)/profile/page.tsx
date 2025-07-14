@@ -16,6 +16,7 @@ import {
   Flex,
   Avatar,
   Progress,
+  VStack,
 } from "@chakra-ui/react";
 import { StudentCard } from "../discover/cards/studentCard";
 import { PartnerCard } from "../discover/cards/partnerCard";
@@ -31,6 +32,7 @@ import { UserProfile } from "@/types/shared";
 
 import { toast } from "react-toastify";
 import { useProfile } from "@/hooks/useProfile";
+import { FullProfileCard } from "../discover/cards/FullProfileCard";
 
 const Profile = () => {
   const {
@@ -247,12 +249,11 @@ const Profile = () => {
   };
 
   return (
-    <Box p={6} maxW="1280px" mx="auto" mt="126px">
+    <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt="126px">
       <Flex
-        justifyContent="space-between"
         w="100%"
         direction={{ base: "column", md: "row" }}
-        gap={{ base: 4, lg: 0 }}
+        gap={{ base: 4, lg: 20 }}
       >
         <Box
           bg="white"
@@ -370,7 +371,7 @@ const Profile = () => {
           </Box>
         </Box>
 
-        <Box maxW={{ base: "100%", lg: "57%" }} bg="white" p={6} flex={1}>
+        <Box maxW={{ base: "100%" }} w="100%" bg="white" p={6} flex={1}>
           <Text fontSize="25px" fontWeight="bold" mb={6} color="#000000">
             {tabs[activeTab]?.title || "Tab Details"}
           </Text>
@@ -379,18 +380,34 @@ const Profile = () => {
             <Box>
               {userProfile &&
                 (userType === "student" ? (
-                  <StudentCard
-                    student={userProfile}
-                    profilePictureUrl={getUserProfilePictureUrl()}
-                    userType={userType}
-                    maxW="500px"
-                  />
+                  <VStack gap={10} w="full" align="flex-start">
+                    <StudentCard
+                      student={userProfile}
+                      profilePictureUrl={getUserProfilePictureUrl()}
+                      userType={userType}
+                      maxW="500px"
+                    />
+                    <FullProfileCard
+                      profileId={userProfile.id?.toString() || ""}
+                      profileType="student"
+                      isModal={false}
+                      studentProfile={userProfile}
+                    />
+                  </VStack>
                 ) : (
-                  <PartnerCard
-                    partner={userProfile}
-                    profilePictureUrl={getUserProfilePictureUrl()}
-                    maxW="500px"
-                  />
+                  <VStack gap={10} w="full" align="flex-start">
+                    <PartnerCard
+                      partner={userProfile}
+                      profilePictureUrl={getUserProfilePictureUrl()}
+                      maxW="500px"
+                    />
+                    <FullProfileCard
+                      profileId={userProfile.id?.toString() || ""}
+                      profileType="partner"
+                      isModal={false}
+                      partnerProfile={userProfile}
+                    />
+                  </VStack>
                 ))}
             </Box>
           ) : (
