@@ -13,6 +13,7 @@ import { StudentProfile } from "@/types/discovery";
 import Image from "next/image";
 import { FullProfileCard } from "./FullProfileCard";
 import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
+import { DeleteModal } from "../../folders/modals/DeleteModal";
 
 interface StudentCardProps {
   student: StudentProfile;
@@ -34,7 +35,7 @@ export function StudentCard({
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
   const [clickBackground, setClickBackground] = useState(false);
-
+  const [deleteModal, setDeleteModal] = useState(false);
   const getDisplayName = () => {
     const firstName = student.first_name || "";
     const lastName = student.last_name || "";
@@ -51,14 +52,14 @@ export function StudentCard({
 
   const getSkillsData = () => {
     if (
-      !student.skills ||
+      !student?.skills ||
       !Array.isArray(student.skills) ||
       student.skills.length === 0
     ) {
       return [];
     }
 
-    return student.skills;
+    return student?.skills;
   };
 
   const handleViewFullProfile = () => {
@@ -71,7 +72,7 @@ export function StudentCard({
     setClickBackground(true);
     if (student.id) {
       if (isInFolder && onRemoveFromFolder) {
-        onRemoveFromFolder();
+        setDeleteModal(true);
       } else {
         setShowAddToFolderModal(true);
       }
@@ -115,13 +116,20 @@ export function StudentCard({
             }}
             onClick={handleAddToFolder}
           >
-            <Image
-              width={20}
-              height={20}
-              src={isInFolder ? "/assets/cancel.svg" : "/assets/addicon.svg"}
-              alt={isInFolder ? "remove" : "add"}
-              objectFit="contain"
-            />
+            {isInFolder ? (
+              <i
+                className="fa-solid fa-trash"
+                style={{ color: "#DC2626", fontSize: "20px" }}
+              />
+            ) : (
+              <Image
+                width={20}
+                height={20}
+                src="/assets/addicon.svg"
+                alt="add"
+                objectFit="contain"
+              />
+            )}
           </Box>
         </Box>
 
@@ -365,6 +373,15 @@ export function StudentCard({
           onClose={() => setShowAddToFolderModal(false)}
           userId={student.id.toString()}
           userName={getDisplayName()}
+        />
+      )}
+
+      {deleteModal && (
+        <DeleteModal
+          isOpen={deleteModal}
+          onClose={() => setDeleteModal(false)}
+          onDelete={() => onRemoveFromFolder?.()}
+          InFolder={true}
         />
       )}
     </>

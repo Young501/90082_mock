@@ -13,6 +13,7 @@ import { PartnerProfile } from "@/types/discovery";
 import Image from "next/image";
 import { FullProfileCard } from "./FullProfileCard";
 import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
+import { DeleteModal } from "../../folders/modals/DeleteModal";
 
 interface PartnerCardProps {
   partner: PartnerProfile;
@@ -32,6 +33,7 @@ export function PartnerCard({
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
   const [clickBackground, setClickBackground] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
   const getCompanyLogo = () => {
     if (profilePictureUrl) {
       return profilePictureUrl;
@@ -50,7 +52,7 @@ export function PartnerCard({
     setClickBackground(true);
     if (partner.id) {
       if (isInFolder && onRemoveFromFolder) {
-        onRemoveFromFolder();
+        setDeleteModal(true);
       } else {
         setShowAddToFolderModal(true);
       }
@@ -87,13 +89,20 @@ export function PartnerCard({
             }}
             onClick={handleAddToFolder}
           >
-            <Image
-              width={20}
-              height={20}
-              src={isInFolder ? "/assets/cancel.svg" : "/assets/addicon.svg"}
-              alt={isInFolder ? "remove" : "add"}
-              objectFit="contain"
-            />
+            {isInFolder ? (
+              <i
+                className="fa-solid fa-trash"
+                style={{ color: "#DC2626", fontSize: "20px" }}
+              />
+            ) : (
+              <Image
+                width={20}
+                height={20}
+                src="/assets/addicon.svg"
+                alt="add"
+                objectFit="contain"
+              />
+            )}
           </Box>
         </Box>
 
@@ -323,6 +332,15 @@ export function PartnerCard({
           onClose={() => setShowAddToFolderModal(false)}
           userId={partner.id.toString()}
           userName={partner.company_name || "Partner"}
+        />
+      )}
+
+      {deleteModal && (
+        <DeleteModal
+          isOpen={deleteModal}
+          onClose={() => setDeleteModal(false)}
+          onDelete={() => onRemoveFromFolder?.()}
+          InFolder={true}
         />
       )}
     </>

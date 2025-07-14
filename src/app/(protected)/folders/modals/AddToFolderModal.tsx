@@ -65,7 +65,7 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
       );
 
       toast.success(
-        `${userName} has been added to ${data.selectedFolders.length} folder ${data.selectedFolders.length > 1 ? "s" : ""} `
+        `${userName} has been added to ${data.selectedFolders.length} folder${data.selectedFolders.length > 1 ? "s" : ""} `
       );
       handleClose();
     } catch (error: any) {
