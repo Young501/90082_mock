@@ -136,6 +136,14 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v1/${userType}/upload-logo`,
   }),
+  STUDENT_PROFILE: (id: string): ApiEndpoint => ({
+    method: "GET",
+    url: `/api/v1/student/${id}`,
+  }),
+  PARTNER_PROFILE: (id: string): ApiEndpoint => ({
+    method: "GET",
+    url: `/api/v1/partner/${id}`,
+  }),
   OPPORTUNITY_DETAIL: (opportunityId: string): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/opportunities/${opportunityId}/`,
