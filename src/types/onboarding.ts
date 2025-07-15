@@ -34,10 +34,12 @@ export interface Question {
     | "textarea"
     | "tag-select"
     | "checkbox-group"
+    | "boolean-checkbox"
     | "card-select";
 
   required?: boolean;
   icon?: string;
+  description?: string;
   options?: string[];
   option?: string[];
   max_selection?: number;
