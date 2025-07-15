@@ -107,6 +107,10 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: "/api/v1/user-types",
   },
+  ACCEPTED_OPPORTUNITIES: {
+    method: "GET",
+    url: "/api/v1/opportunities/accepted/",
+  },
   USERS_SEARCH: {
     method: "GET",
     url: "/api/v1/users/search",
@@ -139,6 +143,14 @@ export const API_ENDPOINTS = {
   LOGO_UPLOAD: (userType: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/${userType}/upload-logo`,
+  }),
+  STUDENT_PROFILE: (id: string): ApiEndpoint => ({
+    method: "GET",
+    url: `/api/v1/student/${id}`,
+  }),
+  PARTNER_PROFILE: (id: string): ApiEndpoint => ({
+    method: "GET",
+    url: `/api/v1/partner/${id}`,
   }),
   OPPORTUNITY_DETAIL: (opportunityId: string): ApiEndpoint => ({
     method: "GET",

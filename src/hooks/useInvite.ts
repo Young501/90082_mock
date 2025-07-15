@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { getOpportunityDetail, acceptInvite } from "@/services/invite";
@@ -29,6 +29,7 @@ export const useOpportunityDetail = (opportunityId: string) => {
 
 export const useAcceptInvite = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: ({
@@ -39,6 +40,7 @@ export const useAcceptInvite = () => {
       token: string;
     }) => acceptInvite(opportunityId, token),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["accepted-opportunities"] });
       setTimeout(() => {
         router.push("/discover");
       }, 3000);

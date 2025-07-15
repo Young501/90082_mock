@@ -63,6 +63,7 @@ export const useAuth = () => {
     onSuccess: (response) => {
       setAuthData(response.token, response.user);
       queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["accepted-opportunities"] });
       checkOnboardingStatus({
         user: response.user,
         router,

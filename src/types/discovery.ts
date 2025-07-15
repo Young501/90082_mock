@@ -42,6 +42,7 @@ export interface StudentProfile {
   status?: "International" | string;
   faculty?: string;
   resume_url?: string;
+  email?: string;
 }
 
 export interface PartnerProfile {
@@ -65,10 +66,18 @@ export interface PartnerProfile {
   about?: string;
   logo?: string;
   profile_picture?: string;
+  homepage?: string;
+  linkedin?: string;
+  instagram?: string;
+  bluesky?: string;
+  discovery_pools?: string;
+  faculty?: string;
+  user?: number;
 }
 
 export interface UserSearchParams {
   user_type: string;
+  opportunity_id: string;
   page?: number;
   page_size?: number;
   [key: string]: any;
