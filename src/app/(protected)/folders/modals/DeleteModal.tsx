@@ -6,10 +6,12 @@ export const DeleteModal = ({
   isOpen,
   onClose,
   onDelete,
+  InFolder,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onDelete: () => void;
+  InFolder: boolean;
 }) => {
   if (!isOpen) return null;
 
@@ -55,11 +57,12 @@ export const DeleteModal = ({
             color="#000000"
             textAlign="left"
           >
-            Delete Folder
+            {InFolder ? "Remove from Folder" : "Delete Folder"}
           </Text>
 
           <Text fontSize="16px" color="#666666">
-            Are you sure you want to delete this folder?
+            Are you sure you want to{" "}
+            {InFolder ? "remove this user" : "delete this folder"}?
           </Text>
 
           <Box display="flex" gap={4} justifyContent="flex-end">

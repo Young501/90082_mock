@@ -69,9 +69,11 @@ const Folder = () => {
     if (!folderId) return;
 
     try {
-      await removeMemberFromFolder.mutateAsync({ folderId, userId });
-      // awaiting test
-      toast.success("User removed from folder successfully!");
+      await removeMemberFromFolder.mutateAsync({
+        folderId,
+        userId,
+      });
+      toast.success("User removed from folder successfully");
     } catch (error: any) {
       toast.error(error.response.data?.detail);
     }
@@ -86,7 +88,7 @@ const Folder = () => {
         mx="auto"
         mt="126px"
       >
-        <VStack align="stretch" gap={6}>
+        <VStack align="stretch" gap={{ base: 6, md: 10, lg: 20 }}>
           <HStack gap={6} align="center">
             <Button
               onClick={handleBackToFolders}
@@ -146,7 +148,7 @@ const Folder = () => {
                       mb={4}
                       textAlign="center"
                     >
-                      No Students Added
+                      No Organizations Added
                     </Text>
                   ) : (
                     <Text
@@ -156,7 +158,7 @@ const Folder = () => {
                       mb={4}
                       textAlign="center"
                     >
-                      No Organizations Added
+                      No Students Added
                     </Text>
                   )}
                   <Text fontSize="16px" color="#666">
@@ -166,18 +168,17 @@ const Folder = () => {
               ) : (
                 <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={6}>
                   {membersArray.map((member: any) => {
-                    const userData = member.user || member;
-                    const userType =
-                      userData.user_type || userData.user_types?.[0];
-                    const userId = userData.id || member.user_id || member.id;
+                    const userData = member.profile;
+                    const userType = member.user_type;
+                    const userId = member.user_id;
 
                     if (userType === "student") {
                       return (
                         <StudentCard
                           key={userId}
                           student={userData}
-                          userType="student"
-                          profilePictureUrl={userData.profile_picture_url}
+                          userType={userType}
+                          profilePictureUrl={userData?.profile_picture_url}
                           isInFolder={true}
                           onRemoveFromFolder={() =>
                             handleRemoveFromFolder(userId.toString())
@@ -190,7 +191,8 @@ const Folder = () => {
                           key={userId}
                           partner={userData}
                           profilePictureUrl={
-                            userData.profile_picture_url || userData.logo_url
+                            userData?.profile?.profile_picture_url ||
+                            userData?.logo_url
                           }
                           isInFolder={true}
                           onRemoveFromFolder={() =>
@@ -220,7 +222,7 @@ const Folder = () => {
     <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt="126px">
       <VStack
         align="stretch"
-        gap={20}
+        gap={{ base: 6, md: 10, lg: 20 }}
         h={{ base: "100%", lg: "calc(100vh - 300px)" }}
       >
         <Button

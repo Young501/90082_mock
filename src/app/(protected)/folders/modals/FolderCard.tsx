@@ -178,6 +178,7 @@ export const FolderCard: React.FC<FolderCardProps> = ({
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
         onDelete={() => onDelete?.(folder.id)}
+        InFolder={false}
       />
     </Box>
   );
