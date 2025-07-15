@@ -77,6 +77,7 @@ export interface PartnerProfile {
 
 export interface UserSearchParams {
   user_type: string;
+  opportunity_id: string;
   page?: number;
   page_size?: number;
   [key: string]: any;

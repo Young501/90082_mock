@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
-import { UserSearchParams, UserSearchResponse } from "@/types/discovery";
+import { UserSearchParams } from "@/types/discovery";
+import { UserSearchResponse } from "@/types/shared";
 
 export function useUserSearch(params: UserSearchParams | null) {
   return useQuery({
@@ -40,7 +41,7 @@ export function useUserSearch(params: UserSearchParams | null) {
 
       return data;
     },
-    enabled: !!params?.user_type,
+    enabled: !!params?.user_type && !!params?.opportunity_id,
     staleTime: 2 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
   });
