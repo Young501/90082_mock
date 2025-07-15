@@ -10,7 +10,11 @@ import {
   UserSearchParams,
 } from "@/types/discovery";
 import { useUserSearch } from "@/services/user";
-import { useOnboardingPages } from "@/services/shared";
+import {
+  useOnboardingPages,
+  useAcceptedOpportunities,
+} from "@/services/shared";
+import { toast } from "react-toastify";
 
 const createValidationSchema = (fields: ProcessedField[]) => {
   const shape: Record<string, any> = {};
@@ -64,6 +68,10 @@ export const useDiscovery = () => {
     return userType === "student" ? "partner" : "student";
   }, [userType]);
 
+  const { data: acceptedOpportunities, isLoading: isOpportunitiesLoading } =
+    useAcceptedOpportunities();
+  const currentOpportunityId = acceptedOpportunities?.[0]?.id;
+
   const { data: onboardingData, isLoading: isOnboardingLoading } =
     useOnboardingPages(targetUserType || "");
 
@@ -93,14 +101,39 @@ export const useDiscovery = () => {
   }, [filterableFields, form]);
 
   useEffect(() => {
-    if (targetUserType && !searchParams) {
+    if (
+      targetUserType &&
+      !searchParams &&
+      !isOpportunitiesLoading &&
+      currentOpportunityId
+    ) {
       setSearchParams({
         user_type: targetUserType,
+        opportunity_id: currentOpportunityId,
         page: currentPage,
         page_size: pageSize,
       });
     }
-  }, [targetUserType, searchParams, currentPage, pageSize]);
+  }, [
+    targetUserType,
+    searchParams,
+    currentPage,
+    pageSize,
+    currentOpportunityId,
+    isOpportunitiesLoading,
+  ]);
+
+  useEffect(() => {
+    if (
+      !isOpportunitiesLoading &&
+      acceptedOpportunities !== undefined &&
+      !currentOpportunityId
+    ) {
+      toast.warning(
+        "You haven't joined any opportunities yet. Please accept an opportunity invitation to search for users."
+      );
+    }
+  }, [isOpportunitiesLoading, acceptedOpportunities, currentOpportunityId]);
 
   const processFollowupQuestions = useCallback(
     (
@@ -192,7 +225,7 @@ export const useDiscovery = () => {
   };
 
   const handleSearch = (data: FilterFormData) => {
-    if (!targetUserType) return;
+    if (!targetUserType || !currentOpportunityId) return;
 
     const filteredEntries = Object.entries(data).filter(
       ([_, value]) =>
@@ -201,6 +234,7 @@ export const useDiscovery = () => {
 
     const newSearchParams: UserSearchParams = {
       user_type: targetUserType,
+      opportunity_id: currentOpportunityId,
       page: 1,
       page_size: pageSize,
       ...Object.fromEntries(filteredEntries),
@@ -214,9 +248,10 @@ export const useDiscovery = () => {
     form.reset();
     setCurrentPage(1);
 
-    if (targetUserType) {
+    if (targetUserType && currentOpportunityId) {
       setSearchParams({
         user_type: targetUserType,
+        opportunity_id: currentOpportunityId,
         page: 1,
         page_size: pageSize,
       });
@@ -271,7 +306,8 @@ export const useDiscovery = () => {
 
   const hasSearchFilters = useMemo(() => {
     if (!searchParams) return false;
-    const { user_type, page, page_size, ...filters } = searchParams;
+    const { user_type, opportunity_id, page, page_size, ...filters } =
+      searchParams;
     return Object.keys(filters).length > 0;
   }, [searchParams]);
 
