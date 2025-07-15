@@ -156,6 +156,41 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/accept/`,
   }),
+  FOLDERS: {
+    method: "GET",
+    url: "/api/v1/folders/",
+  },
+  CREATE_FOLDER: {
+    method: "POST",
+    url: "/api/v1/folders/",
+  },
+  FOLDER_DETAIL: (folderId: string): ApiEndpoint => ({
+    method: "GET",
+    url: `/api/v1/folders/${folderId}/`,
+  }),
+  UPDATE_FOLDER: (folderId: string): ApiEndpoint => ({
+    method: "PUT",
+    url: `/api/v1/folders/${folderId}/`,
+  }),
+  DELETE_FOLDER: (folderId: string): ApiEndpoint => ({
+    method: "DELETE",
+    url: `/api/v1/folders/${folderId}/`,
+  }),
+  ADD_MEMBER_TO_FOLDER: (folderId: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v1/folders/${folderId}/member/`,
+  }),
+  REMOVE_MEMBER_FROM_FOLDER: (
+    folderId: string,
+    userId: string
+  ): ApiEndpoint => ({
+    method: "DELETE",
+    url: `/api/v1/folders/${folderId}/member/${userId}/`,
+  }),
+  FOLDER_MEMBERS: (folderId: string): ApiEndpoint => ({
+    method: "GET",
+    url: `/api/v1/folders/${folderId}/members/`,
+  }),
 };
 
 /*********

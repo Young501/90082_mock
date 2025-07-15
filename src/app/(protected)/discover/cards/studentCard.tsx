@@ -12,12 +12,16 @@ import {
 import { StudentProfile } from "@/types/discovery";
 import Image from "next/image";
 import { FullProfileCard } from "./FullProfileCard";
+import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
+import { DeleteModal } from "../../folders/modals/DeleteModal";
 
 interface StudentCardProps {
   student: StudentProfile;
   userType: string;
   maxW?: string;
   profilePictureUrl: string | null;
+  isInFolder?: boolean;
+  onRemoveFromFolder?: () => void;
 }
 
 export function StudentCard({
@@ -25,9 +29,13 @@ export function StudentCard({
   userType,
   maxW,
   profilePictureUrl,
+  isInFolder = false,
+  onRemoveFromFolder,
 }: StudentCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
-
+  const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
+  const [clickBackground, setClickBackground] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
   const getDisplayName = () => {
     const firstName = student.first_name || "";
     const lastName = student.last_name || "";
@@ -44,19 +52,30 @@ export function StudentCard({
 
   const getSkillsData = () => {
     if (
-      !student.skills ||
+      !student?.skills ||
       !Array.isArray(student.skills) ||
       student.skills.length === 0
     ) {
       return [];
     }
 
-    return student.skills;
+    return student?.skills;
   };
 
   const handleViewFullProfile = () => {
     if (student.id) {
       setShowFullProfile(true);
+    }
+  };
+
+  const handleAddToFolder = () => {
+    setClickBackground(true);
+    if (student.id) {
+      if (isInFolder && onRemoveFromFolder) {
+        setDeleteModal(true);
+      } else {
+        setShowAddToFolderModal(true);
+      }
     }
   };
 
@@ -70,7 +89,7 @@ export function StudentCard({
   return (
     <>
       <Box
-        bg="#D1D1D1"
+        bg={clickBackground ? "#2CA9DF" : "#D1D1D1"}
         borderRadius="20px"
         border="1px solid"
         borderColor="gray.200"
@@ -91,14 +110,26 @@ export function StudentCard({
             alignItems="center"
             justifyContent="center"
             cursor="pointer"
+            _focus={{
+              outline: "none",
+              bg: "#2CA9DF",
+            }}
+            onClick={handleAddToFolder}
           >
-            <Image
-              width={20}
-              height={20}
-              src="/assets/addicon.svg"
-              alt="add"
-              objectFit="contain"
-            />
+            {isInFolder ? (
+              <i
+                className="fa-solid fa-trash"
+                style={{ color: "#DC2626", fontSize: "20px" }}
+              />
+            ) : (
+              <Image
+                width={20}
+                height={20}
+                src="/assets/addicon.svg"
+                alt="add"
+                objectFit="contain"
+              />
+            )}
           </Box>
         </Box>
 
@@ -333,6 +364,24 @@ export function StudentCard({
           profileId={student.id.toString()}
           profileType="student"
           onClose={() => setShowFullProfile(false)}
+        />
+      )}
+
+      {showAddToFolderModal && student.id && !isInFolder && (
+        <AddToFolderModal
+          isOpen={showAddToFolderModal}
+          onClose={() => setShowAddToFolderModal(false)}
+          userId={student.id.toString()}
+          userName={getDisplayName()}
+        />
+      )}
+
+      {deleteModal && (
+        <DeleteModal
+          isOpen={deleteModal}
+          onClose={() => setDeleteModal(false)}
+          onDelete={() => onRemoveFromFolder?.()}
+          InFolder={true}
         />
       )}
     </>

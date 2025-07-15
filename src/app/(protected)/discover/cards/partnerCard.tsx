@@ -12,20 +12,28 @@ import {
 import { PartnerProfile } from "@/types/discovery";
 import Image from "next/image";
 import { FullProfileCard } from "./FullProfileCard";
+import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
+import { DeleteModal } from "../../folders/modals/DeleteModal";
 
 interface PartnerCardProps {
   partner: PartnerProfile;
   maxW?: string;
   profilePictureUrl?: string | null;
+  isInFolder?: boolean;
+  onRemoveFromFolder?: () => void;
 }
 
 export function PartnerCard({
   partner,
   maxW,
   profilePictureUrl,
+  isInFolder = false,
+  onRemoveFromFolder,
 }: PartnerCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
-
+  const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
+  const [clickBackground, setClickBackground] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
   const getCompanyLogo = () => {
     if (profilePictureUrl) {
       return profilePictureUrl;
@@ -40,10 +48,21 @@ export function PartnerCard({
     }
   };
 
+  const handleAddToFolder = () => {
+    setClickBackground(true);
+    if (partner.id) {
+      if (isInFolder && onRemoveFromFolder) {
+        setDeleteModal(true);
+      } else {
+        setShowAddToFolderModal(true);
+      }
+    }
+  };
+
   return (
     <>
       <Box
-        bg="#D1D1D1"
+        bg={clickBackground ? "#2CA9DF" : "#D1D1D1"}
         borderRadius="2xl"
         border="1px solid"
         borderColor="gray.200"
@@ -64,14 +83,26 @@ export function PartnerCard({
             alignItems="center"
             justifyContent="center"
             cursor="pointer"
+            _focus={{
+              outline: "none",
+              bg: "#2CA9DF",
+            }}
+            onClick={handleAddToFolder}
           >
-            <Image
-              width={20}
-              height={20}
-              src="/assets/addicon.svg"
-              alt="add"
-              objectFit="contain"
-            />
+            {isInFolder ? (
+              <i
+                className="fa-solid fa-trash"
+                style={{ color: "#DC2626", fontSize: "20px" }}
+              />
+            ) : (
+              <Image
+                width={20}
+                height={20}
+                src="/assets/addicon.svg"
+                alt="add"
+                objectFit="contain"
+              />
+            )}
           </Box>
         </Box>
 
@@ -292,6 +323,24 @@ export function PartnerCard({
           profileId={partner.id.toString()}
           profileType="partner"
           onClose={() => setShowFullProfile(false)}
+        />
+      )}
+
+      {showAddToFolderModal && partner.id && !isInFolder && (
+        <AddToFolderModal
+          isOpen={showAddToFolderModal}
+          onClose={() => setShowAddToFolderModal(false)}
+          userId={partner.id.toString()}
+          userName={partner.company_name || "Partner"}
+        />
+      )}
+
+      {deleteModal && (
+        <DeleteModal
+          isOpen={deleteModal}
+          onClose={() => setDeleteModal(false)}
+          onDelete={() => onRemoveFromFolder?.()}
+          InFolder={true}
         />
       )}
     </>

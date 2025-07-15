@@ -161,7 +161,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                       </Box>
                     </Link>
 
-                    <Link href="/folder/" onClick={handleMenuItemClick}>
+                    <Link href="/folders/" onClick={handleMenuItemClick}>
                       <Box py={4}>
                         <Image
                           src="/assets/folder.svg"
@@ -314,7 +314,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                     height={30}
                   />
                 </Link>
-                <Link href="/folder/">
+                <Link href="/folders/">
                   <Image
                     src="/assets/folder.svg"
                     alt="folder"
