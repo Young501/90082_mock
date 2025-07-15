@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
+import { useAuthStore } from "@/store/authStore";
 
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
@@ -131,6 +132,23 @@ export function usePartnerProfile(id: string) {
     queryKey: ["partner-profile", id],
     queryFn: () => apiRequest({ endpoint: API_ENDPOINTS.PARTNER_PROFILE(id) }),
     enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+}
+
+export function useAcceptedOpportunities() {
+  const { user } = useAuthStore();
+  return useQuery({
+    queryKey: ["accepted-opportunities"],
+    queryFn: () =>
+      apiRequest({ endpoint: API_ENDPOINTS.ACCEPTED_OPPORTUNITIES }),
+    enabled: !!user,
     staleTime: 5 * 60 * 1000,
     retry: (failureCount, error: any) => {
       if (error?.response?.status === 404) {
