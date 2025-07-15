@@ -11,6 +11,7 @@ import {
   Avatar,
 } from "@chakra-ui/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useFolderManagement } from "@/hooks/useFolder";
 import { FolderModal } from "@/app/(protected)/folders/modals/FolderModal";
@@ -140,29 +141,28 @@ const Folder = () => {
                 </Box>
               ) : membersArray.length === 0 ? (
                 <Box textAlign="center" py={20}>
-                  {user?.user_types?.[0] === "student" ? (
-                    <Text
-                      fontSize="24px"
-                      fontWeight="600"
-                      color="#282F68"
-                      mb={4}
-                      textAlign="center"
-                    >
-                      No Organizations Added
-                    </Text>
-                  ) : (
-                    <Text
-                      fontSize="24px"
-                      fontWeight="600"
-                      color="#282F68"
-                      mb={4}
-                      textAlign="center"
-                    >
-                      No Students Added
-                    </Text>
-                  )}
+                  <Text
+                    fontSize="24px"
+                    fontWeight="600"
+                    color="#282F68"
+                    mb={4}
+                    textAlign="center"
+                  >
+                    No Users Added
+                  </Text>
                   <Text fontSize="16px" color="#666">
-                    Add members from the discover page
+                    Add members from the{" "}
+                    <Link href="/discover" passHref>
+                      <Text
+                        as="span"
+                        color="blue.500"
+                        textDecoration="underline"
+                        _hover={{ textDecoration: "none" }}
+                      >
+                        discover
+                      </Text>
+                    </Link>{" "}
+                    page
                   </Text>
                 </Box>
               ) : (
