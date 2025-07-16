@@ -26,7 +26,6 @@ export const BooleanCheckboxField = ({
   } = useController({
     name,
     control,
-    defaultValue: false,
   });
 
   const handleChange = (selectedValue: boolean) => {
@@ -60,7 +59,7 @@ export const BooleanCheckboxField = ({
         {options.map((option) => (
           <Checkbox.Root
             key={option.value.toString()}
-            checked={Boolean(value) === option.value}
+            checked={value !== undefined && value === option.value}
             onCheckedChange={() => handleChange(option.value)}
             size="md"
             colorPalette="blue"
