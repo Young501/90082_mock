@@ -95,6 +95,10 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: "/api/v1/password-reset-request",
   },
+  PASSWORD_RESET_CONFIRM: {
+    method: "POST",
+    url: "/api/v1/reset-password/",
+  },
   EMAIL_VERIFICATION: {
     method: "GET",
     url: "/api/v1/verify-email/",

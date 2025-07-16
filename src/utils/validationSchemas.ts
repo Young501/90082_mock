@@ -179,6 +179,17 @@ export const resetPasswordValidationSchema = yup.object({
     .email("Invalid email format"),
 });
 
+export const passwordResetFormSchema = yup.object({
+  new_password: yup
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .required("Please enter new password"),
+  confirm_password: yup
+    .string()
+    .oneOf([yup.ref("new_password")], "Passwords do not match")
+    .required("Please confirm password"),
+});
+
 export const createFolderSchema = yup.object({
   name: yup
     .string()

@@ -13,6 +13,12 @@ export interface PasswordResetData {
   email: string;
 }
 
+export interface PasswordResetConfirmData {
+  token: string;
+  new_password: string;
+  confirm_password: string;
+}
+
 export interface EmailVerificationData {
   token: string;
 }
