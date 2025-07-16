@@ -15,6 +15,7 @@ import {
   useAcceptedOpportunities,
 } from "@/services/shared";
 import { toast } from "react-toastify";
+import { UserProfile } from "@/types/shared";
 
 const createValidationSchema = (fields: ProcessedField[]) => {
   const shape: Record<string, any> = {};
@@ -50,6 +51,36 @@ const getDefaultValues = (fields: ProcessedField[]): FilterFormData => {
   return defaultValues;
 };
 
+const extractFilterOptions = (
+  results: UserProfile[]
+): Record<string, string[]> => {
+  const options: Record<string, Set<string>> = {};
+
+  results.forEach((user) => {
+    Object.keys(user).forEach((fieldKey) => {
+      if (!options[fieldKey]) {
+        options[fieldKey] = new Set();
+      }
+
+      const value = (user as any)[fieldKey];
+
+      if (Array.isArray(value)) {
+        value.forEach((v) => {
+          if (v && typeof v === "string") {
+            options[fieldKey].add(v);
+          }
+        });
+      } else if (value && typeof value === "string") {
+        options[fieldKey].add(value);
+      }
+    });
+  });
+
+  return Object.fromEntries(
+    Object.entries(options).map(([key, set]) => [key, Array.from(set).sort()])
+  );
+};
+
 // ===== Main Hook =====
 export const useDiscovery = () => {
   const { user } = useAuthStore();
@@ -61,6 +92,9 @@ export const useDiscovery = () => {
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const [filterOptions, setFilterOptions] = useState<Record<string, string[]>>(
+    {}
+  );
 
   const userType = user?.user_types?.[0];
   const targetUserType = useMemo(() => {
@@ -92,6 +126,32 @@ export const useDiscovery = () => {
     mode: "onChange",
     defaultValues: getDefaultValues(filterableFields),
   });
+
+  useEffect(() => {
+    if (searchData?.results) {
+      const newFilterOptions = extractFilterOptions(searchData.results);
+      setFilterOptions(newFilterOptions);
+
+      setTimeout(() => {
+        const currentValues = form.getValues();
+
+        Object.entries(newFilterOptions).forEach(([fieldName, options]) => {
+          if (
+            options.length === 1 &&
+            (!currentValues[fieldName] || currentValues[fieldName] === "")
+          ) {
+            const isFieldVisible = filterableFields.some(
+              (field) => field.field === fieldName
+            );
+
+            if (isFieldVisible) {
+              form.setValue(fieldName, options[0]);
+            }
+          }
+        });
+      }, 0);
+    }
+  }, [searchData?.results, filterableFields, form]);
 
   useEffect(() => {
     if (filterableFields.length > 0) {
@@ -302,8 +362,6 @@ export const useDiscovery = () => {
     setFilterableFields(Array.from(processedFields.values()));
   }, [onboardingData, processFollowupQuestions, targetUserType]);
 
-  console.log("filterableFields", filterableFields);
-
   const hasSearchFilters = useMemo(() => {
     if (!searchParams) return false;
     const { user_type, opportunity_id, page, page_size, ...filters } =
@@ -320,6 +378,7 @@ export const useDiscovery = () => {
     searchResults: searchData?.results || [],
     hasSearched: hasSearchFilters,
     filterableFields,
+    filterOptions,
     targetUserType,
     isLoading: isOnboardingLoading || isSearchLoading,
     isSearching: isFetching,

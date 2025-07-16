@@ -10,6 +10,7 @@ import {
   SelectField,
   FileField,
   CheckboxField,
+  BooleanCheckboxField,
   SkillsPillField,
   SliderField,
   CardSelectField,
@@ -55,7 +56,10 @@ export const FieldRenderer = ({
 
     const values = Array.isArray(fieldValue) ? fieldValue : [fieldValue];
     return values
-      .map((val) => question.followup_question![val as string])
+      .map((val) => {
+        const key = typeof val === "boolean" ? val.toString() : (val as string);
+        return question.followup_question![key];
+      })
       .filter(Boolean);
   }, [question.followup_question, fieldValue]);
 
@@ -204,12 +208,19 @@ export const FieldRenderer = ({
       );
     }
 
-    if (question.type === "checkbox-group") {
-      const isBoolean =
-        typeof fieldValue === "boolean" ||
-        question.field.startsWith("is_") ||
-        question.options?.length === 2;
+    if (question.type === "boolean-checkbox") {
+      return (
+        <BooleanCheckboxField
+          name={question.field}
+          label={question.label}
+          control={control}
+          required={question.required}
+          description={question.description}
+        />
+      );
+    }
 
+    if (question.type === "checkbox-group") {
       return (
         <CheckboxField
           name={question.field}
@@ -218,7 +229,6 @@ export const FieldRenderer = ({
           control={control}
           required={question.required}
           maxSelection={question.max_selection}
-          isBoolean={isBoolean}
         />
       );
     }
