@@ -23,7 +23,7 @@ export interface StudentProfile {
   first_name?: string;
   last_name?: string;
   location?: string;
-  profile_picture_url?: string;
+  profile_picture_url?: string | null;
   course_name?: string;
   course_stream?: string;
   specialization?: string[] | string;
@@ -50,12 +50,12 @@ export interface PartnerProfile {
   first_name?: string;
   last_name?: string;
   location?: string;
-  profile_picture_url?: string;
+  profile_picture_url?: string | null;
   company_name?: string;
   sector?: string;
   industry?: string;
   company_size?: string;
-  logo_url?: string;
+  logo_url?: string | null;
   email?: string;
   availability?: string;
   abn_acn?: string;
@@ -64,8 +64,8 @@ export interface PartnerProfile {
   employment_type?: string;
   degree?: string;
   about?: string;
-  logo?: string;
-  profile_picture?: string;
+  logo?: string | null;
+  profile_picture?: string | null;
   homepage?: string;
   linkedin?: string;
   instagram?: string;
