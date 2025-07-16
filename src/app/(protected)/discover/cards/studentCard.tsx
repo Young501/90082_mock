@@ -22,6 +22,7 @@ interface StudentCardProps {
   profilePictureUrl: string | null;
   isInFolder?: boolean;
   onRemoveFromFolder?: () => void;
+  disableViewFullProfile?: boolean;
 }
 
 export function StudentCard({
@@ -31,6 +32,7 @@ export function StudentCard({
   profilePictureUrl,
   isInFolder = false,
   onRemoveFromFolder,
+  disableViewFullProfile = false,
 }: StudentCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
@@ -46,7 +48,7 @@ export function StudentCard({
     if (profilePictureUrl) {
       return profilePictureUrl;
     } else {
-      return student.profile_picture_url || "/assets/imgplaceholder.png";
+      return student.profile_picture_url || "";
     }
   };
 
@@ -63,7 +65,7 @@ export function StudentCard({
   };
 
   const handleViewFullProfile = () => {
-    if (student.id) {
+    if (student.id && !disableViewFullProfile) {
       setShowFullProfile(true);
     }
   };
@@ -152,33 +154,29 @@ export function StudentCard({
               justifyContent="center"
               w="full"
             >
-              <Box display="flex" flexDirection="column" gap={6}>
-                <Box flexShrink={0} w="130px" h="130px">
+              
                   <Avatar.Root
                     w="130px"
                     h="130px"
-                    border="4px solid"
-                    borderColor="#DC2626"
+                    border="6px solid #DC2626"
                     borderRadius="50%"
                   >
                     <Avatar.Fallback
-                      name={getDisplayName()}
-                      bg="blue.500"
-                      color="white"
+                    name={student.first_name + " " + student.last_name}
+                      bg="gray.200"
+                      color="gray.800"
                       fontWeight="bold"
-                      w="100%"
-                      h="100%"
+                      fontSize="2xl"
                     />
                     {getProfileImage() && (
                       <Avatar.Image
-                        src={getProfileImage()!}
+                        src={getProfileImage() || ""}
                         w="124px"
                         h="124px"
                       />
                     )}
                   </Avatar.Root>
-                </Box>
-              </Box>
+                
 
               <Box display="flex" flexDirection="column" gap={6} w="full">
                 <Box>
@@ -251,7 +249,7 @@ export function StudentCard({
                     </HStack>
                   )}
 
-                  {student.credentials && (
+                  {student.credentials && student.credentials.length > 0 && (
                     <HStack gap={2} align="start">
                       <Box
                         w="16px"
@@ -270,9 +268,7 @@ export function StudentCard({
                         />
                       </Box>
                       <Text fontSize="sm" color="gray.600">
-                        {Array.isArray(student.credentials)
-                          ? student.credentials.join(", ")
-                          : student.credentials}
+                        {student.credentials.join(", ")}
                       </Text>
                     </HStack>
                   )}
@@ -352,7 +348,7 @@ export function StudentCard({
             fontWeight="bold"
             mt={4}
             onClick={handleViewFullProfile}
-            disabled={!student.id}
+            disabled={!student.id || disableViewFullProfile}
           >
             View Full Profile
           </Button>

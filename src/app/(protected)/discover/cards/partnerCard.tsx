@@ -21,6 +21,7 @@ interface PartnerCardProps {
   profilePictureUrl?: string | null;
   isInFolder?: boolean;
   onRemoveFromFolder?: () => void;
+  disableViewFullProfile?: boolean;
 }
 
 export function PartnerCard({
@@ -29,6 +30,7 @@ export function PartnerCard({
   profilePictureUrl,
   isInFolder = false,
   onRemoveFromFolder,
+  disableViewFullProfile = false,
 }: PartnerCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
@@ -43,7 +45,7 @@ export function PartnerCard({
   };
 
   const handleViewFullProfile = () => {
-    if (partner.id) {
+    if (partner.id && !disableViewFullProfile) {
       setShowFullProfile(true);
     }
   };
@@ -311,7 +313,7 @@ export function PartnerCard({
             fontWeight="bold"
             mt={4}
             onClick={handleViewFullProfile}
-            disabled={!partner.id}
+            disabled={!partner.id || disableViewFullProfile}
           >
             View Full Profile
           </Button>

@@ -26,6 +26,7 @@ interface FullProfileCardProps {
   isModal?: boolean;
   studentProfile?: StudentProfile;
   partnerProfile?: PartnerProfile;
+  disableBtns?: boolean;
 }
 
 export function FullProfileCard({
@@ -35,6 +36,7 @@ export function FullProfileCard({
   isModal = true,
   studentProfile,
   partnerProfile,
+  disableBtns = false,
 }: FullProfileCardProps) {
   const shouldFetchStudent = profileType === "student" && !studentProfile;
   const shouldFetchPartner = profileType === "partner" && !partnerProfile;
@@ -152,9 +154,9 @@ export function FullProfileCard({
     <Box>
       <VStack gap={6} align="stretch">
         {profileType === "student" ? (
-          <RenderStudentDetails student={profile as StudentProfile} />
+          <RenderStudentDetails student={profile as StudentProfile} disableBtns={disableBtns} />
         ) : (
-          <RenderPartnerDetails partner={profile as PartnerProfile} />
+          <RenderPartnerDetails partner={profile as PartnerProfile} disableBtns={disableBtns} />
         )}
       </VStack>
     </Box>
@@ -246,7 +248,7 @@ export function FullProfileCard({
   );
 }
 
-const RenderStudentDetails = ({ student }: { student: StudentProfile }) => (
+const RenderStudentDetails = ({ student, disableBtns }: { student: StudentProfile, disableBtns: boolean }) => (
   <Box
     w="full"
     h="full"
@@ -272,7 +274,7 @@ const RenderStudentDetails = ({ student }: { student: StudentProfile }) => (
           borderRadius="50%"
         >
           <Avatar.Image
-            src={student.profile_picture_url || "/assets/imgplaceholder.png"}
+            src={student.profile_picture_url || ""}
           />
           <Avatar.Fallback
             name={student.first_name + " " + student.last_name}
@@ -382,15 +384,14 @@ const RenderStudentDetails = ({ student }: { student: StudentProfile }) => (
           _hover={{
             bg: "#B91C1C",
           }}
+          onClick={() => {
+            if (student.resume_url) {
+              window.open(student.resume_url, "_blank");
+            }
+          }}
+          disabled={disableBtns}
         >
-          <Link
-            href={student.resume_url || "#"}
-            target="_blank"
-            color="white"
-            textDecoration="none"
-          >
-            View CV
-          </Link>
+          View CV
         </Button>
         <Button
           size="lg"
@@ -402,15 +403,14 @@ const RenderStudentDetails = ({ student }: { student: StudentProfile }) => (
           fontSize="14px"
           boxShadow="0px 3.34px 3.34px 0px #00000040"
           w="100%"
+          onClick={() => {
+            if (student.email) {
+              window.open(`mailto:${student.email}`, "_blank");
+            }
+          }}
+          disabled={disableBtns}
         >
-          <Link
-            href={`mailto:${student.email}`}
-            target="_blank"
-            color="white"
-            textDecoration="none"
-          >
-            Contact
-          </Link>
+          Contact
         </Button>
       </VStack>
     </VStack>
@@ -472,7 +472,7 @@ const RenderStudentDetails = ({ student }: { student: StudentProfile }) => (
           </HStack>
         )}
 
-        {student.credentials && (
+        {student.credentials && student.credentials.length > 0 && (
           <HStack gap={2} align="start">
             <Box
               w="20px"
@@ -491,9 +491,7 @@ const RenderStudentDetails = ({ student }: { student: StudentProfile }) => (
               />
             </Box>
             <Text fontSize="sm" color="gray.600">
-              {Array.isArray(student.credentials)
-                ? student.credentials.join(", ")
-                : student.credentials}
+              {student.credentials.join(", ")}
             </Text>
           </HStack>
         )}
@@ -538,7 +536,7 @@ const RenderStudentDetails = ({ student }: { student: StudentProfile }) => (
   </Box>
 );
 
-const RenderPartnerDetails = ({ partner }: { partner: PartnerProfile }) => (
+const RenderPartnerDetails = ({ partner, disableBtns }: { partner: PartnerProfile, disableBtns: boolean }) => (
   <Box
     w="full"
     h="full"
@@ -870,6 +868,7 @@ const RenderPartnerDetails = ({ partner }: { partner: PartnerProfile }) => (
             display="flex"
             justifyContent="center"
             maxW="200px"
+            disabled={disableBtns}
           >
             <Link
               href={`mailto:${partner.email || "contact@company.com"}`}
