@@ -536,7 +536,15 @@ const RenderStudentDetails = ({ student, disableBtns }: { student: StudentProfil
   </Box>
 );
 
-const RenderPartnerDetails = ({ partner, disableBtns }: { partner: PartnerProfile, disableBtns: boolean }) => (
+const RenderPartnerDetails = ({ partner, disableBtns }: { partner: PartnerProfile, disableBtns: boolean }) => {
+  const getCompanyLogo = () => {
+    if (partner.logo_url) {
+      return partner.logo_url;
+    } else {
+      return partner.profile_picture_url || "";
+    }
+  };
+  return (
   <Box
     w="full"
     h="full"
@@ -575,12 +583,12 @@ const RenderPartnerDetails = ({ partner, disableBtns }: { partner: PartnerProfil
           border="6px solid #22C55E"
         >
           <Avatar.Image
-            src={partner.logo_url || "/assets/imgplaceholder.png"}
+            src={getCompanyLogo() || ""}
           />
           <Avatar.Fallback
-            name={partner.company_name}
-            bg="green.500"
-            color="white"
+            name={partner.first_name + " " + partner.last_name}
+            bg="gray.200"
+            color="gray.800"
             fontSize="2xl"
             fontWeight="bold"
           />
@@ -883,4 +891,4 @@ const RenderPartnerDetails = ({ partner, disableBtns }: { partner: PartnerProfil
       </VStack>
     </Box>
   </Box>
-);
+)};
