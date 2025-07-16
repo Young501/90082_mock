@@ -8,7 +8,6 @@ import {
   ProcessedField,
   DependencyCondition,
   UserSearchParams,
-  UserProfile,
 } from "@/types/discovery";
 import { useUserSearch } from "@/services/user";
 import {
@@ -16,6 +15,7 @@ import {
   useAcceptedOpportunities,
 } from "@/services/shared";
 import { toast } from "react-toastify";
+import { UserProfile } from "@/types/shared";
 
 const createValidationSchema = (fields: ProcessedField[]) => {
   const shape: Record<string, any> = {};
@@ -131,8 +131,27 @@ export const useDiscovery = () => {
     if (searchData?.results) {
       const newFilterOptions = extractFilterOptions(searchData.results);
       setFilterOptions(newFilterOptions);
+
+      setTimeout(() => {
+        const currentValues = form.getValues();
+
+        Object.entries(newFilterOptions).forEach(([fieldName, options]) => {
+          if (
+            options.length === 1 &&
+            (!currentValues[fieldName] || currentValues[fieldName] === "")
+          ) {
+            const isFieldVisible = filterableFields.some(
+              (field) => field.field === fieldName
+            );
+
+            if (isFieldVisible) {
+              form.setValue(fieldName, options[0]);
+            }
+          }
+        });
+      }, 0);
     }
-  }, [searchData?.results]);
+  }, [searchData?.results, filterableFields, form]);
 
   useEffect(() => {
     if (filterableFields.length > 0) {
