@@ -29,9 +29,9 @@ const DashboardPage = () => {
 
   if (isLoading) {
     return (
-      <Container maxW="7xl" py={8}>
+      <Container maxW="1512px" py={8} display="flex" justifyContent="center" alignItems="center" minH="400px" mx="auto" mt="126px">
         <VStack gap={4} justify="center" minH="400px">
-          <Spinner size="xl" color="blue.500" />
+          <Spinner size="xl" color="#000000" />
           <Text>Loading dashboard statistics...</Text>
         </VStack>
       </Container>
@@ -40,18 +40,17 @@ const DashboardPage = () => {
 
   if (error) {
     return (
-      <Container maxW="7xl" py={8}>
+      <Container maxW="1512px" py={8} display="flex" justifyContent="center" alignItems="center" minH="400px" mx="auto" mt="126px">
         <Box
-          bg="red.50"
-          border="1px"
-          borderColor="red.200"
-          borderRadius="lg"
+          bg="transparent"
+          borderColor="#000000"
+          borderRadius="15px"
           p={6}
         >
-          <Text fontSize="lg" fontWeight="bold" color="red.800" mb={2}>
+          <Text fontSize="lg" fontWeight="bold" color="#000000" mb={2}>
             Error loading dashboard!
           </Text>
-          <Text color="red.600">
+          <Text color="#000000">
             Failed to fetch dashboard statistics. Please try again later.
           </Text>
         </Box>
@@ -61,18 +60,19 @@ const DashboardPage = () => {
 
   if (!dashboardStats) {
     return (
-      <Container maxW="7xl" py={8}>
+      <Container maxW="1512px" py={8} display="flex" justifyContent="center" alignItems="center" minH="400px" mx="auto" mt="126px">
+    
+
         <Box
-          bg="blue.50"
-          border="1px"
-          borderColor="blue.200"
-          borderRadius="lg"
+          bg="transparent"
+          borderColor="#000000"
+          borderRadius="15px"
           p={6}
         >
-          <Text fontSize="lg" fontWeight="bold" color="blue.800" mb={2}>
+          <Text fontSize="lg" fontWeight="bold" color="#000000" mb={2}>
             No data available
           </Text>
-          <Text color="blue.600">
+          <Text color="#000000">
             No dashboard statistics available.
           </Text>
         </Box>
