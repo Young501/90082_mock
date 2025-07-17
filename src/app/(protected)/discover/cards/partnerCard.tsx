@@ -21,6 +21,7 @@ interface PartnerCardProps {
   profilePictureUrl?: string | null;
   isInFolder?: boolean;
   onRemoveFromFolder?: () => void;
+  disableViewFullProfile?: boolean;
 }
 
 export function PartnerCard({
@@ -29,6 +30,7 @@ export function PartnerCard({
   profilePictureUrl,
   isInFolder = false,
   onRemoveFromFolder,
+  disableViewFullProfile = false,
 }: PartnerCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
@@ -38,12 +40,12 @@ export function PartnerCard({
     if (profilePictureUrl) {
       return profilePictureUrl;
     } else {
-      return partner.logo_url || "/assets/imgplaceholder.png";
+      return partner.logo_url || "";
     }
   };
 
   const handleViewFullProfile = () => {
-    if (partner.id) {
+    if (partner.id && !disableViewFullProfile) {
       setShowFullProfile(true);
     }
   };
@@ -131,20 +133,18 @@ export function PartnerCard({
                     w="130px"
                     h="130px"
                     borderRadius="50%"
-                    border="4px solid"
-                    borderColor="#22C45E"
+                    border="6px solid #22C45E"
                   >
                     <Avatar.Fallback
-                      name={partner.company_name || ""}
-                      bg="blue.500"
-                      color="white"
+                      name={partner.first_name + " " + partner.last_name}
+                      bg="gray.200"
+                      color="gray.800"
                       fontWeight="bold"
-                      w="100%"
-                      h="100%"
+                      fontSize="2xl"
                     />
                     {getCompanyLogo() && (
                       <Avatar.Image
-                        src={getCompanyLogo()!}
+                        src={getCompanyLogo() || ""}
                         w="124px"
                         h="124px"
                       />
@@ -311,7 +311,7 @@ export function PartnerCard({
             fontWeight="bold"
             mt={4}
             onClick={handleViewFullProfile}
-            disabled={!partner.id}
+            disabled={!partner.id || disableViewFullProfile}
           >
             View Full Profile
           </Button>

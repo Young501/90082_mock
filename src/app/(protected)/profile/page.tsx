@@ -308,9 +308,13 @@ const Profile = () => {
                     ""
                   }
                 />
-                <Avatar.Fallback>
-                  {userProfile?.first_name?.charAt(0)}
-                </Avatar.Fallback>
+                <Avatar.Fallback
+                  name={userProfile?.first_name + " " + userProfile?.last_name}
+                  bg="gray.200"
+                  color="gray.800"
+                  fontWeight="bold"
+                  fontSize="2xl"
+                />
               </Avatar.Root>
               <Box>
                 <Text fontSize="25px" fontWeight="bold" color="#000000">
@@ -404,12 +408,14 @@ const Profile = () => {
                       profilePictureUrl={getUserProfilePictureUrl()}
                       userType={userType}
                       maxW="500px"
+                      disableViewFullProfile={true}
                     />
                     <FullProfileCard
                       profileId={userProfile.id?.toString() || ""}
                       profileType="student"
                       isModal={false}
                       studentProfile={userProfile}
+                      disableBtns={true}
                     />
                   </VStack>
                 ) : (
@@ -418,12 +424,14 @@ const Profile = () => {
                       partner={userProfile}
                       profilePictureUrl={getUserProfilePictureUrl()}
                       maxW="500px"
+                      disableViewFullProfile={true}
                     />
                     <FullProfileCard
                       profileId={userProfile.id?.toString() || ""}
                       profileType="partner"
                       isModal={false}
                       partnerProfile={userProfile}
+                      disableBtns={true}
                     />
                   </VStack>
                 ))}
