@@ -14,8 +14,10 @@ export function useFolders() {
     queryKey: ["folders"],
     queryFn: (): Promise<Folder[]> =>
       apiRequest({ endpoint: API_ENDPOINTS.FOLDERS }),
-    staleTime: 2 * 60 * 1000,
+    staleTime: 0,
     gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
   });
 }
 
@@ -30,7 +32,7 @@ export function useCreateFolder() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["folders"] });
+      queryClient.refetchQueries({ queryKey: ["folders"] });
     },
   });
 }
@@ -41,7 +43,9 @@ export function useFolderDetail(folderId: string) {
     queryFn: (): Promise<Folder> =>
       apiRequest({ endpoint: API_ENDPOINTS.FOLDER_DETAIL(folderId) }),
     enabled: !!folderId,
-    staleTime: 2 * 60 * 1000,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
   });
 }
 
@@ -62,8 +66,8 @@ export function useUpdateFolder() {
       });
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["folders"] });
-      queryClient.invalidateQueries({ queryKey: ["folder", data.id] });
+      queryClient.refetchQueries({ queryKey: ["folders"] });
+      queryClient.refetchQueries({ queryKey: ["folder", data.id] });
     },
   });
 }
@@ -78,7 +82,7 @@ export function useDeleteFolder() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["folders"] });
+      queryClient.refetchQueries({ queryKey: ["folders"] });
     },
   });
 }
@@ -89,7 +93,9 @@ export function useFolderMembers(folderId: string) {
     queryFn: (): Promise<FolderMembersResponse> =>
       apiRequest({ endpoint: API_ENDPOINTS.FOLDER_MEMBERS(folderId) }),
     enabled: !!folderId,
-    staleTime: 2 * 60 * 1000,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
   });
 }
 
@@ -110,7 +116,8 @@ export function useAddMemberToFolder() {
       });
     },
     onSuccess: (_, { folderId }) => {
-      queryClient.invalidateQueries({ queryKey: ["folder-members", folderId] });
+      queryClient.refetchQueries({ queryKey: ["folder-members", folderId] });
+      queryClient.invalidateQueries({ queryKey: ["folder", folderId] });
       queryClient.invalidateQueries({ queryKey: ["folders"] });
     },
   });
@@ -132,7 +139,8 @@ export function useRemoveMemberFromFolder() {
       });
     },
     onSuccess: (_, { folderId }) => {
-      queryClient.invalidateQueries({ queryKey: ["folder-members", folderId] });
+      queryClient.refetchQueries({ queryKey: ["folder-members", folderId] });
+      queryClient.invalidateQueries({ queryKey: ["folder", folderId] });
       queryClient.invalidateQueries({ queryKey: ["folders"] });
     },
   });
