@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { useDashboard } from "@/hooks/useDashboard";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface ProgressBarProps {
   value: number;
@@ -26,7 +27,7 @@ interface ProgressBarProps {
 
 const DashboardPage = () => {
   const { dashboardStats, isLoading, error } = useDashboard();
-
+  const router = useRouter();
   if (isLoading) {
     return (
       <Container maxW="1512px" py={8} display="flex" justifyContent="center" alignItems="center" minH="400px" mx="auto" mt="126px">
@@ -236,6 +237,7 @@ const DashboardPage = () => {
             fontWeight="bold"
             fontSize="27px"
             width="100%"
+            onClick={() => router.push("/dashboard/manage-students")}
           >
             Manage Students
           </Button>
@@ -308,6 +310,7 @@ const DashboardPage = () => {
             fontWeight="bold"
             fontSize="27px"
             width="100%"
+            onClick={() => router.push("/dashboard/manage-organisations")}
           >
             Manage Organisation
           </Button>

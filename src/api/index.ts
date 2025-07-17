@@ -203,6 +203,10 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v1/opportunities/${opportunityId}/dashboard/`,
   }),
+  OPPORTUNITY_PARTICIPANTS: (opportunityId: string): ApiEndpoint => ({
+    method: "GET",
+    url: `/api/v1/opportunities/${opportunityId}/participants/`,
+  }),
 };
 
 /*********
