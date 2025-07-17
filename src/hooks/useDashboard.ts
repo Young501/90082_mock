@@ -1,22 +1,9 @@
-import { API_ENDPOINTS, apiRequest } from "@/api";
 import { useAuthStore } from "@/store";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import { getDashboardStats } from "@/services/dashboard";
+import { DashboardStats } from "@/types/dashboard";
 
-export interface DashboardStats {
-  students: {
-    invited: number;
-    accepted: number;
-    messaged: number;
-    matched: number;
-  };
-  partners: {
-    invited: number;
-    accepted: number;
-    messaged: number;
-    matched: number;
-  };
-}
 
 export const useDashboard = (opportunityId?: string) => {
   const { getCoordinatorOpportunities } = useAuthStore();
@@ -31,15 +18,13 @@ export const useDashboard = (opportunityId?: string) => {
     refetch,
   } = useQuery<DashboardStats>({
     queryKey: ["dashboard-stats", selectedOpportunityId],
-    queryFn: async () => {
+    queryFn: async (): Promise<DashboardStats> => {
       if (!selectedOpportunityId) {
         throw new Error("No opportunity selected");
       }
 
       try {
-        const response = await apiRequest({
-          endpoint: API_ENDPOINTS.OPPORTUNITY_DASHBOARD(selectedOpportunityId),
-        });
+        const response = await getDashboardStats(selectedOpportunityId);
         
         return {
           students: {

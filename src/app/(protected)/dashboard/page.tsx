@@ -150,7 +150,7 @@ const DashboardPage = () => {
       total: dashboardStats.partners.invited,
     },
     {
-      label: "Organisations who have contacted at least on student:",
+      label: "Organisations who have contacted at least one student:",
       value: dashboardStats.partners.messaged,
       total: dashboardStats.partners.invited,
     },
