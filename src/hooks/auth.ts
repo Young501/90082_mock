@@ -27,9 +27,23 @@ export const checkOnboardingStatus = async ({
     return;
   }
 
+  const userType = user.user_types[0];
+  const isCoordinator = userType === "coordinator";
+  console.log("isCoordinator", isCoordinator);
+  console.log("userType", userType);
+  console.log("user", user.user_types);
+
+  if (isCoordinator) {
+    if (redirectOnSuccess) {
+      await fetchCoordinatorOpportunities();
+      router.push("/dashboard/");
+    }
+    return;
+  }
+
   try {
     const response = await apiRequest({
-      endpoint: API_ENDPOINTS.USER_PROFILE(user.user_types[0]),
+      endpoint: API_ENDPOINTS.USER_PROFILE(userType),
     });
 
     if (redirectOnSuccess) {
@@ -41,6 +55,20 @@ export const checkOnboardingStatus = async ({
       return;
     }
     toast.error("Error checking onboarding status");
+  }
+};
+
+const fetchCoordinatorOpportunities = async () => {
+  try {
+    const response = await apiRequest({
+      endpoint: API_ENDPOINTS.COORDINATOR_OPPORTUNITIES,
+    });
+
+    const opportunityIds = response.map((opportunity: any) => opportunity.id);
+    useAuthStore.getState().setCoordinatorOpportunities(opportunityIds);
+  } catch (error: any) {
+    console.error("Failed to fetch coordinator opportunities:", error);
+    toast.error("Failed to fetch opportunities");
   }
 };
 
