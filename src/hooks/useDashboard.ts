@@ -4,11 +4,10 @@ import { toast } from "react-toastify";
 import { getDashboardStats } from "@/services/dashboard";
 import { DashboardStats } from "@/types/dashboard";
 
-
 export const useDashboard = (opportunityId?: string) => {
   const { getCoordinatorOpportunities } = useAuthStore();
   const coordinatorOpportunities = getCoordinatorOpportunities();
-  
+
   const selectedOpportunityId = opportunityId || coordinatorOpportunities[0];
 
   const {
@@ -25,7 +24,7 @@ export const useDashboard = (opportunityId?: string) => {
 
       try {
         const response = await getDashboardStats(selectedOpportunityId);
-        
+
         return {
           students: {
             invited: response.students.invited || 0,
@@ -59,4 +58,4 @@ export const useDashboard = (opportunityId?: string) => {
     coordinatorOpportunities,
     selectedOpportunityId,
   };
-}; 
+};
