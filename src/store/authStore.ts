@@ -10,6 +10,7 @@ export interface AuthState {
   logoUrl: string | null;
   userProfile: UserProfile | null;
   userProfilePictureUrl: string | null;
+  coordinatorOpportunities: string[];
   setAuthData: (token: string, user: User) => void;
   logout: () => void;
   setUserType: (userType: string) => void;
@@ -28,6 +29,8 @@ export interface AuthState {
   getUserLastName: () => string;
   getUserProfilePictureUrl: () => string | null;
   setUserProfilePictureUrl: (url: string) => void;
+  setCoordinatorOpportunities: (opportunities: string[]) => void;
+  getCoordinatorOpportunities: () => string[];
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -40,6 +43,7 @@ export const useAuthStore = create<AuthState>()(
       logoUrl: null,
       userProfile: null,
       userProfilePictureUrl: null,
+      coordinatorOpportunities: [],
       setAuthData: (token: string, user: User) => {
         set({
           user,
@@ -57,6 +61,7 @@ export const useAuthStore = create<AuthState>()(
           logoUrl: null,
           userProfile: null,
           userProfilePictureUrl: null,
+          coordinatorOpportunities: [],
         });
 
         if (typeof window !== "undefined") {
@@ -127,6 +132,14 @@ export const useAuthStore = create<AuthState>()(
           set({ userProfilePictureUrl: url });
         }
       },
+
+      setCoordinatorOpportunities: (opportunities: string[]) => {
+        set({ coordinatorOpportunities: opportunities });
+      },
+
+      getCoordinatorOpportunities: () => {
+        return get().coordinatorOpportunities;
+      },
     }),
     {
       name: "auth-storage",
@@ -137,6 +150,7 @@ export const useAuthStore = create<AuthState>()(
         logoUrl: state.logoUrl,
         userProfile: state.userProfile,
         userProfilePictureUrl: state.userProfilePictureUrl,
+        coordinatorOpportunities: state.coordinatorOpportunities,
       }),
     }
   )

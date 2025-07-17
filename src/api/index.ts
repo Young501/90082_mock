@@ -195,6 +195,14 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v1/folders/${folderId}/members/`,
   }),
+  COORDINATOR_OPPORTUNITIES: {
+    method: "GET",
+    url: "/api/v1/opportunities/all/",
+  },
+  OPPORTUNITY_DASHBOARD: (opportunityId: string): ApiEndpoint => ({
+    method: "GET",
+    url: `/api/v1/opportunities/${opportunityId}/dashboard/`,
+  }),
 };
 
 /*********
