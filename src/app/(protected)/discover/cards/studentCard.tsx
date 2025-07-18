@@ -154,29 +154,27 @@ export function StudentCard({
               justifyContent="center"
               w="full"
             >
-              
-                  <Avatar.Root
-                    w="130px"
-                    h="130px"
-                    border="6px solid #DC2626"
-                    borderRadius="50%"
-                  >
-                    <Avatar.Fallback
-                    name={student.first_name + " " + student.last_name}
-                      bg="gray.200"
-                      color="gray.800"
-                      fontWeight="bold"
-                      fontSize="2xl"
-                    />
-                    {getProfileImage() && (
-                      <Avatar.Image
-                        src={getProfileImage() || ""}
-                        w="124px"
-                        h="124px"
-                      />
-                    )}
-                  </Avatar.Root>
-                
+              <Avatar.Root
+                w="130px"
+                h="130px"
+                border="6px solid #DC2626"
+                borderRadius="50%"
+              >
+                <Avatar.Fallback
+                  name={student.first_name + " " + student.last_name}
+                  bg="gray.200"
+                  color="gray.800"
+                  fontWeight="bold"
+                  fontSize="2xl"
+                />
+                {getProfileImage() && (
+                  <Avatar.Image
+                    src={getProfileImage() || ""}
+                    w="124px"
+                    h="124px"
+                  />
+                )}
+              </Avatar.Root>
 
               <Box display="flex" flexDirection="column" gap={6} w="full">
                 <Box>

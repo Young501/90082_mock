@@ -63,7 +63,7 @@ const fetchCoordinatorOpportunities = async () => {
     const response = await apiRequest({
       endpoint: API_ENDPOINTS.COORDINATOR_OPPORTUNITIES,
     });
-    
+
     const opportunityIds = response.map((opportunity: any) => opportunity.id);
     useAuthStore.getState().setCoordinatorOpportunities(opportunityIds);
   } catch (error: any) {

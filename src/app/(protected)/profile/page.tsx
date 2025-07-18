@@ -111,8 +111,11 @@ const Profile = () => {
     if (profileData) {
       const cleanedProfileData = Object.fromEntries(
         Object.entries(profileData).map(([key, value]) => {
-          if (value === null && (key.includes('_url') || key === 'resume' || key === 'logo')) {
-            return [key, ''];
+          if (
+            value === null &&
+            (key.includes("_url") || key === "resume" || key === "logo")
+          ) {
+            return [key, ""];
           }
           if (value === null) {
             return [key, undefined];
@@ -213,14 +216,14 @@ const Profile = () => {
   const handleUpdate = async (data: any) => {
     const allData = { ...profileData, ...data };
     const submissionData = { ...allData };
-    
+
     delete submissionData.profile_picture_url;
     delete submissionData.resume_url;
     delete submissionData.logo_url;
     delete submissionData.resume;
     delete submissionData.logo;
-    
-    Object.keys(submissionData).forEach(key => {
+
+    Object.keys(submissionData).forEach((key) => {
       if (submissionData[key] === null || submissionData[key] === undefined) {
         delete submissionData[key];
       }
