@@ -10,6 +10,7 @@ import {
   Spinner,
   Flex,
   Button,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useDashboard } from "@/hooks/useDashboard";
 import Image from "next/image";
@@ -26,6 +27,7 @@ interface ProgressBarProps {
 
 const DashboardPage = () => {
   const { dashboardStats, isLoading, error } = useDashboard();
+  const isMobile = useBreakpointValue({ base: true, lg: false });
 
   if (isLoading) {
     return (
@@ -105,11 +107,12 @@ const DashboardPage = () => {
       borderRadius={{ base: "10px", lg: "15px" }}
       boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
       overflow="hidden"
-      height={{ base: "50px", lg: "78px" }}
+      height={{ base: "50px", md: "60px", lg: "70px", xl: "78px" }}
+      bg={props.bg}
     >
       <Box
         bg={props.gradient}
-        h={{ base: "50px", lg: "78px" }}
+        h={{ base: "50px", md: "60px", lg: "70px", xl: "78px" }}
         borderRadius={{ base: "10px", lg: "15px" }}
         width={`${percentage}%`}
         position="absolute"
@@ -117,13 +120,16 @@ const DashboardPage = () => {
       />
       <Box
         bg={props.gradient}
-        h={{ base: "50px", lg: "78px" }}
+        h={{ base: "50px", md: "60px", lg: "70px", xl: "78px" }}
         borderRadius={{ base: "10px", lg: "15px" }}
         width="100%"
         opacity={0.5}
         position="relative"
       >
-        <Flex
+        
+      </Box>
+
+      <Flex
           position="absolute"
           left={0}
           top={0}
@@ -138,11 +144,12 @@ const DashboardPage = () => {
             textAlign="center"
             fontSize={{ base: "20px", lg: "32px" }}
             color="#000000"
+            opacity={1.5}
           >
             {value} ({percentage}%)
           </Text>
         </Flex>
-      </Box>
+        
     </Box>
   );
 
@@ -198,17 +205,34 @@ const DashboardPage = () => {
           MTSI Dashboard
         </Text>
 
-        <SimpleGrid columns={{ base: 1, md: 2 }} gap={8}>
+        <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
           <VStack gap={6}>
             <Box
               bg="white"
               borderRadius="20px"
-              p={{ base: 6, lg: 12 }}
+              p={{ base: 4,  md: 8, lg: 12 }}
               boxShadow="-4.3px 4.3px 11.71px 4.3px rgba(0, 0, 0, 0.24)"
               width="100%"
             >
               <HStack mb={{ base: 6, md: 10, lg: 18 }} gap={4}>
-                <Box
+               { isMobile ? 
+               <Box
+               bg="#DC2626"
+               borderRadius="md"
+               width="50px"
+               height="50px"
+               display="flex"
+               alignItems="center"
+               justifyContent="center"
+             >
+               <Image
+                 src="/assets/studentmetrics.svg"
+                 alt="Students Metrics"
+                 width={25}
+                 height={25}
+               />
+             </Box>
+               : <Box
                   bg="#DC2626"
                   borderRadius="md"
                   width="80px"
@@ -223,7 +247,7 @@ const DashboardPage = () => {
                     width={38}
                     height={34}
                   />
-                </Box>
+                </Box>}
                 <Text
                   fontSize={{ base: "20px", lg: "30px" }}
                   fontWeight="600"
@@ -239,6 +263,7 @@ const DashboardPage = () => {
                   flexDirection="column"
                   gap={6}
                   mb={{ base: 6, md: 10, lg: 24 }}
+                  minH={{ base: "auto", md: "124px", lg: "180px" }}
                 >
                   <Text
                     fontSize={{ base: "16px", lg: "23px" }}
@@ -247,6 +272,8 @@ const DashboardPage = () => {
                   >
                     Students invited to opportunity:
                   </Text>
+                  <Box flex={1} display="flex" alignItems="flex-end">
+
                   <Box
                     bg="#FF9E9E"
                     borderRadius={{ base: "10px", lg: "15px" }}
@@ -268,6 +295,8 @@ const DashboardPage = () => {
                       {dashboardStats.students.invited}
                     </Text>
                   </Box>
+                  </Box>
+
                 </Box>
 
                 {studentsData.map((item, index) => (
@@ -276,24 +305,29 @@ const DashboardPage = () => {
                     display="flex"
                     flexDirection="column"
                     gap={3}
+                    minH={{ base: "100px", md: "120px", lg: "146px" }}
                   >
                     <Text
-                      fontSize={{ base: "16px", lg: "20px" }}
+                      fontSize={{ base: "14px", md: "16px", lg: "18px", xl: "20px" }}
                       fontWeight="600"
                       color="#000000"
+                      lineHeight="1.4"
+                      flexShrink={0}
                     >
                       {item.label}
                     </Text>
-                    <ProgressBar
-                      props={{
-                        bg: "#FF9E9E",
-                        gradient:
-                          "linear-gradient(90deg, #990000 0%, #FF0000 100%)",
-                      }}
-                      value={item.value}
-                      total={item.total}
-                      percentage={calculatePercentage(item.value, item.total)}
-                    />
+                    <Box flex="1" display="flex" alignItems="flex-end">
+                      <ProgressBar
+                        props={{
+                          bg: "#FF9E9E",
+                          gradient:
+                            "linear-gradient(90deg, #990000 0%, #FF0000 100%)",
+                        }}
+                        value={item.value}
+                        total={item.total}
+                        percentage={calculatePercentage(item.value, item.total)}
+                      />
+                    </Box>
                   </Box>
                 ))}
               </VStack>
@@ -319,12 +353,29 @@ const DashboardPage = () => {
             <Box
               bg="white"
               borderRadius="20px"
-              p={{ base: 6, lg: 12 }}
+              p={{ base: 4, md: 8, lg: 12 }}
               width="100%"
               boxShadow="-4.3px 4.3px 11.71px 4.3px rgba(0, 0, 0, 0.24)"
             >
               <HStack mb={{ base: 6, md: 10, lg: 18 }} gap={4}>
-                <Box
+               { isMobile ? 
+               <Box
+               bg="#089C3F"
+               borderRadius="md"
+               width="50px"
+               height="50px"
+               display="flex"
+               alignItems="center"
+               justifyContent="center"
+             >
+               <Image
+                 src="/assets/organisationmetrics.svg"
+                 alt="Organisation Metrics"
+                 width={25}
+                 height={25}
+               />
+             </Box>
+               : <Box
                   bg="#089C3F"
                   borderRadius="md"
                   width="80px"
@@ -339,7 +390,7 @@ const DashboardPage = () => {
                     width={45}
                     height={38}
                   />
-                </Box>
+                </Box>}
                 <Text
                   fontSize={{ base: "20px", lg: "30px" }}
                   fontWeight="600"
@@ -355,6 +406,7 @@ const DashboardPage = () => {
                   flexDirection="column"
                   gap={6}
                   mb={{ base: 6, md: 10, lg: 24 }}
+                  minH={{ base: "auto", md: "124px", lg: "180px" }}
                 >
                   <Text
                     fontSize={{ base: "16px", lg: "23px" }}
@@ -363,6 +415,8 @@ const DashboardPage = () => {
                   >
                     Organisations invited to opportunity:
                   </Text>
+                  <Box flex={1} display="flex" alignItems="flex-end">
+
                   <Box
                     bg="#ACF2C5"
                     borderRadius={{ base: "10px", lg: "15px" }}
@@ -384,6 +438,8 @@ const DashboardPage = () => {
                       {dashboardStats.partners.invited}
                     </Text>
                   </Box>
+                  </Box>
+
                 </Box>
 
                 {partnersData.map((item, index) => (
@@ -392,24 +448,29 @@ const DashboardPage = () => {
                     display="flex"
                     flexDirection="column"
                     gap={3}
+                    minH={{ base: "100px", md: "120px", lg: "146px" }}
                   >
                     <Text
-                      fontSize={{ base: "16px", lg: "20px" }}
+                      fontSize={{ base: "14px", md: "16px", lg: "18px", xl: "20px" }}
                       fontWeight="600"
                       color="#000000"
+                      lineHeight="1.4"
+                      flexShrink={0}
                     >
                       {item.label}
                     </Text>
-                    <ProgressBar
-                      props={{
-                        bg: "#ACF2C5",
-                        gradient:
-                          "linear-gradient(90deg, #016D14 0%, #00FF1E 100%)",
-                      }}
-                      value={item.value}
-                      total={item.total}
-                      percentage={calculatePercentage(item.value, item.total)}
-                    />
+                    <Box flex="1" display="flex" alignItems="flex-end">
+                      <ProgressBar
+                        props={{
+                          bg: "#ACF2C5",
+                          gradient:
+                            "linear-gradient(90deg, #016D14 0%, #00FF1E 100%)",
+                        }}
+                        value={item.value}
+                        total={item.total}
+                        percentage={calculatePercentage(item.value, item.total)}
+                      />
+                    </Box>
                   </Box>
                 ))}
               </VStack>
