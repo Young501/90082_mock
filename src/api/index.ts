@@ -199,6 +199,10 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: "/api/v1/opportunities/all/",
   },
+  CONTACT_USER: (opportunityId: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v1/opportunities/${opportunityId}/contact/`,
+  }),
   OPPORTUNITY_DASHBOARD: (opportunityId: string): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/opportunities/${opportunityId}/dashboard/`,

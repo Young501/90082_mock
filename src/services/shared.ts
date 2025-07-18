@@ -158,3 +158,25 @@ export function useAcceptedOpportunities() {
     },
   });
 }
+
+export function useContactUser() {
+  return useMutation({
+    mutationFn: async (data: {
+      opportunityId: string;
+      to: string;
+      reply_to: string;
+      subject?: string;
+      message: string;
+    }) => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.CONTACT_USER(data.opportunityId),
+        body: {
+          to: data.to,
+          reply_to: data.reply_to,
+          subject: data.subject || "",
+          message: data.message,
+        },
+      });
+    },
+  });
+}

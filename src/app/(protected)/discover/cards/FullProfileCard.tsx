@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   VStack,
@@ -17,6 +17,7 @@ import { StudentProfile, PartnerProfile } from "@/types/discovery";
 import { useStudentProfile, usePartnerProfile } from "@/services/shared";
 import Image from "next/image";
 import BadgeSection from "@/components/BadgeSection";
+import { ContactModal } from "@/components/ui/ContactModal";
 import { Globe } from "lucide-react";
 
 interface FullProfileCardProps {
@@ -260,291 +261,309 @@ const RenderStudentDetails = ({
 }: {
   student: StudentProfile;
   disableBtns: boolean;
-}) => (
-  <Box
-    w="full"
-    h="full"
-    display="flex"
-    flexDirection={{ base: "column", lg: "row" }}
-    gap={{ base: 6, lg: 20 }}
-    px={{ base: 4, lg: 16 }}
-    py={{ base: 10, lg: 12 }}
-  >
-    <VStack gap={6} align="start" w={{ base: "full", lg: "40%" }}>
-      <Box
-        display="flex"
-        gap={2}
-        alignItems="center"
-        justifyContent="center"
-        flexDirection="column"
-        w="full"
-      >
-        <Avatar.Root
-          w="110px"
-          h="110px"
-          border={"6px solid #DC2626"}
-          borderRadius="50%"
+}) => {
+  const [showContactModal, setShowContactModal] = useState(false);
+
+  return (
+    <Box
+      w="full"
+      h="full"
+      display="flex"
+      flexDirection={{ base: "column", lg: "row" }}
+      gap={{ base: 6, lg: 20 }}
+      px={{ base: 4, lg: 16 }}
+      py={{ base: 10, lg: 12 }}
+    >
+      <VStack gap={6} align="start" w={{ base: "full", lg: "40%" }}>
+        <Box
+          display="flex"
+          gap={2}
+          alignItems="center"
+          justifyContent="center"
+          flexDirection="column"
+          w="full"
         >
-          <Avatar.Image src={student.profile_picture_url || ""} />
-          <Avatar.Fallback
-            name={student.first_name + " " + student.last_name}
-            bg="gray.200"
-            color="gray.800"
-            fontSize="2xl"
-            fontWeight="bold"
+          <Avatar.Root
+            w="110px"
+            h="110px"
+            border={"6px solid #DC2626"}
+            borderRadius="50%"
+          >
+            <Avatar.Image src={student.profile_picture_url || ""} />
+            <Avatar.Fallback
+              name={student.first_name + " " + student.last_name}
+              bg="gray.200"
+              color="gray.800"
+              fontSize="2xl"
+              fontWeight="bold"
+            />
+          </Avatar.Root>
+          <VStack gap={2} flex={1} w="full">
+            <Heading
+              fontSize="23px"
+              fontWeight="bold"
+              textTransform="capitalize"
+            >
+              {student.first_name + " " + student.last_name}
+            </Heading>
+            <Text fontSize="14px" fontWeight="400" textTransform="capitalize">
+              {student.course_name || "Student"}
+            </Text>
+          </VStack>
+        </Box>
+
+        <VStack justify="start" w="full" gap={2} align="start">
+          {student.email && (
+            <Box display="flex" gap={2} alignItems="center">
+              <Image
+                src="/assets/mailicon.svg"
+                alt="Mail"
+                width={20}
+                height={20}
+                objectFit="contain"
+              />
+              <Text textDecoration="underline">{student?.email || "-"}</Text>
+            </Box>
+          )}
+          {student.homepage && (
+            <Box display="flex" gap={2} alignItems="center">
+              <Globe
+                size={25}
+                style={{ color: "#C3C3C3", fontWeight: "600" }}
+              />
+              <Link href={student.homepage} target="_blank">
+                <Text textDecoration="underline">
+                  {student?.homepage || "-"}
+                </Text>
+              </Link>
+            </Box>
+          )}
+          {student.linkedin && (
+            <Box display="flex" gap={2} alignItems="center">
+              <Image
+                src="/assets/linkedin.svg"
+                alt="LinkedIn"
+                width={20}
+                height={20}
+                objectFit="contain"
+              />
+              <Text
+                textDecoration="underline"
+                onClick={() => window.open(student.linkedin, "_blank")}
+              >
+                LinkedIn
+              </Text>
+            </Box>
+          )}
+          {student.instagram && (
+            <Box display="flex" gap={2} alignItems="start">
+              <Image
+                src="/assets/instagram.svg"
+                alt="Instagram"
+                width={20}
+                height={20}
+                objectFit="contain"
+              />
+              <Text
+                textDecoration="underline"
+                onClick={() => window.open(student.instagram, "_blank")}
+              >
+                Instagram
+              </Text>
+            </Box>
+          )}
+          {student.bluesky && (
+            <Box display="flex" gap={2} alignItems="start">
+              <Image
+                src="/assets/bluesky.svg"
+                alt="Bluesky"
+                width={20}
+                height={20}
+              />
+              <Text
+                textDecoration="underline"
+                onClick={() => window.open(student.bluesky, "_blank")}
+              >
+                Bluesky
+              </Text>
+            </Box>
+          )}
+        </VStack>
+        <VStack
+          gap={3}
+          justify="center"
+          w="full"
+          alignSelf={{ base: "center", lg: "end" }}
+        >
+          <Button
+            bg={"#DC2626"}
+            color="white"
+            size="lg"
+            px={8}
+            borderRadius="40px"
+            fontSize="14px"
+            w="100%"
+            boxShadow="0px 3.34px 3.34px 0px #00000040"
+            _hover={{
+              bg: "#B91C1C",
+            }}
+            onClick={() => {
+              if (student.resume_url) {
+                window.open(student.resume_url, "_blank");
+              }
+            }}
+            disabled={disableBtns}
+          >
+            View CV
+          </Button>
+          <Button
+            size="lg"
+            px={8}
+            bg={"#DC2626"}
+            borderRadius="40px"
+            borderColor={"#DC2626"}
+            color="white"
+            fontSize="14px"
+            boxShadow="0px 3.34px 3.34px 0px #00000040"
+            w="100%"
+            onClick={() => setShowContactModal(true)}
+            disabled={disableBtns}
+          >
+            Contact
+          </Button>
+        </VStack>
+      </VStack>
+
+      <Box
+        w={{ base: "full", lg: "60%" }}
+        pt={4}
+        display="flex"
+        flexDirection="column"
+        gap={{ base: 4, lg: 8 }}
+      >
+        <Grid templateColumns="repeat(2, 1fr)" gap={4} w="full">
+          {student.course_name && (
+            <HStack gap={2} align="start">
+              <Box
+                w="20px"
+                h="20px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                flexShrink={0}
+              >
+                <Image
+                  width={12}
+                  height={12}
+                  src="/assets/educationIcon.svg"
+                  alt="course"
+                  objectFit="contain"
+                />
+              </Box>
+              <Text fontSize="sm" color="gray.600">
+                {student.course_name} <br />
+                {student.course_progression}
+              </Text>
+            </HStack>
+          )}
+
+          {student.location && (
+            <HStack gap={2} align="start">
+              <Box
+                w="20px"
+                h="20px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                flexShrink={0}
+              >
+                <Image
+                  width={12}
+                  height={12}
+                  src="/assets/locationIcon.svg"
+                  alt="location"
+                  objectFit="contain"
+                />
+              </Box>
+              <Text fontSize="sm" color="gray.600">
+                {student.location}
+              </Text>
+            </HStack>
+          )}
+
+          {student.credentials && student.credentials.length > 0 && (
+            <HStack gap={2} align="start">
+              <Box
+                w="20px"
+                h="20px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                flexShrink={0}
+              >
+                <Image
+                  width={12}
+                  height={12}
+                  src="/assets/certificationIcon.svg"
+                  alt="specialization"
+                  objectFit="contain"
+                />
+              </Box>
+              <Text fontSize="sm" color="gray.600">
+                {student.credentials.join(", ")}
+              </Text>
+            </HStack>
+          )}
+
+          <HStack gap={2} align="start">
+            <Box
+              w="20px"
+              h="20px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              flexShrink={0}
+            >
+              <Image
+                width={12}
+                height={12}
+                src="/assets/calenderIcon.svg"
+                alt="progress"
+                objectFit="contain"
+              />
+            </Box>
+            <Text fontSize="sm" color="gray.600">
+              Available Immediately
+            </Text>
+          </HStack>
+        </Grid>
+
+        <VStack gap={4} w="full" align="start">
+          <BadgeSection title="Specialization" items={student.specialization} />
+
+          <BadgeSection title="Skills" items={student.skills} />
+
+          <BadgeSection
+            title="Open to Work Locations"
+            items={student.preferred_location}
+            showFallback={true}
+            fallbackText={student.location || "Not specified"}
           />
-        </Avatar.Root>
-        <VStack gap={2} flex={1} w="full">
-          <Heading fontSize="23px" fontWeight="bold" textTransform="capitalize">
-            {student.first_name + " " + student.last_name}
-          </Heading>
-          <Text fontSize="14px" fontWeight="400" textTransform="capitalize">
-            {student.course_name || "Student"}
-          </Text>
+          <BadgeSection title="Available For" items={student.position_type} />
         </VStack>
       </Box>
 
-      <VStack justify="start" w="full" gap={2} align="start">
-        {student.email && (
-          <Box display="flex" gap={2} alignItems="center">
-            <Image
-              src="/assets/mailicon.svg"
-              alt="Mail"
-              width={20}
-              height={20}
-              objectFit="contain"
-            />
-            <Text textDecoration="underline">{student?.email || "-"}</Text>
-          </Box>
-        )}
-        {student.homepage && (
-          <Box display="flex" gap={2} alignItems="center">
-            <Globe size={25} style={{ color: "#C3C3C3", fontWeight: "600" }} />
-            <Link href={student.homepage} target="_blank">
-              <Text textDecoration="underline">{student?.homepage || "-"}</Text>
-            </Link>
-          </Box>
-        )}
-        {student.linkedin && (
-          <Box display="flex" gap={2} alignItems="center">
-            <Image
-              src="/assets/linkedin.svg"
-              alt="LinkedIn"
-              width={20}
-              height={20}
-              objectFit="contain"
-            />
-            <Text
-              textDecoration="underline"
-              onClick={() => window.open(student.linkedin, "_blank")}
-            >
-              LinkedIn
-            </Text>
-          </Box>
-        )}
-        {student.instagram && (
-          <Box display="flex" gap={2} alignItems="start">
-            <Image
-              src="/assets/instagram.svg"
-              alt="Instagram"
-              width={20}
-              height={20}
-              objectFit="contain"
-            />
-            <Text
-              textDecoration="underline"
-              onClick={() => window.open(student.instagram, "_blank")}
-            >
-              Instagram
-            </Text>
-          </Box>
-        )}
-        {student.bluesky && (
-          <Box display="flex" gap={2} alignItems="start">
-            <Image
-              src="/assets/bluesky.svg"
-              alt="Bluesky"
-              width={20}
-              height={20}
-            />
-            <Text
-              textDecoration="underline"
-              onClick={() => window.open(student.bluesky, "_blank")}
-            >
-              Bluesky
-            </Text>
-          </Box>
-        )}
-      </VStack>
-      <VStack
-        gap={3}
-        justify="center"
-        w="full"
-        alignSelf={{ base: "center", lg: "end" }}
-      >
-        <Button
-          bg={"#DC2626"}
-          color="white"
-          size="lg"
-          px={8}
-          borderRadius="40px"
-          fontSize="14px"
-          w="100%"
-          boxShadow="0px 3.34px 3.34px 0px #00000040"
-          _hover={{
-            bg: "#B91C1C",
-          }}
-          onClick={() => {
-            if (student.resume_url) {
-              window.open(student.resume_url, "_blank");
-            }
-          }}
-          disabled={disableBtns}
-        >
-          View CV
-        </Button>
-        <Button
-          size="lg"
-          px={8}
-          bg={"#DC2626"}
-          borderRadius="40px"
-          borderColor={"#DC2626"}
-          color="white"
-          fontSize="14px"
-          boxShadow="0px 3.34px 3.34px 0px #00000040"
-          w="100%"
-          onClick={() => {
-            if (student.email) {
-              window.open(`mailto:${student.email}`, "_blank");
-            }
-          }}
-          disabled={disableBtns}
-        >
-          Contact
-        </Button>
-      </VStack>
-    </VStack>
-
-    <Box
-      w={{ base: "full", lg: "60%" }}
-      pt={4}
-      display="flex"
-      flexDirection="column"
-      gap={{ base: 4, lg: 8 }}
-    >
-      <Grid templateColumns="repeat(2, 1fr)" gap={4} w="full">
-        {student.course_name && (
-          <HStack gap={2} align="start">
-            <Box
-              w="20px"
-              h="20px"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              flexShrink={0}
-            >
-              <Image
-                width={12}
-                height={12}
-                src="/assets/educationIcon.svg"
-                alt="course"
-                objectFit="contain"
-              />
-            </Box>
-            <Text fontSize="sm" color="gray.600">
-              {student.course_name} <br />
-              {student.course_progression}
-            </Text>
-          </HStack>
-        )}
-
-        {student.location && (
-          <HStack gap={2} align="start">
-            <Box
-              w="20px"
-              h="20px"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              flexShrink={0}
-            >
-              <Image
-                width={12}
-                height={12}
-                src="/assets/locationIcon.svg"
-                alt="location"
-                objectFit="contain"
-              />
-            </Box>
-            <Text fontSize="sm" color="gray.600">
-              {student.location}
-            </Text>
-          </HStack>
-        )}
-
-        {student.credentials && student.credentials.length > 0 && (
-          <HStack gap={2} align="start">
-            <Box
-              w="20px"
-              h="20px"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              flexShrink={0}
-            >
-              <Image
-                width={12}
-                height={12}
-                src="/assets/certificationIcon.svg"
-                alt="specialization"
-                objectFit="contain"
-              />
-            </Box>
-            <Text fontSize="sm" color="gray.600">
-              {student.credentials.join(", ")}
-            </Text>
-          </HStack>
-        )}
-
-        <HStack gap={2} align="start">
-          <Box
-            w="20px"
-            h="20px"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            flexShrink={0}
-          >
-            <Image
-              width={12}
-              height={12}
-              src="/assets/calenderIcon.svg"
-              alt="progress"
-              objectFit="contain"
-            />
-          </Box>
-          <Text fontSize="sm" color="gray.600">
-            Available Immediately
-          </Text>
-        </HStack>
-      </Grid>
-
-      <VStack gap={4} w="full" align="start">
-        <BadgeSection title="Specialization" items={student.specialization} />
-
-        <BadgeSection title="Skills" items={student.skills} />
-
-        <BadgeSection
-          title="Open to Work Locations"
-          items={student.preferred_location}
-          showFallback={true}
-          fallbackText={student.location || "Not specified"}
+      {showContactModal && student.email && (
+        <ContactModal
+          isOpen={showContactModal}
+          onClose={() => setShowContactModal(false)}
+          recipientEmail={student.email}
+          recipientName={`${student.first_name} ${student.last_name}`}
         />
-        <BadgeSection title="Available For" items={student.position_type} />
-      </VStack>
+      )}
     </Box>
-  </Box>
-);
+  );
+};
 
 const RenderPartnerDetails = ({
   partner,
@@ -553,6 +572,7 @@ const RenderPartnerDetails = ({
   partner: PartnerProfile;
   disableBtns: boolean;
 }) => {
+  const [showContactModal, setShowContactModal] = useState(false);
   const getCompanyLogo = () => {
     if (partner.logo_url) {
       return partner.logo_url;
@@ -891,19 +911,24 @@ const RenderPartnerDetails = ({
               justifyContent="center"
               maxW="200px"
               disabled={disableBtns}
+              onClick={() => setShowContactModal(true)}
             >
-              <Link
-                href={`mailto:${partner.email || "contact@company.com"}`}
-                target="_blank"
-                color="white"
-                textDecoration="none"
-              >
-                Contact
-              </Link>
+              Contact
             </Button>
           </Box>
         </VStack>
       </Box>
+
+      {showContactModal && partner.email && (
+        <ContactModal
+          isOpen={showContactModal}
+          onClose={() => setShowContactModal(false)}
+          recipientEmail={partner.email}
+          recipientName={
+            partner.company_name || `${partner.first_name} ${partner.last_name}`
+          }
+        />
+      )}
     </Box>
   );
 };
