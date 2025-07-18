@@ -10,8 +10,8 @@ import {
 } from '@chakra-ui/react';
 import { useManage } from '@/hooks/useManage';
 import ManageFilter from '@/app/(protected)/dashboard/components/ManageFilter';
-import StudentCard from '@/app/(protected)/dashboard/components/StudentCard';
-import MatchingStatus from '@/app/(protected)/dashboard/components/MatchingStatus';
+import UserManagementCard from '@/app/(protected)/dashboard/components/UserManagementCard';
+import UserMatchingStatus from '@/app/(protected)/dashboard/components/UserMatchingStatus';
 import InfiniteScroll from '@/components/InfiniteScroll';
 import Image from 'next/image';
 
@@ -27,7 +27,7 @@ const ManageStudentsPage = () => {
     updateFilters,
     resetFilters,
     selectParticipant,
-  } = useManage();
+  } = useManage("student");
 
   if (error) {
     return (
@@ -141,11 +141,12 @@ const ManageStudentsPage = () => {
                   >
                     <VStack gap={3} align="stretch">
                       {participants.map((participant) => (
-                        <StudentCard
+                        <UserManagementCard
                           key={participant.id}
                           participant={participant}
                           isSelected={selectedParticipant?.id === participant.id}
                           onClick={() => selectParticipant(participant)}
+                          userType="student"
                         />
                       ))}
                     </VStack>
@@ -164,7 +165,7 @@ const ManageStudentsPage = () => {
               width={{base: "100%", lg: "60%"}}
               maxW={{base: "100%", lg: "750px"}}
             >
-              <MatchingStatus participant={selectedParticipant} />
+              <UserMatchingStatus participant={selectedParticipant} userType="student" />
             </Box>
         </Box>
         </VStack>

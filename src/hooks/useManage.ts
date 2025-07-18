@@ -12,7 +12,7 @@ export interface ManageState {
   error: string | null;
 }
 
-export function useManage() {
+export function useManage(userType: "student" | "partner" = "student") {
   const { getCoordinatorOpportunities } = useAuthStore();
   const coordinatorOpportunities = getCoordinatorOpportunities();
   const opportunityId = coordinatorOpportunities[0] || "";
@@ -20,7 +20,7 @@ export function useManage() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
   const [filters, setFilters] = useState<ParticipantsFilterParams>({
-    user_type: "student",
+    user_type: userType,
     page: 1,
     page_size: 20,
   });
@@ -60,14 +60,14 @@ export function useManage() {
 
   const resetFilters = useCallback(() => {
     setFilters({
-      user_type: "student",
+      user_type: userType,
       page: 1,
       page_size: 20,
     });
     setParticipants([]);
     setHasMore(true);
     setSelectedParticipant(null);
-  }, []);
+  }, [userType]);
 
   const selectParticipant = useCallback((participant: Participant) => {
     setSelectedParticipant(participant);

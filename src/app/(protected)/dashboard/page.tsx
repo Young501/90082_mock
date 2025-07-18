@@ -311,6 +311,7 @@ const DashboardPage = () => {
               fontWeight="bold"
               fontSize="27px"
               width="100%"
+              onClick={() => router.push('/dashboard/manage-students')}
             >
               Manage Students
             </Button>
@@ -427,6 +428,7 @@ const DashboardPage = () => {
               fontWeight="bold"
               fontSize="27px"
               width="100%"
+              onClick={() => router.push('/dashboard/manage-organisations')}
             >
               Manage Organisation
             </Button>

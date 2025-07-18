@@ -12,11 +12,35 @@ import { Participant } from '@/types/dashboard';
 import { getInitial } from '@/utils/getInitials';
 import { formatDate } from '@/utils/formatDate';
 
-interface MatchingStatusProps {
+interface UserMatchingStatusProps {
   participant: Participant | null;
+  userType: 'student' | 'partner';
 }
 
-const MatchingStatus: React.FC<MatchingStatusProps> = ({ participant }) => {
+const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({ participant, userType }) => {
+  const getBorderColor = () => {
+    return userType === 'student' ? '#DC2626' : '#089C3F';
+  };
+
+  const getDotColor = () => {
+    return userType === 'student' ? '#DC2626' : '#089C3F';
+  };
+
+
+  const getMessageText = (message: any) => {
+    if (userType === 'student') {
+      return `Student is contacted by ${message.sender?.name || '-'}`;
+    } else {
+      return `Organisation contacted ${message.receiver?.name || '-'}`;
+    }
+  };
+
+  const getEmptyStateText = () => {
+    return userType === 'student' 
+      ? "Click on a Student's profile to access matching status"
+      : "Click on an Organisation's profile to access matching status";
+  };
+
   if (!participant) {
     return (
       <Box height="100%" >
@@ -34,8 +58,7 @@ const MatchingStatus: React.FC<MatchingStatusProps> = ({ participant }) => {
         minH={{base: "100%", lg: "400px"}}
       >
         <Text fontSize={{base: "18px", lg: "27px"}} fontWeight="400" color="#000000" maxW={{base: "100%", lg: "417px"}} textAlign="center">
-        Click on a Student’s profile to 
-        access matching status
+        {getEmptyStateText()}
         </Text>
       </Box>
       </Box>
@@ -61,7 +84,7 @@ const MatchingStatus: React.FC<MatchingStatusProps> = ({ participant }) => {
             fontWeight="bold"
             width="90px"
             height="90px"
-            border="5px solid #DC2626"
+            border={`5px solid ${getBorderColor()}`}
             fontSize={{base: "20px", lg: "35px"}}
           >
             <Avatar.Fallback
@@ -95,12 +118,12 @@ const MatchingStatus: React.FC<MatchingStatusProps> = ({ participant }) => {
                     <Box
                       w={23}
                       h={23}
-                      bg="#DC2626"
+                      bg={getDotColor()}
                       borderRadius="full"
                     />
                     <Box>
                     <Text fontSize={{base: "18px", lg: "22px"}} fontWeight="700">
-                      Student is contacted by {message.sender?.name || '-'}
+                      {getMessageText(message)}
                     </Text>
                     <Text fontSize={{base: "16px", lg: "20px"}} color="#000000"  fontWeight="400">
                     {formatDate(message.sent_at || "")}
@@ -123,7 +146,7 @@ const MatchingStatus: React.FC<MatchingStatusProps> = ({ participant }) => {
 
                   <HStack align="stretch" gap={3} w="100%" justifyContent="space-between">
             <Text fontWeight="600" fontSize={{base: "16px", lg: "20px"}} width="100%" color="gray.700">
-              Do you want to match this student?
+              Do you want to match this {userType === 'student' ? 'student' : 'organisation'}?
             </Text>
             <Button
               bg="#002157"
@@ -144,4 +167,4 @@ const MatchingStatus: React.FC<MatchingStatusProps> = ({ participant }) => {
   );
 };
 
-export default MatchingStatus; 
+export default UserMatchingStatus; 

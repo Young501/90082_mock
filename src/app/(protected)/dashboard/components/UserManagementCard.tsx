@@ -10,19 +10,19 @@ import {
 import { Participant } from '@/types/dashboard';
 import { getInitial } from '@/utils/getInitials';
 
-interface StudentCardProps {
+interface UserManagementCardProps {
   participant: Participant;
   isSelected: boolean;
   onClick: () => void;
+  userType: 'student' | 'partner';
 }
 
-const StudentCard: React.FC<StudentCardProps> = ({
+const UserManagementCard: React.FC<UserManagementCardProps> = ({
   participant,
   isSelected,
   onClick,
+  userType,
 }) => {
-  
-
   const getStatusText = (status: string) => {
     switch (status) {
       case 'Pending':
@@ -34,6 +34,10 @@ const StudentCard: React.FC<StudentCardProps> = ({
       default:
         return 'Unknown';
     }
+  };
+
+  const getBorderColor = () => {
+    return userType === 'student' ? '#DC2626' : '#089C3F';
   };
 
   return (
@@ -59,7 +63,7 @@ const StudentCard: React.FC<StudentCardProps> = ({
           fontWeight="bold"
           fontSize="2xl"
           borderRadius="full"
-          border="5px solid #DC2626"
+          border={`5px solid ${getBorderColor()}`}
         >
           <Avatar.Fallback
             name={getInitial(participant.name || "")}
@@ -97,4 +101,4 @@ const StudentCard: React.FC<StudentCardProps> = ({
   );
 };
 
-export default StudentCard; 
+export default UserManagementCard; 
