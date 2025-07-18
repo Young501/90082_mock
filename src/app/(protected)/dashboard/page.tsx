@@ -305,7 +305,7 @@ const DashboardPage = () => {
                     display="flex"
                     flexDirection="column"
                     gap={3}
-                    minH={{ base: "100px", md: "120px", lg: "140px" }}
+                    minH={{ base: "100px", md: "120px", lg: "146px" }}
                   >
                     <Text
                       fontSize={{ base: "14px", md: "16px", lg: "18px", xl: "20px" }}
@@ -406,7 +406,7 @@ const DashboardPage = () => {
                   flexDirection="column"
                   gap={6}
                   mb={{ base: 6, md: 10, lg: 24 }}
-                  minH={{ base: "auto", md: "124px", lg: "160px" }}
+                  minH={{ base: "auto", md: "124px", lg: "180px" }}
                 >
                   <Text
                     fontSize={{ base: "16px", lg: "23px" }}
@@ -448,7 +448,7 @@ const DashboardPage = () => {
                     display="flex"
                     flexDirection="column"
                     gap={3}
-                    minH={{ base: "100px", md: "120px", lg: "140px" }}
+                    minH={{ base: "100px", md: "120px", lg: "146px" }}
                   >
                     <Text
                       fontSize={{ base: "14px", md: "16px", lg: "18px", xl: "20px" }}
