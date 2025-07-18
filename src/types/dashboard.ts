@@ -13,6 +13,13 @@ export interface DashboardStats {
   };
 }
 
+interface MatchedWith {
+  id: number;
+  name?: string;
+  email?: string;
+  user_type?: string;
+}
+
 export interface Participant {
   id: number;
   name?: string;
@@ -20,14 +27,10 @@ export interface Participant {
   user_type?: string;
   accepted_status?: string;
   has_profile?: boolean;
+  image_url?: string;
   match_info?: {
       is_matched: boolean;
-      matched_with: {
-          id: number;
-          name?: string;
-          email?: string;
-          user_type?: string;
-      }
+      matched_with: MatchedWith | MatchedWith[];
   },
   messages?: [
               {
