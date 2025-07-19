@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Input,
@@ -7,9 +7,9 @@ import {
   HStack,
   Text,
   Flex,
-} from '@chakra-ui/react';
-import { ParticipantsFilterParams } from '@/types/dashboard';
-import Image from 'next/image';
+} from "@chakra-ui/react";
+import { ParticipantsFilterParams } from "@/types/dashboard";
+import Image from "next/image";
 
 interface ManageFilterProps {
   filters: ParticipantsFilterParams;
@@ -22,7 +22,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
   onFilterChange,
   onReset,
 }) => {
-  const [searchText, setSearchText] = useState(filters.text || '');
+  const [searchText, setSearchText] = useState(filters.text || "");
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleSearch = () => {
@@ -36,26 +36,15 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
   };
 
   const handleReset = () => {
-    setSearchText('');
+    setSearchText("");
     onReset();
   };
 
   const hasSearched = filters.text || filters.accepted_status;
 
   return (
-    <Box
-      bg="#D9D9D9"
-      borderRadius="15px"
-      p={4}
-      mb={4}
-      width="100%"
-    >
-      <Flex
-        direction={{ base: "column" }}
-        align="stretch"
-        gap={4}
-        w="100%"
-      >
+    <Box bg="#D9D9D9" borderRadius="15px" p={4} mb={4} width="100%">
+      <Flex direction={{ base: "column" }} align="stretch" gap={4} w="100%">
         <Box w="100%" display="flex" flexDirection="column" gap={4}>
           <Flex
             wrap="wrap"
@@ -80,7 +69,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
                 bg="white"
                 borderRadius="24px"
                 size="md"
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
               />
             </Box>
 
@@ -160,34 +149,42 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
           {isExpanded && (
             <Box w="100%">
               <VStack align="stretch" gap={3}>
-               
-                
                 <VStack align="stretch" gap={2}>
-                    {/* TODO: Add right statuses when endpoint is resolved */}
+                  {/* TODO: Add right statuses when endpoint is resolved */}
                   {[
-                    { value: 'pending', label: 'Pending' },
-                    { value: 'accepted', label: 'Accepted' },
-                    { value: 'declined', label: 'Declined' },
+                    { value: "pending", label: "Pending" },
+                    { value: "accepted", label: "Accepted" },
+                    { value: "declined", label: "Declined" },
                   ].map((status) => (
                     <Box
                       key={status.value}
-                      bg={filters.accepted_status === status.value ? '#A2DDF0' : 'white'}
+                      bg={
+                        filters.accepted_status === status.value
+                          ? "#A2DDF0"
+                          : "white"
+                      }
                       borderRadius="md"
                       p={3}
                       cursor="pointer"
                       onClick={() => handleStatusChange(status.value)}
                     >
                       <HStack>
-                    {filters.accepted_status === status.value ? <Image src="/assets/Check.svg" width={16} height={16} alt="check" /> : <Box
-                        w={4}
-                        h={4}
-                        borderRadius="sm"
-                        border="2px solid"
-                        
-                        position="relative"
-                    >
-                       
-                    </Box>}
+                        {filters.accepted_status === status.value ? (
+                          <Image
+                            src="/assets/Check.svg"
+                            width={16}
+                            height={16}
+                            alt="check"
+                          />
+                        ) : (
+                          <Box
+                            w={4}
+                            h={4}
+                            borderRadius="sm"
+                            border="2px solid"
+                            position="relative"
+                          ></Box>
+                        )}
                         <Text fontSize="sm">{status.label}</Text>
                       </HStack>
                     </Box>
@@ -205,17 +202,17 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
             w="100%"
             display={{ base: "flex", md: "none" }}
           >
-             {hasSearched && (
-                <Button
-                  fontSize="12px"
-                  onClick={handleReset}
-                  variant="ghost"
-                  fontWeight="600"
-                  px={0}
-                >
-                  Reset
-                </Button>
-              )}
+            {hasSearched && (
+              <Button
+                fontSize="12px"
+                onClick={handleReset}
+                variant="ghost"
+                fontWeight="600"
+                px={0}
+              >
+                Reset
+              </Button>
+            )}
             <Button
               bg="#2CA9DF"
               color="white"
@@ -269,4 +266,4 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
   );
 };
 
-export default ManageFilter; 
+export default ManageFilter;

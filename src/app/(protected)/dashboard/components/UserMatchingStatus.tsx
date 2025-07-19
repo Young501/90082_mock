@@ -189,8 +189,9 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
               participant.match_info.matched_with.length > 0 ? (
                 <>
                   <Text
-                    fontSize={{ base: "10px", lg: "22px" }}
-                    fontWeight="200"
+                    fontSize={{ base: "16px", lg: "20px" }}
+                    color="#000000"
+                    fontWeight="400"
                   >
                     List of students matched with this organisation
                   </Text>
@@ -248,7 +249,11 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                   )}
                 </>
               ) : (
-                <Text fontSize={{ base: "10px", lg: "22px" }} fontWeight="200">
+                <Text
+                  fontSize={{ base: "16px", lg: "20px" }}
+                  color="#000000"
+                  fontWeight="400"
+                >
                   This organisation did not match with any students yet
                 </Text>
               )}

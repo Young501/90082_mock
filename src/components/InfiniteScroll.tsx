@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useCallback } from 'react';
-import { Box, Spinner, Text, VStack } from '@chakra-ui/react';
+import React, { useEffect, useRef, useCallback } from "react";
+import { Box, Spinner, Text, VStack } from "@chakra-ui/react";
 
 interface InfiniteScrollProps {
   onLoadMore: () => void;
@@ -33,7 +33,7 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
 
     observerRef.current = new IntersectionObserver(handleObserver, {
       root: null,
-      rootMargin: '20px',
+      rootMargin: "20px",
       threshold: 0.1,
     });
 
@@ -49,7 +49,7 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
   return (
     <VStack align="stretch" gap={4}>
       {children}
-      
+
       {hasMore && (
         <Box
           ref={loadingRef}
@@ -60,7 +60,12 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
         >
           {isLoading ? (
             <VStack gap={2}>
-              <Spinner size="xl" color="#002157" border="8px solid" borderImageSource="conic-gradient(from 111.1deg at 50% 50%, #FFFFFF 0deg, #002157 360deg)" />
+              <Spinner
+                size="xl"
+                color="#002157"
+                border="8px solid"
+                borderImageSource="conic-gradient(from 111.1deg at 50% 50%, #FFFFFF 0deg, #002157 360deg)"
+              />
             </VStack>
           ) : (
             <Text fontSize="sm" color="gray.500">
@@ -73,4 +78,4 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
   );
 };
 
-export default InfiniteScroll; 
+export default InfiniteScroll;

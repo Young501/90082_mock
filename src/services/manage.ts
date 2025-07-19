@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
-import { ParticipantsResponse, ParticipantsFilterParams } from "@/types/dashboard";
+import {
+  ParticipantsResponse,
+  ParticipantsFilterParams,
+} from "@/types/dashboard";
 
 export const getParticipants = async (
   opportunityId: string,
@@ -15,7 +18,7 @@ export const getParticipants = async (
   });
 
   const url = `${API_ENDPOINTS.OPPORTUNITY_PARTICIPANTS(opportunityId).url}?${queryParams.toString()}`;
-  
+
   return apiRequest({
     endpoint: {
       method: "GET",
@@ -35,4 +38,4 @@ export function useParticipants(
     staleTime: 2 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
   });
-} 
+}

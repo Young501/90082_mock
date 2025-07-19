@@ -18,7 +18,8 @@ export function useManage(userType: "student" | "partner" = "student") {
   const opportunityId = coordinatorOpportunities[0] || "";
 
   const [participants, setParticipants] = useState<Participant[]>([]);
-  const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
+  const [selectedParticipant, setSelectedParticipant] =
+    useState<Participant | null>(null);
   const [filters, setFilters] = useState<ParticipantsFilterParams>({
     user_type: userType,
     page: 1,
@@ -26,14 +27,17 @@ export function useManage(userType: "student" | "partner" = "student") {
   });
   const [hasMore, setHasMore] = useState(true);
 
-  const { data, isLoading, error, refetch } = useParticipants(opportunityId, filters);
+  const { data, isLoading, error, refetch } = useParticipants(
+    opportunityId,
+    filters
+  );
 
   useEffect(() => {
     if (data) {
       if (filters.page === 1) {
         setParticipants(data.results);
       } else {
-        setParticipants(prev => [...prev, ...data.results]);
+        setParticipants((prev) => [...prev, ...data.results]);
       }
       setHasMore(!!data.next);
     }
@@ -41,22 +45,25 @@ export function useManage(userType: "student" | "partner" = "student") {
 
   const loadMore = useCallback(() => {
     if (hasMore && !isLoading) {
-      setFilters(prev => ({
+      setFilters((prev) => ({
         ...prev,
         page: (prev.page || 1) + 1,
       }));
     }
   }, [hasMore, isLoading]);
 
-  const updateFilters = useCallback((newFilters: Partial<ParticipantsFilterParams>) => {
-    setFilters(prev => ({
-      ...prev,
-      ...newFilters,
-      page: 1,
-    }));
-    setParticipants([]);
-    setHasMore(true);
-  }, []);
+  const updateFilters = useCallback(
+    (newFilters: Partial<ParticipantsFilterParams>) => {
+      setFilters((prev) => ({
+        ...prev,
+        ...newFilters,
+        page: 1,
+      }));
+      setParticipants([]);
+      setHasMore(true);
+    },
+    []
+  );
 
   const resetFilters = useCallback(() => {
     setFilters({
@@ -86,4 +93,4 @@ export function useManage(userType: "student" | "partner" = "student") {
     selectParticipant,
     refetch,
   };
-} 
+}

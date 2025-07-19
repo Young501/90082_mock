@@ -29,29 +29,28 @@ export interface Participant {
   has_profile?: boolean;
   image_url?: string;
   match_info?: {
-      is_matched: boolean;
-      matched_with: MatchedWith | MatchedWith[];
-  },
+    is_matched: boolean;
+    matched_with: MatchedWith | MatchedWith[];
+  };
   messages?: [
-              {
-                  id: number;
-                  sender: {
-                      id: number;
-                      name?: string;
-                      email?: string;
-                      user_type?: string;
-                  },
-                  receiver: {
-                      id: number;
-                      name?: string;
-                      email?: string;
-                      user_type?: string;
-                  },
-                      sent_at: string;
-              }
-          ]
+    {
+      id: number;
+      sender: {
+        id: number;
+        name?: string;
+        email?: string;
+        user_type?: string;
+      };
+      receiver: {
+        id: number;
+        name?: string;
+        email?: string;
+        user_type?: string;
+      };
+      sent_at: string;
+    },
+  ];
 }
-
 
 export interface ParticipantsResponse {
   count: number;
