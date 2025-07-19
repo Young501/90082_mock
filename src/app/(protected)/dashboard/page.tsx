@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { useDashboard } from "@/hooks/useDashboard";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface ProgressBarProps {
   value: number;
@@ -27,6 +28,7 @@ interface ProgressBarProps {
 
 const DashboardPage = () => {
   const { dashboardStats, isLoading, error } = useDashboard();
+  const router = useRouter();
   const isMobile = useBreakpointValue({ base: true, lg: false });
 
   if (isLoading) {
@@ -125,31 +127,28 @@ const DashboardPage = () => {
         width="100%"
         opacity={0.5}
         position="relative"
-      >
-        
-      </Box>
+      ></Box>
 
       <Flex
-          position="absolute"
-          left={0}
-          top={0}
-          bottom={0}
-          width="100%"
-          alignItems="center"
-          justifyContent="center"
-          px={4}
+        position="absolute"
+        left={0}
+        top={0}
+        bottom={0}
+        width="100%"
+        alignItems="center"
+        justifyContent="center"
+        px={4}
+      >
+        <Text
+          fontWeight="700"
+          textAlign="center"
+          fontSize={{ base: "20px", lg: "32px" }}
+          color="#000000"
+          opacity={1.5}
         >
-          <Text
-            fontWeight="700"
-            textAlign="center"
-            fontSize={{ base: "20px", lg: "32px" }}
-            color="#000000"
-            opacity={1.5}
-          >
-            {value} ({percentage}%)
-          </Text>
-        </Flex>
-        
+          {value} ({percentage}%)
+        </Text>
+      </Flex>
     </Box>
   );
 
@@ -210,44 +209,46 @@ const DashboardPage = () => {
             <Box
               bg="white"
               borderRadius="20px"
-              p={{ base: 4,  md: 8, lg: 12 }}
+              p={{ base: 4, md: 8, lg: 12 }}
               boxShadow="-4.3px 4.3px 11.71px 4.3px rgba(0, 0, 0, 0.24)"
               width="100%"
             >
               <HStack mb={{ base: 6, md: 10, lg: 18 }} gap={4}>
-               { isMobile ? 
-               <Box
-               bg="#DC2626"
-               borderRadius="md"
-               width="50px"
-               height="50px"
-               display="flex"
-               alignItems="center"
-               justifyContent="center"
-             >
-               <Image
-                 src="/assets/studentmetrics.svg"
-                 alt="Students Metrics"
-                 width={25}
-                 height={25}
-               />
-             </Box>
-               : <Box
-                  bg="#DC2626"
-                  borderRadius="md"
-                  width="80px"
-                  height="80px"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Image
-                    src="/assets/studentmetrics.svg"
-                    alt="Students Metrics"
-                    width={38}
-                    height={34}
-                  />
-                </Box>}
+                {isMobile ? (
+                  <Box
+                    bg="#DC2626"
+                    borderRadius="md"
+                    width="50px"
+                    height="50px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Image
+                      src="/assets/studentmetrics.svg"
+                      alt="Students Metrics"
+                      width={25}
+                      height={25}
+                    />
+                  </Box>
+                ) : (
+                  <Box
+                    bg="#DC2626"
+                    borderRadius="md"
+                    width="80px"
+                    height="80px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Image
+                      src="/assets/studentmetrics.svg"
+                      alt="Students Metrics"
+                      width={38}
+                      height={34}
+                    />
+                  </Box>
+                )}
                 <Text
                   fontSize={{ base: "20px", lg: "30px" }}
                   fontWeight="600"
@@ -273,30 +274,28 @@ const DashboardPage = () => {
                     Students invited to opportunity:
                   </Text>
                   <Box flex={1} display="flex" alignItems="flex-end">
-
-                  <Box
-                    bg="#FF9E9E"
-                    borderRadius={{ base: "10px", lg: "15px" }}
-                    width="100%"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    py={{ base: 2, lg: 0 }}
-                    px={{ base: 4, lg: 0 }}
-                    textAlign="center"
-                    height={{ base: "100%", lg: "96px" }}
-                    boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
-                  >
-                    <Text
-                      fontSize={{ base: "24px", lg: "40px" }}
-                      fontWeight="bold"
-                      color="#000000"
+                    <Box
+                      bg="#FF9E9E"
+                      borderRadius={{ base: "10px", lg: "15px" }}
+                      width="100%"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      py={{ base: 2, lg: 0 }}
+                      px={{ base: 4, lg: 0 }}
+                      textAlign="center"
+                      height={{ base: "100%", lg: "96px" }}
+                      boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
                     >
-                      {dashboardStats.students.invited}
-                    </Text>
+                      <Text
+                        fontSize={{ base: "24px", lg: "40px" }}
+                        fontWeight="bold"
+                        color="#000000"
+                      >
+                        {dashboardStats.students.invited}
+                      </Text>
+                    </Box>
                   </Box>
-                  </Box>
-
                 </Box>
 
                 {studentsData.map((item, index) => (
@@ -308,7 +307,12 @@ const DashboardPage = () => {
                     minH={{ base: "100px", md: "120px", lg: "146px" }}
                   >
                     <Text
-                      fontSize={{ base: "14px", md: "16px", lg: "18px", xl: "20px" }}
+                      fontSize={{
+                        base: "14px",
+                        md: "16px",
+                        lg: "18px",
+                        xl: "20px",
+                      }}
                       fontWeight="600"
                       color="#000000"
                       lineHeight="1.4"
@@ -344,6 +348,7 @@ const DashboardPage = () => {
               fontWeight="bold"
               fontSize="27px"
               width="100%"
+              onClick={() => router.push("/dashboard/manage-students")}
             >
               Manage Students
             </Button>
@@ -358,39 +363,41 @@ const DashboardPage = () => {
               boxShadow="-4.3px 4.3px 11.71px 4.3px rgba(0, 0, 0, 0.24)"
             >
               <HStack mb={{ base: 6, md: 10, lg: 18 }} gap={4}>
-               { isMobile ? 
-               <Box
-               bg="#089C3F"
-               borderRadius="md"
-               width="50px"
-               height="50px"
-               display="flex"
-               alignItems="center"
-               justifyContent="center"
-             >
-               <Image
-                 src="/assets/organisationmetrics.svg"
-                 alt="Organisation Metrics"
-                 width={25}
-                 height={25}
-               />
-             </Box>
-               : <Box
-                  bg="#089C3F"
-                  borderRadius="md"
-                  width="80px"
-                  height="80px"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Image
-                    src="/assets/organisationmetrics.svg"
-                    alt="Organisation Metrics"
-                    width={45}
-                    height={38}
-                  />
-                </Box>}
+                {isMobile ? (
+                  <Box
+                    bg="#089C3F"
+                    borderRadius="md"
+                    width="50px"
+                    height="50px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Image
+                      src="/assets/organisationmetrics.svg"
+                      alt="Organisation Metrics"
+                      width={25}
+                      height={25}
+                    />
+                  </Box>
+                ) : (
+                  <Box
+                    bg="#089C3F"
+                    borderRadius="md"
+                    width="80px"
+                    height="80px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Image
+                      src="/assets/organisationmetrics.svg"
+                      alt="Organisation Metrics"
+                      width={45}
+                      height={38}
+                    />
+                  </Box>
+                )}
                 <Text
                   fontSize={{ base: "20px", lg: "30px" }}
                   fontWeight="600"
@@ -416,30 +423,28 @@ const DashboardPage = () => {
                     Organisations invited to opportunity:
                   </Text>
                   <Box flex={1} display="flex" alignItems="flex-end">
-
-                  <Box
-                    bg="#ACF2C5"
-                    borderRadius={{ base: "10px", lg: "15px" }}
-                    width="100%"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    py={{ base: 2, lg: 0 }}
-                    px={{ base: 4, lg: 0 }}
-                    textAlign="center"
-                    height={{ base: "100%", lg: "96px" }}
-                    boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
-                  >
-                    <Text
-                      fontSize={{ base: "24px", lg: "40px" }}
-                      fontWeight="bold"
-                      color="#000000"
+                    <Box
+                      bg="#ACF2C5"
+                      borderRadius={{ base: "10px", lg: "15px" }}
+                      width="100%"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      py={{ base: 2, lg: 0 }}
+                      px={{ base: 4, lg: 0 }}
+                      textAlign="center"
+                      height={{ base: "100%", lg: "96px" }}
+                      boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
                     >
-                      {dashboardStats.partners.invited}
-                    </Text>
+                      <Text
+                        fontSize={{ base: "24px", lg: "40px" }}
+                        fontWeight="bold"
+                        color="#000000"
+                      >
+                        {dashboardStats.partners.invited}
+                      </Text>
+                    </Box>
                   </Box>
-                  </Box>
-
                 </Box>
 
                 {partnersData.map((item, index) => (
@@ -451,7 +456,12 @@ const DashboardPage = () => {
                     minH={{ base: "100px", md: "120px", lg: "146px" }}
                   >
                     <Text
-                      fontSize={{ base: "14px", md: "16px", lg: "18px", xl: "20px" }}
+                      fontSize={{
+                        base: "14px",
+                        md: "16px",
+                        lg: "18px",
+                        xl: "20px",
+                      }}
                       fontWeight="600"
                       color="#000000"
                       lineHeight="1.4"
@@ -487,6 +497,7 @@ const DashboardPage = () => {
               fontWeight="bold"
               fontSize="27px"
               width="100%"
+              onClick={() => router.push("/dashboard/manage-organisations")}
             >
               Manage Organisation
             </Button>

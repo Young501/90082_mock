@@ -6,3 +6,7 @@ export const getInitials = (firstName?: string, lastName?: string): string => {
 
   return `${firstInitial}${lastInitial}`.trim();
 };
+
+export const getInitial = (name: string) => {
+  return name.charAt(0).toUpperCase();
+};
