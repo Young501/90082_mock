@@ -244,6 +244,15 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                         >
                           {matchedWith.name}
                         </Text>
+
+                        <Text
+                          fontSize={{ base: "14px", lg: "16px" }}
+                          fontWeight="400"
+                          color="gray.600"
+                        >
+                          Matched at -{" "}
+                          {formatDate(matchedWith.matched_at || "")}
+                        </Text>
                       </Box>
                     )
                   )}
@@ -292,9 +301,11 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
               color="#000000"
               fontWeight="400"
             >
+              Matched at -{" "}
               {formatDate(
-                participant.messages?.[participant.messages.length - 1]
-                  ?.sent_at || ""
+                Array.isArray(participant.match_info?.matched_with)
+                  ? participant.match_info.matched_with[0]?.matched_at || ""
+                  : participant.match_info?.matched_with?.matched_at || ""
               )}
             </Text>
           </VStack>
