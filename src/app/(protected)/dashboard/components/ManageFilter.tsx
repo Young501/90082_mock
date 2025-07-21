@@ -57,16 +57,27 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
             bg="white"
             borderRadius="24px"
           />
+          <Flex gap={2}>
+            
           <Button
-            bg="#2CA9DF"
-            color="white"
-            onClick={handleSearch}
-            fontSize="16px"
-            h="40px"
-            borderRadius="24px"
-          >
-            Search
-          </Button>
+                bg="#2CA9DF"
+                color="white"
+                onClick={handleSearch}
+                fontSize="16px"
+                h="40px"
+                flex={hasSearched ? "1" : "2"}
+                borderRadius="24px"
+                w={{base: "100%", lg: "212px"}}
+              >
+                <Image
+                  src="/assets/SearchIcon.svg"
+                  width={16}
+                  height={16}
+                  alt="search"
+                  style={{ marginRight: "8px" }}
+                />
+                Search
+              </Button>
           {hasSearched && (
             <Button
               fontSize="12px"
@@ -78,6 +89,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
               Reset
             </Button>
           )}
+          </Flex>
         </Flex>
       </Box>
     );
