@@ -211,6 +211,10 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v1/opportunities/${opportunityId}/participants/`,
   }),
+  MATCH: (opportunityId: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v1/opportunities/${opportunityId}/match/`,
+  }),
 };
 
 /*********

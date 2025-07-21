@@ -67,3 +67,8 @@ export interface ParticipantsFilterParams {
   page?: number;
   page_size?: number;
 }
+
+export interface MatchStudent {
+  student_participant_id: string;
+  partner_participant_id: string;
+}

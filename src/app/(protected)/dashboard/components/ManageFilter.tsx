@@ -15,12 +15,14 @@ interface ManageFilterProps {
   filters: ParticipantsFilterParams;
   onFilterChange: (filters: Partial<ParticipantsFilterParams>) => void;
   onReset: () => void;
+  searchOnly?: boolean;
 }
 
 const ManageFilter: React.FC<ManageFilterProps> = ({
   filters,
   onFilterChange,
   onReset,
+  searchOnly = false
 }) => {
   const [searchText, setSearchText] = useState(filters.text || "");
   const [isExpanded, setIsExpanded] = useState(false);
@@ -41,6 +43,45 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
   };
 
   const hasSearched = filters.text || filters.accepted_status;
+
+  if (searchOnly) {
+    return (
+      <Box bg="#D9D9D9" borderRadius="15px" p={4} mb={4} width="100%">
+        <Flex gap={4} w="100%" direction={{ base: "column", lg: "row" }}>
+          <Input
+            placeholder="Search organization name"
+            value={searchText}
+            onChange={e => setSearchText(e.target.value)}
+            onKeyPress={e => e.key === "Enter" && handleSearch()}
+            maxW="100%"
+            bg="white"
+            borderRadius="24px"
+          />
+          <Button
+            bg="#2CA9DF"
+            color="white"
+            onClick={handleSearch}
+            fontSize="16px"
+            h="40px"
+            borderRadius="24px"
+          >
+            Search
+          </Button>
+          {hasSearched && (
+            <Button
+              fontSize="12px"
+              onClick={handleReset}
+              variant="ghost"
+              fontWeight="600"
+              px={2}
+            >
+              Reset
+            </Button>
+          )}
+        </Flex>
+      </Box>
+    );
+  }
 
   return (
     <Box bg="#D9D9D9" borderRadius="15px" p={4} mb={4} width="100%">
@@ -150,7 +191,6 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
             <Box w="100%">
               <VStack align="stretch" gap={3}>
                 <VStack align="stretch" gap={2}>
-                  {/* TODO: Add right statuses when endpoint is resolved */}
                   {[
                     { value: "pending", label: "Pending" },
                     { value: "accepted", label: "Accepted" },

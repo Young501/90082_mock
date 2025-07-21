@@ -70,7 +70,7 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
   return (
     <Box
       bg={
-        isDeclined && isInvited ? "gray.100" : isSelected ? "#A2DDF0" : "white"
+        isDeclined || isInvited ? "gray.100" : isSelected ? "#A2DDF0" : "white"
       }
       border={
         isDeclined
