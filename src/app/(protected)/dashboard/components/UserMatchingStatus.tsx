@@ -42,16 +42,10 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
   };
 
   const getMessageText = (message: any) => {
-    if (userType === "student") {
-      if (message.sender?.user_type === "partner") {
-        return `Student is contacted by ${message.sender?.name || "-"}`;
-      }
-      return `Student contacted ${message.receiver?.name || "-"}`;
+    if (message.sender?.user_type === "partner") {
+      return `Student is contacted by ${message.sender?.name || "-"}`;
     } else {
-      if (message.sender?.user_type === "partner") {
-        return `Organisation contacted ${message.receiver?.name || "-"}`;
-      }
-      return `Organisation is contacted by ${message.sender?.name || "-"}`;
+      return `Student contacted ${message.receiver?.name || "-"}`;
     }
   };
 
