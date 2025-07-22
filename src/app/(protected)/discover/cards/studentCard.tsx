@@ -23,6 +23,7 @@ interface StudentCardProps {
   isInFolder?: boolean;
   onRemoveFromFolder?: () => void;
   disableViewFullProfile?: boolean;
+  disableAddToFolder?: boolean;
 }
 
 export function StudentCard({
@@ -33,6 +34,7 @@ export function StudentCard({
   isInFolder = false,
   onRemoveFromFolder,
   disableViewFullProfile = false,
+  disableAddToFolder = false,
 }: StudentCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
@@ -116,7 +118,7 @@ export function StudentCard({
               outline: "none",
               bg: "#2CA9DF",
             }}
-            onClick={handleAddToFolder}
+            onClick={disableAddToFolder ? undefined : handleAddToFolder}
           >
             {isInFolder ? (
               <i

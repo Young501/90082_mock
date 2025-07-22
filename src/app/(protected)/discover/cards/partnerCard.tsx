@@ -22,6 +22,7 @@ interface PartnerCardProps {
   isInFolder?: boolean;
   onRemoveFromFolder?: () => void;
   disableViewFullProfile?: boolean;
+  disableAddToFolder?: boolean;
 }
 
 export function PartnerCard({
@@ -31,6 +32,7 @@ export function PartnerCard({
   isInFolder = false,
   onRemoveFromFolder,
   disableViewFullProfile = false,
+  disableAddToFolder = false,
 }: PartnerCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
@@ -89,7 +91,7 @@ export function PartnerCard({
               outline: "none",
               bg: "#2CA9DF",
             }}
-            onClick={handleAddToFolder}
+            onClick={disableAddToFolder ? undefined : handleAddToFolder}
           >
             {isInFolder ? (
               <i

@@ -195,8 +195,7 @@ const Profile = () => {
       );
     });
 
-    console.log("filledFields", filledFields);
-    console.log("allOnboardingFields", allOnboardingFields);
+   
     return Math.round((filledFields.length / allOnboardingFields.length) * 100);
   };
 
@@ -421,6 +420,7 @@ const Profile = () => {
                       userType={userType}
                       maxW="500px"
                       disableViewFullProfile={true}
+                      disableAddToFolder={true}
                     />
                     <FullProfileCard
                       profileId={userProfile.id?.toString() || ""}
@@ -437,6 +437,7 @@ const Profile = () => {
                       profilePictureUrl={getUserProfilePictureUrl()}
                       maxW="500px"
                       disableViewFullProfile={true}
+                      disableAddToFolder={true}
                     />
                     <FullProfileCard
                       profileId={userProfile.id?.toString() || ""}
