@@ -17,6 +17,7 @@ import {
   Avatar,
   Progress,
   VStack,
+  Alert,
 } from "@chakra-ui/react";
 import { StudentCard } from "../discover/cards/studentCard";
 import { PartnerCard } from "../discover/cards/partnerCard";
@@ -49,6 +50,8 @@ const Profile = () => {
   const [updatedProfilePicture, setUpdatedProfilePicture] = useState<
     string | null
   >(null);
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+  const [showValidationError, setShowValidationError] = useState(false);
 
   const userType: string = user?.user_types?.[0] || "";
 
@@ -214,21 +217,25 @@ const Profile = () => {
   };
 
   const handleUpdate = async (data: any) => {
+    setHasAttemptedSubmit(true);
     const allData = { ...profileData, ...data };
     const submissionData = { ...allData };
-
     delete submissionData.profile_picture_url;
     delete submissionData.resume_url;
     delete submissionData.logo_url;
     delete submissionData.resume;
     delete submissionData.logo;
-
     Object.keys(submissionData).forEach((key) => {
       if (submissionData[key] === null || submissionData[key] === undefined) {
         delete submissionData[key];
       }
     });
-
+    if (Object.keys(errors).length > 0) {
+      setShowValidationError(true);
+      return;
+    } else {
+      setShowValidationError(false);
+    }
     try {
       const profileUpdateResponse =
         await profileUpdateMutation.mutateAsync(submissionData);
@@ -250,7 +257,6 @@ const Profile = () => {
       if (allData.logo_url instanceof File) {
         uploadTasks.push(logoUpload.mutateAsync(allData.logo_url));
       }
-
       if (uploadTasks.length > 0) {
         const results = await Promise.allSettled(uploadTasks);
         const failed = results.find((r) => r.status === "rejected");
@@ -441,6 +447,14 @@ const Profile = () => {
             </Box>
           ) : (
             <form onSubmit={handleSubmit(handleUpdate)}>
+              {showValidationError && hasAttemptedSubmit && Object.keys(errors).length > 0 && (
+                <Alert.Root status="error" mb={4}>
+                  <Alert.Indicator />
+                  <Alert.Title>
+                    Please follow the instructions to fill the form.
+                  </Alert.Title>
+                </Alert.Root>
+              )}
               {activePage?.questions?.map((question: Question) => (
                 <FieldRenderer
                   key={question.field}

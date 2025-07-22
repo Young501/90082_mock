@@ -271,7 +271,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
           const results = await Promise.allSettled(uploadPromises);
           const failed = results.find((r) => r.status === "rejected");
           if (failed) {
-            console.error("File upload failed:", failed.reason);
             toast.error("Some files failed to upload");
           } else {
             results.forEach((result, index) => {

@@ -42,6 +42,7 @@ export const FieldRenderer = ({
   unregister,
 }: FieldRendererProps) => {
   const error = errors[question.field]?.message as string | undefined;
+  console.log(errors);
   const fieldOptions = question.options || question.option || [];
 
   const previousFieldValue = useRef<any>(undefined);
