@@ -211,7 +211,8 @@ export const authValidationSchema = yup.object({
   email: yup
     .string()
     .required("Email is required")
-    .email("Invalid email format"),
+    .email("Invalid email format")
+    .matches(/^[^@]+@[^@]+\.[^@]+$/, "Invalid email format"),
   password: yup
     .string()
     .required("Password is required")
@@ -222,7 +223,8 @@ export const resetPasswordValidationSchema = yup.object({
   email: yup
     .string()
     .required("Email is required")
-    .email("Invalid email format"),
+    .email("Invalid email format")
+    .matches(/^[^@]+@[^@]+\.[^@]+$/, "Invalid email format"),
 })
 
 export const passwordResetFormSchema = yup.object({
