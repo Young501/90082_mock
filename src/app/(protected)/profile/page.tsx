@@ -151,20 +151,20 @@ const Profile = () => {
   const calculateProfileCompletion = (): number => {
     if (!userProfile || !onboardingData?.onboarding_pages) return 0;
 
-    const getAllFieldsFromPages = (pages: OnboardingPage[]): string[] => {
+    const getAllFieldsFromPages = (pages: OnboardingPage[], userProfile: UserProfile): string[] => {
       const fields: string[] = [];
 
-      const extractFieldsFromQuestion = (question: Question): string[] => {
+      const extractFieldsFromQuestion = (question: Question, userProfile: UserProfile): string[] => {
         const questionFields = [question.field];
+        const userAnswer = (userProfile as any)[question.field];
 
-        if (question.followup_question) {
-          Object.values(question.followup_question).forEach(
-            (followupQuestion: Question) => {
-              questionFields.push(
-                ...extractFieldsFromQuestion(followupQuestion)
-              );
-            }
-          );
+        if (
+          question.followup_question &&
+          userAnswer &&
+          question.followup_question[userAnswer]
+        ) {
+          const followup = question.followup_question[userAnswer];
+          questionFields.push(...extractFieldsFromQuestion(followup, userProfile));
         }
 
         return questionFields;
@@ -172,7 +172,7 @@ const Profile = () => {
 
       pages.forEach((page) => {
         page.questions.forEach((question: Question) => {
-          fields.push(...extractFieldsFromQuestion(question));
+          fields.push(...extractFieldsFromQuestion(question, userProfile));
         });
       });
 
@@ -180,7 +180,8 @@ const Profile = () => {
     };
 
     const allOnboardingFields = getAllFieldsFromPages(
-      onboardingData.onboarding_pages
+      onboardingData.onboarding_pages,
+      userProfile
     );
 
     const filledFields = allOnboardingFields.filter((field) => {
@@ -194,6 +195,8 @@ const Profile = () => {
       );
     });
 
+    console.log("filledFields", filledFields);
+    console.log("allOnboardingFields", allOnboardingFields);
     return Math.round((filledFields.length / allOnboardingFields.length) * 100);
   };
 

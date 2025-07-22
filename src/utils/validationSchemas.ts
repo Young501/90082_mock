@@ -11,7 +11,9 @@ export const createPageSchema = (
 
   const addQuestionToSchema = (question: Question, parentChain: ParentChainItem[] = []) => {
     let fieldSchema: any
-    if (question.type === "text" || question.type === "location") {
+    if (question.type === "textarea") {
+      fieldSchema = yup.string()
+    } else if (question.type === "text" || question.type === "location") {
       fieldSchema = yup.string()
     } else if (question.type === "number") {
       fieldSchema = yup.number().typeError("Must be a number")

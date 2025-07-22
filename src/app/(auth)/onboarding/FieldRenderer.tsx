@@ -14,6 +14,7 @@ import {
   SkillsPillField,
   SliderField,
   CardSelectField,
+  TextAreaField,
 } from "@/components/fields";
 import { Question } from "@/types/onboarding";
 import { useMemo, useEffect, useRef, useCallback } from "react";
@@ -42,7 +43,7 @@ export const FieldRenderer = ({
   unregister,
 }: FieldRendererProps) => {
   const error = errors[question.field]?.message as string | undefined;
-  console.log(errors);
+  // console.log(errors);
   const fieldOptions = question.options || question.option || [];
 
   const previousFieldValue = useRef<any>(undefined);
@@ -272,6 +273,19 @@ export const FieldRenderer = ({
               ? question.field
               : undefined
           }
+        />
+      );
+    }
+
+    if (question.type === "textarea") {
+      return (
+        <TextAreaField
+          register={register(question.field)}
+          error={error}
+          required={question.required}
+          placeholder={question.label}
+          icon={question.icon}
+          label={question.label}
         />
       );
     }
