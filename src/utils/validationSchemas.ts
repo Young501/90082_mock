@@ -8,8 +8,30 @@ export const createPageSchema = (
   isProfilePage: boolean = false
 ) => {
   const shape: Record<string, any> = {}
+  const fieldParentChains: Record<string, { question: Question; chains: ParentChainItem[][] }> = {}
 
   const addQuestionToSchema = (question: Question, parentChain: ParentChainItem[] = []) => {
+    if (!fieldParentChains[question.field]) {
+      fieldParentChains[question.field] = { question, chains: [] }
+    }
+    fieldParentChains[question.field].chains.push([...parentChain])
+
+    if (question.followup_question) {
+      Object.entries(question.followup_question).forEach(([parentValue, followupQuestion]) => {
+        addQuestionToSchema(followupQuestion, [...parentChain, { field: question.field, value: parentValue }])
+      })
+    }
+  }
+
+  const processAllQuestions = (questions: Question[]) => {
+    questions.forEach((question) => {
+      addQuestionToSchema(question)
+    })
+  }
+
+  processAllQuestions(questions)
+
+  Object.entries(fieldParentChains).forEach(([fieldName, { question, chains }]) => {
     let fieldSchema: any
     if (question.type === "textarea") {
       fieldSchema = yup.string()
@@ -26,7 +48,12 @@ export const createPageSchema = (
     } else if (question.type === "url") {
       fieldSchema = yup.string().url("Invalid URL format")
     } else if (question.type === "select") {
-      fieldSchema = yup.string()
+      fieldSchema = yup.string().transform((value: any) => {
+        if (value === "" || value === null || value === undefined) {
+          return undefined
+        }
+        return value
+      })
     } else if (question.type === "multi-select") {
       fieldSchema = yup
         .array()
@@ -116,95 +143,66 @@ export const createPageSchema = (
       fieldSchema = yup.string()
     }
 
-    let conditional = false
-    let whenFields: string[] = []
-    let whenCondition: (...parentValues: any[]) => boolean = () => true
-    if (parentChain.length > 0) {
-      conditional = true
-      whenFields = parentChain.map((p) => p.field)
-      whenCondition = (...parentValues: any[]) => {
-        for (let i = 0; i < parentChain.length; i++) {
-          if (parentValues[i] !== parentChain[i].value) {
-            return false
-          }
-        }
-        return true
-      }
-    }
+    if (chains.length > 0 && question.required) {
+      const allParentFields = new Set<string>()
+      chains.forEach(chain => {
+        chain.forEach(item => allParentFields.add(item.field))
+      })
+      const whenFields = Array.from(allParentFields)
 
-    if (question.required) {
+      const whenCondition = (...parentValues: any[]) => {
+        return chains.some(chain => {
+          return chain.every((item, index) => {
+            const fieldIndex = whenFields.indexOf(item.field)
+            return parentValues[fieldIndex] === item.value
+          })
+        })
+      }
+
+      fieldSchema = fieldSchema.when(whenFields, {
+        is: whenCondition,
+        then: (schema: any) => {
+          if (
+            question.type === "multi-select" ||
+            question.type === "tag-select" ||
+            (question.type === "checkbox-group" && question.max_selection !== 1) ||
+            (question.type === "card-select" && question.max_selection !== 1)
+          ) {
+            return schema.required("This field is required").min(1, "This field is required").test("not-empty-array", "This field is required", (value: any) => Array.isArray(value) && value.length > 0)
+          } else if (question.type === "range") {
+            return schema.required("This field is required").test("is-range-required", "This field is required", (value: any) => typeof value === "number" && !isNaN(value))
+          } else if (question.type === "file") {
+            if (!isProfilePage) {
+              return schema.required("This field is required")
+            }
+          } else {
+            return schema.required("This field is required")
+          }
+          return schema
+        },
+        otherwise: (schema: any) => schema.notRequired(),
+      })
+    } else if (question.required) {
       if (
         question.type === "multi-select" ||
         question.type === "tag-select" ||
         (question.type === "checkbox-group" && question.max_selection !== 1) ||
         (question.type === "card-select" && question.max_selection !== 1)
       ) {
-        if (conditional) {
-          fieldSchema = fieldSchema.when(whenFields, {
-            is: (...parentValues: any[]) => whenCondition(...parentValues),
-            then: (schema: any) => schema.required("This field is required").min(1, "This field is required").test("not-empty-array", "This field is required", (value: any) => Array.isArray(value) && value.length > 0),
-            otherwise: (schema: any) => schema.notRequired(),
-          })
-        } else {
-          fieldSchema = fieldSchema.required("This field is required").min(1, "This field is required").test("not-empty-array", "This field is required", (value: any) => Array.isArray(value) && value.length > 0)
-        }
+        fieldSchema = fieldSchema.required("This field is required").min(1, "This field is required").test("not-empty-array", "This field is required", (value: any) => Array.isArray(value) && value.length > 0)
       } else if (question.type === "range") {
-        if (conditional) {
-          fieldSchema = fieldSchema.when(whenFields, {
-            is: (...parentValues: any[]) => whenCondition(...parentValues),
-            then: (schema: any) => schema.required("This field is required").test("is-range-required", "This field is required", (value: any) => typeof value === "number" && !isNaN(value)),
-            otherwise: (schema: any) => schema.notRequired(),
-          })
-        } else {
-          fieldSchema = fieldSchema.required("This field is required").test("is-range-required", "This field is required", (value: any) => typeof value === "number" && !isNaN(value))
-        }
+        fieldSchema = fieldSchema.required("This field is required").test("is-range-required", "This field is required", (value: any) => typeof value === "number" && !isNaN(value))
       } else if (question.type === "file") {
-        if (question.required && !isProfilePage) {
-          if (conditional) {
-            fieldSchema = fieldSchema.when(whenFields, {
-              is: (...parentValues: any[]) => whenCondition(...parentValues),
-              then: (schema: any) => schema.required("This field is required"),
-              otherwise: (schema: any) => schema.notRequired(),
-            })
-          } else {
-            fieldSchema = fieldSchema.required("This field is required")
-          }
-        }
-      } else {
-        if (conditional) {
-          fieldSchema = fieldSchema.when(whenFields, {
-            is: (...parentValues: any[]) => whenCondition(...parentValues),
-            then: (schema: any) => schema.required("This field is required"),
-            otherwise: (schema: any) => schema.notRequired(),
-          })
-        } else {
+        if (!isProfilePage) {
           fieldSchema = fieldSchema.required("This field is required")
         }
+      } else {
+        fieldSchema = fieldSchema.required("This field is required")
       }
-    } else if (conditional) {
-      fieldSchema = fieldSchema.when(whenFields, {
-        is: (...parentValues: any[]) => whenCondition(...parentValues),
-        then: (schema: any) => schema,
-        otherwise: (schema: any) => schema.notRequired(),
-      })
     }
 
-    shape[question.field] = fieldSchema
-
-    if (question.followup_question) {
-      Object.entries(question.followup_question).forEach(([parentValue, followupQuestion]) => {
-        addQuestionToSchema(followupQuestion, [...parentChain, { field: question.field, value: parentValue }])
-      })
-    }
-  }
-
-  const processAllQuestions = (questions: Question[]) => {
-    questions.forEach((question) => {
-      addQuestionToSchema(question)
-    })
-  }
-
-  processAllQuestions(questions)
+    shape[fieldName] = fieldSchema
+  })
 
   return yup.object().shape(shape)
 }
