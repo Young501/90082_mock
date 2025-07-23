@@ -369,6 +369,12 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                 <Button
                   bg="#002157"
                   color="white"
+                  _hover={{ bg: "#003580" }}
+                  _active={{
+                    bg: "#000E2A",
+                    transform: "scale(0.95)",
+                  }}
+                  transition="all 0.2s"
                   fontSize={{ base: "20px", lg: "27px" }}
                   fontWeight="600"
                   borderRadius="18px"
@@ -378,7 +384,9 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                   disabled={participant.match_info?.is_matched || false}
                   onClick={() => {
                     if (participant && participant.id && opportunityId) {
-                      router.push(`/dashboard/manage/match?studentId=${participant.id}&opportunityId=${opportunityId}`);
+                      router.push(
+                        `/dashboard/manage/match?studentId=${participant.id}&opportunityId=${opportunityId}`
+                      );
                     }
                   }}
                 >
