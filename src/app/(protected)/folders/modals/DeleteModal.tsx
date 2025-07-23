@@ -7,11 +7,13 @@ export const DeleteModal = ({
   onClose,
   onDelete,
   InFolder,
+  onResetBackground,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onDelete: () => void;
   InFolder: boolean;
+  onResetBackground?: () => void;
 }) => {
   if (!isOpen) return null;
 
@@ -27,7 +29,12 @@ export const DeleteModal = ({
       alignItems="center"
       justifyContent="center"
       zIndex={1000}
-      onClick={onClose}
+      onClick={() => {
+        onClose();
+        if (onResetBackground) {
+          onResetBackground();
+        }
+      }}
     >
       <Box
         bg="white"
@@ -45,7 +52,12 @@ export const DeleteModal = ({
           right={4}
           variant="ghost"
           size="sm"
-          onClick={onClose}
+          onClick={() => {
+            onClose();
+            if (onResetBackground) {
+              onResetBackground();
+            }
+          }}
         >
           <Image src="/assets/cancel.svg" alt="Close" width={25} height={25} />
         </Button>

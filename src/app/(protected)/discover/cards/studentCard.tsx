@@ -80,6 +80,8 @@ export function StudentCard({
       } else {
         setShowAddToFolderModal(true);
       }
+    } else {
+      setClickBackground(false);
     }
   };
 
@@ -108,16 +110,16 @@ export function StudentCard({
           <Box
             w={6}
             h={6}
-            bg="transparent"
+            bg={clickBackground ? "#2CA9DF" : "transparent"}
             borderRadius="md"
             display="flex"
             alignItems="center"
             justifyContent="center"
             cursor="pointer"
-            _focus={{
-              outline: "none",
-              bg: "#2CA9DF",
-            }}
+            // _focus={{
+            //   outline: "none",
+            //   bg: "#2CA9DF",
+            // }}
             onClick={disableAddToFolder ? undefined : handleAddToFolder}
           >
             {isInFolder ? (
@@ -369,6 +371,8 @@ export function StudentCard({
           onClose={() => setShowAddToFolderModal(false)}
           userId={student.id.toString()}
           userName={getDisplayName()}
+          onAddToFolder={() => setClickBackground(true)}
+          onResetBackground={() => setClickBackground(false)}
         />
       )}
 
@@ -378,6 +382,7 @@ export function StudentCard({
           onClose={() => setDeleteModal(false)}
           onDelete={() => onRemoveFromFolder?.()}
           InFolder={true}
+          onResetBackground={() => setClickBackground(false)}
         />
       )}
     </>
