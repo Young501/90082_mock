@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Container,
@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { useDashboard } from "@/hooks/useDashboard";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 interface ProgressBarProps {
   value: number;
@@ -29,7 +29,14 @@ interface ProgressBarProps {
 const DashboardPage = () => {
   const { dashboardStats, isLoading, error } = useDashboard();
   const router = useRouter();
+  const pathname = usePathname();
   const isMobile = useBreakpointValue({ base: true, lg: false });
+  const searchParams = useSearchParams();
+  // const manageType = searchParams.get("manageType");
+
+  const manageRoute = (type: "student" | "partner") => {
+    router.push(`${pathname}/manage?manageType=${type}`);
+  }
 
   if (isLoading) {
     return (
@@ -348,7 +355,7 @@ const DashboardPage = () => {
               fontWeight="bold"
               fontSize="27px"
               width="100%"
-              onClick={() => router.push("/dashboard/manage-students")}
+              onClick={() => manageRoute("student")}
             >
               Manage Students
             </Button>
@@ -497,7 +504,7 @@ const DashboardPage = () => {
               fontWeight="bold"
               fontSize="27px"
               width="100%"
-              onClick={() => router.push("/dashboard/manage-organisations")}
+              onClick={() => manageRoute("partner")}
             >
               Manage Organisation
             </Button>
