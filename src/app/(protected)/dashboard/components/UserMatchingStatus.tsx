@@ -47,10 +47,10 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
   };
 
   const getMessageText = (message: any) => {
-    if (userType === "student") {
+    if (message.sender?.user_type === "partner") {
       return `Student is contacted by ${message.sender?.name || "-"}`;
     } else {
-      return `Organisation contacted ${message.receiver?.name || "-"}`;
+      return `Student contacted ${message.receiver?.name || "-"}`;
     }
   };
 
@@ -250,6 +250,15 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                         >
                           {matchedWith.name}
                         </Text>
+
+                        <Text
+                          fontSize={{ base: "14px", lg: "16px" }}
+                          fontWeight="400"
+                          color="gray.600"
+                        >
+                          Matched at -{" "}
+                          {formatDate(matchedWith.matched_at || "")}
+                        </Text>
                       </Box>
                     )
                   )}
@@ -298,9 +307,11 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
               color="#000000"
               fontWeight="400"
             >
+              Matched at -{" "}
               {formatDate(
-                participant.messages?.[participant.messages.length - 1]
-                  ?.sent_at || ""
+                Array.isArray(participant.match_info?.matched_with)
+                  ? participant.match_info.matched_with[0]?.matched_at || ""
+                  : participant.match_info?.matched_with?.matched_at || ""
               )}
             </Text>
           </VStack>
@@ -358,6 +369,12 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                 <Button
                   bg="#002157"
                   color="white"
+                  _hover={{ bg: "#003580" }}
+                  _active={{
+                    bg: "#000E2A",
+                    transform: "scale(0.95)",
+                  }}
+                  transition="all 0.2s"
                   fontSize={{ base: "20px", lg: "27px" }}
                   fontWeight="600"
                   borderRadius="18px"
@@ -367,7 +384,9 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                   disabled={participant.match_info?.is_matched || false}
                   onClick={() => {
                     if (participant && participant.id && opportunityId) {
-                      router.push(`/dashboard/manage/match?studentId=${participant.id}&opportunityId=${opportunityId}`);
+                      router.push(
+                        `/dashboard/manage/match?studentId=${participant.id}&opportunityId=${opportunityId}`
+                      );
                     }
                   }}
                 >
