@@ -68,6 +68,7 @@ const Profile = () => {
   } = changePasswordForm;
 
   const userType: string = user?.user_types?.[0] || "";
+  const isCoordinator = userType === "coordinator";
 
   const {
     userProfile: fetchedUserProfile,
@@ -114,13 +115,14 @@ const Profile = () => {
   }, [fetchedUserProfile, userProfile]);
 
   useEffect(() => {
-    if (!isProfileLoading && !fetchedUserProfile && userType) {
+    if (!isProfileLoading && !fetchedUserProfile && !isCoordinator) {
       handleOnboardingRedirect(false);
     }
   }, [
     isProfileLoading,
     fetchedUserProfile,
     userType,
+    isCoordinator,
     handleOnboardingRedirect,
   ]);
 
@@ -153,18 +155,19 @@ const Profile = () => {
         icon: page.title_icon,
       })
     );
-
+    if (!isCoordinator) {
     onboardingTabs.push({
       title: "Profile Preview",
       icon: "fa-solid fa-eye",
     });
+  }
     onboardingTabs.push({
       title: "Change Password",
       icon: "fa-solid fa-key",
     });
 
     return onboardingTabs;
-  }, [onboardingData]);
+  }, [onboardingData, isCoordinator]);
 
   const calculateProfileCompletion = (): number => {
     if (!userProfile || !onboardingData?.onboarding_pages) return 0;
@@ -399,7 +402,9 @@ const Profile = () => {
                       ? "4px solid #DC2626"
                       : activeTab === index && userType === "partner"
                         ? "4px solid #089C3F"
-                        : "none"
+                        : activeTab === index && isCoordinator
+                          ? "4px solid #089C3F"
+                          : ""
                   }
                   fontWeight="600"
                   w="full"

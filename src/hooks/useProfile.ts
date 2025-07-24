@@ -30,7 +30,7 @@ export const useProfile = (userType: string) => {
       return;
     }
 
-    if (userProfile && redirectOnSuccess) {
+    if (userProfile && redirectOnSuccess && userType !== "cordinator") {
       router.push("/home/");
     }
 
