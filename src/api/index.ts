@@ -180,6 +180,10 @@ export const API_ENDPOINTS = {
     method: "DELETE",
     url: `/api/v1/folders/${folderId}/`,
   }),
+  CHANGE_PASSWORD: {
+    method: "POST",
+    url: "/api/v1/change-password/",
+  },
   ADD_MEMBER_TO_FOLDER: (folderId: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/folders/${folderId}/member/`,

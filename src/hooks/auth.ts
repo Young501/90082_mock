@@ -194,6 +194,46 @@ export const useAuth = () => {
     },
   });
 
+  const changePasswordMutation = useMutation({
+    mutationFn: async (data: { old_password: string; new_password: string }) => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.CHANGE_PASSWORD,
+        body: {
+          old_password: data.old_password,
+          new_password: data.new_password,
+        },
+      });
+    },
+    onSuccess: (response) => {
+      const successMessage = getSuccessMessage(
+        response,
+        "Password changed successfully"
+      );
+      toast.success(successMessage);
+    },
+    onError: (error: any) => {
+      const errorMessage = getErrorMessage(error, "Failed to change password");
+      toast.error(errorMessage);
+      setErrorMsg(errorMessage);
+    },
+  });
+
+  const handleChangePassword = async (data: {
+    old_password: string;
+    new_password: string;
+    callback?: () => void;
+  }) => {
+    try {
+      await changePasswordMutation.mutateAsync({
+        old_password: data.old_password,
+        new_password: data.new_password,
+      });
+      data.callback?.();
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await logoutMutation.mutateAsync();
@@ -291,6 +331,8 @@ export const useAuth = () => {
     passwordResetConfirmError: passwordResetConfirmMutation.error,
     user,
     errorMsg,
+    changePasswordMutation,
+    handleChangePassword,
   };
 };
 
