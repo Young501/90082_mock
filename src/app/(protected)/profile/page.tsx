@@ -523,8 +523,8 @@ const Profile = () => {
                     borderRadius="8px"
                     py={3}
                     px={6}
-                bg="#CFF3FF"
-
+                    bg="#CFF3FF"
+                    height="46px"
                     color="#000000"
                     fontWeight="600"
                     fontSize="16px"
