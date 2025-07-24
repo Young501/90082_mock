@@ -281,6 +281,11 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                     DASHBOARD
                   </Text>
                 </Link>
+                <Link href="/profile/">
+                  <Text fontSize="18px" fontWeight="700" color="white">
+                    PROFILE
+                  </Text>
+                </Link>
                 <Button
                   bg="transparent"
                   p={0}

@@ -114,7 +114,7 @@ const Profile = () => {
   }, [fetchedUserProfile, userProfile]);
 
   useEffect(() => {
-    if (!isProfileLoading && !fetchedUserProfile && userType) {
+    if (!isProfileLoading && !fetchedUserProfile && userType !== "coordinator") {
       handleOnboardingRedirect(false);
     }
   }, [
@@ -153,11 +153,12 @@ const Profile = () => {
         icon: page.title_icon,
       })
     );
-
+    if (userType !== "coordinator") {
     onboardingTabs.push({
       title: "Profile Preview",
       icon: "fa-solid fa-eye",
     });
+  }
     onboardingTabs.push({
       title: "Change Password",
       icon: "fa-solid fa-key",
@@ -399,7 +400,7 @@ const Profile = () => {
                       ? "4px solid #DC2626"
                       : activeTab === index && userType === "partner"
                         ? "4px solid #089C3F"
-                        : "none"
+                        : "4px solid #089C3F"
                   }
                   fontWeight="600"
                   w="full"
