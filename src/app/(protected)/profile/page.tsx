@@ -23,7 +23,7 @@ import { StudentCard } from "../discover/cards/studentCard";
 import { PartnerCard } from "../discover/cards/partnerCard";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { createPageSchema } from "@/utils/validationSchemas";
+import { createPageSchema, changePasswordSchema } from "@/utils/validationSchemas";
 import { FieldRenderer } from "../../(auth)/onboarding/FieldRenderer";
 import { Question } from "@/types/onboarding";
 import Image from "next/image";
@@ -34,6 +34,7 @@ import { UserProfile } from "@/types/shared";
 import { toast } from "react-toastify";
 import { useProfile } from "@/hooks/useProfile";
 import { FullProfileCard } from "../discover/cards/FullProfileCard";
+import { useAuth } from "@/hooks/auth";
 
 const Profile = () => {
   const {
@@ -52,6 +53,19 @@ const Profile = () => {
   >(null);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [showValidationError, setShowValidationError] = useState(false);
+  const { handleChangePassword, changePasswordMutation } = useAuth();
+  const [changePasswordSuccess, setChangePasswordSuccess] = useState(false);
+  const [changePasswordError, setChangePasswordError] = useState("");
+  const changePasswordForm = useForm({
+    resolver: yupResolver(changePasswordSchema),
+    mode: "onChange",
+  });
+  const {
+    register: changePasswordRegister,
+    handleSubmit: changePasswordHandleSubmit,
+    formState: { errors: changePasswordErrors },
+    reset: changePasswordReset,
+  } = changePasswordForm;
 
   const userType: string = user?.user_types?.[0] || "";
 
@@ -143,6 +157,10 @@ const Profile = () => {
     onboardingTabs.push({
       title: "Profile Preview",
       icon: "fa-solid fa-eye",
+    });
+    onboardingTabs.push({
+      title: "Change Password",
+      icon: "fa-solid fa-key",
     });
 
     return onboardingTabs;
@@ -409,7 +427,7 @@ const Profile = () => {
             {tabs[activeTab]?.title || "Tab Details"}
           </Text>
 
-          {activeTab === tabs.length - 1 ? (
+          {activeTab === tabs.length - 2 ? (
             <Box>
               {userProfile &&
                 (userType === "student" ? (
@@ -448,6 +466,75 @@ const Profile = () => {
                     />
                   </VStack>
                 ))}
+            </Box>
+          ) : activeTab === tabs.length - 1 ? (
+            <Box maxW="500px" mx="auto" mt={8} p={8} borderRadius="16px" boxShadow="0 2px 8px rgba(0,0,0,0.08)" bg="#F9FAFB">
+              <form onSubmit={changePasswordHandleSubmit(async (data) => {
+                setChangePasswordSuccess(false);
+                setChangePasswordError("");
+                try {
+                  await handleChangePassword({
+                    old_password: data.old_password,
+                    new_password: data.new_password,
+                  });
+                  setChangePasswordSuccess(true);
+                  changePasswordReset();
+                } catch (err: any) {
+                  setChangePasswordError(err?.message || "Failed to change password");
+                }
+              })}>
+                <VStack gap={6} align="stretch">
+                  <Box>
+                    <Text fontWeight="600" fontSize="18px" mb={2} color="#000000">Old Password</Text>
+                    <input
+                      type="password"
+                      {...changePasswordRegister("old_password")}
+                      style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E0" }}
+                    />
+                    {changePasswordErrors.old_password && (
+                      <Text color="#DC2626" fontSize="14px">{changePasswordErrors.old_password.message as string}</Text>
+                    )}
+                  </Box>
+                  <Box>
+                    <Text fontWeight="600" fontSize="18px" mb={2} color="#000000">New Password</Text>
+                    <input
+                      type="password"
+                      {...changePasswordRegister("new_password")}
+                      style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E0" }}
+                    />
+                    {changePasswordErrors.new_password && (
+                      <Text color="#DC2626" fontSize="14px">{changePasswordErrors.new_password.message as string}</Text>
+                    )}
+                  </Box>
+                  <Box>
+                    <Text fontWeight="600" fontSize="18px" mb={2} color="#000000">Confirm New Password</Text>
+                    <input
+                      type="password"
+                      {...changePasswordRegister("confirm_new_password")}
+                      style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E0" }}
+                    />
+                    {changePasswordErrors.confirm_new_password && (
+                      <Text color="#DC2626" fontSize="14px">{changePasswordErrors.confirm_new_password.message as string}</Text>
+                    )}
+                  </Box>
+                  <Button
+                    type="submit"
+                    mt={4}
+                    borderRadius="8px"
+                    py={3}
+                    px={6}
+                bg="#CFF3FF"
+
+                    color="#000000"
+                    fontWeight="600"
+                    fontSize="16px"
+                    loading={changePasswordMutation.isPending}
+                  >
+                    Change Password
+                  </Button>
+                 
+                </VStack>
+              </form>
             </Box>
           ) : (
             <form onSubmit={handleSubmit(handleUpdate)}>
