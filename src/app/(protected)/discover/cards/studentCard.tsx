@@ -23,6 +23,7 @@ interface StudentCardProps {
   isInFolder?: boolean;
   onRemoveFromFolder?: () => void;
   disableViewFullProfile?: boolean;
+  disableAddToFolder?: boolean;
 }
 
 export function StudentCard({
@@ -33,6 +34,7 @@ export function StudentCard({
   isInFolder = false,
   onRemoveFromFolder,
   disableViewFullProfile = false,
+  disableAddToFolder = false,
 }: StudentCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
@@ -78,6 +80,8 @@ export function StudentCard({
       } else {
         setShowAddToFolderModal(true);
       }
+    } else {
+      setClickBackground(false);
     }
   };
 
@@ -106,17 +110,17 @@ export function StudentCard({
           <Box
             w={6}
             h={6}
-            bg="transparent"
+            bg={clickBackground ? "#2CA9DF" : "transparent"}
             borderRadius="md"
             display="flex"
             alignItems="center"
             justifyContent="center"
             cursor="pointer"
-            _focus={{
-              outline: "none",
-              bg: "#2CA9DF",
-            }}
-            onClick={handleAddToFolder}
+            // _focus={{
+            //   outline: "none",
+            //   bg: "#2CA9DF",
+            // }}
+            onClick={disableAddToFolder ? undefined : handleAddToFolder}
           >
             {isInFolder ? (
               <i
@@ -367,6 +371,8 @@ export function StudentCard({
           onClose={() => setShowAddToFolderModal(false)}
           userId={student.id.toString()}
           userName={getDisplayName()}
+          onAddToFolder={() => setClickBackground(true)}
+          onResetBackground={() => setClickBackground(false)}
         />
       )}
 
@@ -376,6 +382,7 @@ export function StudentCard({
           onClose={() => setDeleteModal(false)}
           onDelete={() => onRemoveFromFolder?.()}
           InFolder={true}
+          onResetBackground={() => setClickBackground(false)}
         />
       )}
     </>
