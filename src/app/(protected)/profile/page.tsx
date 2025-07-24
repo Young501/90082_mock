@@ -35,7 +35,6 @@ import { toast } from "react-toastify";
 import { useProfile } from "@/hooks/useProfile";
 import { FullProfileCard } from "../discover/cards/FullProfileCard";
 import { useAuth } from "@/hooks/auth";
-import { IS_COORDINATOR } from "@/store/authStore";
 
 const Profile = () => {
   const {
@@ -69,7 +68,7 @@ const Profile = () => {
   } = changePasswordForm;
 
   const userType: string = user?.user_types?.[0] || "";
-  const isCoordinator = IS_COORDINATOR(userType);
+  const isCoordinator = userType === "coordinator";
 
   const {
     userProfile: fetchedUserProfile,
