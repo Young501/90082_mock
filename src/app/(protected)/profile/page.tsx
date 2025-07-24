@@ -35,6 +35,7 @@ import { toast } from "react-toastify";
 import { useProfile } from "@/hooks/useProfile";
 import { FullProfileCard } from "../discover/cards/FullProfileCard";
 import { useAuth } from "@/hooks/auth";
+import { IS_COORDINATOR } from "@/store/authStore";
 
 const Profile = () => {
   const {
@@ -68,6 +69,7 @@ const Profile = () => {
   } = changePasswordForm;
 
   const userType: string = user?.user_types?.[0] || "";
+  const isCoordinator = IS_COORDINATOR(userType);
 
   const {
     userProfile: fetchedUserProfile,
@@ -114,13 +116,14 @@ const Profile = () => {
   }, [fetchedUserProfile, userProfile]);
 
   useEffect(() => {
-    if (!isProfileLoading && !fetchedUserProfile && userType !== "coordinator") {
+    if (!isProfileLoading && !fetchedUserProfile && !isCoordinator) {
       handleOnboardingRedirect(false);
     }
   }, [
     isProfileLoading,
     fetchedUserProfile,
     userType,
+    isCoordinator,
     handleOnboardingRedirect,
   ]);
 
@@ -153,7 +156,7 @@ const Profile = () => {
         icon: page.title_icon,
       })
     );
-    if (userType !== "coordinator") {
+    if (!isCoordinator) {
     onboardingTabs.push({
       title: "Profile Preview",
       icon: "fa-solid fa-eye",
@@ -165,7 +168,7 @@ const Profile = () => {
     });
 
     return onboardingTabs;
-  }, [onboardingData]);
+  }, [onboardingData, isCoordinator]);
 
   const calculateProfileCompletion = (): number => {
     if (!userProfile || !onboardingData?.onboarding_pages) return 0;
@@ -400,7 +403,9 @@ const Profile = () => {
                       ? "4px solid #DC2626"
                       : activeTab === index && userType === "partner"
                         ? "4px solid #089C3F"
-                        : "4px solid #089C3F"
+                        : activeTab === index && isCoordinator
+                          ? "4px solid #089C3F"
+                          : ""
                   }
                   fontWeight="600"
                   w="full"

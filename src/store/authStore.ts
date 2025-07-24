@@ -155,3 +155,8 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
+
+
+export const IS_COORDINATOR = (userType?: string) => userType === "coordinator";
+export const IS_PARTNER = (userType?: string) => userType === "partner";
+export const IS_STUDENT = (userType?: string) => userType === "student";

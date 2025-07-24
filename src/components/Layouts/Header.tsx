@@ -15,6 +15,16 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
+// import { IS_COORDINATOR, IS_PARTNER, IS_STUDENT } from "@/store/authStore";
+
+interface MenuItem {
+  label: string;
+  href: string;
+  isCoordinator: boolean;
+  isPartner: boolean;
+  isStudent: boolean;
+  isProtected: boolean;
+}
 
 const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
@@ -25,6 +35,171 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
 
   const userType = getUserType();
   const isCoordinator = userType === "coordinator";
+  const isPartner = userType === "partner";
+  const isStudent = userType === "student";
+
+
+  const MENU_ITEMS: MenuItem[] = [
+    {
+      label: "DASHBOARD",
+      href: "/dashboard/",
+      isCoordinator: true,
+      isPartner: false,
+      isStudent: false,
+      isProtected: true,
+    },
+    {
+      label: "DISCOVER",
+      href: "/discover/",
+      isCoordinator: false,
+      isPartner: true,
+      isStudent: true,
+      isProtected: true,
+    },
+    {
+      label: "PROFILE",
+      href: "/profile/",
+      isCoordinator: true,
+      isPartner: true,
+      isStudent: true,
+      isProtected: true,
+    },
+    {
+      label: "INBOX",
+      href: "/inbox/",
+      isCoordinator: false,
+      isPartner: true,
+      isStudent: true,
+      isProtected: true,
+    },
+    {
+      label: "FOLDERS",
+      href: "/folders/",
+      isCoordinator: false,
+      isPartner: true,
+      isStudent: true,
+      isProtected: true,
+    },
+    {
+      label: "LOGOUT",
+      href: "/logout/",
+      isCoordinator: true,
+      isPartner: true,
+      isStudent: true,
+      isProtected: true,
+    },
+    {
+      label: "LOGIN",
+      href: "/login/",
+      isCoordinator: false,
+      isPartner: false,
+      isStudent: false,
+      isProtected: false,
+    },
+    {
+      label: "SIGN UP",
+      href: "/user-type/",
+      isCoordinator: false,
+      isPartner: false,
+      isStudent: false,
+      isProtected: false,
+    },
+ 
+  ];
+
+  const getMenuItems = () => {
+    if (!isProtected) {
+      return MENU_ITEMS.filter((item) => !item.isProtected);
+    }
+    if (isCoordinator) {
+      return MENU_ITEMS.filter((item) => item.isCoordinator && item.isProtected);
+    }
+    if (isPartner) {
+      return MENU_ITEMS.filter((item) => item.isPartner && item.isProtected);
+    }
+    if (isStudent) {
+      return MENU_ITEMS.filter((item) => item.isStudent && item.isProtected);
+    }
+    return [];
+  };
+
+  const renderMenuItem = (item: MenuItem, isMobile = false) => {
+    if (item.label === "LOGOUT") {
+      return (
+        <Button
+          key={item.label}
+          bg="transparent"
+          p={0}
+          w={isMobile ? "100%" : undefined}
+          onClick={handleUserLogout}
+        >
+          <Box py={isMobile ? 4 : 0}>
+            <Image
+              src="/assets/LinkIcon.svg"
+              alt="logout"
+              width={isMobile ? 24 : 30}
+              height={isMobile ? 24 : 30}
+            />
+          </Box>
+        </Button>
+      );
+    }
+    if (item.label === "INBOX") {
+      return (
+        <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>
+          <Box py={isMobile ? 4 : 0}>
+            <Image
+              src="/assets/inbox.svg"
+              alt="inbox"
+              width={isMobile ? 24 : 30}
+              height={isMobile ? 24 : 30}
+            />
+          </Box>
+        </Link>
+      );
+    }
+    if (item.label === "FOLDERS") {
+      return (
+        <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>
+          <Box py={isMobile ? 4 : 0}>
+            <Image
+              src="/assets/folder.svg"
+              alt="folder"
+              width={isMobile ? 24 : 30}
+              height={isMobile ? 24 : 30}
+            />
+          </Box>
+        </Link>
+      );
+    }
+    if (item.label === "PROFILE") {
+      return (
+        <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>
+          <Text
+            py={isMobile ? 4 : 0}
+            fontSize={isMobile ? "16px" : "18px"}
+            fontWeight={isMobile ? "600" : "700"}
+            color={isProtected ? "white" : "black"}
+          >
+            {item.label}
+          </Text>
+        </Link>
+      );
+    }
+   
+    return (
+      <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>
+        <Text
+          py={isMobile ? 4 : 0}
+          fontSize={isMobile ? "16px" : "18px"}
+          fontWeight={isMobile ? "600" : "700"}
+          color={isProtected ? "white" : "black"}
+        >
+          {item.label}
+        </Text>
+      </Link>
+    );
+  };
 
   const handleUserLogout = async () => {
     await handleLogout();
@@ -88,7 +263,6 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             <X size={34} color={isProtected ? "white" : "black"} />
           </Button>
         </Box>
-
         <Box p={0}>
           {isProtected ? (
             <VStack gap={0} p={6} align="stretch">
@@ -113,83 +287,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                 h="100%"
                 pt={6}
               >
-                {isCoordinator ? (
-                  <>
-                    <Link href="/dashboard/" onClick={handleMenuItemClick}>
-                      <Text
-                        py={4}
-                        fontSize="16px"
-                        fontWeight="600"
-                        color="white"
-                      >
-                        DASHBOARD
-                      </Text>
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link href="/discover/" onClick={handleMenuItemClick}>
-                      <Text
-                        py={4}
-                        fontSize="16px"
-                        fontWeight="600"
-                        color="white"
-                      >
-                        DISCOVER
-                      </Text>
-                    </Link>
-
-                    <Link href="/profile/" onClick={handleMenuItemClick}>
-                      <Text
-                        py={4}
-                        fontSize="16px"
-                        fontWeight="600"
-                        color="white"
-                      >
-                        PROFILE
-                      </Text>
-                    </Link>
-
-                    <Link href="/inbox/" onClick={handleMenuItemClick}>
-                      <Box py={4}>
-                        <Image
-                          src="/assets/inbox.svg"
-                          alt="inbox"
-                          width={24}
-                          height={24}
-                        />
-                      </Box>
-                    </Link>
-
-                    <Link href="/folders/" onClick={handleMenuItemClick}>
-                      <Box py={4}>
-                        <Image
-                          src="/assets/folder.svg"
-                          alt="folder"
-                          width={24}
-                          height={24}
-                        />
-                      </Box>
-                    </Link>
-                  </>
-                )}
-
-                <Button
-                  bg="transparent"
-                  p={0}
-                  w="100%"
-                  onClick={handleUserLogout}
-                >
-                  <Box py={4}>
-                    <Image
-                      src="/assets/LinkIcon.svg"
-                      alt="logout"
-                      width={24}
-                      height={24}
-                    />
-                  </Box>
-                </Button>
-
+                {getMenuItems().map((item) => renderMenuItem(item, true))}
                 <Box pt={4}>
                   <Text
                     fontSize="12px"
@@ -218,30 +316,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                   </Text>
                 </HStack>
               </Box>
-
-              <Link href="/login/" onClick={handleMenuItemClick}>
-                <Box
-                  p={6}
-                  borderBottom="1px solid rgba(0, 0, 0, 0.1)"
-                  transition="background 0.2s"
-                >
-                  <Text fontSize="16px" fontWeight="600" color="black">
-                    LOGIN
-                  </Text>
-                </Box>
-              </Link>
-
-              <Link href="/user-type/" onClick={handleMenuItemClick}>
-                <Box
-                  p={6}
-                  borderBottom="1px solid rgba(0, 0, 0, 0.1)"
-                  transition="background 0.2s"
-                >
-                  <Text fontSize="16px" fontWeight="600" color="black">
-                    SIGN UP
-                  </Text>
-                </Box>
-              </Link>
+              {getMenuItems().map((item) => renderMenuItem(item, true))}
             </VStack>
           )}
         </Box>
@@ -273,75 +348,9 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             ) : (
               <Image alt="logo" src="/uni.png" width={300} height={80} />
             )}
-
-            {isCoordinator ? (
-              <HStack gap={10} display={{ base: "none", md: "flex" }}>
-                <Link href="/dashboard/">
-                  <Text fontSize="18px" fontWeight="700" color="white">
-                    DASHBOARD
-                  </Text>
-                </Link>
-                <Link href="/profile/">
-                  <Text fontSize="18px" fontWeight="700" color="white">
-                    PROFILE
-                  </Text>
-                </Link>
-                <Button
-                  bg="transparent"
-                  p={0}
-                  onClick={() => handleUserLogout()}
-                >
-                  <Image
-                    src="/assets/LinkIcon.svg"
-                    alt="logout"
-                    width={30}
-                    height={30}
-                  />
-                </Button>
-              </HStack>
-            ) : (
-              <HStack gap={10} display={{ base: "none", md: "flex" }}>
-                <Link href="/discover/">
-                  <Text fontSize="18px" fontWeight="700" color="white">
-                    DISCOVER
-                  </Text>
-                </Link>
-                <Link href="/profile/">
-                  <Text fontSize="18px" fontWeight="700" color="white">
-                    PROFILE
-                  </Text>
-                </Link>
-                <Link href="/inbox/">
-                  <Image
-                    src="/assets/inbox.svg"
-                    alt="inbox"
-                    width={30}
-                    height={30}
-                  />
-                </Link>
-                <Link href="/folders/">
-                  <Image
-                    src="/assets/folder.svg"
-                    alt="folder"
-                    width={30}
-                    height={30}
-                  />
-                </Link>
-                <Button
-                  bg="transparent"
-                  p={0}
-                  onClick={() => handleUserLogout()}
-                >
-                  <Image
-                    src="/assets/LinkIcon.svg"
-                    alt="logout"
-                    width={30}
-                    height={30}
-                  />
-                </Button>
-              </HStack>
-            )}
-
+            <HStack gap={10} display={{ base: "none", md: "flex" }}>
+              {getMenuItems().map((item) => renderMenuItem(item, false))}
+            </HStack>
             <Button
               aria-label="Open menu"
               variant="ghost"
@@ -357,7 +366,6 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               />
             </Button>
           </Box>
-
           {isMobile && <MobileMenu />}
         </>
       ) : (
@@ -378,7 +386,6 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             maxHeight="126px"
           >
             <Logo variant="header" width="200px" height="60px" />
-
             <Button
               aria-label="Open menu"
               variant="ghost"
@@ -388,22 +395,11 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             >
               <Menu size={30} color="black" />
             </Button>
-
             <HStack gap={6} display={{ base: "none", md: "flex" }}>
               <UserRound size={20} color="black" />
-              <Link href="/login/">
-                <Text fontSize="13px" fontWeight="700" color="black">
-                  LOGIN
-                </Text>
-              </Link>
-              <Link href="/user-type/">
-                <Text fontSize="13px" fontWeight="700" color="black">
-                  SIGN UP
-                </Text>
-              </Link>
+              {getMenuItems().map((item) => renderMenuItem(item, false))}
             </HStack>
           </Box>
-
           {isMobile && <MobileMenu />}
         </>
       )}
