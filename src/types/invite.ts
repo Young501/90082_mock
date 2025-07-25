@@ -1,3 +1,5 @@
+import { Question } from "@/types/onboarding";
+
 export interface InviteAcceptRequest {
   token: string;
   questionnaire_answers?: Record<string, any>;
@@ -17,19 +19,12 @@ export interface Opportunity {
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  questionnaire: Record<string, any>;
-}
-
-export interface Question {
-  field: string;
-  question: string;
-  type: string;
-  options?: string[];
-  required?: boolean;
-  is_filter?: boolean;
+  questionnaire: Record<string, Question[]>;
 }
 
 export interface QuestionnaireFormProps {
   questions: Question[];
   onAnswersChange: (answers: Record<string, any>) => void;
 }
+
+export type { Question } from "@/types/onboarding";

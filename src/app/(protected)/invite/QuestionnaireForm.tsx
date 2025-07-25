@@ -1,9 +1,9 @@
 import { Box, VStack, Text } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { useEffect, useMemo, useRef } from "react";
-import { CheckboxField } from "@/components/fields/CheckboxField";
+import { createPageSchema } from "@/utils/validationSchemas";
+import { FieldRenderer } from "@/app/(auth)/onboarding/FieldRenderer";
 import { QuestionnaireFormProps } from "@/types/invite";
 
 export const QuestionnaireForm = ({
@@ -11,20 +11,7 @@ export const QuestionnaireForm = ({
   onAnswersChange,
 }: QuestionnaireFormProps) => {
   const validationSchema = useMemo(
-    () =>
-      yup.object().shape(
-        questions.reduce(
-          (acc, question) => {
-            if (question.required) {
-              acc[question.field] = yup
-                .array()
-                .min(1, `${question.question} is required`);
-            }
-            return acc;
-          },
-          {} as Record<string, any>
-        )
-      ),
+    () => createPageSchema(questions),
     [questions]
   );
 
@@ -32,7 +19,30 @@ export const QuestionnaireForm = ({
     () =>
       questions.reduce(
         (acc, question) => {
-          acc[question.field] = [];
+          switch (question.type) {
+            case "multi-select":
+            case "tag-select":
+              acc[question.field] = [];
+              break;
+            case "checkbox-group":
+              acc[question.field] = question.max_selection === 1 ? "" : [];
+              break;
+            case "card-select":
+              acc[question.field] = question.max_selection === 1 ? "" : [];
+              break;
+            case "boolean-checkbox":
+              acc[question.field] = undefined;
+              break;
+            case "range":
+              acc[question.field] =
+                question.min !== undefined ? question.min : 0;
+              break;
+            case "number":
+              acc[question.field] = undefined;
+              break;
+            default:
+              acc[question.field] = "";
+          }
           return acc;
         },
         {} as Record<string, any>
@@ -41,9 +51,12 @@ export const QuestionnaireForm = ({
   );
 
   const {
+    register,
     control,
     watch,
     formState: { errors },
+    clearErrors,
+    unregister,
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues,
@@ -87,13 +100,14 @@ export const QuestionnaireForm = ({
         </Text>
 
         {questions.map((question) => (
-          <CheckboxField
+          <FieldRenderer
             key={question.field}
-            name={question.field}
-            label={question.question}
-            options={question.options || []}
+            question={question}
+            register={register}
             control={control}
-            required={question.required}
+            errors={errors}
+            clearErrors={clearErrors}
+            unregister={unregister}
           />
         ))}
       </VStack>
