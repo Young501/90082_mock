@@ -15,10 +15,16 @@ export const getOpportunityDetail = async (
 
 export const acceptInvite = async (
   opportunityId: string,
-  token: string
+  token: string,
+  questionnaire_answers?: Record<string, any>
 ): Promise<InviteAcceptResponse> => {
+  const body: InviteAcceptRequest = { token };
+  if (questionnaire_answers) {
+    body.questionnaire_answers = questionnaire_answers;
+  }
+
   return apiRequest<InviteAcceptResponse>({
     endpoint: API_ENDPOINTS.INVITE_ACCEPT(opportunityId),
-    body: { token } as InviteAcceptRequest,
+    body,
   });
 };

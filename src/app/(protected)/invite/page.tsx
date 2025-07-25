@@ -38,9 +38,13 @@ function InviteContent() {
     }
   }, [acceptInviteMutation.isSuccess]);
 
-  const handleAcceptInvite = () => {
+  const handleAcceptInvite = (questionnaire_answers?: Record<string, any>) => {
     if (!token || !opportunityId) return;
-    acceptInviteMutation.mutate({ opportunityId, token });
+    acceptInviteMutation.mutate({
+      opportunityId,
+      token,
+      ...(questionnaire_answers && { questionnaire_answers }),
+    });
   };
 
   if (!token || !opportunityId) {

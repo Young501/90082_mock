@@ -10,14 +10,22 @@ import {
 import { Calendar } from "lucide-react";
 import { UseMutationResult } from "@tanstack/react-query";
 import { Opportunity, InviteAcceptResponse } from "@/types/invite";
+import { useAuthStore } from "@/store";
+import { QuestionnaireForm } from "./QuestionnaireForm";
+import { Question } from "@/types/invite";
+import { useState } from "react";
 
 interface InviteCardProps {
   opportunity: Opportunity | undefined;
-  onAccept: () => void;
+  onAccept: (answers?: Record<string, any>) => void;
   acceptInviteMutation: UseMutationResult<
     InviteAcceptResponse,
     any,
-    { opportunityId: string; token: string },
+    {
+      opportunityId: string;
+      token: string;
+      questionnaire_answers?: Record<string, any>;
+    },
     unknown
   > & {
     formattedError: string | null;
@@ -29,8 +37,27 @@ export const InviteCard = ({
   onAccept,
   acceptInviteMutation,
 }: InviteCardProps) => {
+  const { user } = useAuthStore();
+  const [questionnaireAnswers, setQuestionnaireAnswers] = useState<
+    Record<string, any>
+  >({});
+
   const isAccepting = acceptInviteMutation.isPending;
   const acceptError = acceptInviteMutation.formattedError;
+
+  const userType = user?.user_types?.[0];
+  const questions: Question[] =
+    userType && opportunity?.questionnaire?.[userType]
+      ? opportunity.questionnaire[userType]
+      : [];
+
+  const handleAccept = () => {
+    onAccept(
+      Object.keys(questionnaireAnswers).length > 0
+        ? questionnaireAnswers
+        : undefined
+    );
+  };
 
   return (
     <Box
@@ -124,6 +151,13 @@ export const InviteCard = ({
           </VStack>
         </Box>
 
+        {questions.length > 0 && (
+          <QuestionnaireForm
+            questions={questions}
+            onAnswersChange={setQuestionnaireAnswers}
+          />
+        )}
+
         <Box
           w="100%"
           bg={acceptError ? "red.50" : "blue.50"}
@@ -162,7 +196,7 @@ export const InviteCard = ({
           borderRadius="25px"
           fontSize={{ base: "16px", md: "18px", lg: "20px" }}
           fontWeight="500"
-          onClick={onAccept}
+          onClick={handleAccept}
           disabled={isAccepting || !opportunity?.is_active}
           _hover={{ opacity: opportunity?.is_active ? 0.8 : 1 }}
           _active={{
