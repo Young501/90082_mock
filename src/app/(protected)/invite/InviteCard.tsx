@@ -13,7 +13,7 @@ import { Opportunity, InviteAcceptResponse } from "@/types/invite";
 import { useAuthStore } from "@/store";
 import { QuestionnaireForm } from "./QuestionnaireForm";
 import { Question } from "@/types/invite";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 interface InviteCardProps {
   opportunity: Opportunity | undefined;
@@ -51,13 +51,20 @@ export const InviteCard = ({
       ? opportunity.questionnaire[userType]
       : [];
 
-  const handleAccept = () => {
+  const handleQuestionnaireChange = useCallback(
+    (answers: Record<string, any>) => {
+      setQuestionnaireAnswers(answers);
+    },
+    []
+  );
+
+  const handleAccept = useCallback(() => {
     onAccept(
       Object.keys(questionnaireAnswers).length > 0
         ? questionnaireAnswers
         : undefined
     );
-  };
+  }, [onAccept, questionnaireAnswers]);
 
   return (
     <Box
@@ -154,7 +161,7 @@ export const InviteCard = ({
         {questions.length > 0 && (
           <QuestionnaireForm
             questions={questions}
-            onAnswersChange={setQuestionnaireAnswers}
+            onAnswersChange={handleQuestionnaireChange}
           />
         )}
 

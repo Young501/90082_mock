@@ -2,7 +2,7 @@ import { Box, VStack, Text } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { CheckboxField } from "@/components/fields/CheckboxField";
 import { QuestionnaireFormProps } from "@/types/invite";
 
@@ -10,18 +10,34 @@ export const QuestionnaireForm = ({
   questions,
   onAnswersChange,
 }: QuestionnaireFormProps) => {
-  const validationSchema = yup.object().shape(
-    questions.reduce(
-      (acc, question) => {
-        if (question.required) {
-          acc[question.field] = yup
-            .array()
-            .min(1, `${question.question} is required`);
-        }
-        return acc;
-      },
-      {} as Record<string, any>
-    )
+  const validationSchema = useMemo(
+    () =>
+      yup.object().shape(
+        questions.reduce(
+          (acc, question) => {
+            if (question.required) {
+              acc[question.field] = yup
+                .array()
+                .min(1, `${question.question} is required`);
+            }
+            return acc;
+          },
+          {} as Record<string, any>
+        )
+      ),
+    [questions]
+  );
+
+  const defaultValues = useMemo(
+    () =>
+      questions.reduce(
+        (acc, question) => {
+          acc[question.field] = [];
+          return acc;
+        },
+        {} as Record<string, any>
+      ),
+    [questions]
   );
 
   const {
@@ -30,19 +46,21 @@ export const QuestionnaireForm = ({
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
-    defaultValues: questions.reduce(
-      (acc, question) => {
-        acc[question.field] = [];
-        return acc;
-      },
-      {} as Record<string, any>
-    ),
+    defaultValues,
   });
 
   const watchedValues = watch();
+  const previousValuesRef = useRef<Record<string, any>>({});
 
   useEffect(() => {
-    onAnswersChange(watchedValues);
+    const hasChanged =
+      JSON.stringify(previousValuesRef.current) !==
+      JSON.stringify(watchedValues);
+
+    if (hasChanged) {
+      previousValuesRef.current = watchedValues;
+      onAnswersChange(watchedValues);
+    }
   }, [watchedValues, onAnswersChange]);
 
   if (questions.length === 0) {
