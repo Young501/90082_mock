@@ -12,9 +12,8 @@ import { Calendar } from "lucide-react";
 import { UseMutationResult } from "@tanstack/react-query";
 import { Opportunity, InviteAcceptResponse, Question } from "@/types/invite";
 import { useAuthStore } from "@/store";
-import { QuestionnaireForm } from "./QuestionnaireForm";
-import { useState, useCallback, useMemo } from "react";
-import { createPageSchema } from "@/utils/validationSchemas"; // 导入验证 schema 创建函数
+import { QuestionnaireForm, QuestionnaireFormRef } from "./QuestionnaireForm";
+import { useState, useCallback, useMemo, useRef } from "react";
 
 interface InviteCardProps {
   opportunity: Opportunity | undefined;
@@ -43,6 +42,7 @@ export const InviteCard = ({
     Record<string, any>
   >({});
   const [validationError, setValidationError] = useState<string | null>(null);
+  const questionnaireRef = useRef<QuestionnaireFormRef>(null);
 
   const isAccepting = acceptInviteMutation.isPending;
   const acceptError = acceptInviteMutation.formattedError;
@@ -56,11 +56,6 @@ export const InviteCard = ({
     [userType, opportunity?.questionnaire]
   );
 
-  const validationSchema = useMemo(
-    () => createPageSchema(questions),
-    [questions]
-  );
-
   const handleQuestionnaireChange = useCallback(
     (answers: Record<string, any>) => {
       setQuestionnaireAnswers(answers);
@@ -71,39 +66,23 @@ export const InviteCard = ({
     [validationError]
   );
 
-  const validateAnswers = useCallback(async () => {
-    try {
-      await validationSchema.validate(questionnaireAnswers, {
-        abortEarly: false,
-      });
-      return { isValid: true, errors: [] };
-    } catch (error: any) {
-      const validationErrors = error.inner || [];
-      return {
-        isValid: false,
-        errors: validationErrors.map((err: any) => err.message),
-      };
-    }
-  }, [validationSchema, questionnaireAnswers]);
-
   const handleAccept = useCallback(async () => {
-    if (questions.length > 0) {
-      const validation = await validateAnswers();
+    if (questions.length > 0 && questionnaireRef.current) {
+      const isValid = await questionnaireRef.current.validate();
 
-      if (!validation.isValid) {
-        const firstError =
-          validation.errors[0] || "Please complete all required fields.";
-        setValidationError(firstError);
+      if (!isValid) {
         return;
       }
     }
+
+    setValidationError(null);
 
     onAccept(
       Object.keys(questionnaireAnswers).length > 0
         ? questionnaireAnswers
         : undefined
     );
-  }, [onAccept, questionnaireAnswers, questions.length, validateAnswers]);
+  }, [onAccept, questionnaireAnswers, questions.length]);
 
   return (
     <Box
@@ -199,6 +178,7 @@ export const InviteCard = ({
 
         {questions.length > 0 && (
           <QuestionnaireForm
+            ref={questionnaireRef}
             questions={questions}
             onAnswersChange={handleQuestionnaireChange}
           />

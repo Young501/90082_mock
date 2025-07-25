@@ -1,15 +1,26 @@
 import { Box, VStack, Text } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useMemo, useRef } from "react";
-import { createPageSchema } from "@/utils/validationSchemas";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
+import { createPageSchema } from "@/utils/validationSchemas"; // 直接复用现有的 schema 创建函数
 import { FieldRenderer } from "@/app/(auth)/onboarding/FieldRenderer";
 import { QuestionnaireFormProps } from "@/types/invite";
 
-export const QuestionnaireForm = ({
-  questions,
-  onAnswersChange,
-}: QuestionnaireFormProps) => {
+export interface QuestionnaireFormRef {
+  validate: () => Promise<boolean>;
+  getValues: () => Record<string, any>;
+}
+
+export const QuestionnaireForm = forwardRef<
+  QuestionnaireFormRef,
+  QuestionnaireFormProps
+>(({ questions, onAnswersChange }, ref) => {
   const validationSchema = useMemo(
     () => createPageSchema(questions),
     [questions]
@@ -54,6 +65,8 @@ export const QuestionnaireForm = ({
     register,
     control,
     watch,
+    trigger,
+    getValues,
     formState: { errors },
     clearErrors,
     unregister,
@@ -61,6 +74,14 @@ export const QuestionnaireForm = ({
     resolver: yupResolver(validationSchema),
     defaultValues,
   });
+
+  useImperativeHandle(ref, () => ({
+    validate: async () => {
+      const result = await trigger();
+      return result;
+    },
+    getValues: () => getValues(),
+  }));
 
   const watchedValues = watch();
   const previousValuesRef = useRef<Record<string, any>>({});
@@ -100,17 +121,20 @@ export const QuestionnaireForm = ({
         </Text>
 
         {questions.map((question) => (
-          <FieldRenderer
-            key={question.field}
-            question={question}
-            register={register}
-            control={control}
-            errors={errors}
-            clearErrors={clearErrors}
-            unregister={unregister}
-          />
+          <Box key={question.field} w="100%">
+            <FieldRenderer
+              question={question}
+              register={register}
+              control={control}
+              errors={errors}
+              clearErrors={clearErrors}
+              unregister={unregister}
+            />
+          </Box>
         ))}
       </VStack>
     </Box>
   );
-};
+});
+
+QuestionnaireForm.displayName = "QuestionnaireForm";
