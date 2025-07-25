@@ -63,7 +63,7 @@ export const unmatch = async (opportunityId: string, matchId: string) => {
     endpoint: API_ENDPOINTS.UNMATCH(opportunityId, matchId),
     body: {
       match_id: matchId,
-      id: opportunityId,
+      opportunity_id: opportunityId,
     },
   });
 }

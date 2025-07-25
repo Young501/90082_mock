@@ -19,6 +19,7 @@ interface MatchedWith {
   email?: string;
   user_type?: string;
   matched_at?: string;
+  match_id?: number;
 }
 
 export interface Participant {

@@ -27,7 +27,7 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
   opportunityId,
 }) => {
   const router = useRouter();
-  const unmatchMutation = useUnmatch(opportunityId, participant?.match_info?.matched_with?.id?.toString() || " ");
+  const unmatchMutation = useUnmatch(opportunityId.toString(), participant?.match_info?.matched_with?.match_id?.toString() || " ");
   const getBorderColor = () => {
     return userType === "student" ? "#DC2626" : "#089C3F";
   };
