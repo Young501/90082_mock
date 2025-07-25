@@ -6,6 +6,7 @@ import {
   HStack,
   Spinner,
   Icon,
+  Alert,
 } from "@chakra-ui/react";
 import { Calendar } from "lucide-react";
 import { UseMutationResult } from "@tanstack/react-query";
@@ -13,7 +14,7 @@ import { Opportunity, InviteAcceptResponse } from "@/types/invite";
 import { useAuthStore } from "@/store";
 import { QuestionnaireForm } from "./QuestionnaireForm";
 import { Question } from "@/types/invite";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 
 interface InviteCardProps {
   opportunity: Opportunity | undefined;
@@ -41,30 +42,56 @@ export const InviteCard = ({
   const [questionnaireAnswers, setQuestionnaireAnswers] = useState<
     Record<string, any>
   >({});
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const isAccepting = acceptInviteMutation.isPending;
   const acceptError = acceptInviteMutation.formattedError;
 
   const userType = user?.user_types?.[0];
-  const questions: Question[] =
-    userType && opportunity?.questionnaire?.[userType]
-      ? opportunity.questionnaire[userType]
-      : [];
+  const questions: Question[] = useMemo(
+    () =>
+      userType && opportunity?.questionnaire?.[userType]
+        ? opportunity.questionnaire[userType]
+        : [],
+    [userType, opportunity?.questionnaire]
+  );
 
   const handleQuestionnaireChange = useCallback(
     (answers: Record<string, any>) => {
       setQuestionnaireAnswers(answers);
+      // 清除验证错误当用户开始填写
+      if (validationError) {
+        setValidationError(null);
+      }
     },
-    []
+    [validationError]
   );
 
   const handleAccept = useCallback(() => {
+    // 检查是否有必填问题
+    const requiredQuestions = questions.filter((q) => q.required);
+
+    if (requiredQuestions.length > 0) {
+      // 检查是否有未回答的必填问题
+      const unansweredRequired = requiredQuestions.find((question) => {
+        const answer = questionnaireAnswers[question.field];
+        return !answer || (Array.isArray(answer) && answer.length === 0);
+      });
+
+      if (unansweredRequired) {
+        setValidationError(
+          "Please answer all required questions before accepting the invitation."
+        );
+        return;
+      }
+    }
+
     onAccept(
       Object.keys(questionnaireAnswers).length > 0
         ? questionnaireAnswers
         : undefined
     );
-  }, [onAccept, questionnaireAnswers]);
+  }, [onAccept, questionnaireAnswers, questions]);
 
   return (
     <Box
@@ -158,13 +185,6 @@ export const InviteCard = ({
           </VStack>
         </Box>
 
-        {questions.length > 0 && (
-          <QuestionnaireForm
-            questions={questions}
-            onAnswersChange={handleQuestionnaireChange}
-          />
-        )}
-
         <Box
           w="100%"
           bg={acceptError ? "red.50" : "blue.50"}
@@ -194,6 +214,22 @@ export const InviteCard = ({
             </Text>
           </VStack>
         </Box>
+
+        {questions.length > 0 && (
+          <QuestionnaireForm
+            questions={questions}
+            onAnswersChange={handleQuestionnaireChange}
+          />
+        )}
+
+        {validationError && (
+          <Alert.Root status="error" borderRadius="md">
+            <Alert.Indicator />
+            <Alert.Title fontSize={{ base: "14px", md: "16px" }}>
+              {validationError}
+            </Alert.Title>
+          </Alert.Root>
+        )}
 
         <Button
           w={{ base: "280px", md: "320px", lg: "400px" }}
