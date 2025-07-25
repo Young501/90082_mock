@@ -64,7 +64,6 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
   const handleUnmatch = () => {
     if (participant?.match_info?.matched_with) {
       unmatchMutation.mutate();
-      router.push(`/dashboard/manage?manageType=${userType}`);
     }
   };
 
