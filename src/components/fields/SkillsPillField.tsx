@@ -173,6 +173,11 @@ export const SkillsPillField = ({
                       size="sm"
                       borderRadius="md"
                       bg="gray.50"
+                      onKeyDown={(e) => {
+                        if (e.key === " ") {
+                          e.stopPropagation()
+                        }
+                      }}
                     />
                     {selectOptions.length === 0 && (
                       <span style={{ color: '#888', padding: '8px' }}>No options</span>
