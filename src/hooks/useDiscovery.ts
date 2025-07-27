@@ -208,28 +208,6 @@ export const useDiscovery = () => {
     }
   }, [isOpportunitiesLoading, acceptedOpportunities, currentOpportunityId]);
 
-  const mergeFilters = useCallback(
-    (
-      onboardingFields: ProcessedField[],
-      questionnaireFilters: any[]
-    ): ProcessedField[] => {
-      const convertedQuestionnaireFilters = questionnaireFilters.map(
-        (filter) => ({
-          field: filter.field,
-          type: filter.type,
-          label: filter.label,
-          options: filter.options,
-          uniqueKey: `questionnaire_${filter.field}`,
-          dependencyChain: [],
-          source: "questionnaire" as const,
-        })
-      );
-
-      return [...onboardingFields, ...convertedQuestionnaireFilters];
-    },
-    []
-  );
-
   const processFollowupQuestions = useCallback(
     (
       field: any,
@@ -394,16 +372,18 @@ export const useDiscovery = () => {
       });
     }
 
-    const onboardingFields = Array.from(processedFields.values());
-    const questionnaireFils = questionnaireFilters || [];
-    const mergedFields = mergeFilters(onboardingFields, questionnaireFils);
+    if (questionnaireFilters && Array.isArray(questionnaireFilters)) {
+      questionnaireFilters.forEach((field: any) => {
+        const fieldWithSource = { ...field, source: "questionnaire" };
+        processFollowupQuestions(fieldWithSource, [], processedFields);
+      });
+    }
 
-    setFilterableFields(mergedFields);
+    setFilterableFields(Array.from(processedFields.values()));
   }, [
     onboardingData,
     questionnaireFilters,
     processFollowupQuestions,
-    mergeFilters,
     targetUserType,
   ]);
 
