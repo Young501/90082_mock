@@ -203,6 +203,13 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/contact/`,
   }),
+  QUESTIONNAIRE_FILTERS: (
+    opportunityId: string,
+    userType: string
+  ): ApiEndpoint => ({
+    method: "GET",
+    url: `/api/v1/opportunities/${opportunityId}/questionnaire-filters/?user_type=${userType}`,
+  }),
   OPPORTUNITY_DASHBOARD: (opportunityId: string): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/opportunities/${opportunityId}/dashboard/`,

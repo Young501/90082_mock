@@ -13,6 +13,7 @@ import { useUserSearch } from "@/services/user";
 import {
   useOnboardingPages,
   useAcceptedOpportunities,
+  useQuestionnaireFilters,
 } from "@/services/shared";
 import { toast } from "react-toastify";
 import { UserProfile } from "@/types/shared";
@@ -52,26 +53,32 @@ const getDefaultValues = (fields: ProcessedField[]): FilterFormData => {
 };
 
 const extractFilterOptions = (
-  results: UserProfile[]
+  results: UserProfile[],
+  fields: ProcessedField[]
 ): Record<string, string[]> => {
   const options: Record<string, Set<string>> = {};
 
   results.forEach((user) => {
-    Object.keys(user).forEach((fieldKey) => {
-      if (!options[fieldKey]) {
-        options[fieldKey] = new Set();
+    fields.forEach((field) => {
+      if (!options[field.field]) {
+        options[field.field] = new Set();
       }
 
-      const value = (user as any)[fieldKey];
+      let value;
+      if (field.source === "questionnaire") {
+        value = (user as any).questionnaire_answers?.[field.field];
+      } else {
+        value = (user as any)[field.field];
+      }
 
       if (Array.isArray(value)) {
         value.forEach((v) => {
           if (v && typeof v === "string") {
-            options[fieldKey].add(v);
+            options[field.field].add(v);
           }
         });
       } else if (value && typeof value === "string") {
-        options[fieldKey].add(value);
+        options[field.field].add(value);
       }
     });
   });
@@ -109,6 +116,9 @@ export const useDiscovery = () => {
   const { data: onboardingData, isLoading: isOnboardingLoading } =
     useOnboardingPages(targetUserType || "");
 
+  const { data: questionnaireFilters, isLoading: isQuestionnaireLoading } =
+    useQuestionnaireFilters(currentOpportunityId || "", targetUserType || "");
+
   const {
     data: searchData,
     isLoading: isSearchLoading,
@@ -129,7 +139,10 @@ export const useDiscovery = () => {
 
   useEffect(() => {
     if (searchData?.results) {
-      const newFilterOptions = extractFilterOptions(searchData.results);
+      const newFilterOptions = extractFilterOptions(
+        searchData.results,
+        filterableFields
+      );
       setFilterOptions(newFilterOptions);
 
       setTimeout(() => {
@@ -194,6 +207,28 @@ export const useDiscovery = () => {
       );
     }
   }, [isOpportunitiesLoading, acceptedOpportunities, currentOpportunityId]);
+
+  const mergeFilters = useCallback(
+    (
+      onboardingFields: ProcessedField[],
+      questionnaireFilters: any[]
+    ): ProcessedField[] => {
+      const convertedQuestionnaireFilters = questionnaireFilters.map(
+        (filter) => ({
+          field: filter.field,
+          type: filter.type,
+          label: filter.label,
+          options: filter.options,
+          uniqueKey: `questionnaire_${filter.field}`,
+          dependencyChain: [],
+          source: "questionnaire" as const,
+        })
+      );
+
+      return [...onboardingFields, ...convertedQuestionnaireFilters];
+    },
+    []
+  );
 
   const processFollowupQuestions = useCallback(
     (
@@ -359,8 +394,18 @@ export const useDiscovery = () => {
       });
     }
 
-    setFilterableFields(Array.from(processedFields.values()));
-  }, [onboardingData, processFollowupQuestions, targetUserType]);
+    const onboardingFields = Array.from(processedFields.values());
+    const questionnaireFils = questionnaireFilters || [];
+    const mergedFields = mergeFilters(onboardingFields, questionnaireFils);
+
+    setFilterableFields(mergedFields);
+  }, [
+    onboardingData,
+    questionnaireFilters,
+    processFollowupQuestions,
+    mergeFilters,
+    targetUserType,
+  ]);
 
   const hasSearchFilters = useMemo(() => {
     if (!searchParams) return false;
@@ -380,7 +425,7 @@ export const useDiscovery = () => {
     filterableFields,
     filterOptions,
     targetUserType,
-    isLoading: isOnboardingLoading || isSearchLoading,
+    isLoading: isOnboardingLoading || isSearchLoading || isQuestionnaireLoading,
     isSearching: isFetching,
     form,
     handleSearch: form.handleSubmit(
