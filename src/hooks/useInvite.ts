@@ -35,10 +35,12 @@ export const useAcceptInvite = () => {
     mutationFn: ({
       opportunityId,
       token,
+      questionnaire_answers,
     }: {
       opportunityId: string;
       token: string;
-    }) => acceptInvite(opportunityId, token),
+      questionnaire_answers?: Record<string, any>;
+    }) => acceptInvite(opportunityId, token, questionnaire_answers),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accepted-opportunities"] });
       setTimeout(() => {

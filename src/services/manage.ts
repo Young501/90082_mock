@@ -57,3 +57,26 @@ export function useMatchStudent(opportunityId: string) {
     },
   });
 }
+
+export const unmatch = async (opportunityId: string, matchId: string) => {
+  return apiRequest({
+    endpoint: API_ENDPOINTS.UNMATCH(opportunityId, matchId),
+    body: {
+      match_id: matchId,
+      opportunity_id: opportunityId,
+    },
+  });
+}
+
+export function useUnmatch(opportunityId: string, matchId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => unmatch(opportunityId, matchId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["participants"] });
+    },
+    onError: (error: any) => {
+      console.error(error);
+    },
+  });
+}

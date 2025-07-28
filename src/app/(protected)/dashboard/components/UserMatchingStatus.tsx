@@ -13,6 +13,7 @@ import { getInitial } from "@/utils/getInitials";
 import { formatDate } from "@/utils/formatDate";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useUnmatch } from "@/services/manage";
 
 interface UserMatchingStatusProps {
   participant: Participant | null;
@@ -26,7 +27,7 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
   opportunityId,
 }) => {
   const router = useRouter();
-
+  const unmatchMutation = useUnmatch(opportunityId.toString(), participant?.match_info?.matched_with?.match_id?.toString() || " ");
   const getBorderColor = () => {
     return userType === "student" ? "#DC2626" : "#089C3F";
   };
@@ -58,6 +59,12 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
     return userType === "student"
       ? "Click on a Student's profile to access matching status"
       : "Click on an Organisation's profile to access matching status";
+  };
+
+  const handleUnmatch = () => {
+    if (participant?.match_info?.matched_with) {
+      unmatchMutation.mutate();
+    }
   };
 
   if (!participant) {
@@ -346,6 +353,7 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                   py={{ base: "10px", lg: "20px" }}
                   px={{ base: "20px", lg: "40px" }}
                   maxW={{ base: "100%", lg: "200px" }}
+                  onClick={() => handleUnmatch()}
                 >
                   Unmatch
                 </Button>
