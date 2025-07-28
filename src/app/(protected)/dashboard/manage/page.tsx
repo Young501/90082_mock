@@ -27,78 +27,51 @@ const ManagePage = () => {
         updateFilters,
         resetFilters,
         selectParticipant,
-      } = useManage(manageType as "student" | "partner");
+        updateSelectedParticipant,
+    } = useManage(manageType as "student" | "partner");
 
-      if (error) {
+    if (error) {
         return (
-          <Box
-            py={6}
-            px={{ base: 4, lg: "72px" }}
-            maxW="1512px"
-            mx="auto"
-            mt="126px"
-          >
-            <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
-              <Text
-                as="h1"
-                fontSize={{ base: "32px", lg: "51px" }}
-                fontWeight="600"
-                color="#000000"
-              >
-                Manage {manageType === "student" ? "Students" : "Organisations"}
-              </Text>
-              <Box
-                bg="white"
-                borderRadius="20px"
-                p={{ base: 6, lg: 12 }}
-                width="100%"
-              >
-                <VStack gap={4}>
-                  <Text fontSize="lg" fontWeight="bold" color="red.500">
-                    Error loading {manageType === "student" ? "students" : "organisations"}
-                  </Text>
-                  <Text color="gray.600">{error}</Text>
-                  <Button onClick={() => window.location.reload()}>
-                    Try Again
-                  </Button>
-                </VStack>
-              </Box>
-            </Container>
-          </Box>
+            <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt="126px">
+                <Container maxW="1512px">
+                    <Text color="red.500">Error: {error}</Text>
+                </Container>
+            </Box>
         );
-      }
-  return (
-    <Box>
-        {manageType === "student" ? <StudentPage 
-        participants={participants}
-        selectedParticipant={selectedParticipant}
-        filters={filters}
-        hasMore={hasMore}
-        isLoading={isLoading}
-        error={error}
-        loadMore={loadMore}
-        updateFilters={updateFilters}
-        resetFilters={resetFilters}
-        selectParticipant={selectParticipant}
-        opportunityId={opportunityId}
-        /> : <PartnerPage 
-        participants={participants}
-        selectedParticipant={selectedParticipant}
-        filters={filters}
-        hasMore={hasMore}
-        isLoading={isLoading}
-        error={error}
-        loadMore={loadMore}
-        updateFilters={updateFilters}
-        resetFilters={resetFilters}
-        selectParticipant={selectParticipant}
-        opportunityId={opportunityId}
-        />}
-    </Box>
-  )
-};
+    }
 
-export default ManagePage;
+    return (
+        <Box>
+            {manageType === "student" ? <StudentPage 
+            participants={participants}
+            selectedParticipant={selectedParticipant}
+            filters={filters}
+            hasMore={hasMore}
+            isLoading={isLoading}
+            error={error}
+            loadMore={loadMore}
+            updateFilters={updateFilters}
+            resetFilters={resetFilters}
+            selectParticipant={selectParticipant}
+            updateSelectedParticipant={updateSelectedParticipant}
+            opportunityId={opportunityId}
+            /> : <PartnerPage 
+            participants={participants}
+            selectedParticipant={selectedParticipant}
+            filters={filters}
+            hasMore={hasMore}
+            isLoading={isLoading}
+            error={error}
+            loadMore={loadMore}
+            updateFilters={updateFilters}
+            resetFilters={resetFilters}
+            selectParticipant={selectParticipant}
+            updateSelectedParticipant={updateSelectedParticipant}
+            opportunityId={opportunityId}
+            />}
+        </Box>
+    )
+};
 
 const StudentPage = ({
     participants,
@@ -111,6 +84,7 @@ const StudentPage = ({
     updateFilters,
     resetFilters,
     selectParticipant,
+    updateSelectedParticipant,
     opportunityId,
   }: {
     participants: any[];
@@ -123,10 +97,10 @@ const StudentPage = ({
     updateFilters: (filters: any) => void;
     resetFilters: () => void;
     selectParticipant: (participant: any) => void;
+    updateSelectedParticipant: (participant: any) => void;
     opportunityId: string;
   }) => {
-    
-      return (
+    return (
         <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt="126px">
           <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
             <Box
@@ -170,7 +144,7 @@ const StudentPage = ({
                 Add Students to this list
               </Button>
             </Box>
-    
+
             <VStack
               width="100%"
               gap={8}
@@ -260,7 +234,7 @@ const StudentPage = ({
                     )}
                   </Box>
                 </Box>
-    
+
                 <Box
                   bg="white"
                   borderRadius="20px"
@@ -275,6 +249,7 @@ const StudentPage = ({
                     participant={selectedParticipant}
                     userType="student"
                     opportunityId={opportunityId}
+                    onParticipantUpdate={updateSelectedParticipant}
                   />
                 </Box>
               </Box>
@@ -295,6 +270,7 @@ const PartnerPage = ({
     updateFilters,
     resetFilters,
     selectParticipant,
+    updateSelectedParticipant,
     opportunityId,
   }: {
     participants: any[];
@@ -307,6 +283,7 @@ const PartnerPage = ({
     updateFilters: (filters: any) => void;
     resetFilters: () => void;
     selectParticipant: (participant: any) => void;
+    updateSelectedParticipant: (participant: any) => void;
     opportunityId: string;
   }) => {
     return (
@@ -353,7 +330,7 @@ const PartnerPage = ({
                 Add Organisations to this list
               </Button>
             </Box>
-    
+
             <VStack
               width="100%"
               gap={8}
@@ -443,7 +420,7 @@ const PartnerPage = ({
                     )}
                   </Box>
                 </Box>
-    
+
                 <Box
                   bg="white"
                   borderRadius="20px"
@@ -458,6 +435,7 @@ const PartnerPage = ({
                     participant={selectedParticipant}
                     userType="partner"
                     opportunityId={opportunityId}
+                    onParticipantUpdate={updateSelectedParticipant}
                   />
                 </Box>
               </Box>
@@ -466,3 +444,5 @@ const PartnerPage = ({
         </Box>
       );
 }
+
+export default ManagePage;
