@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Container, useBreakpointValue } from "@chakra-ui/react";
 import { useOpportunityDetail, useAcceptInvite } from "@/hooks/useInvite";
@@ -38,10 +38,17 @@ function InviteContent() {
     }
   }, [acceptInviteMutation.isSuccess]);
 
-  const handleAcceptInvite = () => {
-    if (!token || !opportunityId) return;
-    acceptInviteMutation.mutate({ opportunityId, token });
-  };
+  const handleAcceptInvite = useCallback(
+    (questionnaire_answers?: Record<string, any>) => {
+      if (!token || !opportunityId) return;
+      acceptInviteMutation.mutate({
+        opportunityId,
+        token,
+        ...(questionnaire_answers && { questionnaire_answers }),
+      });
+    },
+    [token, opportunityId, acceptInviteMutation]
+  );
 
   if (!token || !opportunityId) {
     return (
@@ -79,7 +86,7 @@ function InviteContent() {
   }
 
   return (
-    <Container maxW={containerMaxW} p={0} pt={{ base: 6, md: 10 }} h="100%">
+    <Container maxW={containerMaxW} p={0} pt={{ base: 18, md: 24 }} h="100%">
       <InviteCard
         opportunity={opportunity}
         onAccept={handleAcceptInvite}
