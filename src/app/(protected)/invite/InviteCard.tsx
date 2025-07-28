@@ -6,18 +6,26 @@ import {
   HStack,
   Spinner,
   Icon,
+  Alert,
 } from "@chakra-ui/react";
 import { Calendar } from "lucide-react";
 import { UseMutationResult } from "@tanstack/react-query";
-import { Opportunity, InviteAcceptResponse } from "@/types/invite";
+import { Opportunity, InviteAcceptResponse, Question } from "@/types/invite";
+import { useAuthStore } from "@/store";
+import { QuestionnaireForm, QuestionnaireFormRef } from "./QuestionnaireForm";
+import { useState, useCallback, useMemo, useRef } from "react";
 
 interface InviteCardProps {
   opportunity: Opportunity | undefined;
-  onAccept: () => void;
+  onAccept: (answers?: Record<string, any>) => void;
   acceptInviteMutation: UseMutationResult<
     InviteAcceptResponse,
     any,
-    { opportunityId: string; token: string },
+    {
+      opportunityId: string;
+      token: string;
+      questionnaire_answers?: Record<string, any>;
+    },
     unknown
   > & {
     formattedError: string | null;
@@ -29,8 +37,52 @@ export const InviteCard = ({
   onAccept,
   acceptInviteMutation,
 }: InviteCardProps) => {
+  const { user } = useAuthStore();
+  const [questionnaireAnswers, setQuestionnaireAnswers] = useState<
+    Record<string, any>
+  >({});
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const questionnaireRef = useRef<QuestionnaireFormRef>(null);
+
   const isAccepting = acceptInviteMutation.isPending;
   const acceptError = acceptInviteMutation.formattedError;
+
+  const userType = user?.user_types?.[0];
+  const questions: Question[] = useMemo(
+    () =>
+      userType && opportunity?.questionnaire?.[userType]
+        ? opportunity.questionnaire[userType]
+        : [],
+    [userType, opportunity?.questionnaire]
+  );
+
+  const handleQuestionnaireChange = useCallback(
+    (answers: Record<string, any>) => {
+      setQuestionnaireAnswers(answers);
+      if (validationError) {
+        setValidationError(null);
+      }
+    },
+    [validationError]
+  );
+
+  const handleAccept = useCallback(async () => {
+    if (questions.length > 0 && questionnaireRef.current) {
+      const isValid = await questionnaireRef.current.validate();
+
+      if (!isValid) {
+        return;
+      }
+    }
+
+    setValidationError(null);
+
+    onAccept(
+      Object.keys(questionnaireAnswers).length > 0
+        ? questionnaireAnswers
+        : undefined
+    );
+  }, [onAccept, questionnaireAnswers, questions.length]);
 
   return (
     <Box
@@ -124,6 +176,14 @@ export const InviteCard = ({
           </VStack>
         </Box>
 
+        {questions.length > 0 && (
+          <QuestionnaireForm
+            ref={questionnaireRef}
+            questions={questions}
+            onAnswersChange={handleQuestionnaireChange}
+          />
+        )}
+
         <Box
           w="100%"
           bg={acceptError ? "red.50" : "blue.50"}
@@ -162,7 +222,7 @@ export const InviteCard = ({
           borderRadius="25px"
           fontSize={{ base: "16px", md: "18px", lg: "20px" }}
           fontWeight="500"
-          onClick={onAccept}
+          onClick={handleAccept}
           disabled={isAccepting || !opportunity?.is_active}
           _hover={{ opacity: opportunity?.is_active ? 0.8 : 1 }}
           _active={{
@@ -181,6 +241,15 @@ export const InviteCard = ({
             "Accept Invitation"
           )}
         </Button>
+
+        {validationError && (
+          <Alert.Root status="error" borderRadius="md">
+            <Alert.Indicator />
+            <Alert.Title fontSize={{ base: "14px", md: "16px" }}>
+              {validationError}
+            </Alert.Title>
+          </Alert.Root>
+        )}
 
         {!opportunity?.is_active && (
           <Text

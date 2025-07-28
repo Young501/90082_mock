@@ -68,7 +68,7 @@ export const InviteStatusPage = ({
               color="gray.600"
               fontWeight="500"
             >
-              Redirecting to dashboard in {countdown} seconds...
+              Redirecting in {countdown} seconds...
             </Text>
           )}
         </VStack>
