@@ -219,7 +219,12 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/match/`,
   }),
+  UNMATCH: (opportunityId: string, matchId: string): ApiEndpoint => ({
+    method: "DELETE",
+    url: `/api/v1/opportunities/${opportunityId}/match/${matchId}/`,
+  }),
 };
+
 
 /*********
  * apiRequest for making mutations with token guided endpoints

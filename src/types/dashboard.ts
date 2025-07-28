@@ -19,6 +19,7 @@ interface MatchedWith {
   email?: string;
   user_type?: string;
   matched_at?: string;
+  match_id?: number;
 }
 
 export interface Participant {
@@ -31,7 +32,7 @@ export interface Participant {
   image_url?: string;
   match_info?: {
     is_matched: boolean;
-    matched_with: MatchedWith | MatchedWith[];
+    matched_with: MatchedWith | null;
   };
   messages?: [
     {
