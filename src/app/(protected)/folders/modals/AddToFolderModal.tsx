@@ -11,6 +11,8 @@ interface AddToFolderModalProps {
   onClose: () => void;
   userId: string;
   userName: string;
+  onResetBackground?: () => void;
+  onAddToFolder?: () => void;
 }
 
 interface FormData {
@@ -22,6 +24,8 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
   onClose,
   userId,
   userName,
+  onResetBackground,
+  onAddToFolder,
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const { data: folders, isLoading: foldersLoading } = useFolders();
@@ -67,7 +71,7 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
       toast.success(
         `${userName} has been added to ${data.selectedFolders.length} folder${data.selectedFolders.length > 1 ? "s" : ""} `
       );
-      handleClose();
+      handleSuccessfulClose();
     } catch (error: any) {
       console.error(error.response);
       toast.error(error.response.data?.detail);
@@ -79,6 +83,17 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
   const handleClose = () => {
     reset();
     onClose();
+    if (onResetBackground) {
+      onResetBackground();
+    }
+  };
+
+  const handleSuccessfulClose = () => {
+    reset();
+    onClose();
+    if (onAddToFolder) {
+      onAddToFolder();
+    }
   };
 
   return (

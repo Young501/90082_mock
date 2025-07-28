@@ -64,13 +64,21 @@ export const SelectField = ({
             multiple={multiple}
             collection={collection}
             value={
-              multiple ? field.value || [] : field.value ? [field.value] : []
+              multiple
+                ? field.value || []
+                : field.value
+                ? [field.value]
+                : [""]
             }
             onValueChange={(details) => {
-              const newValue = multiple ? details.value : details.value[0];
-
+              const newValue = multiple
+                ? details.value
+                : details.value.length > 0
+                ? details.value[0]
+                : "";
               field.onChange(newValue);
             }}
+            onBlur={field.onBlur}
             width="100%"
             size="md"
           >

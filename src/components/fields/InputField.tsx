@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { Input as ChakraInput, Field, Box } from "@chakra-ui/react";
+import { Input as ChakraInput, Field, Box, Textarea } from "@chakra-ui/react";
 import { UseFormRegisterReturn } from "react-hook-form";
 
 interface InputFieldProps {

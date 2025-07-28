@@ -22,6 +22,7 @@ interface PartnerCardProps {
   isInFolder?: boolean;
   onRemoveFromFolder?: () => void;
   disableViewFullProfile?: boolean;
+  disableAddToFolder?: boolean;
 }
 
 export function PartnerCard({
@@ -31,11 +32,13 @@ export function PartnerCard({
   isInFolder = false,
   onRemoveFromFolder,
   disableViewFullProfile = false,
+  disableAddToFolder = false,
 }: PartnerCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
   const [clickBackground, setClickBackground] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
+
   const getCompanyLogo = () => {
     if (profilePictureUrl) {
       return profilePictureUrl;
@@ -58,6 +61,8 @@ export function PartnerCard({
       } else {
         setShowAddToFolderModal(true);
       }
+    } else {
+      setClickBackground(false);
     }
   };
 
@@ -79,17 +84,17 @@ export function PartnerCard({
           <Box
             w={6}
             h={6}
-            bg="transparent"
+            bg={clickBackground ? "#2CA9DF" : "transparent"}
             borderRadius="md"
             display="flex"
             alignItems="center"
             justifyContent="center"
             cursor="pointer"
-            _focus={{
-              outline: "none",
-              bg: "#2CA9DF",
-            }}
-            onClick={handleAddToFolder}
+            // _focus={{
+            //   outline: "none",
+            //   bg: "#2CA9DF",
+            // }}
+            onClick={disableAddToFolder ? undefined : handleAddToFolder}
           >
             {isInFolder ? (
               <i
@@ -332,6 +337,8 @@ export function PartnerCard({
           onClose={() => setShowAddToFolderModal(false)}
           userId={partner.id.toString()}
           userName={partner.company_name || "Partner"}
+          onAddToFolder={() => setClickBackground(true)}
+          onResetBackground={() => setClickBackground(false)}
         />
       )}
 
@@ -341,6 +348,7 @@ export function PartnerCard({
           onClose={() => setDeleteModal(false)}
           onDelete={() => onRemoveFromFolder?.()}
           InFolder={true}
+          onResetBackground={() => setClickBackground(false)}
         />
       )}
     </>

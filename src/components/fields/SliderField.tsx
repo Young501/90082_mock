@@ -1,6 +1,5 @@
 import { Box, Text, Slider, HStack } from "@chakra-ui/react";
 import { Control, useController } from "react-hook-form";
-import { useEffect } from "react";
 
 interface SliderFieldProps {
   name: string;
@@ -30,16 +29,7 @@ export const SliderField = ({
     defaultValue: undefined,
   });
 
-  const currentValue = typeof value === "number" ? value : min;
-
-  useEffect(() => {
-    if (value === undefined || value === null) {
-      const timeoutId = setTimeout(() => {
-        onChange(min);
-      }, 0);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [min, onChange, name]);
+  const currentValue = value !== undefined && value !== null ? value : min;
 
   const handleValueChange = (details: { value: number[] }) => {
     const newValue = details.value[0];

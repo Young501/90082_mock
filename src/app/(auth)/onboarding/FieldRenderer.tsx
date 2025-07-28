@@ -14,6 +14,7 @@ import {
   SkillsPillField,
   SliderField,
   CardSelectField,
+  TextAreaField,
 } from "@/components/fields";
 import { Question } from "@/types/onboarding";
 import { useMemo, useEffect, useRef, useCallback } from "react";
@@ -25,6 +26,8 @@ interface FieldRendererProps {
   errors: FieldErrors<any>;
   clearErrors?: (name: string) => void;
   unregister?: (name: string) => void;
+  onFieldUnregistered?: (fieldName: string) => void;
+  onParentValueChange?: (fieldName: string, newValue: any) => void;
 }
 
 const FILE_FIELD_TYPES = {
@@ -40,6 +43,8 @@ export const FieldRenderer = ({
   errors,
   clearErrors,
   unregister,
+  onFieldUnregistered,
+  onParentValueChange,
 }: FieldRendererProps) => {
   const error = errors[question.field]?.message as string | undefined;
   const fieldOptions = question.options || question.option || [];
@@ -90,12 +95,20 @@ export const FieldRenderer = ({
         (val) => !currentValues.includes(val)
       );
 
+      if (removedValues.length > 0 && onParentValueChange) {
+        setTimeout(() => {
+          onParentValueChange(question.field, currentValue);
+        }, 50);
+        return;
+      }
+
       const fieldsToRemove: string[] = [];
       removedValues.forEach((val) => {
         const followup = question.followup_question![val as string];
         if (followup) {
           fieldsToRemove.push(followup.field);
-          fieldsToRemove.push(...getAllChildFields(followup));
+          const childFields = getAllChildFields(followup);
+          fieldsToRemove.push(...childFields);
         }
       });
 
@@ -104,15 +117,18 @@ export const FieldRenderer = ({
           fieldsToRemove.forEach((childField) => {
             unregister(childField);
             clearErrors(childField);
+            if (onFieldUnregistered) {
+              onFieldUnregistered(childField);
+            }
           });
-        }, 0);
+        }, 100);
 
         return () => clearTimeout(timeoutId);
       }
     }
 
     previousFieldValue.current = currentValue;
-  }, [fieldValue, question, clearErrors, unregister, getAllChildFields]);
+  }, [fieldValue, question, clearErrors, unregister, getAllChildFields, onFieldUnregistered, onParentValueChange]);
 
   const renderField = () => {
     if (
@@ -250,9 +266,6 @@ export const FieldRenderer = ({
       const fileType =
         FILE_FIELD_TYPES[question.field as keyof typeof FILE_FIELD_TYPES];
       if (!fileType) {
-        console.error(
-          `File field '${question.field}' is not defined in FILE_FIELD_TYPES`
-        );
         return null;
       }
       return (
@@ -275,6 +288,19 @@ export const FieldRenderer = ({
       );
     }
 
+    if (question.type === "textarea") {
+      return (
+        <TextAreaField
+          register={register(question.field)}
+          error={error}
+          required={question.required}
+          placeholder={question.label}
+          icon={question.icon}
+          label={question.label}
+        />
+      );
+    }
+
     return null;
   };
 
@@ -291,6 +317,8 @@ export const FieldRenderer = ({
             errors={errors}
             clearErrors={clearErrors}
             unregister={unregister}
+            onFieldUnregistered={onFieldUnregistered}
+            onParentValueChange={onParentValueChange}
           />
         </Box>
       ))}

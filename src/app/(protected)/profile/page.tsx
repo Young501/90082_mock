@@ -17,12 +17,13 @@ import {
   Avatar,
   Progress,
   VStack,
+  Alert,
 } from "@chakra-ui/react";
 import { StudentCard } from "../discover/cards/studentCard";
 import { PartnerCard } from "../discover/cards/partnerCard";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { createPageSchema } from "@/utils/validationSchemas";
+import { createPageSchema, changePasswordSchema } from "@/utils/validationSchemas";
 import { FieldRenderer } from "../../(auth)/onboarding/FieldRenderer";
 import { Question } from "@/types/onboarding";
 import Image from "next/image";
@@ -33,6 +34,8 @@ import { UserProfile } from "@/types/shared";
 import { toast } from "react-toastify";
 import { useProfile } from "@/hooks/useProfile";
 import { FullProfileCard } from "../discover/cards/FullProfileCard";
+import { useAuth } from "@/hooks/auth";
+import { InputField } from "@/components/ui";
 
 const Profile = () => {
   const {
@@ -49,8 +52,27 @@ const Profile = () => {
   const [updatedProfilePicture, setUpdatedProfilePicture] = useState<
     string | null
   >(null);
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+  const [showValidationError, setShowValidationError] = useState(false);
+  const { handleChangePassword, changePasswordMutation } = useAuth();
+  const [changePasswordSuccess, setChangePasswordSuccess] = useState(false);
+  const [changePasswordError, setChangePasswordError] = useState("");
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+  const changePasswordForm = useForm({
+    resolver: yupResolver(changePasswordSchema),
+    mode: "onChange",
+  });
+  const {
+    register: changePasswordRegister,
+    handleSubmit: changePasswordHandleSubmit,
+    formState: { errors: changePasswordErrors },
+    reset: changePasswordReset,
+  } = changePasswordForm;
 
   const userType: string = user?.user_types?.[0] || "";
+  const isCoordinator = userType === "coordinator";
 
   const {
     userProfile: fetchedUserProfile,
@@ -64,6 +86,7 @@ const Profile = () => {
   const profilePictureUpload = useProfilePictureUpload();
   const resumeUpload = useResumeUpload(userType);
   const logoUpload = useLogoUpload(userType);
+
 
   const activePage = useMemo(
     () => onboardingData?.onboarding_pages?.[activeTab],
@@ -85,7 +108,7 @@ const Profile = () => {
     getValues,
   } = useForm({
     resolver: yupResolver(schema),
-    mode: "onChange",
+    // mode: "onChange",
   });
 
   useEffect(() => {
@@ -97,13 +120,14 @@ const Profile = () => {
   }, [fetchedUserProfile, userProfile]);
 
   useEffect(() => {
-    if (!isProfileLoading && !fetchedUserProfile && userType) {
+    if (!isProfileLoading && !fetchedUserProfile && !isCoordinator) {
       handleOnboardingRedirect(false);
     }
   }, [
     isProfileLoading,
     fetchedUserProfile,
     userType,
+    isCoordinator,
     handleOnboardingRedirect,
   ]);
 
@@ -136,32 +160,37 @@ const Profile = () => {
         icon: page.title_icon,
       })
     );
-
+    if (!isCoordinator) {
     onboardingTabs.push({
       title: "Profile Preview",
       icon: "fa-solid fa-eye",
     });
+  }
+    onboardingTabs.push({
+      title: "Change Password",
+      icon: "fa-solid fa-key",
+    });
 
     return onboardingTabs;
-  }, [onboardingData]);
+  }, [onboardingData, isCoordinator]);
 
   const calculateProfileCompletion = (): number => {
     if (!userProfile || !onboardingData?.onboarding_pages) return 0;
 
-    const getAllFieldsFromPages = (pages: OnboardingPage[]): string[] => {
+    const getAllFieldsFromPages = (pages: OnboardingPage[], userProfile: UserProfile): string[] => {
       const fields: string[] = [];
 
-      const extractFieldsFromQuestion = (question: Question): string[] => {
+      const extractFieldsFromQuestion = (question: Question, userProfile: UserProfile): string[] => {
         const questionFields = [question.field];
+        const userAnswer = (userProfile as any)[question.field];
 
-        if (question.followup_question) {
-          Object.values(question.followup_question).forEach(
-            (followupQuestion: Question) => {
-              questionFields.push(
-                ...extractFieldsFromQuestion(followupQuestion)
-              );
-            }
-          );
+        if (
+          question.followup_question &&
+          userAnswer &&
+          question.followup_question[userAnswer]
+        ) {
+          const followup = question.followup_question[userAnswer];
+          questionFields.push(...extractFieldsFromQuestion(followup, userProfile));
         }
 
         return questionFields;
@@ -169,7 +198,7 @@ const Profile = () => {
 
       pages.forEach((page) => {
         page.questions.forEach((question: Question) => {
-          fields.push(...extractFieldsFromQuestion(question));
+          fields.push(...extractFieldsFromQuestion(question, userProfile));
         });
       });
 
@@ -177,7 +206,8 @@ const Profile = () => {
     };
 
     const allOnboardingFields = getAllFieldsFromPages(
-      onboardingData.onboarding_pages
+      onboardingData.onboarding_pages,
+      userProfile
     );
 
     const filledFields = allOnboardingFields.filter((field) => {
@@ -191,6 +221,7 @@ const Profile = () => {
       );
     });
 
+   
     return Math.round((filledFields.length / allOnboardingFields.length) * 100);
   };
 
@@ -214,21 +245,25 @@ const Profile = () => {
   };
 
   const handleUpdate = async (data: any) => {
+    setHasAttemptedSubmit(true);
     const allData = { ...profileData, ...data };
     const submissionData = { ...allData };
-
     delete submissionData.profile_picture_url;
     delete submissionData.resume_url;
     delete submissionData.logo_url;
     delete submissionData.resume;
     delete submissionData.logo;
-
     Object.keys(submissionData).forEach((key) => {
       if (submissionData[key] === null || submissionData[key] === undefined) {
         delete submissionData[key];
       }
     });
-
+    if (Object.keys(errors).length > 0) {
+      setShowValidationError(true);
+      return;
+    } else {
+      setShowValidationError(false);
+    }
     try {
       const profileUpdateResponse =
         await profileUpdateMutation.mutateAsync(submissionData);
@@ -250,7 +285,6 @@ const Profile = () => {
       if (allData.logo_url instanceof File) {
         uploadTasks.push(logoUpload.mutateAsync(allData.logo_url));
       }
-
       if (uploadTasks.length > 0) {
         const results = await Promise.allSettled(uploadTasks);
         const failed = results.find((r) => r.status === "rejected");
@@ -373,7 +407,9 @@ const Profile = () => {
                       ? "4px solid #DC2626"
                       : activeTab === index && userType === "partner"
                         ? "4px solid #089C3F"
-                        : "none"
+                        : activeTab === index && isCoordinator
+                          ? "4px solid #089C3F"
+                          : ""
                   }
                   fontWeight="600"
                   w="full"
@@ -401,7 +437,7 @@ const Profile = () => {
             {tabs[activeTab]?.title || "Tab Details"}
           </Text>
 
-          {activeTab === tabs.length - 1 ? (
+          {activeTab === tabs.length - 2 ? (
             <Box>
               {userProfile &&
                 (userType === "student" ? (
@@ -412,6 +448,7 @@ const Profile = () => {
                       userType={userType}
                       maxW="500px"
                       disableViewFullProfile={true}
+                      disableAddToFolder={true}
                     />
                     <FullProfileCard
                       profileId={userProfile.id?.toString() || ""}
@@ -428,6 +465,7 @@ const Profile = () => {
                       profilePictureUrl={getUserProfilePictureUrl()}
                       maxW="500px"
                       disableViewFullProfile={true}
+                      disableAddToFolder={true}
                     />
                     <FullProfileCard
                       profileId={userProfile.id?.toString() || ""}
@@ -439,8 +477,85 @@ const Profile = () => {
                   </VStack>
                 ))}
             </Box>
+          ) : activeTab === tabs.length - 1 ? (
+            <Box maxW="500px" mx="auto" mt={8} p={8} borderRadius="16px" boxShadow="0 2px 8px rgba(0,0,0,0.08)" bg="#F9FAFB">
+              <form onSubmit={changePasswordHandleSubmit(async (data) => {
+                setChangePasswordSuccess(false);
+                setChangePasswordError("");
+                try {
+                  await handleChangePassword({
+                    old_password: data.old_password,
+                    new_password: data.new_password,
+                  });
+                  setChangePasswordSuccess(true);
+                  changePasswordReset();
+                } catch (err: any) {
+                  setChangePasswordError(err?.message || "Failed to change password");
+                }
+              })}>
+                <VStack gap={6} align="stretch">
+                  <Box>
+                    <InputField
+                      type="password" 
+                      label="OLD PASSWORD"
+                      showPasswordToggle
+                      showPassword={showOldPassword}
+                      onTogglePassword={() => setShowOldPassword(!showOldPassword)}
+                      {...changePasswordRegister("old_password")}
+                      error={changePasswordErrors.old_password?.message}
+                    />
+                  </Box>
+                  <Box>
+                    <InputField
+                      type="password"
+                      label="NEW PASSWORD"
+                      showPasswordToggle
+                      showPassword={showNewPassword}
+                      onTogglePassword={() => setShowNewPassword(!showNewPassword)}
+                      {...changePasswordRegister("new_password")}
+                      error={changePasswordErrors.new_password?.message}
+                    />
+                  </Box>
+                  <Box>
+                    <InputField
+                      type="password"
+                      label="CONFIRM NEW PASSWORD"
+                      showPasswordToggle
+                      showPassword={showConfirmNewPassword}
+                      onTogglePassword={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                      {...changePasswordRegister("confirm_new_password")}
+                      error={changePasswordErrors.confirm_new_password?.message}
+                    />
+                  </Box>
+                  <Button
+                    type="submit"
+                    mt={4}
+                    borderRadius="8px"
+                    py={3}
+                    px={6}
+                    bg="#CFF3FF"
+                    height="60px"
+                    color="#000000"
+                    fontWeight="600"
+                    fontSize="16px"
+                    loading={changePasswordMutation.isPending}
+                  >
+                    Change Password
+                  </Button>
+                 
+                </VStack>
+              </form>
+            </Box>
           ) : (
             <form onSubmit={handleSubmit(handleUpdate)}>
+              {showValidationError && hasAttemptedSubmit && Object.keys(errors).length > 0 && (
+                <Alert.Root status="error" mb={4}>
+                  <Alert.Indicator />
+                  <Alert.Title>
+                    Please follow the instructions to fill the form.
+                  </Alert.Title>
+                </Alert.Root>
+              )}
               {activePage?.questions?.map((question: Question) => (
                 <FieldRenderer
                   key={question.field}
