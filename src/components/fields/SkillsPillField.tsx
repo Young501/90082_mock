@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react"
 import {
   Box,
   VStack,
@@ -11,10 +11,10 @@ import {
   Tag,
   IconButton,
   createListCollection,
-} from "@chakra-ui/react";
-import { Control, useController } from "react-hook-form";
-import { Button } from "@/components/ui/Button";
-import { Plus, X } from "lucide-react";
+} from "@chakra-ui/react"
+import { Control, useController } from "react-hook-form"
+import { Button } from "@/components/ui/Button"
+import { Plus, X } from "lucide-react"
 
 interface SkillsPillFieldProps {
   name: string;
@@ -33,11 +33,11 @@ export const SkillsPillField = ({
   allowCustom = false,
   required = false,
 }: SkillsPillFieldProps) => {
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedOption, setSelectedOption] = useState("");
-  const [customSkill, setCustomSkill] = useState("");
-  const [showCustomInput, setShowCustomInput] = useState(false);
-
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [selectedOption, setSelectedOption] = useState("")
+  const [customSkill, setCustomSkill] = useState("")
+  const [showCustomInput, setShowCustomInput] = useState(false)
+  const [filter, setFilter] = useState("")
   const {
     field: { value = [], onChange },
     fieldState: { error },
@@ -45,51 +45,51 @@ export const SkillsPillField = ({
     name,
     control,
     defaultValue: [],
-  });
-
+  })
   const handleAddSkill = (skill: string) => {
     if (skill && !value.includes(skill)) {
-      const cleanSkill = String(skill).trim();
-      onChange([...value, cleanSkill]);
-      setSelectedOption("");
-      setCustomSkill("");
-      setShowDropdown(false);
-      setShowCustomInput(false);
+      const cleanSkill = String(skill).trim()
+      onChange([...value, cleanSkill])
+      setSelectedOption("")
+      setCustomSkill("")
+      setShowDropdown(false)
+      setShowCustomInput(false)
+      setFilter("")
     }
-  };
-
+  }
   const handleRemoveSkill = (skillToRemove: string) => {
-    onChange(value.filter((skill: string) => skill !== skillToRemove));
-  };
-
+    onChange(value.filter((skill: string) => skill !== skillToRemove))
+  }
   const handleDropdownChange = (selectedValue: string) => {
     if (selectedValue === "other" && allowCustom) {
-      setShowCustomInput(true);
-      setSelectedOption("");
+      setShowCustomInput(true)
+      setSelectedOption("")
     } else if (selectedValue) {
-      handleAddSkill(selectedValue);
+      handleAddSkill(selectedValue)
     }
-  };
-
+  }
   const handleCustomAdd = () => {
     if (customSkill.trim()) {
-      handleAddSkill(customSkill.trim());
+      handleAddSkill(customSkill.trim())
     }
-  };
-
+  }
   const availableOptions = options.filter(
     (option) => !value.includes(option) && option !== "other"
-  );
+  )
+  const filteredOptions = useMemo(() => {
+    if (!filter) return availableOptions
+    const lower = filter.toLowerCase()
+    return availableOptions.filter((opt) => opt.toLowerCase().includes(lower))
+  }, [availableOptions, filter])
   const selectOptions = allowCustom
-    ? [...availableOptions, "other"]
-    : availableOptions;
+    ? [...filteredOptions, "other"]
+    : filteredOptions
   const collection = createListCollection({
     items: selectOptions.map((option) => ({
       label: option === "other" ? "Add custom skill..." : option,
       value: option,
     })),
-  });
-
+  })
   return (
     <Box>
       <Text fontSize="18px" fontWeight="medium" mb={4}>
@@ -100,7 +100,6 @@ export const SkillsPillField = ({
           </Text>
         )}
       </Text>
-
       <VStack align="stretch" gap={4} ml={4}>
         {value.length > 0 && (
           <Flex wrap="wrap" gap={2}>
@@ -134,7 +133,6 @@ export const SkillsPillField = ({
             ))}
           </Flex>
         )}
-
         {!showDropdown ? (
           <ChakraButton
             variant="outline"
@@ -166,11 +164,30 @@ export const SkillsPillField = ({
                   <Select.ValueText placeholder="Select a skill..." />
                 </Select.Trigger>
                 <Select.Content>
-                  {collection.items.map((item) => (
-                    <Select.Item key={item.value} item={item.value}>
-                      <Select.ItemText>{item.label}</Select.ItemText>
-                    </Select.Item>
-                  ))}
+                  <VStack px={2} py={2} gap={2} align="stretch">
+                    <Input
+                      autoFocus
+                      placeholder="Type to filter..."
+                      value={filter}
+                      onChange={(e) => setFilter(e.target.value)}
+                      size="sm"
+                      borderRadius="md"
+                      bg="gray.50"
+                      onKeyDown={(e) => {
+                        if (e.key === " ") {
+                          e.stopPropagation()
+                        }
+                      }}
+                    />
+                    {selectOptions.length === 0 && (
+                      <span style={{ color: '#888', padding: '8px' }}>No options</span>
+                    )}
+                    {collection.items.map((item) => (
+                      <Select.Item key={item.value} item={item.value}>
+                        <Select.ItemText>{item.label}</Select.ItemText>
+                      </Select.Item>
+                    ))}
+                  </VStack>
                 </Select.Content>
               </Select.Root>
             ) : (
@@ -182,8 +199,8 @@ export const SkillsPillField = ({
                   size="md"
                   onKeyPress={(e) => {
                     if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleCustomAdd();
+                      e.preventDefault()
+                      handleCustomAdd()
                     }
                   }}
                 />
@@ -197,16 +214,16 @@ export const SkillsPillField = ({
                 </ChakraButton>
               </HStack>
             )}
-
             <HStack gap={2}>
               <ChakraButton
                 variant="ghost"
                 size="sm"
                 onClick={() => {
-                  setShowDropdown(false);
-                  setShowCustomInput(false);
-                  setSelectedOption("");
-                  setCustomSkill("");
+                  setShowDropdown(false)
+                  setShowCustomInput(false)
+                  setSelectedOption("")
+                  setCustomSkill("")
+                  setFilter("")
                 }}
               >
                 Cancel
@@ -215,12 +232,11 @@ export const SkillsPillField = ({
           </VStack>
         )}
       </VStack>
-
       {error && (
         <Text color="red.500" fontSize="sm" mt={1}>
           {error.message}
         </Text>
       )}
     </Box>
-  );
-};
+  )
+}
