@@ -47,7 +47,14 @@ export const checkOnboardingStatus = async ({
     });
 
     if (redirectOnSuccess) {
-      router.push("/discover/");
+      const { getInviteData } = useAuthStore.getState();
+      const { token: inviteToken, opportunityId } = getInviteData();
+      
+      if (inviteToken && opportunityId) {
+        router.push(`/invite/?token=${inviteToken}&opportunity=${opportunityId}`);
+      } else {
+        router.push("/discover/");
+      }
     }
   } catch (error: any) {
     if (error?.response?.status === 404) {
@@ -74,7 +81,7 @@ const fetchCoordinatorOpportunities = async () => {
 
 export const useAuth = () => {
   const router = useRouter();
-  const { setAuthData, user } = useAuthStore();
+  const { setAuthData, user, getInviteData } = useAuthStore();
   const queryClient = useQueryClient();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -92,10 +99,10 @@ export const useAuth = () => {
       setAuthData(response.token, response.user);
       queryClient.invalidateQueries({ queryKey: ["user"] });
       queryClient.invalidateQueries({ queryKey: ["accepted-opportunities"] });
-      checkOnboardingStatus({
-        user: response.user,
-        router,
-      });
+        checkOnboardingStatus({
+          user: response.user,
+          router,
+        });
     },
     onError: (error: any) => {
       const errorMessage = getErrorMessage(error, "Login failed");

@@ -38,7 +38,6 @@ export const InviteCard = ({
       flexDirection="column"
       alignItems="center"
       justifyContent="center"
-      minHeight="100vh"
       textAlign="center"
       px={{ base: 4, md: 6, lg: 8 }}
       py={{ base: 8, md: 12, lg: 16 }}

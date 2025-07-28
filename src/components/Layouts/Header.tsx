@@ -7,13 +7,14 @@ import {
   useBreakpointValue,
   Button,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { UserRound, Menu, X } from "lucide-react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import Image from "next/image";
 import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
+import { useSearchParams } from "next/navigation";
 
 interface MenuItem {
   label: string;
@@ -29,12 +30,22 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const { handleLogout } = useAuth();
   const { logout, getUserType } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const searchParams = useSearchParams();
 
   const userType = getUserType();
   const isCoordinator = userType === "coordinator";
   const isPartner = userType === "partner";
   const isStudent = userType === "student";
 
+  const getSignupLink = () => {
+    const inviteToken = searchParams.get("invite_token");
+    const opportunityId = searchParams.get("opportunity_id");
+    
+    if (inviteToken && opportunityId) {
+      return `/user-type?signup=true&invite_token=${inviteToken}&opportunity_id=${opportunityId}`;
+    }
+    return "/user-type/";
+  };
 
   const MENU_ITEMS: MenuItem[] = [
     {
@@ -95,7 +106,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     },
     {
       label: "SIGN UP",
-      href: "/user-type/",
+      href: getSignupLink(),
       isCoordinator: false,
       isPartner: false,
       isStudent: false,

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Box, Heading, VStack, Text, Flex, HStack } from "@chakra-ui/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { InputField, Button } from "@/components/ui";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -20,18 +20,36 @@ interface FormData {
 
 const SignupPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const signupSelectedUserType = useAuthStore(
     (state) => state.signupSelectedUserType
   );
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { handleSignup } = useAuth();
+  const { setInviteData } = useAuthStore();
 
   useEffect(() => {
     if (!signupSelectedUserType) {
-      router.push("/user-type?signup=true/");
+      const inviteToken = searchParams.get("invite_token");
+      const opportunityId = searchParams.get("opportunity_id");
+      
+      if (inviteToken && opportunityId) {
+        router.push(`/user-type?signup=true&invite_token=${inviteToken}&opportunity_id=${opportunityId}`);
+      } else {
+        router.push("/user-type?signup=true/");
+      }
     }
-  }, [signupSelectedUserType, router]);
+  }, [signupSelectedUserType, router, searchParams]);
+
+  useEffect(() => {
+    const inviteToken = searchParams.get("invite_token");
+    const opportunityId = searchParams.get("opportunity_id");
+    
+    if (inviteToken && opportunityId) {
+      setInviteData(inviteToken, opportunityId);
+    }
+  }, [searchParams, setInviteData]);
 
   const {
     register,
