@@ -254,3 +254,19 @@ export const changePasswordSchema = yup.object({
   new_password: yup.string().min(8, "Password must be at least 8 characters").required("New password is required"),
   confirm_new_password: yup.string().oneOf([yup.ref("new_password")], "Passwords do not match").required("Please confirm new password"),
 });
+
+export const emailContactValidationSchema = yup.object().shape({
+  to: yup
+    .string()
+    .email("Invalid email")
+    .required("Recipient email is required"),
+  reply_to: yup
+    .string()
+    .email("Invalid email")
+    .required("Your email is required"),
+  subject: yup.string().default(""),
+  message: yup
+    .string()
+    .required("Message is required")
+    .min(1, "Message cannot be empty"),
+});

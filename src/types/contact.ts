@@ -1,8 +1,9 @@
-export interface ContactModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+export interface ContactPageProps {
   recipientEmail: string;
   recipientName: string;
+  profileType: "student" | "partner";
+  onBack: () => void;
+  companyName?: string;
 }
 
 export interface ContactFormData {
