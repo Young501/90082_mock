@@ -17,8 +17,10 @@ import { StudentProfile, PartnerProfile } from "@/types/discovery";
 import { useStudentProfile, usePartnerProfile } from "@/services/shared";
 import Image from "next/image";
 import BadgeSection from "@/components/BadgeSection";
-import { ContactModal } from "@/components/ui/ContactModal";
+import { ContactPage } from "@/components/ui/ContactPage";
 import { Globe } from "lucide-react";
+import { useAuthStore } from "@/store/authStore";
+
 
 interface FullProfileCardProps {
   profileId: string;
@@ -41,6 +43,7 @@ export function FullProfileCard({
 }: FullProfileCardProps) {
   const shouldFetchStudent = profileType === "student" && !studentProfile;
   const shouldFetchPartner = profileType === "partner" && !partnerProfile;
+  const { userProfile } = useAuthStore();
 
   const {
     data: studentData,
@@ -158,6 +161,7 @@ export function FullProfileCard({
           <RenderStudentDetails
             student={profile as StudentProfile}
             disableBtns={disableBtns}
+            userProfile={userProfile as PartnerProfile}
           />
         ) : (
           <RenderPartnerDetails
@@ -258,12 +262,13 @@ export function FullProfileCard({
 const RenderStudentDetails = ({
   student,
   disableBtns,
+  userProfile,
 }: {
   student: StudentProfile;
   disableBtns: boolean;
+  userProfile: PartnerProfile;
 }) => {
   const [showContactModal, setShowContactModal] = useState(false);
-
   return (
     <Box
       w="full"
@@ -554,11 +559,12 @@ const RenderStudentDetails = ({
       </Box>
 
       {showContactModal && student.email && (
-        <ContactModal
-          isOpen={showContactModal}
-          onClose={() => setShowContactModal(false)}
+        <ContactPage
           recipientEmail={student.email}
           recipientName={`${student.first_name} ${student.last_name}`}
+          profileType="student"
+          companyName={userProfile?.company_name}
+          onBack={() => setShowContactModal(false)}
         />
       )}
     </Box>
@@ -920,13 +926,13 @@ const RenderPartnerDetails = ({
       </Box>
 
       {showContactModal && partner.email && (
-        <ContactModal
-          isOpen={showContactModal}
-          onClose={() => setShowContactModal(false)}
+        <ContactPage
           recipientEmail={partner.email}
           recipientName={
             partner.company_name || `${partner.first_name} ${partner.last_name}`
           }
+          profileType="partner"
+          onBack={() => setShowContactModal(false)}
         />
       )}
     </Box>
