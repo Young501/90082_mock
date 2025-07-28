@@ -12,10 +12,8 @@ import { UserRound, Menu, X } from "lucide-react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
-// import { IS_COORDINATOR, IS_PARTNER, IS_STUDENT } from "@/store/authStore";
 
 interface MenuItem {
   label: string;
@@ -28,7 +26,6 @@ interface MenuItem {
 
 const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
-  const router = useRouter();
   const { handleLogout } = useAuth();
   const { logout, getUserType } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

@@ -35,6 +35,7 @@ import { toast } from "react-toastify";
 import { useProfile } from "@/hooks/useProfile";
 import { FullProfileCard } from "../discover/cards/FullProfileCard";
 import { useAuth } from "@/hooks/auth";
+import { InputField } from "@/components/ui";
 
 const Profile = () => {
   const {
@@ -56,6 +57,9 @@ const Profile = () => {
   const { handleChangePassword, changePasswordMutation } = useAuth();
   const [changePasswordSuccess, setChangePasswordSuccess] = useState(false);
   const [changePasswordError, setChangePasswordError] = useState("");
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const changePasswordForm = useForm({
     resolver: yupResolver(changePasswordSchema),
     mode: "onChange",
@@ -83,6 +87,7 @@ const Profile = () => {
   const resumeUpload = useResumeUpload(userType);
   const logoUpload = useLogoUpload(userType);
 
+
   const activePage = useMemo(
     () => onboardingData?.onboarding_pages?.[activeTab],
     [onboardingData, activeTab]
@@ -103,7 +108,7 @@ const Profile = () => {
     getValues,
   } = useForm({
     resolver: yupResolver(schema),
-    mode: "onChange",
+    // mode: "onChange",
   });
 
   useEffect(() => {
@@ -490,37 +495,37 @@ const Profile = () => {
               })}>
                 <VStack gap={6} align="stretch">
                   <Box>
-                    <Text fontWeight="600" fontSize="18px" mb={2} color="#000000">Old Password</Text>
-                    <input
-                      type="password"
+                    <InputField
+                      type="password" 
+                      label="OLD PASSWORD"
+                      showPasswordToggle
+                      showPassword={showOldPassword}
+                      onTogglePassword={() => setShowOldPassword(!showOldPassword)}
                       {...changePasswordRegister("old_password")}
-                      style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E0" }}
+                      error={changePasswordErrors.old_password?.message}
                     />
-                    {changePasswordErrors.old_password && (
-                      <Text color="#DC2626" fontSize="14px">{changePasswordErrors.old_password.message as string}</Text>
-                    )}
                   </Box>
                   <Box>
-                    <Text fontWeight="600" fontSize="18px" mb={2} color="#000000">New Password</Text>
-                    <input
+                    <InputField
                       type="password"
+                      label="NEW PASSWORD"
+                      showPasswordToggle
+                      showPassword={showNewPassword}
+                      onTogglePassword={() => setShowNewPassword(!showNewPassword)}
                       {...changePasswordRegister("new_password")}
-                      style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E0" }}
+                      error={changePasswordErrors.new_password?.message}
                     />
-                    {changePasswordErrors.new_password && (
-                      <Text color="#DC2626" fontSize="14px">{changePasswordErrors.new_password.message as string}</Text>
-                    )}
                   </Box>
                   <Box>
-                    <Text fontWeight="600" fontSize="18px" mb={2} color="#000000">Confirm New Password</Text>
-                    <input
+                    <InputField
                       type="password"
+                      label="CONFIRM NEW PASSWORD"
+                      showPasswordToggle
+                      showPassword={showConfirmNewPassword}
+                      onTogglePassword={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
                       {...changePasswordRegister("confirm_new_password")}
-                      style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E0" }}
+                      error={changePasswordErrors.confirm_new_password?.message}
                     />
-                    {changePasswordErrors.confirm_new_password && (
-                      <Text color="#DC2626" fontSize="14px">{changePasswordErrors.confirm_new_password.message as string}</Text>
-                    )}
                   </Box>
                   <Button
                     type="submit"
@@ -529,7 +534,7 @@ const Profile = () => {
                     py={3}
                     px={6}
                     bg="#CFF3FF"
-                    height="46px"
+                    height="60px"
                     color="#000000"
                     fontWeight="600"
                     fontSize="16px"

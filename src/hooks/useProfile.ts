@@ -30,8 +30,8 @@ export const useProfile = (userType: string) => {
       return;
     }
 
-    if (userProfile && redirectOnSuccess && userType !== "cordinator") {
-      router.push("/home/");
+    if (userProfile && redirectOnSuccess && userType !== "coordinator") {
+      router.push("/discover/");
     }
 
     if (isError && error?.response?.status !== 404) {
