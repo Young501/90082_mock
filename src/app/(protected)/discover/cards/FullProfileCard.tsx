@@ -194,8 +194,9 @@ export function FullProfileCard({
           w="90%"
           boxShadow="0px 5.92px 11.84px 5.92px #00000040"
           maxW="1000px"
-          maxH="90vh"
+          maxH={{base:"85vh", lg:"75vh"}}
           overflow="auto"
+          mt={{base:"80px", lg:"128px"}}
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",

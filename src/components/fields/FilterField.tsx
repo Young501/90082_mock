@@ -96,7 +96,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
           const hasValue = formField.value && formField.value !== ""
           const showAsSingleOption = isSingleOption && hasValue
           return (
-            <VStack align="stretch" gap={1} w="100%">
+            <VStack align="stretch" gap={1} w="100%" zIndex={1000}>
               <HStack gap={1} w="100%" h="40px">
                 <Select.Root
                   collection={selectCollection}
@@ -218,12 +218,13 @@ export const FilterField: React.FC<FilterFieldProps> = ({
       <Controller
         name={field.field}
         control={control}
+
         render={({ field: formField }) => {
           const hasValue =
             Array.isArray(formField.value) && formField.value.length > 0
           const showAsSingleOption = isSingleOption && hasValue
           return (
-            <VStack align="stretch" gap={1} w="100%">
+            <VStack align="stretch" gap={1} w="100%" zIndex={1000}>
               <HStack gap={1} w="100%" h="40px">
                 <Select.Root
                   collection={selectCollection}

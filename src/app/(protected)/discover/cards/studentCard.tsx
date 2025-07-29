@@ -150,7 +150,7 @@ export function StudentCard({
           w="full"
           h="full"
         >
-          <Box display="flex" flexDirection="column" gap={4} flex="1">
+          <Box display="flex" flexDirection="column" justifyContent="space-between" flex="1">
             <Box
               display="flex"
               flexDirection="row"
@@ -201,7 +201,7 @@ export function StudentCard({
                   </Text>
                 </Box>
 
-                <Box display="flex" flexDirection="column" gap={2}>
+                <Box display="flex" flexDirection="column" gap={2} mb={4}>
                   {student.course_name && (
                     <HStack gap={2} align="start">
                       <Box

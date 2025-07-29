@@ -99,15 +99,11 @@ export function ContactPage({
         flexDirection="column"
       >
 
-        <Box display="flex" w="full" justifyContent={{ base: "start", lg: "space-between" }} flexDirection="row" alignItems="center" mb={6}>
-            <Button variant="ghost"  onClick={onBack} p={0} alignSelf="flex-start">
-              <Image src="/assets/arrowbackicon.svg" alt="Back" width={12} height={12} />
-            </Button>
-          <Heading size="lg" color="#282F68">
+            
+          <Heading size="lg" color="#282F68" mb={6} textAlign="center">
             Contact {recipientName}
           </Heading>
-          <Box w="40px" display={{ base: "none", lg: "block" }} />
-        </Box>
+
 
         <Box flex={1} display="flex" justifyContent="center" alignItems="flex-start">
           <Box w="full" >
