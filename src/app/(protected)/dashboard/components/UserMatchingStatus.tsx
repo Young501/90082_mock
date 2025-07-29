@@ -6,7 +6,6 @@ import {
   Text,
   Avatar,
   Separator,
-  Button,
 } from "@chakra-ui/react";
 import { Participant } from "@/types/dashboard";
 import { getInitial } from "@/utils/getInitials";
@@ -15,6 +14,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useUnmatch } from "@/services/manage";
 import { MatchConfirmationModal } from "@/components/ui";
+import { Button } from "@/components/ui/Button";
 
 interface UserMatchingStatusProps {
   participant: Participant | null;
@@ -359,7 +359,7 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
           <Box>
             {participant.match_info?.is_matched ? (
               <HStack
-                align="stretch"
+                align="center"
                 gap={3}
                 w="100%"
                 justifyContent="space-between"
@@ -374,8 +374,7 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                   {userType === "student" ? "student" : "organisation"}?
                 </Text>
                 <Button
-                  bg="#D9D9D9"
-                  color="#000000"
+                  variant="secondary"
                   fontSize={{ base: "20px", lg: "27px" }}
                   fontWeight="600"
                   borderRadius="18px"
@@ -404,14 +403,8 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                   {userType === "student" ? "student" : "organisation"}?
                 </Text>
                 <Button
-                  bg="#002157"
+                  variant="primary"
                   color="white"
-                  _hover={{ bg: "#003580" }}
-                  _active={{
-                    bg: "#000E2A",
-                    transform: "scale(0.95)",
-                  }}
-                  transition="all 0.2s"
                   fontSize={{ base: "20px", lg: "27px" }}
                   fontWeight="600"
                   borderRadius="18px"

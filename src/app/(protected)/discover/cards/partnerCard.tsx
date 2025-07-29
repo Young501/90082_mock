@@ -6,7 +6,6 @@ import {
   Text,
   Card,
   Avatar,
-  Button,
   Heading,
 } from "@chakra-ui/react";
 import { PartnerProfile } from "@/types/discovery";
@@ -14,6 +13,7 @@ import Image from "next/image";
 import { FullProfileCard } from "./FullProfileCard";
 import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
 import { DeleteModal } from "../../folders/modals/DeleteModal";
+import { Button } from "@/components/ui/Button";
 
 interface PartnerCardProps {
   partner: PartnerProfile;
@@ -303,13 +303,9 @@ export function PartnerCard({
           </Box>
 
           <Button
+            variant="partner"
             w="full"
-            bg="#22C45E"
-            color="white"
-            borderRadius="xl"
             py={6}
-            fontSize="14px"
-            fontWeight="bold"
             mt={4}
             onClick={handleViewFullProfile}
             disabled={!partner.id || disableViewFullProfile}

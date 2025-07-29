@@ -9,9 +9,9 @@ import {
   HStack,
   Spinner,
   Flex,
-  Button,
   useBreakpointValue,
 } from "@chakra-ui/react";
+import { Button } from "@/components/ui/Button";
 import { useDashboard } from "@/hooks/useDashboard";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -344,13 +344,13 @@ const DashboardPage = () => {
               </VStack>
             </Box>
             <Button
+              variant="primary"
+              color="white"
               size="lg"
               height="78px"
               display="flex"
               alignItems="center"
               justifyContent="center"
-              bg="#002157"
-              color="white"
               borderRadius="md"
               fontWeight="bold"
               fontSize="27px"
@@ -493,13 +493,13 @@ const DashboardPage = () => {
               </VStack>
             </Box>
             <Button
+              variant="primary"
+              color="white"
               size="lg"
               height="78px"
               display="flex"
               alignItems="center"
               justifyContent="center"
-              bg="#002157"
-              color="white"
               borderRadius="md"
               fontWeight="bold"
               fontSize="27px"

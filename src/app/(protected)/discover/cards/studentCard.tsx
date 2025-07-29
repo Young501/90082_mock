@@ -6,7 +6,6 @@ import {
   Text,
   Card,
   Avatar,
-  Button,
   Heading,
 } from "@chakra-ui/react";
 import { StudentProfile } from "@/types/discovery";
@@ -14,6 +13,7 @@ import Image from "next/image";
 import { FullProfileCard } from "./FullProfileCard";
 import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
 import { DeleteModal } from "../../folders/modals/DeleteModal";
+import { Button } from "@/components/ui/Button";
 
 interface StudentCardProps {
   student: StudentProfile;
@@ -339,14 +339,10 @@ export function StudentCard({
           </Box>
 
           <Button
+            variant="student"
             w="full"
-            bg="#DC2626"
-            color="white"
-            borderRadius="xl"
             py={6}
-            fontSize="14px"
-            fontWeight="bold"
-            mt={4}
+            mt={4}  
             onClick={handleViewFullProfile}
             disabled={!student.id || disableViewFullProfile}
           >

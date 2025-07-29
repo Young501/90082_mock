@@ -2,11 +2,11 @@ import React from "react";
 import {
   Box,
   VStack,
-  Button,
   Input,
   Textarea,
   Text,
   Heading,
+  Button,
   HStack,
 } from "@chakra-ui/react";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -167,10 +167,19 @@ export function ContactPage({
                 </Box>
 
                 <Box display="flex" gap={3} justifyContent="flex-end" mt={6}>
-                  <Button variant="outline" onClick={onBack}>
+                  <Button variant="outline" onClick={onBack} 
+                    _active={{
+                      transform: "scale(0.98)",
+                    }}>
                     Cancel
                   </Button>
                   <Button
+                    _hover={{
+                      bg: "#2CA9DF/80",
+                    }}
+                    _active={{
+                      transform: "scale(0.98)",
+                    }}
                     type="submit"
                     bg="#2CA9DF"
                     color="white"
