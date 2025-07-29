@@ -40,10 +40,10 @@ export function PartnerCard({
   const [deleteModal, setDeleteModal] = useState(false);
 
   const getCompanyLogo = () => {
-    if (profilePictureUrl) {
-      return profilePictureUrl;
+    if (partner.logo_url) {
+      return partner.logo_url;
     } else {
-      return partner.logo_url || "";
+      return partner.profile_picture_url;
     }
   };
 
@@ -133,11 +133,10 @@ export function PartnerCard({
               w="full"
             >
               <Box display="flex" flexDirection="column" gap={6}>
-                <Box flexShrink={0} w="130px" h="130px">
                   <Avatar.Root
                     w="130px"
                     h="130px"
-                    borderRadius="50%"
+                    borderRadius="full"
                     border="6px solid #22C45E"
                   >
                     <Avatar.Fallback
@@ -149,13 +148,10 @@ export function PartnerCard({
                     />
                     {getCompanyLogo() && (
                       <Avatar.Image
-                        src={getCompanyLogo() || ""}
-                        w="124px"
-                        h="124px"
+                        src={getCompanyLogo() || ""}                        
                       />
                     )}
                   </Avatar.Root>
-                </Box>
 
                 <Box
                   bg="#22C45E"

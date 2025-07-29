@@ -162,7 +162,7 @@ export function StudentCard({
                 w="130px"
                 h="130px"
                 border="6px solid #DC2626"
-                borderRadius="50%"
+                borderRadius="full"
               >
                 <Avatar.Fallback
                   name={student.first_name + " " + student.last_name}
@@ -174,8 +174,6 @@ export function StudentCard({
                 {getProfileImage() && (
                   <Avatar.Image
                     src={getProfileImage() || ""}
-                    w="124px"
-                    h="124px"
                   />
                 )}
               </Avatar.Root>
