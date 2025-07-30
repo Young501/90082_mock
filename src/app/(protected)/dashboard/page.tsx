@@ -31,11 +31,14 @@ const DashboardPage = () => {
   const router = useRouter();
   const pathname = usePathname();
   const isMobile = useBreakpointValue({ base: true, lg: false });
-  const searchParams = useSearchParams();
-  // const manageType = searchParams.get("manageType");
-
+  
   const manageRoute = (type: "student" | "partner") => {
-    router.push(`${pathname}/manage?manageType=${type}`);
+    /*************
+     * pathname is returned with the trailing slash in production adding additional trailing slashes to first level routes breaks behaviour in production
+     * hence additional trailing slashes arent needed for first level routes but required for second level and extended routes
+     * so we need to remove the trailing slash when using the pathname and append trailing slash to second level and extended routes
+     */
+    router.push(`${pathname}manage/?type=${type}`);
   };
 
   if (isLoading) {

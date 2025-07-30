@@ -393,7 +393,7 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                   onClick={() => {
                     if (participant && participant.id && opportunityId) {
                       router.push(
-                        `/dashboard/manage/match?studentId=${participant.id}&opportunityId=${opportunityId}`
+                        `/dashboard/manage/match/?studentId=${participant.id}&opportunityId=${opportunityId}`
                       );
                     }
                   }}

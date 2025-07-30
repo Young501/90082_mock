@@ -12,7 +12,7 @@ import { useAuthStore } from '@/store/authStore';
 
 const ManagePage = () => {
     const searchParams = useSearchParams();
-    const manageType = searchParams.get("manageType");
+    const type = searchParams.get("type");
     const { getCoordinatorOpportunities } = useAuthStore();
     const coordinatorOpportunities = getCoordinatorOpportunities();
     const opportunityId = coordinatorOpportunities[0] || "";
@@ -27,7 +27,7 @@ const ManagePage = () => {
         updateFilters,
         resetFilters,
         selectParticipant,
-      } = useManage(manageType as "student" | "partner");
+      } = useManage(type as "student" | "partner");
 
       if (error) {
         return (
@@ -45,7 +45,7 @@ const ManagePage = () => {
                 fontWeight="600"
                 color="#000000"
               >
-                Manage {manageType === "student" ? "Students" : "Organisations"}
+                Manage {type === "student" ? "Students" : "Organisations"}
               </Text>
               <Box
                 bg="white"
@@ -55,7 +55,7 @@ const ManagePage = () => {
               >
                 <VStack gap={4}>
                   <Text fontSize="lg" fontWeight="bold" color="red.500">
-                    Error loading {manageType === "student" ? "students" : "organisations"}
+                    Error loading {type === "student" ? "students" : "organisations"}
                   </Text>
                   <Text color="gray.600">{error}</Text>
                   <Button onClick={() => window.location.reload()}>
@@ -69,7 +69,7 @@ const ManagePage = () => {
       }
   return (
     <Box>
-        {manageType === "student" ? <StudentPage 
+        {type === "student" ? <StudentPage 
         participants={participants}
         selectedParticipant={selectedParticipant}
         filters={filters}
