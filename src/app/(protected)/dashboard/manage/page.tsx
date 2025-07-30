@@ -1,13 +1,13 @@
 "use client";
 import { Box, Container, Text, VStack, Button, Spinner } from '@chakra-ui/react';
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image';
 import ManageFilter from '../components/ManageFilter';
 import InfiniteScroll from '@/components/InfiniteScroll';
 import UserManagementCard from '../components/UserManagementCard';
 import UserMatchingStatus from '../components/UserMatchingStatus';
 import { useManage } from '@/hooks/useManage';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 
 const ManagePage = () => {
@@ -81,7 +81,7 @@ const ManagePage = () => {
         resetFilters={resetFilters}
         selectParticipant={selectParticipant}
         opportunityId={opportunityId}
-        /> : <PartnerPage 
+        /> : type === "partner" ? <PartnerPage 
         participants={participants}
         selectedParticipant={selectedParticipant}
         filters={filters}
@@ -93,7 +93,7 @@ const ManagePage = () => {
         resetFilters={resetFilters}
         selectParticipant={selectParticipant}
         opportunityId={opportunityId}
-        />}
+        /> : <ManageDefault />}
     </Box>
   )
 };
@@ -465,4 +465,35 @@ const PartnerPage = ({
           </Container>
         </Box>
       );
+}
+
+const ManageDefault = () => {
+    const router = useRouter();
+    const [countdown, setCountdown] = useState(3);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCountdown((prev) => prev - 1);
+        }, 1000);
+        return () => clearInterval(interval);
+    }, []);
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            router.push("/dashboard");
+        }, 3000);
+        return () => clearTimeout(timeout);
+    }, []);
+    return (
+        <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" h={{base: `calc(100vh - 72px)`, lg: "calc(100vh - 126px)"}} mt={{base: "72px", lg: "126px"}} display="flex" alignItems="center" justifyContent="center">
+            <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
+                <VStack gap={4} alignItems="center" justifyContent="center">
+                    <Text fontSize="20px" color="#000000" fontWeight="600">
+                        No type selected, please select a type
+                    </Text>
+                    <Text fontSize="20px" color="#000000" textAlign="center">
+                      Redirecting to dashboard in {countdown} seconds...
+                    </Text>
+                </VStack>
+            </Container>
+        </Box>
+    )
 }
