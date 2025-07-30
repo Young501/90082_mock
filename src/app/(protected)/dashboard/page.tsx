@@ -36,7 +36,7 @@ const DashboardPage = () => {
 
   const manageRoute = (type: "student" | "partner") => {
     router.push(`${pathname}/manage?manageType=${type}`);
-  }
+  };
 
   if (isLoading) {
     return (
@@ -170,7 +170,7 @@ const DashboardPage = () => {
       total: dashboardStats.students.invited,
     },
     {
-      label: "Students contacted by at least one school:",
+      label: "Students contacted by at least one organisation:",
       value: dashboardStats.students.messaged,
       total: dashboardStats.students.invited,
     },
