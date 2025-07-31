@@ -4,8 +4,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   Box,
   VStack,
-  Heading,
-  Input,
   Button,
   Text,
   useDisclosure,
@@ -14,13 +12,13 @@ import {
   Avatar,
   SimpleGrid,
   Container,
-  Image,
 } from "@chakra-ui/react";
 import { useMatchStudent, useParticipants } from "@/services/manage";
 import { PaginationControls } from "@/components/ui/PaginationControls";
 import { MatchConfirmationModal } from "@/components/ui";
 import { Participant } from "@/types/dashboard";
 import ManageFilter from "@/app/(protected)/dashboard/components/ManageFilter";
+import { toast } from "react-toastify";
 
 const Match = () => {
   const router = useRouter();
@@ -61,8 +59,9 @@ const Match = () => {
         student_participant_id: studentId,
         partner_participant_id: selectedOrg.id.toString(),
       });
-      router.push(`/dashboard/manage?manageType=student`);
-    } catch (e) {
+      router.push(`/dashboard/manage/?type=student`);
+    } catch (e: any) {
+      toast.error(e.response?.data?.detail || "Failed to match student");
       onClose();
     }
   };
