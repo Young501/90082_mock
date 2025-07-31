@@ -101,6 +101,8 @@ const ManagePage = () => {
   )
 };
 
+export default ManagePage;
+
 const StudentPage = ({
     participants,
     selectedParticipant,
