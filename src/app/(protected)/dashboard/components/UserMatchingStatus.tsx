@@ -164,7 +164,7 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
               />
               {participant.image_url && (
                 <Avatar.Image
-                  src={participant.image_url || ""}
+                  src={participant.image_url}
                   w="85px"
                   h="85px"
                 />
