@@ -27,6 +27,7 @@ const ManagePage = () => {
         updateFilters,
         resetFilters,
         selectParticipant,
+        updateSelectedParticipant,
       } = useManage(type as "student" | "partner");
 
     if (error) {
