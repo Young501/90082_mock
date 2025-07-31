@@ -81,6 +81,7 @@ const ManagePage = () => {
         updateFilters={updateFilters}
         resetFilters={resetFilters}
         selectParticipant={selectParticipant}
+        updateSelectedParticipant={updateSelectedParticipant}
         opportunityId={opportunityId}
         /> : type === "partner" ? <PartnerPage 
         participants={participants}
@@ -93,6 +94,7 @@ const ManagePage = () => {
         updateFilters={updateFilters}
         resetFilters={resetFilters}
         selectParticipant={selectParticipant}
+        updateSelectedParticipant={updateSelectedParticipant}
         opportunityId={opportunityId}
         /> : <ManageDefault />}
     </Box>
