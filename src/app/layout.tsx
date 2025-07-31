@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             draggable
             pauseOnHover
             theme="light"
-            // style={{ zIndex: 9999 }}
+            style={{ zIndex: 10000 }}
             limit={3}
           />
           {children}
