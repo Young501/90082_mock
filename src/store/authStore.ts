@@ -26,7 +26,9 @@ export interface AuthState {
   getLogoUrl: () => string | null;
   getUserFullName: () => string;
   getUserFirstName: () => string;
+  setUserFirstName: (firstName: string) => void;
   getUserLastName: () => string;
+  setUserLastName: (lastName: string) => void;
   getUserProfilePictureUrl: () => string | null;
   setUserProfilePictureUrl: (url: string) => void;
   setCoordinatorOpportunities: (opportunities: string[]) => void;
@@ -113,6 +115,18 @@ export const useAuthStore = create<AuthState>()(
       getUserLastName: () => {
         const { user } = get();
         return user?.last_name || "";
+      },
+
+      setUserFirstName: (firstName: string) => {
+        const { user } = get();
+        if (!user) return;
+        set({ user: { ...user, first_name: firstName } });
+      },
+
+      setUserLastName: (lastName: string) => {
+        const { user } = get();
+        if (!user) return;
+        set({ user: { ...user, last_name: lastName } });
       },
 
       getUserProfilePictureUrl: () => {
