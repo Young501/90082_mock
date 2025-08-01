@@ -4,7 +4,6 @@ import {
   VStack,
   HStack,
   Text,
-  Button,
   Heading,
   Avatar,
   Grid,
@@ -20,6 +19,7 @@ import BadgeSection from "@/components/BadgeSection";
 import { ContactPage } from "@/components/ui/ContactPage";
 import { Globe } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
+import { Button } from "@/components/ui/Button";
 
 
 interface FullProfileCardProps {
@@ -194,8 +194,9 @@ export function FullProfileCard({
           w="90%"
           boxShadow="0px 5.92px 11.84px 5.92px #00000040"
           maxW="1000px"
-          maxH="90vh"
+          maxH={{base:"85vh", lg:"75vh"}}
           overflow="auto"
+          mt={{base:"80px", lg:"128px"}}
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
@@ -401,17 +402,12 @@ const RenderStudentDetails = ({
           alignSelf={{ base: "center", lg: "end" }}
         >
           <Button
-            bg={"#DC2626"}
-            color="white"
+            variant="student"
+            borderRadius="40px"
             size="lg"
             px={8}
-            borderRadius="40px"
-            fontSize="14px"
             w="100%"
             boxShadow="0px 3.34px 3.34px 0px #00000040"
-            _hover={{
-              bg: "#B91C1C",
-            }}
             onClick={() => {
               if (student.resume_url) {
                 window.open(student.resume_url, "_blank");
@@ -422,15 +418,12 @@ const RenderStudentDetails = ({
             View CV
           </Button>
           <Button
+            variant="student"
+            borderRadius="40px"
             size="lg"
             px={8}
-            bg={"#DC2626"}
-            borderRadius="40px"
-            borderColor={"#DC2626"}
-            color="white"
-            fontSize="14px"
-            boxShadow="0px 3.34px 3.34px 0px #00000040"
             w="100%"
+            boxShadow="0px 3.34px 3.34px 0px #00000040"
             onClick={() => setShowContactModal(true)}
             disabled={disableBtns}
           >
@@ -905,8 +898,7 @@ const RenderPartnerDetails = ({
               </Link>
             </HStack>
             <Button
-              bg="#22C45E"
-              color="white"
+              variant="partner"
               borderRadius="40px"
               py={2}
               px={4}

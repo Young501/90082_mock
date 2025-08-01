@@ -27,9 +27,10 @@ const ManagePage = () => {
         updateFilters,
         resetFilters,
         selectParticipant,
+        updateSelectedParticipant,
       } = useManage(type as "student" | "partner");
 
-      if (error) {
+    if (error) {
         return (
           <Box
             py={6}
@@ -80,6 +81,7 @@ const ManagePage = () => {
         updateFilters={updateFilters}
         resetFilters={resetFilters}
         selectParticipant={selectParticipant}
+        updateSelectedParticipant={updateSelectedParticipant}
         opportunityId={opportunityId}
         /> : type === "partner" ? <PartnerPage 
         participants={participants}
@@ -92,6 +94,7 @@ const ManagePage = () => {
         updateFilters={updateFilters}
         resetFilters={resetFilters}
         selectParticipant={selectParticipant}
+        updateSelectedParticipant={updateSelectedParticipant}
         opportunityId={opportunityId}
         /> : <ManageDefault />}
     </Box>
@@ -111,6 +114,7 @@ const StudentPage = ({
     updateFilters,
     resetFilters,
     selectParticipant,
+    updateSelectedParticipant,
     opportunityId,
   }: {
     participants: any[];
@@ -123,10 +127,10 @@ const StudentPage = ({
     updateFilters: (filters: any) => void;
     resetFilters: () => void;
     selectParticipant: (participant: any) => void;
+    updateSelectedParticipant: (participant: any) => void;
     opportunityId: string;
   }) => {
-    
-      return (
+    return (
         <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt="126px">
           <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
             <Box
@@ -170,7 +174,7 @@ const StudentPage = ({
                 Add Students to this list
               </Button>
             </Box>
-    
+
             <VStack
               width="100%"
               gap={8}
@@ -260,7 +264,7 @@ const StudentPage = ({
                     )}
                   </Box>
                 </Box>
-    
+
                 <Box
                   bg="white"
                   borderRadius="20px"
@@ -275,6 +279,7 @@ const StudentPage = ({
                     participant={selectedParticipant}
                     userType="student"
                     opportunityId={opportunityId}
+                    onParticipantUpdate={updateSelectedParticipant}
                   />
                 </Box>
               </Box>
@@ -295,6 +300,7 @@ const PartnerPage = ({
     updateFilters,
     resetFilters,
     selectParticipant,
+    updateSelectedParticipant,
     opportunityId,
   }: {
     participants: any[];
@@ -307,6 +313,7 @@ const PartnerPage = ({
     updateFilters: (filters: any) => void;
     resetFilters: () => void;
     selectParticipant: (participant: any) => void;
+    updateSelectedParticipant: (participant: any) => void;
     opportunityId: string;
   }) => {
     return (
@@ -353,7 +360,7 @@ const PartnerPage = ({
                 Add Organisations to this list
               </Button>
             </Box>
-    
+
             <VStack
               width="100%"
               gap={8}
@@ -443,7 +450,7 @@ const PartnerPage = ({
                     )}
                   </Box>
                 </Box>
-    
+
                 <Box
                   bg="white"
                   borderRadius="20px"
@@ -458,6 +465,7 @@ const PartnerPage = ({
                     participant={selectedParticipant}
                     userType="partner"
                     opportunityId={opportunityId}
+                    onParticipantUpdate={updateSelectedParticipant}
                   />
                 </Box>
               </Box>

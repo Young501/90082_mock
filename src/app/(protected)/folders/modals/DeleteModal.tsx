@@ -1,6 +1,7 @@
 import React from "react";
-import { Box, Text, Button, VStack } from "@chakra-ui/react";
+import { Box, Text, VStack } from "@chakra-ui/react";
 import Image from "next/image";
+import { Button } from "@/components/ui/Button";
 
 export const DeleteModal = ({
   isOpen,
@@ -78,29 +79,14 @@ export const DeleteModal = ({
           </Text>
 
           <Box display="flex" gap={4} justifyContent="flex-end">
-            {/* <Button
-              bg="transparent"
-              color="#000000"
-              borderRadius="8px"
-              h="40px"
-              fontSize="14px"
-              fontWeight="600"
-              onClick={onClose}
-              border="1px solid #000000"
-              px={6}
-            >
-              Cancel
-            </Button> */}
             <Button
-              bg="#DC2626"
-              color="white"
+              variant="student"
               borderRadius="8px"
               h="40px"
               fontSize="14px"
               fontWeight="600"
               onClick={onDelete}
               px={6}
-              _hover={{ bg: "#B91C1C" }}
             >
               Delete
             </Button>

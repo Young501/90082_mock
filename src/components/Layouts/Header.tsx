@@ -336,7 +336,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             top={0}
             left={0}
             right={0}
-            zIndex={1000}
+            zIndex={9999}
             width="100%"
             maxHeight="126px"
           >

@@ -6,7 +6,6 @@ import {
   Text,
   Card,
   Avatar,
-  Button,
   Heading,
 } from "@chakra-ui/react";
 import { StudentProfile } from "@/types/discovery";
@@ -14,6 +13,7 @@ import Image from "next/image";
 import { FullProfileCard } from "./FullProfileCard";
 import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
 import { DeleteModal } from "../../folders/modals/DeleteModal";
+import { Button } from "@/components/ui/Button";
 
 interface StudentCardProps {
   student: StudentProfile;
@@ -150,7 +150,7 @@ export function StudentCard({
           w="full"
           h="full"
         >
-          <Box display="flex" flexDirection="column" gap={4} flex="1">
+          <Box display="flex" flexDirection="column" justifyContent="space-between" flex="1">
             <Box
               display="flex"
               flexDirection="row"
@@ -162,7 +162,7 @@ export function StudentCard({
                 w="130px"
                 h="130px"
                 border="6px solid #DC2626"
-                borderRadius="50%"
+                borderRadius="full"
               >
                 <Avatar.Fallback
                   name={student.first_name + " " + student.last_name}
@@ -174,8 +174,6 @@ export function StudentCard({
                 {getProfileImage() && (
                   <Avatar.Image
                     src={getProfileImage() || ""}
-                    w="124px"
-                    h="124px"
                   />
                 )}
               </Avatar.Root>
@@ -201,7 +199,7 @@ export function StudentCard({
                   </Text>
                 </Box>
 
-                <Box display="flex" flexDirection="column" gap={2}>
+                <Box display="flex" flexDirection="column" gap={2} mb={4}>
                   {student.course_name && (
                     <HStack gap={2} align="start">
                       <Box
@@ -341,14 +339,10 @@ export function StudentCard({
           </Box>
 
           <Button
+            variant="student"
             w="full"
-            bg="#DC2626"
-            color="white"
-            borderRadius="xl"
             py={6}
-            fontSize="14px"
-            fontWeight="bold"
-            mt={4}
+            mt={4}  
             onClick={handleViewFullProfile}
             disabled={!student.id || disableViewFullProfile}
           >

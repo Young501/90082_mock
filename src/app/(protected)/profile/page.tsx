@@ -274,9 +274,12 @@ const Profile = () => {
         const response = await profilePictureUpload.mutateAsync(
           allData.profile_picture_url
         );
-        if (response?.profile_picture_url) {
+        if (response?.profile_picture_url && userType === "student") {
           setUpdatedProfilePicture(response.profile_picture_url);
           setUserProfilePictureUrl(response.profile_picture_url);
+        } else if (response?.logo_url && userType === "partner") {
+          setUpdatedProfilePicture(response.logo_url);
+          setUserProfilePictureUrl(response.logo_url);
         }
       }
       if (allData.resume_url instanceof File) {
@@ -340,8 +343,7 @@ const Profile = () => {
                 <Avatar.Image
                   src={
                     updatedProfilePicture ||
-                    getUserProfilePictureUrl() ||
-                    getLogoUrl() ||
+                    (userType === "student" ? getUserProfilePictureUrl() : getLogoUrl()) ||
                     ""
                   }
                 />

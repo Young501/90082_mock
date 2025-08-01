@@ -2,11 +2,11 @@ import React from "react";
 import {
   Box,
   VStack,
-  Button,
   Input,
   Textarea,
   Text,
   Heading,
+  Button,
   HStack,
 } from "@chakra-ui/react";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -99,15 +99,11 @@ export function ContactPage({
         flexDirection="column"
       >
 
-        <Box display="flex" w="full" justifyContent={{ base: "start", lg: "space-between" }} flexDirection="row" alignItems="center" mb={6}>
-            <Button variant="ghost"  onClick={onBack} p={0} alignSelf="flex-start">
-              <Image src="/assets/arrowbackicon.svg" alt="Back" width={12} height={12} />
-            </Button>
-          <Heading size="lg" color="#282F68">
+            
+          <Heading size="lg" color="#282F68" mb={6} textAlign="center">
             Contact {recipientName}
           </Heading>
-          <Box w="40px" display={{ base: "none", lg: "block" }} />
-        </Box>
+
 
         <Box flex={1} display="flex" justifyContent="center" alignItems="flex-start">
           <Box w="full" >
@@ -171,10 +167,19 @@ export function ContactPage({
                 </Box>
 
                 <Box display="flex" gap={3} justifyContent="flex-end" mt={6}>
-                  <Button variant="outline" onClick={onBack}>
+                  <Button variant="outline" onClick={onBack} 
+                    _active={{
+                      transform: "scale(0.98)",
+                    }}>
                     Cancel
                   </Button>
                   <Button
+                    _hover={{
+                      bg: "#2CA9DF/80",
+                    }}
+                    _active={{
+                      transform: "scale(0.98)",
+                    }}
                     type="submit"
                     bg="#2CA9DF"
                     color="white"

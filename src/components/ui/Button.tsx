@@ -4,7 +4,7 @@ import { Button as ChakraButton, ButtonProps, Spinner } from "@chakra-ui/react";
 import { ReactNode } from "react";
 
 interface CustomButtonProps extends Omit<ButtonProps, "variant"> {
-  variant?: "primary" | "secondary" | "ghost";
+  variant?: "primary" | "secondary" | "ghost" | "student" | "partner";
   isLoading?: boolean;
   children: ReactNode;
 }
@@ -58,6 +58,42 @@ export function Button({
       fontWeight: "400",
       _hover: {
         textDecoration: "underline",
+      },
+    },
+    student: {
+      bg: "#DC2626",
+      color: "white",
+      borderRadius: "xl",
+      fontSize: "14px",
+      fontWeight: "bold",
+      _hover: {
+        bg: "#DC2626/80",
+      },
+      _active: {
+        transform: "scale(0.98)",
+      },
+      _disabled: {
+        bg: "#DC2626/60",
+        opacity: 0.6,
+        cursor: "not-allowed",
+      },
+    },
+    partner: {
+      bg: "#22C45E",
+      color: "white",
+      borderRadius: "xl",
+      fontSize: "14px",
+      fontWeight: "bold",
+      _hover: {
+        bg: "#22C45E/80",
+      },
+      _active: {
+        transform: "scale(0.98)",
+      },
+      _disabled: {
+        bg: "#22C45E/60",
+        opacity: 0.6,
+        cursor: "not-allowed",
       },
     },
   };

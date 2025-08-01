@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   VStack,
@@ -6,7 +6,6 @@ import {
   Text,
   Avatar,
   Separator,
-  Button,
 } from "@chakra-ui/react";
 import { Participant } from "@/types/dashboard";
 import { getInitial } from "@/utils/getInitials";
@@ -14,20 +13,27 @@ import { formatDate } from "@/utils/formatDate";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useUnmatch } from "@/services/manage";
+import { MatchConfirmationModal } from "@/components/ui";
+import { Button } from "@/components/ui/Button";
 
 interface UserMatchingStatusProps {
   participant: Participant | null;
   userType: "student" | "partner";
   opportunityId: string;
+  onParticipantUpdate?: (updatedParticipant: Participant) => void;
 }
 
 const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
   participant,
   userType,
   opportunityId,
+  onParticipantUpdate,
 }) => {
   const router = useRouter();
   const unmatchMutation = useUnmatch(opportunityId.toString(), participant?.match_info?.matched_with?.match_id?.toString() || " ");
+  
+  const [isUnmatching, setIsUnmatching] = useState(false);
+  
   const getBorderColor = () => {
     return userType === "student" ? "#DC2626" : "#089C3F";
   };
@@ -63,8 +69,31 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
 
   const handleUnmatch = () => {
     if (participant?.match_info?.matched_with) {
-      unmatchMutation.mutate();
+      unmatchMutation.mutate(undefined, {
+        onSuccess: () => {
+          if (participant && onParticipantUpdate) {
+            const updatedParticipant = {
+              ...participant,
+              match_info: {
+                ...participant.match_info,
+                is_matched: false,
+                matched_with: null,
+              },
+            };
+            onParticipantUpdate(updatedParticipant);
+          }
+          setIsUnmatching(false);
+        },
+      });
     }
+  };
+
+  const handleUnmatchClick = () => {
+    setIsUnmatching(true);
+  };
+
+  const handleCloseUnmatchModal = () => {
+    setIsUnmatching(false);
   };
 
   if (!participant) {
@@ -135,7 +164,7 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
               />
               {participant.image_url && (
                 <Avatar.Image
-                  src={participant.image_url || ""}
+                  src={participant.image_url}
                   w="85px"
                   h="85px"
                 />
@@ -330,7 +359,7 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
           <Box>
             {participant.match_info?.is_matched ? (
               <HStack
-                align="stretch"
+                align="center"
                 gap={3}
                 w="100%"
                 justifyContent="space-between"
@@ -345,15 +374,14 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                   {userType === "student" ? "student" : "organisation"}?
                 </Text>
                 <Button
-                  bg="#D9D9D9"
-                  color="#000000"
+                  variant="secondary"
                   fontSize={{ base: "20px", lg: "27px" }}
                   fontWeight="600"
                   borderRadius="18px"
                   py={{ base: "10px", lg: "20px" }}
                   px={{ base: "20px", lg: "40px" }}
                   maxW={{ base: "100%", lg: "200px" }}
-                  onClick={() => handleUnmatch()}
+                  onClick={handleUnmatchClick}
                 >
                   Unmatch
                 </Button>
@@ -375,14 +403,8 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                   {userType === "student" ? "student" : "organisation"}?
                 </Text>
                 <Button
-                  bg="#002157"
+                  variant="primary"
                   color="white"
-                  _hover={{ bg: "#003580" }}
-                  _active={{
-                    bg: "#000E2A",
-                    transform: "scale(0.95)",
-                  }}
-                  transition="all 0.2s"
                   fontSize={{ base: "20px", lg: "27px" }}
                   fontWeight="600"
                   borderRadius="18px"
@@ -405,6 +427,16 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
           </Box>
         )}
       </VStack>
+
+      <MatchConfirmationModal
+        isOpen={isUnmatching}
+        onClose={handleCloseUnmatchModal}
+        onConfirm={handleUnmatch}
+        title="Confirm Unmatch"
+        message={`Are you sure you want to unmatch this student from ${getMatchedWithName()}?`}
+        confirmText="Unmatch"
+        isLoading={unmatchMutation.isPending}
+      />
     </Box>
   );
 };
