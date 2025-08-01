@@ -4,7 +4,6 @@ import {
   VStack,
   HStack,
   Text,
-  Button,
   Heading,
   Avatar,
   Grid,
@@ -17,8 +16,11 @@ import { StudentProfile, PartnerProfile } from "@/types/discovery";
 import { useStudentProfile, usePartnerProfile } from "@/services/shared";
 import Image from "next/image";
 import BadgeSection from "@/components/BadgeSection";
-import { ContactModal } from "@/components/ui/ContactModal";
+import { ContactPage } from "@/components/ui/ContactPage";
 import { Globe } from "lucide-react";
+import { useAuthStore } from "@/store/authStore";
+import { Button } from "@/components/ui/Button";
+
 
 interface FullProfileCardProps {
   profileId: string;
@@ -41,6 +43,7 @@ export function FullProfileCard({
 }: FullProfileCardProps) {
   const shouldFetchStudent = profileType === "student" && !studentProfile;
   const shouldFetchPartner = profileType === "partner" && !partnerProfile;
+  const { userProfile } = useAuthStore();
 
   const {
     data: studentData,
@@ -158,6 +161,7 @@ export function FullProfileCard({
           <RenderStudentDetails
             student={profile as StudentProfile}
             disableBtns={disableBtns}
+            userProfile={userProfile as PartnerProfile}
           />
         ) : (
           <RenderPartnerDetails
@@ -190,8 +194,9 @@ export function FullProfileCard({
           w="90%"
           boxShadow="0px 5.92px 11.84px 5.92px #00000040"
           maxW="1000px"
-          maxH="90vh"
+          maxH={{base:"85vh", lg:"75vh"}}
           overflow="auto"
+          mt={{base:"80px", lg:"128px"}}
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
@@ -258,12 +263,13 @@ export function FullProfileCard({
 const RenderStudentDetails = ({
   student,
   disableBtns,
+  userProfile,
 }: {
   student: StudentProfile;
   disableBtns: boolean;
+  userProfile: PartnerProfile;
 }) => {
   const [showContactModal, setShowContactModal] = useState(false);
-
   return (
     <Box
       w="full"
@@ -396,17 +402,12 @@ const RenderStudentDetails = ({
           alignSelf={{ base: "center", lg: "end" }}
         >
           <Button
-            bg={"#DC2626"}
-            color="white"
+            variant="student"
+            borderRadius="40px"
             size="lg"
             px={8}
-            borderRadius="40px"
-            fontSize="14px"
             w="100%"
             boxShadow="0px 3.34px 3.34px 0px #00000040"
-            _hover={{
-              bg: "#B91C1C",
-            }}
             onClick={() => {
               if (student.resume_url) {
                 window.open(student.resume_url, "_blank");
@@ -417,15 +418,12 @@ const RenderStudentDetails = ({
             View CV
           </Button>
           <Button
+            variant="student"
+            borderRadius="40px"
             size="lg"
             px={8}
-            bg={"#DC2626"}
-            borderRadius="40px"
-            borderColor={"#DC2626"}
-            color="white"
-            fontSize="14px"
-            boxShadow="0px 3.34px 3.34px 0px #00000040"
             w="100%"
+            boxShadow="0px 3.34px 3.34px 0px #00000040"
             onClick={() => setShowContactModal(true)}
             disabled={disableBtns}
           >
@@ -554,11 +552,12 @@ const RenderStudentDetails = ({
       </Box>
 
       {showContactModal && student.email && (
-        <ContactModal
-          isOpen={showContactModal}
-          onClose={() => setShowContactModal(false)}
+        <ContactPage
           recipientEmail={student.email}
           recipientName={`${student.first_name} ${student.last_name}`}
+          profileType="student"
+          companyName={userProfile?.company_name}
+          onBack={() => setShowContactModal(false)}
         />
       )}
     </Box>
@@ -899,8 +898,7 @@ const RenderPartnerDetails = ({
               </Link>
             </HStack>
             <Button
-              bg="#22C45E"
-              color="white"
+              variant="partner"
               borderRadius="40px"
               py={2}
               px={4}
@@ -920,13 +918,13 @@ const RenderPartnerDetails = ({
       </Box>
 
       {showContactModal && partner.email && (
-        <ContactModal
-          isOpen={showContactModal}
-          onClose={() => setShowContactModal(false)}
+        <ContactPage
           recipientEmail={partner.email}
           recipientName={
             partner.company_name || `${partner.first_name} ${partner.last_name}`
           }
+          profileType="partner"
+          onBack={() => setShowContactModal(false)}
         />
       )}
     </Box>

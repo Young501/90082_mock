@@ -1,16 +1,19 @@
 import React, { useState } from "react";
-import { Box, Button, Text, VStack, Spinner } from "@chakra-ui/react";
+import { Box, Text, VStack, Spinner } from "@chakra-ui/react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { SelectField } from "@/components/fields/SelectField";
 import { useFolders, useAddMemberToFolder } from "@/services/folder";
 import { toast } from "react-toastify";
+import { Button } from "@/components/ui/Button";
 
 interface AddToFolderModalProps {
   isOpen: boolean;
   onClose: () => void;
   userId: string;
   userName: string;
+  onResetBackground?: () => void;
+  onAddToFolder?: () => void;
 }
 
 interface FormData {
@@ -22,6 +25,8 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
   onClose,
   userId,
   userName,
+  onResetBackground,
+  onAddToFolder,
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const { data: folders, isLoading: foldersLoading } = useFolders();
@@ -67,7 +72,7 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
       toast.success(
         `${userName} has been added to ${data.selectedFolders.length} folder${data.selectedFolders.length > 1 ? "s" : ""} `
       );
-      handleClose();
+      handleSuccessfulClose();
     } catch (error: any) {
       console.error(error.response);
       toast.error(error.response.data?.detail);
@@ -79,6 +84,17 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
   const handleClose = () => {
     reset();
     onClose();
+    if (onResetBackground) {
+      onResetBackground();
+    }
+  };
+
+  const handleSuccessfulClose = () => {
+    reset();
+    onClose();
+    if (onAddToFolder) {
+      onAddToFolder();
+    }
   };
 
   return (
@@ -152,33 +168,20 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
                 <Box display="flex" gap={4} justifyContent="flex-end" mt={4}>
                   <Button
                     type="submit"
-                    bg="#282F68"
-                    color="white"
-                    borderRadius="8px"
-                    h="40px"
                     fontSize="14px"
                     fontWeight="600"
+                    h="40px"
+                    variant="primary"
+                    color="white"
+                    borderRadius="8px"
                     loading={isAdding}
                     disabled={isAdding || folderNames.length === 0}
-                    maxW="150px"
+                    maxW="125px"
                     w="100%"
                   >
                     Add
                   </Button>
-                  {/* <Button
-                    bg="transparent"
-                    color="#000000"
-                    borderRadius="8px"
-                    h="40px"
-                    fontSize="14px"
-                    fontWeight="600"
-                    onClick={handleClose}
-                    maxW="150px"
-                    w="100%"
-                    border="1px solid #000000"
-                  >
-                    Cancel
-                  </Button> */}
+                  
                 </Box>
               </VStack>
             </form>

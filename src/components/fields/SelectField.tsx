@@ -1,6 +1,6 @@
-import { Portal, Select, createListCollection, Field } from "@chakra-ui/react";
-import { useMemo } from "react";
-import { Control, Controller } from "react-hook-form";
+import { Portal, Select, createListCollection, Field, Input, VStack } from "@chakra-ui/react"
+import { useMemo, useState } from "react"
+import { Control, Controller } from "react-hook-form"
 
 interface SelectFieldProps {
   name: string;
@@ -25,6 +25,7 @@ export const SelectField = ({
   required,
   maxSelection,
 }: SelectFieldProps) => {
+  const [filter, setFilter] = useState("")
   const optionItems = useMemo(
     () =>
       options.map((option) => ({
@@ -32,20 +33,20 @@ export const SelectField = ({
         value: option,
       })),
     [options]
-  );
-
+  )
+  const filteredItems = useMemo(() => {
+    if (!filter) return optionItems
+    const lower = filter.toLowerCase()
+    return optionItems.filter((item) => item.label.toLowerCase().includes(lower))
+  }, [optionItems, filter])
   const collection = useMemo(
     () =>
       createListCollection({
-        items: optionItems,
+        items: filteredItems,
       }),
-    [optionItems]
-  );
-
-  const defaultPlaceholder = multiple
-    ? "Select option(s)"
-    : "-- Select an option --";
-
+    [filteredItems]
+  )
+  const defaultPlaceholder = multiple ? "Select option(s)" : "-- Select an option --"
   return (
     <Field.Root invalid={!!error}>
       {label && (
@@ -64,22 +65,28 @@ export const SelectField = ({
             multiple={multiple}
             collection={collection}
             value={
-              multiple ? field.value || [] : field.value ? [field.value] : []
+              multiple
+                ? field.value || []
+                : field.value
+                ? [field.value]
+                : [""]
             }
             onValueChange={(details) => {
-              const newValue = multiple ? details.value : details.value[0];
-
-              field.onChange(newValue);
+              const newValue = multiple
+                ? details.value
+                : details.value.length > 0
+                ? details.value[0]
+                : ""
+              field.onChange(newValue)
             }}
+            onBlur={field.onBlur}
             width="100%"
             size="md"
           >
             <Select.HiddenSelect />
             <Select.Control>
               <Select.Trigger>
-                <Select.ValueText
-                  placeholder={placeholder || defaultPlaceholder}
-                />
+                <Select.ValueText placeholder={placeholder || defaultPlaceholder} />
               </Select.Trigger>
               <Select.IndicatorGroup>
                 <Select.Indicator />
@@ -88,12 +95,31 @@ export const SelectField = ({
             <Portal>
               <Select.Positioner>
                 <Select.Content>
-                  {optionItems.map((opt) => (
-                    <Select.Item item={opt} key={opt.value}>
-                      {opt.label}
-                      <Select.ItemIndicator />
-                    </Select.Item>
-                  ))}
+                  <VStack px={2} py={2} gap={2} align="stretch">
+                    <Input
+                      autoFocus
+                      placeholder="Type to filter..."
+                      value={filter}
+                      onChange={(e) => setFilter(e.target.value)}
+                      size="sm"
+                      borderRadius="md"
+                      bg="gray.50"
+                      onKeyDown={(e) => {
+                        if (e.key === " ") {
+                          e.stopPropagation()
+                        }
+                      }}
+                    />
+                    {filteredItems.length === 0 && (
+                      <span style={{ color: '#888', padding: '8px' }}>No options</span>
+                    )}
+                    {filteredItems.map((opt) => (
+                      <Select.Item item={opt} key={opt.value}>
+                        {opt.label}
+                        <Select.ItemIndicator />
+                      </Select.Item>
+                    ))}
+                  </VStack>
                 </Select.Content>
               </Select.Positioner>
             </Portal>
@@ -102,5 +128,5 @@ export const SelectField = ({
       />
       {error && <Field.ErrorText>{error}</Field.ErrorText>}
     </Field.Root>
-  );
-};
+  )
+}

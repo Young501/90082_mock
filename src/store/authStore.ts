@@ -93,7 +93,7 @@ export const useAuthStore = create<AuthState>()(
       setLogoUrl: (url: string) => {
         set({ logoUrl: url });
       },
-      getLogoUrl: () => get().logoUrl,
+      getLogoUrl: () => get().logoUrl || get().userProfile?.logo_url || null,
 
       setUserProfile: (profile: UserProfile) => {
         set({ userProfile: profile });
@@ -155,3 +155,6 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
+
+
+

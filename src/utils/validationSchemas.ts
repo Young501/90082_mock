@@ -1,29 +1,59 @@
 import * as yup from "yup";
 import { Question } from "@/types/onboarding";
 
+type ParentChainItem = { field: string; value: any };
+
 export const createPageSchema = (
   questions: Question[],
   isProfilePage: boolean = false
 ) => {
-  const shape: Record<string, any> = {};
+  const shape: Record<string, any> = {}
+  const fieldParentChains: Record<string, { question: Question; chains: ParentChainItem[][] }> = {}
 
-  const addQuestionToSchema = (question: Question) => {
-    let fieldSchema: any;
+  const addQuestionToSchema = (question: Question, parentChain: ParentChainItem[] = []) => {
+    if (!fieldParentChains[question.field]) {
+      fieldParentChains[question.field] = { question, chains: [] }
+    }
+    fieldParentChains[question.field].chains.push([...parentChain])
 
-    if (question.type === "text" || question.type === "location") {
-      fieldSchema = yup.string();
+    if (question.followup_question) {
+      Object.entries(question.followup_question).forEach(([parentValue, followupQuestion]) => {
+        addQuestionToSchema(followupQuestion, [...parentChain, { field: question.field, value: parentValue }])
+      })
+    }
+  }
+
+  const processAllQuestions = (questions: Question[]) => {
+    questions.forEach((question) => {
+      addQuestionToSchema(question)
+    })
+  }
+
+  processAllQuestions(questions)
+
+  Object.entries(fieldParentChains).forEach(([fieldName, { question, chains }]) => {
+    let fieldSchema: any
+    if (question.type === "textarea") {
+      fieldSchema = yup.string()
+    } else if (question.type === "text" || question.type === "location") {
+      fieldSchema = yup.string()
     } else if (question.type === "number") {
-      fieldSchema = yup.number().typeError("Must be a number");
+      fieldSchema = yup.number().typeError("Must be a number")
     } else if (question.type === "range") {
       fieldSchema = yup
         .number()
         .typeError("Must be a number")
         .min(question.min || 0, `Value must be at least ${question.min}`)
-        .max(question.max || 200, `Value must be at most ${question.max}`);
+        .max(question.max || 200, `Value must be at most ${question.max}`)
     } else if (question.type === "url") {
-      fieldSchema = yup.string().url("Invalid URL format");
+      fieldSchema = yup.string().url("Invalid URL format")
     } else if (question.type === "select") {
-      fieldSchema = yup.string();
+      fieldSchema = yup.string().transform((value: any) => {
+        if (value === "" || value === null || value === undefined) {
+          return undefined
+        }
+        return value
+      })
     } else if (question.type === "multi-select") {
       fieldSchema = yup
         .array()
@@ -34,29 +64,29 @@ export const createPageSchema = (
         )
         .transform((value: any) => {
           if (Array.isArray(value) && value.length === 0) {
-            return undefined;
+            return undefined
           }
-          return value;
-        });
+          return value
+        })
     } else if (question.type === "tag-select") {
       fieldSchema = yup
         .array()
         .of(yup.string())
         .transform((value: any) => {
           if (Array.isArray(value) && value.length === 0) {
-            return undefined;
+            return undefined
           }
-          return value;
-        });
+          return value
+        })
     } else if (question.type === "checkbox-group") {
-      const maxSelections = question.max_selection;
+      const maxSelections = question.max_selection
       if (maxSelections === 1) {
         fieldSchema = yup.string().transform((value: any) => {
           if (value === "" || value === null || value === undefined) {
-            return undefined;
+            return undefined
           }
-          return value;
-        });
+          return value
+        })
       } else {
         fieldSchema = yup
           .array()
@@ -67,10 +97,10 @@ export const createPageSchema = (
           )
           .transform((value: any) => {
             if (Array.isArray(value) && value.length === 0) {
-              return undefined;
+              return undefined
             }
-            return value;
-          });
+            return value
+          })
       }
     } else if (question.type === "file") {
       fieldSchema = yup
@@ -78,22 +108,22 @@ export const createPageSchema = (
         .test(
           "fileOrUrl",
           "Invalid file format. Only URL or file is acceptable.",
-          (value) => {
-            if (!value) return true;
-            if (typeof value === "string") return true;
-            if (value instanceof File) return true;
-            return false;
+          (value: any) => {
+            if (!value) return true
+            if (typeof value === "string") return true
+            if (typeof File !== "undefined" && value instanceof File) return true
+            return false
           }
-        );
+        )
     } else if (question.type === "card-select") {
-      const maxSelections = question.max_selection;
+      const maxSelections = question.max_selection
       if (maxSelections === 1) {
         fieldSchema = yup.string().transform((value: any) => {
           if (value === "" || value === null || value === undefined) {
-            return undefined;
+            return undefined
           }
-          return value;
-        });
+          return value
+        })
       } else {
         fieldSchema = yup
           .array()
@@ -104,80 +134,98 @@ export const createPageSchema = (
           )
           .transform((value: any) => {
             if (Array.isArray(value) && value.length === 0) {
-              return undefined;
+              return undefined
             }
-            return value;
-          });
+            return value
+          })
       }
     } else {
-      fieldSchema = yup.string();
+      fieldSchema = yup.string()
     }
 
-    if (question.required) {
+    if (chains.length > 0 && question.required) {
+      const allParentFields = new Set<string>()
+      chains.forEach(chain => {
+        chain.forEach(item => allParentFields.add(item.field))
+      })
+      const whenFields = Array.from(allParentFields)
+
+      const whenCondition = (...parentValues: any[]) => {
+        return chains.some(chain => {
+          return chain.every((item, index) => {
+            const fieldIndex = whenFields.indexOf(item.field)
+            return parentValues[fieldIndex] === item.value
+          })
+        })
+      }
+
+      fieldSchema = fieldSchema.when(whenFields, {
+        is: whenCondition,
+        then: (schema: any) => {
+          if (
+            question.type === "multi-select" ||
+            question.type === "tag-select" ||
+            (question.type === "checkbox-group" && question.max_selection !== 1) ||
+            (question.type === "card-select" && question.max_selection !== 1)
+          ) {
+            return schema.required("This field is required").min(1, "This field is required").test("not-empty-array", "This field is required", (value: any) => Array.isArray(value) && value.length > 0)
+          } else if (question.type === "range") {
+            return schema.required("This field is required").test("is-range-required", "This field is required", (value: any) => typeof value === "number" && !isNaN(value))
+          } else if (question.type === "file") {
+            if (!isProfilePage) {
+              return schema.required("This field is required")
+            }
+          } else {
+            return schema.required("This field is required")
+          }
+          return schema
+        },
+        otherwise: (schema: any) => schema.notRequired(),
+      })
+    } else if (question.required) {
       if (
         question.type === "multi-select" ||
         question.type === "tag-select" ||
         (question.type === "checkbox-group" && question.max_selection !== 1) ||
         (question.type === "card-select" && question.max_selection !== 1)
       ) {
-        fieldSchema = fieldSchema
-          .required("This field is required")
-          .min(1, "This field is required")
-          .test("not-empty-array", "This field is required", (value: any) => {
-            return Array.isArray(value) && value.length > 0;
-          });
+        fieldSchema = fieldSchema.required("This field is required").min(1, "This field is required").test("not-empty-array", "This field is required", (value: any) => Array.isArray(value) && value.length > 0)
       } else if (question.type === "range") {
-        fieldSchema = fieldSchema
-          .required("This field is required")
-          .test("is-range-required", "This field is required", (value: any) => {
-            return typeof value === "number" && !isNaN(value);
-          });
+        fieldSchema = fieldSchema.required("This field is required").test("is-range-required", "This field is required", (value: any) => typeof value === "number" && !isNaN(value))
       } else if (question.type === "file") {
-        if (question.required && !isProfilePage) {
-          fieldSchema = fieldSchema.required("This field is required");
+        if (!isProfilePage) {
+          fieldSchema = fieldSchema.required("This field is required")
         }
       } else {
-        fieldSchema = fieldSchema.required("This field is required");
+        fieldSchema = fieldSchema.required("This field is required")
       }
     }
 
-    shape[question.field] = fieldSchema;
+    shape[fieldName] = fieldSchema
+  })
 
-    if (question.followup_question) {
-      Object.values(question.followup_question).forEach((followupQuestion) => {
-        addQuestionToSchema(followupQuestion);
-      });
-    }
-  };
-
-  const processAllQuestions = (questions: Question[]) => {
-    questions.forEach((question) => {
-      addQuestionToSchema(question);
-    });
-  };
-
-  processAllQuestions(questions);
-
-  return yup.object().shape(shape);
-};
+  return yup.object().shape(shape)
+}
 
 export const authValidationSchema = yup.object({
   email: yup
     .string()
     .required("Email is required")
-    .email("Invalid email format"),
+    .email("Invalid email format")
+    .matches(/^[^@]+@[^@]+\.[^@]+$/, "Invalid email format"),
   password: yup
     .string()
     .required("Password is required")
     .min(8, "Password must be at least 8 characters"),
-});
+})
 
 export const resetPasswordValidationSchema = yup.object({
   email: yup
     .string()
     .required("Email is required")
-    .email("Invalid email format"),
-});
+    .email("Invalid email format")
+    .matches(/^[^@]+@[^@]+\.[^@]+$/, "Invalid email format"),
+})
 
 export const passwordResetFormSchema = yup.object({
   new_password: yup
@@ -188,7 +236,7 @@ export const passwordResetFormSchema = yup.object({
     .string()
     .oneOf([yup.ref("new_password")], "Passwords do not match")
     .required("Please confirm password"),
-});
+})
 
 export const createFolderSchema = yup.object({
   name: yup
@@ -199,4 +247,26 @@ export const createFolderSchema = yup.object({
     .string()
     .required("Description is required")
     .min(1, "Description cannot be empty"),
+});
+
+export const changePasswordSchema = yup.object({
+  old_password: yup.string().required("Old password is required"),
+  new_password: yup.string().min(8, "Password must be at least 8 characters").required("New password is required"),
+  confirm_new_password: yup.string().oneOf([yup.ref("new_password")], "Passwords do not match").required("Please confirm new password"),
+});
+
+export const emailContactValidationSchema = yup.object().shape({
+  to: yup
+    .string()
+    .email("Invalid email")
+    .required("Recipient email is required"),
+  reply_to: yup
+    .string()
+    .email("Invalid email")
+    .required("Your email is required"),
+  subject: yup.string().default(""),
+  message: yup
+    .string()
+    .required("Message is required")
+    .min(1, "Message cannot be empty"),
 });

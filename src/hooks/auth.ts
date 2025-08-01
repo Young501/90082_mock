@@ -12,26 +12,30 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { UserProfile } from "@/types/shared";
 
 export const checkOnboardingStatus = async ({
   user,
   router,
   redirectOnSuccess = true,
+  setUserProfile,
 }: {
   user: User;
   router: AppRouterInstance;
   redirectOnSuccess?: boolean;
+  setUserProfile: (userProfile: UserProfile) => void;
 }) => {
-  console.log("user", user);
+  // console.log("user", user);
   if (!user?.user_types?.[0]) {
     return;
   }
 
+
   const userType = user.user_types[0];
   const isCoordinator = userType === "coordinator";
-  console.log("isCoordinator", isCoordinator);
-  console.log("userType", userType);
-  console.log("user", user.user_types);
+  // console.log("isCoordinator", isCoordinator);
+  // console.log("userType", userType);
+  // console.log("user", user.user_types);
 
   if (isCoordinator) {
     if (redirectOnSuccess) {
@@ -45,7 +49,7 @@ export const checkOnboardingStatus = async ({
     const response = await apiRequest({
       endpoint: API_ENDPOINTS.USER_PROFILE(userType),
     });
-
+    setUserProfile(response);
     if (redirectOnSuccess) {
       router.push("/discover/");
     }
@@ -74,7 +78,7 @@ const fetchCoordinatorOpportunities = async () => {
 
 export const useAuth = () => {
   const router = useRouter();
-  const { setAuthData, user } = useAuthStore();
+  const { setAuthData, user, setUserProfile } = useAuthStore();
   const queryClient = useQueryClient();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -94,6 +98,7 @@ export const useAuth = () => {
       queryClient.invalidateQueries({ queryKey: ["accepted-opportunities"] });
       checkOnboardingStatus({
         user: response.user,
+        setUserProfile: setUserProfile,
         router,
       });
     },
@@ -194,6 +199,46 @@ export const useAuth = () => {
     },
   });
 
+  const changePasswordMutation = useMutation({
+    mutationFn: async (data: { old_password: string; new_password: string }) => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.CHANGE_PASSWORD,
+        body: {
+          old_password: data.old_password,
+          new_password: data.new_password,
+        },
+      });
+    },
+    onSuccess: (response) => {
+      const successMessage = getSuccessMessage(
+        response,
+        "Password changed successfully"
+      );
+      toast.success(successMessage);
+    },
+    onError: (error: any) => {
+      const errorMessage = getErrorMessage(error, "Failed to change password");
+      toast.error(errorMessage);
+      setErrorMsg(errorMessage);
+    },
+  });
+
+  const handleChangePassword = async (data: {
+    old_password: string;
+    new_password: string;
+    callback?: () => void;
+  }) => {
+    try {
+      await changePasswordMutation.mutateAsync({
+        old_password: data.old_password,
+        new_password: data.new_password,
+      });
+      data.callback?.();
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await logoutMutation.mutateAsync();
@@ -291,6 +336,8 @@ export const useAuth = () => {
     passwordResetConfirmError: passwordResetConfirmMutation.error,
     user,
     errorMsg,
+    changePasswordMutation,
+    handleChangePassword,
   };
 };
 

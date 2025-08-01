@@ -1,17 +1,20 @@
 import React from "react";
-import { Box, Text, Button, VStack } from "@chakra-ui/react";
+import { Box, Text, VStack } from "@chakra-ui/react";
 import Image from "next/image";
+import { Button } from "@/components/ui/Button";
 
 export const DeleteModal = ({
   isOpen,
   onClose,
   onDelete,
   InFolder,
+  onResetBackground,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onDelete: () => void;
   InFolder: boolean;
+  onResetBackground?: () => void;
 }) => {
   if (!isOpen) return null;
 
@@ -27,7 +30,12 @@ export const DeleteModal = ({
       alignItems="center"
       justifyContent="center"
       zIndex={1000}
-      onClick={onClose}
+      onClick={() => {
+        onClose();
+        if (onResetBackground) {
+          onResetBackground();
+        }
+      }}
     >
       <Box
         bg="white"
@@ -45,7 +53,12 @@ export const DeleteModal = ({
           right={4}
           variant="ghost"
           size="sm"
-          onClick={onClose}
+          onClick={() => {
+            onClose();
+            if (onResetBackground) {
+              onResetBackground();
+            }
+          }}
         >
           <Image src="/assets/cancel.svg" alt="Close" width={25} height={25} />
         </Button>
@@ -66,29 +79,14 @@ export const DeleteModal = ({
           </Text>
 
           <Box display="flex" gap={4} justifyContent="flex-end">
-            {/* <Button
-              bg="transparent"
-              color="#000000"
-              borderRadius="8px"
-              h="40px"
-              fontSize="14px"
-              fontWeight="600"
-              onClick={onClose}
-              border="1px solid #000000"
-              px={6}
-            >
-              Cancel
-            </Button> */}
             <Button
-              bg="#DC2626"
-              color="white"
+              variant="student"
               borderRadius="8px"
               h="40px"
               fontSize="14px"
               fontWeight="600"
               onClick={onDelete}
               px={6}
-              _hover={{ bg: "#B91C1C" }}
             >
               Delete
             </Button>

@@ -4,7 +4,7 @@ import { Progress, Box, Heading, Text } from "@chakra-ui/react";
 import { Alert } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   useOnboardingSubmission,
   useProfilePictureUpload,
@@ -54,6 +54,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
     useState<boolean>(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false);
   const [formData, setFormData] = useState<Record<string, any>>({});
+  const [formKey, setFormKey] = useState<number>(0);
+  const [parentValues, setParentValues] = useState<Record<string, any>>({});
   const submissionMutation = useOnboardingSubmission(userType);
   const profilePictureUpload = useProfilePictureUpload();
   const resumeUpload = useResumeUpload(userType);
@@ -146,7 +148,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
       clearErrors(field);
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, 100));
   };
 
   const performValidationWithoutGhosts = async (): Promise<boolean> => {
@@ -160,8 +162,14 @@ export const OnboardingSteps = ({ userType }: Props) => {
       currentValues
     );
 
-    const isValid = await trigger(visibleFields);
-    return isValid;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    try {
+      const isValid = await trigger(visibleFields);
+      return isValid;
+    } catch (error) {
+      return false;
+    }
   };
 
   useEffect(() => {
@@ -172,8 +180,17 @@ export const OnboardingSteps = ({ userType }: Props) => {
     setHasAttemptedSubmit(false);
     setSubmitError("");
 
-    reset();
-  }, [currentPage?.id, getValues, reset]);
+    if (currentPage?.id) {
+      setTimeout(() => {
+        if (currentPage) {
+          const allPossibleFields = getAllPossibleFields(currentPage.questions);
+          allPossibleFields.forEach((field) => {
+            clearErrors(field);
+          });
+        }
+      }, 50);
+    }
+  }, [currentPage?.id, getValues, currentPage, clearErrors]);
 
   useEffect(() => {
     if (currentPage && Object.keys(formData).length > 0) {
@@ -183,11 +200,25 @@ export const OnboardingSteps = ({ userType }: Props) => {
             setValue(field, value, { shouldValidate: false });
           }
         });
-      }, 10);
+      }, 150);
 
       return () => clearTimeout(timeoutId);
     }
   }, [setValue, formData, currentPage]);
+
+  useEffect(() => {
+    if (formKey > 0 && Object.keys(formData).length > 0) {
+      const timeoutId = setTimeout(() => {
+        Object.entries(formData).forEach(([field, value]) => {
+          if (value !== undefined) {
+            setValue(field, value, { shouldValidate: false });
+          }
+        });
+      }, 50);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [formKey, setValue, formData]);
 
   useEffect(() => {
     if (hasAttemptedSubmit) {
@@ -195,6 +226,103 @@ export const OnboardingSteps = ({ userType }: Props) => {
       setShowValidationError(hasErrors);
     }
   }, [errors, hasAttemptedSubmit]);
+
+  const handleFieldUnregistered = useCallback((fieldName: string) => {
+    setTimeout(() => {
+      const currentValues = getValues();
+      const visibleFields = getCurrentVisibleFields(
+        currentPage?.questions || [],
+        currentValues
+      );
+      trigger(visibleFields);
+    }, 100);
+  }, [getValues, currentPage, trigger]);
+
+  const handleParentValueChange = useCallback((fieldName: string, newValue: any) => {
+    const currentParentValue = parentValues[fieldName];
+    if (currentParentValue !== newValue) {
+      setParentValues(prev => ({ ...prev, [fieldName]: newValue }));
+      
+      const currentValues = getValues();
+      const newFormData: Record<string, any> = {};
+      
+      Object.entries(currentValues).forEach(([key, value]) => {
+        if (key !== fieldName && !isFollowupOf(key, fieldName, currentPage?.questions || [])) {
+          newFormData[key] = value;
+        }
+      });
+      
+      newFormData[fieldName] = newValue;
+      
+      setFormData(newFormData);
+      
+      if (currentPage) {
+        const fieldsToClear = getFollowupFields(fieldName, currentPage.questions);
+        setTimeout(() => {
+          fieldsToClear.forEach((field) => {
+            unregister(field);
+            clearErrors(field);
+          });
+        }, 50);
+      }
+      
+      setTimeout(() => {
+        setFormKey(prev => prev + 1);
+        reset();
+      }, 100);
+    }
+  }, [parentValues, getValues, currentPage, unregister, clearErrors, reset]);
+
+  const isFollowupOf = useCallback((fieldName: string, parentField: string, questions: Question[]): boolean => {
+    for (const question of questions) {
+      if (question.field === parentField && question.followup_question) {
+        for (const followup of Object.values(question.followup_question)) {
+          if (followup.field === fieldName) {
+            return true;
+          }
+          if (followup.followup_question) {
+            for (const nestedFollowup of Object.values(followup.followup_question)) {
+              if (nestedFollowup.field === fieldName) {
+                return true;
+              }
+            }
+          }
+        }
+      }
+      if (question.followup_question) {
+        for (const followup of Object.values(question.followup_question)) {
+          if (isFollowupOf(fieldName, parentField, [followup])) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }, []);
+
+  const getFollowupFields = useCallback((parentField: string, questions: Question[]): string[] => {
+    const fields: string[] = [];
+    
+    for (const question of questions) {
+      if (question.field === parentField && question.followup_question) {
+        for (const followup of Object.values(question.followup_question)) {
+          fields.push(followup.field);
+          if (followup.followup_question) {
+            for (const nestedFollowup of Object.values(followup.followup_question)) {
+              fields.push(nestedFollowup.field);
+            }
+          }
+        }
+      }
+      if (question.followup_question) {
+        for (const followup of Object.values(question.followup_question)) {
+          fields.push(...getFollowupFields(parentField, [followup]));
+        }
+      }
+    }
+    
+    return fields;
+  }, []);
 
   const onNext = async () => {
     setHasAttemptedSubmit(true);
@@ -271,7 +399,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
           const results = await Promise.allSettled(uploadPromises);
           const failed = results.find((r) => r.status === "rejected");
           if (failed) {
-            console.error("File upload failed:", failed.reason);
             toast.error("Some files failed to upload");
           } else {
             results.forEach((result, index) => {
@@ -339,16 +466,18 @@ export const OnboardingSteps = ({ userType }: Props) => {
         </Text>
       </Box>
 
-      <Box as="form" onSubmit={handleFormSubmit} w="100%" maxW="588px">
+      <Box as="form" onSubmit={handleFormSubmit} w="100%" maxW="588px" key={formKey}>
         {currentPage.questions.map((question) => (
           <FieldRenderer
-            key={question.field}
+            key={`${formKey}-${question.field}`}
             question={question}
             register={register}
             control={control}
             errors={errors}
             clearErrors={clearErrors}
             unregister={unregister}
+            onFieldUnregistered={handleFieldUnregistered}
+            onParentValueChange={handleParentValueChange}
           />
         ))}
 
