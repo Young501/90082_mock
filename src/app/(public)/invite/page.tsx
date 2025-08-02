@@ -10,15 +10,16 @@ import { LoadingState } from "./LoadingState";
 import { useAuthStore } from "@/store";
 import { checkOnboardingStatus } from "@/hooks/auth";
 import { User } from "@/types/user";
-
+import { toast } from "react-toastify";
 
 function InviteContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
   const [countdown, setCountdown] = useState(3);
-  const { isAuthenticated, setInviteData, clearInviteData, user } = useAuthStore();
-  
+  const { isAuthenticated, setInviteData, clearInviteData, user } =
+    useAuthStore();
+
   const token = searchParams.get("token");
   const opportunityId = searchParams.get("opportunity");
 
@@ -30,14 +31,14 @@ function InviteContent() {
   } = useOpportunityDetail(opportunityId || "");
 
   useEffect(() => {
-    if (!token || !opportunityId) {
-      router.push("/login/?error=invalid_invite");
-      return;
-    }
-
-    if (!isAuthenticated) {
+    if (!isAuthenticated && token && opportunityId) {
       setInviteData(token, opportunityId);
-      router.push(`/login/?invite_token=${token}&opportunity_id=${opportunityId}`);
+      router.push(
+        `/user-type/?invite_token=${token}&opportunity_id=${opportunityId}`
+      );
+      toast.error(
+        "You need to be logged in to accept an invitation. Redirecting to signup..."
+      );
       return;
     }
   }, [token, opportunityId, isAuthenticated, router, setInviteData]);
@@ -65,7 +66,6 @@ function InviteContent() {
         router,
       });
     }
-
   }, [acceptInviteMutation.isSuccess, clearInviteData, user]);
 
   const handleAcceptInvite = useCallback(
