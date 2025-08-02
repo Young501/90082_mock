@@ -40,13 +40,13 @@ export default function OnboardingSuccessPage() {
     setImageUrl(logoUrl || userProfilePicture);
   }, [getUserType, getUserProfilePictureUrl, getLogoUrl]);
 
-  const handleProfileClick = () => {
+  const handleRouting = () => {
     const { token: inviteToken, opportunityId } = getInviteData();
-    
+
     if (inviteToken && opportunityId) {
       router.push(`/invite/?token=${inviteToken}&opportunity=${opportunityId}`);
     } else {
-      router.push("/profile/");
+      router.push("/discover/");
     }
   };
 
@@ -162,7 +162,7 @@ export default function OnboardingSuccessPage() {
             >
               <Button
                 variant="primary"
-                onClick={handleProfileClick}
+                onClick={handleRouting}
                 style={{
                   borderRadius: "50px",
                   maxWidth: "372x",
@@ -173,7 +173,9 @@ export default function OnboardingSuccessPage() {
               >
                 {(() => {
                   const { token: inviteToken, opportunityId } = getInviteData();
-                  return inviteToken && opportunityId ? "Accept Invitation" : "Go to My Profile";
+                  return inviteToken && opportunityId
+                    ? "Discover Opportunities"
+                    : "Go to Home";
                 })()}
               </Button>
             </Box>
