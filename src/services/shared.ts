@@ -108,26 +108,6 @@ export function useGeocode() {
   });
 }
 
-export function useUpdateLocation(userType: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (locationData: { formatted_address: string; latitude: string; longitude: string }) => {
-      return apiRequest({
-        endpoint: API_ENDPOINTS.PROFILE_UPDATE(userType),
-        body: {
-          location: locationData.formatted_address,
-          latitude: locationData.latitude,
-          longitude: locationData.longitude,
-        },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
-    },
-  });
-}
-
 export function useUserProfile(userType: string) {
   return useQuery({
     queryKey: ["user-profile", userType],
