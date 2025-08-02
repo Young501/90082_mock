@@ -427,5 +427,6 @@ export const useDiscovery = () => {
     totalPages,
     handlePageChange,
     handlePageSizeChange,
+    opportunityId: currentOpportunityId,
   };
 };

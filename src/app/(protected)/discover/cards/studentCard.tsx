@@ -24,6 +24,7 @@ interface StudentCardProps {
   onRemoveFromFolder?: () => void;
   disableViewFullProfile?: boolean;
   disableAddToFolder?: boolean;
+  opportunityId?: string;
 }
 
 export function StudentCard({
@@ -35,6 +36,7 @@ export function StudentCard({
   onRemoveFromFolder,
   disableViewFullProfile = false,
   disableAddToFolder = false,
+  opportunityId,
 }: StudentCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
@@ -355,6 +357,7 @@ export function StudentCard({
         <FullProfileCard
           profileId={student.id.toString()}
           profileType="student"
+          opportunityId={opportunityId || ""}
           onClose={() => setShowFullProfile(false)}
         />
       )}

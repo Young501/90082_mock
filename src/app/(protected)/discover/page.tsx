@@ -26,6 +26,7 @@ export default function DiscoveryPage() {
     totalPages,
     handlePageChange,
     handlePageSizeChange,
+    opportunityId,
   } = useDiscovery();
 
   const { control, watch, getValues } = form;
@@ -72,6 +73,7 @@ export default function DiscoveryPage() {
         pageSize={pageSize}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
+        opportunityId={opportunityId}
       />
     </Box>
   );
