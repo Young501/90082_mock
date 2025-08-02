@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Heading, VStack, Text, Flex, HStack } from "@chakra-ui/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { InputField, Button } from "@/components/ui";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
@@ -10,6 +10,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/auth";
 import { authValidationSchema } from "@/utils/validationSchemas";
+import { useAuthStore } from "@/store";
 import Link from "next/link";
 
 interface FormData {
@@ -19,8 +20,10 @@ interface FormData {
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { setInviteData } = useAuthStore();
 
   const {
     handleLogin,
@@ -47,6 +50,15 @@ export default function LoginPage() {
 
   const emailValue = watch("email");
   const passwordValue = watch("password");
+
+  useEffect(() => {
+    const inviteToken = searchParams.get("invite_token");
+    const opportunityId = searchParams.get("opportunity_id");
+    
+    if (inviteToken && opportunityId) {
+      setInviteData(inviteToken, opportunityId);
+    }
+  }, [searchParams, setInviteData]);
 
   const onSubmit = async (data: FormData) => {
     try {

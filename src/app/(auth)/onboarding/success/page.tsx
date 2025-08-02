@@ -25,6 +25,7 @@ export default function OnboardingSuccessPage() {
     getUserFirstName,
     getUserLastName,
     getUserProfilePictureUrl,
+    getInviteData,
   } = useAuthStore();
   const [userType, setUserType] = useState<string | undefined>("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -40,7 +41,13 @@ export default function OnboardingSuccessPage() {
   }, [getUserType, getUserProfilePictureUrl, getLogoUrl]);
 
   const handleProfileClick = () => {
-    router.push("/profile/");
+    const { token: inviteToken, opportunityId } = getInviteData();
+    
+    if (inviteToken && opportunityId) {
+      router.push(`/invite/?token=${inviteToken}&opportunity=${opportunityId}`);
+    } else {
+      router.push("/profile/");
+    }
   };
 
   return (
@@ -164,7 +171,10 @@ export default function OnboardingSuccessPage() {
                 bg="#282F68"
                 color="white"
               >
-                Go to My Profile
+                {(() => {
+                  const { token: inviteToken, opportunityId } = getInviteData();
+                  return inviteToken && opportunityId ? "Accept Invitation" : "Go to My Profile";
+                })()}
               </Button>
             </Box>
           </Box>

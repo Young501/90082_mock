@@ -3,8 +3,8 @@
 import { Box, Button, Flex, Heading, Text, VStack } from "@chakra-ui/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useAuthStore } from "@/store/authStore";
 import { UserTypeData } from "@/types/auth";
@@ -15,9 +15,19 @@ const MotionFlex = motion.create(Flex);
 
 export default function UserTypePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const { setSignupSelectedUserType } = useAuthStore();
+  const { setSignupSelectedUserType, setInviteData } = useAuthStore();
+
+  useEffect(() => {
+    const inviteToken = searchParams.get("invite_token");
+    const opportunityId = searchParams.get("opportunity_id");
+    
+    if (inviteToken && opportunityId) {
+      setInviteData(inviteToken, opportunityId);
+    }
+  }, [searchParams, setInviteData]);
 
   const handleSelect = async (typeKey: string) => {
     if (isAnimating) return;
@@ -41,7 +51,15 @@ export default function UserTypePage() {
 
   const handleLogin = (typeKey: string) => {
     setSignupSelectedUserType(typeKey);
-    router.push("/signup/");
+    
+    const inviteToken = searchParams.get("invite_token");
+    const opportunityId = searchParams.get("opportunity_id");
+    
+    if (inviteToken && opportunityId) {
+      router.push(`/signup/?invite_token=${inviteToken}&opportunity_id=${opportunityId}`);
+    } else {
+      router.push("/signup/");
+    }
   };
 
   const getExpandedContent = (type: UserTypeData) => {
@@ -121,7 +139,6 @@ export default function UserTypePage() {
   return (
     <Box
       display={["block", "block", "block", "flex"]}
-      // justifyContent={"center"}
       flexDirection={"column"}
       w="100%"
       h="inherit"
@@ -133,7 +150,6 @@ export default function UserTypePage() {
         direction={{ base: "column", lg: "row" }}
         align="center"
         justify="space-between"
-        // gap={{ base: 6, md: 8 }}
         flex="1"
       >
         <VStack

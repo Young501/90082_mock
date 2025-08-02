@@ -11,6 +11,8 @@ export interface AuthState {
   userProfile: UserProfile | null;
   userProfilePictureUrl: string | null;
   coordinatorOpportunities: string[];
+  inviteToken: string | null;
+  inviteOpportunityId: string | null;
   setAuthData: (token: string, user: User) => void;
   logout: () => void;
   setUserType: (userType: string) => void;
@@ -31,6 +33,9 @@ export interface AuthState {
   setUserProfilePictureUrl: (url: string) => void;
   setCoordinatorOpportunities: (opportunities: string[]) => void;
   getCoordinatorOpportunities: () => string[];
+  setInviteData: (token: string, opportunityId: string) => void;
+  getInviteData: () => { token: string | null; opportunityId: string | null };
+  clearInviteData: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -44,6 +49,8 @@ export const useAuthStore = create<AuthState>()(
       userProfile: null,
       userProfilePictureUrl: null,
       coordinatorOpportunities: [],
+      inviteToken: null,
+      inviteOpportunityId: null,
       setAuthData: (token: string, user: User) => {
         set({
           user,
@@ -62,6 +69,8 @@ export const useAuthStore = create<AuthState>()(
           userProfile: null,
           userProfilePictureUrl: null,
           coordinatorOpportunities: [],
+          inviteToken: null,
+          inviteOpportunityId: null,
         });
 
         if (typeof window !== "undefined") {
@@ -140,6 +149,19 @@ export const useAuthStore = create<AuthState>()(
       getCoordinatorOpportunities: () => {
         return get().coordinatorOpportunities;
       },
+
+      setInviteData: (token: string, opportunityId: string) => {
+        set({ inviteToken: token, inviteOpportunityId: opportunityId });
+      },
+
+      getInviteData: () => {
+        const { inviteToken, inviteOpportunityId } = get();
+        return { token: inviteToken, opportunityId: inviteOpportunityId };
+      },
+
+      clearInviteData: () => {
+        set({ inviteToken: null, inviteOpportunityId: null });
+      },
     }),
     {
       name: "auth-storage",
@@ -151,6 +173,8 @@ export const useAuthStore = create<AuthState>()(
         userProfile: state.userProfile,
         userProfilePictureUrl: state.userProfilePictureUrl,
         coordinatorOpportunities: state.coordinatorOpportunities,
+        inviteToken: state.inviteToken,
+        inviteOpportunityId: state.inviteOpportunityId,
       }),
     }
   )
