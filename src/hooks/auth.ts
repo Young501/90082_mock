@@ -30,7 +30,6 @@ export const checkOnboardingStatus = async ({
     return;
   }
 
-
   const userType = user.user_types[0];
   const isCoordinator = userType === "coordinator";
   // console.log("isCoordinator", isCoordinator);
@@ -53,9 +52,11 @@ export const checkOnboardingStatus = async ({
     if (redirectOnSuccess) {
       const { getInviteData } = useAuthStore.getState();
       const { token: inviteToken, opportunityId } = getInviteData();
-      
+
       if (inviteToken && opportunityId) {
-        router.push(`/invite/?token=${inviteToken}&opportunity=${opportunityId}`);
+        router.push(
+          `/invite/?token=${inviteToken}&opportunity=${opportunityId}`
+        );
       } else {
         router.push("/discover/");
       }
@@ -65,6 +66,7 @@ export const checkOnboardingStatus = async ({
       router.push("/onboarding/");
       return;
     }
+    console.error("Error checking onboarding status:", error);
     toast.error("Error checking onboarding status");
   }
 };
@@ -207,7 +209,10 @@ export const useAuth = () => {
   });
 
   const changePasswordMutation = useMutation({
-    mutationFn: async (data: { old_password: string; new_password: string }) => {
+    mutationFn: async (data: {
+      old_password: string;
+      new_password: string;
+    }) => {
       return apiRequest({
         endpoint: API_ENDPOINTS.CHANGE_PASSWORD,
         body: {
