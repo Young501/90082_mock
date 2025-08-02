@@ -15,6 +15,7 @@ import {
   SliderField,
   CardSelectField,
   TextAreaField,
+  GeocodeAutocompleteInput,
 } from "@/components/fields";
 import { Question } from "@/types/onboarding";
 import { useMemo, useEffect, useRef, useCallback } from "react";
@@ -151,6 +152,25 @@ export const FieldRenderer = ({
             bg: "white",
             fontSize: "16px",
             px: 6,
+          }}
+        />
+      );
+    }
+
+    if (question.type === "location_geocode_lookup") {
+      return (
+        <GeocodeAutocompleteInput
+          name={question.field}
+          control={control}
+          error={error}
+          required={question.required}
+          placeholder={question.label}
+          label={question.label}
+          value={fieldValue}
+          icon={question.icon}
+          onChange={(value) => {
+          }}
+          onSelect={(result) => {
           }}
         />
       );

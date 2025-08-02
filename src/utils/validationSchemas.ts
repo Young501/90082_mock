@@ -35,8 +35,15 @@ export const createPageSchema = (
     let fieldSchema: any
     if (question.type === "textarea") {
       fieldSchema = yup.string()
-    } else if (question.type === "text" || question.type === "location") {
+    } else if (question.type === "text") {
       fieldSchema = yup.string()
+    } else if (question.type === "location_geocode_lookup") {
+      fieldSchema = yup.string().transform((value: any) => {
+        if (value === "" || value === null || value === undefined) {
+          return undefined
+        }
+        return value
+      })
     } else if (question.type === "number") {
       fieldSchema = yup.number().typeError("Must be a number")
     } else if (question.type === "range") {

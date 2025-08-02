@@ -230,6 +230,10 @@ export const API_ENDPOINTS = {
     method: "DELETE",
     url: `/api/v1/opportunities/${opportunityId}/match/${matchId}/`,
   }),
+  GEOCODE: {
+    method: "POST",
+    url: "/api/v1/geocode/",
+  },
 };
 
 

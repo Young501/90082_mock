@@ -73,9 +73,11 @@ export const OnboardingSteps = ({ userType }: Props) => {
     clearErrors,
     unregister,
     reset,
+    watch,
   } = useForm({
     resolver: yupResolver(schema),
     mode: "onChange",
+    reValidateMode: "onChange",
   });
 
   const getAllPossibleFields = (questions: Question[]): string[] => {
@@ -227,6 +229,17 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   }, [errors, hasAttemptedSubmit]);
 
+  useEffect(() => {
+    if (currentPage) {
+      const subscription = watch((value, { name, type }) => {
+        if (name && type === 'change') {
+          trigger(name);
+        }
+      });
+      return () => subscription.unsubscribe();
+    }
+  }, [watch, trigger, currentPage]);
+
   const handleFieldUnregistered = useCallback((fieldName: string) => {
     setTimeout(() => {
       const currentValues = getValues();
@@ -359,15 +372,18 @@ export const OnboardingSteps = ({ userType }: Props) => {
       delete submissionData.profile_picture_url;
       delete submissionData.resume_url;
       delete submissionData.logo_url;
+      delete submissionData.location;
+      delete submissionData.location_geocode_lookup;
+
+      const { setUserFirstName, setUserLastName, setUserProfilePictureUrl } = useAuthStore.getState();
+      setUserFirstName(submissionData.first_name || "");
+      setUserLastName(submissionData.last_name || "");
 
       const submissionResponse =
         await submissionMutation.mutateAsync(submissionData);
       toast.success(
         submissionResponse?.detail || "Profile created successfully!"
       );
-
-      const { setUserProfile, setUserProfilePictureUrl } =
-        useAuthStore.getState();
 
       const profilePicture = allData.profile_picture_url;
       const resume = allData.resume_url;

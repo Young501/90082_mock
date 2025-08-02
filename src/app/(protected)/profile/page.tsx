@@ -50,7 +50,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState<number>(0);
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
   const [updatedProfilePicture, setUpdatedProfilePicture] = useState<
-    string | null
+    string | null 
   >(null);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [showValidationError, setShowValidationError] = useState(false);
@@ -253,6 +253,8 @@ const Profile = () => {
     delete submissionData.logo_url;
     delete submissionData.resume;
     delete submissionData.logo;
+    delete submissionData.location;
+    delete submissionData.location_geocode_lookup;
     Object.keys(submissionData).forEach((key) => {
       if (submissionData[key] === null || submissionData[key] === undefined) {
         delete submissionData[key];
@@ -340,13 +342,14 @@ const Profile = () => {
                     : "4px solid #089C3F"
                 }
               >
+                {(updatedProfilePicture || (userType === "student" ? getUserProfilePictureUrl() : getLogoUrl())) && (
                 <Avatar.Image
                   src={
                     updatedProfilePicture ||
                     (userType === "student" ? getUserProfilePictureUrl() : getLogoUrl()) ||
-                    ""
+                    undefined
                   }
-                />
+                />)}
                 <Avatar.Fallback
                   name={userProfile?.first_name + " " + userProfile?.last_name}
                   bg="gray.200"
