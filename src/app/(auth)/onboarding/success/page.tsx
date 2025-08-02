@@ -8,6 +8,7 @@ import {
   VStack,
   Icon,
   useBreakpointValue,
+  Avatar,
 } from "@chakra-ui/react";
 import { CheckCircle } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
@@ -25,6 +26,7 @@ export default function OnboardingSuccessPage() {
     getUserFirstName,
     getUserLastName,
     getUserProfilePictureUrl,
+    getInviteData,
   } = useAuthStore();
   const [userType, setUserType] = useState<string | undefined>("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -39,8 +41,14 @@ export default function OnboardingSuccessPage() {
     setImageUrl(logoUrl || userProfilePicture);
   }, [getUserType, getUserProfilePictureUrl, getLogoUrl]);
 
-  const handleProfileClick = () => {
-    router.push("/profile/");
+  const handleRouting = () => {
+    const { token: inviteToken, opportunityId } = getInviteData();
+
+    if (inviteToken && opportunityId) {
+      router.push(`/invite/?token=${inviteToken}&opportunity=${opportunityId}`);
+    } else {
+      router.push("/discover/");
+    }
   };
 
   return (
@@ -99,51 +107,30 @@ export default function OnboardingSuccessPage() {
             <Box
               borderRadius="full"
               overflow="hidden"
-              w={{ base: "100px", md: "210px" }}
-              h={{ base: "100px", md: "210px" }}
-              style={{
-                border:
-                  userType === "partner"
-                    ? "10px solid #089C3F"
-                    : "10px solid #DC2626",
-              }}
             >
-              {imageUrl ? (
-                <Image
-                  src={imageUrl}
-                  alt="Profile"
-                  width={200}
-                  height={200}
-                  style={{ objectFit: "cover", width: "100%", height: "100%" }}
+              <Avatar.Root
+                w={{ base: "105px", md: "210px" }}
+                h={{ base: "105px", md: "210px" }}
+                borderRadius="full"
+                border={
+                  userType === "student"
+                    ? "10px solid #DC2626"
+                    : "10px solid #089C3F"
+                }
+              >
+                <Avatar.Image
+                  src={imageUrl || undefined}
+                  alt="user profile"
                 />
-              ) : (
-                <Box
-                  bg="#2CA9DF"
-                  w="100%"
-                  h="100%"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
+                <Avatar.Fallback 
+                bg="gray.200"
+                  color="gray.800"
+                  fontWeight="bold"
+                  fontSize={{ base: "24px", md: "48px" }}
                 >
-                  <Text
-                    fontSize={{ base: "2xl", md: "4xl" }}
-                    fontWeight="bold"
-                    color="white"
-                  >
-                    {(() => {
-                      const firstName = getUserFirstName();
-                      const lastName = getUserLastName();
-                      const initials =
-                        firstName && lastName
-                          ? getInitials(firstName, lastName)
-                          : "";
-                      return (
-                        initials || userType?.charAt(0)?.toUpperCase() || "U"
-                      );
-                    })()}
-                  </Text>
-                </Box>
-              )}
+                  {getInitials(getUserFirstName() || "", getUserLastName() || "")}
+                </Avatar.Fallback>
+              </Avatar.Root>
             </Box>
 
             <Box
@@ -155,7 +142,7 @@ export default function OnboardingSuccessPage() {
             >
               <Button
                 variant="primary"
-                onClick={handleProfileClick}
+                onClick={handleRouting}
                 style={{
                   borderRadius: "50px",
                   maxWidth: "372x",
@@ -164,7 +151,12 @@ export default function OnboardingSuccessPage() {
                 bg="#282F68"
                 color="white"
               >
-                Go to My Profile
+                {(() => {
+                  const { token: inviteToken, opportunityId } = getInviteData();
+                  return inviteToken && opportunityId
+                    ? "Discover Opportunities"
+                    : "Go to Home";
+                })()}
               </Button>
             </Box>
           </Box>

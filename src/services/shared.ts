@@ -96,6 +96,18 @@ export function useLogoUpload(userType: string) {
   });
 }
 
+export function useGeocode() {
+  return useMutation({
+    mutationFn: async (address: string) => {
+      const result = await apiRequest({
+        endpoint: API_ENDPOINTS.GEOCODE,
+        body: { address },
+      });
+      return result;
+    },
+  });
+}
+
 export function useUserProfile(userType: string) {
   return useQuery({
     queryKey: ["user-profile", userType],

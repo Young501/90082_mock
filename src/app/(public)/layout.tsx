@@ -25,30 +25,25 @@ export default function Layout({ children }: AuthLayoutProps) {
     >
       <Header />
 
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          marginTop: "126px",
-          minHeight: "calc(100vh - 305px)",
-          overflow: "auto",
-          padding: "0 82px 0 82px",
-        }}
+      <Box
+        flex="1"
+        display="flex"
+        flexDirection="column"
+        mt="126px"
+        minH="calc(100vh - 305px)"
+        overflow="auto"
+        overflowX="hidden"
+        justifyContent="center"
+        pt="0"
+        pb="0"
+        px={{ base: "16px", md: "48px", lg: "130px" }}
       >
-        <Container
-          maxW={containerMaxW}
-          w="100%"
-          px={0}
-          style={{ flex: 1 }}
-          justifyContent="center"
-          display="flex"
-        >
+        <Container maxW={containerMaxW} px={0} position="relative">
           {children}
         </Container>
-      </div>
-
-      <Footer />
+      </Box>
+      {/* TO DO: Mobile footer missing */}
+      {!isMobile && <Footer />}
     </div>
   );
 }
