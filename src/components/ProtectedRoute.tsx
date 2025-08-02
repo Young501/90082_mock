@@ -24,7 +24,7 @@ export default function ProtectedRoute({
   }, [isAuthenticated, token, isLoading, router]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (<div> Loading.. .</div>);
   }
 
   if (!isAuthenticated || !token) {

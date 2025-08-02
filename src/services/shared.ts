@@ -212,3 +212,24 @@ export function useContactUser() {
     },
   });
 }
+
+export function useQuestionnaireFilters(
+  opportunityId: string,
+  userType: string
+) {
+  return useQuery({
+    queryKey: ["questionnaire-filters", opportunityId, userType],
+    queryFn: () =>
+      apiRequest({
+        endpoint: API_ENDPOINTS.QUESTIONNAIRE_FILTERS(opportunityId, userType),
+      }),
+    enabled: !!opportunityId && !!userType,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+}

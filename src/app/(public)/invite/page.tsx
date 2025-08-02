@@ -1,19 +1,27 @@
 "use client";
 
 import { useEffect, useState, useCallback, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Container, useBreakpointValue } from "@chakra-ui/react";
 import { useOpportunityDetail, useAcceptInvite } from "@/hooks/useInvite";
 import { InviteStatusPage } from "./InviteStatusPage";
 import { InviteCard } from "./InviteCard";
 import { LoadingState } from "./LoadingState";
+import { useAuthStore } from "@/store";
+import { checkOnboardingStatus } from "@/hooks/auth";
+import { User } from "@/types/user";
+import { toast } from "react-toastify";
 
 function InviteContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
+  const [countdown, setCountdown] = useState(3);
+  const { isAuthenticated, setInviteData, clearInviteData, user } =
+    useAuthStore();
+
   const token = searchParams.get("token");
   const opportunityId = searchParams.get("opportunity");
-  const [countdown, setCountdown] = useState(3);
 
   const acceptInviteMutation = useAcceptInvite();
   const {
@@ -23,11 +31,25 @@ function InviteContent() {
   } = useOpportunityDetail(opportunityId || "");
 
   useEffect(() => {
+    if (!isAuthenticated && token && opportunityId) {
+      setInviteData(token, opportunityId);
+      router.push(
+        `/user-type/?invite_token=${token}&opportunity_id=${opportunityId}`
+      );
+      toast.error(
+        "You need to be logged in to accept an invitation. Redirecting to signup..."
+      );
+      return;
+    }
+  }, [token, opportunityId, isAuthenticated, router, setInviteData]);
+
+  useEffect(() => {
     if (acceptInviteMutation.isSuccess) {
       const timer = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
+            clearInviteData();
             return 0;
           }
           return prev - 1;
@@ -36,7 +58,15 @@ function InviteContent() {
 
       return () => clearInterval(timer);
     }
-  }, [acceptInviteMutation.isSuccess]);
+
+    if (user) {
+      console.log("user-invite-page", user);
+      checkOnboardingStatus({
+        user: user as User,
+        router,
+      });
+    }
+  }, [acceptInviteMutation.isSuccess, clearInviteData, user]);
 
   const handleAcceptInvite = useCallback(
     (questionnaire_answers?: Record<string, any>) => {
@@ -58,6 +88,10 @@ function InviteContent() {
         description="The invitation link is invalid or incomplete. Please check the URL and try again."
       />
     );
+  }
+
+  if (!isAuthenticated) {
+    return <LoadingState />;
   }
 
   if (isLoading) {
@@ -86,7 +120,7 @@ function InviteContent() {
   }
 
   return (
-    <Container maxW={containerMaxW} p={0} pt={{ base: 18, md: 24 }} h="100%">
+    <Container maxW={containerMaxW} p={0} h="100%">
       <InviteCard
         opportunity={opportunity}
         onAccept={handleAcceptInvite}
