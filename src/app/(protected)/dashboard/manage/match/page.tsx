@@ -4,8 +4,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   Box,
   VStack,
-  Heading,
-  Input,
   Button,
   Text,
   useDisclosure,
@@ -14,12 +12,13 @@ import {
   Avatar,
   SimpleGrid,
   Container,
-  Image,
 } from "@chakra-ui/react";
 import { useMatchStudent, useParticipants } from "@/services/manage";
 import { PaginationControls } from "@/components/ui/PaginationControls";
+import { MatchConfirmationModal } from "@/components/ui";
 import { Participant } from "@/types/dashboard";
 import ManageFilter from "@/app/(protected)/dashboard/components/ManageFilter";
+import { toast } from "react-toastify";
 
 const Match = () => {
   const router = useRouter();
@@ -60,8 +59,9 @@ const Match = () => {
         student_participant_id: studentId,
         partner_participant_id: selectedOrg.id.toString(),
       });
-      router.push(`/dashboard/manage?manageType=student`);
-    } catch (e) {
+      router.push(`/dashboard/manage/?type=student`);
+    } catch (e: any) {
+      toast.error(e.response?.data?.detail || "Failed to match student");
       onClose();
     }
   };
@@ -115,7 +115,7 @@ const Match = () => {
                     onClick={() => handleSelect(org)}
                     cursor="pointer"
                     _hover={{
-                      bg: "#F0F8FF", // subtle highlight
+                      bg: "#F0F8FF",
                     }}
                   >
                     <Box
@@ -170,68 +170,15 @@ const Match = () => {
             />
           </>
         )}
-        {open && (
-          <Box
-            position="fixed"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
-            bg="blackAlpha.600"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            zIndex={1000}
-          >
-            <Box
-              bg="white"
-              borderRadius="20px"
-              w="90%"
-              maxW="400px"
-              p={6}
-              boxShadow="0px 5.92px 11.84px 5.92px #00000040"
-              onClick={(e) => e.stopPropagation()}
-              position="relative"
-            >
-              <VStack align="stretch" gap={6}>
-                <Text fontSize="24px" fontWeight="bold" color="#000000">
-                  Confirm Match
-                </Text>
-                <Text fontSize="16px" color="#666666">
-                  Are you sure you want to match this student to{" "}
-                  <b>{selectedOrg?.name}</b>?
-                </Text>
-                <Box display="flex" gap={4} justifyContent="flex-end">
-                  <Button
-                    bg="transparent"
-                    color="#000000"
-                    borderRadius="8px"
-                    h="40px"
-                    fontSize="14px"
-                    fontWeight="600"
-                    onClick={onClose}
-                    border="1px solid #000000"
-                    px={6}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    bg="#002157"
-                    color="white"
-                    borderRadius="8px"
-                    h="40px"
-                    fontSize="14px"
-                    fontWeight="600"
-                    onClick={handleMatch}
-                    px={6}
-                  >
-                    Confirm
-                  </Button>
-                </Box>
-              </VStack>
-            </Box>
-          </Box>
-        )}
+        <MatchConfirmationModal
+          isOpen={open}
+          onClose={onClose}
+          onConfirm={handleMatch}
+          title="Confirm Match"
+          message={`Are you sure you want to match this student to ${selectedOrg?.name}?`}
+          confirmText="Confirm"
+          isLoading={matchStudentMutation.isPending}
+        />
       </Container>
     </Box>
   );

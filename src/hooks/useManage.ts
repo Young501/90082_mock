@@ -80,6 +80,15 @@ export function useManage(userType: "student" | "partner" = "student") {
     setSelectedParticipant(participant);
   }, []);
 
+  const updateSelectedParticipant = useCallback((updatedParticipant: Participant) => {
+    setSelectedParticipant(updatedParticipant);
+    setParticipants((prev) =>
+      prev.map((p) =>
+        p.id === updatedParticipant.id ? updatedParticipant : p
+      )
+    );
+  }, []);
+
   return {
     participants,
     selectedParticipant,
@@ -91,6 +100,7 @@ export function useManage(userType: "student" | "partner" = "student") {
     updateFilters,
     resetFilters,
     selectParticipant,
+    updateSelectedParticipant,
     refetch,
   };
 }

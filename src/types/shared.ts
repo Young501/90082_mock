@@ -1,6 +1,6 @@
 import { StudentProfile, PartnerProfile } from "./discovery";
 
-export type UserProfile = StudentProfile | PartnerProfile;
+export type UserProfile = StudentProfile & PartnerProfile;
 
 export interface UserSearchResponse {
   count: number;

@@ -12,26 +12,30 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { UserProfile } from "@/types/shared";
 
 export const checkOnboardingStatus = async ({
   user,
   router,
   redirectOnSuccess = true,
+  setUserProfile,
 }: {
   user: User;
   router: AppRouterInstance;
   redirectOnSuccess?: boolean;
+  setUserProfile: (userProfile: UserProfile) => void;
 }) => {
-  console.log("user", user);
+  // console.log("user", user);
   if (!user?.user_types?.[0]) {
     return;
   }
 
+
   const userType = user.user_types[0];
   const isCoordinator = userType === "coordinator";
-  console.log("isCoordinator", isCoordinator);
-  console.log("userType", userType);
-  console.log("user", user.user_types);
+  // console.log("isCoordinator", isCoordinator);
+  // console.log("userType", userType);
+  // console.log("user", user.user_types);
 
   if (isCoordinator) {
     if (redirectOnSuccess) {
@@ -45,7 +49,7 @@ export const checkOnboardingStatus = async ({
     const response = await apiRequest({
       endpoint: API_ENDPOINTS.USER_PROFILE(userType),
     });
-
+    setUserProfile(response);
     if (redirectOnSuccess) {
       const { getInviteData } = useAuthStore.getState();
       const { token: inviteToken, opportunityId } = getInviteData();
@@ -81,7 +85,7 @@ const fetchCoordinatorOpportunities = async () => {
 
 export const useAuth = () => {
   const router = useRouter();
-  const { setAuthData, user, getInviteData } = useAuthStore();
+  const { setAuthData, user, setUserProfile } = useAuthStore();
   const queryClient = useQueryClient();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -99,10 +103,11 @@ export const useAuth = () => {
       setAuthData(response.token, response.user);
       queryClient.invalidateQueries({ queryKey: ["user"] });
       queryClient.invalidateQueries({ queryKey: ["accepted-opportunities"] });
-        checkOnboardingStatus({
-          user: response.user,
-          router,
-        });
+      checkOnboardingStatus({
+        user: response.user,
+        setUserProfile: setUserProfile,
+        router,
+      });
     },
     onError: (error: any) => {
       const errorMessage = getErrorMessage(error, "Login failed");

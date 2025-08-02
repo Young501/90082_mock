@@ -9,9 +9,9 @@ import {
   HStack,
   Spinner,
   Flex,
-  Button,
   useBreakpointValue,
 } from "@chakra-ui/react";
+import { Button } from "@/components/ui/Button";
 import { useDashboard } from "@/hooks/useDashboard";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -31,12 +31,15 @@ const DashboardPage = () => {
   const router = useRouter();
   const pathname = usePathname();
   const isMobile = useBreakpointValue({ base: true, lg: false });
-  const searchParams = useSearchParams();
-  // const manageType = searchParams.get("manageType");
-
+  
   const manageRoute = (type: "student" | "partner") => {
-    router.push(`${pathname}/manage?manageType=${type}`);
-  }
+    /*************
+     * pathname is returned with the trailing slash in production adding additional trailing slashes to first level routes breaks behaviour in production
+     * hence additional trailing slashes arent needed for first level routes but required for second level and extended routes
+     * so we need to remove the trailing slash when using the pathname and append trailing slash to second level and extended routes
+     */
+    router.push(`${pathname}manage/?type=${type}`);
+  };
 
   if (isLoading) {
     return (
@@ -170,7 +173,7 @@ const DashboardPage = () => {
       total: dashboardStats.students.invited,
     },
     {
-      label: "Students contacted by at least one school:",
+      label: "Students contacted by at least one organisation:",
       value: dashboardStats.students.messaged,
       total: dashboardStats.students.invited,
     },
@@ -344,13 +347,13 @@ const DashboardPage = () => {
               </VStack>
             </Box>
             <Button
+              variant="primary"
+              color="white"
               size="lg"
               height="78px"
               display="flex"
               alignItems="center"
               justifyContent="center"
-              bg="#002157"
-              color="white"
               borderRadius="md"
               fontWeight="bold"
               fontSize="27px"
@@ -493,13 +496,13 @@ const DashboardPage = () => {
               </VStack>
             </Box>
             <Button
+              variant="primary"
+              color="white"
               size="lg"
               height="78px"
               display="flex"
               alignItems="center"
               justifyContent="center"
-              bg="#002157"
-              color="white"
               borderRadius="md"
               fontWeight="bold"
               fontSize="27px"
