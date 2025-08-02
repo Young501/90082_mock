@@ -23,6 +23,7 @@ interface DiscoveryResultBoxProps {
   pageSize: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
+  opportunityId?: string;
 }
 
 export function DiscoveryResultBox({
@@ -37,6 +38,7 @@ export function DiscoveryResultBox({
   pageSize,
   onPageChange,
   onPageSizeChange,
+  opportunityId,
 }: DiscoveryResultBoxProps) {
   if (!show) return null;
 
@@ -64,6 +66,7 @@ export function DiscoveryResultBox({
                   student={user}
                   userType={userType}
                   profilePictureUrl={user.profile_picture_url || null}
+                  opportunityId={opportunityId}
                 />
               ) : (
                 <PartnerCard key={key} partner={user} />
