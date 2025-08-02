@@ -4,11 +4,10 @@ import {
   Button,
   VStack,
   HStack,
-  Spinner,
   Icon,
   Alert,
 } from "@chakra-ui/react";
-import { Calendar } from "lucide-react";
+import { Calendar, Loader } from "lucide-react";
 import { UseMutationResult } from "@tanstack/react-query";
 import { Opportunity, InviteAcceptResponse, Question } from "@/types/invite";
 import { useAuthStore } from "@/store";
@@ -234,7 +233,7 @@ export const InviteCard = ({
         >
           {isAccepting ? (
             <HStack gap={2}>
-              <Spinner size="sm" />
+              <Loader size="sm" />
               <Text>Accepting...</Text>
             </HStack>
           ) : (

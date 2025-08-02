@@ -5,7 +5,6 @@ import {
   Button,
   Text,
   VStack,
-  Spinner,
   SimpleGrid,
   HStack,
   Avatar,
@@ -27,6 +26,7 @@ import { PartnerCard } from "@/app/(protected)/discover/cards/partnerCard";
 import { toast } from "react-toastify";
 import { Folder as FolderType } from "@/types/folder";
 import { useAuthStore } from "@/store";
+import Loader from "@/components/Loader";
 
 const Folder = () => {
   const router = useRouter();
@@ -131,13 +131,13 @@ const Folder = () => {
 
           {isLoadingFolderDetail ? (
             <Box display="flex" justifyContent="center" py={10}>
-              <Spinner size="lg" color="#2CA9DF" />
+              <Loader />
             </Box>
           ) : folderDetail ? (
             <VStack align="stretch" gap={6}>
               {isLoadingMembers ? (
                 <Box display="flex" justifyContent="center" py={10}>
-                  <Spinner size="lg" color="#2CA9DF" />
+                  <Loader />
                 </Box>
               ) : membersArray.length === 0 ? (
                 <Box textAlign="center" py={20}>
@@ -249,9 +249,7 @@ const Folder = () => {
         </Button>
 
         {isLoadingFolders ? (
-          <Box display="flex" justifyContent="center" py={10}>
-            <Spinner size="lg" color="#2CA9DF" />
-          </Box>
+          <Loader />
         ) : folders.length === 0 ? (
           <Box
             bg="transparent"

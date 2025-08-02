@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Box, Text, VStack, Spinner } from "@chakra-ui/react";
+import { Box, Text, VStack } from "@chakra-ui/react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { SelectField } from "@/components/fields/SelectField";
 import { useFolders, useAddMemberToFolder } from "@/services/folder";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/Button";
+import Loader from "@/components/Loader";
 
 interface AddToFolderModalProps {
   isOpen: boolean;
@@ -143,7 +144,7 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
 
           {foldersLoading ? (
             <Box display="flex" justifyContent="center" py={4}>
-              <Spinner size="lg" color="#2CA9DF" />
+              <Loader size="lg" color="#2CA9DF" />
             </Box>
           ) : folderNames.length === 0 ? (
             <Box textAlign="center" py={4}>

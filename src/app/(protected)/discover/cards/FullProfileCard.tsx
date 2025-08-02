@@ -9,7 +9,6 @@ import {
   Grid,
   GridItem,
   Link,
-  Spinner,
   Alert,
 } from "@chakra-ui/react";
 import { StudentProfile, PartnerProfile } from "@/types/discovery";
@@ -18,6 +17,7 @@ import Image from "next/image";
 import BadgeSection from "@/components/BadgeSection";
 import { ContactPage } from "@/components/ui/ContactPage";
 import { Globe } from "lucide-react";
+import Loader from "@/components/Loader";
 import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/Button";
 
@@ -87,7 +87,7 @@ export function FullProfileCard({
             w="90%"
             textAlign="center"
           >
-            <Spinner size="xl" color="blue.500" />
+            <Loader size="xl" color="blue.500" />
             <Text mt={4}>Loading profile...</Text>
           </Box>
         </Box>
@@ -95,7 +95,7 @@ export function FullProfileCard({
     }
     return (
       <Box textAlign="center" p={8}>
-        <Spinner size="xl" color="blue.500" />
+        <Loader size="xl" color="blue.500" />
         <Text mt={4}>Loading profile...</Text>
       </Box>
     );

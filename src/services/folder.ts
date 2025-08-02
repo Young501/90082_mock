@@ -26,6 +26,8 @@ export function useCreateFolder() {
 
   return useMutation({
     mutationFn: async (data: CreateFolderRequest): Promise<Folder> => {
+      // Simulate pending state for spinner testing
+      await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second delay
       return apiRequest({
         endpoint: API_ENDPOINTS.CREATE_FOLDER,
         body: data,
@@ -90,8 +92,11 @@ export function useDeleteFolder() {
 export function useFolderMembers(folderId: string) {
   return useQuery({
     queryKey: ["folder-members", folderId],
-    queryFn: (): Promise<FolderMembersResponse> =>
-      apiRequest({ endpoint: API_ENDPOINTS.FOLDER_MEMBERS(folderId) }),
+    queryFn: async (): Promise<FolderMembersResponse> => {
+      // Simulate pending state for spinner testing
+      await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second delay
+      return apiRequest({ endpoint: API_ENDPOINTS.FOLDER_MEMBERS(folderId) });
+    },
     enabled: !!folderId,
     staleTime: 0,
     refetchOnWindowFocus: true,

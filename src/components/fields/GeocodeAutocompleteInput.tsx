@@ -6,13 +6,13 @@ import {
   Input,
   VStack,
   Text,
-  Spinner,
   Field,
 } from "@chakra-ui/react";
 import { useGeocode } from "@/services/shared";
 import { useDebounce } from "@/hooks/useDebounce";
 import { GeocodeResult } from "@/types/shared";
 import { UseFormRegisterReturn, Control, useController } from "react-hook-form";
+import Loader from "@/components/Loader";
 
 interface GeocodeAutocompleteInputProps {
   value: string;
@@ -240,7 +240,7 @@ export const GeocodeAutocompleteInput = memo(({
         {fieldError && <Field.ErrorText mt={2}>{fieldError}</Field.ErrorText>}
 
         {geocodeMutation.isError && inputValue.length >= 2 && (
-          <Text color="red.500" fontSize="sm" mt={1}>
+          <Text color="#DC2626" fontSize="sm" mt={1}>
             Failed to search location. Please try again.
           </Text>
         )}
@@ -262,7 +262,7 @@ export const GeocodeAutocompleteInput = memo(({
           >
             {isLoading && (
               <Box p={3} display="flex" alignItems="center" justifyContent="center">
-                <Spinner size="sm" mr={2} />
+                <Loader size="sm" props={{ mr: 2 }} />
                 <Text fontSize="sm" color="gray.600">
                   Searching...
                 </Text>

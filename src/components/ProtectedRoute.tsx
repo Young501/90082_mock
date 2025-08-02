@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store";
+import Loader from "./Loader";
+import { Box, Text } from "@chakra-ui/react";
 
 export default function ProtectedRoute({
   children,
@@ -15,7 +17,7 @@ export default function ProtectedRoute({
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (!isLoading && !isAuthenticated && !token) {
+      if (!isLoading && !isAuthenticated && !token)   {
         router.push("/login/");
       }
       setIsLoading(false);
@@ -24,7 +26,14 @@ export default function ProtectedRoute({
   }, [isAuthenticated, token, isLoading, router]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" h="100vh" gap={4}>
+        <Loader />
+        <Text fontSize="2xl" fontWeight="bold">
+          Loading...
+        </Text>
+      </Box>
+    );
   }
 
   if (!isAuthenticated || !token) {

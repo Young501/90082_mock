@@ -1,5 +1,5 @@
 "use client";
-import { Box, Container, Text, VStack, Button, Spinner } from '@chakra-ui/react';
+import { Box, Container, Text, VStack, Button } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image';
 import ManageFilter from '../components/ManageFilter';
@@ -9,6 +9,7 @@ import UserMatchingStatus from '../components/UserMatchingStatus';
 import { useManage } from '@/hooks/useManage';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import Loader from '@/components/Loader';
 
 const ManagePage = () => {
     const searchParams = useSearchParams();
@@ -228,12 +229,7 @@ const StudentPage = ({
                   >
                     {isLoading && participants.length === 0 ? (
                       <VStack gap={4} py={10}>
-                        <Spinner
-                          size="xl"
-                          color="#002157"
-                          border="8px solid"
-                          borderImageSource="conic-gradient(from 111.1deg at 50% 50%, #FFFFFF 0deg, #002157 360deg)"
-                        />
+                        <Loader />
                       </VStack>
                     ) : participants.length === 0 ? (
                       <VStack gap={4} py={8}>
@@ -414,12 +410,7 @@ const PartnerPage = ({
                   >
                     {isLoading && participants.length === 0 ? (
                       <VStack gap={4} py={10}>
-                        <Spinner
-                          size="xl"
-                          color="#002157"
-                          border="8px solid"
-                          borderImageSource="conic-gradient(from 111.1deg at 50% 50%, #FFFFFF 0deg, #002157 360deg)"
-                        />
+                        <Loader />
                       </VStack>
                     ) : participants.length === 0 ? (
                       <VStack gap={4} py={8}>
