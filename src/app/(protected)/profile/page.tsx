@@ -12,7 +12,6 @@ import {
   Box,
   Text,
   Button,
-  Spinner,
   Flex,
   Avatar,
   Progress,
@@ -36,6 +35,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { FullProfileCard } from "../discover/cards/FullProfileCard";
 import { useAuth } from "@/hooks/auth";
 import { InputField } from "@/components/ui";
+import Loader from "@/components/Loader";
 
 const Profile = () => {
   const {
@@ -228,7 +228,7 @@ const Profile = () => {
   if (isOnboardingLoading) {
     return (
       <Box p={6} maxW="1280px" mx="auto" mt="126px">
-        <Spinner size="lg" />
+        <Loader size="lg" />
       </Box>
     );
   }

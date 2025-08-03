@@ -7,7 +7,6 @@ import {
   SimpleGrid,
   VStack,
   HStack,
-  Spinner,
   Flex,
   useBreakpointValue,
 } from "@chakra-ui/react";
@@ -15,6 +14,7 @@ import { Button } from "@/components/ui/Button";
 import { useDashboard } from "@/hooks/useDashboard";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import Loader from "@/components/Loader";
 
 interface ProgressBarProps {
   value: number;
@@ -54,7 +54,7 @@ const DashboardPage = () => {
         mt="126px"
       >
         <VStack gap={4} justify="center" minH="400px">
-          <Spinner size="xl" color="#000000" />
+          <Loader size="xl" color="#000000" />
           <Text>Loading dashboard statistics...</Text>
         </VStack>
       </Container>

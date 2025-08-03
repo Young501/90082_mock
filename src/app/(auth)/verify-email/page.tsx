@@ -7,10 +7,10 @@ import {
   Container,
   Text,
   VStack,
-  Spinner,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { useEmailVerification } from "@/services/emailVerification";
+import Loader from "@/components/Loader";
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
@@ -69,8 +69,7 @@ function VerifyEmailContent() {
         py={{ base: 8, md: 12, lg: 16 }}
       >
         <VStack gap={{ base: 6, md: 8 }}>
-          <Spinner size="xl" color="blue.500" borderWidth="4px" />
-
+          <Loader size="xl" color="blue.500" />
           <Text
             fontSize={{ base: "24px", md: "32px", lg: "42px" }}
             fontWeight="700"

@@ -1,7 +1,8 @@
 "use client";
 
-import { Button as ChakraButton, ButtonProps, Spinner } from "@chakra-ui/react";
+import { Button as ChakraButton, ButtonProps } from "@chakra-ui/react";
 import { ReactNode } from "react";
+import Loader from "@/components/Loader";
 
 interface CustomButtonProps extends Omit<ButtonProps, "variant"> {
   variant?: "primary" | "secondary" | "ghost" | "student" | "partner";
@@ -100,7 +101,7 @@ export function Button({
 
   return (
     <ChakraButton {...styles[variant]} {...props}>
-      {isLoading ? <Spinner size="sm" /> : children}
+      {isLoading ? <Loader size="sm" props={{ color: "white" }} /> : children}
     </ChakraButton>
   );
 }

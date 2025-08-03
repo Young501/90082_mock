@@ -1,11 +1,18 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, memo } from "react";
-import { Box, Input, VStack, Text, Spinner, Field } from "@chakra-ui/react";
+import {
+  Box,
+  Input,
+  VStack,
+  Text,
+  Field,
+} from "@chakra-ui/react";
 import { useGeocode } from "@/services/shared";
 import { useDebounce } from "@/hooks/useDebounce";
 import { GeocodeResult } from "@/types/shared";
 import { UseFormRegisterReturn, Control, useController } from "react-hook-form";
+import Loader from "@/components/Loader";
 
 interface GeocodeAutocompleteInputProps {
   value: string;
@@ -252,42 +259,35 @@ export const GeocodeAutocompleteInput = memo(
 
           {fieldError && <Field.ErrorText mt={2}>{fieldError}</Field.ErrorText>}
 
-          {geocodeMutation.isError && inputValue.length >= 2 && (
-            <Text color="red.500" fontSize="sm" mt={1}>
-              Failed to find the address. Please try again.
-            </Text>
-          )}
+        {geocodeMutation.isError && inputValue.length >= 2 && (
+          <Text color="#DC2626" fontSize="sm" mt={1}>
+            Failed to search location. Please try again.
+          </Text>
+        )}
 
-          {isOpen &&
-            (inputValue.length > 0 || isLoading) &&
-            !geocodeMutation.isError && (
-              <Box
-                position="absolute"
-                top="100%"
-                left={0}
-                right={0}
-                bg="white"
-                border="1px solid"
-                borderColor="gray.200"
-                borderRadius="md"
-                boxShadow="lg"
-                zIndex={1000}
-                maxH="200px"
-                overflowY="auto"
-              >
-                {isLoading && (
-                  <Box
-                    p={3}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Spinner size="sm" mr={2} />
-                    <Text fontSize="sm" color="gray.600">
-                      Searching...
-                    </Text>
-                  </Box>
-                )}
+        {isOpen && (inputValue.length > 0 || isLoading) && !geocodeMutation.isError && (
+          <Box
+            position="absolute"
+            top="100%"
+            left={0}
+            right={0}
+            bg="white"
+            border="1px solid"
+            borderColor="gray.200"
+            borderRadius="md"
+            boxShadow="lg"
+            zIndex={1000}
+            maxH="200px"
+            overflowY="auto"
+          >
+            {isLoading && (
+              <Box p={3} display="flex" alignItems="center" justifyContent="center">
+                <Loader size="sm" props={{ mr: 2 }} />
+                <Text fontSize="sm" color="gray.600">
+                  Searching...
+                </Text>
+              </Box>
+            )}
 
                 {!isLoading &&
                   results.length === 0 &&

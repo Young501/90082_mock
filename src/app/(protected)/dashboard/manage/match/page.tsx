@@ -7,7 +7,6 @@ import {
   Button,
   Text,
   useDisclosure,
-  Spinner,
   HStack,
   Avatar,
   SimpleGrid,
@@ -19,6 +18,7 @@ import { MatchConfirmationModal } from "@/components/ui";
 import { Participant } from "@/types/dashboard";
 import ManageFilter from "@/app/(protected)/dashboard/components/ManageFilter";
 import { toast } from "react-toastify";
+import Loader from "@/components/Loader";
 
 const Match = () => {
   const router = useRouter();
@@ -91,7 +91,7 @@ const Match = () => {
         />
         {isLoading ? (
           <Box textAlign="center" py={8}>
-            <Spinner size="lg" />
+            <Loader size="lg" />
           </Box>
         ) : error ? (
           <Text color="red.500">Failed to load organizations</Text>

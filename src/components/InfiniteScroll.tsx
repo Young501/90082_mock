@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useCallback } from "react";
-import { Box, Spinner, Text, VStack } from "@chakra-ui/react";
+import { Box, Text, VStack } from "@chakra-ui/react";
+import Loader from "@/components/Loader";
 
 interface InfiniteScrollProps {
   onLoadMore: () => void;
@@ -60,11 +61,10 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
         >
           {isLoading ? (
             <VStack gap={2}>
-              <Spinner
+              <Loader
                 size="xl"
                 color="#002157"
-                border="8px solid"
-                borderImageSource="conic-gradient(from 111.1deg at 50% 50%, #FFFFFF 0deg, #002157 360deg)"
+                animationDuration="0.8s"
               />
             </VStack>
           ) : (
