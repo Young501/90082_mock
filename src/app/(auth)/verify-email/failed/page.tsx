@@ -28,11 +28,25 @@ function EmailVerifyFailedContent() {
   }, [searchParams]);
 
   const handleSignupClick = () => {
-    router.push("/signup/");
+    const inviteToken = searchParams.get("invite_token");
+    const opportunityId = searchParams.get("opportunity_id");
+    
+    if (inviteToken && opportunityId) {
+      router.push(`/signup/?invite_token=${inviteToken}&opportunity_id=${opportunityId}`);
+    } else {
+      router.push("/signup/");
+    }
   };
 
   const handleLoginClick = () => {
-    router.push("/login/");
+    const inviteToken = searchParams.get("invite_token");
+    const opportunityId = searchParams.get("opportunity_id");
+    
+    if (inviteToken && opportunityId) {
+      router.push(`/login/?invite_token=${inviteToken}&opportunity_id=${opportunityId}`);
+    } else {
+      router.push("/login/");
+    }
   };
 
   return (

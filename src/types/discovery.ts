@@ -10,6 +10,7 @@ export interface ProcessedField {
   uniqueKey: string;
   dependencyChain: DependencyCondition[];
   displayHint?: string;
+  source?: "onboarding" | "questionnaire";
 }
 
 export interface DependencyCondition {
@@ -43,6 +44,7 @@ export interface StudentProfile {
   faculty?: string;
   resume_url?: string;
   email?: string;
+  questionnaire_answers?: Record<string, any>;
 }
 
 export interface PartnerProfile {
@@ -73,6 +75,7 @@ export interface PartnerProfile {
   discovery_pools?: string;
   faculty?: string;
   user?: number;
+  questionnaire_answers?: Record<string, any>;
 }
 
 export interface UserSearchParams {

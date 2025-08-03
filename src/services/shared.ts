@@ -108,26 +108,6 @@ export function useGeocode() {
   });
 }
 
-export function useUpdateLocation(userType: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (locationData: { formatted_address: string; latitude: string; longitude: string }) => {
-      return apiRequest({
-        endpoint: API_ENDPOINTS.PROFILE_UPDATE(userType),
-        body: {
-          location: locationData.formatted_address,
-          latitude: locationData.latitude,
-          longitude: locationData.longitude,
-        },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
-    },
-  });
-}
-
 export function useUserProfile(userType: string) {
   return useQuery({
     queryKey: ["user-profile", userType],
@@ -144,10 +124,10 @@ export function useUserProfile(userType: string) {
   });
 }
 
-export function useStudentProfile(id: string) {
+export function useStudentProfile(id: string, opportunityId: string) {
   return useQuery({
-    queryKey: ["student-profile", id],
-    queryFn: () => apiRequest({ endpoint: API_ENDPOINTS.STUDENT_PROFILE(id) }),
+    queryKey: ["student-profile", id, opportunityId],
+    queryFn: () => apiRequest({ endpoint: API_ENDPOINTS.STUDENT_PROFILE(id, opportunityId) }),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
     retry: (failureCount, error: any) => {
@@ -159,10 +139,10 @@ export function useStudentProfile(id: string) {
   });
 }
 
-export function usePartnerProfile(id: string) {
+export function usePartnerProfile(id: string, opportunityId: string) {
   return useQuery({
-    queryKey: ["partner-profile", id],
-    queryFn: () => apiRequest({ endpoint: API_ENDPOINTS.PARTNER_PROFILE(id) }),
+    queryKey: ["partner-profile", id, opportunityId],
+    queryFn: () => apiRequest({ endpoint: API_ENDPOINTS.PARTNER_PROFILE(id, opportunityId) }),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
     retry: (failureCount, error: any) => {
@@ -209,6 +189,27 @@ export function useContactUser() {
           message: data.message,
         },
       });
+    },
+  });
+}
+
+export function useQuestionnaireFilters(
+  opportunityId: string,
+  userType: string
+) {
+  return useQuery({
+    queryKey: ["questionnaire-filters", opportunityId, userType],
+    queryFn: () =>
+      apiRequest({
+        endpoint: API_ENDPOINTS.QUESTIONNAIRE_FILTERS(opportunityId, userType),
+      }),
+    enabled: !!opportunityId && !!userType,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
     },
   });
 }
