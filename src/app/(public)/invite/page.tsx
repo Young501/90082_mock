@@ -9,8 +9,9 @@ import { InviteCard } from "./InviteCard";
 import { LoadingState } from "./LoadingState";
 import { useAuthStore } from "@/store";
 import { checkOnboardingStatus } from "@/hooks/auth";
-import { User } from "@/types/user";
+// import { UserProfile } from "@/types/user";
 import { toast } from "react-toastify";
+import { User } from "@/types/user";
 
 function InviteContent() {
   const searchParams = useSearchParams();
@@ -60,10 +61,11 @@ function InviteContent() {
     }
 
     if (user) {
-      console.log("user-invite-page", user);
+      // console.log("user-invite-page", user);
       checkOnboardingStatus({
         user: user as User,
         router,
+        setUserProfile: () => {},
       });
     }
   }, [acceptInviteMutation.isSuccess, clearInviteData, user]);

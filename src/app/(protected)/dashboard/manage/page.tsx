@@ -480,7 +480,7 @@ const ManageDefault = () => {
             router.push("/dashboard");
         }, 3000);
         return () => clearTimeout(timeout);
-    }, []);
+    }, [router]);
     return (
         <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" h={{base: `calc(100vh - 72px)`, lg: "calc(100vh - 126px)"}} mt={{base: "72px", lg: "126px"}} display="flex" alignItems="center" justifyContent="center">
             <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
