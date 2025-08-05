@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -91,6 +91,7 @@ const extractFilterOptions = (
 // ===== Main Hook =====
 export const useDiscovery = () => {
   const { user } = useAuthStore();
+  const hasShownWarningRef = useRef(false);
   const [filterableFields, setFilterableFields] = useState<ProcessedField[]>(
     []
   );
@@ -197,14 +198,23 @@ export const useDiscovery = () => {
   ]);
 
   useEffect(() => {
-    if (
+    const shouldShowWarning = 
       !isOpportunitiesLoading &&
       acceptedOpportunities !== undefined &&
-      !currentOpportunityId
-    ) {
-      toast.warning(
-        "You haven't joined any opportunities yet. Please accept an opportunity invitation to search for users."
-      );
+      !currentOpportunityId &&
+      !hasShownWarningRef.current;
+
+    if (shouldShowWarning) {
+      hasShownWarningRef.current = true;
+      setTimeout(() => {
+        toast.warning(
+          "You haven't joined any opportunities yet. Please accept an opportunity invitation to search for users."
+        );
+      }, 100);
+    }
+    
+    if (currentOpportunityId && hasShownWarningRef.current) {
+      hasShownWarningRef.current = false;
     }
   }, [isOpportunitiesLoading, acceptedOpportunities, currentOpportunityId]);
 
