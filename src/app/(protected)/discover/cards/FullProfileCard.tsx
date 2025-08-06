@@ -343,18 +343,6 @@ const RenderStudentDetails = ({
         </Box>
 
         <VStack justify="start" w="full" gap={2} align="start">
-          {student.email && (
-            <Box display="flex" gap={2} alignItems="center">
-              <Image
-                src="/assets/mailicon.svg"
-                alt="Mail"
-                width={20}
-                height={20}
-                objectFit="contain"
-              />
-              <Text textDecoration="underline">{student?.email || "-"}</Text>
-            </Box>
-          )}
           {student.homepage && (
             <Box display="flex" gap={2} alignItems="center">
               <Globe
@@ -623,9 +611,9 @@ const RenderStudentDetails = ({
         </VStack>
       </Box>
 
-      {showContactModal && student.email && (
+      {showContactModal && student.id && (
         <ContactPage
-          recipientEmail={student.email}
+          recipientId={student.id}
           recipientName={`${student.first_name} ${student.last_name}`}
           profileType="student"
           companyName={userProfile?.company_name}
@@ -731,26 +719,6 @@ const RenderPartnerDetails = ({
               <Text fontSize="14px" color="black">
                 {partner.location}
               </Text>
-            </HStack>
-          )}
-
-          {partner.email && (
-            <HStack gap={2} align="center">
-              <Image
-                src="/assets/emailicon.svg"
-                alt="website"
-                width={16}
-                height={16}
-              />
-              <Link
-                href={`mailto:${partner.email}`}
-                target="_blank"
-                fontSize="14px"
-                color="blue.500"
-                textDecoration="underline"
-              >
-                {partner.email}
-              </Link>
             </HStack>
           )}
 
@@ -957,17 +925,14 @@ const RenderPartnerDetails = ({
                   />
                 </Link>
               )}
-              <Link
-                href={`mailto:${partner.email || "contact@company.com"}`}
-                target="_blank"
-              >
+              <Box cursor="pointer" onClick={() => setShowContactModal(true)}>
                 <Image
                   src="/assets/mailicon.svg"
                   alt="Email"
                   width={24}
                   height={24}
                 />
-              </Link>
+              </Box>
             </HStack>
             <Button
               variant="partner"
@@ -989,9 +954,9 @@ const RenderPartnerDetails = ({
         </VStack>
       </Box>
 
-      {showContactModal && partner.email && (
+      {showContactModal && partner.id && (
         <ContactPage
-          recipientEmail={partner.email}
+          recipientId={partner.id}
           recipientName={
             partner.company_name || `${partner.first_name} ${partner.last_name}`
           }

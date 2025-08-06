@@ -43,7 +43,6 @@ export interface StudentProfile {
   status?: "International" | string;
   faculty?: string;
   resume_url?: string;
-  email?: string;
   questionnaire_answers?: Record<string, any>;
 }
 
@@ -58,7 +57,6 @@ export interface PartnerProfile {
   industry?: string;
   company_size?: string;
   logo_url?: string | null;
-  email?: string;
   availability?: string;
   abn_acn?: string;
   is_alum?: boolean;

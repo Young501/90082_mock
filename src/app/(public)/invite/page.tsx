@@ -17,8 +17,13 @@ function InviteContent() {
   const router = useRouter();
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
   const [countdown, setCountdown] = useState(3);
-  const { isAuthenticated, setInviteData, clearInviteData, user } =
-    useAuthStore();
+  const {
+    isAuthenticated,
+    setInviteData,
+    clearInviteData,
+    user,
+    setUserProfile,
+  } = useAuthStore();
 
   const token = searchParams.get("token");
   const opportunityId = searchParams.get("opportunity");
@@ -64,6 +69,7 @@ function InviteContent() {
       checkOnboardingStatus({
         user: user as User,
         router,
+        setUserProfile,
       });
     }
   }, [acceptInviteMutation.isSuccess, clearInviteData, user]);
