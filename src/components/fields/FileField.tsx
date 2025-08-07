@@ -7,7 +7,7 @@ import {
   Flex,
   IconButton,
 } from "@chakra-ui/react";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { Control, Controller } from "react-hook-form";
 import Image from "next/image";
 import { useAuthStore } from "@/store";
@@ -98,18 +98,18 @@ export const FileField = ({
     setPreviewUrl(fileUrl);
   };
 
-  const cleanupPreviewUrl = () => {
+  const cleanupPreviewUrl = useCallback(() => {
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
     }
-  };
+  }, [previewUrl]);
 
   useEffect(() => {
     return () => {
       cleanupPreviewUrl();
     };
-  }, []);
+  }, [cleanupPreviewUrl]);
 
   return (
     <Field.Root invalid={!!error} style={{ alignItems: "center" }}>
