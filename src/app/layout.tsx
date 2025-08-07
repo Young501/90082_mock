@@ -3,29 +3,22 @@ import { ReactNode } from "react";
 import Providers from "@/components/ui/providers";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: {
-    default: 'Unniconnected',
-    template: '%s | Unniconnected'
-  },
-  description: 'Unniconnected',
-  icons: {
-    icon: '/favicons/favicon.ico',
-    shortcut: '/favicons/favicon.ico',
-    apple: '/favicons/apple-touch-icon.png',
-    other: {
-      rel: 'apple-touch-icon',
-      url: '/favicons/apple-touch-icon.png',
-    },
-  },
-  manifest: '/favicons/site.webmanifest',
-}
+
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/favicons/favicon.ico" />
+        <link rel="shortcut icon" href="/favicons/favicon.ico" />
+        <link rel="apple-touch-icon" href="/favicons/apple-touch-icon.png" />
+        <link rel="manifest" href="/favicons/site.webmanifest" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        
+        <title>Unniconnected</title>
+        <meta name="description" content="Unniconnected" />
+      </head>
       <body>
         <Providers>
           <ToastContainer
@@ -48,3 +41,5 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   );
 }
+
+

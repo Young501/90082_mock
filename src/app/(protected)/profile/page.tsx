@@ -36,6 +36,8 @@ import { FullProfileCard } from "../discover/cards/FullProfileCard";
 import { useAuth } from "@/hooks/auth";
 import { InputField } from "@/components/ui";
 import Loader from "@/components/Loader";
+import { PageTitle } from "@/components/PageTitle";
+import { PAGE_TITLES } from "@/utils/pageTitles";
 
 const Profile = () => {
   const {
@@ -309,6 +311,8 @@ const Profile = () => {
   };
 
   return (
+    <>
+    <PageTitle title={PAGE_TITLES.PROFILE} />
     <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt="126px">
       <Flex
         w="100%"
@@ -600,6 +604,7 @@ const Profile = () => {
         </Box>
       </Flex>
     </Box>
+    </>
   );
 };
 

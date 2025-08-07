@@ -12,6 +12,8 @@ import { useAuthStore } from "@/store/authStore";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { authValidationSchema } from "@/utils/validationSchemas";
+import { PageTitle } from "@/components/PageTitle";
+import { PAGE_TITLES } from "@/utils/pageTitles";
 
 interface FormData {
   email: string;
@@ -90,7 +92,8 @@ const SignupPage = () => {
 
   return (
     <>
-      <Flex
+    <PageTitle title={PAGE_TITLES.SIGNUP} />
+    <Flex
         w="100%"
         position="relative"
         overflow="hidden"

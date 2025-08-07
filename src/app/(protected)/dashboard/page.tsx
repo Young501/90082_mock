@@ -15,6 +15,8 @@ import { useDashboard } from "@/hooks/useDashboard";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Loader from "@/components/Loader";
+import { PageTitle } from "@/components/PageTitle";
+import { PAGE_TITLES } from "@/utils/pageTitles";
 
 interface ProgressBarProps {
   value: number;
@@ -203,6 +205,8 @@ const DashboardPage = () => {
   ];
 
   return (
+    <>
+    <PageTitle title={PAGE_TITLES.DASHBOARD} />
     <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt="126px">
       <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
         <Text
@@ -521,6 +525,7 @@ const DashboardPage = () => {
         ></SimpleGrid>
       </Container>
     </Box>
+    </>
   );
 };
 

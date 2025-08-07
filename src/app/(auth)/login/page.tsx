@@ -12,6 +12,8 @@ import { useAuth } from "@/hooks/auth";
 import { authValidationSchema } from "@/utils/validationSchemas";
 import { useAuthStore } from "@/store";
 import Link from "next/link";
+import { PAGE_TITLES } from "@/utils/pageTitles";
+import { PageTitle } from "@/components/PageTitle";
 
 interface FormData {
   email: string;
@@ -24,6 +26,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { setInviteData } = useAuthStore();
+  
 
   const {
     handleLogin,
@@ -77,6 +80,8 @@ export default function LoginPage() {
   };
 
   return (
+    <>
+    <PageTitle title={PAGE_TITLES.LOGIN} />
     <div style={{ width: "100%", height: "100%" }}>
       <Flex
         h={{ base: "auto", lg: "calc(100vh - 306px)" }}
@@ -167,5 +172,6 @@ export default function LoginPage() {
         </Box>
       </Flex>
     </div>
+    </>
   );
 }
