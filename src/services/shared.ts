@@ -213,3 +213,22 @@ export function useQuestionnaireFilters(
     },
   });
 }
+
+export function useInviteParticipants() {
+  return useMutation({
+    mutationFn: async (data: {
+      opportunityId: string;
+      invitations: Array<{
+        email: string;
+        role: "student" | "partner";
+      }>;
+    }) => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.INVITE_PARTICIPANTS(data.opportunityId),
+        body: {
+          invitations: data.invitations,
+        },
+      });
+    },
+  });
+}

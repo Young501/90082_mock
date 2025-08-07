@@ -12,6 +12,7 @@ import { useAuthStore } from '@/store/authStore';
 import Loader from '@/components/Loader';
 import { PageTitle } from '@/components/PageTitle';
 import { PAGE_TITLES } from '@/utils/pageTitles';
+import { toast } from 'react-toastify';
 
 const ManagePage = () => {
     const searchParams = useSearchParams();
@@ -88,6 +89,7 @@ const ManagePage = () => {
         selectParticipant={selectParticipant}
         updateSelectedParticipant={updateSelectedParticipant}
         opportunityId={opportunityId}
+        type={type}
         /> : type === "partner" ? <PartnerPage 
         participants={participants}
         selectedParticipant={selectedParticipant}
@@ -101,6 +103,7 @@ const ManagePage = () => {
         selectParticipant={selectParticipant}
         updateSelectedParticipant={updateSelectedParticipant}
         opportunityId={opportunityId}
+        type={type}
         /> : <ManageDefault />}
     </Box>
     </>
@@ -122,6 +125,7 @@ const StudentPage = ({
     selectParticipant,
     updateSelectedParticipant,
     opportunityId,
+    type,
   }: {
     participants: any[];
     selectedParticipant: any;
@@ -135,7 +139,9 @@ const StudentPage = ({
     selectParticipant: (participant: any) => void;
     updateSelectedParticipant: (participant: any) => void;
     opportunityId: string;
+    type: string;
   }) => {
+    const router = useRouter();
     return (
         <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt="126px">
           <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
@@ -168,7 +174,7 @@ const StudentPage = ({
                 borderRadius={{ base: "10px", lg: "18px" }}
                 boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
                 onClick={() => {
-                  /* TODO: Add students functionality */
+                  router.push(`/dashboard/manage/invite?type=${type}`);
                 }}
               >
                 <Image
@@ -303,6 +309,7 @@ const PartnerPage = ({
     selectParticipant,
     updateSelectedParticipant,
     opportunityId,
+    type,
   }: {
     participants: any[];
     selectedParticipant: any;
@@ -316,7 +323,9 @@ const PartnerPage = ({
     selectParticipant: (participant: any) => void;
     updateSelectedParticipant: (participant: any) => void;
     opportunityId: string;
+    type: string;
   }) => {
+    const router = useRouter();
     return (
         <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt="126px">
           <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
@@ -349,7 +358,7 @@ const PartnerPage = ({
                 borderRadius={{ base: "10px", lg: "18px" }}
                 boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
                 onClick={() => {
-                  /* TODO: Add organisations functionality */
+                  router.push(`/dashboard/manage/invite?type=${type}`);
                 }}
               >
                 <Image

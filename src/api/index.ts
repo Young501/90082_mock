@@ -234,6 +234,10 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: "/api/v1/geocode/",
   },
+  INVITE_PARTICIPANTS: (opportunityId: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v1/opportunities/${opportunityId}/invite/`,
+  }),
 };
 
 
