@@ -14,7 +14,7 @@ import Logo from "@/components/Logo";
 import Image from "next/image";
 import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface MenuItem {
   label: string;
@@ -27,6 +27,7 @@ interface MenuItem {
 
 const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
+  const router = useRouter();
   const { handleLogout } = useAuth();
   const { logout, getUserType } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -213,6 +214,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     await handleLogout();
     logout();
     setIsMobileMenuOpen(false);
+    router.push("/login");
   };
 
   const handleMenuToggle = () => {

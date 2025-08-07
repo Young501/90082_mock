@@ -13,6 +13,8 @@ import {
 } from "@chakra-ui/react";
 import { CheckCircle } from "lucide-react";
 import { useAuthStore } from "@/store";
+import { PageTitle } from "@/components/PageTitle";
+import { PAGE_TITLES } from "@/utils/pageTitles";
 
 export default function EmailVerifySuccessPage() {
   const router = useRouter();
@@ -38,6 +40,8 @@ export default function EmailVerifySuccessPage() {
   };
 
   return (
+    <>
+    <PageTitle title={PAGE_TITLES.VERIFY_EMAIL_SUCCESS} />
     <Container maxW={containerMaxW} p={0} h="100%">
       <Box
         display="flex"
@@ -96,5 +100,6 @@ export default function EmailVerifySuccessPage() {
         </VStack>
       </Box>
     </Container>
+    </>
   );
 }

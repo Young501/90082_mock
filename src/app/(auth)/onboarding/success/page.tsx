@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/Button";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getInitials } from "@/utils/getInitials";
+import { PageTitle } from "@/components/PageTitle";
+import { PAGE_TITLES } from "@/utils/pageTitles";
 
 export default function OnboardingSuccessPage() {
   const router = useRouter();
@@ -52,6 +54,8 @@ export default function OnboardingSuccessPage() {
   };
 
   return (
+    <>
+    <PageTitle title={PAGE_TITLES.ONBOARDING_SUCCESS} />
     <Container maxW={containerMaxW} pb={10} h="100%">
       <Box
         display="flex"
@@ -163,5 +167,6 @@ export default function OnboardingSuccessPage() {
         </Box>
       </Box>
     </Container>
+    </>
   );
 }

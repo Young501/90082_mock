@@ -9,6 +9,8 @@ import Image from "next/image";
 import { useAuthStore } from "@/store/authStore";
 import { UserTypeData } from "@/types/auth";
 import { userTypesData } from "@/utils/constants";
+import { PageTitle } from "@/components/PageTitle";
+import { PAGE_TITLES } from "@/utils/pageTitles";
 
 const MotionBox = motion.create(Box);
 const MotionFlex = motion.create(Flex);
@@ -137,6 +139,8 @@ export default function UserTypePage() {
   };
 
   return (
+    <>
+    <PageTitle title={PAGE_TITLES.USER_TYPE} />
     <Box
       display={["block", "block", "block", "flex"]}
       flexDirection={"column"}
@@ -498,5 +502,6 @@ export default function UserTypePage() {
         </Box>
       </Flex>
     </Box>
+    </>
   );
 }

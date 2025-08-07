@@ -9,6 +9,8 @@ import { InviteCard } from "./InviteCard";
 import { LoadingState } from "./LoadingState";
 import { useAuthStore } from "@/store";
 import { toast } from "react-toastify";
+import { PageTitle } from "@/components/PageTitle";
+import { PAGE_TITLES } from "@/utils/pageTitles";
 
 function InviteContent() {
   const searchParams = useSearchParams();
@@ -129,6 +131,8 @@ function InviteContent() {
   }
 
   return (
+    <>
+    <PageTitle title={PAGE_TITLES.INVITE} />
     <Container maxW={containerMaxW} p={0} h="100%">
       <InviteCard
         opportunity={opportunity}
@@ -136,6 +140,7 @@ function InviteContent() {
         acceptInviteMutation={acceptInviteMutation}
       />
     </Container>
+    </>
   );
 }
 

@@ -19,6 +19,8 @@ import { Participant } from "@/types/dashboard";
 import ManageFilter from "@/app/(protected)/dashboard/components/ManageFilter";
 import { toast } from "react-toastify";
 import Loader from "@/components/Loader";
+import { PageTitle } from "@/components/PageTitle";
+import { PAGE_TITLES } from "@/utils/pageTitles";
 
 const Match = () => {
   const router = useRouter();
@@ -67,6 +69,8 @@ const Match = () => {
   };
 
   return (
+    <>
+    <PageTitle title={PAGE_TITLES.MATCH} />
     <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt="126px">
       <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
         <Text
@@ -181,6 +185,7 @@ const Match = () => {
         />
       </Container>
     </Box>
+    </>
   );
 };
 

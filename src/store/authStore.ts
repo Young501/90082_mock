@@ -75,9 +75,9 @@ export const useAuthStore = create<AuthState>()(
           inviteOpportunityId: null,
         });
 
-        if (typeof window !== "undefined") {
-          window.location.href = "/login/";
-        }
+        // if (typeof window !== "undefined") {
+        //   window.location.href = "/login/";
+        // }
       },
 
       setUserType: (userType: string) => {

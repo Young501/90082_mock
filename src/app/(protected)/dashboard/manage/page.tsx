@@ -10,6 +10,8 @@ import { useManage } from '@/hooks/useManage';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import Loader from '@/components/Loader';
+import { PageTitle } from '@/components/PageTitle';
+import { PAGE_TITLES } from '@/utils/pageTitles';
 
 const ManagePage = () => {
     const searchParams = useSearchParams();
@@ -70,6 +72,8 @@ const ManagePage = () => {
         );
       }
   return (
+    <>
+    <PageTitle title={type === "student" ? PAGE_TITLES.MANAGE_STUDENTS : PAGE_TITLES.MANAGE_PARTNERS} />
     <Box>
         {type === "student" ? <StudentPage 
         participants={participants}
@@ -99,6 +103,7 @@ const ManagePage = () => {
         opportunityId={opportunityId}
         /> : <ManageDefault />}
     </Box>
+    </>
   )
 };
 

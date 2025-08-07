@@ -1,10 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Box, VStack, Heading, Text, Separator } from "@chakra-ui/react";
 import { useDiscovery } from "@/hooks/useDiscovery";
 import { DiscoveryFilterBox } from "./DiscoveryFilterBox";
 import { DiscoveryResultBox } from "./DiscoveryResultBox";
+import { PageTitle } from "@/components/PageTitle";
+import { PAGE_TITLES } from "@/utils/pageTitles";
 
 export default function DiscoveryPage() {
   const {
@@ -32,7 +34,10 @@ export default function DiscoveryPage() {
   const { control, watch, getValues } = form;
   const watchedValues = watch();
 
+
   return (
+    <>
+    <PageTitle title={PAGE_TITLES.DISCOVER} />
     <Box p={6} maxW="1280px" mx="auto" mt="126px">
       <VStack align="stretch" mb={8}>
         <Heading size="lg" color="#282F68">
@@ -76,5 +81,6 @@ export default function DiscoveryPage() {
         opportunityId={opportunityId}
       />
     </Box>
+    </>
   );
 }

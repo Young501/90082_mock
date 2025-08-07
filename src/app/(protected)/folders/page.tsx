@@ -27,6 +27,8 @@ import { toast } from "react-toastify";
 import { Folder as FolderType } from "@/types/folder";
 import { useAuthStore } from "@/store";
 import Loader from "@/components/Loader";
+import { PageTitle } from "@/components/PageTitle";
+import { PAGE_TITLES } from "@/utils/pageTitles";
 
 const Folder = () => {
   const router = useRouter();
@@ -219,6 +221,8 @@ const Folder = () => {
   }
 
   return (
+    <>
+    <PageTitle title={PAGE_TITLES.FOLDERS} />
     <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt="126px">
       <VStack
         align="stretch"
@@ -314,6 +318,7 @@ const Folder = () => {
         folder={folderModal.currentFolder}
       />
     </Box>
+    </>
   );
 };
 

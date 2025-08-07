@@ -13,6 +13,8 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { XCircle } from "lucide-react";
+import { PageTitle } from "@/components/PageTitle";
+import { PAGE_TITLES } from "@/utils/pageTitles";
 
 function EmailVerifyFailedContent() {
   const searchParams = useSearchParams();
@@ -50,6 +52,8 @@ function EmailVerifyFailedContent() {
   };
 
   return (
+    <>
+    <PageTitle title={PAGE_TITLES.VERIFY_EMAIL_FAILED} />
     <Container maxW={containerMaxW} p={0} h="100%">
       <Box
         display="flex"
@@ -146,6 +150,7 @@ function EmailVerifyFailedContent() {
         </VStack>
       </Box>
     </Container>
+    </>
   );
 }
 

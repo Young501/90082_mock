@@ -9,6 +9,8 @@ import {
   VStack,
   useBreakpointValue,
 } from "@chakra-ui/react";
+import { PageTitle } from "@/components/PageTitle";
+import { PAGE_TITLES } from "@/utils/pageTitles";
 
 function EmailSentContent() {
   const searchParams = useSearchParams();
@@ -21,6 +23,8 @@ function EmailSentContent() {
   }, [searchParams]);
 
   return (
+    <>
+    <PageTitle title={PAGE_TITLES.VERIFY_EMAIL_SENT} />
     <Container maxW={containerMaxW} p={0} h="100%">
       <Box
         display="flex"
@@ -66,6 +70,7 @@ function EmailSentContent() {
         </VStack>
       </Box>
     </Container>
+    </>
   );
 }
 

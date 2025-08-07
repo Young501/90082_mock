@@ -11,6 +11,8 @@ import {
 } from "@chakra-ui/react";
 import { useEmailVerification } from "@/services/emailVerification";
 import Loader from "@/components/Loader";
+import { PageTitle } from "@/components/PageTitle";
+import { PAGE_TITLES } from "@/utils/pageTitles";
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
@@ -57,6 +59,8 @@ function VerifyEmailContent() {
   }, [verifyEmailToken]);
 
   return (
+    <>
+    <PageTitle title={PAGE_TITLES.VERIFY_EMAIL} />
     <Container maxW={containerMaxW} p={0} h="100%">
       <Box
         display="flex"
@@ -90,6 +94,7 @@ function VerifyEmailContent() {
         </VStack>
       </Box>
     </Container>
+    </>
   );
 }
 
