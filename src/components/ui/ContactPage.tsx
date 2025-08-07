@@ -20,9 +20,8 @@ import { ContactPageProps, ContactFormData } from "@/types/contact";
 import Image from "next/image";
 import { emailContactValidationSchema } from "@/utils/validationSchemas";
 
-
 export function ContactPage({
-  recipientEmail,
+  recipientId,
   recipientName,
   profileType,
   onBack,
@@ -34,9 +33,9 @@ export function ContactPage({
 
   const getDefaultSubject = () => {
     if (profileType === "partner") {
-      return `New message from [${user?.email || "User"}] via UniConnected`;
+      return `New message from ${user?.first_name || "User"} via UniConnected`;
     } else {
-      return `New message from [${companyName || user?.email || "User"}] via UniConnected`;
+      return `New message from ${companyName || user?.first_name || "User"} via UniConnected`;
     }
   };
 
@@ -48,7 +47,7 @@ export function ContactPage({
   } = useForm<ContactFormData>({
     resolver: yupResolver(emailContactValidationSchema),
     defaultValues: {
-      to: recipientEmail,
+      user_id: recipientId,
       reply_to: user?.email || "",
       subject: getDefaultSubject(),
       message: "",
@@ -66,7 +65,7 @@ export function ContactPage({
     try {
       await contactMutation.mutateAsync({
         opportunityId: currentOpportunityId.toString(),
-        to: data.to,
+        user_id: data.user_id,
         reply_to: data.reply_to,
         subject: data.subject || "",
         message: data.message,
@@ -91,39 +90,35 @@ export function ContactPage({
       zIndex={1000}
       overflow="auto"
     >
-      <Box
-        maxW="600px"
-        mx="auto"
-        p={6}
-        display="flex"
-        flexDirection="column"
-      >
+      <Box maxW="600px" mx="auto" p={6} display="flex" flexDirection="column">
+        <Heading size="lg" color="#282F68" mb={6} textAlign="center">
+          Contact {recipientName}
+        </Heading>
 
-            
-          <Heading size="lg" color="#282F68" mb={6} textAlign="center">
-            Contact {recipientName}
-          </Heading>
-
-
-        <Box flex={1} display="flex" justifyContent="center" alignItems="flex-start">
-          <Box w="full" >
+        <Box
+          flex={1}
+          display="flex"
+          justifyContent="center"
+          alignItems="flex-start"
+        >
+          <Box w="full">
             <form onSubmit={handleSubmit(onSubmit)}>
+              <input
+                type="hidden"
+                {...register("user_id")}
+                value={recipientId}
+              />
               <VStack align="stretch" gap={6}>
                 <Box>
                   <Text mb={2} fontWeight="medium">
                     To:
                   </Text>
                   <Input
-                    {...register("to")}
+                    value={recipientName}
                     readOnly
                     bg="gray.50"
                     color="gray.600"
                   />
-                  {errors.to && (
-                    <Text color="red.500" fontSize="sm" mt={1}>
-                      {errors.to.message}
-                    </Text>
-                  )}
                 </Box>
 
                 <Box>
@@ -167,10 +162,13 @@ export function ContactPage({
                 </Box>
 
                 <Box display="flex" gap={3} justifyContent="flex-end" mt={6}>
-                  <Button variant="outline" onClick={onBack} 
+                  <Button
+                    variant="outline"
+                    onClick={onBack}
                     _active={{
                       transform: "scale(0.98)",
-                    }}>
+                    }}
+                  >
                     Cancel
                   </Button>
                   <Button
