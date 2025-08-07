@@ -1,5 +1,5 @@
 export interface ContactPageProps {
-  recipientEmail: string;
+  recipientId: number;
   recipientName: string;
   profileType: "student" | "partner";
   onBack: () => void;
@@ -7,7 +7,7 @@ export interface ContactPageProps {
 }
 
 export interface ContactFormData {
-  to: string;
+  user_id: number;
   reply_to: string;
   subject: string;
   message: string;

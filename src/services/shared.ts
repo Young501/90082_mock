@@ -127,7 +127,10 @@ export function useUserProfile(userType: string) {
 export function useStudentProfile(id: string, opportunityId: string) {
   return useQuery({
     queryKey: ["student-profile", id, opportunityId],
-    queryFn: () => apiRequest({ endpoint: API_ENDPOINTS.STUDENT_PROFILE(id, opportunityId) }),
+    queryFn: () =>
+      apiRequest({
+        endpoint: API_ENDPOINTS.STUDENT_PROFILE(id, opportunityId),
+      }),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
     retry: (failureCount, error: any) => {
@@ -142,7 +145,10 @@ export function useStudentProfile(id: string, opportunityId: string) {
 export function usePartnerProfile(id: string, opportunityId: string) {
   return useQuery({
     queryKey: ["partner-profile", id, opportunityId],
-    queryFn: () => apiRequest({ endpoint: API_ENDPOINTS.PARTNER_PROFILE(id, opportunityId) }),
+    queryFn: () =>
+      apiRequest({
+        endpoint: API_ENDPOINTS.PARTNER_PROFILE(id, opportunityId),
+      }),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
     retry: (failureCount, error: any) => {
@@ -175,7 +181,7 @@ export function useContactUser() {
   return useMutation({
     mutationFn: async (data: {
       opportunityId: string;
-      to: string;
+      user_id: number;
       reply_to: string;
       subject?: string;
       message: string;
@@ -183,7 +189,7 @@ export function useContactUser() {
       return apiRequest({
         endpoint: API_ENDPOINTS.CONTACT_USER(data.opportunityId),
         body: {
-          to: data.to,
+          user_id: data.user_id,
           reply_to: data.reply_to,
           subject: data.subject || "",
           message: data.message,

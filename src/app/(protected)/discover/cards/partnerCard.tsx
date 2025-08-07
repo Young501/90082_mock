@@ -133,25 +133,23 @@ export function PartnerCard({
               w="full"
             >
               <Box display="flex" flexDirection="column" gap={6}>
-                  <Avatar.Root
-                    w="130px"
-                    h="130px"
-                    borderRadius="full"
-                    border="6px solid #22C45E"
-                  >
-                    <Avatar.Fallback
-                      name={partner.first_name + " " + partner.last_name}
-                      bg="gray.200"
-                      color="gray.800"
-                      fontWeight="bold"
-                      fontSize="2xl"
-                    />
-                    {getCompanyLogo() && (
-                      <Avatar.Image
-                        src={getCompanyLogo() || ""}                        
-                      />
-                    )}
-                  </Avatar.Root>
+                <Avatar.Root
+                  w="130px"
+                  h="130px"
+                  borderRadius="full"
+                  border="6px solid #22C45E"
+                >
+                  <Avatar.Fallback
+                    name={partner.first_name + " " + partner.last_name}
+                    bg="gray.200"
+                    color="gray.800"
+                    fontWeight="bold"
+                    fontSize="2xl"
+                  />
+                  {getCompanyLogo() && (
+                    <Avatar.Image src={getCompanyLogo() || ""} />
+                  )}
+                </Avatar.Root>
 
                 <Box
                   bg="#22C45E"
@@ -200,30 +198,6 @@ export function PartnerCard({
                       </Box>
                       <Text fontSize="sm" color="gray.600">
                         {partner.location || ""}
-                      </Text>
-                    </HStack>
-                  )}
-
-                  {partner.email && (
-                    <HStack gap={2} align="center">
-                      <Box
-                        w="16px"
-                        h="16px"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        flexShrink={0}
-                      >
-                        <Image
-                          width={12}
-                          height={12}
-                          src="/assets/emailicon.svg"
-                          alt="email"
-                          objectFit="contain"
-                        />
-                      </Box>
-                      <Text fontSize="sm" color="gray.600">
-                        {partner.email || ""}
                       </Text>
                     </HStack>
                   )}

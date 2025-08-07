@@ -33,7 +33,13 @@ function InviteContent() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (!isAuthLoading && !isAuthenticated && !user && token && opportunityId) {
+      if (
+        !isAuthLoading &&
+        !isAuthenticated &&
+        !user &&
+        token &&
+        opportunityId
+      ) {
         setInviteData(token, opportunityId);
         router.push(
           `/user-type/?invite_token=${token}&opportunity_id=${opportunityId}`
@@ -46,7 +52,15 @@ function InviteContent() {
       setIsAuthLoading(false);
     };
     checkAuth();
-  }, [token, opportunityId, isAuthenticated, user, isAuthLoading, router, setInviteData]);
+  }, [
+    token,
+    opportunityId,
+    isAuthenticated,
+    user,
+    isAuthLoading,
+    router,
+    setInviteData,
+  ]);
 
   useEffect(() => {
     if (acceptInviteMutation.isSuccess) {
@@ -63,7 +77,6 @@ function InviteContent() {
 
       return () => clearInterval(timer);
     }
-
   }, [acceptInviteMutation.isSuccess, clearInviteData, user, router]);
 
   const handleAcceptInvite = useCallback(
