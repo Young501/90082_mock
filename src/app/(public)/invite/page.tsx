@@ -8,8 +8,6 @@ import { InviteStatusPage } from "./InviteStatusPage";
 import { InviteCard } from "./InviteCard";
 import { LoadingState } from "./LoadingState";
 import { useAuthStore } from "@/store";
-import { checkOnboardingStatus } from "@/hooks/auth";
-import { User } from "@/types/user";
 import { toast } from "react-toastify";
 
 function InviteContent() {
@@ -17,13 +15,9 @@ function InviteContent() {
   const router = useRouter();
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
   const [countdown, setCountdown] = useState(3);
-  const {
-    isAuthenticated,
-    setInviteData,
-    clearInviteData,
-    user,
-    setUserProfile,
-  } = useAuthStore();
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const { isAuthenticated, setInviteData, clearInviteData, user } =
+    useAuthStore();
 
   const token = searchParams.get("token");
   const opportunityId = searchParams.get("opportunity");
@@ -36,17 +30,35 @@ function InviteContent() {
   } = useOpportunityDetail(opportunityId || "");
 
   useEffect(() => {
-    if (!isAuthenticated && token && opportunityId) {
-      setInviteData(token, opportunityId);
-      router.push(
-        `/user-type/?invite_token=${token}&opportunity_id=${opportunityId}`
-      );
-      toast.error(
-        "You need to be logged in to accept an invitation. Redirecting to signup..."
-      );
-      return;
-    }
-  }, [token, opportunityId, isAuthenticated, router, setInviteData]);
+    const checkAuth = async () => {
+      if (
+        !isAuthLoading &&
+        !isAuthenticated &&
+        !user &&
+        token &&
+        opportunityId
+      ) {
+        setInviteData(token, opportunityId);
+        router.push(
+          `/user-type/?invite_token=${token}&opportunity_id=${opportunityId}`
+        );
+        toast.error(
+          "You need to be logged in to accept an invitation. Redirecting to signup..."
+        );
+        return;
+      }
+      setIsAuthLoading(false);
+    };
+    checkAuth();
+  }, [
+    token,
+    opportunityId,
+    isAuthenticated,
+    user,
+    isAuthLoading,
+    router,
+    setInviteData,
+  ]);
 
   useEffect(() => {
     if (acceptInviteMutation.isSuccess) {
@@ -63,16 +75,7 @@ function InviteContent() {
 
       return () => clearInterval(timer);
     }
-
-    if (user) {
-      console.log("user-invite-page", user);
-      checkOnboardingStatus({
-        user: user as User,
-        router,
-        setUserProfile,
-      });
-    }
-  }, [acceptInviteMutation.isSuccess, clearInviteData, user]);
+  }, [acceptInviteMutation.isSuccess, clearInviteData, user, router]);
 
   const handleAcceptInvite = useCallback(
     (questionnaire_answers?: Record<string, any>) => {
@@ -96,7 +99,7 @@ function InviteContent() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (isAuthLoading || !isAuthenticated) {
     return <LoadingState />;
   }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { Container, useBreakpointValue, Box } from "@chakra-ui/react";
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import Footer from "@/components/Layouts/Footer";
 import Header from "@/components/Layouts/Header";
 
@@ -14,6 +14,8 @@ export default function Layout({ children }: AuthLayoutProps) {
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
 
   return (
+    <Suspense fallback={<div>Loading...</div>}>
+      
     <div
       style={{
         minHeight: "100vh",
@@ -45,5 +47,6 @@ export default function Layout({ children }: AuthLayoutProps) {
       {/* TO DO: Mobile footer missing */}
       {!isMobile && <Footer />}
     </div>
+    </Suspense>
   );
 }
