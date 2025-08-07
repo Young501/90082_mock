@@ -16,7 +16,6 @@ export interface DashboardStats {
 interface MatchedWith {
   id: number;
   name?: string;
-  email?: string;
   user_type?: string;
   matched_at?: string;
   match_id?: number;
@@ -25,7 +24,6 @@ interface MatchedWith {
 export interface Participant {
   id: number;
   name?: string;
-  email?: string;
   user_type?: string;
   accepted_status?: string;
   has_profile?: boolean;
@@ -40,13 +38,11 @@ export interface Participant {
       sender: {
         id: number;
         name?: string;
-        email?: string;
         user_type?: string;
       };
       receiver: {
         id: number;
         name?: string;
-        email?: string;
         user_type?: string;
       };
       sent_at: string;
