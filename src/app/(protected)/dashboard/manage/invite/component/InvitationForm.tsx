@@ -44,7 +44,6 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
     return emailRegex.test(email.trim());
   };
 
-
   const removeEmail = (emailToRemove: string) => {
     setEmails(emails.filter(email => email !== emailToRemove));
   };
@@ -125,11 +124,28 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
         toast.success(`Invitations sent successfully to ${invitationsSent} ${userType === 'student' ? 'student(s)' : 'organisation(s)'}`);
       } else if (invitationsSent > 0 && failedInvitations > 0) {
         toast.success(`${invitationsSent} invitation${invitationsSent > 1 ? 's' : ''} sent successfully, ${failedInvitations} failed`);
-        
-        
+
+        const failedInvitationsList = response.failed_invitations.map((invitation: string) => {
+          const [email, reason] = invitation.split(': ');
+          return `${email}: ${reason}`;
+        });
+
+        toast.error(`Failed invitations:\n${failedInvitationsList.join('\n')}`, {
+          autoClose: 10000,
+          closeOnClick: false,
+          pauseOnHover: true,
+        });
+        console.log(failedInvitationsList);
       } else if (invitationsSent === 0 && failedInvitations > 0) {
         toast.error(`All invitations failed. ${failedInvitations} ${userType === 'student' ? 'student(s)' : 'organisation(s)'}, Already Invited`);
         
+        const failedInvitationsList = response.failed_invitations.map((invitation: string) => {
+          const [email, reason] = invitation.split(': ');
+          return `${email}: ${reason}`;
+        });
+        toast.error(`Failed invitations:\n${failedInvitationsList.join('\n')}`);
+        console.log(failedInvitationsList);
+
       } else {
         toast.success(response.detail || `Invitations sent successfully to ${emails.length} ${userType === 'student' ? 'student(s)' : 'organisation(s)'}`);
       }
@@ -138,8 +154,40 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
       setEmailInput('');
       onSuccess?.();
     } catch (error: any) {
-      console.log(error);
-      toast.error(error?.detail || 'Failed to send invitations. Please try again.');
+      if (error?.response?.status === 400 && error?.response?.data) {
+        const responseData = error.response.data;
+        
+        if (responseData.invitations_sent === 0 && responseData.failed_invitations?.length > 0) {
+          const failedInvitationsList = responseData.failed_invitations.map((invitation: string) => {
+            const [email, reason] = invitation.split(': ');
+            return `${email}: ${reason}`;
+          });
+          
+          toast.error(`All invitations failed. ${responseData.failed_invitations.length} ${userType === 'student' ? 'student(s)' : 'organisation(s)'} already invited.`);
+          toast.error(`Failed invitations:\n${failedInvitationsList.join('\n')}`, {
+            autoClose: 10000,
+            closeOnClick: false,
+            pauseOnHover: true,
+          });
+        } else if (responseData.invitations_sent > 0 && responseData.failed_invitations?.length > 0) {
+          toast.success(`${responseData.invitations_sent} invitation${responseData.invitations_sent > 1 ? 's' : ''} sent successfully, ${responseData.failed_invitations.length} failed`);
+          
+          const failedInvitationsList = responseData.failed_invitations.map((invitation: string) => {
+            const [email, reason] = invitation.split(': ');
+            return `${email}: ${reason}`;
+          });
+          
+          toast.error(`Failed invitations:\n${failedInvitationsList.join('\n')}`, {
+            autoClose: 10000,
+            closeOnClick: false,
+            pauseOnHover: true,
+          });
+        } else {
+          toast.error(responseData.detail || 'Failed to send invitations. Please try again.');
+        }
+      } else {
+        toast.error(error?.detail || 'Failed to send invitations. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -268,7 +316,7 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
               maxH="300px"
               overflowY="auto"
             >
-              <Flex wrap="wrap" gap={2} justify="center">
+              <Flex wrap="wrap" gap={2} justify="start">
                 {emails.map((email, index) => (
                   <Badge
                     key={index}
@@ -281,12 +329,12 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
                     fontWeight="500"
                     display="flex"
                     alignItems="center"
-                    maxW="220px"
+                    maxW="300px"
                     gap={2}
                   >
                     <Tooltip content={email}>
                       <Text
-                        maxW="200px"
+                        maxW="250px"
                         style={{textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'}}
                       >
                         {email}

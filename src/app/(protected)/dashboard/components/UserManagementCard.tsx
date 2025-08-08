@@ -3,6 +3,7 @@ import { Box, HStack, VStack, Text, Avatar, Badge } from "@chakra-ui/react";
 import { Participant } from "@/types/dashboard";
 import { getInitial } from "@/utils/getInitials";
 import Image from "next/image";
+import { Tooltip } from "@/components/ui/tooltip";
 
 interface UserManagementCardProps {
   participant: Participant;
@@ -125,9 +126,11 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
         </Box>
         <VStack align="start" flex={1} gap={1}>
           <HStack>
-            <Text fontWeight="600" fontSize="md">
-              {participant.name}
-            </Text>
+            <Tooltip content={participant.name}>
+              <Text fontWeight="600" fontSize="md" maxW={{base: "150px", md: "250px", lg: "150px", xl: "250px"}} style={{textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'}}>
+                {participant.name}
+              </Text>
+            </Tooltip>
 
             {isMatched && (
               <Image
