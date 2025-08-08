@@ -119,7 +119,6 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
 
       const invitationsSent = response.invitations_sent || 0;
       const failedInvitations = response.failed_invitations.length || [];
-      // const failedInvitationsList = response.failed_invitations || [];
 
       if (invitationsSent > 0 && failedInvitations.length === 0) {
         toast.success(`Invitations sent successfully to ${invitationsSent} ${userType === 'student' ? 'student(s)' : 'organisation(s)'}`);
@@ -131,7 +130,11 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
           return `${email}: ${reason}`;
         });
 
-        toast.error(`Failed invitations:\n${failedInvitationsList.join('\n')}`);
+        toast.error(`Failed invitations:\n${failedInvitationsList.join('\n')}`, {
+          autoClose: 10000,
+          closeOnClick: false,
+          pauseOnHover: true,
+        });
         console.log(failedInvitationsList);
       } else if (invitationsSent === 0 && failedInvitations > 0) {
         toast.error(`All invitations failed. ${failedInvitations} ${userType === 'student' ? 'student(s)' : 'organisation(s)'}, Already Invited`);
@@ -151,7 +154,40 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
       setEmailInput('');
       onSuccess?.();
     } catch (error: any) {
-      toast.error(error?.detail || 'Failed to send invitations. Please try again.');
+      if (error?.response?.status === 400 && error?.response?.data) {
+        const responseData = error.response.data;
+        
+        if (responseData.invitations_sent === 0 && responseData.failed_invitations?.length > 0) {
+          const failedInvitationsList = responseData.failed_invitations.map((invitation: string) => {
+            const [email, reason] = invitation.split(': ');
+            return `${email}: ${reason}`;
+          });
+          
+          toast.error(`All invitations failed. ${responseData.failed_invitations.length} ${userType === 'student' ? 'student(s)' : 'organisation(s)'} already invited.`);
+          toast.error(`Failed invitations:\n${failedInvitationsList.join('\n')}`, {
+            autoClose: 10000,
+            closeOnClick: false,
+            pauseOnHover: true,
+          });
+        } else if (responseData.invitations_sent > 0 && responseData.failed_invitations?.length > 0) {
+          toast.success(`${responseData.invitations_sent} invitation${responseData.invitations_sent > 1 ? 's' : ''} sent successfully, ${responseData.failed_invitations.length} failed`);
+          
+          const failedInvitationsList = responseData.failed_invitations.map((invitation: string) => {
+            const [email, reason] = invitation.split(': ');
+            return `${email}: ${reason}`;
+          });
+          
+          toast.error(`Failed invitations:\n${failedInvitationsList.join('\n')}`, {
+            autoClose: 10000,
+            closeOnClick: false,
+            pauseOnHover: true,
+          });
+        } else {
+          toast.error(responseData.detail || 'Failed to send invitations. Please try again.');
+        }
+      } else {
+        toast.error(error?.detail || 'Failed to send invitations. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
