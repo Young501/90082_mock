@@ -44,7 +44,6 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
     return emailRegex.test(email.trim());
   };
 
-
   const removeEmail = (emailToRemove: string) => {
     setEmails(emails.filter(email => email !== emailToRemove));
   };
@@ -120,16 +119,30 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
 
       const invitationsSent = response.invitations_sent || 0;
       const failedInvitations = response.failed_invitations.length || [];
+      // const failedInvitationsList = response.failed_invitations || [];
 
       if (invitationsSent > 0 && failedInvitations.length === 0) {
         toast.success(`Invitations sent successfully to ${invitationsSent} ${userType === 'student' ? 'student(s)' : 'organisation(s)'}`);
       } else if (invitationsSent > 0 && failedInvitations > 0) {
         toast.success(`${invitationsSent} invitation${invitationsSent > 1 ? 's' : ''} sent successfully, ${failedInvitations} failed`);
-        
-        
+
+        const failedInvitationsList = response.failed_invitations.map((invitation: string) => {
+          const [email, reason] = invitation.split(': ');
+          return `${email}: ${reason}`;
+        });
+
+        toast.error(`Failed invitations:\n${failedInvitationsList.join('\n')}`);
+        console.log(failedInvitationsList);
       } else if (invitationsSent === 0 && failedInvitations > 0) {
         toast.error(`All invitations failed. ${failedInvitations} ${userType === 'student' ? 'student(s)' : 'organisation(s)'}, Already Invited`);
         
+        const failedInvitationsList = response.failed_invitations.map((invitation: string) => {
+          const [email, reason] = invitation.split(': ');
+          return `${email}: ${reason}`;
+        });
+        toast.error(`Failed invitations:\n${failedInvitationsList.join('\n')}`);
+        console.log(failedInvitationsList);
+
       } else {
         toast.success(response.detail || `Invitations sent successfully to ${emails.length} ${userType === 'student' ? 'student(s)' : 'organisation(s)'}`);
       }
@@ -138,7 +151,6 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
       setEmailInput('');
       onSuccess?.();
     } catch (error: any) {
-      console.log(error);
       toast.error(error?.detail || 'Failed to send invitations. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -268,7 +280,7 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
               maxH="300px"
               overflowY="auto"
             >
-              <Flex wrap="wrap" gap={2} justify="center">
+              <Flex wrap="wrap" gap={2} justify="start">
                 {emails.map((email, index) => (
                   <Badge
                     key={index}
@@ -281,12 +293,12 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
                     fontWeight="500"
                     display="flex"
                     alignItems="center"
-                    maxW="220px"
+                    maxW="300px"
                     gap={2}
                   >
                     <Tooltip content={email}>
                       <Text
-                        maxW="200px"
+                        maxW="250px"
                         style={{textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'}}
                       >
                         {email}

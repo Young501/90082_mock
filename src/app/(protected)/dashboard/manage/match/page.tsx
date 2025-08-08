@@ -37,6 +37,7 @@ const Match = () => {
     () => ({
       user_type: "partner",
       page,
+      accepted_status: "accepted",
       page_size: pageSize,
       text: search,
     }),
@@ -45,7 +46,7 @@ const Match = () => {
 
   const { data, isLoading, error } = useParticipants(
     opportunityId || "",
-    filters
+    filters,
   );
   const matchStudentMutation = useMatchStudent(opportunityId || "");
 
