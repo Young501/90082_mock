@@ -6,12 +6,14 @@ interface ClearButtonProps {
   fieldLabel: string;
   onClear: () => void;
   show: boolean;
+  props?: any;
 }
 
 export const ClearButton: React.FC<ClearButtonProps> = ({
   fieldLabel,
   onClear,
   show,
+  props = {},
 }) => {
   if (!show) return null;
 
@@ -29,6 +31,7 @@ export const ClearButton: React.FC<ClearButtonProps> = ({
         color: "gray.700",
       }}
       onClick={onClear}
+      {...props}
     >
       <X size={16} />
     </IconButton>
