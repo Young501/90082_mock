@@ -355,6 +355,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
                 }}
               />
               </Box>
+              {hasValue && (
               <ClearButton
                 fieldLabel={field.label}
                 onClear={() => formField.onChange("")}
@@ -363,6 +364,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
                  maxWidth: "25px",
                 }}
               />
+              )}
             </HStack>
           )
         }}
