@@ -323,7 +323,6 @@ const Profile = () => {
           bg="white"
           borderRadius="22px"
           p={6}
-          mt={{ base: 6, lg: 0 }}
           maxW={{ base: "100%", md: "350px", lg: "444px" }}
           w="100%"
           h="fit-content"
