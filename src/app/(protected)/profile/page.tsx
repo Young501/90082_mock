@@ -229,7 +229,7 @@ const Profile = () => {
 
   if (isOnboardingLoading) {
     return (
-      <Box p={6} maxW="1280px" mx="auto" mt="126px">
+      <Box p={6} maxW="1280px" mx="auto" mt={{base: "80px", lg: "126px"}}>
         <Loader size="lg" />
       </Box>
     );
@@ -313,7 +313,7 @@ const Profile = () => {
   return (
     <>
     <PageTitle title={PAGE_TITLES.PROFILE} />
-    <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt="126px">
+    <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt={{base: "80px", lg: "126px"}}>
       <Flex
         w="100%"
         direction={{ base: "column", md: "row" }}

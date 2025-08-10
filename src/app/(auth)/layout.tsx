@@ -31,7 +31,7 @@ export default function Layout({ children }: AuthLayoutProps) {
         flex="1"
         display="flex"
         flexDirection="column"
-        mt="126px"
+        mt={{base: "80px", lg: "126px"}}
         minH="calc(100vh - 305px)"
         overflow="auto"
         overflowX="hidden"

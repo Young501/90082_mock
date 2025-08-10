@@ -201,40 +201,44 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
   return (
     <Box
       bg="white"
-      borderRadius="24px"
-      p={{ base: 6, lg: 8 }}
+      borderRadius={{ base: "16px", md: "20px", lg: "24px" }}
+      p={{ base: 4, sm: 5, md: 6, lg: 8 }}
       boxShadow="0px 8px 32px rgba(0, 0, 0, 0.12)"
-      minW="800px"
-      maxW={{ base: "100%", lg: "800px" }}
+      minW={{ base: "100%", md: "600px", lg: "800px" }}
+      maxW={{ base: "100%", md: "700px", lg: "800px" }}
       mx="auto"
       border="1px solid"
       borderColor="gray.200"
+      w="100%"
     >
-      <VStack gap={8} align="stretch">
+      <VStack gap={{ base: 6, md: 7, lg: 8 }} align="stretch">
         <Box textAlign="center">
-          <HStack justify="center" mb={3}>
-            <Users size={24} color="#2CA9DF" />
+          <HStack justify="center" mb={{ base: 2, md: 3 }}>
+                          <Users size={24} color="#2CA9DF" />
             <Text
-              fontSize={{ base: "28px", lg: "36px" }}
+              fontSize={{ base: "20px", sm: "24px", md: "28px", lg: "36px" }}
               fontWeight="700"
               color="#1A202C"
+              lineHeight={{ base: "1.2", md: "1.3" }}
             >
               Invite {userType === 'student' ? 'Students' : 'Organisations'}
             </Text>
           </HStack>
           <Text
-            fontSize="16px"
+            fontSize={{ base: "14px", sm: "15px", md: "16px" }}
             color="#718096"
-            maxW="500px"
+            maxW={{ base: "100%", md: "500px" }}
             mx="auto"
+            px={{ base: 2, md: 0 }}
+            lineHeight={{ base: "1.4", md: "1.5" }}
           >
             Add email addresses to send invitations. You can enter one email or paste multiple emails separated by commas, semicolons, or new lines.
           </Text>
         </Box>
 
         <Box>
-          <HStack mb={4} gap={2}>
-            <Text fontSize="18px" fontWeight="600" color="#1A202C">
+          <HStack mb={{ base: 3, md: 4 }} gap={2}>
+            <Text fontSize={{ base: "16px", md: "18px" }} fontWeight="600" color="#1A202C">
               Enter Email (s)
             </Text>
           </HStack>
@@ -242,11 +246,11 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
           <Box
             border="2px solid"
             borderColor="gray.200"
-            borderRadius="16px"
-            p={4}
+            borderRadius={{ base: "12px", md: "16px" }}
+            p={{ base: 3, md: 4 }}
             bg="gray.50"
           >
-            <VStack gap={3} align="stretch">
+            <VStack gap={{ base: 2, md: 3 }} align="stretch">
               <Textarea
                 ref={textareaRef}
                 value={emailInput}
@@ -255,29 +259,30 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
                 placeholder="Enter email addresses (one per line, or separated by commas/semicolons)..."
                 resize="vertical"
                 rows={4}
-                borderRadius="12px"
+                borderRadius={{ base: "8px", md: "12px" }}
                 border="2px solid"
                 borderColor="#E2E8F0"
                 _focus={{
                   borderColor: "#2CA9DF",
                   boxShadow: "0 0 0 1px #2CA9DF",
                 }}
-                fontSize="16px"
+                fontSize={{ base: "14px", md: "16px" }}
                 bg="white"
+                minH={{ base: "80px", md: "100px" }}
               />
               <HStack justify="flex-end">
-               
                 <Button
                   onClick={processEmailInput}
                   disabled={!emailInput.trim()}
-                  size="sm"
+                  size={{ base: "sm", md: "sm" }}
                   color="white"
                   variant="primary"
                   borderRadius="8px"
-                  h="50px"
-                  fontSize="18px"
+                  h={{ base: "40px", md: "50px" }}
+                  fontSize={{ base: "14px", md: "18px" }}
+                  px={{ base: 3, md: 4 }}
                 >
-                  <HStack gap={2}>
+                  <HStack gap={{ base: 1, md: 2 }}>
                     <Plus size={18} />
                     <span>Add Emails</span>
                   </HStack>
@@ -289,10 +294,10 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
 
         {emails.length > 0 && (
           <Box>
-            <HStack justify="space-between" mb={4}>
-              <HStack gap={2}>
+            <HStack justify="space-between" mb={{ base: 3, md: 4 }} flexWrap={{ base: "wrap", md: "nowrap" }}>
+              <HStack gap={2} mb={{ base: 2, md: 0 }}>
                 <Mail size={20} color="#2CA9DF" />
-                <Text fontSize="18px" fontWeight="600" color="#1A202C">
+                <Text fontSize={{ base: "16px", md: "18px" }} fontWeight="600" color="#1A202C">
                   Email Addresses ({emails.length})
                 </Text>
               </HStack>
@@ -302,6 +307,8 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
                 onClick={clearAll}
                 color="red.500"
                 _hover={{ bg: 'red.50' }}
+                fontSize={{ base: "12px", md: "14px" }}
+                px={{ base: 2, md: 3 }}
               >
                 Clear All
               </Button>
@@ -310,32 +317,35 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
             <Box
               border="1px solid"
               borderColor="gray.200"
-              borderRadius="16px"
-              p={4}
+              borderRadius={{ base: "12px", md: "16px" }}
+              p={{ base: 3, md: 4 }}
               bg="gray.50"
-              maxH="300px"
+              maxH={{ base: "200px", md: "300px" }}
               overflowY="auto"
             >
-              <Flex wrap="wrap" gap={2} justify="start">
+              <Flex wrap="wrap" gap={{ base: 1, md: 2 }} justify="start">
                 {emails.map((email, index) => (
                   <Badge
                     key={index}
-                    px={3}
-                    py={2}
+                    px={{ base: 2, md: 3 }}
+                    py={{ base: 1, md: 2 }}
                     borderRadius="full"
                     bg="#2CA9DF"
                     color="white"
-                    fontSize="14px"
+                    fontSize={{ base: "12px", md: "14px" }}
                     fontWeight="500"
                     display="flex"
                     alignItems="center"
-                    maxW="300px"
-                    gap={2}
+                    maxW={{ base: "100%", sm: "280px", md: "300px" }}
+                    gap={{ base: 1, md: 2 }}
+                    w={{ base: "100%", sm: "auto" }}
+                    justifyContent={{ base: "space-between", sm: "flex-start" }}
                   >
                     <Tooltip content={email}>
                       <Text
-                        maxW="250px"
+                        maxW={{ base: "calc(100% - 30px)", sm: "250px" }}
                         style={{textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'}}
+                        fontSize={{ base: "12px", md: "14px" }}
                       >
                         {email}
                       </Text>
@@ -347,6 +357,9 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
                       size="xs"
                       color="white"
                       _hover={{ bg: 'rgba(255,255,255,0.2)' }}
+                      minW="auto"
+                      w={{ base: "24px", md: "auto" }}
+                      h={{ base: "24px", md: "auto" }}
                     >
                       <X size={14} />
                     </IconButton>
@@ -357,8 +370,8 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
           </Box>
         )}
 
-        <Box borderTop="1px solid" borderColor="gray.200" pt={6}>
-          <HStack gap={4} justify="center">
+        <Box borderTop="1px solid" borderColor="gray.200" pt={{ base: 4, md: 6 }}>
+          <HStack gap={{ base: 2, md: 4 }} justify="center">
             <Button
               onClick={handleSubmit}
               isLoading={isSubmitting}
@@ -367,9 +380,12 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
               color="white" 
               variant="primary"
               borderRadius="8px"
-              h="60px"
+              h={{ base: "50px", md: "60px" }}
+              fontSize={{ base: "14px", md: "16px" }}
+              px={{ base: 4, md: 6 }}
+              w={{ base: "100%", sm: "auto" }}
             >
-              <HStack gap={2}>
+              <HStack gap={{ base: 1, md: 2 }}>
                 <Send size={20} />
                 <span>Send Invitations ({emails.length})</span>
               </HStack>
