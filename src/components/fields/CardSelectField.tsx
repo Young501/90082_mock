@@ -1,10 +1,11 @@
 import { Box, Text, Grid } from "@chakra-ui/react";
 import { Control, useController } from "react-hook-form";
+import { parseQuestionnaireOptions } from "@/utils/questionnaireParser";
 
 interface CardSelectFieldProps {
   name: string;
   label: string;
-  options: string[];
+  options: (string | { value: string; label: string })[];
   control: Control<any>;
   required?: boolean;
   maxSelection?: number;
@@ -19,6 +20,7 @@ export const CardSelectField = ({
   maxSelection,
 }: CardSelectFieldProps) => {
   const isSingleSelect = maxSelection === 1;
+  const parsedOptions = parseQuestionnaireOptions(options).map(opt => opt.value);
 
   const {
     field: { value, onChange },
@@ -97,7 +99,7 @@ export const CardSelectField = ({
         gap={4}
         maxW="600px"
       >
-        {options.map((option) => (
+        {parsedOptions.map((option) => (
           <Box
             key={option}
             onClick={() => handleCardClick(option)}

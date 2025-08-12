@@ -6,7 +6,8 @@ export interface ProcessedField {
   field: string;
   type: string;
   label: string;
-  options?: string[];
+  filter_label?: string;
+  options?: (string | { value: string; label: string })[];
   uniqueKey: string;
   dependencyChain: DependencyCondition[];
   displayHint?: string;

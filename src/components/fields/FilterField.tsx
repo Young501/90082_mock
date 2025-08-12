@@ -14,6 +14,7 @@ import { ProcessedField } from "@/types/discovery"
 import { ClearButton } from "../ui/ClearButton"
 import { SliderField } from "./SliderField"
 import { Lock, Info } from "lucide-react"
+import { parseQuestionnaireOptions, getDisplayLabel } from "@/utils/questionnaireParser"
 
 interface FilterFieldProps {
   field: ProcessedField;
@@ -51,6 +52,8 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   if (!isVisible) {
     return null
   }
+  
+  const displayLabel = getDisplayLabel(field, true);
   const hasAvailableOptions = availableOptions && availableOptions.length > 0
   const isDisabled = !hasAvailableOptions
   const isSingleOption = availableOptions && availableOptions.length === 1
@@ -69,7 +72,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
           <HStack gap={1} w="100%" h="40px">
             <Input
               {...formField}
-              placeholder={`Enter ${field.label}`}
+              placeholder={`Enter ${displayLabel}`}
               w="100%"
               h="40px"
               bg="white"
@@ -78,7 +81,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
               borderColor="gray.200"
             />
             <ClearButton
-              fieldLabel={field.label}
+              fieldLabel={displayLabel}
               onClear={() => formField.onChange("")}
               show={hasValue}
             />
@@ -144,8 +147,8 @@ export const FilterField: React.FC<FilterFieldProps> = ({
                         <Select.ValueText
                           placeholder={
                             isDisabled
-                              ? `No ${field.label} options available`
-                              : `Select ${field.label}`
+                              ? `No ${displayLabel} options available`
+                              : `Select ${displayLabel}`
                           }
                           color={isDisabled ? "gray.400" : "inherit"}
                         />
@@ -194,7 +197,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
                   )}
                 </Select.Root>
                 <ClearButton
-                  fieldLabel={field.label}
+                  fieldLabel={displayLabel}
                   onClear={() => formField.onChange("")}
                   show={hasValue && !isDisabled}
                 />
@@ -268,8 +271,8 @@ export const FilterField: React.FC<FilterFieldProps> = ({
                         <Select.ValueText
                           placeholder={
                             isDisabled
-                              ? `No ${field.label} options available`
-                              : `Select ${field.label}`
+                              ? `No ${displayLabel} options available`
+                              : `Select ${displayLabel}`
                           }
                           color={isDisabled ? "gray.400" : "inherit"}
                         />
@@ -313,7 +316,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
                   )}
                 </Select.Root>
                 <ClearButton
-                  fieldLabel={field.label}
+                  fieldLabel={displayLabel}
                   onClear={() => formField.onChange([])}
                   show={hasValue && !isDisabled}
                 />
@@ -344,7 +347,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
               <Box w="100%"> 
               <SliderField
                 name={field.field}
-                label={field.label}
+                label={displayLabel}
                 control={control}
                 min={(field as any).min || 1}
                 max={(field as any).max || 200}

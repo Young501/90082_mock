@@ -1,10 +1,11 @@
 import { Box, VStack, Text, Checkbox } from "@chakra-ui/react";
 import { Control, useController } from "react-hook-form";
+import { parseQuestionnaireOptions } from "@/utils/questionnaireParser";
 
 interface CheckboxFieldProps {
   name: string;
   label: string;
-  options: string[];
+  options: (string | { value: string; label: string })[];
   control: Control<any>;
   required?: boolean;
   maxSelection?: number;
@@ -21,6 +22,7 @@ export const CheckboxField = ({
   isBoolean = false,
 }: CheckboxFieldProps) => {
   const isSingleSelect = maxSelection === 1 || isBoolean;
+  const parsedOptions = parseQuestionnaireOptions(options).map(opt => opt.value);
 
   const {
     field: { value, onChange },
@@ -83,7 +85,7 @@ export const CheckboxField = ({
       </Box>
 
       <VStack align="stretch" gap={2} ml={4}>
-        {options.map((option) => (
+        {parsedOptions.map((option) => (
           <Checkbox.Root
             key={option}
             checked={
