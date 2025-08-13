@@ -38,7 +38,7 @@ export default function DiscoveryPage() {
   return (
     <>
     <PageTitle title={PAGE_TITLES.DISCOVER} />
-    <Box p={6} maxW="1280px" mx="auto" mt="126px">
+    <Box p={6} maxW="1280px" mx="auto" mt={{base: "80px", lg: "126px"}}>
       <VStack align="stretch" mb={8}>
         <Heading size="lg" color="#282F68">
           Discover {targetUserType === "student" ? "Students" : "Partners"}

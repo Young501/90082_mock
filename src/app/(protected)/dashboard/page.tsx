@@ -53,7 +53,7 @@ const DashboardPage = () => {
         alignItems="center"
         minH="400px"
         mx="auto"
-        mt="126px"
+        mt={{base: "80px", lg: "126px"}}
       >
         <VStack gap={4} justify="center" minH="400px">
           <Loader size="xl" color="#000000" />
@@ -73,7 +73,7 @@ const DashboardPage = () => {
         alignItems="center"
         minH="400px"
         mx="auto"
-        mt="126px"
+        mt={{base: "80px", lg: "126px"}}
       >
         <Box bg="transparent" borderColor="#000000" borderRadius="15px" p={6}>
           <Text fontSize="lg" fontWeight="bold" color="#000000" mb={2}>
@@ -97,7 +97,7 @@ const DashboardPage = () => {
         alignItems="center"
         minH="400px"
         mx="auto"
-        mt="126px"
+        mt={{base: "80px", lg: "126px"}}
       >
         <Box bg="transparent" borderColor="#000000" borderRadius="15px" p={6}>
           <Text fontSize="lg" fontWeight="bold" color="#000000" mb={2}>
@@ -207,7 +207,7 @@ const DashboardPage = () => {
   return (
     <>
     <PageTitle title={PAGE_TITLES.DASHBOARD} />
-    <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt="126px">
+    <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt={{base: "80px", lg: "126px"}}>
       <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
         <Text
           as="h1"

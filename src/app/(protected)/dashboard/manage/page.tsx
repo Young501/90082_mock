@@ -41,7 +41,7 @@ const ManagePage = () => {
             px={{ base: 4, lg: "72px" }}
             maxW="1512px"
             mx="auto"
-            mt="126px"
+            mt={{base: "80px", lg: "126px"}}
           >
             <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
               <Text
@@ -143,7 +143,7 @@ const StudentPage = ({
   }) => {
     const router = useRouter();
     return (
-        <Box py={6} px={{ base: 4, lg:"48px", xl: "72px" }} maxW="1512px" mx="auto" mt="126px">
+        <Box py={6} px={{ base: 4, lg:"48px", xl: "72px" }} maxW="1512px" mx="auto" mt={{base: "80px", lg: "126px"}}>
           <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
             <Box
               display="flex"
@@ -327,7 +327,7 @@ const PartnerPage = ({
   }) => {
     const router = useRouter();
     return (
-        <Box py={6} px={{ base: 4, lg:"48px", xl: "72px" }} maxW="1512px" mx="auto" mt="126px">
+        <Box py={6} px={{ base: 4, lg:"48px", xl: "72px" }} maxW="1512px" mx="auto" mt={{base: "80px", lg: "126px"}}>
           <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
             <Box
               display="flex"
