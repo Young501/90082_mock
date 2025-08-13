@@ -89,7 +89,7 @@ const Folder = () => {
         px={{ base: 4, lg: "72px" }}
         maxW="1512px"
         mx="auto"
-        mt={{base: "80px", lg: "126px"}}
+        mt={{ base: "80px", lg: "126px" }}
       >
         <VStack align="stretch" gap={{ base: 6, md: 10, lg: 20 }}>
           <HStack gap={6} align="center">
@@ -222,102 +222,108 @@ const Folder = () => {
 
   return (
     <>
-    <PageTitle title={PAGE_TITLES.FOLDERS} />
-    <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt={{base: "80px", lg: "126px"}}>
-      <VStack
-        align="stretch"
-        gap={{ base: 6, md: 10, lg: 20 }}
-        h={{ base: "100%", lg: "calc(100vh - 300px)" }}
+      <PageTitle title={PAGE_TITLES.FOLDERS} />
+      <Box
+        py={6}
+        px={{ base: 4, lg: "72px" }}
+        maxW="1512px"
+        mx="auto"
+        mt="126px"
       >
-        <Button
-          onClick={() => folderModal.onOpen()}
-          bg="#CFF3FF"
-          color="#000000"
-          borderRadius="8px"
-          px={6}
-          py={5}
-          maxW="350px"
-          boxShadow="0px 4px 4px 0px #00000040"
-          h="auto"
-          fontSize="22px"
-          fontWeight="600"
-          display="flex"
-          alignItems="center"
-          gap={4}
-          _hover={{
-            bg: "#B8E6FF",
-          }}
+        <VStack
+          align="stretch"
+          gap={{ base: 6, md: 10, lg: 20 }}
+          h={{ base: "100%", lg: "calc(100vh - 300px)" }}
         >
-          <Image src="/assets/plus.svg" alt="Add" width={16} height={16} />
-          Create a New Folder
-        </Button>
-
-        {isLoadingFolders ? (
-          <Loader />
-        ) : folders.length === 0 ? (
-          <Box
-            bg="transparent"
-            textAlign="center"
-            minH="100%"
-            my="auto"
+          <Button
+            onClick={() => folderModal.onOpen()}
+            bg="#CFF3FF"
+            color="#000000"
+            borderRadius="8px"
+            px={6}
+            py={5}
+            maxW="350px"
+            boxShadow="0px 4px 4px 0px #00000040"
+            h="auto"
+            fontSize="22px"
+            fontWeight="600"
             display="flex"
             alignItems="center"
-            justifyContent="center"
+            gap={4}
+            _hover={{
+              bg: "#B8E6FF",
+            }}
           >
-            <VStack
-              gap={4}
+            <Image src="/assets/plus.svg" alt="Add" width={16} height={16} />
+            Create a New Folder
+          </Button>
+
+          {isLoadingFolders ? (
+            <Loader />
+          ) : folders.length === 0 ? (
+            <Box
+              bg="transparent"
               textAlign="center"
-              h="100%"
-              w="100%"
+              minH="100%"
+              my="auto"
+              display="flex"
+              alignItems="center"
               justifyContent="center"
             >
-              <Text fontSize="35px" fontWeight="700" color="#282F68">
-                You haven&apos;t created any folders yet.
-              </Text>
-              {user?.user_types?.[0] === "student" ? (
-                <Text fontSize="22px" color="#000000" maxW="530px">
-                  Use folders to organize and save student profiles you&apos;re
-                  interested in. Create a folder to start building your talent
-                  pipeline.
+              <VStack
+                gap={4}
+                textAlign="center"
+                h="100%"
+                w="100%"
+                justifyContent="center"
+              >
+                <Text fontSize="35px" fontWeight="700" color="#282F68">
+                  You haven&apos;t created any folders yet.
                 </Text>
-              ) : (
-                <Text fontSize="22px" color="#000000" maxW="530px">
-                  Use folders to organize and save organization profiles
-                  you&apos;re interested in. Create a folder to start building
-                  your talent pipeline.
-                </Text>
-              )}
-            </VStack>
-          </Box>
-        ) : (
-          <SimpleGrid
-            columns={{ base: 1, md: 2, lg: 3 }}
-            gap={{ base: 10, md: 15, xl: 20 }}
-            px={{ base: 10, md: 15, xl: 20 }}
-          >
-            {folders.map((folder) => (
-              <FolderCard
-                key={folder.id}
-                folder={folder}
-                onDelete={handleDeleteFolder}
-                onEdit={handleEditFolder}
-                onClick={() => handleFolderClick(folder.id)}
-              />
-            ))}
-          </SimpleGrid>
-        )}
-      </VStack>
+                {user?.user_types?.[0] === "partner" ? (
+                  <Text fontSize="22px" color="#000000" maxW="530px">
+                    Use folders to organise and save student profiles
+                    you&apos;re interested in. Create a folder to start building
+                    your talent pipeline.
+                  </Text>
+                ) : (
+                  <Text fontSize="22px" color="#000000" maxW="530px">
+                    Use folders to organise and save organisation profiles
+                    you&apos;re interested in. Create a folder to start building
+                    your preferred opportunities.
+                  </Text>
+                )}
+              </VStack>
+            </Box>
+          ) : (
+            <SimpleGrid
+              columns={{ base: 1, md: 2, lg: 3 }}
+              gap={{ base: 10, md: 15, xl: 20 }}
+              px={{ base: 10, md: 15, xl: 20 }}
+            >
+              {folders.map((folder) => (
+                <FolderCard
+                  key={folder.id}
+                  folder={folder}
+                  onDelete={handleDeleteFolder}
+                  onEdit={handleEditFolder}
+                  onClick={() => handleFolderClick(folder.id)}
+                />
+              ))}
+            </SimpleGrid>
+          )}
+        </VStack>
 
-      <FolderModal
-        isOpen={folderModal.isOpen}
-        onClose={folderModal.onClose}
-        onSubmit={folderModal.handleSubmit}
-        register={folderModal.register}
-        errors={folderModal.errors}
-        isLoading={folderModal.isLoading}
-        folder={folderModal.currentFolder}
-      />
-    </Box>
+        <FolderModal
+          isOpen={folderModal.isOpen}
+          onClose={folderModal.onClose}
+          onSubmit={folderModal.handleSubmit}
+          register={folderModal.register}
+          errors={folderModal.errors}
+          isLoading={folderModal.isLoading}
+          folder={folderModal.currentFolder}
+        />
+      </Box>
     </>
   );
 };
