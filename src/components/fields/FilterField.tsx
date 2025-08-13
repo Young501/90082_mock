@@ -12,6 +12,7 @@ import {
 import { Controller, Control } from "react-hook-form"
 import { ProcessedField } from "@/types/discovery"
 import { ClearButton } from "../ui/ClearButton"
+import { SliderField } from "./SliderField"
 import { Lock, Info } from "lucide-react"
 
 interface FilterFieldProps {
@@ -339,25 +340,31 @@ export const FilterField: React.FC<FilterFieldProps> = ({
         render={({ field: formField }) => {
           const hasValue = formField.value && formField.value !== ""
           return (
-            <HStack gap={1} w="100%" h="40px">
-              <Input
-                {...formField}
-                type="number"
-                placeholder={`Enter ${field.label} ${(field as any).min && (field as any).max ? `(${(field as any).min}-${(field as any).max})` : ""}`}
-                w="100%"
-                h="40px"
-                bg="white"
-                borderRadius="15px"
-                border="1px solid"
-                borderColor="gray.200"
-                min={(field as any).min || 0}
-                max={(field as any).max || 100}
+            <HStack align="center" gap={1} w="100%">
+              <Box w="100%"> 
+              <SliderField
+                name={field.field}
+                label={field.label}
+                control={control}
+                min={(field as any).min || 1}
+                max={(field as any).max || 200}
+                unit={(field as any).unit || "km"}
+                required={false}
+                props={{
+                  w: "100%",
+                }}
               />
+              </Box>
+              {hasValue && (
               <ClearButton
                 fieldLabel={field.label}
                 onClear={() => formField.onChange("")}
                 show={hasValue}
+                props={{
+                 maxWidth: "25px",
+                }}
               />
+              )}
             </HStack>
           )
         }}
