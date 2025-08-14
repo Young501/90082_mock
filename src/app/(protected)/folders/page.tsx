@@ -89,7 +89,7 @@ const Folder = () => {
         px={{ base: 4, lg: "72px" }}
         maxW="1512px"
         mx="auto"
-        mt={{base: "80px", lg: "126px"}}
+        mt={{ base: "80px", lg: "126px" }}
       >
         <VStack align="stretch" gap={{ base: 6, md: 10, lg: 20 }}>
           <HStack gap={6} align="center">
@@ -222,12 +222,13 @@ const Folder = () => {
 
   return (
     <>
-    <PageTitle title={PAGE_TITLES.FOLDERS} />
-    <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt={{base: "80px", lg: "126px"}}>
-      <VStack
-        align="stretch"
-        gap={{ base: 6, md: 10, lg: 20 }}
-        h={{ base: "100%", lg: "calc(100vh - 300px)" }}
+      <PageTitle title={PAGE_TITLES.FOLDERS} />
+      <Box
+        py={6}
+        px={{ base: 4, lg: "72px" }}
+        maxW="1512px"
+        mx="auto"
+        mt="126px"
       >
         <Button
           onClick={() => folderModal.onOpen()}
