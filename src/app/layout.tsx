@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import Providers from "@/components/ui/providers";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {children}
         </Providers>
       </body>
+      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_ANALYTICS_ID || ""} />
     </html>
   );
 }
