@@ -230,29 +230,32 @@ const Folder = () => {
         mx="auto"
         mt="126px"
       >
-        <VStack align="stretch" gap={6}>
-          <Button
-          onClick={() => folderModal.onOpen()}
-          bg="#CFF3FF"
-          color="#000000"
-          borderRadius="8px"
-          px={6}
-          py={5}
-          maxW="350px"
-          boxShadow="0px 4px 4px 0px #00000040"
-          h="auto"
-          fontSize="22px"
-          fontWeight="600"
-          display="flex"
-          alignItems="center"
-          gap={4}
-          _hover={{
-            bg: "#B8E6FF",
-          }}
+      <VStack
+          align="stretch"
+          gap={{ base: 6, md: 10, lg: 20 }}
         >
-          <Image src="/assets/plus.svg" alt="Add" width={16} height={16} />
-          Create a New Folder
-        </Button>
+          <Button
+            onClick={() => folderModal.onOpen()}
+            bg="#CFF3FF"
+            color="#000000"
+            borderRadius="8px"
+            px={6}
+            py={5}
+            maxW="350px"
+            boxShadow="0px 4px 4px 0px #00000040"
+            h="auto"
+            fontSize="22px"
+            fontWeight="600"
+            display="flex"
+            alignItems="center"
+            gap={4}
+            _hover={{
+              bg: "#B8E6FF",
+            }}
+          >
+            <Image src="/assets/plus.svg" alt="Add" width={16} height={16} />
+            Create a New Folder
+          </Button>
 
           {isLoadingFolders ? (
             <Loader />
