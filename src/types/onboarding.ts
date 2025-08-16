@@ -22,7 +22,6 @@ export interface FollowupQuestionMap {
 export interface Question {
   field: string;
   label: string;
-  filter_label?: string;
   type:
     | "text"
     | "select"
@@ -42,8 +41,8 @@ export interface Question {
   required?: boolean;
   icon?: string;
   description?: string;
-  options?: (string | { value: string; label: string })[];
-  option?: (string | { value: string; label: string })[];
+  options?: string[];
+  option?: string[];
   max_selection?: number;
   max_selections?: number;
   "max-selection"?: number;

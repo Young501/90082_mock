@@ -15,12 +15,11 @@ import {
 import { Control, useController } from "react-hook-form"
 import { Button } from "@/components/ui/Button"
 import { Plus, X } from "lucide-react"
-import { parseQuestionnaireOptions } from "@/utils/questionnaireParser"
 
 interface SkillsPillFieldProps {
   name: string;
   label: string;
-  options: (string | { value: string; label: string })[];
+  options: string[];
   control: Control<any>;
   allowCustom?: boolean;
   required?: boolean;
@@ -74,10 +73,9 @@ export const SkillsPillField = ({
       handleAddSkill(customSkill.trim())
     }
   }
-  const parsedOptions = useMemo(() => parseQuestionnaireOptions(options), [options]);
-  const availableOptions = parsedOptions
-    .map(opt => opt.value)
-    .filter((option) => !value.includes(option) && option !== "other")
+  const availableOptions = options.filter(
+    (option) => !value.includes(option) && option !== "other"
+  )
   const filteredOptions = useMemo(() => {
     if (!filter) return availableOptions
     const lower = filter.toLowerCase()

@@ -13,7 +13,6 @@ import { Opportunity, InviteAcceptResponse, Question } from "@/types/invite";
 import { useAuthStore } from "@/store";
 import { QuestionnaireForm, QuestionnaireFormRef } from "./QuestionnaireForm";
 import { useState, useCallback, useMemo, useRef } from "react";
-import { parseFlatQuestionnaire } from "@/utils/questionnaireParser";
 
 interface InviteCardProps {
   opportunity: Opportunity | undefined;
@@ -48,16 +47,12 @@ export const InviteCard = ({
   const acceptError = acceptInviteMutation.formattedError;
 
   const userType = user?.user_types?.[0];
-  const parsedQuestionnaire = useMemo(
-    () => opportunity?.questionnaire ? parseFlatQuestionnaire(opportunity.questionnaire) : {},
-    [opportunity?.questionnaire]
-  );
   const questions: Question[] = useMemo(
     () =>
-      userType && parsedQuestionnaire[userType]
-        ? parsedQuestionnaire[userType]
+      userType && opportunity?.questionnaire?.[userType]
+        ? opportunity.questionnaire[userType]
         : [],
-    [userType, parsedQuestionnaire]
+    [userType, opportunity?.questionnaire]
   );
 
   const handleQuestionnaireChange = useCallback(

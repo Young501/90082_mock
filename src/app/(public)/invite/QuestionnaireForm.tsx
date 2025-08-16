@@ -11,7 +11,6 @@ import {
 import { createPageSchema } from "@/utils/validationSchemas"; // 直接复用现有的 schema 创建函数
 import { FieldRenderer } from "@/app/(auth)/onboarding/FieldRenderer";
 import { QuestionnaireFormProps } from "@/types/invite";
-import { parseQuestion } from "@/utils/questionnaireParser";
 
 export interface QuestionnaireFormRef {
   validate: () => Promise<boolean>;
@@ -22,19 +21,14 @@ export const QuestionnaireForm = forwardRef<
   QuestionnaireFormRef,
   QuestionnaireFormProps
 >(({ questions, onAnswersChange }, ref) => {
-  const parsedQuestions = useMemo(
-    () => questions.map(parseQuestion),
-    [questions]
-  );
-
   const validationSchema = useMemo(
-    () => createPageSchema(parsedQuestions),
-    [parsedQuestions]
+    () => createPageSchema(questions),
+    [questions]
   );
 
   const defaultValues = useMemo(
     () =>
-      parsedQuestions.reduce(
+      questions.reduce(
         (acc, question) => {
           switch (question.type) {
             case "multi-select":
@@ -64,7 +58,7 @@ export const QuestionnaireForm = forwardRef<
         },
         {} as Record<string, any>
       ),
-    [parsedQuestions]
+    [questions]
   );
 
   const {
@@ -126,7 +120,7 @@ export const QuestionnaireForm = forwardRef<
           Please answer the following questions:
         </Text>
 
-        {parsedQuestions.map((question) => (
+        {questions.map((question) => (
           <Box key={question.field} w="100%">
             <FieldRenderer
               question={question}

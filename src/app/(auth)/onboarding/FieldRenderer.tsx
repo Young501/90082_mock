@@ -19,7 +19,6 @@ import {
 } from "@/components/fields";
 import { Question } from "@/types/onboarding";
 import { useMemo, useEffect, useRef, useCallback } from "react";
-import { parseQuestionnaireOptions } from "@/utils/questionnaireParser";
 
 interface FieldRendererProps {
   question: Question;
@@ -49,8 +48,7 @@ export const FieldRenderer = ({
   onParentValueChange,
 }: FieldRendererProps) => {
   const error = errors[question.field]?.message as string | undefined;
-  const rawFieldOptions = question.options || question.option || [];
-  const fieldOptions = parseQuestionnaireOptions(rawFieldOptions).map(opt => opt.value);
+  const fieldOptions = question.options || question.option || [];
 
   const previousFieldValue = useRef<any>(undefined);
 

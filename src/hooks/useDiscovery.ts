@@ -17,7 +17,6 @@ import {
 } from "@/services/shared";
 import { toast } from "react-toastify";
 import { UserProfile } from "@/types/shared";
-import { parseQuestion } from "@/utils/questionnaireParser";
 
 const createValidationSchema = (fields: ProcessedField[]) => {
   const shape: Record<string, any> = {};
@@ -239,9 +238,8 @@ export const useDiscovery = () => {
           ? `(when ${parentDependencies.map((d) => `${d.field} = ${d.value}`).join(" and ")})`
           : undefined;
 
-      const parsedField = parseQuestion(field);
       const processedField: ProcessedField = {
-        ...parsedField,
+        ...field,
         uniqueKey,
         dependencyChain: [...parentDependencies],
         displayHint,

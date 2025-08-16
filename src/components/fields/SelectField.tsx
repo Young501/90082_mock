@@ -1,13 +1,12 @@
 import { Portal, Select, createListCollection, Field, Input, VStack } from "@chakra-ui/react"
 import { useMemo, useState } from "react"
 import { Control, Controller } from "react-hook-form"
-import { parseQuestionnaireOptions } from "@/utils/questionnaireParser"
 
 interface SelectFieldProps {
   name: string;
   label?: string;
   control: Control<any>;
-  options: (string | { value: string; label: string })[];
+  options: string[];
   placeholder?: string;
   multiple?: boolean;
   error?: string;
@@ -28,7 +27,11 @@ export const SelectField = ({
 }: SelectFieldProps) => {
   const [filter, setFilter] = useState("")
   const optionItems = useMemo(
-    () => parseQuestionnaireOptions(options),
+    () =>
+      options.map((option) => ({
+        label: option,
+        value: option,
+      })),
     [options]
   )
   const filteredItems = useMemo(() => {
