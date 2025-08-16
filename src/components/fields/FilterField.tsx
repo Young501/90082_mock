@@ -28,13 +28,18 @@ type SelectOption = {
   label: string;
 }
 
-const createFieldCollection = (options: SelectOption[]) => {
+const createFieldCollection = (availableOptions?: string[]) => {
+  const options = availableOptions || []
   if (options.length === 0) {
     return createListCollection<SelectOption>({
       items: [],
     })
   }
-  return createListCollection<SelectOption>({ items: options })
+  const items: SelectOption[] = options.map((option) => ({
+    value: option,
+    label: option,
+  }))
+  return createListCollection<SelectOption>({ items })
 }
 
 export const FilterField: React.FC<FilterFieldProps> = ({
@@ -49,27 +54,14 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   }
   
   const displayLabel = getDisplayLabel(field, true);
-  
-  const fieldOptions = useMemo(() => {
-    if (field.options) {
-      return parseQuestionnaireOptions(field.options)
-    }
-    if (availableOptions) {
-      return availableOptions.map(option => ({ value: option, label: option }))
-    }
-    return []
-  }, [field.options, availableOptions])
-  
-  const hasAvailableOptions = fieldOptions.length > 0
+  const hasAvailableOptions = availableOptions && availableOptions.length > 0
   const isDisabled = !hasAvailableOptions
-  const isSingleOption = fieldOptions.length === 1
-  
+  const isSingleOption = availableOptions && availableOptions.length === 1
   const filteredOptions = useMemo(() => {
-    if (!filter) return fieldOptions
+    if (!filter) return availableOptions || []
     const lower = filter.toLowerCase()
-    return fieldOptions.filter((opt) => opt.label.toLowerCase().includes(lower))
-  }, [fieldOptions, filter])
-  
+    return (availableOptions || []).filter((opt) => opt.toLowerCase().includes(lower))
+  }, [availableOptions, filter])
   const renderInputField = () => (
     <Controller
       name={field.field}
@@ -98,7 +90,6 @@ export const FilterField: React.FC<FilterFieldProps> = ({
       }}
     />
   )
-  
   const renderSingleSelectField = () => {
     const selectCollection = createFieldCollection(filteredOptions)
     return (
@@ -225,7 +216,6 @@ export const FilterField: React.FC<FilterFieldProps> = ({
       />
     )
   }
-  
   const renderMultiSelectField = () => {
     const selectCollection = createFieldCollection(filteredOptions)
     return (
@@ -282,7 +272,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
                           placeholder={
                             isDisabled
                               ? `No ${displayLabel} options available`
-                              : `${displayLabel}`
+                              : `Select ${displayLabel}`
                           }
                           color={isDisabled ? "gray.400" : "inherit"}
                         />
@@ -345,7 +335,6 @@ export const FilterField: React.FC<FilterFieldProps> = ({
       />
     )
   }
-  
   const renderRangeField = () => {
     return (
       <Controller
@@ -385,7 +374,6 @@ export const FilterField: React.FC<FilterFieldProps> = ({
       />
     )
   }
-  
   const getFieldContent = () => {
     switch (field.type) {
       case "select":
@@ -405,6 +393,5 @@ export const FilterField: React.FC<FilterFieldProps> = ({
         return renderSingleSelectField()
     }
   }
-  
   return <Box w="100%">{getFieldContent()}</Box>
 }
