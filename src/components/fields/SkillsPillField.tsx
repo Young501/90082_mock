@@ -19,7 +19,7 @@ import { Plus, X } from "lucide-react"
 interface SkillsPillFieldProps {
   name: string;
   label: string;
-  options: string[];
+  options: string[] | { label: string; value: string }[];
   control: Control<any>;
   allowCustom?: boolean;
   required?: boolean;
@@ -79,15 +79,15 @@ export const SkillsPillField = ({
   const filteredOptions = useMemo(() => {
     if (!filter) return availableOptions
     const lower = filter.toLowerCase()
-    return availableOptions.filter((opt) => opt.toLowerCase().includes(lower))
+    return availableOptions.filter((opt) => typeof opt === 'string' && opt.toLowerCase().includes(lower))
   }, [availableOptions, filter])
   const selectOptions = allowCustom
     ? [...filteredOptions, "other"]
     : filteredOptions
   const collection = createListCollection({
     items: selectOptions.map((option) => ({
-      label: option === "other" ? "Add custom skill..." : option,
-      value: option,
+      label: option === "other" ? "Add custom skill..." : typeof option === 'string' ? option : option.label,
+      value: typeof option === 'string' ? option : option.value,
     })),
   })
   return (

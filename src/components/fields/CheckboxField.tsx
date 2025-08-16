@@ -4,7 +4,7 @@ import { Control, useController } from "react-hook-form";
 interface CheckboxFieldProps {
   name: string;
   label: string;
-  options: string[];
+  options: string[] | { label: string; value: string }[];
   control: Control<any>;
   required?: boolean;
   maxSelection?: number;
@@ -85,16 +85,16 @@ export const CheckboxField = ({
       <VStack align="stretch" gap={2} ml={4}>
         {options.map((option) => (
           <Checkbox.Root
-            key={option}
+            key={typeof option === 'string' ? option : option.value}
             checked={
               isSingleSelect
-                ? currentValue === option
-                : currentValue.includes(option)
+                ? currentValue === (typeof option === 'string' ? option : option.value)
+                : currentValue.includes(typeof option === 'string' ? option : option.value)
             }
             onCheckedChange={(details) =>
-              handleChange(option, Boolean(details.checked))
+              handleChange(typeof option === 'string' ? option : option.value, Boolean(details.checked))
             }
-            disabled={isOptionDisabled(option)}
+            disabled={isOptionDisabled(typeof option === 'string' ? option : option.value)}
             size="md"
             colorPalette="blue"
             style={{
@@ -102,13 +102,13 @@ export const CheckboxField = ({
               borderRadius: "8px",
               padding: "12px",
               width: "260px",
-              opacity: isOptionDisabled(option) ? 0.5 : 1,
+              opacity: isOptionDisabled(typeof option === 'string' ? option : option.value) ? 0.5 : 1,
             }}
           >
             <Checkbox.HiddenInput />
             <Checkbox.Control />
             <Checkbox.Label>
-              <Text fontSize="sm">{option}</Text>
+              <Text fontSize="sm">{typeof option === 'string' ? option : option.label}</Text>
             </Checkbox.Label>
           </Checkbox.Root>
         ))}

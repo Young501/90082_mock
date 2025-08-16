@@ -6,7 +6,7 @@ interface SelectFieldProps {
   name: string;
   label?: string;
   control: Control<any>;
-  options: string[];
+  options: string[] | { label: string; value: string }[];
   placeholder?: string;
   multiple?: boolean;
   error?: string;
@@ -29,15 +29,15 @@ export const SelectField = ({
   const optionItems = useMemo(
     () =>
       options.map((option) => ({
-        label: option,
-        value: option,
+        label: typeof option === 'string' ? option : option.label,
+        value: typeof option === 'string' ? option : option.value,
       })),
     [options]
   )
   const filteredItems = useMemo(() => {
     if (!filter) return optionItems
     const lower = filter.toLowerCase()
-    return optionItems.filter((item) => item.label.toLowerCase().includes(lower))
+    return optionItems.filter((item) => typeof item.label === 'string' && item.label.toLowerCase().includes(lower))
   }, [optionItems, filter])
   const collection = useMemo(
     () =>

@@ -230,7 +230,8 @@ const Folder = () => {
         mx="auto"
         mt="126px"
       >
-        <Button
+        <VStack align="stretch" gap={6}>
+          <Button
           onClick={() => folderModal.onOpen()}
           bg="#CFF3FF"
           color="#000000"

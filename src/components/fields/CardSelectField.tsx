@@ -4,7 +4,7 @@ import { Control, useController } from "react-hook-form";
 interface CardSelectFieldProps {
   name: string;
   label: string;
-  options: string[];
+  options: string[] | { label: string; value: string }[];
   control: Control<any>;
   required?: boolean;
   maxSelection?: number;
@@ -99,11 +99,11 @@ export const CardSelectField = ({
       >
         {options.map((option) => (
           <Box
-            key={option}
-            onClick={() => handleCardClick(option)}
-            cursor={isCardDisabled(option) ? "not-allowed" : "pointer"}
+            key={typeof option === 'string' ? option : option.value}
+            onClick={() => handleCardClick(typeof option === 'string' ? option : option.value)}
+            cursor={isCardDisabled(typeof option === 'string' ? option : option.value) ? "not-allowed" : "pointer"}
             border="2px solid"
-            borderColor={isCardSelected(option) ? "#167BB3" : "#E2E8F0"}
+            borderColor={isCardSelected(typeof option === 'string' ? option : option.value) ? "#167BB3" : "#E2E8F0"}
             borderRadius="12px"
             p={4}
             minH="80px"
@@ -111,26 +111,26 @@ export const CardSelectField = ({
             alignItems="center"
             justifyContent="center"
             textAlign="center"
-            bg={isCardSelected(option) ? "rgba(44, 169, 223, 0.05)" : "white"}
-            opacity={isCardDisabled(option) ? 0.5 : 1}
+            bg={isCardSelected(typeof option === 'string' ? option : option.value) ? "rgba(44, 169, 223, 0.05)" : "white"}
+            opacity={isCardDisabled(typeof option === 'string' ? option : option.value) ? 0.5 : 1}
             transition="all 0.2s ease-in-out"
             _hover={{
-              borderColor: isCardDisabled(option) ? "#E2E8F0" : "#167BB3",
-              transform: isCardDisabled(option) ? "none" : "translateY(-2px)",
-              boxShadow: isCardDisabled(option) ? "none" : "0 4px 12px #2CA9DF",
+              borderColor: isCardDisabled(typeof option === 'string' ? option : option.value) ? "#E2E8F0" : "#167BB3",
+              transform: isCardDisabled(typeof option === 'string' ? option : option.value) ? "none" : "translateY(-2px)",
+              boxShadow: isCardDisabled(typeof option === 'string' ? option : option.value) ? "none" : "0 4px 12px #2CA9DF",
             }}
             position="relative"
           >
             <Text
               fontSize="14px"
-              fontWeight={isCardSelected(option) ? "600" : "500"}
-              color={isCardSelected(option) ? "#167BB3" : "#4A5568"}
+              fontWeight={isCardSelected(typeof option === 'string' ? option : option.value) ? "600" : "500"}
+              color={isCardSelected(typeof option === 'string' ? option : option.value) ? "#167BB3" : "#4A5568"}
               lineHeight="1.3"
             >
-              {option}
+              {typeof option === 'string' ? option : option.label}
             </Text>
 
-            {isCardSelected(option) && (
+            {isCardSelected(typeof option === 'string' ? option : option.value) && (
               <Box
                 position="absolute"
                 top="8px"
