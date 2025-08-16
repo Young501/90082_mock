@@ -148,7 +148,7 @@ export const FieldRenderer = ({
           register={register(question.field)}
           error={error}
           required={question.required}
-          placeholder={`${question.filter_label || question.label}`}
+          placeholder={`${question.label}`}
           icon={question.icon}
           inputProps={{
             h: "60px",
@@ -170,8 +170,8 @@ export const FieldRenderer = ({
           control={control}
           error={error}
           required={question.required}
-          placeholder={question.filter_label || question.label}
-          label={question.filter_label || question.label}
+          placeholder={question.label}
+          label={question.label}
           value={fieldValue}
           icon={question.icon}
           onChange={(value) => {
@@ -214,7 +214,7 @@ export const FieldRenderer = ({
         <SelectField
           name={question.field}
           control={control}
-          label={question.filter_label || question.label}
+          label={question.label}
           options={fieldOptions}
           error={error}
           required={question.required}
@@ -226,7 +226,7 @@ export const FieldRenderer = ({
       return (
         <SelectField
           name={question.field}
-          label={question.filter_label || question.label}
+          label={question.label}
           control={control}
           options={fieldOptions}
           error={error}
@@ -241,7 +241,7 @@ export const FieldRenderer = ({
       return (
         <SkillsPillField
           name={question.field}
-          label={question.filter_label || question.label}
+          label={question.label}
           options={fieldOptions}
           control={control}
           allowCustom={question.allow_custom}
@@ -266,7 +266,7 @@ export const FieldRenderer = ({
       return (
         <CheckboxField
           name={question.field}
-          label={question.filter_label || question.label}
+          label={question.label}
           options={fieldOptions}
           control={control}
           required={question.required}
@@ -279,7 +279,7 @@ export const FieldRenderer = ({
       return (
         <CardSelectField
           name={question.field}
-          label={question.filter_label || question.label}
+          label={question.label}
           options={fieldOptions}
           control={control}
           required={question.required}
@@ -297,7 +297,7 @@ export const FieldRenderer = ({
       return (
         <FileField
           name={question.field}
-          label={question.filter_label || question.label}
+          label={question.label}
           control={control}
           fileType={fileType}
           error={error}
@@ -320,9 +320,9 @@ export const FieldRenderer = ({
           register={register(question.field)}
           error={error}
           required={question.required}
-          placeholder={question.filter_label || question.label}
+          placeholder={question.label}
           icon={question.icon}
-          label={question.filter_label || question.label}
+          label={question.label}
         />
       );
     }

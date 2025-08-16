@@ -14,6 +14,7 @@ import { ProcessedField } from "@/types/discovery"
 import { ClearButton } from "../ui/ClearButton"
 import { SliderField } from "./SliderField"
 import { Lock, Info } from "lucide-react"
+import { getDisplayLabel } from "@/utils/questionnaireParser"
 
 interface FilterFieldProps {
   field: ProcessedField;
@@ -54,6 +55,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   const hasAvailableOptions = availableOptions && availableOptions.length > 0
   const isDisabled = !hasAvailableOptions
   const isSingleOption = availableOptions && availableOptions.length === 1
+
   const filteredOptions = useMemo(() => {
     if (!filter) return availableOptions || []
     const lower = filter.toLowerCase()
@@ -69,7 +71,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
           <HStack gap={1} w="100%" h="40px">
             <Input
               {...formField}
-              placeholder={`Enter ${field.label}`}
+              placeholder={`Enter ${getDisplayLabel(field, true)}`}
               w="100%"
               h="40px"
               bg="white"
@@ -78,7 +80,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
               borderColor="gray.200"
             />
             <ClearButton
-              fieldLabel={field.label}
+              fieldLabel={getDisplayLabel(field, true)}
               onClear={() => formField.onChange("")}
               show={hasValue}
             />
@@ -144,8 +146,8 @@ export const FilterField: React.FC<FilterFieldProps> = ({
                         <Select.ValueText
                           placeholder={
                             isDisabled
-                              ? `No ${field.label} options available`
-                              : `Select ${field.label}`
+                              ? `No ${getDisplayLabel(field, true)} options available`
+                              : `Select ${getDisplayLabel(field, true)}`
                           }
                           color={isDisabled ? "gray.400" : "inherit"}
                         />
@@ -183,7 +185,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
                             )}
                             {selectCollection.items.map((option) => (
                               <Select.Item item={option} key={option.value}>
-                                {option.label}
+                                {getDisplayLabel(option, true)}
                                 <Select.ItemIndicator />
                               </Select.Item>
                             ))}
@@ -194,7 +196,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
                   )}
                 </Select.Root>
                 <ClearButton
-                  fieldLabel={field.label}
+                  fieldLabel={getDisplayLabel(field, true)}
                   onClear={() => formField.onChange("")}
                   show={hasValue && !isDisabled}
                 />
@@ -268,8 +270,8 @@ export const FilterField: React.FC<FilterFieldProps> = ({
                         <Select.ValueText
                           placeholder={
                             isDisabled
-                              ? `No ${field.label} options available`
-                              : `Select ${field.label}`
+                              ? `No ${getDisplayLabel(field, true)} options available`
+                              : `${getDisplayLabel(field, true)}`
                           }
                           color={isDisabled ? "gray.400" : "inherit"}
                         />
@@ -302,7 +304,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
                             )}
                             {selectCollection.items.map((option) => (
                               <Select.Item item={option} key={option.value}>
-                                {option.label}
+                                {getDisplayLabel(option, true)}
                                 <Select.ItemIndicator />
                               </Select.Item>
                             ))}
@@ -313,7 +315,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
                   )}
                 </Select.Root>
                 <ClearButton
-                  fieldLabel={field.label}
+                  fieldLabel={getDisplayLabel(field, true)}
                   onClear={() => formField.onChange([])}
                   show={hasValue && !isDisabled}
                 />
@@ -344,7 +346,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
               <Box w="100%"> 
               <SliderField
                 name={field.field}
-                label={field.label}
+                label={getDisplayLabel(field, true)}
                 control={control}
                 min={(field as any).min || 1}
                 max={(field as any).max || 200}
@@ -357,7 +359,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
               </Box>
               {hasValue && (
               <ClearButton
-                fieldLabel={field.label}
+                fieldLabel={getDisplayLabel(field, true)}
                 onClear={() => formField.onChange("")}
                 show={hasValue}
                 props={{
