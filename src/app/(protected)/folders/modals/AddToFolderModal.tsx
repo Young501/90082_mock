@@ -182,7 +182,6 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
                   >
                     Add
                   </Button>
-                  
                 </Box>
               </VStack>
             </form>

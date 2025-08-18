@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Avatar,
-  Separator,
-} from "@chakra-ui/react";
+import { Box, VStack, HStack, Text, Avatar, Separator } from "@chakra-ui/react";
 import { Participant } from "@/types/dashboard";
 import { getInitial } from "@/utils/getInitials";
 import { formatDate } from "@/utils/formatDate";
@@ -30,10 +23,13 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
   onParticipantUpdate,
 }) => {
   const router = useRouter();
-  const unmatchMutation = useUnmatch(opportunityId.toString(), participant?.match_info?.matched_with?.match_id?.toString() || " ");
-  
+  const unmatchMutation = useUnmatch(
+    opportunityId.toString(),
+    participant?.match_info?.matched_with?.match_id?.toString() || " "
+  );
+
   const [isUnmatching, setIsUnmatching] = useState(false);
-  
+
   const getBorderColor = () => {
     return userType === "student" ? "#DC2626" : "#089C3F";
   };
@@ -163,11 +159,7 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                 fontSize={{ base: "20px", lg: "35px" }}
               />
               {participant.image_url && (
-                <Avatar.Image
-                  src={participant.image_url}
-                  w="85px"
-                  h="85px"
-                />
+                <Avatar.Image src={participant.image_url} w="85px" h="85px" />
               )}
             </Avatar.Root>
           </Box>

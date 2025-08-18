@@ -7,8 +7,8 @@ import { PAGE_TITLES } from "@/utils/pageTitles";
 const Inbox = () => {
   return (
     <>
-    <PageTitle title={PAGE_TITLES.INBOX} />
-    <div>Inbox</div>
+      <PageTitle title={PAGE_TITLES.INBOX} />
+      <div>Inbox</div>
     </>
   );
 };

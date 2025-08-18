@@ -152,7 +152,12 @@ export function StudentCard({
           w="full"
           h="full"
         >
-          <Box display="flex" flexDirection="column" justifyContent="space-between" flex="1">
+          <Box
+            display="flex"
+            flexDirection="column"
+            justifyContent="space-between"
+            flex="1"
+          >
             <Box
               display="flex"
               flexDirection="row"
@@ -174,9 +179,7 @@ export function StudentCard({
                   fontSize="2xl"
                 />
                 {getProfileImage() && (
-                  <Avatar.Image
-                    src={getProfileImage() || ""}
-                  />
+                  <Avatar.Image src={getProfileImage() || ""} />
                 )}
               </Avatar.Root>
 
@@ -344,7 +347,7 @@ export function StudentCard({
             variant="student"
             w="full"
             py={6}
-            mt={4}  
+            mt={4}
             onClick={handleViewFullProfile}
             disabled={!student.id || disableViewFullProfile}
           >

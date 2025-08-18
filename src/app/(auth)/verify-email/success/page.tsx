@@ -23,17 +23,27 @@ export default function EmailVerifySuccessPage() {
 
   useEffect(() => {
     const { token: inviteToken, opportunityId } = getInviteData();
-    
+
     if (inviteToken && opportunityId) {
-      router.push("/login/?invite_token=" + inviteToken + "&opportunity_id=" + opportunityId);
+      router.push(
+        "/login/?invite_token=" +
+          inviteToken +
+          "&opportunity_id=" +
+          opportunityId
+      );
     }
   }, [getInviteData, router]);
 
   const handleLoginClick = () => {
     const { token: inviteToken, opportunityId } = getInviteData();
-    
+
     if (inviteToken && opportunityId) {
-      router.push("/login/?invite_token=" + inviteToken + "&opportunity_id=" + opportunityId);
+      router.push(
+        "/login/?invite_token=" +
+          inviteToken +
+          "&opportunity_id=" +
+          opportunityId
+      );
     } else {
       router.push("/login/");
     }
@@ -41,65 +51,65 @@ export default function EmailVerifySuccessPage() {
 
   return (
     <>
-    <PageTitle title={PAGE_TITLES.VERIFY_EMAIL_SUCCESS} />
-    <Container maxW={containerMaxW} p={0} h="100%">
-      <Box
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        justifyContent="center"
-        minHeight="60vh"
-        textAlign="center"
-        px={{ base: 4, md: 6, lg: 8 }}
-        py={{ base: 8, md: 12, lg: 16 }}
-      >
-        <VStack gap={{ base: 6, md: 8 }}>
-          <Icon
-            as={CheckCircle}
-            boxSize={{ base: 12, md: 16, lg: 20 }}
-            color="green.500"
-          />
+      <PageTitle title={PAGE_TITLES.VERIFY_EMAIL_SUCCESS} />
+      <Container maxW={containerMaxW} p={0} h="100%">
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          minHeight="60vh"
+          textAlign="center"
+          px={{ base: 4, md: 6, lg: 8 }}
+          py={{ base: 8, md: 12, lg: 16 }}
+        >
+          <VStack gap={{ base: 6, md: 8 }}>
+            <Icon
+              as={CheckCircle}
+              boxSize={{ base: 12, md: 16, lg: 20 }}
+              color="green.500"
+            />
 
-          <Text
-            fontSize={{ base: "24px", md: "32px", lg: "42px" }}
-            fontWeight="700"
-            color="black"
-            lineHeight="1.21"
-          >
-            Email Verified Successfully!
-          </Text>
+            <Text
+              fontSize={{ base: "24px", md: "32px", lg: "42px" }}
+              fontWeight="700"
+              color="black"
+              lineHeight="1.21"
+            >
+              Email Verified Successfully!
+            </Text>
 
-          <Text
-            fontSize={{ base: "14px", md: "18px", lg: "20px" }}
-            color="black"
-            maxWidth={{ base: "100%", md: "500px", lg: "600px" }}
-            lineHeight="1.4"
-            px={{ base: 2, md: 0 }}
-          >
-            Your email has been verified. You can now log in to your account and
-            start exploring UniConnected.
-          </Text>
+            <Text
+              fontSize={{ base: "14px", md: "18px", lg: "20px" }}
+              color="black"
+              maxWidth={{ base: "100%", md: "500px", lg: "600px" }}
+              lineHeight="1.4"
+              px={{ base: 2, md: 0 }}
+            >
+              Your email has been verified. You can now log in to your account
+              and start exploring UniConnected.
+            </Text>
 
-          <Button
-            w={{ base: "280px", md: "320px", lg: "400px" }}
-            h={{ base: "45px", md: "50px" }}
-            bg="#002157"
-            color="white"
-            borderRadius="25px"
-            fontSize={{ base: "16px", md: "18px", lg: "20px" }}
-            fontWeight="500"
-            onClick={handleLoginClick}
-            _hover={{ opacity: 0.8 }}
-            _active={{ transform: "scale(0.98)" }}
-            boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
-            transition="all 0.2s ease"
-            mt={{ base: 4, md: 6 }}
-          >
-            Go to Login
-          </Button>
-        </VStack>
-      </Box>
-    </Container>
+            <Button
+              w={{ base: "280px", md: "320px", lg: "400px" }}
+              h={{ base: "45px", md: "50px" }}
+              bg="#002157"
+              color="white"
+              borderRadius="25px"
+              fontSize={{ base: "16px", md: "18px", lg: "20px" }}
+              fontWeight="500"
+              onClick={handleLoginClick}
+              _hover={{ opacity: 0.8 }}
+              _active={{ transform: "scale(0.98)" }}
+              boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
+              transition="all 0.2s ease"
+              mt={{ base: 4, md: 6 }}
+            >
+              Go to Login
+            </Button>
+          </VStack>
+        </Box>
+      </Container>
     </>
   );
 }

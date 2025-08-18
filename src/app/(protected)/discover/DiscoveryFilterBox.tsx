@@ -58,7 +58,6 @@ export function DiscoveryFilterBox({
       <Flex
         direction={{ base: "column" }}
         align="stretch"
-        
         gap={4}
         w="100%"
         bg="#D9D9D9"
@@ -73,7 +72,6 @@ export function DiscoveryFilterBox({
               justify="flex-start"
               align="start"
               w="100%"
-
               direction={{ base: "column", md: "row" }}
             >
               {primaryFields.map((field) => (

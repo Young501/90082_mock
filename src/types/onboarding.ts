@@ -22,6 +22,7 @@ export interface FollowupQuestionMap {
 export interface Question {
   field: string;
   label: string;
+  filter_label?: string;
   type:
     | "text"
     | "select"

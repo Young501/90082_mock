@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo } from "react";
 import {
   Box,
   VStack,
@@ -11,15 +11,15 @@ import {
   Tag,
   IconButton,
   createListCollection,
-} from "@chakra-ui/react"
-import { Control, useController } from "react-hook-form"
-import { Button } from "@/components/ui/Button"
-import { Plus, X } from "lucide-react"
+} from "@chakra-ui/react";
+import { Control, useController } from "react-hook-form";
+import { Button } from "@/components/ui/Button";
+import { Plus, X } from "lucide-react";
 
 interface SkillsPillFieldProps {
   name: string;
   label: string;
-  options: string[];
+  options: string[] | { label: string; value: string }[];
   control: Control<any>;
   allowCustom?: boolean;
   required?: boolean;
@@ -33,11 +33,11 @@ export const SkillsPillField = ({
   allowCustom = false,
   required = false,
 }: SkillsPillFieldProps) => {
-  const [showDropdown, setShowDropdown] = useState(false)
-  const [selectedOption, setSelectedOption] = useState("")
-  const [customSkill, setCustomSkill] = useState("")
-  const [showCustomInput, setShowCustomInput] = useState(false)
-  const [filter, setFilter] = useState("")
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedOption, setSelectedOption] = useState("");
+  const [customSkill, setCustomSkill] = useState("");
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  const [filter, setFilter] = useState("");
   const {
     field: { value = [], onChange },
     fieldState: { error },
@@ -45,51 +45,58 @@ export const SkillsPillField = ({
     name,
     control,
     defaultValue: [],
-  })
+  });
   const handleAddSkill = (skill: string) => {
     if (skill && !value.includes(skill)) {
-      const cleanSkill = String(skill).trim()
-      onChange([...value, cleanSkill])
-      setSelectedOption("")
-      setCustomSkill("")
-      setShowDropdown(false)
-      setShowCustomInput(false)
-      setFilter("")
+      const cleanSkill = String(skill).trim();
+      onChange([...value, cleanSkill]);
+      setSelectedOption("");
+      setCustomSkill("");
+      setShowDropdown(false);
+      setShowCustomInput(false);
+      setFilter("");
     }
-  }
+  };
   const handleRemoveSkill = (skillToRemove: string) => {
-    onChange(value.filter((skill: string) => skill !== skillToRemove))
-  }
+    onChange(value.filter((skill: string) => skill !== skillToRemove));
+  };
   const handleDropdownChange = (selectedValue: string) => {
     if (selectedValue === "other" && allowCustom) {
-      setShowCustomInput(true)
-      setSelectedOption("")
+      setShowCustomInput(true);
+      setSelectedOption("");
     } else if (selectedValue) {
-      handleAddSkill(selectedValue)
+      handleAddSkill(selectedValue);
     }
-  }
+  };
   const handleCustomAdd = () => {
     if (customSkill.trim()) {
-      handleAddSkill(customSkill.trim())
+      handleAddSkill(customSkill.trim());
     }
-  }
+  };
   const availableOptions = options.filter(
     (option) => !value.includes(option) && option !== "other"
-  )
+  );
   const filteredOptions = useMemo(() => {
-    if (!filter) return availableOptions
-    const lower = filter.toLowerCase()
-    return availableOptions.filter((opt) => opt.toLowerCase().includes(lower))
-  }, [availableOptions, filter])
+    if (!filter) return availableOptions;
+    const lower = filter.toLowerCase();
+    return availableOptions.filter(
+      (opt) => typeof opt === "string" && opt.toLowerCase().includes(lower)
+    );
+  }, [availableOptions, filter]);
   const selectOptions = allowCustom
     ? [...filteredOptions, "other"]
-    : filteredOptions
+    : filteredOptions;
   const collection = createListCollection({
     items: selectOptions.map((option) => ({
-      label: option === "other" ? "Add custom skill..." : option,
-      value: option,
+      label:
+        option === "other"
+          ? "Add custom skill..."
+          : typeof option === "string"
+            ? option
+            : option.label,
+      value: typeof option === "string" ? option : option.value,
     })),
-  })
+  });
   return (
     <Box>
       <Text fontSize="18px" fontWeight="medium" mb={4}>
@@ -175,12 +182,14 @@ export const SkillsPillField = ({
                       bg="gray.50"
                       onKeyDown={(e) => {
                         if (e.key === " ") {
-                          e.stopPropagation()
+                          e.stopPropagation();
                         }
                       }}
                     />
                     {selectOptions.length === 0 && (
-                      <span style={{ color: '#888', padding: '8px' }}>No options</span>
+                      <span style={{ color: "#888", padding: "8px" }}>
+                        No options
+                      </span>
                     )}
                     {collection.items.map((item) => (
                       <Select.Item key={item.value} item={item.value}>
@@ -199,8 +208,8 @@ export const SkillsPillField = ({
                   size="md"
                   onKeyPress={(e) => {
                     if (e.key === "Enter") {
-                      e.preventDefault()
-                      handleCustomAdd()
+                      e.preventDefault();
+                      handleCustomAdd();
                     }
                   }}
                 />
@@ -219,11 +228,11 @@ export const SkillsPillField = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => {
-                  setShowDropdown(false)
-                  setShowCustomInput(false)
-                  setSelectedOption("")
-                  setCustomSkill("")
-                  setFilter("")
+                  setShowDropdown(false);
+                  setShowCustomInput(false);
+                  setSelectedOption("");
+                  setCustomSkill("");
+                  setFilter("");
                 }}
               >
                 Cancel
@@ -238,5 +247,5 @@ export const SkillsPillField = ({
         </Text>
       )}
     </Box>
-  )
-}
+  );
+};

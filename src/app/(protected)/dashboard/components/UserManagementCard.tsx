@@ -127,7 +127,16 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
         <VStack align="start" flex={1} gap={1}>
           <HStack>
             <Tooltip content={participant.name}>
-              <Text fontWeight="600" fontSize="md" maxW={{base: "150px", md: "250px", lg: "150px", xl: "250px"}} style={{textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'}}>
+              <Text
+                fontWeight="600"
+                fontSize="md"
+                maxW={{ base: "150px", md: "250px", lg: "150px", xl: "250px" }}
+                style={{
+                  textOverflow: "ellipsis",
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                }}
+              >
                 {participant.name}
               </Text>
             </Tooltip>

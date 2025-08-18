@@ -1,12 +1,19 @@
-import { Portal, Select, createListCollection, Field, Input, VStack } from "@chakra-ui/react"
-import { useMemo, useState } from "react"
-import { Control, Controller } from "react-hook-form"
+import {
+  Portal,
+  Select,
+  createListCollection,
+  Field,
+  Input,
+  VStack,
+} from "@chakra-ui/react";
+import { useMemo, useState } from "react";
+import { Control, Controller } from "react-hook-form";
 
 interface SelectFieldProps {
   name: string;
   label?: string;
   control: Control<any>;
-  options: string[];
+  options: string[] | { label: string; value: string }[];
   placeholder?: string;
   multiple?: boolean;
   error?: string;
@@ -25,28 +32,34 @@ export const SelectField = ({
   required,
   maxSelection,
 }: SelectFieldProps) => {
-  const [filter, setFilter] = useState("")
+  const [filter, setFilter] = useState("");
   const optionItems = useMemo(
     () =>
       options.map((option) => ({
-        label: option,
-        value: option,
+        label: typeof option === "string" ? option : option.label,
+        value: typeof option === "string" ? option : option.value,
       })),
     [options]
-  )
+  );
   const filteredItems = useMemo(() => {
-    if (!filter) return optionItems
-    const lower = filter.toLowerCase()
-    return optionItems.filter((item) => item.label.toLowerCase().includes(lower))
-  }, [optionItems, filter])
+    if (!filter) return optionItems;
+    const lower = filter.toLowerCase();
+    return optionItems.filter(
+      (item) =>
+        typeof item.label === "string" &&
+        item.label.toLowerCase().includes(lower)
+    );
+  }, [optionItems, filter]);
   const collection = useMemo(
     () =>
       createListCollection({
         items: filteredItems,
       }),
     [filteredItems]
-  )
-  const defaultPlaceholder = multiple ? "Select option(s)" : "-- Select an option --"
+  );
+  const defaultPlaceholder = multiple
+    ? "Select option(s)"
+    : "-- Select an option --";
   return (
     <Field.Root invalid={!!error}>
       {label && (
@@ -65,19 +78,15 @@ export const SelectField = ({
             multiple={multiple}
             collection={collection}
             value={
-              multiple
-                ? field.value || []
-                : field.value
-                ? [field.value]
-                : [""]
+              multiple ? field.value || [] : field.value ? [field.value] : [""]
             }
             onValueChange={(details) => {
               const newValue = multiple
                 ? details.value
                 : details.value.length > 0
-                ? details.value[0]
-                : ""
-              field.onChange(newValue)
+                  ? details.value[0]
+                  : "";
+              field.onChange(newValue);
             }}
             onBlur={field.onBlur}
             width="100%"
@@ -86,7 +95,9 @@ export const SelectField = ({
             <Select.HiddenSelect />
             <Select.Control>
               <Select.Trigger>
-                <Select.ValueText placeholder={placeholder || defaultPlaceholder} />
+                <Select.ValueText
+                  placeholder={placeholder || defaultPlaceholder}
+                />
               </Select.Trigger>
               <Select.IndicatorGroup>
                 <Select.Indicator />
@@ -106,12 +117,14 @@ export const SelectField = ({
                       bg="gray.50"
                       onKeyDown={(e) => {
                         if (e.key === " ") {
-                          e.stopPropagation()
+                          e.stopPropagation();
                         }
                       }}
                     />
                     {filteredItems.length === 0 && (
-                      <span style={{ color: '#888', padding: '8px' }}>No options</span>
+                      <span style={{ color: "#888", padding: "8px" }}>
+                        No options
+                      </span>
                     )}
                     {filteredItems.map((opt) => (
                       <Select.Item item={opt} key={opt.value}>
@@ -128,5 +141,5 @@ export const SelectField = ({
       />
       {error && <Field.ErrorText>{error}</Field.ErrorText>}
     </Field.Root>
-  )
-}
+  );
+};

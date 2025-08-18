@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  Box,
-  VStack,
-  Text,
-  Button,
-} from "@chakra-ui/react";
+import { Box, VStack, Text, Button } from "@chakra-ui/react";
 
 interface MatchConfirmationModalProps {
   isOpen: boolean;
@@ -100,4 +95,4 @@ const MatchConfirmationModal: React.FC<MatchConfirmationModalProps> = ({
   );
 };
 
-export default MatchConfirmationModal; 
+export default MatchConfirmationModal;

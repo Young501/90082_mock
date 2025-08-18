@@ -50,7 +50,7 @@ export const SliderField = ({
         {...props}
       >
         <HStack justify="space-between" mb={2}>
-          <Text fontSize="16px" fontWeight="medium" >
+          <Text fontSize="16px" fontWeight="medium">
             {label}
             {required && (
               <Text as="span" color="red.500" ml={1}>
@@ -58,7 +58,7 @@ export const SliderField = ({
               </Text>
             )}
           </Text>
-          <Text fontSize="16px" fontWeight="medium" color="blue.500" >
+          <Text fontSize="16px" fontWeight="medium" color="blue.500">
             {currentValue} {unit}
           </Text>
         </HStack>
@@ -78,10 +78,10 @@ export const SliderField = ({
           </Slider.Control>
 
           <Box display="flex" justifyContent="space-between" mt={2}>
-            <Text fontSize="sm" color="gray.600" >
+            <Text fontSize="sm" color="gray.600">
               {min} {unit}
             </Text>
-            <Text fontSize="sm" color="gray.600" >
+            <Text fontSize="sm" color="gray.600">
               {max} {unit}
             </Text>
           </Box>

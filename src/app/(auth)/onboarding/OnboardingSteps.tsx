@@ -80,18 +80,21 @@ export const OnboardingSteps = ({ userType }: Props) => {
     reValidateMode: "onChange",
   });
 
-  const getAllPossibleFields = useCallback((questions: Question[]): string[] => {
-    const fields: string[] = [];
-    questions.forEach((question) => {
-      fields.push(question.field);
-      if (question.followup_question) {
-        Object.values(question.followup_question).forEach((followup) => {
-          fields.push(...getAllPossibleFields([followup]));
-        });
-      }
-    });
-    return fields;
-  }, []);
+  const getAllPossibleFields = useCallback(
+    (questions: Question[]): string[] => {
+      const fields: string[] = [];
+      questions.forEach((question) => {
+        fields.push(question.field);
+        if (question.followup_question) {
+          Object.values(question.followup_question).forEach((followup) => {
+            fields.push(...getAllPossibleFields([followup]));
+          });
+        }
+      });
+      return fields;
+    },
+    []
+  );
 
   const getCurrentVisibleFields = (
     questions: Question[],
@@ -192,7 +195,13 @@ export const OnboardingSteps = ({ userType }: Props) => {
         }
       }, 50);
     }
-  }, [currentPage?.id, getValues, currentPage, clearErrors, getAllPossibleFields]);
+  }, [
+    currentPage?.id,
+    getValues,
+    currentPage,
+    clearErrors,
+    getAllPossibleFields,
+  ]);
 
   useEffect(() => {
     if (currentPage && Object.keys(formData).length > 0) {
@@ -232,7 +241,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
   useEffect(() => {
     if (currentPage) {
       const subscription = watch((value, { name, type }) => {
-        if (name && type === 'change') {
+        if (name && type === "change") {
           trigger(name);
         }
       });
@@ -240,102 +249,137 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   }, [watch, trigger, currentPage]);
 
-  const isFollowupOf = useCallback((fieldName: string, parentField: string, questions: Question[]): boolean => {
-    for (const question of questions) {
-      if (question.field === parentField && question.followup_question) {
-        for (const followup of Object.values(question.followup_question)) {
-          if (followup.field === fieldName) {
-            return true;
-          }
-          if (followup.followup_question) {
-            for (const nestedFollowup of Object.values(followup.followup_question)) {
-              if (nestedFollowup.field === fieldName) {
-                return true;
+  const isFollowupOf = useCallback(
+    (
+      fieldName: string,
+      parentField: string,
+      questions: Question[]
+    ): boolean => {
+      for (const question of questions) {
+        if (question.field === parentField && question.followup_question) {
+          for (const followup of Object.values(question.followup_question)) {
+            if (followup.field === fieldName) {
+              return true;
+            }
+            if (followup.followup_question) {
+              for (const nestedFollowup of Object.values(
+                followup.followup_question
+              )) {
+                if (nestedFollowup.field === fieldName) {
+                  return true;
+                }
               }
             }
           }
         }
-      }
-      if (question.followup_question) {
-        for (const followup of Object.values(question.followup_question)) {
-          if (isFollowupOf(fieldName, parentField, [followup])) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }, []);
-
-  const getFollowupFields = useCallback((parentField: string, questions: Question[]): string[] => {
-    const fields: string[] = [];
-    
-    for (const question of questions) {
-      if (question.field === parentField && question.followup_question) {
-        for (const followup of Object.values(question.followup_question)) {
-          fields.push(followup.field);
-          if (followup.followup_question) {
-            for (const nestedFollowup of Object.values(followup.followup_question)) {
-              fields.push(nestedFollowup.field);
+        if (question.followup_question) {
+          for (const followup of Object.values(question.followup_question)) {
+            if (isFollowupOf(fieldName, parentField, [followup])) {
+              return true;
             }
           }
         }
       }
-      if (question.followup_question) {
-        for (const followup of Object.values(question.followup_question)) {
-          fields.push(...getFollowupFields(parentField, [followup]));
+      return false;
+    },
+    []
+  );
+
+  const getFollowupFields = useCallback(
+    (parentField: string, questions: Question[]): string[] => {
+      const fields: string[] = [];
+
+      for (const question of questions) {
+        if (question.field === parentField && question.followup_question) {
+          for (const followup of Object.values(question.followup_question)) {
+            fields.push(followup.field);
+            if (followup.followup_question) {
+              for (const nestedFollowup of Object.values(
+                followup.followup_question
+              )) {
+                fields.push(nestedFollowup.field);
+              }
+            }
+          }
+        }
+        if (question.followup_question) {
+          for (const followup of Object.values(question.followup_question)) {
+            fields.push(...getFollowupFields(parentField, [followup]));
+          }
         }
       }
-    }
-    
-    return fields;
-  }, []);
 
-  const handleFieldUnregistered = useCallback((fieldName: string) => {
-    setTimeout(() => {
-      const currentValues = getValues();
-      const visibleFields = getCurrentVisibleFields(
-        currentPage?.questions || [],
-        currentValues
-      );
-      trigger(visibleFields);
-    }, 100);
-  }, [getValues, currentPage, trigger]);
+      return fields;
+    },
+    []
+  );
 
-  const handleParentValueChange = useCallback((fieldName: string, newValue: any) => {
-    const currentParentValue = parentValues[fieldName];
-    if (currentParentValue !== newValue) {
-      setParentValues(prev => ({ ...prev, [fieldName]: newValue }));
-      
-      const currentValues = getValues();
-      const newFormData: Record<string, any> = {};
-      
-      Object.entries(currentValues).forEach(([key, value]) => {
-        if (key !== fieldName && !isFollowupOf(key, fieldName, currentPage?.questions || [])) {
-          newFormData[key] = value;
-        }
-      });
-      
-      newFormData[fieldName] = newValue;
-      
-      setFormData(newFormData);
-      
-      if (currentPage) {
-        const fieldsToClear = getFollowupFields(fieldName, currentPage.questions);
-        setTimeout(() => {
-          fieldsToClear.forEach((field) => {
-            unregister(field);
-            clearErrors(field);
-          });
-        }, 50);
-      }
-      
+  const handleFieldUnregistered = useCallback(
+    (fieldName: string) => {
       setTimeout(() => {
-        setFormKey(prev => prev + 1);
-        reset();
+        const currentValues = getValues();
+        const visibleFields = getCurrentVisibleFields(
+          currentPage?.questions || [],
+          currentValues
+        );
+        trigger(visibleFields);
       }, 100);
-    }
-  }, [parentValues, getValues, currentPage, unregister, clearErrors, reset, getFollowupFields, isFollowupOf]);
+    },
+    [getValues, currentPage, trigger]
+  );
+
+  const handleParentValueChange = useCallback(
+    (fieldName: string, newValue: any) => {
+      const currentParentValue = parentValues[fieldName];
+      if (currentParentValue !== newValue) {
+        setParentValues((prev) => ({ ...prev, [fieldName]: newValue }));
+
+        const currentValues = getValues();
+        const newFormData: Record<string, any> = {};
+
+        Object.entries(currentValues).forEach(([key, value]) => {
+          if (
+            key !== fieldName &&
+            !isFollowupOf(key, fieldName, currentPage?.questions || [])
+          ) {
+            newFormData[key] = value;
+          }
+        });
+
+        newFormData[fieldName] = newValue;
+
+        setFormData(newFormData);
+
+        if (currentPage) {
+          const fieldsToClear = getFollowupFields(
+            fieldName,
+            currentPage.questions
+          );
+          setTimeout(() => {
+            fieldsToClear.forEach((field) => {
+              unregister(field);
+              clearErrors(field);
+            });
+          }, 50);
+        }
+
+        setTimeout(() => {
+          setFormKey((prev) => prev + 1);
+          reset();
+        }, 100);
+      }
+    },
+    [
+      parentValues,
+      getValues,
+      currentPage,
+      unregister,
+      clearErrors,
+      reset,
+      getFollowupFields,
+      isFollowupOf,
+    ]
+  );
 
   const onNext = async () => {
     setHasAttemptedSubmit(true);
@@ -375,7 +419,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
       delete submissionData.location;
       delete submissionData.location_geocode_lookup;
 
-      const { setUserFirstName, setUserLastName, setUserProfilePictureUrl } = useAuthStore.getState();
+      const { setUserFirstName, setUserLastName, setUserProfilePictureUrl } =
+        useAuthStore.getState();
       setUserFirstName(submissionData.first_name || "");
       setUserLastName(submissionData.last_name || "");
 
@@ -482,7 +527,13 @@ export const OnboardingSteps = ({ userType }: Props) => {
         </Text>
       </Box>
 
-      <Box as="form" onSubmit={handleFormSubmit} w="100%" maxW="588px" key={formKey}>
+      <Box
+        as="form"
+        onSubmit={handleFormSubmit}
+        w="100%"
+        maxW="588px"
+        key={formKey}
+      >
         {currentPage.questions.map((question) => (
           <FieldRenderer
             key={`${formKey}-${question.field}`}

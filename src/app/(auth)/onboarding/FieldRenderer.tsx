@@ -19,6 +19,7 @@ import {
 } from "@/components/fields";
 import { Question } from "@/types/onboarding";
 import { useMemo, useEffect, useRef, useCallback } from "react";
+import { parseQuestionnaireOptions } from "@/utils/questionnaireParser";
 
 interface FieldRendererProps {
   question: Question;
@@ -48,7 +49,14 @@ export const FieldRenderer = ({
   onParentValueChange,
 }: FieldRendererProps) => {
   const error = errors[question.field]?.message as string | undefined;
-  const fieldOptions = question.options || question.option || [];
+  // const fieldOptions = question.options || question.option || [];
+  const rawFieldOptions = question.options || question.option || [];
+  const fieldOptions = parseQuestionnaireOptions(rawFieldOptions).map(
+    (opt) => ({
+      label: opt.label || opt.value,
+      value: opt.value,
+    })
+  );
 
   const previousFieldValue = useRef<any>(undefined);
 
@@ -129,7 +137,15 @@ export const FieldRenderer = ({
     }
 
     previousFieldValue.current = currentValue;
-  }, [fieldValue, question, clearErrors, unregister, getAllChildFields, onFieldUnregistered, onParentValueChange]);
+  }, [
+    fieldValue,
+    question,
+    clearErrors,
+    unregister,
+    getAllChildFields,
+    onFieldUnregistered,
+    onParentValueChange,
+  ]);
 
   const renderField = () => {
     if (
@@ -168,10 +184,8 @@ export const FieldRenderer = ({
           label={question.label}
           value={fieldValue}
           icon={question.icon}
-          onChange={(value) => {
-          }}
-          onSelect={(result) => {
-          }}
+          onChange={(value) => {}}
+          onSelect={(result) => {}}
         />
       );
     }
@@ -179,12 +193,12 @@ export const FieldRenderer = ({
     if (question.type === "number") {
       return (
         <InputField
-          label={question.label}
+          label={question.filter_label || question.label}
           register={register(question.field)}
           error={error}
           required={question.required}
           type="number"
-          placeholder={`Enter ${question.label.toLowerCase()}`}
+          placeholder={`Enter ${question.filter_label || question.label.toLowerCase()}`}
         />
       );
     }

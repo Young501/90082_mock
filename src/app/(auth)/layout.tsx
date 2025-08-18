@@ -15,38 +15,37 @@ export default function Layout({ children }: AuthLayoutProps) {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        position: "relative",
-        width: "100%",
-      }}
-    >
-      <Header />
-
-      <Box
-        flex="1"
-        display="flex"
-        flexDirection="column"
-        mt={{base: "80px", lg: "126px"}}
-        minH="calc(100vh - 305px)"
-        overflow="auto"
-        overflowX="hidden"
-        justifyContent="center"
-        pt="0"
-        pb="0"
-        px={{ base: "16px", md: "48px", lg: "130px" }}
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          position: "relative",
+          width: "100%",
+        }}
       >
-        <Container maxW={containerMaxW} px={0} position="relative">
-          {children}
-        </Container>
-      </Box>
-      {/* TO DO: Mobile footer missing */}
-      {!isMobile && <Footer />}
-    </div>
+        <Header />
+
+        <Box
+          flex="1"
+          display="flex"
+          flexDirection="column"
+          mt={{ base: "80px", lg: "126px" }}
+          minH="calc(100vh - 305px)"
+          overflow="auto"
+          overflowX="hidden"
+          justifyContent="center"
+          pt="0"
+          pb="0"
+          px={{ base: "16px", md: "48px", lg: "130px" }}
+        >
+          <Container maxW={containerMaxW} px={0} position="relative">
+            {children}
+          </Container>
+        </Box>
+        {/* TO DO: Mobile footer missing */}
+        {!isMobile && <Footer />}
+      </div>
     </Suspense>
   );
 }

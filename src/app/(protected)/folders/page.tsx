@@ -230,11 +230,7 @@ const Folder = () => {
         mx="auto"
         mt="126px"
       >
-        <VStack
-          align="stretch"
-          gap={{ base: 6, md: 10, lg: 20 }}
-          h={{ base: "100%", lg: "calc(100vh - 300px)" }}
-        >
+        <VStack align="stretch" gap={{ base: 6, md: 10, lg: 20 }}>
           <Button
             onClick={() => folderModal.onOpen()}
             bg="#CFF3FF"

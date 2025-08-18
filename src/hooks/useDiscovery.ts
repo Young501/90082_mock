@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -198,7 +204,7 @@ export const useDiscovery = () => {
   ]);
 
   useEffect(() => {
-    const shouldShowWarning = 
+    const shouldShowWarning =
       !isOpportunitiesLoading &&
       acceptedOpportunities !== undefined &&
       !currentOpportunityId &&
@@ -212,7 +218,7 @@ export const useDiscovery = () => {
         );
       }, 100);
     }
-    
+
     if (currentOpportunityId && hasShownWarningRef.current) {
       hasShownWarningRef.current = false;
     }
