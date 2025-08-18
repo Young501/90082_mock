@@ -41,17 +41,21 @@ export function useParticipants(
   });
 }
 
-export const matchStudent = async (opportunityId: string, matchStudent: MatchStudent) => {
+export const matchStudent = async (
+  opportunityId: string,
+  matchStudent: MatchStudent
+) => {
   return apiRequest({
     endpoint: API_ENDPOINTS.MATCH(opportunityId),
     body: matchStudent,
   });
-}
+};
 
 export function useMatchStudent(opportunityId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (matchStudentData: MatchStudent) => matchStudent(opportunityId, matchStudentData),
+    mutationFn: (matchStudentData: MatchStudent) =>
+      matchStudent(opportunityId, matchStudentData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["participants"] });
     },
@@ -66,7 +70,7 @@ export const unmatch = async (opportunityId: string, matchId: string) => {
       opportunity_id: opportunityId,
     },
   });
-}
+};
 
 export function useUnmatch(opportunityId: string, matchId: string) {
   const queryClient = useQueryClient();

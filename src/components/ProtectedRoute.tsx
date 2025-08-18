@@ -17,7 +17,7 @@ export default function ProtectedRoute({
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (!isLoading && !isAuthenticated && !token)   {
+      if (!isLoading && !isAuthenticated && !token) {
         router.push("/login/");
       }
       setIsLoading(false);
@@ -27,7 +27,13 @@ export default function ProtectedRoute({
 
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" h="100vh" gap={4}>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        h="100vh"
+        gap={4}
+      >
         <Loader />
         <Text fontSize="2xl" fontWeight="bold">
           Loading...

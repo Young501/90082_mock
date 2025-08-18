@@ -240,7 +240,6 @@ export const API_ENDPOINTS = {
   }),
 };
 
-
 /*********
  * apiRequest for making mutations with token guided endpoints
  */

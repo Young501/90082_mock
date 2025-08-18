@@ -35,9 +35,11 @@ const SignupPage = () => {
     if (!signupSelectedUserType) {
       const inviteToken = searchParams.get("invite_token");
       const opportunityId = searchParams.get("opportunity_id");
-      
+
       if (inviteToken && opportunityId) {
-        router.push(`/user-type?signup=true&invite_token=${inviteToken}&opportunity_id=${opportunityId}`);
+        router.push(
+          `/user-type?signup=true&invite_token=${inviteToken}&opportunity_id=${opportunityId}`
+        );
       } else {
         router.push("/user-type?signup=true/");
       }
@@ -47,7 +49,7 @@ const SignupPage = () => {
   useEffect(() => {
     const inviteToken = searchParams.get("invite_token");
     const opportunityId = searchParams.get("opportunity_id");
-    
+
     if (inviteToken && opportunityId) {
       setInviteData(inviteToken, opportunityId);
     }
@@ -92,8 +94,8 @@ const SignupPage = () => {
 
   return (
     <>
-    <PageTitle title={PAGE_TITLES.SIGNUP} />
-    <Flex
+      <PageTitle title={PAGE_TITLES.SIGNUP} />
+      <Flex
         w="100%"
         position="relative"
         overflow="hidden"

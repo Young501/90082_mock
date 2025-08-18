@@ -132,14 +132,14 @@ function InviteContent() {
 
   return (
     <>
-    <PageTitle title={PAGE_TITLES.INVITE} />
-    <Container maxW={containerMaxW} p={0} h="100%">
-      <InviteCard
-        opportunity={opportunity}
-        onAccept={handleAcceptInvite}
-        acceptInviteMutation={acceptInviteMutation}
-      />
-    </Container>
+      <PageTitle title={PAGE_TITLES.INVITE} />
+      <Container maxW={containerMaxW} p={0} h="100%">
+        <InviteCard
+          opportunity={opportunity}
+          onAccept={handleAcceptInvite}
+          acceptInviteMutation={acceptInviteMutation}
+        />
+      </Container>
     </>
   );
 }

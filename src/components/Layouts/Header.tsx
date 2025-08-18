@@ -41,7 +41,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const getSignupLink = () => {
     const inviteToken = searchParams.get("invite_token");
     const opportunityId = searchParams.get("opportunity_id");
-    
+
     if (inviteToken && opportunityId) {
       return `/user-type?signup=true&invite_token=${inviteToken}&opportunity_id=${opportunityId}`;
     }
@@ -113,7 +113,6 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       isStudent: false,
       isProtected: false,
     },
- 
   ];
 
   const getMenuItems = () => {
@@ -121,7 +120,9 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       return MENU_ITEMS.filter((item) => !item.isProtected);
     }
     if (isCoordinator) {
-      return MENU_ITEMS.filter((item) => item.isCoordinator && item.isProtected);
+      return MENU_ITEMS.filter(
+        (item) => item.isCoordinator && item.isProtected
+      );
     }
     if (isPartner) {
       return MENU_ITEMS.filter((item) => item.isPartner && item.isProtected);
@@ -195,7 +196,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
         </Link>
       );
     }
-   
+
     return (
       <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>
         <Text

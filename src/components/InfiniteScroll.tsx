@@ -61,11 +61,7 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
         >
           {isLoading ? (
             <VStack gap={2}>
-              <Loader
-                size="xl"
-                color="#002157"
-                animationDuration="0.8s"
-              />
+              <Loader size="xl" color="#002157" animationDuration="0.8s" />
             </VStack>
           ) : (
             <Text fontSize="sm" color="gray.500">

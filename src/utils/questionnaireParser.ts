@@ -5,7 +5,9 @@ export interface QuestionnaireOption {
   label: string;
 }
 
-export function parseQuestionnaireOptions(options: any[]): QuestionnaireOption[] {
+export function parseQuestionnaireOptions(
+  options: any[]
+): QuestionnaireOption[] {
   if (!Array.isArray(options)) {
     return [];
   }
@@ -47,7 +49,10 @@ export function parseQuestionnaireOptions(options: any[]): QuestionnaireOption[]
   });
 }
 
-export function getDisplayLabel(question: Question | { label: string; filter_label?: string }, isFilter: boolean = false): string {
+export function getDisplayLabel(
+  question: Question | { label: string; filter_label?: string },
+  isFilter: boolean = false
+): string {
   if (isFilter && question.filter_label) {
     return question.filter_label;
   }

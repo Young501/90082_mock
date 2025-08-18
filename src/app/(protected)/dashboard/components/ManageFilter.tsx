@@ -22,7 +22,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
   filters,
   onFilterChange,
   onReset,
-  searchOnly = false
+  searchOnly = false,
 }) => {
   const [searchText, setSearchText] = useState(filters.text || "");
   const [isExpanded, setIsExpanded] = useState(false);
@@ -51,44 +51,43 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
           <Input
             placeholder="Search organization name"
             value={searchText}
-            onChange={e => setSearchText(e.target.value)}
-            onKeyPress={e => e.key === "Enter" && handleSearch()}
+            onChange={(e) => setSearchText(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && handleSearch()}
             maxW="100%"
             bg="white"
             borderRadius="24px"
           />
           <Flex gap={2}>
-            
-          <Button
-                bg="#2CA9DF"
-                color="white"
-                onClick={handleSearch}
-                fontSize="16px"
-                h="40px"
-                flex={hasSearched ? "1" : "2"}
-                borderRadius="24px"
-                w={{base: "100%", lg: "212px"}}
-              >
-                <Image
-                  src="/assets/SearchIcon.svg"
-                  width={16}
-                  height={16}
-                  alt="search"
-                  style={{ marginRight: "8px" }}
-                />
-                Search
-              </Button>
-          {hasSearched && (
             <Button
-              fontSize="12px"
-              onClick={handleReset}
-              variant="ghost"
-              fontWeight="600"
-              px={2}
+              bg="#2CA9DF"
+              color="white"
+              onClick={handleSearch}
+              fontSize="16px"
+              h="40px"
+              flex={hasSearched ? "1" : "2"}
+              borderRadius="24px"
+              w={{ base: "100%", lg: "212px" }}
             >
-              Reset
+              <Image
+                src="/assets/SearchIcon.svg"
+                width={16}
+                height={16}
+                alt="search"
+                style={{ marginRight: "8px" }}
+              />
+              Search
             </Button>
-          )}
+            {hasSearched && (
+              <Button
+                fontSize="12px"
+                onClick={handleReset}
+                variant="ghost"
+                fontWeight="600"
+                px={2}
+              >
+                Reset
+              </Button>
+            )}
           </Flex>
         </Flex>
       </Box>

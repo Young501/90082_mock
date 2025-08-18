@@ -51,10 +51,12 @@ export const FieldRenderer = ({
   const error = errors[question.field]?.message as string | undefined;
   // const fieldOptions = question.options || question.option || [];
   const rawFieldOptions = question.options || question.option || [];
-  const fieldOptions = parseQuestionnaireOptions(rawFieldOptions).map(opt => ({
-    label: opt.label || opt.value,
-    value: opt.value,
-  }));
+  const fieldOptions = parseQuestionnaireOptions(rawFieldOptions).map(
+    (opt) => ({
+      label: opt.label || opt.value,
+      value: opt.value,
+    })
+  );
 
   const previousFieldValue = useRef<any>(undefined);
 
@@ -135,7 +137,15 @@ export const FieldRenderer = ({
     }
 
     previousFieldValue.current = currentValue;
-  }, [fieldValue, question, clearErrors, unregister, getAllChildFields, onFieldUnregistered, onParentValueChange]);
+  }, [
+    fieldValue,
+    question,
+    clearErrors,
+    unregister,
+    getAllChildFields,
+    onFieldUnregistered,
+    onParentValueChange,
+  ]);
 
   const renderField = () => {
     if (
@@ -174,10 +184,8 @@ export const FieldRenderer = ({
           label={question.label}
           value={fieldValue}
           icon={question.icon}
-          onChange={(value) => {
-          }}
-          onSelect={(result) => {
-          }}
+          onChange={(value) => {}}
+          onSelect={(result) => {}}
         />
       );
     }

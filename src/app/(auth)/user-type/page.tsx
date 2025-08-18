@@ -25,7 +25,7 @@ export default function UserTypePage() {
   useEffect(() => {
     const inviteToken = searchParams.get("invite_token");
     const opportunityId = searchParams.get("opportunity_id");
-    
+
     if (inviteToken && opportunityId) {
       setInviteData(inviteToken, opportunityId);
     }
@@ -53,12 +53,14 @@ export default function UserTypePage() {
 
   const handleLogin = (typeKey: string) => {
     setSignupSelectedUserType(typeKey);
-    
+
     const inviteToken = searchParams.get("invite_token");
     const opportunityId = searchParams.get("opportunity_id");
-    
+
     if (inviteToken && opportunityId) {
-      router.push(`/signup/?invite_token=${inviteToken}&opportunity_id=${opportunityId}`);
+      router.push(
+        `/signup/?invite_token=${inviteToken}&opportunity_id=${opportunityId}`
+      );
     } else {
       router.push("/signup/");
     }
@@ -140,368 +142,374 @@ export default function UserTypePage() {
 
   return (
     <>
-    <PageTitle title={PAGE_TITLES.USER_TYPE} />
-    <Box
-      display={["block", "block", "block", "flex"]}
-      flexDirection={"column"}
-      w="100%"
-      h="inherit"
-      m={"auto"}
-      px="0"
-      overflowY="auto"
-    >
-      <Flex
-        direction={{ base: "column", lg: "row" }}
-        align="center"
-        justify="space-between"
-        flex="1"
+      <PageTitle title={PAGE_TITLES.USER_TYPE} />
+      <Box
+        display={["block", "block", "block", "flex"]}
+        flexDirection={"column"}
+        w="100%"
+        h="inherit"
+        m={"auto"}
+        px="0"
+        overflowY="auto"
       >
-        <VStack
-          gap={{ base: 4, md: 6 }}
+        <Flex
+          direction={{ base: "column", lg: "row" }}
+          align="center"
+          justify="space-between"
           flex="1"
-          maxW={{ base: "100%", lg: "600px" }}
-          textAlign="center"
-          mb={{ base: 0, lg: 0 }}
         >
-          <Box
-            w={{
-              base: "120px",
-              sm: "150px",
-              md: "200px",
-              lg: "233px",
-            }}
-            h={{
-              base: "120px",
-              sm: "150px",
-              md: "200px",
-              lg: "233px",
-            }}
-            position="relative"
-          >
-            <Image
-              src="/assets/mini-logo.png"
-              fill
-              alt="logo"
-              style={{ objectFit: "contain" }}
-            />
-          </Box>
-
-          <VStack gap={{ base: 3, md: 4 }}>
-            <Heading
-              fontSize={{
-                base: "24px",
-                sm: "28px",
-                md: "42px",
-                lg: "55px",
-              }}
-              fontWeight="700"
-              color="black"
-              lineHeight="1.21"
-              textAlign="center"
-              px={{ base: 2, md: 0 }}
-            >
-              Discover Your Connections Here
-            </Heading>
-
-            <Text
-              fontSize={{
-                base: "14px",
-                sm: "16px",
-                md: "20px",
-                lg: "25px",
-              }}
-              color="black"
-              lineHeight="1.4"
-              textAlign="center"
-              maxW={{ base: "100%", md: "500px" }}
-              px={{ base: 2, md: 0 }}
-            >
-              Connect with opportunities tailored to your studies, skills and
-              career goals
-            </Text>
-          </VStack>
-        </VStack>
-
-        <Box w="100%" maxW="676px" mx="auto" mt={{ base: 2, md: 6, lg: 14 }}>
-          <Box
+          <VStack
+            gap={{ base: 4, md: 6 }}
             flex="1"
-            maxW={{ base: "100%", lg: "676px" }}
-            position="relative"
-            h={{
-              base: "280px",
-              sm: "320px",
-              md: "400px",
-              lg: "484px",
-            }}
-            mx={{ base: 2, md: 0 }}
+            maxW={{ base: "100%", lg: "600px" }}
+            textAlign="center"
+            mb={{ base: 0, lg: 0 }}
           >
-            <MotionFlex
-              wrap="wrap"
-              gap={{ base: 3, sm: 4, md: 6 }}
-              w="100%"
-              h="100%"
+            <Box
+              w={{
+                base: "120px",
+                sm: "150px",
+                md: "200px",
+                lg: "233px",
+              }}
+              h={{
+                base: "120px",
+                sm: "150px",
+                md: "200px",
+                lg: "233px",
+              }}
               position="relative"
             >
-              {userTypesData.map((type, index) => {
-                const isSelected = selectedType === type.key;
-                const isAnySelected = selectedType !== null;
+              <Image
+                src="/assets/mini-logo.png"
+                fill
+                alt="logo"
+                style={{ objectFit: "contain" }}
+              />
+            </Box>
 
-                const getTransformOrigin = () => {
-                  if (index === 0) return "left top";
-                  if (index === 1) return "right top";
-                  if (index === 2) return "left bottom";
-                  if (index === 3) return "right bottom";
-                  return "center";
-                };
+            <VStack gap={{ base: 3, md: 4 }}>
+              <Heading
+                fontSize={{
+                  base: "24px",
+                  sm: "28px",
+                  md: "42px",
+                  lg: "55px",
+                }}
+                fontWeight="700"
+                color="black"
+                lineHeight="1.21"
+                textAlign="center"
+                px={{ base: 2, md: 0 }}
+              >
+                Discover Your Connections Here
+              </Heading>
 
-                return (
-                  <MotionBox
-                    key={type.key}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{
-                      opacity: isAnySelected && !isSelected ? 0 : 1,
-                      scale: isSelected ? 2.1 : 1,
-                      zIndex: isSelected ? 10 : 1,
-                    }}
-                    transition={{
-                      delay: isAnySelected ? 0 : index * 0.1,
-                      duration: 0.4,
-                      ease: "easeInOut",
-                    }}
-                    w={{
-                      base: "calc(50% - 6px)",
-                      sm: "calc(50% - 8px)",
-                      md: "calc(50% - 12px)",
-                    }}
-                    h={{
-                      base: "calc(50% - 6px)",
-                      sm: "calc(50% - 8px)",
-                      md: "calc(50% - 12px)",
-                    }}
-                    position="relative"
-                    style={{
-                      transformOrigin: getTransformOrigin(),
-                    }}
-                  >
+              <Text
+                fontSize={{
+                  base: "14px",
+                  sm: "16px",
+                  md: "20px",
+                  lg: "25px",
+                }}
+                color="black"
+                lineHeight="1.4"
+                textAlign="center"
+                maxW={{ base: "100%", md: "500px" }}
+                px={{ base: 2, md: 0 }}
+              >
+                Connect with opportunities tailored to your studies, skills and
+                career goals
+              </Text>
+            </VStack>
+          </VStack>
+
+          <Box w="100%" maxW="676px" mx="auto" mt={{ base: 2, md: 6, lg: 14 }}>
+            <Box
+              flex="1"
+              maxW={{ base: "100%", lg: "676px" }}
+              position="relative"
+              h={{
+                base: "280px",
+                sm: "320px",
+                md: "400px",
+                lg: "484px",
+              }}
+              mx={{ base: 2, md: 0 }}
+            >
+              <MotionFlex
+                wrap="wrap"
+                gap={{ base: 3, sm: 4, md: 6 }}
+                w="100%"
+                h="100%"
+                position="relative"
+              >
+                {userTypesData.map((type, index) => {
+                  const isSelected = selectedType === type.key;
+                  const isAnySelected = selectedType !== null;
+
+                  const getTransformOrigin = () => {
+                    if (index === 0) return "left top";
+                    if (index === 1) return "right top";
+                    if (index === 2) return "left bottom";
+                    if (index === 3) return "right bottom";
+                    return "center";
+                  };
+
+                  return (
                     <MotionBox
-                      position="absolute"
-                      initial={{
-                        scale: 1,
-                      }}
+                      key={type.key}
+                      initial={{ opacity: 0, y: 20 }}
                       animate={{
-                        top: isSelected
-                          ? 16
-                          : (() => {
-                              if (index === 0 || index === 1)
-                                return "calc(100% - 53px)";
-                              return "calc(100% - 53px)";
-                            })(),
-                        left: isSelected
-                          ? 16
-                          : (() => {
-                              if (index === 0 || index === 2)
-                                return "calc(100% - 53px)";
-                              return "calc(100% - 53px)";
-                            })(),
-                        width: isSelected ? "40px" : "37px",
-                        height: isSelected ? "40px" : "37px",
-                        backgroundColor: isSelected
-                          ? "rgba(255,255,255,0.2)"
-                          : type.key === "student"
-                            ? "#F87C7C"
-                            : type.key === "alumni"
-                              ? "#FDE047"
-                              : type.key === "academic"
-                                ? "#A3CFFF"
-                                : "#BBF7D0",
-                        scale: [0.6],
+                        opacity: isAnySelected && !isSelected ? 0 : 1,
+                        scale: isSelected ? 2.1 : 1,
+                        zIndex: isSelected ? 10 : 1,
                       }}
                       transition={{
+                        delay: isAnySelected ? 0 : index * 0.1,
                         duration: 0.4,
                         ease: "easeInOut",
-                        delay: 0.3,
                       }}
-                      borderRadius="50%"
-                      zIndex={40}
-                      cursor={isSelected ? "pointer" : "default"}
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      onClick={
-                        isSelected
-                          ? (e) => {
-                              e.stopPropagation();
-                              handleBack();
-                            }
-                          : () => {
-                              handleSelect(type.key);
-                            }
-                      }
-                      _hover={
-                        isSelected
-                          ? {
-                              bg: "rgba(255,255,255,0.3)",
-                            }
-                          : {}
-                      }
-                    >
-                      <AnimatePresence mode="wait">
-                        {isSelected ? (
-                          <motion.div
-                            key="back-icon"
-                            initial={{
-                              opacity: 0,
-                              scale: 0.5,
-                            }}
-                            animate={{
-                              opacity: 1,
-                              scale: [1],
-                            }}
-                            exit={{
-                              opacity: 0,
-                              scale: 0.5,
-                            }}
-                            transition={{
-                              delay: 0.3,
-                              duration: 0.3,
-                            }}
-                          >
-                            <ChevronLeft size={20} color="white" />
-                          </motion.div>
-                        ) : (
-                          <motion.div
-                            key="empty"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{
-                              duration: 0.2,
-                            }}
-                          />
-                        )}
-                      </AnimatePresence>
-                    </MotionBox>
-                    <Box
-                      bg={type.bgColor}
-                      w="100%"
-                      h="100%"
-                      borderRadius="19px"
+                      w={{
+                        base: "calc(50% - 6px)",
+                        sm: "calc(50% - 8px)",
+                        md: "calc(50% - 12px)",
+                      }}
+                      h={{
+                        base: "calc(50% - 6px)",
+                        sm: "calc(50% - 8px)",
+                        md: "calc(50% - 12px)",
+                      }}
                       position="relative"
-                      cursor={
-                        isAnySelected && !isSelected ? "default" : "pointer"
-                      }
-                      transition="all 0.3s ease"
-                      _hover={
-                        !isAnySelected
-                          ? {
-                              transform: "scale(1.02)",
-                              boxShadow: `0px 0px 8px 6px ${type.shadowColor}`,
-                            }
-                          : {}
-                      }
-                      onClick={() => !isAnySelected && handleSelect(type.key)}
-                      boxShadow={`0px 0px 4px 3px ${type.shadowColor}`}
+                      style={{
+                        transformOrigin: getTransformOrigin(),
+                      }}
                     >
-                      <Box
-                        bg={type.bgColor}
-                        w="calc(100% - 16px)"
-                        h="calc(100% - 16px)"
-                        borderRadius="19px"
+                      <MotionBox
                         position="absolute"
-                        top="8px"
-                        left="8px"
+                        initial={{
+                          scale: 1,
+                        }}
+                        animate={{
+                          top: isSelected
+                            ? 16
+                            : (() => {
+                                if (index === 0 || index === 1)
+                                  return "calc(100% - 53px)";
+                                return "calc(100% - 53px)";
+                              })(),
+                          left: isSelected
+                            ? 16
+                            : (() => {
+                                if (index === 0 || index === 2)
+                                  return "calc(100% - 53px)";
+                                return "calc(100% - 53px)";
+                              })(),
+                          width: isSelected ? "40px" : "37px",
+                          height: isSelected ? "40px" : "37px",
+                          backgroundColor: isSelected
+                            ? "rgba(255,255,255,0.2)"
+                            : type.key === "student"
+                              ? "#F87C7C"
+                              : type.key === "alumni"
+                                ? "#FDE047"
+                                : type.key === "academic"
+                                  ? "#A3CFFF"
+                                  : "#BBF7D0",
+                          scale: [0.6],
+                        }}
+                        transition={{
+                          duration: 0.4,
+                          ease: "easeInOut",
+                          delay: 0.3,
+                        }}
+                        borderRadius="50%"
+                        zIndex={40}
+                        cursor={isSelected ? "pointer" : "default"}
                         display="flex"
-                        flexDirection="column"
                         alignItems="center"
                         justifyContent="center"
-                        gap={4}
-                        overflow="hidden"
-                        padding={"4px"}
+                        onClick={
+                          isSelected
+                            ? (e) => {
+                                e.stopPropagation();
+                                handleBack();
+                              }
+                            : () => {
+                                handleSelect(type.key);
+                              }
+                        }
+                        _hover={
+                          isSelected
+                            ? {
+                                bg: "rgba(255,255,255,0.3)",
+                              }
+                            : {}
+                        }
                       >
-                        <Flex
-                          rounded={"19px"}
-                          justifyContent={"center"}
-                          alignItems={"center"}
-                          minH="100%"
-                          w="100%"
-                          h="100%"
-                          shadow={"0px 0px 4px 3px #00000026"}
-                          margin={"4px"}
-                        >
+                        <AnimatePresence mode="wait">
                           {isSelected ? (
-                            <MotionBox
+                            <motion.div
+                              key="back-icon"
                               initial={{
                                 opacity: 0,
+                                scale: 0.5,
                               }}
                               animate={{
                                 opacity: 1,
+                                scale: [1],
+                              }}
+                              exit={{
+                                opacity: 0,
+                                scale: 0.5,
                               }}
                               transition={{
                                 delay: 0.3,
                                 duration: 0.3,
                               }}
-                              w="100%"
-                              h="100%"
-                              position="relative"
                             >
-                              {getExpandedContent(type)}
-                            </MotionBox>
+                              <ChevronLeft size={20} color="white" />
+                            </motion.div>
                           ) : (
-                            <>
-                              <Text
-                                fontSize={{
-                                  base: "14px",
-                                  sm: "16px",
-                                  md: "24px",
-                                  lg: "35px",
-                                }}
-                                fontWeight="700"
-                                color="white"
-                                textAlign="center"
-                                lineHeight="1.21"
-                                px={{
-                                  base: 1,
-                                  md: 2,
-                                }}
-                              >
-                                {type.name}
-                              </Text>
-                            </>
+                            <motion.div
+                              key="empty"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{
+                                duration: 0.2,
+                              }}
+                            />
                           )}
-                        </Flex>
+                        </AnimatePresence>
+                      </MotionBox>
+                      <Box
+                        bg={type.bgColor}
+                        w="100%"
+                        h="100%"
+                        borderRadius="19px"
+                        position="relative"
+                        cursor={
+                          isAnySelected && !isSelected ? "default" : "pointer"
+                        }
+                        transition="all 0.3s ease"
+                        _hover={
+                          !isAnySelected
+                            ? {
+                                transform: "scale(1.02)",
+                                boxShadow: `0px 0px 8px 6px ${type.shadowColor}`,
+                              }
+                            : {}
+                        }
+                        onClick={() => !isAnySelected && handleSelect(type.key)}
+                        boxShadow={`0px 0px 4px 3px ${type.shadowColor}`}
+                      >
+                        <Box
+                          bg={type.bgColor}
+                          w="calc(100% - 16px)"
+                          h="calc(100% - 16px)"
+                          borderRadius="19px"
+                          position="absolute"
+                          top="8px"
+                          left="8px"
+                          display="flex"
+                          flexDirection="column"
+                          alignItems="center"
+                          justifyContent="center"
+                          gap={4}
+                          overflow="hidden"
+                          padding={"4px"}
+                        >
+                          <Flex
+                            rounded={"19px"}
+                            justifyContent={"center"}
+                            alignItems={"center"}
+                            minH="100%"
+                            w="100%"
+                            h="100%"
+                            shadow={"0px 0px 4px 3px #00000026"}
+                            margin={"4px"}
+                          >
+                            {isSelected ? (
+                              <MotionBox
+                                initial={{
+                                  opacity: 0,
+                                }}
+                                animate={{
+                                  opacity: 1,
+                                }}
+                                transition={{
+                                  delay: 0.3,
+                                  duration: 0.3,
+                                }}
+                                w="100%"
+                                h="100%"
+                                position="relative"
+                              >
+                                {getExpandedContent(type)}
+                              </MotionBox>
+                            ) : (
+                              <>
+                                <Text
+                                  fontSize={{
+                                    base: "14px",
+                                    sm: "16px",
+                                    md: "24px",
+                                    lg: "35px",
+                                  }}
+                                  fontWeight="700"
+                                  color="white"
+                                  textAlign="center"
+                                  lineHeight="1.21"
+                                  px={{
+                                    base: 1,
+                                    md: 2,
+                                  }}
+                                >
+                                  {type.name}
+                                </Text>
+                              </>
+                            )}
+                          </Flex>
+                        </Box>
                       </Box>
-                    </Box>
-                  </MotionBox>
-                );
-              })}
-            </MotionFlex>
-          </Box>
+                    </MotionBox>
+                  );
+                })}
+              </MotionFlex>
+            </Box>
 
-          <Box w="100%" maxW="676px" mx="auto" mt={16} px={{ base: 4, md: 0 }}>
-            <Button
+            <Box
               w="100%"
               maxW="676px"
-              h={{ base: "50px", md: "45px" }}
-              bg="#002157"
-              color="white"
-              borderRadius="25px"
-              fontSize={{ base: "16px", md: "18px", lg: "20px" }}
-              fontWeight="500"
               mx="auto"
-              display="block"
-              mb={{ base: 6, md: 8 }}
-              _hover={{ opacity: 0.8 }}
-              _active={{ transform: "scale(0.98)" }}
-              boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
-              transition="all 0.2s ease"
-              onClick={() => handleLogin("coordinator")}
+              mt={16}
+              px={{ base: 4, md: 0 }}
             >
-              I&apos;m a Coordinator
-            </Button>
+              <Button
+                w="100%"
+                maxW="676px"
+                h={{ base: "50px", md: "45px" }}
+                bg="#002157"
+                color="white"
+                borderRadius="25px"
+                fontSize={{ base: "16px", md: "18px", lg: "20px" }}
+                fontWeight="500"
+                mx="auto"
+                display="block"
+                mb={{ base: 6, md: 8 }}
+                _hover={{ opacity: 0.8 }}
+                _active={{ transform: "scale(0.98)" }}
+                boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
+                transition="all 0.2s ease"
+                onClick={() => handleLogin("coordinator")}
+              >
+                I&apos;m a Coordinator
+              </Button>
+            </Box>
           </Box>
-        </Box>
-      </Flex>
-    </Box>
+        </Flex>
+      </Box>
     </>
   );
 }

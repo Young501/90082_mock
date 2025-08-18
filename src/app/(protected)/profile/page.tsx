@@ -22,7 +22,10 @@ import { StudentCard } from "../discover/cards/studentCard";
 import { PartnerCard } from "../discover/cards/partnerCard";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { createPageSchema, changePasswordSchema } from "@/utils/validationSchemas";
+import {
+  createPageSchema,
+  changePasswordSchema,
+} from "@/utils/validationSchemas";
 import { FieldRenderer } from "../../(auth)/onboarding/FieldRenderer";
 import { Question } from "@/types/onboarding";
 import Image from "next/image";
@@ -52,7 +55,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState<number>(0);
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
   const [updatedProfilePicture, setUpdatedProfilePicture] = useState<
-    string | null 
+    string | null
   >(null);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [showValidationError, setShowValidationError] = useState(false);
@@ -88,7 +91,6 @@ const Profile = () => {
   const profilePictureUpload = useProfilePictureUpload();
   const resumeUpload = useResumeUpload(userType);
   const logoUpload = useLogoUpload(userType);
-
 
   const activePage = useMemo(
     () => onboardingData?.onboarding_pages?.[activeTab],
@@ -163,11 +165,11 @@ const Profile = () => {
       })
     );
     if (!isCoordinator) {
-    onboardingTabs.push({
-      title: "Profile Preview",
-      icon: "fa-solid fa-eye",
-    });
-  }
+      onboardingTabs.push({
+        title: "Profile Preview",
+        icon: "fa-solid fa-eye",
+      });
+    }
     onboardingTabs.push({
       title: "Change Password",
       icon: "fa-solid fa-key",
@@ -179,10 +181,16 @@ const Profile = () => {
   const calculateProfileCompletion = (): number => {
     if (!userProfile || !onboardingData?.onboarding_pages) return 0;
 
-    const getAllFieldsFromPages = (pages: OnboardingPage[], userProfile: UserProfile): string[] => {
+    const getAllFieldsFromPages = (
+      pages: OnboardingPage[],
+      userProfile: UserProfile
+    ): string[] => {
       const fields: string[] = [];
 
-      const extractFieldsFromQuestion = (question: Question, userProfile: UserProfile): string[] => {
+      const extractFieldsFromQuestion = (
+        question: Question,
+        userProfile: UserProfile
+      ): string[] => {
         const questionFields = [question.field];
         const userAnswer = (userProfile as any)[question.field];
 
@@ -192,7 +200,9 @@ const Profile = () => {
           question.followup_question[userAnswer]
         ) {
           const followup = question.followup_question[userAnswer];
-          questionFields.push(...extractFieldsFromQuestion(followup, userProfile));
+          questionFields.push(
+            ...extractFieldsFromQuestion(followup, userProfile)
+          );
         }
 
         return questionFields;
@@ -223,13 +233,12 @@ const Profile = () => {
       );
     });
 
-   
     return Math.round((filledFields.length / allOnboardingFields.length) * 100);
   };
 
   if (isOnboardingLoading) {
     return (
-      <Box p={6} maxW="1280px" mx="auto" mt={{base: "80px", lg: "126px"}}>
+      <Box p={6} maxW="1280px" mx="auto" mt={{ base: "80px", lg: "126px" }}>
         <Loader size="lg" />
       </Box>
     );
@@ -312,297 +321,332 @@ const Profile = () => {
 
   return (
     <>
-    <PageTitle title={PAGE_TITLES.PROFILE} />
-    <Box py={6} px={{ base: 4, lg: "72px" }} maxW="1512px" mx="auto" mt={{base: "80px", lg: "126px"}}>
-      <Flex
-        w="100%"
-        direction={{ base: "column", md: "row" }}
-        gap={{ base: 4, lg: 20 }}
+      <PageTitle title={PAGE_TITLES.PROFILE} />
+      <Box
+        py={6}
+        px={{ base: 4, lg: "72px" }}
+        maxW="1512px"
+        mx="auto"
+        mt={{ base: "80px", lg: "126px" }}
       >
-        <Box
-          bg="white"
-          borderRadius="22px"
-          p={6}
-          maxW={{ base: "100%", md: "350px", lg: "444px" }}
+        <Flex
           w="100%"
-          h="fit-content"
-          boxShadow="0px 2.65px 5.3px 1.99px rgba(0, 0, 0, 0.25)"
-          background={
-            userType === "student"
-              ? "linear-gradient(180deg, #F87C7C 0%, #FFFFFF 23.56%, #FFFFFF 37.02%, #FFFFFF 69.71%);"
-              : "linear-gradient(180deg, #089C3F 0%, #FFFFFF 23.56%, #FFFFFF 37.02%, #FFFFFF 69.71%);"
-          }
+          direction={{ base: "column", md: "row" }}
+          gap={{ base: 4, lg: 20 }}
         >
-          <Box mb={6}>
-            <Flex align="center" gap={6} mb={6}>
-              <Avatar.Root
-                w={105}
-                h={105}
-                borderRadius="full"
-                border={
-                  userType === "student"
-                    ? "4px solid #DC2626"
-                    : "4px solid #089C3F"
-                }
-              >
-                {(updatedProfilePicture || (userType === "student" ? getUserProfilePictureUrl() : getLogoUrl())) && (
-                <Avatar.Image
-                  src={
-                    updatedProfilePicture ||
-                    (userType === "student" ? getUserProfilePictureUrl() : getLogoUrl()) ||
-                    undefined
+          <Box
+            bg="white"
+            borderRadius="22px"
+            p={6}
+            maxW={{ base: "100%", md: "350px", lg: "444px" }}
+            w="100%"
+            h="fit-content"
+            boxShadow="0px 2.65px 5.3px 1.99px rgba(0, 0, 0, 0.25)"
+            background={
+              userType === "student"
+                ? "linear-gradient(180deg, #F87C7C 0%, #FFFFFF 23.56%, #FFFFFF 37.02%, #FFFFFF 69.71%);"
+                : "linear-gradient(180deg, #089C3F 0%, #FFFFFF 23.56%, #FFFFFF 37.02%, #FFFFFF 69.71%);"
+            }
+          >
+            <Box mb={6}>
+              <Flex align="center" gap={6} mb={6}>
+                <Avatar.Root
+                  w={105}
+                  h={105}
+                  borderRadius="full"
+                  border={
+                    userType === "student"
+                      ? "4px solid #DC2626"
+                      : "4px solid #089C3F"
                   }
-                />)}
-                <Avatar.Fallback
-                  name={userProfile?.first_name + " " + userProfile?.last_name}
-                  bg="gray.200"
-                  color="gray.800"
-                  fontWeight="bold"
-                  fontSize="2xl"
-                />
-              </Avatar.Root>
-              <Box>
-                <Text fontSize="25px" fontWeight="bold" color="#000000">
-                  {userProfile?.first_name} {userProfile?.last_name}
-                </Text>
-                <Text
-                  fontSize="20px"
-                  color="#000000"
-                  textTransform="capitalize"
                 >
-                  {userType}
-                </Text>
-              </Box>
-            </Flex>
-
-            <Box>
-              <Progress.Root
-                value={completionPercentage}
-                max={100}
-                size="lg"
-                borderRadius="full"
-                mb={2}
-              >
-                <Progress.Track borderRadius="full">
-                  <Progress.Range
-                    borderRadius="full"
-                    style={{
-                      background:
-                        "radial-gradient(50% 50% at 50% 50%, #2CA9DF 0%, #167BB3 58.17%, #002157 100%)",
-                    }}
+                  {(updatedProfilePicture ||
+                    (userType === "student"
+                      ? getUserProfilePictureUrl()
+                      : getLogoUrl())) && (
+                    <Avatar.Image
+                      src={
+                        updatedProfilePicture ||
+                        (userType === "student"
+                          ? getUserProfilePictureUrl()
+                          : getLogoUrl()) ||
+                        undefined
+                      }
+                    />
+                  )}
+                  <Avatar.Fallback
+                    name={
+                      userProfile?.first_name + " " + userProfile?.last_name
+                    }
+                    bg="gray.200"
+                    color="gray.800"
+                    fontWeight="bold"
+                    fontSize="2xl"
                   />
-                </Progress.Track>
-              </Progress.Root>
-              <Flex justify="space-between" align="center">
-                <Text fontSize="16px" color="#000000">
-                  Profile Completion
-                </Text>
-                <Text fontSize="16px">{completionPercentage}%</Text>
+                </Avatar.Root>
+                <Box>
+                  <Text fontSize="25px" fontWeight="bold" color="#000000">
+                    {userProfile?.first_name} {userProfile?.last_name}
+                  </Text>
+                  <Text
+                    fontSize="20px"
+                    color="#000000"
+                    textTransform="capitalize"
+                  >
+                    {userType}
+                  </Text>
+                </Box>
               </Flex>
+
+              <Box>
+                <Progress.Root
+                  value={completionPercentage}
+                  max={100}
+                  size="lg"
+                  borderRadius="full"
+                  mb={2}
+                >
+                  <Progress.Track borderRadius="full">
+                    <Progress.Range
+                      borderRadius="full"
+                      style={{
+                        background:
+                          "radial-gradient(50% 50% at 50% 50%, #2CA9DF 0%, #167BB3 58.17%, #002157 100%)",
+                      }}
+                    />
+                  </Progress.Track>
+                </Progress.Root>
+                <Flex justify="space-between" align="center">
+                  <Text fontSize="16px" color="#000000">
+                    Profile Completion
+                  </Text>
+                  <Text fontSize="16px">{completionPercentage}%</Text>
+                </Flex>
+              </Box>
+            </Box>
+
+            <Box display="flex" flexDirection="column" gap={3} mb={6} pl="20px">
+              {tabs.map((tab: Tab, index: number) => {
+                return (
+                  <Button
+                    key={index}
+                    variant="ghost"
+                    justifyContent="flex-start"
+                    onClick={() => handleTabChange(index)}
+                    borderLeft={
+                      activeTab === index && userType === "student"
+                        ? "4px solid #DC2626"
+                        : activeTab === index && userType === "partner"
+                          ? "4px solid #089C3F"
+                          : activeTab === index && isCoordinator
+                            ? "4px solid #089C3F"
+                            : ""
+                    }
+                    fontWeight="600"
+                    w="full"
+                    py={5}
+                    px={3}
+                  >
+                    <i
+                      className={tab.icon}
+                      style={{
+                        color: "#000000",
+                        fontSize: "18px",
+                      }}
+                    />
+                    <Text fontSize="16px" fontWeight="600" color="#000000">
+                      {tab.title}
+                    </Text>
+                  </Button>
+                );
+              })}
             </Box>
           </Box>
 
-          <Box display="flex" flexDirection="column" gap={3} mb={6} pl="20px">
-            {tabs.map((tab: Tab, index: number) => {
-              return (
-                <Button
-                  key={index}
-                  variant="ghost"
-                  justifyContent="flex-start"
-                  onClick={() => handleTabChange(index)}
-                  borderLeft={
-                    activeTab === index && userType === "student"
-                      ? "4px solid #DC2626"
-                      : activeTab === index && userType === "partner"
-                        ? "4px solid #089C3F"
-                        : activeTab === index && isCoordinator
-                          ? "4px solid #089C3F"
-                          : ""
-                  }
-                  fontWeight="600"
-                  w="full"
-                  py={5}
-                  px={3}
+          <Box maxW={{ base: "100%" }} w="100%" bg="white" p={6} flex={1}>
+            <Text fontSize="25px" fontWeight="bold" mb={6} color="#000000">
+              {tabs[activeTab]?.title || "Tab Details"}
+            </Text>
+
+            {activeTab === tabs.length - 2 ? (
+              <Box>
+                {userProfile &&
+                  (userType === "student" ? (
+                    <VStack gap={10} w="full" align="flex-start">
+                      <StudentCard
+                        student={userProfile}
+                        profilePictureUrl={getUserProfilePictureUrl()}
+                        userType={userType}
+                        maxW="500px"
+                        disableViewFullProfile={true}
+                        disableAddToFolder={true}
+                      />
+                      <FullProfileCard
+                        profileId={userProfile.id?.toString() || ""}
+                        profileType="student"
+                        isModal={false}
+                        studentProfile={userProfile}
+                        disableBtns={true}
+                      />
+                    </VStack>
+                  ) : (
+                    <VStack gap={10} w="full" align="flex-start">
+                      <PartnerCard
+                        partner={userProfile}
+                        profilePictureUrl={getUserProfilePictureUrl()}
+                        maxW="500px"
+                        disableViewFullProfile={true}
+                        disableAddToFolder={true}
+                      />
+                      <FullProfileCard
+                        profileId={userProfile.id?.toString() || ""}
+                        profileType="partner"
+                        isModal={false}
+                        partnerProfile={userProfile}
+                        disableBtns={true}
+                      />
+                    </VStack>
+                  ))}
+              </Box>
+            ) : activeTab === tabs.length - 1 ? (
+              <Box
+                maxW="500px"
+                mx="auto"
+                mt={8}
+                p={8}
+                borderRadius="16px"
+                boxShadow="0 2px 8px rgba(0,0,0,0.08)"
+                bg="#F9FAFB"
+              >
+                <form
+                  onSubmit={changePasswordHandleSubmit(async (data) => {
+                    setChangePasswordSuccess(false);
+                    setChangePasswordError("");
+                    try {
+                      await handleChangePassword({
+                        old_password: data.old_password,
+                        new_password: data.new_password,
+                      });
+                      setChangePasswordSuccess(true);
+                      changePasswordReset();
+                    } catch (err: any) {
+                      setChangePasswordError(
+                        err?.message || "Failed to change password"
+                      );
+                    }
+                  })}
                 >
-                  <i
-                    className={tab.icon}
-                    style={{
-                      color: "#000000",
-                      fontSize: "18px",
-                    }}
+                  <VStack gap={6} align="stretch">
+                    <Box>
+                      <InputField
+                        type="password"
+                        label="OLD PASSWORD"
+                        showPasswordToggle
+                        showPassword={showOldPassword}
+                        onTogglePassword={() =>
+                          setShowOldPassword(!showOldPassword)
+                        }
+                        {...changePasswordRegister("old_password")}
+                        error={changePasswordErrors.old_password?.message}
+                      />
+                    </Box>
+                    <Box>
+                      <InputField
+                        type="password"
+                        label="NEW PASSWORD"
+                        showPasswordToggle
+                        showPassword={showNewPassword}
+                        onTogglePassword={() =>
+                          setShowNewPassword(!showNewPassword)
+                        }
+                        {...changePasswordRegister("new_password")}
+                        error={changePasswordErrors.new_password?.message}
+                      />
+                    </Box>
+                    <Box>
+                      <InputField
+                        type="password"
+                        label="CONFIRM NEW PASSWORD"
+                        showPasswordToggle
+                        showPassword={showConfirmNewPassword}
+                        onTogglePassword={() =>
+                          setShowConfirmNewPassword(!showConfirmNewPassword)
+                        }
+                        {...changePasswordRegister("confirm_new_password")}
+                        error={
+                          changePasswordErrors.confirm_new_password?.message
+                        }
+                      />
+                    </Box>
+                    <Button
+                      type="submit"
+                      mt={4}
+                      borderRadius="8px"
+                      py={3}
+                      px={6}
+                      bg="#CFF3FF"
+                      height="60px"
+                      color="#000000"
+                      fontWeight="600"
+                      fontSize="16px"
+                      loading={changePasswordMutation.isPending}
+                    >
+                      Change Password
+                    </Button>
+                  </VStack>
+                </form>
+              </Box>
+            ) : (
+              <form onSubmit={handleSubmit(handleUpdate)}>
+                {showValidationError &&
+                  hasAttemptedSubmit &&
+                  Object.keys(errors).length > 0 && (
+                    <Alert.Root status="error" mb={4}>
+                      <Alert.Indicator />
+                      <Alert.Title>
+                        Please follow the instructions to fill the form.
+                      </Alert.Title>
+                    </Alert.Root>
+                  )}
+                {activePage?.questions?.map((question: Question) => (
+                  <FieldRenderer
+                    key={question.field}
+                    question={question}
+                    register={register}
+                    control={control}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                    unregister={unregister}
                   />
-                  <Text fontSize="16px" fontWeight="600" color="#000000">
-                    {tab.title}
+                ))}
+                <Button
+                  type="submit"
+                  mt={10}
+                  display="flex"
+                  alignItems="center"
+                  justifySelf="flex-end"
+                  borderRadius="8px"
+                  gap={2}
+                  py={3}
+                  px={6}
+                  bg="#CFF3FF"
+                  loading={profileUpdateMutation.isPending}
+                >
+                  <Image
+                    src="/assets/saveicon.svg"
+                    alt="save"
+                    width={15}
+                    height={20}
+                  />
+                  <Text fontWeight="600" fontSize="15px" color="#000000">
+                    Save Changes
                   </Text>
                 </Button>
-              );
-            })}
-          </Box>
-        </Box>
-
-        <Box maxW={{ base: "100%" }} w="100%" bg="white" p={6} flex={1}>
-          <Text fontSize="25px" fontWeight="bold" mb={6} color="#000000">
-            {tabs[activeTab]?.title || "Tab Details"}
-          </Text>
-
-          {activeTab === tabs.length - 2 ? (
-            <Box>
-              {userProfile &&
-                (userType === "student" ? (
-                  <VStack gap={10} w="full" align="flex-start">
-                    <StudentCard
-                      student={userProfile}
-                      profilePictureUrl={getUserProfilePictureUrl()}
-                      userType={userType}
-                      maxW="500px"
-                      disableViewFullProfile={true}
-                      disableAddToFolder={true}
-                    />
-                    <FullProfileCard
-                      profileId={userProfile.id?.toString() || ""}
-                      profileType="student"
-                      isModal={false}
-                      studentProfile={userProfile}
-                      disableBtns={true}
-                    />
-                  </VStack>
-                ) : (
-                  <VStack gap={10} w="full" align="flex-start">
-                    <PartnerCard
-                      partner={userProfile}
-                      profilePictureUrl={getUserProfilePictureUrl()}
-                      maxW="500px"
-                      disableViewFullProfile={true}
-                      disableAddToFolder={true}
-                    />
-                    <FullProfileCard
-                      profileId={userProfile.id?.toString() || ""}
-                      profileType="partner"
-                      isModal={false}
-                      partnerProfile={userProfile}
-                      disableBtns={true}
-                    />
-                  </VStack>
-                ))}
-            </Box>
-          ) : activeTab === tabs.length - 1 ? (
-            <Box maxW="500px" mx="auto" mt={8} p={8} borderRadius="16px" boxShadow="0 2px 8px rgba(0,0,0,0.08)" bg="#F9FAFB">
-              <form onSubmit={changePasswordHandleSubmit(async (data) => {
-                setChangePasswordSuccess(false);
-                setChangePasswordError("");
-                try {
-                  await handleChangePassword({
-                    old_password: data.old_password,
-                    new_password: data.new_password,
-                  });
-                  setChangePasswordSuccess(true);
-                  changePasswordReset();
-                } catch (err: any) {
-                  setChangePasswordError(err?.message || "Failed to change password");
-                }
-              })}>
-                <VStack gap={6} align="stretch">
-                  <Box>
-                    <InputField
-                      type="password" 
-                      label="OLD PASSWORD"
-                      showPasswordToggle
-                      showPassword={showOldPassword}
-                      onTogglePassword={() => setShowOldPassword(!showOldPassword)}
-                      {...changePasswordRegister("old_password")}
-                      error={changePasswordErrors.old_password?.message}
-                    />
-                  </Box>
-                  <Box>
-                    <InputField
-                      type="password"
-                      label="NEW PASSWORD"
-                      showPasswordToggle
-                      showPassword={showNewPassword}
-                      onTogglePassword={() => setShowNewPassword(!showNewPassword)}
-                      {...changePasswordRegister("new_password")}
-                      error={changePasswordErrors.new_password?.message}
-                    />
-                  </Box>
-                  <Box>
-                    <InputField
-                      type="password"
-                      label="CONFIRM NEW PASSWORD"
-                      showPasswordToggle
-                      showPassword={showConfirmNewPassword}
-                      onTogglePassword={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
-                      {...changePasswordRegister("confirm_new_password")}
-                      error={changePasswordErrors.confirm_new_password?.message}
-                    />
-                  </Box>
-                  <Button
-                    type="submit"
-                    mt={4}
-                    borderRadius="8px"
-                    py={3}
-                    px={6}
-                    bg="#CFF3FF"
-                    height="60px"
-                    color="#000000"
-                    fontWeight="600"
-                    fontSize="16px"
-                    loading={changePasswordMutation.isPending}
-                  >
-                    Change Password
-                  </Button>
-                 
-                </VStack>
               </form>
-            </Box>
-          ) : (
-            <form onSubmit={handleSubmit(handleUpdate)}>
-              {showValidationError && hasAttemptedSubmit && Object.keys(errors).length > 0 && (
-                <Alert.Root status="error" mb={4}>
-                  <Alert.Indicator />
-                  <Alert.Title>
-                    Please follow the instructions to fill the form.
-                  </Alert.Title>
-                </Alert.Root>
-              )}
-              {activePage?.questions?.map((question: Question) => (
-                <FieldRenderer
-                  key={question.field}
-                  question={question}
-                  register={register}
-                  control={control}
-                  errors={errors}
-                  clearErrors={clearErrors}
-                  unregister={unregister}
-                />
-              ))}
-              <Button
-                type="submit"
-                mt={10}
-                display="flex"
-                alignItems="center"
-                justifySelf="flex-end"
-                borderRadius="8px"
-                gap={2}
-                py={3}
-                px={6}
-                bg="#CFF3FF"
-                loading={profileUpdateMutation.isPending}
-              >
-                <Image
-                  src="/assets/saveicon.svg"
-                  alt="save"
-                  width={15}
-                  height={20}
-                />
-                <Text fontWeight="600" fontSize="15px" color="#000000">
-                  Save Changes
-                </Text>
-              </Button>
-            </form>
-          )}
-        </Box>
-      </Flex>
-    </Box>
+            )}
+          </Box>
+        </Flex>
+      </Box>
     </>
   );
 };
