@@ -1,10 +1,29 @@
 import { UserTypeData } from "@/types/auth";
 
+export const DISALLOWED_DOMAINS = [
+  "gmail.com",
+  "yahoo.com",
+  "hotmail.com",
+  "outlook.com",
+  "icloud.com",
+  "aol.com",
+  "protonmail.com",
+  "mail.com",
+  "zoho.com",
+  "yandex.com",
+];
+
+export const isDisallowedDomain = (email: string): boolean => {
+  if (!email) return false;
+  const domain = email.split("@")[1]?.toLowerCase();
+  return DISALLOWED_DOMAINS.includes(domain);
+};
+
 export const userTypesData: UserTypeData[] = [
   {
     key: "student",
     name: "STUDENT",
-    color: "#DC2626",
+  color: "#DC2626",
     bgColor: "#DC2626",
     shadowColor: "rgba(220, 38, 38, 0.25)",
   },
@@ -23,10 +42,17 @@ export const userTypesData: UserTypeData[] = [
     shadowColor: "rgba(23, 61, 166, 0.36)",
   },
   {
-    key: "partner",
-    name: "INDUSTRY PARTNER",
+    key: "organisation",
+    name: "ORGANISATION",
     color: "#089C3F",
     bgColor: "#089C3F",
     shadowColor: "rgba(8, 156, 63, 0.25)",
   },
+  // {
+  //   key: "organisation-member",
+  //   name: "ORGANISATION MEMBER",
+  //   color: "#089C3F",
+  //   bgColor: "#089C3F",
+  //   shadowColor: "rgba(8, 156, 63, 0.25)",
+  // },
 ];

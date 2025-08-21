@@ -11,7 +11,10 @@ import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { authValidationSchema } from "@/utils/validationSchemas";
+import {
+  authValidationSchema,
+  organizationAuthValidationSchema,
+} from "@/utils/validationSchemas";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 
@@ -30,6 +33,12 @@ const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { handleSignup } = useAuth();
   const { setInviteData } = useAuthStore();
+
+  const validationSchema =
+    signupSelectedUserType === "organisation" ||
+    signupSelectedUserType === "organisation-member"
+      ? organizationAuthValidationSchema
+      : authValidationSchema;
 
   useEffect(() => {
     if (!signupSelectedUserType) {
@@ -61,7 +70,7 @@ const SignupPage = () => {
     formState: { errors },
     watch,
   } = useForm<FormData>({
-    resolver: yupResolver(authValidationSchema),
+    resolver: yupResolver(validationSchema),
     mode: "onChange",
     defaultValues: {
       email: "",

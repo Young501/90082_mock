@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/Button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useInviteParticipants } from "@/services/shared";
 import { useAuthStore } from "@/store/authStore";
+import { isDisallowedDomain } from "@/utils/constants";
 
 interface InvitationFormProps {
   userType: "student" | "partner";
@@ -44,6 +45,18 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
     return emailRegex.test(email.trim());
   };
 
+  const validateOrganizationEmail = (email: string) => {
+    if (!validateEmail(email)) return false;
+
+    if (userType === "partner") {
+      if (isDisallowedDomain(email)) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   const removeEmail = (emailToRemove: string) => {
     setEmails(emails.filter((email) => email !== emailToRemove));
   };
@@ -59,9 +72,10 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
     let addedCount = 0;
     let invalidCount = 0;
     let duplicateCount = 0;
+    let disallowedDomainCount = 0;
 
     emailList.forEach((email) => {
-      if (validateEmail(email)) {
+      if (validateOrganizationEmail(email)) {
         if (!emails.includes(email)) {
           setEmails((prev) => [...prev, email]);
           addedCount++;
@@ -69,7 +83,15 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
           duplicateCount++;
         }
       } else {
-        invalidCount++;
+        if (userType === "partner" && validateEmail(email)) {
+          if (isDisallowedDomain(email)) {
+            disallowedDomainCount++;
+          } else {
+            invalidCount++;
+          }
+        } else {
+          invalidCount++;
+        }
       }
     });
 
@@ -83,6 +105,11 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
     if (invalidCount > 0) {
       toast.warning(
         `${invalidCount} invalid email${invalidCount > 1 ? "s" : ""} ignored`
+      );
+    }
+    if (disallowedDomainCount > 0) {
+      toast.warning(
+        `${disallowedDomainCount} email${disallowedDomainCount > 1 ? "s" : ""} with personal domains ignored. Please use work email addresses for organisation invitations.`
       );
     }
     if (duplicateCount > 0) {

@@ -74,7 +74,7 @@ export default function UserTypePage() {
         "Connect with current students and share your professional experience",
       academic:
         "Engage with students and industry partners for research collaboration",
-      industry:
+      organisation:
         "Find talented students and collaborate with academic institutions",
     };
 
