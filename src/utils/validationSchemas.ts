@@ -273,8 +273,7 @@ export const organizationAuthValidationSchema = yup.object({
   email: yup
     .string()
     .required("Email is required")
-    // .email("Invalid email format")
-    .min(5, "Invalid email format")
+    .email("Invalid email format")
     .matches(/^[^@]+@[^@]+\.[^@]+$/, "Invalid email format")
     .test(
       "disallowed-domain",
