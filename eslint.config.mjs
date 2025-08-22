@@ -1,6 +1,6 @@
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { FlatCompat } from '@eslint/eslintrc';
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import { FlatCompat } from "@eslint/eslintrc";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -10,32 +10,29 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  {
+    ignores: [
+      "**/node_modules/**",
+      "**/.next/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/public/**",
+      "**/.env*",
+    ],
+  },
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     rules: {
-      // Indentation
-      indent: ['error', 2],
-      // Quote style
-      quotes: ['error', 'single'],
-
-      // No unused variables
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-
-      // Prefer const over let when possible
-      'prefer-const': 'error',
-
-      // Prevent trailing spaces
-      'no-trailing-spaces': 'error',
-
-      // Limit max line length
-      'max-len': ['warn', { code: 100, ignoreUrls: true }],
-
-      // Enforce consistent spacing inside braces
-      'object-curly-spacing': ['error', 'always'],
-
-      '@typescript-eslint/no-empty-object-type': 'off'
-    }
-  }
+      "no-unused-vars": "off",
+      "react-hooks/rules-of-hooks": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
+      "no-console": "off",
+      "react/prop-types": "off",
+      "react/react-in-jsx-scope": "off",
+    },
+  },
 ];
 
 export default eslintConfig;

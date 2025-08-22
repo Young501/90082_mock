@@ -1,0 +1,85 @@
+export interface FilterFormData {
+  [key: string]: any;
+}
+
+export interface ProcessedField {
+  field: string;
+  type: string;
+  label: string;
+  options?: string[];
+  uniqueKey: string;
+  dependencyChain: DependencyCondition[];
+  displayHint?: string;
+  source?: "onboarding" | "questionnaire";
+}
+
+export interface DependencyCondition {
+  field: string;
+  value: string;
+  operator?: "equals" | "contains" | "not_equals";
+}
+
+export interface StudentProfile {
+  id?: number;
+  first_name?: string;
+  last_name?: string;
+  location?: string;
+  profile_picture_url?: string | null;
+  course_name?: string;
+  course_stream?: string;
+  specialization?: string[] | string;
+  course_progression?: string;
+  skills?: string[];
+  credentials?: string[];
+  preferred_location?: string[];
+  availability?: string;
+  discovery_pools?: string;
+  position_type?: string;
+  within_distance_km?: string;
+  homepage?: string;
+  linkedin?: string;
+  instagram?: string;
+  bluesky?: string;
+  status?: "International" | string;
+  faculty?: string;
+  resume_url?: string;
+  questionnaire_answers?: Record<string, any>;
+}
+
+export interface PartnerProfile {
+  id?: number;
+  first_name?: string;
+  last_name?: string;
+  location?: string;
+  profile_picture_url?: string | null;
+  company_name?: string;
+  sector?: string;
+  industry?: string;
+  company_size?: string;
+  logo_url?: string | null;
+  availability?: string;
+  abn_acn?: string;
+  is_alum?: boolean;
+  university_name?: string;
+  employment_type?: string;
+  degree?: string;
+  about?: string;
+  logo?: string | null;
+  profile_picture?: string | null;
+  homepage?: string;
+  linkedin?: string;
+  instagram?: string;
+  bluesky?: string;
+  discovery_pools?: string;
+  faculty?: string;
+  user?: number;
+  questionnaire_answers?: Record<string, any>;
+}
+
+export interface UserSearchParams {
+  user_type: string;
+  opportunity_id: string;
+  page?: number;
+  page_size?: number;
+  [key: string]: any;
+}
