@@ -20,6 +20,8 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import ProgressTrack from "@/components/ProgressTrack";
 import { useAuthStore } from "@/store/authStore";
+import { CreateOrganisationPrompt } from "./CreateOrganisationPrompt";
+import Loader from "@/components/Loader";
 
 interface Props {
   userType: string;
@@ -35,9 +37,12 @@ export const OnboardingSteps = ({ userType }: Props) => {
     progressPercent,
     isFirstPage,
     isLastPage,
+    currentPhase,
+    isUserPhaseComplete,
     goToPreviousPage,
     goToNextPage,
-  } = useOnboardingLogic();
+    startOrganisationPhase,
+  } = useOnboardingLogic(userType);
 
   useEffect(() => {
     if (!isLoading && pages) {
@@ -56,11 +61,16 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [formKey, setFormKey] = useState<number>(0);
   const [parentValues, setParentValues] = useState<Record<string, any>>({});
+  const [showCreateOrganisationPrompt, setShowCreateOrganisationPrompt] =
+    useState<boolean>(false);
+  const [userPhaseData, setUserPhaseData] = useState<Record<string, any>>({});
   const submissionMutation = useOnboardingSubmission(userType);
   const profilePictureUpload = useProfilePictureUpload();
   const resumeUpload = useResumeUpload(userType);
   const logoUpload = useLogoUpload(userType);
   const schema = createPageSchema(currentPage?.questions || []);
+  const [isLoadingOrganisationPrompt, setIsLoadingOrganisationPrompt] =
+    useState<boolean>(false);
 
   const {
     register,
@@ -79,6 +89,20 @@ export const OnboardingSteps = ({ userType }: Props) => {
     mode: "onChange",
     reValidateMode: "onChange",
   });
+
+  const { setTempOrganisationUser, clearTempOrganisationUser } = useAuthStore();
+
+  const getProfilePictureUrl = useCallback(
+    (profilePicture: any): string | null => {
+      if (!profilePicture) return null;
+      if (typeof profilePicture === "string") return profilePicture;
+      if (profilePicture instanceof File) {
+        return URL.createObjectURL(profilePicture);
+      }
+      return null;
+    },
+    []
+  );
 
   const getAllPossibleFields = useCallback(
     (questions: Question[]): string[] => {
@@ -249,6 +273,57 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   }, [watch, trigger, currentPage]);
 
+  useEffect(() => {
+    if (
+      userType === "organisation" &&
+      currentPhase === "user" &&
+      Object.keys(formData).length > 0
+    ) {
+      const tempUserData = {
+        first_name: formData.first_name || "",
+        last_name: formData.last_name || "",
+        email: formData.email || "",
+        profile_picture_url: getProfilePictureUrl(formData.profile_picture_url),
+        user_types: [userType],
+      };
+      setTempOrganisationUser(tempUserData);
+    } else if (userType !== "organisation" || currentPhase !== "user") {
+      const currentTempUser = useAuthStore.getState().tempOrganisationUser;
+      clearTempOrganisationUser();
+    }
+  }, [
+    formData,
+    userType,
+    currentPhase,
+    setTempOrganisationUser,
+    clearTempOrganisationUser,
+    getProfilePictureUrl,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      if (userType === "organisation") {
+        const currentTempUser = useAuthStore.getState().tempOrganisationUser;
+        clearTempOrganisationUser();
+      }
+    };
+  }, [userType, clearTempOrganisationUser]);
+
+  useEffect(() => {
+    const currentTempUser = useAuthStore.getState().tempOrganisationUser;
+    if (
+      currentTempUser?.profile_picture_url &&
+      currentTempUser.profile_picture_url.startsWith("blob:")
+    ) {
+      const profileUrl = currentTempUser.profile_picture_url;
+      return () => {
+        if (profileUrl && profileUrl.startsWith("blob:")) {
+          URL.revokeObjectURL(profileUrl);
+        }
+      };
+    }
+  }, []);
+
   const isFollowupOf = useCallback(
     (
       fieldName: string,
@@ -399,6 +474,39 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   };
 
+  const restructureDataForOrganisation = useCallback(
+    (data: Record<string, any>) => {
+      const organisationFieldNames = new Set<string>();
+
+      pages.forEach((page) => {
+        if (page.questions) {
+          page.questions.forEach((question) => {
+            if (question.field) {
+              organisationFieldNames.add(question.field);
+            }
+          });
+        }
+      });
+
+      const userData: Record<string, any> = {};
+      const organisationData: Record<string, any> = {};
+
+      Object.entries(data).forEach(([key, value]) => {
+        if (organisationFieldNames.has(key)) {
+          organisationData[key] = value;
+        } else {
+          userData[key] = value;
+        }
+      });
+
+      return {
+        ...userData,
+        organisation: organisationData,
+      };
+    },
+    [pages]
+  );
+
   const onSubmit = async () => {
     setHasAttemptedSubmit(true);
 
@@ -412,12 +520,38 @@ export const OnboardingSteps = ({ userType }: Props) => {
 
       const currentValues = getValues();
       const allData = { ...formData, ...currentValues };
-      const submissionData = { ...allData };
+
+      if (userType === "organisation" && currentPhase === "user") {
+        setUserPhaseData(allData);
+
+        const tempUserData = {
+          first_name: allData.first_name || "",
+          last_name: allData.last_name || "",
+          profile_picture_url: getProfilePictureUrl(
+            allData.profile_picture_url
+          ),
+        };
+        setTempOrganisationUser(tempUserData);
+
+        setIsLoadingOrganisationPrompt(true);
+        setTimeout(() => {
+          setShowCreateOrganisationPrompt(true);
+          setIsLoadingOrganisationPrompt(false);
+        }, 2000);
+        return;
+      }
+
+      let submissionData = { ...allData };
       delete submissionData.profile_picture_url;
       delete submissionData.resume_url;
       delete submissionData.logo_url;
       delete submissionData.location;
       delete submissionData.location_geocode_lookup;
+
+      if (userType === "organisation" && currentPhase === "organisation") {
+        const combinedData = { ...userPhaseData, ...submissionData };
+        submissionData = restructureDataForOrganisation(combinedData);
+      }
 
       const { setUserFirstName, setUserLastName, setUserProfilePictureUrl } =
         useAuthStore.getState();
@@ -430,7 +564,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
         submissionResponse?.detail || "Profile created successfully!"
       );
 
-      const profilePicture = allData.profile_picture_url;
+      const profilePicture =
+        allData.profile_picture_url || submissionData.profile_picture_url;
       const resume = allData.resume_url;
       const logo = allData.logo_url;
       const uploadPromises = [];
@@ -475,7 +610,12 @@ export const OnboardingSteps = ({ userType }: Props) => {
         toast.error("File upload failed, but profile was saved");
       }
 
-      router.push("/onboarding/success");
+      if (userType === "organisation") {
+        clearTempOrganisationUser();
+        router.push("/onboarding/success");
+      } else {
+        router.push("/onboarding/success");
+      }
     } catch (error: any) {
       console.error(error);
       const errorMessage =
@@ -494,7 +634,19 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   };
 
-  if (isLoading) return <Text p={8}>Loading onboarding...</Text>;
+  const handleCreateOrganisation = () => {
+    setShowCreateOrganisationPrompt(false);
+    startOrganisationPhase();
+    setFormData({});
+    setFormKey(0);
+    reset();
+  };
+
+  if (showCreateOrganisationPrompt) {
+    return <CreateOrganisationPrompt onContinue={handleCreateOrganisation} />;
+  }
+
+  if (isLoading) return <Loader type="page" />;
   if (error)
     return (
       <Text color="red.500" p={8}>
@@ -601,7 +753,11 @@ export const OnboardingSteps = ({ userType }: Props) => {
                     md: "271px",
                   }}
                   style={{ borderRadius: "0px" }}
-                  isLoading={submissionMutation.isPending}
+                  isLoading={
+                    submissionMutation.isPending ||
+                    isLoading ||
+                    isLoadingOrganisationPrompt
+                  }
                 >
                   Submit
                 </Button>

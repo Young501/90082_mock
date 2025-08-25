@@ -96,6 +96,26 @@ export function useLogoUpload(userType: string) {
   });
 }
 
+export function useOrganisationDomainCheck() {
+  return useQuery({
+    queryKey: ["organisation-domain-check"],
+    queryFn: () =>
+      apiRequest({ endpoint: API_ENDPOINTS.ORGANISATION_CHECK_DOMAIN }),
+    enabled: false,
+    retry: false,
+  });
+}
+
+export function useOrganisationDetail(id: string) {
+  return useQuery({
+    queryKey: ["organisation-detail", id],
+    queryFn: () =>
+      apiRequest({ endpoint: API_ENDPOINTS.ORGANISATION_DETAIL(id) }),
+    enabled: !!id,
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
 export function useGeocode() {
   return useMutation({
     mutationFn: async (address: string) => {

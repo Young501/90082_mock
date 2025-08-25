@@ -1,13 +1,11 @@
 import { useState, useMemo, useCallback } from "react";
 import { useOnboardingPages } from "@/services/shared";
 import { Page } from "@/types/onboarding";
-import { useAuthStore } from "@/store";
 
-export const useOnboardingLogic = () => {
-  const { user } = useAuthStore();
+export const useOnboardingLogic = (userType: string) => {
   const [currentPageId, setCurrentPageId] = useState<number>(1);
+  const [currentPhase, setCurrentPhase] = useState<'user' | 'organisation'>('user');
 
-  const userType = user?.user_types?.[0];
   const {
     data: pagesData,
     isLoading,
@@ -15,8 +13,20 @@ export const useOnboardingLogic = () => {
   } = useOnboardingPages(userType || "");
 
   const pages: Page[] = useMemo(() => {
-    return pagesData?.onboarding_pages || [];
-  }, [pagesData?.onboarding_pages]);
+    if (!pagesData?.onboarding_pages) return [];
+    const userPages = pagesData.onboarding_pages?.user || [];
+    const organisationUserPages = pagesData.onboarding_pages?.onboarding_pages?.user || [];
+    const organisationPages = pagesData.onboarding_pages?.onboarding_pages?.organisation || [];
+    if (userType === "organisation") {
+      if (currentPhase === 'user') {
+        return organisationUserPages;
+      } else {
+        return organisationPages;
+      }
+    }
+    
+    return userPages;
+  }, [userType, pagesData, currentPhase]);
 
   const currentPage = useMemo(() => {
     return pages.find((p: Page) => p.id === currentPageId);
@@ -61,15 +71,30 @@ export const useOnboardingLogic = () => {
     }
   }, [pages, currentPageId]);
 
+  const startOrganisationPhase = useCallback(() => {
+    if (userType === "organisation") {
+      setCurrentPhase('organisation');
+      setCurrentPageId(1);
+    }
+  }, [userType]);
+
+  const isUserPhaseComplete = useMemo(() => {
+    if (userType !== "organisation") return false;
+    return currentPhase === 'organisation';
+  }, [userType, currentPhase]);
+
   return {
     pages,
     currentPage,
     userType,
     isLoading,
     error,
+    currentPhase,
+    isUserPhaseComplete,
     ...progressInfo,
     ...navigationInfo,
     goToPreviousPage,
     goToNextPage,
+    startOrganisationPhase,
   };
 };

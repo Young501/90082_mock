@@ -27,4 +27,5 @@ export const PAGE_TITLES = {
   MANAGE_STUDENTS: "Manage Students | Uniconnected",
   MANAGE_PARTNERS: "Manage Partners | Uniconnected",
   MATCH: "Match | Uniconnected",
+  ORGANISATION_MATCH: "Organisation Match | Uniconnected",
 } as const;

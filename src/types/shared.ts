@@ -2,6 +2,35 @@ import { StudentProfile, PartnerProfile } from "./discovery";
 
 export type UserProfile = StudentProfile & PartnerProfile;
 
+export interface Organisation {
+  id?: number;
+  name?: string;
+  logo_url?: string;
+  description?: string;
+  email_domain?: string;
+  sector?: string;
+  industry?: string;
+  location?: string;
+  website?: string;
+  instagram?: string;
+  linkedin?: string;
+  abn_acn?: string;
+  allow_contact?: boolean;
+  company_size?: string;
+  created_at?: string;
+}
+
+export interface tempOrganisationUser {
+  first_name?: string;
+  last_name?: string;
+  profile_picture_url?: string | null;
+}
+
+export interface OrganisationCheckResponse {
+  organisation: Organisation | null;
+  message: string | null;
+}
+
 export interface UserSearchResponse {
   count: number;
   next: string | null;

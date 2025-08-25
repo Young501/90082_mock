@@ -4,6 +4,7 @@ import { Box, Text, useBreakpointValue } from "@chakra-ui/react";
 import { OnboardingSteps } from "@/app/(auth)/onboarding/OnboardingSteps";
 import { useAuthStore } from "@/store";
 import Image from "next/image";
+import Loader from "@/components/Loader";
 
 export default function OnboardingPage() {
   const { user, token } = useAuthStore();
@@ -11,7 +12,7 @@ export default function OnboardingPage() {
   const isMobile = useBreakpointValue({ base: true, lg: false });
 
   if (!userType || !token) {
-    return <Text p={8}>Redirecting...</Text>;
+    return <Loader type="page" text="Redirecting..." />;
   }
 
   return (
