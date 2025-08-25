@@ -48,11 +48,4 @@ export const userTypesData: UserTypeData[] = [
     bgColor: "#089C3F",
     shadowColor: "rgba(8, 156, 63, 0.25)",
   },
-  // {
-  //   key: "organisation-member",
-  //   name: "ORGANISATION MEMBER",
-  //   color: "#089C3F",
-  //   bgColor: "#089C3F",
-  //   shadowColor: "rgba(8, 156, 63, 0.25)",
-  // },
 ];

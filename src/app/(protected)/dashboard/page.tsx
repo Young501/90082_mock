@@ -34,7 +34,7 @@ const DashboardPage = () => {
   const pathname = usePathname();
   const isMobile = useBreakpointValue({ base: true, lg: false });
 
-  const manageRoute = (type: "student" | "partner") => {
+  const manageRoute = (type: "student" | "organisation") => {
     /*************
      * pathname is returned with the trailing slash in production adding additional trailing slashes to first level routes breaks behaviour in production
      * hence additional trailing slashes arent needed for first level routes but required for second level and extended routes
@@ -523,7 +523,7 @@ const DashboardPage = () => {
                 fontWeight="bold"
                 fontSize="27px"
                 width="100%"
-                onClick={() => manageRoute("partner")}
+                onClick={() => manageRoute("organisation")}
               >
                 Manage Organisation
               </Button>

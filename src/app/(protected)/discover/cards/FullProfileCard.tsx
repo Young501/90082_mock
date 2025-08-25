@@ -670,7 +670,7 @@ const RenderPartnerDetails = ({
             color="black"
             display={{ base: "block", lg: "none" }}
           >
-            Organization Profile
+            Organisation Profile
           </Text>
           <Avatar.Root
             w={{ base: "100px", lg: "200px" }}
@@ -702,7 +702,7 @@ const RenderPartnerDetails = ({
             color="black"
             display={{ base: "none", lg: "block" }}
           >
-            Organization Profile
+            Organisation Profile
           </Text>
           <Heading fontSize="30px" fontWeight="bold" mb={2} color="black">
             {partner.company_name || "-"}
@@ -789,7 +789,7 @@ const RenderPartnerDetails = ({
             opacity={0.9}
           >
             Discover Industry Partner Profiles that are connected to this
-            organization
+            organisation
           </Text>
 
           <VStack gap={3} align="stretch">
@@ -878,11 +878,11 @@ const RenderPartnerDetails = ({
           {partner.about && (
             <Box w="full">
               <Text fontSize="20px" fontWeight="600" color="black" mb={3}>
-                About this Organization
+                About this Organisation
               </Text>
               <Text fontSize="14px" color="black" lineHeight="1.6" ml={4}>
                 {partner.about ||
-                  "This organization is committed to fostering innovation and collaboration in their industry. They work closely with educational institutions and students to provide meaningful opportunities for growth and development. Their focus on excellence and partnership makes them a valuable member of our network."}
+                  "This organisation is committed to fostering innovation and collaboration in their industry. They work closely with educational institutions and students to provide meaningful opportunities for growth and development. Their focus on excellence and partnership makes them a valuable member of our network."}
               </Text>
             </Box>
           )}
