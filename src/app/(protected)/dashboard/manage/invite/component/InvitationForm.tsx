@@ -19,8 +19,15 @@ import { useInviteParticipants } from "@/services/shared";
 import { useAuthStore } from "@/store/authStore";
 import { isDisallowedDomain } from "@/utils/constants";
 
+interface Counts {
+  added: number;
+  duplicates: number;
+  invalid: number;
+  disallowedDomain: number;
+}
+
 interface InvitationFormProps {
-  userType: "student" | "partner";
+  userType: "student" | "organisation";
   onSuccess?: () => void;
   onCancel?: () => void;
 }
@@ -45,18 +52,6 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
     return emailRegex.test(email.trim());
   };
 
-  const validateOrganizationEmail = (email: string) => {
-    if (!validateEmail(email)) return false;
-
-    if (userType === "partner") {
-      if (isDisallowedDomain(email)) {
-        return false;
-      }
-    }
-
-    return true;
-  };
-
   const removeEmail = (emailToRemove: string) => {
     setEmails(emails.filter((email) => email !== emailToRemove));
   };
@@ -64,57 +59,58 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
   const processEmailInput = () => {
     if (!emailInput.trim()) return;
 
-    const emailList = emailInput
+    const incoming = emailInput
       .split(/[\n,;]/)
       .map((email) => email.trim())
       .filter((email) => email.length > 0);
 
-    let addedCount = 0;
-    let invalidCount = 0;
-    let duplicateCount = 0;
-    let disallowedDomainCount = 0;
+    const counts: Counts = {
+      added: 0,
+      duplicates: 0,
+      invalid: 0,
+      disallowedDomain: 0,
+    };
 
-    emailList.forEach((email) => {
-      if (validateOrganizationEmail(email)) {
-        if (!emails.includes(email)) {
-          setEmails((prev) => [...prev, email]);
-          addedCount++;
+    for (const email of incoming) {
+      const syntacticallyValid = validateEmail(email);
+      const disallowed =
+        userType === "organisation" &&
+        syntacticallyValid &&
+        isDisallowedDomain(email);
+
+      if (syntacticallyValid && !disallowed) {
+        if (emails.includes(email)) {
+          counts.duplicates++;
         } else {
-          duplicateCount++;
+          setEmails((prev) => [...prev, email]);
+          counts.added++;
         }
       } else {
-        if (userType === "partner" && validateEmail(email)) {
-          if (isDisallowedDomain(email)) {
-            disallowedDomainCount++;
-          } else {
-            invalidCount++;
-          }
-        } else {
-          invalidCount++;
-        }
+        if (disallowed) counts.disallowedDomain++;
+        else counts.invalid++;
       }
-    });
+    }
 
     setEmailInput("");
 
-    if (addedCount > 0) {
+    if (counts.added > 0) {
       toast.success(
-        `${addedCount} email${addedCount > 1 ? "s" : ""} added successfully`
+        `${counts.added} email${counts.added > 1 ? "s" : ""} added successfully`
       );
     }
-    if (invalidCount > 0) {
+    if (counts.invalid > 0) {
       toast.warning(
-        `${invalidCount} invalid email${invalidCount > 1 ? "s" : ""} ignored`
+        `${counts.invalid} invalid email${counts.invalid > 1 ? "s" : ""} ignored`
       );
     }
-    if (disallowedDomainCount > 0) {
+    if (counts.disallowedDomain > 0) {
       toast.warning(
-        `${disallowedDomainCount} email${disallowedDomainCount > 1 ? "s" : ""} with personal domains ignored. Please use work email addresses for organisation invitations.`
+        `${counts.disallowedDomain} email${counts.disallowedDomain > 1 ? "s" : ""} with personal domains ignored. Please use work email addresses for organisation invitations.`
       );
     }
-    if (duplicateCount > 0) {
+    if (counts.duplicates > 0) {
       toast.info(
-        `${duplicateCount} duplicate email${duplicateCount > 1 ? "s" : ""} skipped`
+        `${counts.duplicates} duplicate email${counts.duplicates > 1 ? "s" : ""} skipped`
       );
     }
   };

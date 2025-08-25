@@ -246,7 +246,7 @@ export function useInviteParticipants() {
       opportunityId: string;
       invitations: Array<{
         email: string;
-        role: "student" | "partner";
+        role: "student" | "organisation";
       }>;
     }) => {
       return apiRequest({

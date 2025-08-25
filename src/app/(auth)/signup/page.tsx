@@ -13,7 +13,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import {
   authValidationSchema,
-  organizationAuthValidationSchema,
+  organisationAuthValidationSchema,
 } from "@/utils/validationSchemas";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
@@ -35,9 +35,8 @@ const SignupPage = () => {
   const { setInviteData } = useAuthStore();
 
   const validationSchema =
-    signupSelectedUserType === "organisation" ||
-    signupSelectedUserType === "organisation-member"
-      ? organizationAuthValidationSchema
+    signupSelectedUserType === "organisation"
+      ? organisationAuthValidationSchema
       : authValidationSchema;
 
   useEffect(() => {

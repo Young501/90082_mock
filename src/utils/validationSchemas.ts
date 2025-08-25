@@ -269,7 +269,7 @@ export const authValidationSchema = yup.object({
     .min(8, "Password must be at least 8 characters"),
 });
 
-export const organizationAuthValidationSchema = yup.object({
+export const organisationAuthValidationSchema = yup.object({
   email: yup
     .string()
     .required("Email is required")
@@ -278,7 +278,6 @@ export const organizationAuthValidationSchema = yup.object({
     .test(
       "disallowed-domain",
       "Please use your work email address to sign up as an organisation.",
-      // TODO: Add organisation member validation "or organisation member"
       (value) => {
         if (!value) return true;
         return !isDisallowedDomain(value);
