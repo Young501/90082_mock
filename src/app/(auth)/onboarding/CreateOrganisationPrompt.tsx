@@ -100,6 +100,8 @@ export const CreateOrganisationPrompt = ({
               bg="#282F68"
               boxShadow="0px 0px 7.83px 7.83px #27306724"
               color="white"
+              fontSize={{ base: "16px", md: "20px" }}
+              size={{ base: "md", md: "lg" }}
             >
               Create Organisation Profile
             </Button>

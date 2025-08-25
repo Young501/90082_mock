@@ -29,8 +29,10 @@ export default function OrganisationMatchPageRoute() {
   }, [getTempOrganisation]);
 
   const handleConfirm = () => {
-    const { setUserType } = useAuthStore.getState();
+    const { setUserType, setIsOrganisationMemberOnboarding } =
+      useAuthStore.getState();
     setUserType("organisation");
+    setIsOrganisationMemberOnboarding(true);
     router.push("/onboarding");
   };
 

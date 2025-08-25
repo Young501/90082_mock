@@ -2,15 +2,12 @@
 
 import {
   Box,
-  Container,
   Text,
   VStack,
-  Icon,
-  useBreakpointValue,
   Avatar,
   HStack,
 } from "@chakra-ui/react";
-import { Building2, CheckCircle } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Organisation } from "@/types/shared";
 import { getInitials } from "@/utils/getInitials";
@@ -23,8 +20,6 @@ interface Props {
 }
 
 export const OrganisationMatchPage = ({ organisation, onConfirm }: Props) => {
-  const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
-
   return (
     <>
       <PageTitle title={PAGE_TITLES.ORGANISATION_MATCH} />
@@ -46,7 +41,7 @@ export const OrganisationMatchPage = ({ organisation, onConfirm }: Props) => {
         </Text>
 
         <Text
-          fontSize={{ base: "16px", md: "18px" }}
+          fontSize={{ base: "18px", md: "20px" }}
           fontWeight="500"
           color="gray.600"
           mb={8}
@@ -97,14 +92,14 @@ export const OrganisationMatchPage = ({ organisation, onConfirm }: Props) => {
             </Text>
 
             {organisation.description && (
-              <Text fontSize="md" lineHeight="1.4">
+              <Text fontSize={{ base: "16px", md: "20px" }}>
                 {organisation.description}
               </Text>
             )}
 
             <VStack align={{ base: "center", md: "start" }} gap={2}>
               {organisation.sector && (
-                <Text fontSize="sm">
+                <Text fontSize={{ base: "16px", md: "20px" }}>
                   <Text as="span" fontWeight="500">
                     Sector:
                   </Text>{" "}
@@ -113,7 +108,7 @@ export const OrganisationMatchPage = ({ organisation, onConfirm }: Props) => {
               )}
 
               {organisation.industry && (
-                <Text fontSize="sm">
+                <Text fontSize={{ base: "16px", md: "20px" }}>
                   <Text as="span" fontWeight="500">
                     Industry:
                   </Text>{" "}
@@ -122,7 +117,7 @@ export const OrganisationMatchPage = ({ organisation, onConfirm }: Props) => {
               )}
 
               {organisation.location && (
-                <Text fontSize="sm">
+                <Text fontSize={{ base: "16px", md: "20px" }}>
                   <Text as="span" fontWeight="500">
                     Location:
                   </Text>{" "}
@@ -131,7 +126,7 @@ export const OrganisationMatchPage = ({ organisation, onConfirm }: Props) => {
               )}
 
               {organisation.website && (
-                <Text fontSize="sm">
+                <Text fontSize={{ base: "16px", md: "20px" }}>
                   <Text as="span" fontWeight="500">
                     Website:
                   </Text>{" "}
@@ -152,7 +147,7 @@ export const OrganisationMatchPage = ({ organisation, onConfirm }: Props) => {
             bg="#282F68"
             boxShadow="0px 0px 7.83px 7.83px #27306724"
             color="white"
-            fontSize={{ base: "14px", md: "16px" }}
+            fontSize={{ base: "16px", md: "20px" }}
             size={{ base: "md", md: "lg" }}
           >
             <CheckCircle size={20} style={{ marginRight: "8px" }} />

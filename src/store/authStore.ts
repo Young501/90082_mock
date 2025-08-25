@@ -15,6 +15,7 @@ export interface AuthState {
   inviteOpportunityId: string | null;
   tempOrganisationUser: tempOrganisationUser | null;
   tempOrganisation: Organisation | null;
+  isOrganisationMemberOnboarding: boolean;
   setAuthData: (token: string, user: User) => void;
   logout: () => void;
   setUserType: (userType: string) => void;
@@ -46,6 +47,8 @@ export interface AuthState {
   setTempOrganisationUser: (user: tempOrganisationUser) => void;
   getTempOrganisationUser: () => tempOrganisationUser | null;
   clearTempOrganisationUser: () => void;
+  setIsOrganisationMemberOnboarding: (isMember: boolean) => void;
+  getIsOrganisationMemberOnboarding: () => boolean;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -63,6 +66,7 @@ export const useAuthStore = create<AuthState>()(
       inviteOpportunityId: null,
       tempOrganisation: null,
       tempOrganisationUser: null,
+      isOrganisationMemberOnboarding: false,
       setAuthData: (token: string, user: User) => {
         set({
           user,
@@ -85,6 +89,7 @@ export const useAuthStore = create<AuthState>()(
           inviteOpportunityId: null,
           tempOrganisation: null,
           tempOrganisationUser: null,
+          isOrganisationMemberOnboarding: false,
         });
 
         // if (typeof window !== "undefined") {
@@ -206,6 +211,12 @@ export const useAuthStore = create<AuthState>()(
       getTempOrganisationUser: () => {
         return get().tempOrganisationUser;
       },
+      setIsOrganisationMemberOnboarding: (isMember: boolean) => {
+        set({ isOrganisationMemberOnboarding: isMember });
+      },
+      getIsOrganisationMemberOnboarding: () => {
+        return get().isOrganisationMemberOnboarding;
+      },
     }),
           {
         name: "auth-storage",
@@ -221,6 +232,7 @@ export const useAuthStore = create<AuthState>()(
           inviteOpportunityId: state.inviteOpportunityId,
           tempOrganisation: state.tempOrganisation,
           tempOrganisationUser: state.tempOrganisationUser,
+          isOrganisationMemberOnboarding: state.isOrganisationMemberOnboarding,
         }),
       }
   )

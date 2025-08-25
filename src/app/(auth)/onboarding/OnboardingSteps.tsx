@@ -90,7 +90,12 @@ export const OnboardingSteps = ({ userType }: Props) => {
     reValidateMode: "onChange",
   });
 
-  const { setTempOrganisationUser, clearTempOrganisationUser } = useAuthStore();
+  const {
+    setTempOrganisationUser,
+    clearTempOrganisationUser,
+    getIsOrganisationMemberOnboarding,
+    getTempOrganisation,
+  } = useAuthStore();
 
   const getProfilePictureUrl = useCallback(
     (profilePicture: any): string | null => {
@@ -274,10 +279,12 @@ export const OnboardingSteps = ({ userType }: Props) => {
   }, [watch, trigger, currentPage]);
 
   useEffect(() => {
+    const isOrganisationMember = getIsOrganisationMemberOnboarding();
     if (
       userType === "organisation" &&
       currentPhase === "user" &&
-      Object.keys(formData).length > 0
+      Object.keys(formData).length > 0 &&
+      !isOrganisationMember
     ) {
       const tempUserData = {
         first_name: formData.first_name || "",
@@ -287,7 +294,11 @@ export const OnboardingSteps = ({ userType }: Props) => {
         user_types: [userType],
       };
       setTempOrganisationUser(tempUserData);
-    } else if (userType !== "organisation" || currentPhase !== "user") {
+    } else if (
+      userType !== "organisation" ||
+      currentPhase !== "user" ||
+      isOrganisationMember
+    ) {
       const currentTempUser = useAuthStore.getState().tempOrganisationUser;
       clearTempOrganisationUser();
     }
@@ -298,6 +309,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     setTempOrganisationUser,
     clearTempOrganisationUser,
     getProfilePictureUrl,
+    getIsOrganisationMemberOnboarding,
   ]);
 
   useEffect(() => {
@@ -507,6 +519,11 @@ export const OnboardingSteps = ({ userType }: Props) => {
     [pages]
   );
 
+  const createEmptyOrganisationData = useCallback(() => {
+    const organisationData: Record<string, any> = {};
+    return organisationData;
+  }, []);
+
   const onSubmit = async () => {
     setHasAttemptedSubmit(true);
 
@@ -520,8 +537,13 @@ export const OnboardingSteps = ({ userType }: Props) => {
 
       const currentValues = getValues();
       const allData = { ...formData, ...currentValues };
+      const isOrganisationMember = getIsOrganisationMemberOnboarding();
 
-      if (userType === "organisation" && currentPhase === "user") {
+      if (
+        userType === "organisation" &&
+        currentPhase === "user" &&
+        !isOrganisationMember
+      ) {
         setUserPhaseData(allData);
 
         const tempUserData = {
@@ -548,9 +570,18 @@ export const OnboardingSteps = ({ userType }: Props) => {
       delete submissionData.location;
       delete submissionData.location_geocode_lookup;
 
-      if (userType === "organisation" && currentPhase === "organisation") {
+      if (
+        userType === "organisation" &&
+        currentPhase === "organisation" &&
+        !isOrganisationMember
+      ) {
         const combinedData = { ...userPhaseData, ...submissionData };
         submissionData = restructureDataForOrganisation(combinedData);
+      }
+
+      if (isOrganisationMember) {
+        const emptyOrganisationData = createEmptyOrganisationData();
+        submissionData.organisation = emptyOrganisationData;
       }
 
       const { setUserFirstName, setUserLastName, setUserProfilePictureUrl } =
@@ -612,6 +643,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
 
       if (userType === "organisation") {
         clearTempOrganisationUser();
+        const { setIsOrganisationMemberOnboarding } = useAuthStore.getState();
+        setIsOrganisationMemberOnboarding(false);
         router.push("/onboarding/success");
       } else {
         router.push("/onboarding/success");
@@ -642,7 +675,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     reset();
   };
 
-  if (showCreateOrganisationPrompt) {
+  if (showCreateOrganisationPrompt && !getIsOrganisationMemberOnboarding()) {
     return <CreateOrganisationPrompt onContinue={handleCreateOrganisation} />;
   }
 
@@ -656,6 +689,20 @@ export const OnboardingSteps = ({ userType }: Props) => {
   if (!currentPage) return <Text>No onboarding page found.</Text>;
 
   const hasFormErrors = Object.keys(errors).length > 0;
+
+  const loadingStates =
+    submissionMutation.isPending ||
+    isLoadingOrganisationPrompt ||
+    logoUpload.isPending ||
+    profilePictureUpload.isPending ||
+    resumeUpload.isPending;
+
+  const totalSteps = () => {
+    if (pages.length === 1) {
+      return 2;
+    }
+    return pages.length;
+  };
 
   return (
     <Box
@@ -753,11 +800,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
                     md: "271px",
                   }}
                   style={{ borderRadius: "0px" }}
-                  isLoading={
-                    submissionMutation.isPending ||
-                    isLoading ||
-                    isLoadingOrganisationPrompt
-                  }
+                  isLoading={loadingStates}
                 >
                   Submit
                 </Button>
@@ -778,7 +821,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
             <Box>
               <ProgressTrack
                 progressPercent={progressPercent}
-                totalSteps={pages.length}
+                totalSteps={totalSteps()}
               />
             </Box>
           </Box>

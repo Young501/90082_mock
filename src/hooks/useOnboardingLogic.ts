@@ -1,10 +1,12 @@
 import { useState, useMemo, useCallback } from "react";
 import { useOnboardingPages } from "@/services/shared";
 import { Page } from "@/types/onboarding";
+import { useAuthStore } from "@/store/authStore";
 
 export const useOnboardingLogic = (userType: string) => {
   const [currentPageId, setCurrentPageId] = useState<number>(1);
   const [currentPhase, setCurrentPhase] = useState<'user' | 'organisation'>('user');
+  const { getIsOrganisationMemberOnboarding } = useAuthStore();
 
   const {
     data: pagesData,
@@ -17,8 +19,13 @@ export const useOnboardingLogic = (userType: string) => {
     const userPages = pagesData.onboarding_pages?.user || [];
     const organisationUserPages = pagesData.onboarding_pages?.onboarding_pages?.user || [];
     const organisationPages = pagesData.onboarding_pages?.onboarding_pages?.organisation || [];
+    
+    const isOrganisationMember = getIsOrganisationMemberOnboarding();
+    
     if (userType === "organisation") {
-      if (currentPhase === 'user') {
+      if (isOrganisationMember) {
+        return organisationUserPages;
+      } else if (currentPhase === 'user') {
         return organisationUserPages;
       } else {
         return organisationPages;
@@ -26,7 +33,7 @@ export const useOnboardingLogic = (userType: string) => {
     }
     
     return userPages;
-  }, [userType, pagesData, currentPhase]);
+  }, [userType, pagesData, currentPhase, getIsOrganisationMemberOnboarding]);
 
   const currentPage = useMemo(() => {
     return pages.find((p: Page) => p.id === currentPageId);
@@ -80,8 +87,10 @@ export const useOnboardingLogic = (userType: string) => {
 
   const isUserPhaseComplete = useMemo(() => {
     if (userType !== "organisation") return false;
+    const isOrganisationMember = getIsOrganisationMemberOnboarding();
+    if (isOrganisationMember) return true;
     return currentPhase === 'organisation';
-  }, [userType, currentPhase]);
+  }, [userType, currentPhase, getIsOrganisationMemberOnboarding]);
 
   return {
     pages,
