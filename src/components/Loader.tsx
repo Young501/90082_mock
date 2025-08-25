@@ -33,7 +33,7 @@ const Loader = ({
           display="flex"
           justifyContent="center"
           alignItems="center"
-          h="100vh"
+          h="100%"
           gap={4}
         >
           <Loader type="component" />
