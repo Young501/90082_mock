@@ -32,7 +32,7 @@ const ManagePage = () => {
     resetFilters,
     selectParticipant,
     updateSelectedParticipant,
-  } = useManage(type as "student" | "partner");
+  } = useManage(type as "student" | "organisation");
 
   if (error) {
     return (
@@ -99,7 +99,7 @@ const ManagePage = () => {
             opportunityId={opportunityId}
             type={type}
           />
-        ) : type === "partner" ? (
+        ) : type === "organisation" ? (
           <PartnerPage
             participants={participants}
             selectedParticipant={selectedParticipant}
@@ -472,7 +472,7 @@ const PartnerPage = ({
                             selectedParticipant?.id === participant.id
                           }
                           onClick={() => selectParticipant(participant)}
-                          userType="partner"
+                          userType="organisation"
                         />
                       ))}
                     </VStack>
@@ -493,7 +493,7 @@ const PartnerPage = ({
             >
               <UserMatchingStatus
                 participant={selectedParticipant}
-                userType="partner"
+                userType="organisation"
                 opportunityId={opportunityId}
                 onParticipantUpdate={updateSelectedParticipant}
               />
