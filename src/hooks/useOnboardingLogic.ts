@@ -5,7 +5,9 @@ import { useAuthStore } from "@/store/authStore";
 
 export const useOnboardingLogic = (userType: string) => {
   const [currentPageId, setCurrentPageId] = useState<number>(1);
-  const [currentPhase, setCurrentPhase] = useState<'user' | 'organisation'>('user');
+  const [currentPhase, setCurrentPhase] = useState<"user" | "organisation">(
+    "user"
+  );
   const { getIsOrganisationMemberOnboarding } = useAuthStore();
 
   const {
@@ -15,25 +17,18 @@ export const useOnboardingLogic = (userType: string) => {
   } = useOnboardingPages(userType || "");
 
   const pages: Page[] = useMemo(() => {
-    if (!pagesData?.onboarding_pages) return [];
-    const userPages = pagesData.onboarding_pages?.user || [];
-    const organisationUserPages = pagesData.onboarding_pages?.onboarding_pages?.user || [];
-    const organisationPages = pagesData.onboarding_pages?.onboarding_pages?.organisation || [];
-    
-    const isOrganisationMember = getIsOrganisationMemberOnboarding();
-    
-    if (userType === "organisation") {
-      if (isOrganisationMember) {
-        return organisationUserPages;
-      } else if (currentPhase === 'user') {
-        return organisationUserPages;
-      } else {
-        return organisationPages;
-      }
-    }
-    
-    return userPages;
-  }, [userType, pagesData, currentPhase, getIsOrganisationMemberOnboarding]);
+    const onboarding = pagesData?.onboarding_pages;
+    if (!onboarding) return [];
+
+    const userPages = onboarding.user ?? [];
+    const organisationPages = onboarding.organisation ?? [];
+
+    const isOrgMember = getIsOrganisationMemberOnboarding();
+    const showOrgPages =
+      userType === "organisation" && !isOrgMember && currentPhase !== "user";
+
+    return showOrgPages ? organisationPages : userPages;
+  }, [userType, currentPhase, pagesData, getIsOrganisationMemberOnboarding]);
 
   const currentPage = useMemo(() => {
     return pages.find((p: Page) => p.id === currentPageId);
@@ -80,7 +75,7 @@ export const useOnboardingLogic = (userType: string) => {
 
   const startOrganisationPhase = useCallback(() => {
     if (userType === "organisation") {
-      setCurrentPhase('organisation');
+      setCurrentPhase("organisation");
       setCurrentPageId(1);
     }
   }, [userType]);
@@ -89,7 +84,7 @@ export const useOnboardingLogic = (userType: string) => {
     if (userType !== "organisation") return false;
     const isOrganisationMember = getIsOrganisationMemberOnboarding();
     if (isOrganisationMember) return true;
-    return currentPhase === 'organisation';
+    return currentPhase === "organisation";
   }, [userType, currentPhase, getIsOrganisationMemberOnboarding]);
 
   return {
