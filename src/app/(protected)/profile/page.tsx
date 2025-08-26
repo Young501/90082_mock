@@ -500,7 +500,7 @@ const Profile = () => {
                       />
                       <FullProfileCard
                         profileId={userProfile.id?.toString() || ""}
-                        profileType="partner"
+                        profileType="organisation"
                         isModal={false}
                         partnerProfile={userProfile}
                         disableBtns={true}
