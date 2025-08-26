@@ -113,15 +113,22 @@ export const useDiscovery = () => {
   const userType = user?.user_types?.[0];
   const targetUserType = useMemo(() => {
     if (!userType) return null;
-    return userType === "student" ? "partner" : "student";
+    return userType === "student" ? "organisation" : "student";
   }, [userType]);
 
   const { data: acceptedOpportunities, isLoading: isOpportunitiesLoading } =
     useAcceptedOpportunities();
   const currentOpportunityId = acceptedOpportunities?.[0]?.id;
 
-  const { data: onboardingData, isLoading: isOnboardingLoading } =
+  const { data, isLoading: isOnboardingLoading } =
     useOnboardingPages(targetUserType || "");
+
+  // console.log(onboardingData);
+
+  const userOnboardingData = data?.onboarding_pages?.user;
+  const organisationOnboardingData = data?.onboarding_pages?.organisation;
+  const onboardingData =
+    userType === "student" ? organisationOnboardingData : userOnboardingData;
 
   const { data: questionnaireFilters, isLoading: isQuestionnaireLoading } =
     useQuestionnaireFilters(currentOpportunityId || "", targetUserType || "");
@@ -375,11 +382,8 @@ export const useDiscovery = () => {
     const processedFields = new Map<string, ProcessedField>();
     const typedData = onboardingData as { onboarding_pages: any[] };
 
-    if (
-      typedData.onboarding_pages &&
-      Array.isArray(typedData.onboarding_pages)
-    ) {
-      typedData.onboarding_pages.forEach((page: any) => {
+    if (typedData && Array.isArray(typedData)) {
+      typedData.forEach((page: any) => {
         if (page.questions && Array.isArray(page.questions)) {
           page.questions.forEach((field: any) => {
             processFollowupQuestions(field, [], processedFields);

@@ -151,20 +151,22 @@ export function PartnerCard({
                   )}
                 </Avatar.Root>
 
-                <Box
-                  bg="#22C45E"
-                  color="white"
-                  borderRadius="2xl"
-                  py={2}
-                  px={4}
-                  fontSize="12px"
-                  fontWeight="400"
-                  w="100%"
-                  display="flex"
-                  justifyContent="center"
-                >
-                  open to contact
-                </Box>
+                {partner.allow_contact && (
+                  <Box
+                    bg="#22C45E"
+                    color="white"
+                    borderRadius="2xl"
+                    py={2}
+                    px={4}
+                    fontSize="12px"
+                    fontWeight="400"
+                    w="100%"
+                    display="flex"
+                    justifyContent="center"
+                  >
+                    open to contact
+                  </Box>
+                )}
               </Box>
 
               <Box display="flex" flexDirection="column" gap={3} w="full">
@@ -174,7 +176,7 @@ export function PartnerCard({
                   fontWeight="bold"
                   color="#000000"
                 >
-                  {partner.company_name || ""}
+                  {partner.name || ""}
                 </Heading>
 
                 <Box display="flex" flexDirection="column" gap={2}>
@@ -292,7 +294,7 @@ export function PartnerCard({
       {showFullProfile && partner.id && (
         <FullProfileCard
           profileId={partner.id.toString()}
-          profileType="partner"
+          profileType="organisation"
           onClose={() => setShowFullProfile(false)}
         />
       )}
@@ -302,7 +304,7 @@ export function PartnerCard({
           isOpen={showAddToFolderModal}
           onClose={() => setShowAddToFolderModal(false)}
           userId={partner.id.toString()}
-          userName={partner.company_name || "Partner"}
+          userName={partner.name || "Partner"}
           onAddToFolder={() => setClickBackground(true)}
           onResetBackground={() => setClickBackground(false)}
         />

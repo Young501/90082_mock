@@ -150,7 +150,7 @@ export const API_ENDPOINTS = {
   }),
   PARTNER_PROFILE: (id: string, opportunityId: string): ApiEndpoint => ({
     method: "GET",
-    url: `/api/v1/partner/${id}?opportunity_id=${opportunityId}`,
+    url: `/api/v1/organisation/${id}?opportunity_id=${opportunityId}`,
   }),
   OPPORTUNITY_DETAIL: (opportunityId: string): ApiEndpoint => ({
     method: "GET",
