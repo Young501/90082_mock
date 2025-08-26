@@ -12,7 +12,7 @@ export interface ManageState {
   error: string | null;
 }
 
-export function useManage(userType: "student" | "partner" = "student") {
+export function useManage(userType: "student" | "organisation" = "student") {
   const { getCoordinatorOpportunities } = useAuthStore();
   const coordinatorOpportunities = getCoordinatorOpportunities();
   const opportunityId = coordinatorOpportunities[0] || "";

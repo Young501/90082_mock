@@ -105,7 +105,7 @@ const Match = () => {
               <Loader size="lg" />
             </Box>
           ) : error ? (
-            <Text color="red.500">Failed to load organizations</Text>
+            <Text color="red.500">Failed to load organsations</Text>
           ) : (
             <>
               <Box w="100%">

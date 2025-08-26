@@ -9,7 +9,7 @@ interface UserManagementCardProps {
   participant: Participant;
   isSelected: boolean;
   onClick: () => void;
-  userType: "student" | "partner";
+  userType: "student" | "organisation";
 }
 
 const UserManagementCard: React.FC<UserManagementCardProps> = ({
