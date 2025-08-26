@@ -31,6 +31,7 @@ export const CreateOrganisationPrompt = ({
         textAlign="center"
         gap={{ base: 8, md: 40 }}
         h="100%"
+        maxW="1512px"
       >
         <Box
           display="flex"
@@ -39,14 +40,14 @@ export const CreateOrganisationPrompt = ({
           textAlign="center"
         >
           <Text
-            fontSize={{ base: "16px", md: "27px" }}
+            fontSize={{ base: "18px", md: "32px" }}
             fontWeight="700"
             color="black"
           >
             Congratulations!
           </Text>
           <Text
-            fontSize={{ base: "16px", md: "27px" }}
+            fontSize={{ base: "18px", md: "32px" }}
             fontWeight="700"
             color="black"
           >
@@ -57,8 +58,9 @@ export const CreateOrganisationPrompt = ({
         <HStack
           flexDirection={{ base: "column", md: "row" }}
           alignItems="center"
-          justifyContent="space-between"
           w="100%"
+          justifyContent="center"
+          maxW="1280px"
         >
           <Box borderRadius="full" w="100%" overflow="hidden" maxW="300px">
             <Avatar.Root
@@ -82,9 +84,15 @@ export const CreateOrganisationPrompt = ({
             </Avatar.Root>
           </Box>
 
-          <VStack gap={{ base: 4, md: 8 }} w="100%" alignItems="flex-start">
+          <VStack
+            gap={{ base: 4, md: 8 }}
+            w="100%"
+            maxW="707px"
+            alignItems="center"
+            justifyContent="center"
+          >
             <Text
-              fontSize={{ base: "18px", md: "24px" }}
+              fontSize={{ base: "18px", md: "27px" }}
               fontWeight="700"
               color="black"
             >
@@ -102,6 +110,7 @@ export const CreateOrganisationPrompt = ({
               color="white"
               fontSize={{ base: "16px", md: "20px" }}
               size={{ base: "md", md: "lg" }}
+              maxW="624px"
             >
               Create Organisation Profile
             </Button>
