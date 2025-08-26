@@ -238,6 +238,14 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/invite/`,
   }),
+  ORGANISATION_CHECK_DOMAIN: {
+    method: "GET",
+    url: "/api/v1/organisation/check-domain/",
+  },
+  ORGANISATION_DETAIL: (id: string): ApiEndpoint => ({
+    method: "GET",
+    url: `/api/v1/organisation/${id}/`,
+  }),
 };
 
 /*********

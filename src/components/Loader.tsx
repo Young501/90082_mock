@@ -1,4 +1,4 @@
-import { Box, Spinner } from "@chakra-ui/react";
+import { Box, Spinner, Text } from "@chakra-ui/react";
 import React from "react";
 
 const Loader = ({
@@ -6,21 +6,43 @@ const Loader = ({
   color = "#002157",
   animationDuration = "0.8s",
   props,
+  type = "component",
+  text,
 }: {
   size?: "xl" | "sm" | "md" | "lg" | "inherit" | "xs";
   color?: string;
   animationDuration?: string;
   props?: any;
+  type?: "page" | "component";
+  text?: string;
 }) => {
   return (
-    <Box display="flex" justifyContent="center" py={10}>
-      <Spinner
-        size={size}
-        color={color}
-        animationDuration={animationDuration}
-        {...props}
-      />
-    </Box>
+    <>
+      {type === "component" && (
+        <Box display="flex" justifyContent="center" py={10}>
+          <Spinner
+            size={size}
+            color={color}
+            animationDuration={animationDuration}
+            {...props}
+          />
+        </Box>
+      )}
+      {type === "page" && (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          h="100%"
+          gap={4}
+        >
+          <Loader type="component" />
+          <Text fontSize="2xl" fontWeight="bold">
+            {text || "Loading..."}
+          </Text>
+        </Box>
+      )}
+    </>
   );
 };
 

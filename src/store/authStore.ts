@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { User } from "@/types/user";
-import { UserProfile } from "@/types/shared";
+import { UserProfile, Organisation, tempOrganisationUser } from "@/types/shared";
 
 export interface AuthState {
   user: User | null;
@@ -13,6 +13,9 @@ export interface AuthState {
   coordinatorOpportunities: string[];
   inviteToken: string | null;
   inviteOpportunityId: string | null;
+  tempOrganisationUser: tempOrganisationUser | null;
+  tempOrganisation: Organisation | null;
+  isOrganisationMemberOnboarding: boolean;
   setAuthData: (token: string, user: User) => void;
   logout: () => void;
   setUserType: (userType: string) => void;
@@ -38,6 +41,14 @@ export interface AuthState {
   setInviteData: (token: string, opportunityId: string) => void;
   getInviteData: () => { token: string | null; opportunityId: string | null };
   clearInviteData: () => void;
+  setTempOrganisation: (organisation: Organisation) => void;
+  getTempOrganisation: () => Organisation | null;
+  clearTempOrganisation: () => void;
+  setTempOrganisationUser: (user: tempOrganisationUser) => void;
+  getTempOrganisationUser: () => tempOrganisationUser | null;
+  clearTempOrganisationUser: () => void;
+  setIsOrganisationMemberOnboarding: (isMember: boolean) => void;
+  getIsOrganisationMemberOnboarding: () => boolean;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -53,6 +64,9 @@ export const useAuthStore = create<AuthState>()(
       coordinatorOpportunities: [],
       inviteToken: null,
       inviteOpportunityId: null,
+      tempOrganisation: null,
+      tempOrganisationUser: null,
+      isOrganisationMemberOnboarding: false,
       setAuthData: (token: string, user: User) => {
         set({
           user,
@@ -73,6 +87,9 @@ export const useAuthStore = create<AuthState>()(
           coordinatorOpportunities: [],
           inviteToken: null,
           inviteOpportunityId: null,
+          tempOrganisation: null,
+          tempOrganisationUser: null,
+          isOrganisationMemberOnboarding: false,
         });
 
         // if (typeof window !== "undefined") {
@@ -176,20 +193,47 @@ export const useAuthStore = create<AuthState>()(
       clearInviteData: () => {
         set({ inviteToken: null, inviteOpportunityId: null });
       },
+      setTempOrganisation: (organisation: Organisation) => {
+        set({ tempOrganisation: organisation });
+      },
+      getTempOrganisation: () => {
+        return get().tempOrganisation;
+      },
+      clearTempOrganisation: () => {
+        set({ tempOrganisation: null });
+      },
+      setTempOrganisationUser: (user: tempOrganisationUser) => {
+        set({ tempOrganisationUser: user });
+      },
+      clearTempOrganisationUser: () => {
+        set({ tempOrganisationUser: null });
+      },
+      getTempOrganisationUser: () => {
+        return get().tempOrganisationUser;
+      },
+      setIsOrganisationMemberOnboarding: (isMember: boolean) => {
+        set({ isOrganisationMemberOnboarding: isMember });
+      },
+      getIsOrganisationMemberOnboarding: () => {
+        return get().isOrganisationMemberOnboarding;
+      },
     }),
-    {
-      name: "auth-storage",
-      partialize: (state) => ({
-        user: state.user,
-        token: state.token,
-        isAuthenticated: state.isAuthenticated,
-        logoUrl: state.logoUrl,
-        userProfile: state.userProfile,
-        userProfilePictureUrl: state.userProfilePictureUrl,
-        coordinatorOpportunities: state.coordinatorOpportunities,
-        inviteToken: state.inviteToken,
-        inviteOpportunityId: state.inviteOpportunityId,
-      }),
-    }
+          {
+        name: "auth-storage",
+        partialize: (state) => ({
+          user: state.user,
+          token: state.token,
+          isAuthenticated: state.isAuthenticated,
+          logoUrl: state.logoUrl,
+          userProfile: state.userProfile,
+          userProfilePictureUrl: state.userProfilePictureUrl,
+          coordinatorOpportunities: state.coordinatorOpportunities,
+          inviteToken: state.inviteToken,
+          inviteOpportunityId: state.inviteOpportunityId,
+          tempOrganisation: state.tempOrganisation,
+          tempOrganisationUser: state.tempOrganisationUser,
+          isOrganisationMemberOnboarding: state.isOrganisationMemberOnboarding,
+        }),
+      }
   )
 );
