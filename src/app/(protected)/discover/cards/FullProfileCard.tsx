@@ -646,7 +646,7 @@ const RenderPartnerDetails = ({
       w="full"
       h="full"
       display="flex"
-      flexDirection={{ base: "column" }}
+      flexDirection={{ base: "column", lg: "row" }}
       px={{ base: 4, lg: 16 }}
       py={{ base: 10, lg: 12 }}
       gap={{ base: 4, lg: 8 }}
@@ -654,13 +654,15 @@ const RenderPartnerDetails = ({
       <Box
         display="flex"
         gap={{ base: 4, lg: 8 }}
-        alignItems="start"
-        flexDirection={{ base: "column", lg: "row" }}
+        alignItems={{ base: "center" }}
+        flexDirection={{ base: "column" }}
         w="full"
+        maxW={{ base: "full", lg: "40%" }}
         pt={{ base: 6, lg: 0 }}
       >
-        <Box
+        <VStack
           flexShrink={0}
+          alignItems={{ base: "center" }}
           w="full"
           maxW={{ base: "full", lg: "40%" }}
           h={{ base: "auto", lg: "200px" }}
@@ -688,15 +690,63 @@ const RenderPartnerDetails = ({
               fontWeight="bold"
             />
           </Avatar.Root>
-        </Box>
-
-        <VStack
-          align="start"
-          gap={2}
-          flex={1}
+        </VStack>
+        <Box
           w="full"
-          maxW={{ base: "full", lg: "60%" }}
+          borderRadius="10px"
+          p={6}
+          maxW={{ base: "full" }}
+          h="fit-content"
+          background="linear-gradient(180deg, #089C3F 0%, #FFFFFF 23.56%, #FFFFFF 37.02%, #FFFFFF 69.71%);"
+          boxShadow="0px 3.37px 6.74px 3.37px rgba(0, 0, 0, 0.25)"
         >
+          <Text fontSize="24px" fontWeight="bold" mb={4} textAlign="left">
+            Connected Industry Partner Profile
+          </Text>
+          <Text
+            fontSize="14px"
+            color="black"
+            mb={6}
+            textAlign="left"
+            opacity={0.9}
+          >
+            Discover Industry Partner Profiles that are connected to this
+            organisation
+          </Text>
+
+          <VStack gap={3} align="stretch" maxH="250px" overflowY="auto">
+            {organisation.members?.map((person, index) => (
+              <HStack key={index} gap={3} align="center">
+                <Avatar.Root w="40px" h="40px" borderRadius="50%">
+                  <Avatar.Image src={person.profile_picture_url || ""} />
+                  <Avatar.Fallback
+                    name={person.first_name + " " + person.last_name}
+                    bg="white"
+                    color="black"
+                    fontSize="14px"
+                    fontWeight="bold"
+                  />
+                </Avatar.Root>
+                <VStack align="start" gap={0} flex={1}>
+                  <Text fontSize="14px" fontWeight="600" color="black">
+                    {person.first_name + " " + person.last_name}
+                  </Text>
+                </VStack>
+              </HStack>
+            ))}
+          </VStack>
+        </Box>
+      </Box>
+
+      <Box
+        display="flex"
+        gap={{ base: 4, lg: 8 }}
+        flexDirection={{ base: "column" }}
+        flex={1}
+        w="full"
+        // alignItems={{ base: "center", lg: "end" }}
+      >
+        <VStack align="start" gap={2} flex={1} w="full" maxW={{ base: "full" }}>
           <Text
             fontSize="24px"
             mb={6}
@@ -761,68 +811,13 @@ const RenderPartnerDetails = ({
             </Text>
           </HStack>
         </VStack>
-      </Box>
-
-      <Box
-        display="flex"
-        gap={{ base: 4, lg: 8 }}
-        flexDirection={{ base: "column", lg: "row" }}
-        flex={1}
-        w="full"
-        alignItems={{ base: "center", lg: "end" }}
-      >
-        <Box
-          w="full"
-          borderRadius="10px"
-          p={6}
-          maxW={{ base: "full", lg: "40%" }}
-          h="fit-content"
-          background="linear-gradient(180deg, #089C3F 0%, #FFFFFF 23.56%, #FFFFFF 37.02%, #FFFFFF 69.71%);"
-          boxShadow="0px 3.37px 6.74px 3.37px rgba(0, 0, 0, 0.25)"
-        >
-          <Text fontSize="24px" fontWeight="bold" mb={4} textAlign="left">
-            Connected Industry Partner Profile
-          </Text>
-          <Text
-            fontSize="14px"
-            color="black"
-            mb={6}
-            textAlign="left"
-            opacity={0.9}
-          >
-            Discover Industry Partner Profiles that are connected to this
-            organisation
-          </Text>
-
-          <VStack gap={3} align="stretch" maxH="250px" overflowY="auto">
-            {organisation.members?.map((person, index) => (
-              <HStack key={index} gap={3} align="center">
-                <Avatar.Root w="40px" h="40px" borderRadius="50%">
-                  <Avatar.Image src={person.profile_picture_url || ""} />
-                  <Avatar.Fallback
-                    name={person.first_name + " " + person.last_name}
-                    bg="white"
-                    color="black"
-                    fontSize="14px"
-                    fontWeight="bold"
-                  />
-                </Avatar.Root>
-                <VStack align="start" gap={0} flex={1}>
-                  <Text fontSize="14px" fontWeight="600" color="black">
-                    {person.first_name + " " + person.last_name}
-                  </Text>
-                </VStack>
-              </HStack>
-            ))}
-          </VStack>
-        </Box>
 
         <VStack
           gap={6}
           align="stretch"
           flex={1}
           w="full"
-          maxW={{ base: "full", lg: "60%" }}
+          maxW={{ base: "full" }}
         >
           {organisation.sector && (
             <BadgeSection

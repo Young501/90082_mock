@@ -60,6 +60,23 @@ export const SelectField = ({
   const defaultPlaceholder = multiple
     ? "Select option(s)"
     : "-- Select an option --";
+
+  const handleValueChange = (details: any, field: any) => {
+    if (multiple && maxSelection) {
+      const newValue = details.value;
+      if (newValue.length > maxSelection) {
+        return;
+      }
+    }
+
+    const newValue = multiple
+      ? details.value
+      : details.value.length > 0
+        ? details.value[0]
+        : "";
+    field.onChange(newValue);
+  };
+
   return (
     <Field.Root invalid={!!error}>
       {label && (
@@ -67,6 +84,13 @@ export const SelectField = ({
           {label}
           {required && (
             <span style={{ color: "red", marginLeft: "4px" }}>*</span>
+          )}
+          {multiple && maxSelection && (
+            <span
+              style={{ color: "#666", marginLeft: "8px", fontSize: "14px" }}
+            >
+              (Max {maxSelection})
+            </span>
           )}
         </Field.Label>
       )}
@@ -80,14 +104,7 @@ export const SelectField = ({
             value={
               multiple ? field.value || [] : field.value ? [field.value] : [""]
             }
-            onValueChange={(details) => {
-              const newValue = multiple
-                ? details.value
-                : details.value.length > 0
-                  ? details.value[0]
-                  : "";
-              field.onChange(newValue);
-            }}
+            onValueChange={(details) => handleValueChange(details, field)}
             onBlur={field.onBlur}
             width="100%"
             size="md"
@@ -95,9 +112,13 @@ export const SelectField = ({
             <Select.HiddenSelect />
             <Select.Control>
               <Select.Trigger>
-                <Select.ValueText
-                  placeholder={placeholder || defaultPlaceholder}
-                />
+                <Select.ValueText>
+                  {field.value
+                    ? multiple
+                      ? field.value.join(", ")
+                      : field.value
+                    : placeholder || defaultPlaceholder}
+                </Select.ValueText>
               </Select.Trigger>
               <Select.IndicatorGroup>
                 <Select.Indicator />

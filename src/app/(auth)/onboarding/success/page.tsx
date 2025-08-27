@@ -38,7 +38,7 @@ export default function OnboardingSuccessPage() {
     setUserType(type);
 
     const userProfilePicture = getUserProfilePictureUrl();
-    const logoUrl = type === "partner" ? getLogoUrl() : null;
+    const logoUrl = type === "organisation" ? getLogoUrl() : null;
 
     setImageUrl(logoUrl || userProfilePicture);
   }, [getUserType, getUserProfilePictureUrl, getLogoUrl]);
