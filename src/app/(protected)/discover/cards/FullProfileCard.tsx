@@ -40,7 +40,7 @@ const formatQuestionnaireAnswer = (value: any): string => {
 
 interface FullProfileCardProps {
   profileId: string;
-  profileType: "student" | "partner";
+  profileType: "student" | "organisation";
   onClose?: () => void;
   isModal?: boolean;
   studentProfile?: StudentProfile;
@@ -60,7 +60,7 @@ export function FullProfileCard({
   opportunityId,
 }: FullProfileCardProps) {
   const shouldFetchStudent = profileType === "student" && !studentProfile;
-  const shouldFetchPartner = profileType === "partner" && !partnerProfile;
+  const shouldFetchPartner = profileType === "organisation" && !partnerProfile;
   const { userProfile } = useAuthStore();
 
   const {
@@ -616,7 +616,8 @@ const RenderStudentDetails = ({
           recipientId={student.id}
           recipientName={`${student.first_name} ${student.last_name}`}
           profileType="student"
-          companyName={userProfile?.company_name}
+          companyName={userProfile?.name || ""}
+          companyContact={userProfile?.contact_email || ""}
           onBack={() => setShowContactModal(false)}
         />
       )}
@@ -705,7 +706,7 @@ const RenderPartnerDetails = ({
             Organisation Profile
           </Text>
           <Heading fontSize="30px" fontWeight="bold" mb={2} color="black">
-            {partner.company_name || "-"}
+            {partner.name || "-"}
           </Heading>
 
           {partner.location && (
@@ -722,17 +723,17 @@ const RenderPartnerDetails = ({
             </HStack>
           )}
 
-          {partner.homepage && (
+          {partner.website && (
             <HStack gap={2} align="center">
               <Globe size={16} color="#C3C3C3" />
               <Link
-                href={partner.homepage}
+                href={partner.website}
                 target="_blank"
                 fontSize="14px"
                 color="blue.500"
                 textDecoration="underline"
               >
-                {partner.homepage}
+                {partner.website}
               </Link>
             </HStack>
           )}
@@ -792,18 +793,13 @@ const RenderPartnerDetails = ({
             organisation
           </Text>
 
-          <VStack gap={3} align="stretch">
-            {[
-              { name: "Dr. Amanda Samson" },
-              { name: "Andrew J Nash" },
-              { name: "Dr. Amanda Samson" },
-              { name: "Andrew J Nash" },
-            ].map((person, index) => (
+          <VStack gap={3} align="stretch" maxH="250px" overflowY="auto">
+            {partner.members?.map((person, index) => (
               <HStack key={index} gap={3} align="center">
                 <Avatar.Root w="40px" h="40px" borderRadius="50%">
-                  <Avatar.Image src="/assets/imgplaceholder.png" />
+                  <Avatar.Image src={person.profile_picture_url || ""} />
                   <Avatar.Fallback
-                    name={person.name}
+                    name={person.first_name + " " + person.last_name}
                     bg="white"
                     color="black"
                     fontSize="14px"
@@ -812,7 +808,7 @@ const RenderPartnerDetails = ({
                 </Avatar.Root>
                 <VStack align="start" gap={0} flex={1}>
                   <Text fontSize="14px" fontWeight="600" color="black">
-                    {person.name}
+                    {person.first_name + " " + person.last_name}
                   </Text>
                 </VStack>
               </HStack>
@@ -875,14 +871,13 @@ const RenderPartnerDetails = ({
             />
           )}
 
-          {partner.about && (
+          {partner.description && (
             <Box w="full">
               <Text fontSize="20px" fontWeight="600" color="black" mb={3}>
                 About this Organisation
               </Text>
               <Text fontSize="14px" color="black" lineHeight="1.6" ml={4}>
-                {partner.about ||
-                  "This organisation is committed to fostering innovation and collaboration in their industry. They work closely with educational institutions and students to provide meaningful opportunities for growth and development. Their focus on excellence and partnership makes them a valuable member of our network."}
+                {partner.description}
               </Text>
             </Box>
           )}
@@ -934,22 +929,24 @@ const RenderPartnerDetails = ({
                 />
               </Box>
             </HStack>
-            <Button
-              variant="partner"
-              borderRadius="40px"
-              py={2}
-              px={4}
-              fontSize="12px"
-              fontWeight="400"
-              w="100%"
-              display="flex"
-              justifyContent="center"
-              maxW="200px"
-              disabled={disableBtns}
-              onClick={() => setShowContactModal(true)}
-            >
-              Contact
-            </Button>
+            {partner.allow_contact && (
+              <Button
+                variant="partner"
+                borderRadius="40px"
+                py={2}
+                px={4}
+                fontSize="12px"
+                fontWeight="400"
+                w="100%"
+                display="flex"
+                justifyContent="center"
+                maxW="200px"
+                disabled={disableBtns}
+                onClick={() => setShowContactModal(true)}
+              >
+                Contact
+              </Button>
+            )}
           </Box>
         </VStack>
       </Box>
@@ -957,10 +954,11 @@ const RenderPartnerDetails = ({
       {showContactModal && partner.id && (
         <ContactPage
           recipientId={partner.id}
+          organisationId={partner.id.toString()}
           recipientName={
-            partner.company_name || `${partner.first_name} ${partner.last_name}`
+            partner.name || `${partner.first_name} ${partner.last_name}`
           }
-          profileType="partner"
+          profileType="organisation"
           onBack={() => setShowContactModal(false)}
         />
       )}
