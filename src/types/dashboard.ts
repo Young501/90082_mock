@@ -5,7 +5,7 @@ export interface DashboardStats {
     messaged: number;
     matched: number;
   };
-  partners: {
+  organisations: {
     invited: number;
     accepted: number;
     messaged: number;
@@ -68,5 +68,5 @@ export interface ParticipantsFilterParams {
 
 export interface MatchStudent {
   student_participant_id: string;
-  partner_participant_id: string;
+  organisation_participant_id: string;
 }

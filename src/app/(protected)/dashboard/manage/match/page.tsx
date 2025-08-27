@@ -35,7 +35,7 @@ const Match = () => {
 
   const filters = useMemo(
     () => ({
-      user_type: "partner",
+      user_type: "organisation",
       page,
       accepted_status: "accepted",
       page_size: pageSize,
@@ -60,7 +60,7 @@ const Match = () => {
     try {
       await matchStudentMutation.mutateAsync({
         student_participant_id: studentId,
-        partner_participant_id: selectedOrg.id.toString(),
+        organisation_participant_id: selectedOrg.id.toString(),
       });
       router.push(`/dashboard/manage/?type=student`);
     } catch (e: any) {
