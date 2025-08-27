@@ -26,6 +26,7 @@ export function ContactPage({
   profileType,
   onBack,
   companyName,
+  companyContact,
   organisationId,
 }: ContactPageProps) {
   const { user } = useAuthStore();
@@ -51,7 +52,7 @@ export function ContactPage({
     resolver: yupResolver(emailContactValidationSchema),
     defaultValues: {
       user_id: recipientId,
-      reply_to: user?.email || "",
+      reply_to: companyContact || user?.email || "",
       subject: getDefaultSubject(),
       message: "",
     },

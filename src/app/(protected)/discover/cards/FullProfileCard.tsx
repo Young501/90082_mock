@@ -617,6 +617,7 @@ const RenderStudentDetails = ({
           recipientName={`${student.first_name} ${student.last_name}`}
           profileType="student"
           companyName={userProfile?.name || ""}
+          companyContact={userProfile?.contact_email || ""}
           onBack={() => setShowContactModal(false)}
         />
       )}

@@ -4,6 +4,7 @@ export interface ContactPageProps {
   profileType: "student" | "organisation";
   onBack: () => void;
   companyName?: string;
+  companyContact?: string;
   organisationId?: string;
 }
 
