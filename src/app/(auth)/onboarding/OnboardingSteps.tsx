@@ -698,6 +698,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     resumeUpload.isPending;
 
   const totalSteps = () => {
+    console.log("pages.length", pages.length);
     if (pages.length === 1) {
       return 2;
     }
@@ -818,12 +819,16 @@ export const OnboardingSteps = ({ userType }: Props) => {
                 </Button>
               )}
             </Box>
-            <Box>
-              <ProgressTrack
-                progressPercent={progressPercent}
-                totalSteps={totalSteps()}
-              />
-            </Box>
+            {pages.length > 1 ? (
+              <Box>
+                <ProgressTrack
+                  progressPercent={progressPercent}
+                  totalSteps={totalSteps()}
+                />
+              </Box>
+            ) : (
+              <Box h="20px" />
+            )}
           </Box>
         </Box>
       </Box>

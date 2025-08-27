@@ -314,8 +314,8 @@ const RenderStudentDetails = ({
           w="full"
         >
           <Avatar.Root
-            w="110px"
-            h="110px"
+            w="180px"
+            h="180px"
             border={"6px solid #DC2626"}
             borderRadius="50%"
           >
@@ -674,8 +674,8 @@ const RenderPartnerDetails = ({
             Organisation Profile
           </Text>
           <Avatar.Root
-            w={{ base: "100px", lg: "200px" }}
-            h={{ base: "100px", lg: "200px" }}
+            w={{ base: "180px", lg: "200px" }}
+            h={{ base: "180px", lg: "200px" }}
             border="6px solid #22C55E"
           >
             <Avatar.Image src={getCompanyLogo() || ""} />
