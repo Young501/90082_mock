@@ -84,7 +84,7 @@ const Profile = () => {
     userProfile: fetchedUserProfile,
     isLoading: isProfileLoading,
     handleOnboardingRedirect,
-  } = useProfile(userType);
+  } = useProfile(userType === "coordinator" ? "" : userType);
 
   const { data: onboardingData, isLoading: isOnboardingLoading } =
     useOnboardingPages(userType);
@@ -184,7 +184,7 @@ const Profile = () => {
   }, [profileData, reset, activeTab, userType]);
 
   const tabs: Tab[] = useMemo(() => {
-    if (!pages.length) return [];
+    if (!pages.length && !isCoordinator) return [];
 
     const onboardingTabs: Tab[] = pages.map((page: OnboardingPage) => ({
       title: page.short_title || page.title,
@@ -259,7 +259,7 @@ const Profile = () => {
     return Math.round((filledFields.length / allOnboardingFields.length) * 100);
   };
 
-  if (isOnboardingLoading || !pages.length) {
+  if ((isOnboardingLoading || !pages.length) && !isCoordinator) {
     return (
       <Box p={6} maxW="1280px" mx="auto" mt={{ base: "80px", lg: "126px" }}>
         <Loader size="lg" />

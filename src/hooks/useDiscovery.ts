@@ -124,7 +124,7 @@ export const useDiscovery = () => {
   const { data, isLoading: isOnboardingLoading } =
     useOnboardingPages(targetUserType || "");
 
-  // console.log(onboardingData);
+
 
   const userOnboardingData = data?.onboarding_pages?.user;
   const organisationOnboardingData = data?.onboarding_pages?.organisation;
@@ -142,8 +142,12 @@ export const useDiscovery = () => {
   } = useUserSearch(searchParams);
 
   useEffect(() => {
-    setIsSearching(isFetching);
-  }, [isFetching]);
+    if (searchParams && isFetching) {
+      setIsSearching(true);
+    } else if (!searchParams || (!isFetching && !isSearchLoading)) {
+      setIsSearching(false);
+    }
+  }, [isFetching, isSearchLoading, searchParams]);
 
   const validationSchema = useMemo(
     () => createValidationSchema(filterableFields),
@@ -342,8 +346,8 @@ export const useDiscovery = () => {
       ...Object.fromEntries(filteredEntries),
     };
 
-    setCurrentPage(1);
     setSearchParams(newSearchParams);
+    setCurrentPage(1);
     setIsSearching(true);
   };
 
@@ -387,6 +391,12 @@ export const useDiscovery = () => {
   };
 
   useEffect(() => {
+    return () => {
+      setIsSearching(false);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!onboardingData || !targetUserType) return;
 
     const processedFields = new Map<string, ProcessedField>();
@@ -416,6 +426,14 @@ export const useDiscovery = () => {
     processFollowupQuestions,
     targetUserType,
   ]);
+
+  useEffect(() => {
+    if (!targetUserType || !currentOpportunityId) {
+      setSearchParams(null);
+      setIsSearching(false);
+      setCurrentPage(1);
+    }
+  }, [targetUserType, currentOpportunityId]);
 
   const hasSearchFilters = useMemo(() => {
     if (!searchParams) return false;
