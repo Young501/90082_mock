@@ -11,8 +11,9 @@ import Loader from "@/components/Loader";
 interface AddToFolderModalProps {
   isOpen: boolean;
   onClose: () => void;
-  userId: string;
+  userId?: string;
   userName: string;
+  organisationId?: string;
   onResetBackground?: () => void;
   onAddToFolder?: () => void;
 }
@@ -26,6 +27,7 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
   onClose,
   userId,
   userName,
+  organisationId,
   onResetBackground,
   onAddToFolder,
 }) => {
@@ -65,7 +67,10 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
         selectedFolderIds.map((folderId) =>
           addMemberToFolder.mutateAsync({
             folderId,
-            data: { user_id: userId },
+            data: {
+              user_id: userId,
+              organisation_id: organisationId,
+            },
           })
         )
       );

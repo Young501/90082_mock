@@ -257,7 +257,7 @@ export function PartnerCard({
         <AddToFolderModal
           isOpen={showAddToFolderModal}
           onClose={() => setShowAddToFolderModal(false)}
-          userId={partner.id.toString()}
+          organisationId={partner.id.toString()}
           userName={partner.name || "Partner"}
           onAddToFolder={() => setClickBackground(true)}
           onResetBackground={() => setClickBackground(false)}
