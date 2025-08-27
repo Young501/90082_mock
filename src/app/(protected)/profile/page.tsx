@@ -416,7 +416,9 @@ const Profile = () => {
                     name={
                       userType === "organisation" && userProfile?.name
                         ? userProfile.name
-                        : `${userProfile?.first_name} ${userProfile?.last_name}`
+                        : isCoordinator
+                          ? "Coordinator"
+                          : `${userProfile?.first_name} ${userProfile?.last_name}`
                     }
                     bg="gray.200"
                     color="gray.800"
@@ -425,7 +427,12 @@ const Profile = () => {
                   />
                 </Avatar.Root>
                 <Box>
-                  <Text fontSize="25px" fontWeight="bold" color="#000000">
+                  <Text
+                    fontSize="25px"
+                    fontWeight="bold"
+                    color="#000000"
+                    display={isCoordinator ? "none" : "block"}
+                  >
                     {userType === "organisation" && userProfile?.name
                       ? userProfile.name
                       : `${userProfile?.first_name} ${userProfile?.last_name}`}
@@ -441,7 +448,7 @@ const Profile = () => {
                 </Box>
               </Flex>
 
-              <Box>
+              <Box display={isCoordinator ? "none" : "block"}>
                 <Progress.Root
                   value={completionPercentage}
                   max={100}
