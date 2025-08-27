@@ -53,7 +53,6 @@ export interface PartnerProfile {
   location?: string;
   profile_picture_url?: string | null;
   name?: string;
-  // company_name?: string;
   sector?: string;
   industry?: string;
   company_size?: string;
@@ -76,6 +75,7 @@ export interface PartnerProfile {
   user?: number;
   questionnaire_answers?: Record<string, any>;
   allow_contact?: boolean;
+  contact_email?: string;
   description?: string;
   members?: {
     id?: number;
