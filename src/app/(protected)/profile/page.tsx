@@ -305,6 +305,11 @@ const Profile = () => {
     try {
       let finalSubmissionData = submissionData;
       if (userType === "organisation") {
+        if (submissionData.allow_contact === "true") {
+          finalSubmissionData.allow_contact = true;
+        } else {
+          finalSubmissionData.allow_contact = false;
+        }
         const { role, ...organisationData } = submissionData;
         finalSubmissionData = {
           organisation: organisationData,
