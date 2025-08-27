@@ -117,11 +117,15 @@ export function useOrganisationDetail(id: string) {
 }
 
 export function useGeocode() {
+  const { getUserType } = useAuthStore();
+  const user_type = getUserType();
+  let target = "user";
+  if (user_type === "organisation") target = "organisation";
   return useMutation({
     mutationFn: async (address: string) => {
       const result = await apiRequest({
         endpoint: API_ENDPOINTS.GEOCODE,
-        body: { address },
+        body: { address, target },
       });
       return result;
     },
