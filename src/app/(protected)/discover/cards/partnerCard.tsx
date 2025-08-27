@@ -204,8 +204,8 @@ export function PartnerCard({
                     </HStack>
                   )}
 
-                  {partner.sector && (
-                    <HStack gap={2} align="center">
+                  {partner.website && (
+                    <HStack gap={2} align="start">
                       <Box
                         w="16px"
                         h="16px"
@@ -217,62 +217,16 @@ export function PartnerCard({
                         <Image
                           width={12}
                           height={12}
-                          src="/assets/calenderIcon.svg"
-                          alt="calendar"
+                          src="/assets/emailicon.svg"
+                          alt="progress"
                           objectFit="contain"
                         />
                       </Box>
                       <Text fontSize="sm" color="gray.600">
-                        {partner.sector}
+                        {partner.website}
                       </Text>
                     </HStack>
                   )}
-
-                  {partner.industry && (
-                    <HStack gap={2} align="center">
-                      <Box
-                        w="16px"
-                        h="16px"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        flexShrink={0}
-                      >
-                        <Image
-                          width={12}
-                          height={12}
-                          src="/assets/calenderIcon.svg"
-                          alt="calendar"
-                          objectFit="contain"
-                        />
-                      </Box>
-                      <Text fontSize="sm" color="gray.600">
-                        {partner.industry}
-                      </Text>
-                    </HStack>
-                  )}
-
-                  <HStack gap={2} align="start">
-                    <Box
-                      w="16px"
-                      h="16px"
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      flexShrink={0}
-                    >
-                      <Image
-                        width={12}
-                        height={12}
-                        src="/assets/calenderIcon.svg"
-                        alt="progress"
-                        objectFit="contain"
-                      />
-                    </Box>
-                    <Text fontSize="sm" color="gray.600">
-                      Available Immediately
-                    </Text>
-                  </HStack>
                 </Box>
               </Box>
             </Box>

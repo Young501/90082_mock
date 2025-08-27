@@ -28,15 +28,15 @@ export function ContactPage({
   companyName,
   organisationId,
 }: ContactPageProps) {
-  const { user } = useAuthStore();
+  const { userProfile, user } = useAuthStore();
   const contactMutation = useContactUser();
   const { data: acceptedOpportunities } = useAcceptedOpportunities();
 
   const getDefaultSubject = () => {
     if (profileType === "organisation") {
-      return `New message from ${user?.first_name || "User"} via UniConnected`;
+      return `New message from ${userProfile?.first_name || "User"} via UniConnected`;
     } else {
-      return `New message from ${companyName || user?.first_name || "User"} via UniConnected`;
+      return `New message from ${companyName || userProfile?.name || "User"} via UniConnected`;
     }
   };
 
