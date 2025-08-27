@@ -109,6 +109,7 @@ export const useDiscovery = () => {
   const [filterOptions, setFilterOptions] = useState<Record<string, string[]>>(
     {}
   );
+  const [isSearching, setIsSearching] = useState(false);
 
   const userType = user?.user_types?.[0];
   const targetUserType = useMemo(() => {
@@ -139,6 +140,10 @@ export const useDiscovery = () => {
     error: searchError,
     isFetching,
   } = useUserSearch(searchParams);
+
+  useEffect(() => {
+    setIsSearching(isFetching);
+  }, [isFetching]);
 
   const validationSchema = useMemo(
     () => createValidationSchema(filterableFields),
@@ -200,6 +205,7 @@ export const useDiscovery = () => {
         page: currentPage,
         page_size: pageSize,
       });
+      setIsSearching(true);
     }
   }, [
     targetUserType,
@@ -338,6 +344,7 @@ export const useDiscovery = () => {
 
     setCurrentPage(1);
     setSearchParams(newSearchParams);
+    setIsSearching(true);
   };
 
   const handleReset = () => {
@@ -351,6 +358,7 @@ export const useDiscovery = () => {
         page: 1,
         page_size: pageSize,
       });
+      setIsSearching(true);
     }
   };
 
@@ -362,6 +370,7 @@ export const useDiscovery = () => {
       ...searchParams,
       page,
     });
+    setIsSearching(true);
   };
 
   const handlePageSizeChange = (newPageSize: number) => {
@@ -374,6 +383,7 @@ export const useDiscovery = () => {
       page: 1,
       page_size: newPageSize,
     });
+    setIsSearching(true);
   };
 
   useEffect(() => {
@@ -426,7 +436,7 @@ export const useDiscovery = () => {
     filterOptions,
     targetUserType,
     isLoading: isOnboardingLoading || isSearchLoading || isQuestionnaireLoading,
-    isSearching: isFetching,
+    isSearching,
     form,
     handleSearch: form.handleSubmit(
       (data) => {

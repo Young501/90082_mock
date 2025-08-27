@@ -1,6 +1,6 @@
-import { StudentProfile, PartnerProfile } from "./discovery";
+import { StudentProfile, OrganisationProfile } from "./discovery";
 
-export type UserProfile = StudentProfile & PartnerProfile;
+export type UserProfile = StudentProfile & OrganisationProfile;
 
 export interface Organisation {
   id?: number;

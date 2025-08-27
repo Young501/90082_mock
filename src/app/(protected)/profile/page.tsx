@@ -41,6 +41,7 @@ import { InputField } from "@/components/ui";
 import Loader from "@/components/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
+import { OrganisationProfile } from "@/types/discovery";
 
 const Profile = () => {
   const {
@@ -270,7 +271,7 @@ const Profile = () => {
 
   const handleTabChange = (newIndex: number) => {
     const currentValues = getValues();
-    setProfileData((prev) => ({
+    setProfileData((prev: any) => ({
       ...(prev as UserProfile),
       ...currentValues,
     }));
@@ -533,7 +534,7 @@ const Profile = () => {
                   ) : userType === "organisation" ? (
                     <VStack gap={10} w="full" align="flex-start">
                       <PartnerCard
-                        partner={userProfile}
+                        organisation={userProfile}
                         profilePictureUrl={getUserProfilePictureUrl()}
                         maxW="500px"
                         disableViewFullProfile={true}
@@ -543,7 +544,7 @@ const Profile = () => {
                         profileId={userProfile.id?.toString() || ""}
                         profileType="organisation"
                         isModal={false}
-                        partnerProfile={userProfile}
+                        organisationProfile={userProfile}
                         disableBtns={true}
                       />
                     </VStack>
