@@ -920,14 +920,16 @@ const RenderPartnerDetails = ({
                   />
                 </Link>
               )}
-              <Box cursor="pointer" onClick={() => setShowContactModal(true)}>
-                <Image
-                  src="/assets/mailicon.svg"
-                  alt="Email"
-                  width={24}
-                  height={24}
-                />
-              </Box>
+              {partner.allow_contact && (
+                <Box cursor="pointer" onClick={() => setShowContactModal(true)}>
+                  <Image
+                    src="/assets/mailicon.svg"
+                    alt="Email"
+                    width={24}
+                    height={24}
+                  />
+                </Box>
+              )}
             </HStack>
             {partner.allow_contact && (
               <Button
