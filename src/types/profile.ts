@@ -5,10 +5,14 @@ export interface OnboardingPage {
 }
 
 export interface OnboardingData {
-  onboarding_pages: OnboardingPage[];
+  onboarding_pages: {
+    user?: OnboardingPage[];
+    organisation?: OnboardingPage[];
+  };
 }
 
 export interface Tab {
   title: string;
   icon: string;
 }
+
