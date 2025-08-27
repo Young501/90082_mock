@@ -34,10 +34,11 @@ export function ContactPage({
   const { data: acceptedOpportunities } = useAcceptedOpportunities();
 
   const getDefaultSubject = () => {
+    const fullName = `${userProfile?.first_name} ${userProfile?.last_name}`;
     if (profileType === "organisation") {
-      return `New message from ${userProfile?.first_name || "User"} via UniConnected`;
+      return `New message from ${fullName || "User"} via UniConnected`;
     } else {
-      return `New message from ${companyName || userProfile?.name || "User"} via UniConnected`;
+      return `New message from ${companyName || fullName || "User"} via UniConnected`;
     }
   };
 
