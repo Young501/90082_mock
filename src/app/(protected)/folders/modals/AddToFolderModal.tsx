@@ -16,6 +16,7 @@ interface AddToFolderModalProps {
   organisationId?: string;
   onResetBackground?: () => void;
   onAddToFolder?: () => void;
+  memberType?: "student" | "organisation";
 }
 
 interface FormData {
@@ -30,6 +31,7 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
   organisationId,
   onResetBackground,
   onAddToFolder,
+  memberType,
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const { data: folders, isLoading: foldersLoading } = useFolders();
@@ -67,10 +69,10 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
         selectedFolderIds.map((folderId) =>
           addMemberToFolder.mutateAsync({
             folderId,
-            data: {
-              user_id: userId,
-              organisation_id: organisationId,
-            },
+            data:
+              memberType === "student"
+                ? { user_id: userId }
+                : { organisation_id: organisationId },
           })
         )
       );

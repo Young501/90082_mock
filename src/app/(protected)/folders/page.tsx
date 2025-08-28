@@ -46,6 +46,7 @@ const Folder = () => {
   );
 
   const membersArray = folderMembers?.results || [];
+  console.log(membersArray);
 
   const handleDeleteFolder = async (folderId: string) => {
     try {
@@ -171,8 +172,8 @@ const Folder = () => {
                 <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={6}>
                   {membersArray.map((member: any) => {
                     const userData = member.profile;
-                    const userType = member.user_type;
-                    const userId = member.user_id;
+                    const userType = member.member_type;
+                    const userId = member.id;
 
                     if (userType === "student") {
                       return (
@@ -187,11 +188,11 @@ const Folder = () => {
                           }
                         />
                       );
-                    } else if (userType === "partner") {
+                    } else if (userType === "organisation") {
                       return (
                         <PartnerCard
                           key={userId}
-                          partner={userData}
+                          organisation={userData}
                           profilePictureUrl={
                             userData?.profile?.profile_picture_url ||
                             userData?.logo_url
