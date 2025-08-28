@@ -11,7 +11,7 @@ import {
   Link,
   Alert,
 } from "@chakra-ui/react";
-import { StudentProfile, PartnerProfile } from "@/types/discovery";
+import { StudentProfile, OrganisationProfile } from "@/types/discovery";
 import { useStudentProfile, usePartnerProfile } from "@/services/shared";
 import Image from "next/image";
 import BadgeSection from "@/components/BadgeSection";
@@ -44,7 +44,7 @@ interface FullProfileCardProps {
   onClose?: () => void;
   isModal?: boolean;
   studentProfile?: StudentProfile;
-  partnerProfile?: PartnerProfile;
+  organisationProfile?: OrganisationProfile;
   disableBtns?: boolean;
   opportunityId?: string;
 }
@@ -55,12 +55,13 @@ export function FullProfileCard({
   onClose,
   isModal = true,
   studentProfile,
-  partnerProfile,
+  organisationProfile,
   disableBtns = false,
   opportunityId,
 }: FullProfileCardProps) {
   const shouldFetchStudent = profileType === "student" && !studentProfile;
-  const shouldFetchPartner = profileType === "organisation" && !partnerProfile;
+  const shouldFetchPartner =
+    profileType === "organisation" && !organisationProfile;
   const { userProfile } = useAuthStore();
 
   const {
@@ -86,7 +87,7 @@ export function FullProfileCard({
   const profile =
     profileType === "student"
       ? studentProfile || studentData
-      : partnerProfile || partnerData;
+      : organisationProfile || partnerData;
 
   if (isLoading) {
     if (isModal) {
@@ -185,11 +186,11 @@ export function FullProfileCard({
           <RenderStudentDetails
             student={profile as StudentProfile}
             disableBtns={disableBtns}
-            userProfile={userProfile as PartnerProfile}
+            userProfile={userProfile as OrganisationProfile}
           />
         ) : (
           <RenderPartnerDetails
-            partner={profile as PartnerProfile}
+            organisation={profile as OrganisationProfile}
             disableBtns={disableBtns}
           />
         )}
@@ -291,7 +292,7 @@ const RenderStudentDetails = ({
 }: {
   student: StudentProfile;
   disableBtns: boolean;
-  userProfile: PartnerProfile;
+  userProfile: OrganisationProfile;
 }) => {
   const [showContactModal, setShowContactModal] = useState(false);
   return (
@@ -626,18 +627,18 @@ const RenderStudentDetails = ({
 };
 
 const RenderPartnerDetails = ({
-  partner,
+  organisation,
   disableBtns,
 }: {
-  partner: PartnerProfile;
+  organisation: OrganisationProfile;
   disableBtns: boolean;
 }) => {
   const [showContactModal, setShowContactModal] = useState(false);
   const getCompanyLogo = () => {
-    if (partner.logo_url) {
-      return partner.logo_url;
+    if (organisation.logo_url) {
+      return organisation.logo_url;
     } else {
-      return partner.profile_picture_url || "";
+      return organisation.profile_picture_url || "";
     }
   };
   return (
@@ -645,7 +646,7 @@ const RenderPartnerDetails = ({
       w="full"
       h="full"
       display="flex"
-      flexDirection={{ base: "column" }}
+      flexDirection={{ base: "column", lg: "row" }}
       px={{ base: 4, lg: 16 }}
       py={{ base: 10, lg: 12 }}
       gap={{ base: 4, lg: 8 }}
@@ -653,13 +654,15 @@ const RenderPartnerDetails = ({
       <Box
         display="flex"
         gap={{ base: 4, lg: 8 }}
-        alignItems="start"
-        flexDirection={{ base: "column", lg: "row" }}
+        alignItems={{ base: "center" }}
+        flexDirection={{ base: "column" }}
         w="full"
+        maxW={{ base: "full", lg: "40%" }}
         pt={{ base: 6, lg: 0 }}
       >
-        <Box
+        <VStack
           flexShrink={0}
+          alignItems={{ base: "center" }}
           w="full"
           maxW={{ base: "full", lg: "40%" }}
           h={{ base: "auto", lg: "200px" }}
@@ -680,22 +683,70 @@ const RenderPartnerDetails = ({
           >
             <Avatar.Image src={getCompanyLogo() || ""} />
             <Avatar.Fallback
-              name={partner.first_name + " " + partner.last_name}
+              name={organisation.first_name + " " + organisation.last_name}
               bg="gray.200"
               color="gray.800"
               fontSize="2xl"
               fontWeight="bold"
             />
           </Avatar.Root>
-        </Box>
-
-        <VStack
-          align="start"
-          gap={2}
-          flex={1}
+        </VStack>
+        <Box
           w="full"
-          maxW={{ base: "full", lg: "60%" }}
+          borderRadius="10px"
+          p={6}
+          maxW={{ base: "full" }}
+          h="fit-content"
+          background="linear-gradient(180deg, #089C3F 0%, #FFFFFF 23.56%, #FFFFFF 37.02%, #FFFFFF 69.71%);"
+          boxShadow="0px 3.37px 6.74px 3.37px rgba(0, 0, 0, 0.25)"
         >
+          <Text fontSize="24px" fontWeight="bold" mb={4} textAlign="left">
+            Connected Industry Partner Profile
+          </Text>
+          <Text
+            fontSize="14px"
+            color="black"
+            mb={6}
+            textAlign="left"
+            opacity={0.9}
+          >
+            Discover Industry Partner Profiles that are connected to this
+            organisation
+          </Text>
+
+          <VStack gap={3} align="stretch" maxH="250px" overflowY="auto">
+            {organisation.members?.map((person, index) => (
+              <HStack key={index} gap={3} align="center">
+                <Avatar.Root w="40px" h="40px" borderRadius="50%">
+                  <Avatar.Image src={person.profile_picture_url || ""} />
+                  <Avatar.Fallback
+                    name={person.first_name + " " + person.last_name}
+                    bg="white"
+                    color="black"
+                    fontSize="14px"
+                    fontWeight="bold"
+                  />
+                </Avatar.Root>
+                <VStack align="start" gap={0} flex={1}>
+                  <Text fontSize="14px" fontWeight="600" color="black">
+                    {person.first_name + " " + person.last_name}
+                  </Text>
+                </VStack>
+              </HStack>
+            ))}
+          </VStack>
+        </Box>
+      </Box>
+
+      <Box
+        display="flex"
+        gap={{ base: 4, lg: 8 }}
+        flexDirection={{ base: "column" }}
+        flex={1}
+        w="full"
+        // alignItems={{ base: "center", lg: "end" }}
+      >
+        <VStack align="start" gap={2} flex={1} w="full" maxW={{ base: "full" }}>
           <Text
             fontSize="24px"
             mb={6}
@@ -706,10 +757,10 @@ const RenderPartnerDetails = ({
             Organisation Profile
           </Text>
           <Heading fontSize="30px" fontWeight="bold" mb={2} color="black">
-            {partner.name || "-"}
+            {organisation.name || "-"}
           </Heading>
 
-          {partner.location && (
+          {organisation.location && (
             <HStack gap={2} align="center">
               <Image
                 src="/assets/locationIcon.svg"
@@ -718,22 +769,22 @@ const RenderPartnerDetails = ({
                 height={16}
               />
               <Text fontSize="14px" color="black">
-                {partner.location}
+                {organisation.location}
               </Text>
             </HStack>
           )}
 
-          {partner.website && (
+          {organisation.website && (
             <HStack gap={2} align="center">
               <Globe size={16} color="#C3C3C3" />
               <Link
-                href={partner.website}
+                href={organisation.website}
                 target="_blank"
                 fontSize="14px"
                 color="blue.500"
                 textDecoration="underline"
               >
-                {partner.website}
+                {organisation.website}
               </Link>
             </HStack>
           )}
@@ -760,73 +811,18 @@ const RenderPartnerDetails = ({
             </Text>
           </HStack>
         </VStack>
-      </Box>
-
-      <Box
-        display="flex"
-        gap={{ base: 4, lg: 8 }}
-        flexDirection={{ base: "column", lg: "row" }}
-        flex={1}
-        w="full"
-        alignItems={{ base: "center", lg: "end" }}
-      >
-        <Box
-          w="full"
-          borderRadius="10px"
-          p={6}
-          maxW={{ base: "full", lg: "40%" }}
-          h="fit-content"
-          background="linear-gradient(180deg, #089C3F 0%, #FFFFFF 23.56%, #FFFFFF 37.02%, #FFFFFF 69.71%);"
-          boxShadow="0px 3.37px 6.74px 3.37px rgba(0, 0, 0, 0.25)"
-        >
-          <Text fontSize="24px" fontWeight="bold" mb={4} textAlign="left">
-            Connected Industry Partner Profile
-          </Text>
-          <Text
-            fontSize="14px"
-            color="black"
-            mb={6}
-            textAlign="left"
-            opacity={0.9}
-          >
-            Discover Industry Partner Profiles that are connected to this
-            organisation
-          </Text>
-
-          <VStack gap={3} align="stretch" maxH="250px" overflowY="auto">
-            {partner.members?.map((person, index) => (
-              <HStack key={index} gap={3} align="center">
-                <Avatar.Root w="40px" h="40px" borderRadius="50%">
-                  <Avatar.Image src={person.profile_picture_url || ""} />
-                  <Avatar.Fallback
-                    name={person.first_name + " " + person.last_name}
-                    bg="white"
-                    color="black"
-                    fontSize="14px"
-                    fontWeight="bold"
-                  />
-                </Avatar.Root>
-                <VStack align="start" gap={0} flex={1}>
-                  <Text fontSize="14px" fontWeight="600" color="black">
-                    {person.first_name + " " + person.last_name}
-                  </Text>
-                </VStack>
-              </HStack>
-            ))}
-          </VStack>
-        </Box>
 
         <VStack
           gap={6}
           align="stretch"
           flex={1}
           w="full"
-          maxW={{ base: "full", lg: "60%" }}
+          maxW={{ base: "full" }}
         >
-          {partner.sector && (
+          {organisation.sector && (
             <BadgeSection
               title="Sector"
-              items={partner.sector}
+              items={organisation.sector}
               badgeProps={{
                 bg: "#BBF7D0",
               }}
@@ -839,10 +835,10 @@ const RenderPartnerDetails = ({
             />
           )}
 
-          {partner.industry && (
+          {organisation.industry && (
             <BadgeSection
               title="Industry Focus"
-              items={partner.industry}
+              items={organisation.industry}
               badgeProps={{
                 bg: "#BBF7D0",
               }}
@@ -855,10 +851,10 @@ const RenderPartnerDetails = ({
             />
           )}
 
-          {partner.company_size && (
+          {organisation.company_size && (
             <BadgeSection
               title="Company Size"
-              items={partner.company_size}
+              items={organisation.company_size}
               badgeProps={{
                 bg: "#BBF7D0",
               }}
@@ -871,13 +867,13 @@ const RenderPartnerDetails = ({
             />
           )}
 
-          {partner.description && (
+          {organisation.description && (
             <Box w="full">
               <Text fontSize="20px" fontWeight="600" color="black" mb={3}>
                 About this Organisation
               </Text>
               <Text fontSize="14px" color="black" lineHeight="1.6" ml={4}>
-                {partner.description}
+                {organisation.description}
               </Text>
             </Box>
           )}
@@ -890,8 +886,8 @@ const RenderPartnerDetails = ({
             gap={{ base: 4, lg: 0 }}
           >
             <HStack gap={4} justify="start">
-              {partner.linkedin && (
-                <Link href={partner.linkedin} target="_blank">
+              {organisation.linkedin && (
+                <Link href={organisation.linkedin} target="_blank">
                   <Image
                     src="/assets/linkedIn.svg"
                     alt="LinkedIn"
@@ -900,8 +896,8 @@ const RenderPartnerDetails = ({
                   />
                 </Link>
               )}
-              {partner.instagram && (
-                <Link href={partner.instagram} target="_blank">
+              {organisation.instagram && (
+                <Link href={organisation.instagram} target="_blank">
                   <Image
                     src="/assets/instagram.svg"
                     alt="Instagram"
@@ -910,8 +906,8 @@ const RenderPartnerDetails = ({
                   />
                 </Link>
               )}
-              {partner.bluesky && (
-                <Link href={partner.bluesky} target="_blank">
+              {organisation.bluesky && (
+                <Link href={organisation.bluesky} target="_blank">
                   <Image
                     src="/assets/bluesky.svg"
                     alt="Bluesky"
@@ -920,7 +916,7 @@ const RenderPartnerDetails = ({
                   />
                 </Link>
               )}
-              {partner.allow_contact && (
+              {organisation.allow_contact && (
                 <Box cursor="pointer" onClick={() => setShowContactModal(true)}>
                   <Image
                     src="/assets/mailicon.svg"
@@ -931,7 +927,7 @@ const RenderPartnerDetails = ({
                 </Box>
               )}
             </HStack>
-            {partner.allow_contact && (
+            {organisation.allow_contact && (
               <Button
                 variant="partner"
                 borderRadius="40px"
@@ -953,12 +949,13 @@ const RenderPartnerDetails = ({
         </VStack>
       </Box>
 
-      {showContactModal && partner.id && (
+      {showContactModal && organisation.id && (
         <ContactPage
-          recipientId={partner.id}
-          organisationId={partner.id.toString()}
+          recipientId={organisation.id}
+          organisationId={organisation.id.toString()}
           recipientName={
-            partner.name || `${partner.first_name} ${partner.last_name}`
+            organisation.name ||
+            `${organisation.first_name} ${organisation.last_name}`
           }
           profileType="organisation"
           onBack={() => setShowContactModal(false)}

@@ -109,6 +109,7 @@ export const useDiscovery = () => {
   const [filterOptions, setFilterOptions] = useState<Record<string, string[]>>(
     {}
   );
+  const [isSearching, setIsSearching] = useState(false);
 
   const userType = user?.user_types?.[0];
   const targetUserType = useMemo(() => {
@@ -123,7 +124,7 @@ export const useDiscovery = () => {
   const { data, isLoading: isOnboardingLoading } =
     useOnboardingPages(targetUserType || "");
 
-  // console.log(onboardingData);
+
 
   const userOnboardingData = data?.onboarding_pages?.user;
   const organisationOnboardingData = data?.onboarding_pages?.organisation;
@@ -139,6 +140,14 @@ export const useDiscovery = () => {
     error: searchError,
     isFetching,
   } = useUserSearch(searchParams);
+
+  useEffect(() => {
+    if (searchParams && isFetching) {
+      setIsSearching(true);
+    } else if (!searchParams || (!isFetching && !isSearchLoading)) {
+      setIsSearching(false);
+    }
+  }, [isFetching, isSearchLoading, searchParams]);
 
   const validationSchema = useMemo(
     () => createValidationSchema(filterableFields),
@@ -200,6 +209,7 @@ export const useDiscovery = () => {
         page: currentPage,
         page_size: pageSize,
       });
+      setIsSearching(true);
     }
   }, [
     targetUserType,
@@ -336,8 +346,9 @@ export const useDiscovery = () => {
       ...Object.fromEntries(filteredEntries),
     };
 
-    setCurrentPage(1);
     setSearchParams(newSearchParams);
+    setCurrentPage(1);
+    setIsSearching(true);
   };
 
   const handleReset = () => {
@@ -351,6 +362,7 @@ export const useDiscovery = () => {
         page: 1,
         page_size: pageSize,
       });
+      setIsSearching(true);
     }
   };
 
@@ -362,6 +374,7 @@ export const useDiscovery = () => {
       ...searchParams,
       page,
     });
+    setIsSearching(true);
   };
 
   const handlePageSizeChange = (newPageSize: number) => {
@@ -374,7 +387,14 @@ export const useDiscovery = () => {
       page: 1,
       page_size: newPageSize,
     });
+    setIsSearching(true);
   };
+
+  useEffect(() => {
+    return () => {
+      setIsSearching(false);
+    };
+  }, []);
 
   useEffect(() => {
     if (!onboardingData || !targetUserType) return;
@@ -407,6 +427,14 @@ export const useDiscovery = () => {
     targetUserType,
   ]);
 
+  useEffect(() => {
+    if (!targetUserType || !currentOpportunityId) {
+      setSearchParams(null);
+      setIsSearching(false);
+      setCurrentPage(1);
+    }
+  }, [targetUserType, currentOpportunityId]);
+
   const hasSearchFilters = useMemo(() => {
     if (!searchParams) return false;
     const { user_type, opportunity_id, page, page_size, ...filters } =
@@ -426,7 +454,7 @@ export const useDiscovery = () => {
     filterOptions,
     targetUserType,
     isLoading: isOnboardingLoading || isSearchLoading || isQuestionnaireLoading,
-    isSearching: isFetching,
+    isSearching,
     form,
     handleSearch: form.handleSubmit(
       (data) => {

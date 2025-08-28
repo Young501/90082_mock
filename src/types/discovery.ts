@@ -46,7 +46,7 @@ export interface StudentProfile {
   questionnaire_answers?: Record<string, any>;
 }
 
-export interface PartnerProfile {
+export interface OrganisationProfile {
   id?: number;
   first_name?: string;
   last_name?: string;

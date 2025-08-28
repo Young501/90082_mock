@@ -189,18 +189,18 @@ const DashboardPage = () => {
   const partnersData = [
     {
       label: "Organisations who accepted invitation:",
-      value: dashboardStats.partners.accepted,
-      total: dashboardStats.partners.invited,
+      value: dashboardStats.organisations.accepted,
+      total: dashboardStats.organisations.invited,
     },
     {
       label: "Organisations who have contacted at least one student:",
-      value: dashboardStats.partners.messaged,
-      total: dashboardStats.partners.invited,
+      value: dashboardStats.organisations.messaged,
+      total: dashboardStats.organisations.invited,
     },
     {
       label: "Organisations with at least one matched student:",
-      value: dashboardStats.partners.matched,
-      total: dashboardStats.partners.invited,
+      value: dashboardStats.organisations.matched,
+      total: dashboardStats.organisations.invited,
     },
   ];
 
@@ -464,7 +464,7 @@ const DashboardPage = () => {
                           fontWeight="bold"
                           color="#000000"
                         >
-                          {dashboardStats.partners.invited}
+                          {dashboardStats.organisations.invited}
                         </Text>
                       </Box>
                     </Box>

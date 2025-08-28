@@ -7,6 +7,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useState, useEffect, useCallback } from "react";
 import {
   useOnboardingSubmission,
+  useProfileUpdate,
   useProfilePictureUpload,
   useResumeUpload,
   useLogoUpload,
@@ -65,6 +66,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     useState<boolean>(false);
   const [userPhaseData, setUserPhaseData] = useState<Record<string, any>>({});
   const submissionMutation = useOnboardingSubmission(userType);
+  const profileUpdateMutation = useProfileUpdate(userType);
   const profilePictureUpload = useProfilePictureUpload();
   const resumeUpload = useResumeUpload(userType);
   const logoUpload = useLogoUpload(userType);
@@ -486,44 +488,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   };
 
-  const restructureDataForOrganisation = useCallback(
-    (data: Record<string, any>) => {
-      const organisationFieldNames = new Set<string>();
-
-      pages.forEach((page) => {
-        if (page.questions) {
-          page.questions.forEach((question) => {
-            if (question.field) {
-              organisationFieldNames.add(question.field);
-            }
-          });
-        }
-      });
-
-      const userData: Record<string, any> = {};
-      const organisationData: Record<string, any> = {};
-
-      Object.entries(data).forEach(([key, value]) => {
-        if (organisationFieldNames.has(key)) {
-          organisationData[key] = value;
-        } else {
-          userData[key] = value;
-        }
-      });
-
-      return {
-        ...userData,
-        organisation: organisationData,
-      };
-    },
-    [pages]
-  );
-
-  const createEmptyOrganisationData = useCallback(() => {
-    const organisationData: Record<string, any> = {};
-    return organisationData;
-  }, []);
-
   const onSubmit = async () => {
     setHasAttemptedSubmit(true);
 
@@ -575,13 +539,24 @@ export const OnboardingSteps = ({ userType }: Props) => {
         currentPhase === "organisation" &&
         !isOrganisationMember
       ) {
-        const combinedData = { ...userPhaseData, ...submissionData };
-        submissionData = restructureDataForOrganisation(combinedData);
+        const organisationData = { ...submissionData };
+        delete organisationData.profile_picture_url;
+        delete organisationData.resume_url;
+        delete organisationData.logo_url;
+        delete organisationData.location;
+        delete organisationData.location_geocode_lookup;
+        delete organisationData.first_name;
+        delete organisationData.last_name;
+        delete organisationData.email;
+        delete organisationData.user_types;
+
+        submissionData = {
+          organisation: organisationData,
+        };
       }
 
       if (isOrganisationMember) {
-        const emptyOrganisationData = createEmptyOrganisationData();
-        submissionData.organisation = emptyOrganisationData;
+        submissionData.organisation = {};
       }
 
       const { setUserFirstName, setUserLastName, setUserProfilePictureUrl } =
@@ -589,11 +564,25 @@ export const OnboardingSteps = ({ userType }: Props) => {
       setUserFirstName(submissionData.first_name || "");
       setUserLastName(submissionData.last_name || "");
 
-      const submissionResponse =
-        await submissionMutation.mutateAsync(submissionData);
-      toast.success(
-        submissionResponse?.detail || "Profile created successfully!"
-      );
+      let submissionResponse;
+      if (
+        userType === "organisation" &&
+        currentPhase === "organisation" &&
+        !isOrganisationMember
+      ) {
+        submissionResponse =
+          await profileUpdateMutation.mutateAsync(submissionData);
+        toast.success(
+          submissionResponse?.detail ||
+            "Organisation profile updated successfully!"
+        );
+      } else {
+        submissionResponse =
+          await submissionMutation.mutateAsync(submissionData);
+        toast.success(
+          submissionResponse?.detail || "Profile created successfully!"
+        );
+      }
 
       const profilePicture =
         allData.profile_picture_url || submissionData.profile_picture_url;
@@ -676,7 +665,13 @@ export const OnboardingSteps = ({ userType }: Props) => {
   };
 
   if (showCreateOrganisationPrompt && !getIsOrganisationMemberOnboarding()) {
-    return <CreateOrganisationPrompt onContinue={handleCreateOrganisation} />;
+    return (
+      <CreateOrganisationPrompt
+        onContinue={handleCreateOrganisation}
+        userPhaseData={userPhaseData}
+        userType={userType}
+      />
+    );
   }
 
   if (isLoading) return <Loader type="page" />;
@@ -692,6 +687,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
 
   const loadingStates =
     submissionMutation.isPending ||
+    profileUpdateMutation.isPending ||
     isLoadingOrganisationPrompt ||
     logoUpload.isPending ||
     profilePictureUpload.isPending ||

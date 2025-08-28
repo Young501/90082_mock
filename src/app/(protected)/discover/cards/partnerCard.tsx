@@ -8,7 +8,7 @@ import {
   Avatar,
   Heading,
 } from "@chakra-ui/react";
-import { PartnerProfile } from "@/types/discovery";
+import { OrganisationProfile } from "@/types/discovery";
 import Image from "next/image";
 import { FullProfileCard } from "./FullProfileCard";
 import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
@@ -16,7 +16,7 @@ import { DeleteModal } from "../../folders/modals/DeleteModal";
 import { Button } from "@/components/ui/Button";
 
 interface PartnerCardProps {
-  partner: PartnerProfile;
+  organisation: OrganisationProfile;
   maxW?: string;
   profilePictureUrl?: string | null;
   isInFolder?: boolean;
@@ -26,7 +26,7 @@ interface PartnerCardProps {
 }
 
 export function PartnerCard({
-  partner,
+  organisation,
   maxW,
   profilePictureUrl,
   isInFolder = false,
@@ -40,22 +40,22 @@ export function PartnerCard({
   const [deleteModal, setDeleteModal] = useState(false);
 
   const getCompanyLogo = () => {
-    if (partner.logo_url) {
-      return partner.logo_url;
+    if (organisation.logo_url) {
+      return organisation.logo_url;
     } else {
-      return partner.profile_picture_url;
+      return organisation.profile_picture_url;
     }
   };
 
   const handleViewFullProfile = () => {
-    if (partner.id && !disableViewFullProfile) {
+    if (organisation.id && !disableViewFullProfile) {
       setShowFullProfile(true);
     }
   };
 
   const handleAddToFolder = () => {
     setClickBackground(true);
-    if (partner.id) {
+    if (organisation.id) {
       if (isInFolder && onRemoveFromFolder) {
         setDeleteModal(true);
       } else {
@@ -140,7 +140,9 @@ export function PartnerCard({
                   border="6px solid #22C45E"
                 >
                   <Avatar.Fallback
-                    name={partner.first_name + " " + partner.last_name}
+                    name={
+                      organisation.first_name + " " + organisation.last_name
+                    }
                     bg="gray.200"
                     color="gray.800"
                     fontWeight="bold"
@@ -151,7 +153,7 @@ export function PartnerCard({
                   )}
                 </Avatar.Root>
 
-                {partner.allow_contact && (
+                {organisation.allow_contact && (
                   <Box
                     bg="#22C45E"
                     color="white"
@@ -171,16 +173,18 @@ export function PartnerCard({
 
               <Box display="flex" flexDirection="column" gap={3} w="full">
                 <Heading
-                  fontSize="20px"
+                  fontSize={{ base: "16px", md: "20px" }}
                   textTransform="capitalize"
                   fontWeight="bold"
                   color="#000000"
+                  whiteSpace="normal"
+                  wordBreak="break-word"
                 >
-                  {partner.name || ""}
+                  {organisation.name || ""}
                 </Heading>
 
                 <Box display="flex" flexDirection="column" gap={2}>
-                  {partner.location && (
+                  {organisation.location && (
                     <HStack gap={2} align="center">
                       <Box
                         w="16px"
@@ -198,13 +202,18 @@ export function PartnerCard({
                           objectFit="contain"
                         />
                       </Box>
-                      <Text fontSize="sm" color="gray.600">
-                        {partner.location || ""}
+                      <Text
+                        fontSize="sm"
+                        color="gray.600"
+                        whiteSpace="normal"
+                        wordBreak="break-word"
+                      >
+                        {organisation.location || ""}
                       </Text>
                     </HStack>
                   )}
 
-                  {partner.website && (
+                  {organisation.website && (
                     <HStack gap={2} align="start">
                       <Box
                         w="16px"
@@ -222,8 +231,13 @@ export function PartnerCard({
                           objectFit="contain"
                         />
                       </Box>
-                      <Text fontSize="sm" color="gray.600">
-                        {partner.website}
+                      <Text
+                        fontSize="sm"
+                        color="gray.600"
+                        whiteSpace="normal"
+                        wordBreak="break-word"
+                      >
+                        {organisation.website}
                       </Text>
                     </HStack>
                   )}
@@ -238,27 +252,27 @@ export function PartnerCard({
             py={6}
             mt={4}
             onClick={handleViewFullProfile}
-            disabled={!partner.id || disableViewFullProfile}
+            disabled={!organisation.id || disableViewFullProfile}
           >
             View Full Profile
           </Button>
         </Box>
       </Box>
 
-      {showFullProfile && partner.id && (
+      {showFullProfile && organisation.id && (
         <FullProfileCard
-          profileId={partner.id.toString()}
+          profileId={organisation.id.toString()}
           profileType="organisation"
           onClose={() => setShowFullProfile(false)}
         />
       )}
 
-      {showAddToFolderModal && partner.id && !isInFolder && (
+      {showAddToFolderModal && organisation.id && !isInFolder && (
         <AddToFolderModal
           isOpen={showAddToFolderModal}
           onClose={() => setShowAddToFolderModal(false)}
-          organisationId={partner.id.toString()}
-          userName={partner.name || "Partner"}
+          userId={organisation.id.toString()}
+          userName={organisation.name || "Organisation"}
           onAddToFolder={() => setClickBackground(true)}
           onResetBackground={() => setClickBackground(false)}
         />
