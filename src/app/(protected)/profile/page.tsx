@@ -187,6 +187,15 @@ const Profile = () => {
           return [key, value];
         })
       );
+
+      if (userType === "organisation" && profileData.organisation) {
+        Object.entries(profileData.organisation).forEach(([key, value]) => {
+          if (value !== null && value !== undefined) {
+            cleanedProfileData[`organisation.${key}`] = value;
+          }
+        });
+      }
+
       reset(cleanedProfileData);
     }
   }, [profileData, reset, activeTab, userType]);
