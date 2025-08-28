@@ -41,6 +41,7 @@ import { InputField } from "@/components/ui";
 import Loader from "@/components/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
+import { OrganisationProfile } from "@/types/discovery";
 
 const Profile = () => {
   const {
@@ -83,7 +84,7 @@ const Profile = () => {
     userProfile: fetchedUserProfile,
     isLoading: isProfileLoading,
     handleOnboardingRedirect,
-  } = useProfile(userType);
+  } = useProfile(userType === "coordinator" ? "" : userType);
 
   const { data: onboardingData, isLoading: isOnboardingLoading } =
     useOnboardingPages(userType);
@@ -183,7 +184,7 @@ const Profile = () => {
   }, [profileData, reset, activeTab, userType]);
 
   const tabs: Tab[] = useMemo(() => {
-    if (!pages.length) return [];
+    if (!pages.length && !isCoordinator) return [];
 
     const onboardingTabs: Tab[] = pages.map((page: OnboardingPage) => ({
       title: page.short_title || page.title,
@@ -258,7 +259,7 @@ const Profile = () => {
     return Math.round((filledFields.length / allOnboardingFields.length) * 100);
   };
 
-  if (isOnboardingLoading || !pages.length) {
+  if ((isOnboardingLoading || !pages.length) && !isCoordinator) {
     return (
       <Box p={6} maxW="1280px" mx="auto" mt={{ base: "80px", lg: "126px" }}>
         <Loader size="lg" />
@@ -270,7 +271,7 @@ const Profile = () => {
 
   const handleTabChange = (newIndex: number) => {
     const currentValues = getValues();
-    setProfileData((prev) => ({
+    setProfileData((prev: any) => ({
       ...(prev as UserProfile),
       ...currentValues,
     }));
@@ -415,7 +416,9 @@ const Profile = () => {
                     name={
                       userType === "organisation" && userProfile?.name
                         ? userProfile.name
-                        : `${userProfile?.first_name} ${userProfile?.last_name}`
+                        : isCoordinator
+                          ? "Coordinator"
+                          : `${userProfile?.first_name} ${userProfile?.last_name}`
                     }
                     bg="gray.200"
                     color="gray.800"
@@ -424,7 +427,12 @@ const Profile = () => {
                   />
                 </Avatar.Root>
                 <Box>
-                  <Text fontSize="25px" fontWeight="bold" color="#000000">
+                  <Text
+                    fontSize="25px"
+                    fontWeight="bold"
+                    color="#000000"
+                    display={isCoordinator ? "none" : "block"}
+                  >
                     {userType === "organisation" && userProfile?.name
                       ? userProfile.name
                       : `${userProfile?.first_name} ${userProfile?.last_name}`}
@@ -440,7 +448,7 @@ const Profile = () => {
                 </Box>
               </Flex>
 
-              <Box>
+              <Box display={isCoordinator ? "none" : "block"}>
                 <Progress.Root
                   value={completionPercentage}
                   max={100}
@@ -533,7 +541,7 @@ const Profile = () => {
                   ) : userType === "organisation" ? (
                     <VStack gap={10} w="full" align="flex-start">
                       <PartnerCard
-                        partner={userProfile}
+                        organisation={userProfile}
                         profilePictureUrl={getUserProfilePictureUrl()}
                         maxW="500px"
                         disableViewFullProfile={true}
@@ -543,7 +551,7 @@ const Profile = () => {
                         profileId={userProfile.id?.toString() || ""}
                         profileType="organisation"
                         isModal={false}
-                        partnerProfile={userProfile}
+                        organisationProfile={userProfile}
                         disableBtns={true}
                       />
                     </VStack>

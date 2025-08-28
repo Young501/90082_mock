@@ -11,7 +11,7 @@ import {
   Link,
   Alert,
 } from "@chakra-ui/react";
-import { StudentProfile, PartnerProfile } from "@/types/discovery";
+import { StudentProfile, OrganisationProfile } from "@/types/discovery";
 import { useStudentProfile, usePartnerProfile } from "@/services/shared";
 import Image from "next/image";
 import BadgeSection from "@/components/BadgeSection";
@@ -44,7 +44,7 @@ interface FullProfileCardProps {
   onClose?: () => void;
   isModal?: boolean;
   studentProfile?: StudentProfile;
-  partnerProfile?: PartnerProfile;
+  organisationProfile?: OrganisationProfile;
   disableBtns?: boolean;
   opportunityId?: string;
 }
@@ -55,12 +55,13 @@ export function FullProfileCard({
   onClose,
   isModal = true,
   studentProfile,
-  partnerProfile,
+  organisationProfile,
   disableBtns = false,
   opportunityId,
 }: FullProfileCardProps) {
   const shouldFetchStudent = profileType === "student" && !studentProfile;
-  const shouldFetchPartner = profileType === "organisation" && !partnerProfile;
+  const shouldFetchPartner =
+    profileType === "organisation" && !organisationProfile;
   const { userProfile } = useAuthStore();
 
   const {
@@ -86,7 +87,7 @@ export function FullProfileCard({
   const profile =
     profileType === "student"
       ? studentProfile || studentData
-      : partnerProfile || partnerData;
+      : organisationProfile || partnerData;
 
   if (isLoading) {
     if (isModal) {
@@ -185,11 +186,11 @@ export function FullProfileCard({
           <RenderStudentDetails
             student={profile as StudentProfile}
             disableBtns={disableBtns}
-            userProfile={userProfile as PartnerProfile}
+            userProfile={userProfile as OrganisationProfile}
           />
         ) : (
           <RenderPartnerDetails
-            partner={profile as PartnerProfile}
+            organisation={profile as OrganisationProfile}
             disableBtns={disableBtns}
           />
         )}
@@ -291,7 +292,7 @@ const RenderStudentDetails = ({
 }: {
   student: StudentProfile;
   disableBtns: boolean;
-  userProfile: PartnerProfile;
+  userProfile: OrganisationProfile;
 }) => {
   const [showContactModal, setShowContactModal] = useState(false);
   return (
@@ -626,18 +627,18 @@ const RenderStudentDetails = ({
 };
 
 const RenderPartnerDetails = ({
-  partner,
+  organisation,
   disableBtns,
 }: {
-  partner: PartnerProfile;
+  organisation: OrganisationProfile;
   disableBtns: boolean;
 }) => {
   const [showContactModal, setShowContactModal] = useState(false);
   const getCompanyLogo = () => {
-    if (partner.logo_url) {
-      return partner.logo_url;
+    if (organisation.logo_url) {
+      return organisation.logo_url;
     } else {
-      return partner.profile_picture_url || "";
+      return organisation.profile_picture_url || "";
     }
   };
   return (
@@ -680,7 +681,7 @@ const RenderPartnerDetails = ({
           >
             <Avatar.Image src={getCompanyLogo() || ""} />
             <Avatar.Fallback
-              name={partner.first_name + " " + partner.last_name}
+              name={organisation.first_name + " " + organisation.last_name}
               bg="gray.200"
               color="gray.800"
               fontSize="2xl"
@@ -706,10 +707,10 @@ const RenderPartnerDetails = ({
             Organisation Profile
           </Text>
           <Heading fontSize="30px" fontWeight="bold" mb={2} color="black">
-            {partner.name || "-"}
+            {organisation.name || "-"}
           </Heading>
 
-          {partner.location && (
+          {organisation.location && (
             <HStack gap={2} align="center">
               <Image
                 src="/assets/locationIcon.svg"
@@ -718,22 +719,22 @@ const RenderPartnerDetails = ({
                 height={16}
               />
               <Text fontSize="14px" color="black">
-                {partner.location}
+                {organisation.location}
               </Text>
             </HStack>
           )}
 
-          {partner.website && (
+          {organisation.website && (
             <HStack gap={2} align="center">
               <Globe size={16} color="#C3C3C3" />
               <Link
-                href={partner.website}
+                href={organisation.website}
                 target="_blank"
                 fontSize="14px"
                 color="blue.500"
                 textDecoration="underline"
               >
-                {partner.website}
+                {organisation.website}
               </Link>
             </HStack>
           )}
@@ -794,7 +795,7 @@ const RenderPartnerDetails = ({
           </Text>
 
           <VStack gap={3} align="stretch" maxH="250px" overflowY="auto">
-            {partner.members?.map((person, index) => (
+            {organisation.members?.map((person, index) => (
               <HStack key={index} gap={3} align="center">
                 <Avatar.Root w="40px" h="40px" borderRadius="50%">
                   <Avatar.Image src={person.profile_picture_url || ""} />
@@ -823,10 +824,10 @@ const RenderPartnerDetails = ({
           w="full"
           maxW={{ base: "full", lg: "60%" }}
         >
-          {partner.sector && (
+          {organisation.sector && (
             <BadgeSection
               title="Sector"
-              items={partner.sector}
+              items={organisation.sector}
               badgeProps={{
                 bg: "#BBF7D0",
               }}
@@ -839,10 +840,10 @@ const RenderPartnerDetails = ({
             />
           )}
 
-          {partner.industry && (
+          {organisation.industry && (
             <BadgeSection
               title="Industry Focus"
-              items={partner.industry}
+              items={organisation.industry}
               badgeProps={{
                 bg: "#BBF7D0",
               }}
@@ -855,10 +856,10 @@ const RenderPartnerDetails = ({
             />
           )}
 
-          {partner.company_size && (
+          {organisation.company_size && (
             <BadgeSection
               title="Company Size"
-              items={partner.company_size}
+              items={organisation.company_size}
               badgeProps={{
                 bg: "#BBF7D0",
               }}
@@ -871,13 +872,13 @@ const RenderPartnerDetails = ({
             />
           )}
 
-          {partner.description && (
+          {organisation.description && (
             <Box w="full">
               <Text fontSize="20px" fontWeight="600" color="black" mb={3}>
                 About this Organisation
               </Text>
               <Text fontSize="14px" color="black" lineHeight="1.6" ml={4}>
-                {partner.description}
+                {organisation.description}
               </Text>
             </Box>
           )}
@@ -890,8 +891,8 @@ const RenderPartnerDetails = ({
             gap={{ base: 4, lg: 0 }}
           >
             <HStack gap={4} justify="start">
-              {partner.linkedin && (
-                <Link href={partner.linkedin} target="_blank">
+              {organisation.linkedin && (
+                <Link href={organisation.linkedin} target="_blank">
                   <Image
                     src="/assets/linkedIn.svg"
                     alt="LinkedIn"
@@ -900,8 +901,8 @@ const RenderPartnerDetails = ({
                   />
                 </Link>
               )}
-              {partner.instagram && (
-                <Link href={partner.instagram} target="_blank">
+              {organisation.instagram && (
+                <Link href={organisation.instagram} target="_blank">
                   <Image
                     src="/assets/instagram.svg"
                     alt="Instagram"
@@ -910,8 +911,8 @@ const RenderPartnerDetails = ({
                   />
                 </Link>
               )}
-              {partner.bluesky && (
-                <Link href={partner.bluesky} target="_blank">
+              {organisation.bluesky && (
+                <Link href={organisation.bluesky} target="_blank">
                   <Image
                     src="/assets/bluesky.svg"
                     alt="Bluesky"
@@ -920,7 +921,7 @@ const RenderPartnerDetails = ({
                   />
                 </Link>
               )}
-              {partner.allow_contact && (
+              {organisation.allow_contact && (
                 <Box cursor="pointer" onClick={() => setShowContactModal(true)}>
                   <Image
                     src="/assets/mailicon.svg"
@@ -931,7 +932,7 @@ const RenderPartnerDetails = ({
                 </Box>
               )}
             </HStack>
-            {partner.allow_contact && (
+            {organisation.allow_contact && (
               <Button
                 variant="partner"
                 borderRadius="40px"
@@ -953,12 +954,13 @@ const RenderPartnerDetails = ({
         </VStack>
       </Box>
 
-      {showContactModal && partner.id && (
+      {showContactModal && organisation.id && (
         <ContactPage
-          recipientId={partner.id}
-          organisationId={partner.id.toString()}
+          recipientId={organisation.id}
+          organisationId={organisation.id.toString()}
           recipientName={
-            partner.name || `${partner.first_name} ${partner.last_name}`
+            organisation.name ||
+            `${organisation.first_name} ${organisation.last_name}`
           }
           profileType="organisation"
           onBack={() => setShowContactModal(false)}
