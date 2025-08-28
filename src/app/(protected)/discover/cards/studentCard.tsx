@@ -186,11 +186,13 @@ export function StudentCard({
               <Box display="flex" flexDirection="column" gap={6} w="full">
                 <Box>
                   <Heading
-                    fontSize="20px"
+                    fontSize={{ base: "16px", md: "20px" }}
                     textTransform="capitalize"
                     mb={2}
                     fontWeight="bold"
                     color="#000000"
+                    whiteSpace="normal"
+                    wordBreak="break-word"
                   >
                     {getDisplayName()}
                   </Heading>
@@ -199,6 +201,8 @@ export function StudentCard({
                     textTransform="capitalize"
                     fontWeight="400"
                     color="#000000"
+                    whiteSpace="normal"
+                    wordBreak="break-word"
                   >
                     {userType}
                   </Text>
@@ -223,7 +227,12 @@ export function StudentCard({
                           objectFit="contain"
                         />
                       </Box>
-                      <Text fontSize="sm" color="gray.600">
+                      <Text
+                        fontSize="sm"
+                        color="gray.600"
+                        whiteSpace="normal"
+                        wordBreak="break-word"
+                      >
                         {student.course_name} <br />
                         {student.course_progression}
                       </Text>
@@ -248,7 +257,12 @@ export function StudentCard({
                           objectFit="contain"
                         />
                       </Box>
-                      <Text fontSize="sm" color="gray.600">
+                      <Text
+                        fontSize="sm"
+                        color="gray.600"
+                        whiteSpace="normal"
+                        wordBreak="break-word"
+                      >
                         {student.location}
                       </Text>
                     </HStack>
@@ -272,7 +286,12 @@ export function StudentCard({
                           objectFit="contain"
                         />
                       </Box>
-                      <Text fontSize="sm" color="gray.600">
+                      <Text
+                        fontSize="sm"
+                        color="gray.600"
+                        whiteSpace="normal"
+                        wordBreak="break-word"
+                      >
                         {student.credentials.join(", ")}
                       </Text>
                     </HStack>
@@ -295,7 +314,12 @@ export function StudentCard({
                         objectFit="contain"
                       />
                     </Box>
-                    <Text fontSize="sm" color="gray.600">
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      whiteSpace="normal"
+                      wordBreak="break-word"
+                    >
                       Available Immediately
                     </Text>
                   </HStack>

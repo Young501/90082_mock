@@ -140,7 +140,9 @@ export function PartnerCard({
                   border="6px solid #22C45E"
                 >
                   <Avatar.Fallback
-                    name={organisation.first_name + " " + organisation.last_name}
+                    name={
+                      organisation.first_name + " " + organisation.last_name
+                    }
                     bg="gray.200"
                     color="gray.800"
                     fontWeight="bold"
@@ -171,10 +173,12 @@ export function PartnerCard({
 
               <Box display="flex" flexDirection="column" gap={3} w="full">
                 <Heading
-                  fontSize="20px"
+                  fontSize={{ base: "16px", md: "20px" }}
                   textTransform="capitalize"
                   fontWeight="bold"
                   color="#000000"
+                  whiteSpace="normal"
+                  wordBreak="break-word"
                 >
                   {organisation.name || ""}
                 </Heading>
@@ -198,7 +202,12 @@ export function PartnerCard({
                           objectFit="contain"
                         />
                       </Box>
-                      <Text fontSize="sm" color="gray.600">
+                      <Text
+                        fontSize="sm"
+                        color="gray.600"
+                        whiteSpace="normal"
+                        wordBreak="break-word"
+                      >
                         {organisation.location || ""}
                       </Text>
                     </HStack>
@@ -222,8 +231,13 @@ export function PartnerCard({
                           objectFit="contain"
                         />
                       </Box>
-                      <Text fontSize="sm" color="gray.600">
-                      {organisation.website}
+                      <Text
+                        fontSize="sm"
+                        color="gray.600"
+                        whiteSpace="normal"
+                        wordBreak="break-word"
+                      >
+                        {organisation.website}
                       </Text>
                     </HStack>
                   )}
