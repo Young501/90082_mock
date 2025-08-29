@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   Button,
@@ -39,7 +39,8 @@ const Folder = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const folderId = searchParams.get("id");
-  const { user } = useAuthStore();
+  const { user, getUserType } = useAuthStore();
+  const userType = getUserType();
   const { folders, isLoadingFolders, folderModal } = useFolderManagement();
   const deleteFolder = useDeleteFolder();
   const removeMemberFromFolder = useRemoveMemberFromFolder();
@@ -68,6 +69,16 @@ const Folder = () => {
       toast.error(error.response.data?.detail);
     }
   };
+
+  // ================================
+
+  // Redirect to dashboard page if user is a coordinator
+  useEffect(() => {
+    if (userType === "coordinator") {
+      router.push("/dashboard");
+    }
+  }, [userType, router]);
+  // ================================
 
   const handleEditFolder = (folder: FolderType) => {
     folderModal.onOpen(folder);

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -17,6 +17,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Loader from "@/components/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
+import { useAuthStore } from "@/store/authStore";
 
 interface ProgressBarProps {
   value: number;
@@ -33,6 +34,19 @@ const DashboardPage = () => {
   const router = useRouter();
   const pathname = usePathname();
   const isMobile = useBreakpointValue({ base: true, lg: false });
+  const { getUserType } = useAuthStore();
+  const userType = getUserType();
+
+  // ================================
+
+  // Redirect to discover page if user is a student or organisation
+  useEffect(() => {
+    if (userType === "student" || userType === "organisation") {
+      router.push("/discover");
+    }
+  }, [userType, router]);
+
+  // ================================
 
   const manageRoute = (type: "student" | "organisation") => {
     /*************

@@ -7,6 +7,8 @@ import { DiscoveryFilterBox } from "./DiscoveryFilterBox";
 import { DiscoveryResultBox } from "./DiscoveryResultBox";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
+import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "next/navigation";
 
 export default function DiscoveryPage() {
   const {
@@ -33,6 +35,18 @@ export default function DiscoveryPage() {
 
   const { control, watch, getValues } = form;
   const watchedValues = watch();
+  const { getUserType } = useAuthStore();
+  const userType = getUserType();
+  const router = useRouter();
+  // ================================
+
+  // Redirect to dashboard page if user is a coordinator
+  useEffect(() => {
+    if (userType === "coordinator") {
+      router.push("/dashboard");
+    }
+  }, [userType, router]);
+  // ================================
 
   return (
     <>
