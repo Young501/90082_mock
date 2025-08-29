@@ -10,7 +10,6 @@ interface AuthLayoutProps {
 }
 
 export default function Layout({ children }: AuthLayoutProps) {
-  const isMobile = useBreakpointValue({ base: true, md: false });
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
 
   return (
@@ -43,8 +42,7 @@ export default function Layout({ children }: AuthLayoutProps) {
             {children}
           </Container>
         </Box>
-        {/* TO DO: Mobile footer missing */}
-        {!isMobile && <Footer />}
+        <Footer />
       </div>
     </Suspense>
   );
