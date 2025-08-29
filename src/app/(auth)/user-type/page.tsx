@@ -11,6 +11,7 @@ import { UserTypeData } from "@/types/auth";
 import { userTypesData } from "@/utils/constants";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
+import { toast } from "react-toastify";
 
 const MotionBox = motion.create(Box);
 const MotionFlex = motion.create(Flex);
@@ -52,6 +53,11 @@ export default function UserTypePage() {
   };
 
   const handleLogin = (typeKey: string) => {
+    if (typeKey === "alumni" || typeKey === "academic") {
+      toast.info("This feature is coming soon ...");
+      handleBack();
+      return;
+    }
     setSignupSelectedUserType(typeKey);
 
     const inviteToken = searchParams.get("invite_token");
