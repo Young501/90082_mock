@@ -73,14 +73,14 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       isStudent: true,
       isProtected: true,
     },
-    {
-      label: "INBOX",
-      href: "/inbox/",
-      isCoordinator: false,
-      isOrganisation: true,
-      isStudent: true,
-      isProtected: true,
-    },
+    // {
+    //   label: "INBOX",
+    //   href: "/inbox/",
+    //   isCoordinator: false,
+    //   isOrganisation: true,
+    //   isStudent: true,
+    //   isProtected: true,
+    // },
     {
       label: "FOLDERS",
       href: "/folders/",
@@ -156,20 +156,20 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
         </Button>
       );
     }
-    if (item.label === "INBOX") {
-      return (
-        <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>
-          <Box py={isMobile ? 4 : 0}>
-            <Image
-              src="/assets/inbox.svg"
-              alt="inbox"
-              width={isMobile ? 24 : 30}
-              height={isMobile ? 24 : 30}
-            />
-          </Box>
-        </Link>
-      );
-    }
+    // if (item.label === "INBOX") {
+    //   return (
+    //     <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>
+    //       <Box py={isMobile ? 4 : 0}>
+    //         <Image
+    //           src="/assets/inbox.svg"
+    //           alt="inbox"
+    //           width={isMobile ? 24 : 30}
+    //           height={isMobile ? 24 : 30}
+    //         />
+    //       </Box>
+    //     </Link>
+    //   );
+    // }
     if (item.label === "FOLDERS") {
       return (
         <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>
