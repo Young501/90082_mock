@@ -116,7 +116,7 @@ const Profile = () => {
               ...page,
               questions: page.questions.map((question: Question) => ({
                 ...question,
-                field: `organisation.${question.field}`,
+                field: `${question.field}`,
                 label: `${question.label || question.field}`,
               })),
             })
@@ -191,7 +191,7 @@ const Profile = () => {
       if (userType === "organisation" && profileData.organisation) {
         Object.entries(profileData.organisation).forEach(([key, value]) => {
           if (value !== null && value !== undefined) {
-            cleanedProfileData[`organisation.${key}`] = value;
+            cleanedProfileData[`${key}`] = value;
           }
         });
       }
@@ -236,12 +236,10 @@ const Profile = () => {
       ): string[] => {
         const questionFields = [question.field];
         let userAnswer;
-        if (question.field.startsWith("organisation.")) {
-          const orgField = question.field.replace("organisation.", "");
+        if (userType === "organisation") {
+          const orgField = question.field;
           userAnswer =
-            userProfile.organisation?.[
-              orgField as keyof typeof userProfile.organisation
-            ];
+            userProfile[orgField as keyof typeof userProfile.organisation];
         } else {
           userAnswer = (userProfile as any)[question.field];
         }
@@ -271,14 +269,25 @@ const Profile = () => {
 
     const allOnboardingFields = getAllFieldsFromPages(pages, userProfile);
 
-    const filledFields = allOnboardingFields.filter((field) => {
+    const coreMemberFields =
+      userType === "organisation"
+        ? ["first_name", "last_name", "role", "profile_picture_url"]
+        : [];
+
+    const allFields = [...allOnboardingFields, ...coreMemberFields];
+
+    const filledFields = allFields.filter((field) => {
       let value;
-      if (field.startsWith("organisation.")) {
-        const orgField = field.replace("organisation.", "");
-        value =
-          userProfile.organisation?.[
-            orgField as keyof typeof userProfile.organisation
-          ];
+      if (userType === "organisation") {
+        if (coreMemberFields.includes(field)) {
+          value = userProfile[field as keyof UserProfile];
+        } else {
+          const orgField = field;
+          value =
+            userProfile.organisation?.[
+              orgField as keyof typeof userProfile.organisation
+            ];
+        }
       } else {
         value = userProfile[field as keyof UserProfile];
       }
@@ -291,7 +300,7 @@ const Profile = () => {
       );
     });
 
-    return Math.round((filledFields.length / allOnboardingFields.length) * 100);
+    return Math.round((filledFields.length / allFields.length) * 100);
   };
 
   if ((isOnboardingLoading || !pages.length) && !isCoordinator) {
