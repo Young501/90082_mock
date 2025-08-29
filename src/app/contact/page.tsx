@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Container, Heading, Text, VStack, Link } from "@chakra-ui/react";
+import { Box, Heading, Text, VStack, Link } from "@chakra-ui/react";
 
 const Contact = () => {
   return (
