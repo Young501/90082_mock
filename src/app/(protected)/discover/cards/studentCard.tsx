@@ -397,6 +397,7 @@ export function StudentCard({
           userName={getDisplayName()}
           onAddToFolder={() => setClickBackground(true)}
           onResetBackground={() => setClickBackground(false)}
+          memberType="student"
         />
       )}
 

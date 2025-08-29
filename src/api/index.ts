@@ -255,6 +255,7 @@ export async function apiRequest<T = any>({
   endpoint,
   body,
   headers = {},
+  params,
 }: ApiRequestParams): Promise<T> {
   const { method, url } = endpoint;
 
@@ -265,6 +266,7 @@ export async function apiRequest<T = any>({
       ...headers,
     },
     ...(body ? { data: body } : {}),
+    ...(params ? { params } : {}),
   };
 
   const response = await apiClient.request(config);

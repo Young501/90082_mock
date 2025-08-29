@@ -271,10 +271,11 @@ export function PartnerCard({
         <AddToFolderModal
           isOpen={showAddToFolderModal}
           onClose={() => setShowAddToFolderModal(false)}
-          userId={organisation.id.toString()}
+          organisationId={organisation.id.toString()}
           userName={organisation.name || "Organisation"}
           onAddToFolder={() => setClickBackground(true)}
           onResetBackground={() => setClickBackground(false)}
+          memberType="organisation"
         />
       )}
 

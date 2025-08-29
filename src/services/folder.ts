@@ -87,11 +87,24 @@ export function useDeleteFolder() {
   });
 }
 
-export function useFolderMembers(folderId: string) {
+
+export function useFolderMembersPaginated(
+  folderId: string,
+  page: number = 1,
+  pageSize: number = 20,
+  memberType?: string
+) {
   return useQuery({
-    queryKey: ["folder-members", folderId],
+    queryKey: ["folder-members", folderId, page, pageSize, memberType],
     queryFn: (): Promise<FolderMembersResponse> =>
-      apiRequest({ endpoint: API_ENDPOINTS.FOLDER_MEMBERS(folderId) }),
+      apiRequest({
+        endpoint: API_ENDPOINTS.FOLDER_MEMBERS(folderId),
+        params: {
+          page,
+          page_size: pageSize,
+          ...(memberType && { member_type: memberType }),
+        },
+      }),
     enabled: !!folderId,
     staleTime: 0,
     refetchOnWindowFocus: true,
