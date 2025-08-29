@@ -1,3 +1,5 @@
+import { Organisation } from "./shared";
+
 export interface FilterFormData {
   [key: string]: any;
 }

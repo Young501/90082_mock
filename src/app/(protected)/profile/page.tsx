@@ -99,29 +99,37 @@ const Profile = () => {
     if (userType === "organisation") {
       const nestedPages = onboardingData.onboarding_pages;
       if (nestedPages) {
-        // const userPages = nestedPages.user || [];
+        const userPages = nestedPages.user || [];
         const organisationPages = nestedPages.organisation || [];
 
-        //TODO: member pages arent added yet because we could have multple members tied to an organisation
-
-        // if (profileData?.members && profileData.members.length > 0) {
-        //   const memberPages = userPages.map((page: OnboardingPage) => ({
-        //     ...page,
-        //     questions: page.questions.map((question: Question) => ({
-        //       ...question,
-        //       field: `members.${question.field}`,
-        //       label: `${profileData.members![0].first_name} ${profileData.members![0].last_name} - ${question.label || question.field}`,
-        //     })),
-        //   }));
-        //   return [...memberPages, ...organisationPages];
-        // }
+        if (profileData) {
+          const memberPages = userPages.map((page: OnboardingPage) => ({
+            ...page,
+            questions: page.questions.map((question: Question) => ({
+              ...question,
+              field: question.field,
+              label: `${question.label || question.field}`,
+            })),
+          }));
+          const organisationMemberPages = organisationPages.map(
+            (page: OnboardingPage) => ({
+              ...page,
+              questions: page.questions.map((question: Question) => ({
+                ...question,
+                field: `organisation.${question.field}`,
+                label: `${question.label || question.field}`,
+              })),
+            })
+          );
+          return [...memberPages, ...organisationMemberPages];
+        }
 
         return [...organisationPages];
       }
     }
 
     return onboardingData.onboarding_pages.user || [];
-  }, [onboardingData?.onboarding_pages, userType]);
+  }, [onboardingData?.onboarding_pages, userType, profileData]);
 
   const activePage = useMemo(() => pages[activeTab], [pages, activeTab]);
   const schema = useMemo(
@@ -179,6 +187,15 @@ const Profile = () => {
           return [key, value];
         })
       );
+
+      if (userType === "organisation" && profileData.organisation) {
+        Object.entries(profileData.organisation).forEach(([key, value]) => {
+          if (value !== null && value !== undefined) {
+            cleanedProfileData[`organisation.${key}`] = value;
+          }
+        });
+      }
+
       reset(cleanedProfileData);
     }
   }, [profileData, reset, activeTab, userType]);
@@ -218,7 +235,16 @@ const Profile = () => {
         userProfile: UserProfile
       ): string[] => {
         const questionFields = [question.field];
-        const userAnswer = (userProfile as any)[question.field];
+        let userAnswer;
+        if (question.field.startsWith("organisation.")) {
+          const orgField = question.field.replace("organisation.", "");
+          userAnswer =
+            userProfile.organisation?.[
+              orgField as keyof typeof userProfile.organisation
+            ];
+        } else {
+          userAnswer = (userProfile as any)[question.field];
+        }
 
         if (
           question.followup_question &&
@@ -246,7 +272,16 @@ const Profile = () => {
     const allOnboardingFields = getAllFieldsFromPages(pages, userProfile);
 
     const filledFields = allOnboardingFields.filter((field) => {
-      const value = userProfile[field as keyof UserProfile];
+      let value;
+      if (field.startsWith("organisation.")) {
+        const orgField = field.replace("organisation.", "");
+        value =
+          userProfile.organisation?.[
+            orgField as keyof typeof userProfile.organisation
+          ];
+      } else {
+        value = userProfile[field as keyof UserProfile];
+      }
       return (
         value !== undefined &&
         value !== null &&
@@ -303,6 +338,8 @@ const Profile = () => {
     } else {
       setShowValidationError(false);
     }
+
+    console.log(Object.keys(errors));
     try {
       let finalSubmissionData = submissionData;
       if (userType === "organisation") {
@@ -311,9 +348,12 @@ const Profile = () => {
         } else {
           finalSubmissionData.allow_contact = false;
         }
-        const { role, ...organisationData } = submissionData;
+        delete finalSubmissionData.organisation.email_domain;
         finalSubmissionData = {
-          organisation: organisationData,
+          ...submissionData,
+          organisation: {
+            ...submissionData.organisation,
+          },
         };
       }
       const profileUpdateResponse =
@@ -541,7 +581,7 @@ const Profile = () => {
                   ) : userType === "organisation" ? (
                     <VStack gap={10} w="full" align="flex-start">
                       <PartnerCard
-                        organisation={userProfile}
+                        organisation={userProfile?.organisation || userProfile}
                         profilePictureUrl={getUserProfilePictureUrl()}
                         maxW="500px"
                         disableViewFullProfile={true}
@@ -551,7 +591,9 @@ const Profile = () => {
                         profileId={userProfile.id?.toString() || ""}
                         profileType="organisation"
                         isModal={false}
-                        organisationProfile={userProfile}
+                        organisationProfile={
+                          userProfile?.organisation || userProfile
+                        }
                         disableBtns={true}
                       />
                     </VStack>

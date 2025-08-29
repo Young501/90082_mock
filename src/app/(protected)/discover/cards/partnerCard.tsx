@@ -20,7 +20,7 @@ interface PartnerCardProps {
   maxW?: string;
   profilePictureUrl?: string | null;
   isInFolder?: boolean;
-  onRemoveFromFolder?: () => void;
+  onRemoveFromFolder?: () => void; 
   disableViewFullProfile?: boolean;
   disableAddToFolder?: boolean;
 }
