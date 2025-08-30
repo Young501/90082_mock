@@ -54,7 +54,7 @@ export default function UserTypePage() {
 
   const handleLogin = (typeKey: string) => {
     if (typeKey === "alumni" || typeKey === "academic") {
-      toast.error("This feature is coming soon ...");
+      toast.info("This feature is coming soon ...");
       handleBack();
       return;
     }
