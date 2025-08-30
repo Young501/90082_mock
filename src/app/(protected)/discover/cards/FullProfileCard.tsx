@@ -837,7 +837,7 @@ const RenderPartnerDetails = ({
 
           {organisation.industry && (
             <BadgeSection
-              title="Industry Focus"
+              title="Sector Type"
               items={organisation.industry}
               badgeProps={{
                 bg: "#BBF7D0",

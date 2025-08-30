@@ -5,14 +5,14 @@ const Contact = () => {
   return (
     <Box
       bg="white"
-      shadow="lg"
+      // shadow="lg"
       w="100%"
       mx="auto"
-      maxW="600px"
+      maxW="800px"
       borderRadius="lg"
       p={{ base: 4, lg: 8 }}
     >
-      <Heading as="h1" size="2xl" color="gray.900" mb={8} textAlign="center">
+      <Heading as="h1" size="2xl" color="gray.900" mb={8} textAlign="left">
         We&apos;d love to hear from you!
       </Heading>
 
@@ -56,7 +56,7 @@ const Contact = () => {
         </Box>
 
         <Box>
-          <Text color="gray.600" textAlign="center" fontWeight="medium">
+          <Text color="gray.600" textAlign="left" fontWeight="medium">
             We&apos;ll do our best to respond within 1–2 business days.
           </Text>
         </Box>
