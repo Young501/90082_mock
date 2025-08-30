@@ -11,10 +11,12 @@ import Loader from "@/components/Loader";
 interface AddToFolderModalProps {
   isOpen: boolean;
   onClose: () => void;
-  userId: string;
+  userId?: string;
   userName: string;
+  organisationId?: string;
   onResetBackground?: () => void;
   onAddToFolder?: () => void;
+  memberType?: "student" | "organisation";
 }
 
 interface FormData {
@@ -26,8 +28,10 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
   onClose,
   userId,
   userName,
+  organisationId,
   onResetBackground,
   onAddToFolder,
+  memberType,
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const { data: folders, isLoading: foldersLoading } = useFolders();
@@ -65,7 +69,10 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
         selectedFolderIds.map((folderId) =>
           addMemberToFolder.mutateAsync({
             folderId,
-            data: { user_id: userId },
+            data:
+              memberType === "student"
+                ? { user_id: userId }
+                : { organisation_id: organisationId },
           })
         )
       );

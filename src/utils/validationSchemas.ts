@@ -1,5 +1,6 @@
 import * as yup from "yup";
 import { Question } from "@/types/onboarding";
+import { isDisallowedDomain } from "./constants";
 
 type ParentChainItem = { field: string; value: any };
 
@@ -262,6 +263,26 @@ export const authValidationSchema = yup.object({
     .required("Email is required")
     .email("Invalid email format")
     .matches(/^[^@]+@[^@]+\.[^@]+$/, "Invalid email format"),
+  password: yup
+    .string()
+    .required("Password is required")
+    .min(8, "Password must be at least 8 characters"),
+});
+
+export const organisationAuthValidationSchema = yup.object({
+  email: yup
+    .string()
+    .required("Email is required")
+    .email("Invalid email format")
+    .matches(/^[^@]+@[^@]+\.[^@]+$/, "Invalid email format")
+    .test(
+      "disallowed-domain",
+      "Please use your work email address to sign up as an organisation.",
+      (value) => {
+        if (!value) return true;
+        return !isDisallowedDomain(value);
+      }
+    ),
   password: yup
     .string()
     .required("Password is required")

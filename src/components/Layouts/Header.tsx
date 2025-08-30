@@ -20,7 +20,7 @@ interface MenuItem {
   label: string;
   href: string;
   isCoordinator: boolean;
-  isPartner: boolean;
+  isOrganisation: boolean;
   isStudent: boolean;
   isProtected: boolean;
 }
@@ -35,7 +35,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
 
   const userType = getUserType();
   const isCoordinator = userType === "coordinator";
-  const isPartner = userType === "partner";
+  const isOrganisation = userType === "organisation";
   const isStudent = userType === "student";
 
   const getSignupLink = () => {
@@ -53,7 +53,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       label: "DASHBOARD",
       href: "/dashboard/",
       isCoordinator: true,
-      isPartner: false,
+      isOrganisation: false,
       isStudent: false,
       isProtected: true,
     },
@@ -61,7 +61,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       label: "DISCOVER",
       href: "/discover/",
       isCoordinator: false,
-      isPartner: true,
+      isOrganisation: true,
       isStudent: true,
       isProtected: true,
     },
@@ -69,23 +69,23 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       label: "PROFILE",
       href: "/profile/",
       isCoordinator: true,
-      isPartner: true,
+      isOrganisation: true,
       isStudent: true,
       isProtected: true,
     },
-    {
-      label: "INBOX",
-      href: "/inbox/",
-      isCoordinator: false,
-      isPartner: true,
-      isStudent: true,
-      isProtected: true,
-    },
+    // {
+    //   label: "INBOX",
+    //   href: "/inbox/",
+    //   isCoordinator: false,
+    //   isOrganisation: true,
+    //   isStudent: true,
+    //   isProtected: true,
+    // },
     {
       label: "FOLDERS",
       href: "/folders/",
       isCoordinator: false,
-      isPartner: true,
+      isOrganisation: true,
       isStudent: true,
       isProtected: true,
     },
@@ -93,7 +93,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       label: "LOGOUT",
       href: "/logout/",
       isCoordinator: true,
-      isPartner: true,
+      isOrganisation: true,
       isStudent: true,
       isProtected: true,
     },
@@ -101,7 +101,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       label: "LOGIN",
       href: "/login/",
       isCoordinator: false,
-      isPartner: false,
+      isOrganisation: false,
       isStudent: false,
       isProtected: false,
     },
@@ -109,7 +109,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       label: "SIGN UP",
       href: getSignupLink(),
       isCoordinator: false,
-      isPartner: false,
+      isOrganisation: false,
       isStudent: false,
       isProtected: false,
     },
@@ -124,8 +124,10 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
         (item) => item.isCoordinator && item.isProtected
       );
     }
-    if (isPartner) {
-      return MENU_ITEMS.filter((item) => item.isPartner && item.isProtected);
+    if (isOrganisation) {
+      return MENU_ITEMS.filter(
+        (item) => item.isOrganisation && item.isProtected
+      );
     }
     if (isStudent) {
       return MENU_ITEMS.filter((item) => item.isStudent && item.isProtected);
@@ -154,20 +156,20 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
         </Button>
       );
     }
-    if (item.label === "INBOX") {
-      return (
-        <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>
-          <Box py={isMobile ? 4 : 0}>
-            <Image
-              src="/assets/inbox.svg"
-              alt="inbox"
-              width={isMobile ? 24 : 30}
-              height={isMobile ? 24 : 30}
-            />
-          </Box>
-        </Link>
-      );
-    }
+    // if (item.label === "INBOX") {
+    //   return (
+    //     <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>
+    //       <Box py={isMobile ? 4 : 0}>
+    //         <Image
+    //           src="/assets/inbox.svg"
+    //           alt="inbox"
+    //           width={isMobile ? 24 : 30}
+    //           height={isMobile ? 24 : 30}
+    //         />
+    //       </Box>
+    //     </Link>
+    //   );
+    // }
     if (item.label === "FOLDERS") {
       return (
         <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>

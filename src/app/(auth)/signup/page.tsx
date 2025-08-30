@@ -11,9 +11,13 @@ import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { authValidationSchema } from "@/utils/validationSchemas";
+import {
+  authValidationSchema,
+  organisationAuthValidationSchema,
+} from "@/utils/validationSchemas";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
+import { toast } from "react-toastify";
 
 interface FormData {
   email: string;
@@ -30,6 +34,11 @@ const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { handleSignup } = useAuth();
   const { setInviteData } = useAuthStore();
+
+  const validationSchema =
+    signupSelectedUserType === "organisation"
+      ? organisationAuthValidationSchema
+      : authValidationSchema;
 
   useEffect(() => {
     if (!signupSelectedUserType) {
@@ -61,7 +70,7 @@ const SignupPage = () => {
     formState: { errors },
     watch,
   } = useForm<FormData>({
-    resolver: yupResolver(authValidationSchema),
+    resolver: yupResolver(validationSchema),
     mode: "onChange",
     defaultValues: {
       email: "",
@@ -221,6 +230,9 @@ const SignupPage = () => {
                 w="100%"
                 fontSize="20px"
                 fontWeight="400"
+                onClick={() => {
+                  toast.info("This feature is coming soon ...");
+                }}
               >
                 @ | CONNECT WITH UNIVERSITY ID
               </Button>

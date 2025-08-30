@@ -26,7 +26,8 @@ export interface FolderMember {
 }
 
 export interface AddMemberToFolderRequest {
-  user_id: string;
+  user_id?: string;
+  organisation_id?: string;
 }
 
 export interface FolderMembersResponse {

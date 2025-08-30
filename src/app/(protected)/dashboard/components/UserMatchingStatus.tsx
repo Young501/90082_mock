@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/Button";
 
 interface UserMatchingStatusProps {
   participant: Participant | null;
-  userType: "student" | "partner";
+  userType: "student" | "organisation";
   opportunityId: string;
   onParticipantUpdate?: (updatedParticipant: Participant) => void;
 }
@@ -50,7 +50,7 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
   };
 
   const getMessageText = (message: any) => {
-    if (message.sender?.user_type === "partner") {
+    if (message.sender?.user_type === "organisation") {
       return `Student is contacted by ${message.sender?.name || "-"}`;
     } else {
       return `Student contacted ${message.receiver?.name || "-"}`;
@@ -216,7 +216,7 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                 </Box>
               ))}
             </VStack>
-          ) : userType === "partner" ? (
+          ) : userType === "organisation" ? (
             <VStack align="stretch" gap={2}>
               {Array.isArray(participant.match_info?.matched_with) &&
               participant.match_info?.matched_with?.length &&

@@ -150,7 +150,7 @@ export const API_ENDPOINTS = {
   }),
   PARTNER_PROFILE: (id: string, opportunityId: string): ApiEndpoint => ({
     method: "GET",
-    url: `/api/v1/partner/${id}?opportunity_id=${opportunityId}`,
+    url: `/api/v1/organisation/${id}?opportunity_id=${opportunityId}`,
   }),
   OPPORTUNITY_DETAIL: (opportunityId: string): ApiEndpoint => ({
     method: "GET",
@@ -238,6 +238,14 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/invite/`,
   }),
+  ORGANISATION_CHECK_DOMAIN: {
+    method: "GET",
+    url: "/api/v1/organisation/check-domain/",
+  },
+  ORGANISATION_DETAIL: (id: string): ApiEndpoint => ({
+    method: "GET",
+    url: `/api/v1/organisation/${id}/`,
+  }),
 };
 
 /*********
@@ -247,6 +255,7 @@ export async function apiRequest<T = any>({
   endpoint,
   body,
   headers = {},
+  params,
 }: ApiRequestParams): Promise<T> {
   const { method, url } = endpoint;
 
@@ -257,6 +266,7 @@ export async function apiRequest<T = any>({
       ...headers,
     },
     ...(body ? { data: body } : {}),
+    ...(params ? { params } : {}),
   };
 
   const response = await apiClient.request(config);

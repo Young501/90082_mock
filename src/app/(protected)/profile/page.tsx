@@ -41,6 +41,7 @@ import { InputField } from "@/components/ui";
 import Loader from "@/components/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
+import { OrganisationProfile } from "@/types/discovery";
 
 const Profile = () => {
   const {
@@ -83,7 +84,7 @@ const Profile = () => {
     userProfile: fetchedUserProfile,
     isLoading: isProfileLoading,
     handleOnboardingRedirect,
-  } = useProfile(userType);
+  } = useProfile(userType === "coordinator" ? "" : userType);
 
   const { data: onboardingData, isLoading: isOnboardingLoading } =
     useOnboardingPages(userType);
@@ -92,10 +93,45 @@ const Profile = () => {
   const resumeUpload = useResumeUpload(userType);
   const logoUpload = useLogoUpload(userType);
 
-  const activePage = useMemo(
-    () => onboardingData?.onboarding_pages?.[activeTab],
-    [onboardingData, activeTab]
-  );
+  const pages = useMemo(() => {
+    if (!onboardingData?.onboarding_pages) return [];
+
+    if (userType === "organisation") {
+      const nestedPages = onboardingData.onboarding_pages;
+      if (nestedPages) {
+        const userPages = nestedPages.user || [];
+        const organisationPages = nestedPages.organisation || [];
+
+        if (profileData) {
+          const memberPages = userPages.map((page: OnboardingPage) => ({
+            ...page,
+            questions: page.questions.map((question: Question) => ({
+              ...question,
+              field: question.field,
+              label: `${question.label || question.field}`,
+            })),
+          }));
+          const organisationMemberPages = organisationPages.map(
+            (page: OnboardingPage) => ({
+              ...page,
+              questions: page.questions.map((question: Question) => ({
+                ...question,
+                field: `organisation.${question.field}`,
+                label: `${question.label || question.field}`,
+              })),
+            })
+          );
+          return [...memberPages, ...organisationMemberPages];
+        }
+
+        return [...organisationPages];
+      }
+    }
+
+    return onboardingData.onboarding_pages.user || [];
+  }, [onboardingData?.onboarding_pages, userType, profileData]);
+
+  const activePage = useMemo(() => pages[activeTab], [pages, activeTab]);
   const schema = useMemo(
     () => createPageSchema(activePage?.questions || [], true),
     [activePage]
@@ -137,7 +173,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (profileData) {
-      const cleanedProfileData = Object.fromEntries(
+      const cleanedProfileData: any = Object.fromEntries(
         Object.entries(profileData).map(([key, value]) => {
           if (
             value === null &&
@@ -151,19 +187,26 @@ const Profile = () => {
           return [key, value];
         })
       );
+
+      if (userType === "organisation" && profileData.organisation) {
+        Object.entries(profileData.organisation).forEach(([key, value]) => {
+          if (value !== null && value !== undefined) {
+            cleanedProfileData[`organisation.${key}`] = value;
+          }
+        });
+      }
+
       reset(cleanedProfileData);
     }
-  }, [profileData, reset, activeTab]);
+  }, [profileData, reset, activeTab, userType]);
 
   const tabs: Tab[] = useMemo(() => {
-    if (!onboardingData?.onboarding_pages) return [];
+    if (!pages.length && !isCoordinator) return [];
 
-    const onboardingTabs: Tab[] = onboardingData.onboarding_pages.map(
-      (page: OnboardingPage) => ({
-        title: page.short_title || page.title,
-        icon: page.title_icon,
-      })
-    );
+    const onboardingTabs: Tab[] = pages.map((page: OnboardingPage) => ({
+      title: page.short_title || page.title,
+      icon: page.title_icon,
+    }));
     if (!isCoordinator) {
       onboardingTabs.push({
         title: "Profile Preview",
@@ -176,10 +219,10 @@ const Profile = () => {
     });
 
     return onboardingTabs;
-  }, [onboardingData, isCoordinator]);
+  }, [pages, isCoordinator]);
 
   const calculateProfileCompletion = (): number => {
-    if (!userProfile || !onboardingData?.onboarding_pages) return 0;
+    if (!userProfile || !pages.length) return 0;
 
     const getAllFieldsFromPages = (
       pages: OnboardingPage[],
@@ -192,7 +235,16 @@ const Profile = () => {
         userProfile: UserProfile
       ): string[] => {
         const questionFields = [question.field];
-        const userAnswer = (userProfile as any)[question.field];
+        let userAnswer;
+        if (question.field.startsWith("organisation.")) {
+          const orgField = question.field.replace("organisation.", "");
+          userAnswer =
+            userProfile.organisation?.[
+              orgField as keyof typeof userProfile.organisation
+            ];
+        } else {
+          userAnswer = (userProfile as any)[question.field];
+        }
 
         if (
           question.followup_question &&
@@ -217,13 +269,19 @@ const Profile = () => {
       return [...new Set(fields)];
     };
 
-    const allOnboardingFields = getAllFieldsFromPages(
-      onboardingData.onboarding_pages,
-      userProfile
-    );
+    const allOnboardingFields = getAllFieldsFromPages(pages, userProfile);
 
     const filledFields = allOnboardingFields.filter((field) => {
-      const value = userProfile[field as keyof UserProfile];
+      let value;
+      if (field.startsWith("organisation.")) {
+        const orgField = field.replace("organisation.", "");
+        value =
+          userProfile.organisation?.[
+            orgField as keyof typeof userProfile.organisation
+          ];
+      } else {
+        value = userProfile[field as keyof UserProfile];
+      }
       return (
         value !== undefined &&
         value !== null &&
@@ -236,7 +294,7 @@ const Profile = () => {
     return Math.round((filledFields.length / allOnboardingFields.length) * 100);
   };
 
-  if (isOnboardingLoading) {
+  if ((isOnboardingLoading || !pages.length) && !isCoordinator) {
     return (
       <Box p={6} maxW="1280px" mx="auto" mt={{ base: "80px", lg: "126px" }}>
         <Loader size="lg" />
@@ -248,7 +306,7 @@ const Profile = () => {
 
   const handleTabChange = (newIndex: number) => {
     const currentValues = getValues();
-    setProfileData((prev) => ({
+    setProfileData((prev: any) => ({
       ...(prev as UserProfile),
       ...currentValues,
     }));
@@ -258,6 +316,7 @@ const Profile = () => {
   const handleUpdate = async (data: any) => {
     setHasAttemptedSubmit(true);
     const allData = { ...profileData, ...data };
+
     const submissionData = { ...allData };
     delete submissionData.profile_picture_url;
     delete submissionData.resume_url;
@@ -266,6 +325,8 @@ const Profile = () => {
     delete submissionData.logo;
     delete submissionData.location;
     delete submissionData.location_geocode_lookup;
+    delete submissionData.members;
+    delete submissionData.email_domain;
     Object.keys(submissionData).forEach((key) => {
       if (submissionData[key] === null || submissionData[key] === undefined) {
         delete submissionData[key];
@@ -277,9 +338,26 @@ const Profile = () => {
     } else {
       setShowValidationError(false);
     }
+
+    console.log(Object.keys(errors));
     try {
+      let finalSubmissionData = submissionData;
+      if (userType === "organisation") {
+        if (submissionData.allow_contact === "true") {
+          finalSubmissionData.allow_contact = true;
+        } else {
+          finalSubmissionData.allow_contact = false;
+        }
+        delete finalSubmissionData.organisation.email_domain;
+        finalSubmissionData = {
+          ...submissionData,
+          organisation: {
+            ...submissionData.organisation,
+          },
+        };
+      }
       const profileUpdateResponse =
-        await profileUpdateMutation.mutateAsync(submissionData);
+        await profileUpdateMutation.mutateAsync(finalSubmissionData);
       toast.success("Profile updated successfully!");
       setUserProfile(profileUpdateResponse);
       const uploadTasks = [];
@@ -290,7 +368,7 @@ const Profile = () => {
         if (response?.profile_picture_url && userType === "student") {
           setUpdatedProfilePicture(response.profile_picture_url);
           setUserProfilePictureUrl(response.profile_picture_url);
-        } else if (response?.logo_url && userType === "partner") {
+        } else if (response?.logo_url && userType === "organisation") {
           setUpdatedProfilePicture(response.logo_url);
           setUserProfilePictureUrl(response.logo_url);
         }
@@ -376,7 +454,11 @@ const Profile = () => {
                   )}
                   <Avatar.Fallback
                     name={
-                      userProfile?.first_name + " " + userProfile?.last_name
+                      userType === "organisation" && userProfile?.name
+                        ? userProfile.name
+                        : isCoordinator
+                          ? "Coordinator"
+                          : `${userProfile?.first_name} ${userProfile?.last_name}`
                     }
                     bg="gray.200"
                     color="gray.800"
@@ -385,20 +467,28 @@ const Profile = () => {
                   />
                 </Avatar.Root>
                 <Box>
-                  <Text fontSize="25px" fontWeight="bold" color="#000000">
-                    {userProfile?.first_name} {userProfile?.last_name}
+                  <Text
+                    fontSize="25px"
+                    fontWeight="bold"
+                    color="#000000"
+                    display={isCoordinator ? "none" : "block"}
+                  >
+                    {userType === "organisation" && userProfile?.name
+                      ? userProfile.name
+                      : `${userProfile?.first_name} ${userProfile?.last_name}`}
                   </Text>
                   <Text
                     fontSize="20px"
                     color="#000000"
                     textTransform="capitalize"
                   >
-                    {userType}
+                    {/* capitalizing  */}
+                    {userType === "organisation" ? "Organisation" : userType}
                   </Text>
                 </Box>
               </Flex>
 
-              <Box>
+              <Box display={isCoordinator ? "none" : "block"}>
                 <Progress.Root
                   value={completionPercentage}
                   max={100}
@@ -436,11 +526,10 @@ const Profile = () => {
                     borderLeft={
                       activeTab === index && userType === "student"
                         ? "4px solid #DC2626"
-                        : activeTab === index && userType === "partner"
+                        : activeTab === index &&
+                            (userType === "organisation" || isCoordinator)
                           ? "4px solid #089C3F"
-                          : activeTab === index && isCoordinator
-                            ? "4px solid #089C3F"
-                            : ""
+                          : ""
                     }
                     fontWeight="600"
                     w="full"
@@ -489,10 +578,10 @@ const Profile = () => {
                         disableBtns={true}
                       />
                     </VStack>
-                  ) : (
+                  ) : userType === "organisation" ? (
                     <VStack gap={10} w="full" align="flex-start">
                       <PartnerCard
-                        partner={userProfile}
+                        organisation={userProfile?.organisation || userProfile}
                         profilePictureUrl={getUserProfilePictureUrl()}
                         maxW="500px"
                         disableViewFullProfile={true}
@@ -500,13 +589,15 @@ const Profile = () => {
                       />
                       <FullProfileCard
                         profileId={userProfile.id?.toString() || ""}
-                        profileType="partner"
+                        profileType="organisation"
                         isModal={false}
-                        partnerProfile={userProfile}
+                        organisationProfile={
+                          userProfile?.organisation || userProfile
+                        }
                         disableBtns={true}
                       />
                     </VStack>
-                  ))}
+                  ) : null)}
               </Box>
             ) : activeTab === tabs.length - 1 ? (
               <Box

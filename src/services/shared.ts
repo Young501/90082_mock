@@ -96,12 +96,36 @@ export function useLogoUpload(userType: string) {
   });
 }
 
+export function useOrganisationDomainCheck() {
+  return useQuery({
+    queryKey: ["organisation-domain-check"],
+    queryFn: () =>
+      apiRequest({ endpoint: API_ENDPOINTS.ORGANISATION_CHECK_DOMAIN }),
+    enabled: false,
+    retry: false,
+  });
+}
+
+export function useOrganisationDetail(id: string) {
+  return useQuery({
+    queryKey: ["organisation-detail", id],
+    queryFn: () =>
+      apiRequest({ endpoint: API_ENDPOINTS.ORGANISATION_DETAIL(id) }),
+    enabled: !!id,
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
 export function useGeocode() {
+  const { getUserType } = useAuthStore();
+  const user_type = getUserType();
+  let target = "user";
+  if (user_type === "organisation") target = "organisation";
   return useMutation({
     mutationFn: async (address: string) => {
       const result = await apiRequest({
         endpoint: API_ENDPOINTS.GEOCODE,
-        body: { address },
+        body: { address, target },
       });
       return result;
     },
@@ -181,18 +205,20 @@ export function useContactUser() {
   return useMutation({
     mutationFn: async (data: {
       opportunityId: string;
-      user_id: number;
+      user_id?: number;
       reply_to: string;
       subject?: string;
       message: string;
+      organisation_id?: string;
     }) => {
       return apiRequest({
         endpoint: API_ENDPOINTS.CONTACT_USER(data.opportunityId),
         body: {
-          user_id: data.user_id,
           reply_to: data.reply_to,
           subject: data.subject || "",
           message: data.message,
+          user_id: data.user_id,
+          organisation_id: data.organisation_id,
         },
       });
     },
@@ -226,7 +252,7 @@ export function useInviteParticipants() {
       opportunityId: string;
       invitations: Array<{
         email: string;
-        role: "student" | "partner";
+        role: "student" | "organisation";
       }>;
     }) => {
       return apiRequest({

@@ -49,7 +49,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
       <Box bg="#D9D9D9" borderRadius="15px" p={4} mb={4} width="100%">
         <Flex gap={4} w="100%" direction={{ base: "column", lg: "row" }}>
           <Input
-            placeholder="Search organization name"
+            placeholder="Search organisation name"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && handleSearch()}

@@ -10,6 +10,7 @@ import {
 import { UserProfile } from "@/types/shared";
 import { StudentCard, PartnerCard } from "./cards";
 import { PaginationControls } from "@/components/ui/PaginationControls";
+import Loader from "@/components/Loader";
 
 interface DiscoveryResultBoxProps {
   results: UserProfile[];
@@ -51,9 +52,7 @@ export function DiscoveryResultBox({
       </HStack>
 
       {isLoading ? (
-        <Box textAlign="center" py={8}>
-          <Text>Loading...</Text>
-        </Box>
+        <Loader type="component" />
       ) : count > 0 ? (
         <>
           <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={4}>
@@ -69,7 +68,7 @@ export function DiscoveryResultBox({
                   opportunityId={opportunityId}
                 />
               ) : (
-                <PartnerCard key={key} partner={user} />
+                <PartnerCard key={key} organisation={user} />
               );
             })}
           </SimpleGrid>

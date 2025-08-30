@@ -34,7 +34,7 @@ const DashboardPage = () => {
   const pathname = usePathname();
   const isMobile = useBreakpointValue({ base: true, lg: false });
 
-  const manageRoute = (type: "student" | "partner") => {
+  const manageRoute = (type: "student" | "organisation") => {
     /*************
      * pathname is returned with the trailing slash in production adding additional trailing slashes to first level routes breaks behaviour in production
      * hence additional trailing slashes arent needed for first level routes but required for second level and extended routes
@@ -189,18 +189,18 @@ const DashboardPage = () => {
   const partnersData = [
     {
       label: "Organisations who accepted invitation:",
-      value: dashboardStats.partners.accepted,
-      total: dashboardStats.partners.invited,
+      value: dashboardStats.organisations.accepted,
+      total: dashboardStats.organisations.invited,
     },
     {
       label: "Organisations who have contacted at least one student:",
-      value: dashboardStats.partners.messaged,
-      total: dashboardStats.partners.invited,
+      value: dashboardStats.organisations.messaged,
+      total: dashboardStats.organisations.invited,
     },
     {
       label: "Organisations with at least one matched student:",
-      value: dashboardStats.partners.matched,
-      total: dashboardStats.partners.invited,
+      value: dashboardStats.organisations.matched,
+      total: dashboardStats.organisations.invited,
     },
   ];
 
@@ -464,7 +464,7 @@ const DashboardPage = () => {
                           fontWeight="bold"
                           color="#000000"
                         >
-                          {dashboardStats.partners.invited}
+                          {dashboardStats.organisations.invited}
                         </Text>
                       </Box>
                     </Box>
@@ -523,7 +523,7 @@ const DashboardPage = () => {
                 fontWeight="bold"
                 fontSize="27px"
                 width="100%"
-                onClick={() => manageRoute("partner")}
+                onClick={() => manageRoute("organisation")}
               >
                 Manage Organisation
               </Button>

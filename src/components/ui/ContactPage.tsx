@@ -26,18 +26,23 @@ export function ContactPage({
   profileType,
   onBack,
   companyName,
+  companyContact,
+  organisationId,
 }: ContactPageProps) {
-  const { user } = useAuthStore();
+  const { userProfile, user } = useAuthStore();
   const contactMutation = useContactUser();
   const { data: acceptedOpportunities } = useAcceptedOpportunities();
 
   const getDefaultSubject = () => {
-    if (profileType === "partner") {
-      return `New message from ${user?.first_name || "User"} via UniConnected`;
+    const fullName = `${userProfile?.first_name} ${userProfile?.last_name}`;
+    if (profileType === "organisation") {
+      return `New message from ${fullName || "User"} via UniConnected`;
     } else {
-      return `New message from ${companyName || user?.first_name || "User"} via UniConnected`;
+      return `New message from ${companyName || fullName || "User"} via UniConnected`;
     }
   };
+
+  console.log(profileType, "profileType");
 
   const {
     register,
@@ -48,7 +53,7 @@ export function ContactPage({
     resolver: yupResolver(emailContactValidationSchema),
     defaultValues: {
       user_id: recipientId,
-      reply_to: user?.email || "",
+      reply_to: companyContact || user?.email || "",
       subject: getDefaultSubject(),
       message: "",
     },
@@ -65,10 +70,12 @@ export function ContactPage({
     try {
       await contactMutation.mutateAsync({
         opportunityId: currentOpportunityId.toString(),
-        user_id: data.user_id,
         reply_to: data.reply_to,
         subject: data.subject || "",
         message: data.message,
+        ...(profileType === "student"
+          ? { user_id: data.user_id }
+          : { organisation_id: organisationId }),
       });
 
       toast.success("Message sent successfully!");

@@ -24,7 +24,7 @@ export const useDashboard = (opportunityId?: string) => {
 
       try {
         const response = await getDashboardStats(selectedOpportunityId);
-
+        console.log(response, "response");
         return {
           students: {
             invited: response.students.invited || 0,
@@ -32,11 +32,11 @@ export const useDashboard = (opportunityId?: string) => {
             messaged: response.students.messaged || 0,
             matched: response.students.matched || 0,
           },
-          partners: {
-            invited: response.partners.invited || 0,
-            accepted: response.partners.accepted || 0,
-            messaged: response.partners.messaged || 0,
-            matched: response.partners.matched || 0,
+          organisations: {
+            invited: response.organisations.invited || 0,
+            accepted: response.organisations.accepted || 0,
+            messaged: response.organisations.messaged || 0,
+            matched: response.organisations.matched || 0,
           },
         };
       } catch (error: any) {

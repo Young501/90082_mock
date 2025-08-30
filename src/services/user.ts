@@ -11,23 +11,21 @@ export function useUserSearch(params: UserSearchParams | null) {
         return { count: 0, next: null, previous: null, results: [] };
       }
 
-      const queryParams = new URLSearchParams();
+      const queryParams: Record<string, string | number> = {};
 
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== "") {
           if (Array.isArray(value)) {
-            queryParams.append(key, value.join(","));
+            queryParams[key] = value.join(",");
           } else {
-            queryParams.append(key, value.toString());
+            queryParams[key] = value.toString();
           }
         }
       });
 
       const data = await apiRequest({
-        endpoint: {
-          method: "GET",
-          url: `${API_ENDPOINTS.USERS_SEARCH.url}?${queryParams.toString()}`,
-        },
+        endpoint: API_ENDPOINTS.USERS_SEARCH,
+        params: queryParams,
       });
 
       if (Array.isArray(data)) {

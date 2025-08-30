@@ -8,7 +8,7 @@ import {
   Avatar,
   Heading,
 } from "@chakra-ui/react";
-import { PartnerProfile } from "@/types/discovery";
+import { OrganisationProfile } from "@/types/discovery";
 import Image from "next/image";
 import { FullProfileCard } from "./FullProfileCard";
 import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
@@ -16,17 +16,17 @@ import { DeleteModal } from "../../folders/modals/DeleteModal";
 import { Button } from "@/components/ui/Button";
 
 interface PartnerCardProps {
-  partner: PartnerProfile;
+  organisation: OrganisationProfile;
   maxW?: string;
   profilePictureUrl?: string | null;
   isInFolder?: boolean;
-  onRemoveFromFolder?: () => void;
+  onRemoveFromFolder?: () => void; 
   disableViewFullProfile?: boolean;
   disableAddToFolder?: boolean;
 }
 
 export function PartnerCard({
-  partner,
+  organisation,
   maxW,
   profilePictureUrl,
   isInFolder = false,
@@ -40,22 +40,22 @@ export function PartnerCard({
   const [deleteModal, setDeleteModal] = useState(false);
 
   const getCompanyLogo = () => {
-    if (partner.logo_url) {
-      return partner.logo_url;
+    if (organisation.logo_url) {
+      return organisation.logo_url;
     } else {
-      return partner.profile_picture_url;
+      return organisation.profile_picture_url;
     }
   };
 
   const handleViewFullProfile = () => {
-    if (partner.id && !disableViewFullProfile) {
+    if (organisation.id && !disableViewFullProfile) {
       setShowFullProfile(true);
     }
   };
 
   const handleAddToFolder = () => {
     setClickBackground(true);
-    if (partner.id) {
+    if (organisation.id) {
       if (isInFolder && onRemoveFromFolder) {
         setDeleteModal(true);
       } else {
@@ -140,7 +140,9 @@ export function PartnerCard({
                   border="6px solid #22C45E"
                 >
                   <Avatar.Fallback
-                    name={partner.first_name + " " + partner.last_name}
+                    name={
+                      organisation.first_name + " " + organisation.last_name
+                    }
                     bg="gray.200"
                     color="gray.800"
                     fontWeight="bold"
@@ -151,34 +153,38 @@ export function PartnerCard({
                   )}
                 </Avatar.Root>
 
-                <Box
-                  bg="#22C45E"
-                  color="white"
-                  borderRadius="2xl"
-                  py={2}
-                  px={4}
-                  fontSize="12px"
-                  fontWeight="400"
-                  w="100%"
-                  display="flex"
-                  justifyContent="center"
-                >
-                  open to contact
-                </Box>
+                {organisation.allow_contact && (
+                  <Box
+                    bg="#22C45E"
+                    color="white"
+                    borderRadius="2xl"
+                    py={2}
+                    px={4}
+                    fontSize="12px"
+                    fontWeight="400"
+                    w="100%"
+                    display="flex"
+                    justifyContent="center"
+                  >
+                    open to contact
+                  </Box>
+                )}
               </Box>
 
               <Box display="flex" flexDirection="column" gap={3} w="full">
                 <Heading
-                  fontSize="20px"
+                  fontSize={{ base: "16px", md: "20px" }}
                   textTransform="capitalize"
                   fontWeight="bold"
                   color="#000000"
+                  whiteSpace="normal"
+                  wordBreak="break-word"
                 >
-                  {partner.company_name || ""}
+                  {organisation.name || ""}
                 </Heading>
 
                 <Box display="flex" flexDirection="column" gap={2}>
-                  {partner.location && (
+                  {organisation.location && (
                     <HStack gap={2} align="center">
                       <Box
                         w="16px"
@@ -196,14 +202,19 @@ export function PartnerCard({
                           objectFit="contain"
                         />
                       </Box>
-                      <Text fontSize="sm" color="gray.600">
-                        {partner.location || ""}
+                      <Text
+                        fontSize="sm"
+                        color="gray.600"
+                        whiteSpace="normal"
+                        wordBreak="break-word"
+                      >
+                        {organisation.location || ""}
                       </Text>
                     </HStack>
                   )}
 
-                  {partner.sector && (
-                    <HStack gap={2} align="center">
+                  {organisation.website && (
+                    <HStack gap={2} align="start">
                       <Box
                         w="16px"
                         h="16px"
@@ -215,62 +226,21 @@ export function PartnerCard({
                         <Image
                           width={12}
                           height={12}
-                          src="/assets/calenderIcon.svg"
-                          alt="calendar"
+                          src="/assets/emailicon.svg"
+                          alt="progress"
                           objectFit="contain"
                         />
                       </Box>
-                      <Text fontSize="sm" color="gray.600">
-                        {partner.sector}
-                      </Text>
-                    </HStack>
-                  )}
-
-                  {partner.industry && (
-                    <HStack gap={2} align="center">
-                      <Box
-                        w="16px"
-                        h="16px"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        flexShrink={0}
+                      <Text
+                        fontSize="sm"
+                        color="gray.600"
+                        whiteSpace="normal"
+                        wordBreak="break-word"
                       >
-                        <Image
-                          width={12}
-                          height={12}
-                          src="/assets/calenderIcon.svg"
-                          alt="calendar"
-                          objectFit="contain"
-                        />
-                      </Box>
-                      <Text fontSize="sm" color="gray.600">
-                        {partner.industry}
+                        {organisation.website}
                       </Text>
                     </HStack>
                   )}
-
-                  <HStack gap={2} align="start">
-                    <Box
-                      w="16px"
-                      h="16px"
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      flexShrink={0}
-                    >
-                      <Image
-                        width={12}
-                        height={12}
-                        src="/assets/calenderIcon.svg"
-                        alt="progress"
-                        objectFit="contain"
-                      />
-                    </Box>
-                    <Text fontSize="sm" color="gray.600">
-                      Available Immediately
-                    </Text>
-                  </HStack>
                 </Box>
               </Box>
             </Box>
@@ -282,29 +252,30 @@ export function PartnerCard({
             py={6}
             mt={4}
             onClick={handleViewFullProfile}
-            disabled={!partner.id || disableViewFullProfile}
+            disabled={!organisation.id || disableViewFullProfile}
           >
             View Full Profile
           </Button>
         </Box>
       </Box>
 
-      {showFullProfile && partner.id && (
+      {showFullProfile && organisation.id && (
         <FullProfileCard
-          profileId={partner.id.toString()}
-          profileType="partner"
+          profileId={organisation.id.toString()}
+          profileType="organisation"
           onClose={() => setShowFullProfile(false)}
         />
       )}
 
-      {showAddToFolderModal && partner.id && !isInFolder && (
+      {showAddToFolderModal && organisation.id && !isInFolder && (
         <AddToFolderModal
           isOpen={showAddToFolderModal}
           onClose={() => setShowAddToFolderModal(false)}
-          userId={partner.id.toString()}
-          userName={partner.company_name || "Partner"}
+          organisationId={organisation.id.toString()}
+          userName={organisation.name || "Organisation"}
           onAddToFolder={() => setClickBackground(true)}
           onResetBackground={() => setClickBackground(false)}
+          memberType="organisation"
         />
       )}
 

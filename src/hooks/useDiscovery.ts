@@ -109,19 +109,27 @@ export const useDiscovery = () => {
   const [filterOptions, setFilterOptions] = useState<Record<string, string[]>>(
     {}
   );
+  const [isSearching, setIsSearching] = useState(false);
 
   const userType = user?.user_types?.[0];
   const targetUserType = useMemo(() => {
     if (!userType) return null;
-    return userType === "student" ? "partner" : "student";
+    return userType === "student" ? "organisation" : "student";
   }, [userType]);
 
   const { data: acceptedOpportunities, isLoading: isOpportunitiesLoading } =
     useAcceptedOpportunities();
   const currentOpportunityId = acceptedOpportunities?.[0]?.id;
 
-  const { data: onboardingData, isLoading: isOnboardingLoading } =
+  const { data, isLoading: isOnboardingLoading } =
     useOnboardingPages(targetUserType || "");
+
+
+
+  const userOnboardingData = data?.onboarding_pages?.user;
+  const organisationOnboardingData = data?.onboarding_pages?.organisation;
+  const onboardingData =
+    userType === "student" ? organisationOnboardingData : userOnboardingData;
 
   const { data: questionnaireFilters, isLoading: isQuestionnaireLoading } =
     useQuestionnaireFilters(currentOpportunityId || "", targetUserType || "");
@@ -132,6 +140,14 @@ export const useDiscovery = () => {
     error: searchError,
     isFetching,
   } = useUserSearch(searchParams);
+
+  useEffect(() => {
+    if (searchParams && isFetching) {
+      setIsSearching(true);
+    } else if (!searchParams || (!isFetching && !isSearchLoading)) {
+      setIsSearching(false);
+    }
+  }, [isFetching, isSearchLoading, searchParams]);
 
   const validationSchema = useMemo(
     () => createValidationSchema(filterableFields),
@@ -193,6 +209,7 @@ export const useDiscovery = () => {
         page: currentPage,
         page_size: pageSize,
       });
+      setIsSearching(true);
     }
   }, [
     targetUserType,
@@ -329,8 +346,9 @@ export const useDiscovery = () => {
       ...Object.fromEntries(filteredEntries),
     };
 
-    setCurrentPage(1);
     setSearchParams(newSearchParams);
+    setCurrentPage(1);
+    setIsSearching(true);
   };
 
   const handleReset = () => {
@@ -344,6 +362,7 @@ export const useDiscovery = () => {
         page: 1,
         page_size: pageSize,
       });
+      setIsSearching(true);
     }
   };
 
@@ -355,6 +374,7 @@ export const useDiscovery = () => {
       ...searchParams,
       page,
     });
+    setIsSearching(true);
   };
 
   const handlePageSizeChange = (newPageSize: number) => {
@@ -367,7 +387,14 @@ export const useDiscovery = () => {
       page: 1,
       page_size: newPageSize,
     });
+    setIsSearching(true);
   };
+
+  useEffect(() => {
+    return () => {
+      setIsSearching(false);
+    };
+  }, []);
 
   useEffect(() => {
     if (!onboardingData || !targetUserType) return;
@@ -375,11 +402,8 @@ export const useDiscovery = () => {
     const processedFields = new Map<string, ProcessedField>();
     const typedData = onboardingData as { onboarding_pages: any[] };
 
-    if (
-      typedData.onboarding_pages &&
-      Array.isArray(typedData.onboarding_pages)
-    ) {
-      typedData.onboarding_pages.forEach((page: any) => {
+    if (typedData && Array.isArray(typedData)) {
+      typedData.forEach((page: any) => {
         if (page.questions && Array.isArray(page.questions)) {
           page.questions.forEach((field: any) => {
             processFollowupQuestions(field, [], processedFields);
@@ -403,6 +427,14 @@ export const useDiscovery = () => {
     targetUserType,
   ]);
 
+  useEffect(() => {
+    if (!targetUserType || !currentOpportunityId) {
+      setSearchParams(null);
+      setIsSearching(false);
+      setCurrentPage(1);
+    }
+  }, [targetUserType, currentOpportunityId]);
+
   const hasSearchFilters = useMemo(() => {
     if (!searchParams) return false;
     const { user_type, opportunity_id, page, page_size, ...filters } =
@@ -422,7 +454,7 @@ export const useDiscovery = () => {
     filterOptions,
     targetUserType,
     isLoading: isOnboardingLoading || isSearchLoading || isQuestionnaireLoading,
-    isSearching: isFetching,
+    isSearching,
     form,
     handleSearch: form.handleSubmit(
       (data) => {

@@ -32,7 +32,7 @@ const InvitePage = () => {
     return (
       <StudentInvitePage onSuccess={handleSuccess} onCancel={handleCancel} />
     );
-  } else if (type === "partner") {
+  } else if (type === "organisation") {
     return (
       <PartnerInvitePage onSuccess={handleSuccess} onCancel={handleCancel} />
     );
@@ -137,7 +137,7 @@ const PartnerInvitePage = ({
                 aria-label="Go back"
                 onClick={
                   onCancel ||
-                  (() => router.push("/dashboard/manage?type=partner"))
+                  (() => router.push("/dashboard/manage?type=organisation"))
                 }
                 variant="ghost"
                 size="lg"
@@ -154,7 +154,7 @@ const PartnerInvitePage = ({
             </HStack>
 
             <InvitationForm
-              userType="partner"
+              userType="organisation"
               onSuccess={onSuccess}
               onCancel={onCancel}
             />

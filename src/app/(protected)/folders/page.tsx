@@ -8,17 +8,21 @@ import {
   SimpleGrid,
   HStack,
   Avatar,
+  Select,
+  createListCollection,
 } from "@chakra-ui/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useFolderManagement } from "@/hooks/useFolder";
+import {
+  useFolderManagement,
+  useFolderMembersManagement,
+} from "@/hooks/useFolder";
 import { FolderModal } from "@/app/(protected)/folders/modals/FolderModal";
 import { FolderCard } from "@/app/(protected)/folders/modals/FolderCard";
 import {
   useDeleteFolder,
   useFolderDetail,
-  useFolderMembers,
   useRemoveMemberFromFolder,
 } from "@/services/folder";
 import { StudentCard } from "@/app/(protected)/discover/cards/studentCard";
@@ -29,6 +33,7 @@ import { useAuthStore } from "@/store";
 import Loader from "@/components/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
+import { PaginationControls } from "@/components/ui/PaginationControls";
 
 const Folder = () => {
   const router = useRouter();
@@ -41,11 +46,19 @@ const Folder = () => {
 
   const { data: folderDetail, isLoading: isLoadingFolderDetail } =
     useFolderDetail(folderId || "");
-  const { data: folderMembers, isLoading: isLoadingMembers } = useFolderMembers(
-    folderId || ""
-  );
 
-  const membersArray = folderMembers?.results || [];
+  const {
+    members: membersArray,
+    totalCount,
+    totalPages,
+    currentPage,
+    pageSize,
+    memberType,
+    isLoadingMembers,
+    handlePageChange,
+    handlePageSizeChange,
+    handleMemberTypeChange,
+  } = useFolderMembersManagement(folderId || "");
 
   const handleDeleteFolder = async (folderId: string) => {
     try {
@@ -168,44 +181,145 @@ const Folder = () => {
                   </Text>
                 </Box>
               ) : (
-                <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={6}>
-                  {membersArray.map((member: any) => {
-                    const userData = member.profile;
-                    const userType = member.user_type;
-                    const userId = member.user_id;
+                <VStack align="stretch" gap={6}>
+                  <HStack
+                    justify={{ base: "flex-start", md: "space-between" }}
+                    flexDir={{ base: "column", md: "row" }}
+                    align="center"
+                  >
+                    <Text fontSize="18px" fontWeight="600" color="#282F68">
+                      Members ({totalCount})
+                    </Text>
+                    <HStack gap={4}>
+                      <Text fontSize="14px" color="gray.600">
+                        Filter by type:
+                      </Text>
+                      <Select.Root
+                        value={memberType ? [memberType] : [""]}
+                        onValueChange={(details) => {
+                          const value = details.value[0];
+                          handleMemberTypeChange(
+                            value === "" ? undefined : value
+                          );
+                        }}
+                        disabled={isLoadingMembers}
+                        width="150px"
+                        size="sm"
+                        collection={createListCollection({
+                          items: [
+                            { label: "All members", value: "" },
+                            // only cater for student and organisation for now since folders will only have these two types of members and based on user type just show the relevant options
+                            // if we need to cater for other types of members in a single folder we might require a different approach to present flow
+                            ...(user?.user_types?.[0] === "student"
+                              ? [
+                                  {
+                                    label: "Organisations only",
+                                    value: "organisation",
+                                  },
+                                ]
+                              : []),
+                            ...(user?.user_types?.[0] === "organisation"
+                              ? [{ label: "Students only", value: "student" }]
+                              : []),
+                          ],
+                        })}
+                      >
+                        <Select.Control>
+                          <Select.Trigger>
+                            <Select.ValueText />
+                          </Select.Trigger>
+                          <Select.IndicatorGroup>
+                            <Select.Indicator />
+                          </Select.IndicatorGroup>
+                        </Select.Control>
+                        <Select.Positioner>
+                          <Select.Content>
+                            <Select.Item
+                              item={{ label: "All members", value: "" }}
+                            >
+                              All members
+                              <Select.ItemIndicator />
+                            </Select.Item>
+                            {user?.user_types?.[0] === "student" && (
+                              <Select.Item
+                                item={{
+                                  label: "Organisations only",
+                                  value: "organisation",
+                                }}
+                              >
+                                Organisations only
+                                <Select.ItemIndicator />
+                              </Select.Item>
+                            )}
+                            {user?.user_types?.[0] === "organisation" && (
+                              <Select.Item
+                                item={{
+                                  label: "Students only",
+                                  value: "student",
+                                }}
+                              >
+                                Students only
+                                <Select.ItemIndicator />
+                              </Select.Item>
+                            )}
+                          </Select.Content>
+                        </Select.Positioner>
+                      </Select.Root>
+                    </HStack>
+                  </HStack>
 
-                    if (userType === "student") {
-                      return (
-                        <StudentCard
-                          key={userId}
-                          student={userData}
-                          userType={userType}
-                          profilePictureUrl={userData?.profile_picture_url}
-                          isInFolder={true}
-                          onRemoveFromFolder={() =>
-                            handleRemoveFromFolder(userId.toString())
-                          }
-                        />
-                      );
-                    } else if (userType === "partner") {
-                      return (
-                        <PartnerCard
-                          key={userId}
-                          partner={userData}
-                          profilePictureUrl={
-                            userData?.profile?.profile_picture_url ||
-                            userData?.logo_url
-                          }
-                          isInFolder={true}
-                          onRemoveFromFolder={() =>
-                            handleRemoveFromFolder(userId.toString())
-                          }
-                        />
-                      );
-                    }
-                    return null;
-                  })}
-                </SimpleGrid>
+                  <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={6}>
+                    {membersArray.map((member: any) => {
+                      const userData = member.profile;
+                      const userType = member.member_type;
+                      const userId = member.id;
+
+                      //  reference to comments on line 212
+                      if (userType === "student") {
+                        return (
+                          <StudentCard
+                            key={userId}
+                            student={userData}
+                            userType={userType}
+                            profilePictureUrl={userData?.profile_picture_url}
+                            isInFolder={true}
+                            onRemoveFromFolder={() =>
+                              handleRemoveFromFolder(userId.toString())
+                            }
+                          />
+                        );
+                      } else if (userType === "organisation") {
+                        return (
+                          <PartnerCard
+                            key={userId}
+                            organisation={userData}
+                            profilePictureUrl={
+                              userData?.profile?.profile_picture_url ||
+                              userData?.logo_url
+                            }
+                            isInFolder={true}
+                            onRemoveFromFolder={() =>
+                              handleRemoveFromFolder(userId.toString())
+                            }
+                          />
+                        );
+                      }
+                      return null;
+                    })}
+                  </SimpleGrid>
+
+                  {totalPages > 1 && (
+                    <PaginationControls
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      pageSize={pageSize}
+                      totalCount={totalCount}
+                      onPageChange={handlePageChange}
+                      onPageSizeChange={handlePageSizeChange}
+                      isLoading={isLoadingMembers}
+                    />
+                  )}
+                </VStack>
               )}
             </VStack>
           ) : (

@@ -1,3 +1,5 @@
+import { Organisation } from "./shared";
+
 export interface FilterFormData {
   [key: string]: any;
 }
@@ -46,13 +48,13 @@ export interface StudentProfile {
   questionnaire_answers?: Record<string, any>;
 }
 
-export interface PartnerProfile {
+export interface OrganisationProfile {
   id?: number;
   first_name?: string;
   last_name?: string;
   location?: string;
   profile_picture_url?: string | null;
-  company_name?: string;
+  name?: string;
   sector?: string;
   industry?: string;
   company_size?: string;
@@ -66,7 +68,7 @@ export interface PartnerProfile {
   about?: string;
   logo?: string | null;
   profile_picture?: string | null;
-  homepage?: string;
+  website?: string;
   linkedin?: string;
   instagram?: string;
   bluesky?: string;
@@ -74,6 +76,16 @@ export interface PartnerProfile {
   faculty?: string;
   user?: number;
   questionnaire_answers?: Record<string, any>;
+  allow_contact?: boolean;
+  contact_email?: string;
+  description?: string;
+  members?: {
+    id?: number;
+    first_name?: string;
+    last_name?: string;
+    profile_picture_url?: string | null;
+    role?: string;
+  }[];
 }
 
 export interface UserSearchParams {

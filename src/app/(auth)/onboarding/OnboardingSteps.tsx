@@ -7,6 +7,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useState, useEffect, useCallback } from "react";
 import {
   useOnboardingSubmission,
+  useProfileUpdate,
   useProfilePictureUpload,
   useResumeUpload,
   useLogoUpload,
@@ -20,6 +21,8 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import ProgressTrack from "@/components/ProgressTrack";
 import { useAuthStore } from "@/store/authStore";
+import { CreateOrganisationPrompt } from "./CreateOrganisationPrompt";
+import Loader from "@/components/Loader";
 
 interface Props {
   userType: string;
@@ -35,9 +38,12 @@ export const OnboardingSteps = ({ userType }: Props) => {
     progressPercent,
     isFirstPage,
     isLastPage,
+    currentPhase,
+    isUserPhaseComplete,
     goToPreviousPage,
     goToNextPage,
-  } = useOnboardingLogic();
+    startOrganisationPhase,
+  } = useOnboardingLogic(userType);
 
   useEffect(() => {
     if (!isLoading && pages) {
@@ -56,11 +62,17 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [formKey, setFormKey] = useState<number>(0);
   const [parentValues, setParentValues] = useState<Record<string, any>>({});
+  const [showCreateOrganisationPrompt, setShowCreateOrganisationPrompt] =
+    useState<boolean>(false);
+  const [userPhaseData, setUserPhaseData] = useState<Record<string, any>>({});
   const submissionMutation = useOnboardingSubmission(userType);
+  const profileUpdateMutation = useProfileUpdate(userType);
   const profilePictureUpload = useProfilePictureUpload();
   const resumeUpload = useResumeUpload(userType);
   const logoUpload = useLogoUpload(userType);
   const schema = createPageSchema(currentPage?.questions || []);
+  const [isLoadingOrganisationPrompt, setIsLoadingOrganisationPrompt] =
+    useState<boolean>(false);
 
   const {
     register,
@@ -79,6 +91,25 @@ export const OnboardingSteps = ({ userType }: Props) => {
     mode: "onChange",
     reValidateMode: "onChange",
   });
+
+  const {
+    setTempOrganisationUser,
+    clearTempOrganisationUser,
+    getIsOrganisationMemberOnboarding,
+    getTempOrganisation,
+  } = useAuthStore();
+
+  const getProfilePictureUrl = useCallback(
+    (profilePicture: any): string | null => {
+      if (!profilePicture) return null;
+      if (typeof profilePicture === "string") return profilePicture;
+      if (profilePicture instanceof File) {
+        return URL.createObjectURL(profilePicture);
+      }
+      return null;
+    },
+    []
+  );
 
   const getAllPossibleFields = useCallback(
     (questions: Question[]): string[] => {
@@ -249,6 +280,64 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   }, [watch, trigger, currentPage]);
 
+  useEffect(() => {
+    const isOrganisationMember = getIsOrganisationMemberOnboarding();
+    if (
+      userType === "organisation" &&
+      currentPhase === "user" &&
+      Object.keys(formData).length > 0 &&
+      !isOrganisationMember
+    ) {
+      const tempUserData = {
+        first_name: formData.first_name || "",
+        last_name: formData.last_name || "",
+        email: formData.email || "",
+        profile_picture_url: getProfilePictureUrl(formData.profile_picture_url),
+        user_types: [userType],
+      };
+      setTempOrganisationUser(tempUserData);
+    } else if (
+      userType !== "organisation" ||
+      currentPhase !== "user" ||
+      isOrganisationMember
+    ) {
+      const currentTempUser = useAuthStore.getState().tempOrganisationUser;
+      clearTempOrganisationUser();
+    }
+  }, [
+    formData,
+    userType,
+    currentPhase,
+    setTempOrganisationUser,
+    clearTempOrganisationUser,
+    getProfilePictureUrl,
+    getIsOrganisationMemberOnboarding,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      if (userType === "organisation") {
+        const currentTempUser = useAuthStore.getState().tempOrganisationUser;
+        clearTempOrganisationUser();
+      }
+    };
+  }, [userType, clearTempOrganisationUser]);
+
+  useEffect(() => {
+    const currentTempUser = useAuthStore.getState().tempOrganisationUser;
+    if (
+      currentTempUser?.profile_picture_url &&
+      currentTempUser.profile_picture_url.startsWith("blob:")
+    ) {
+      const profileUrl = currentTempUser.profile_picture_url;
+      return () => {
+        if (profileUrl && profileUrl.startsWith("blob:")) {
+          URL.revokeObjectURL(profileUrl);
+        }
+      };
+    }
+  }, []);
+
   const isFollowupOf = useCallback(
     (
       fieldName: string,
@@ -412,25 +501,91 @@ export const OnboardingSteps = ({ userType }: Props) => {
 
       const currentValues = getValues();
       const allData = { ...formData, ...currentValues };
-      const submissionData = { ...allData };
+      const isOrganisationMember = getIsOrganisationMemberOnboarding();
+
+      if (
+        userType === "organisation" &&
+        currentPhase === "user" &&
+        !isOrganisationMember
+      ) {
+        setUserPhaseData(allData);
+
+        const tempUserData = {
+          first_name: allData.first_name || "",
+          last_name: allData.last_name || "",
+          profile_picture_url: getProfilePictureUrl(
+            allData.profile_picture_url
+          ),
+        };
+        setTempOrganisationUser(tempUserData);
+
+        setIsLoadingOrganisationPrompt(true);
+        setTimeout(() => {
+          setShowCreateOrganisationPrompt(true);
+          setIsLoadingOrganisationPrompt(false);
+        }, 2000);
+        return;
+      }
+
+      let submissionData = { ...allData };
       delete submissionData.profile_picture_url;
       delete submissionData.resume_url;
       delete submissionData.logo_url;
       delete submissionData.location;
       delete submissionData.location_geocode_lookup;
 
+      if (
+        userType === "organisation" &&
+        currentPhase === "organisation" &&
+        !isOrganisationMember
+      ) {
+        const organisationData = { ...submissionData };
+        delete organisationData.profile_picture_url;
+        delete organisationData.resume_url;
+        delete organisationData.logo_url;
+        delete organisationData.location;
+        delete organisationData.location_geocode_lookup;
+        delete organisationData.first_name;
+        delete organisationData.last_name;
+        delete organisationData.email;
+        delete organisationData.user_types;
+
+        submissionData = {
+          organisation: organisationData,
+        };
+      }
+
+      if (isOrganisationMember) {
+        submissionData.organisation = {};
+      }
+
       const { setUserFirstName, setUserLastName, setUserProfilePictureUrl } =
         useAuthStore.getState();
       setUserFirstName(submissionData.first_name || "");
       setUserLastName(submissionData.last_name || "");
 
-      const submissionResponse =
-        await submissionMutation.mutateAsync(submissionData);
-      toast.success(
-        submissionResponse?.detail || "Profile created successfully!"
-      );
+      let submissionResponse;
+      if (
+        userType === "organisation" &&
+        currentPhase === "organisation" &&
+        !isOrganisationMember
+      ) {
+        submissionResponse =
+          await profileUpdateMutation.mutateAsync(submissionData);
+        toast.success(
+          submissionResponse?.detail ||
+            "Organisation profile updated successfully!"
+        );
+      } else {
+        submissionResponse =
+          await submissionMutation.mutateAsync(submissionData);
+        toast.success(
+          submissionResponse?.detail || "Profile created successfully!"
+        );
+      }
 
-      const profilePicture = allData.profile_picture_url;
+      const profilePicture =
+        allData.profile_picture_url || submissionData.profile_picture_url;
       const resume = allData.resume_url;
       const logo = allData.logo_url;
       const uploadPromises = [];
@@ -475,7 +630,14 @@ export const OnboardingSteps = ({ userType }: Props) => {
         toast.error("File upload failed, but profile was saved");
       }
 
-      router.push("/onboarding/success");
+      if (userType === "organisation") {
+        clearTempOrganisationUser();
+        const { setIsOrganisationMemberOnboarding } = useAuthStore.getState();
+        setIsOrganisationMemberOnboarding(false);
+        router.push("/onboarding/success");
+      } else {
+        router.push("/onboarding/success");
+      }
     } catch (error: any) {
       console.error(error);
       const errorMessage =
@@ -494,7 +656,25 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   };
 
-  if (isLoading) return <Text p={8}>Loading onboarding...</Text>;
+  const handleCreateOrganisation = () => {
+    setShowCreateOrganisationPrompt(false);
+    startOrganisationPhase();
+    setFormData({});
+    setFormKey(0);
+    reset();
+  };
+
+  if (showCreateOrganisationPrompt && !getIsOrganisationMemberOnboarding()) {
+    return (
+      <CreateOrganisationPrompt
+        onContinue={handleCreateOrganisation}
+        userPhaseData={userPhaseData}
+        userType={userType}
+      />
+    );
+  }
+
+  if (isLoading) return <Loader type="page" />;
   if (error)
     return (
       <Text color="red.500" p={8}>
@@ -504,6 +684,22 @@ export const OnboardingSteps = ({ userType }: Props) => {
   if (!currentPage) return <Text>No onboarding page found.</Text>;
 
   const hasFormErrors = Object.keys(errors).length > 0;
+
+  const loadingStates =
+    submissionMutation.isPending ||
+    profileUpdateMutation.isPending ||
+    isLoadingOrganisationPrompt ||
+    logoUpload.isPending ||
+    profilePictureUpload.isPending ||
+    resumeUpload.isPending;
+
+  const totalSteps = () => {
+    console.log("pages.length", pages.length);
+    if (pages.length === 1) {
+      return 2;
+    }
+    return pages.length;
+  };
 
   return (
     <Box
@@ -601,7 +797,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
                     md: "271px",
                   }}
                   style={{ borderRadius: "0px" }}
-                  isLoading={submissionMutation.isPending}
+                  isLoading={loadingStates}
                 >
                   Submit
                 </Button>
@@ -619,12 +815,16 @@ export const OnboardingSteps = ({ userType }: Props) => {
                 </Button>
               )}
             </Box>
-            <Box>
-              <ProgressTrack
-                progressPercent={progressPercent}
-                totalSteps={pages.length}
-              />
-            </Box>
+            {pages.length > 1 ? (
+              <Box>
+                <ProgressTrack
+                  progressPercent={progressPercent}
+                  totalSteps={totalSteps()}
+                />
+              </Box>
+            ) : (
+              <Box h="20px" />
+            )}
           </Box>
         </Box>
       </Box>

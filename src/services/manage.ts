@@ -10,21 +10,17 @@ export const getParticipants = async (
   opportunityId: string,
   params: ParticipantsFilterParams
 ): Promise<ParticipantsResponse> => {
-  const queryParams = new URLSearchParams();
+  const queryParams: Record<string, string | number> = {};
 
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
-      queryParams.append(key, value.toString());
+      queryParams[key] = value.toString();
     }
   });
 
-  const url = `${API_ENDPOINTS.OPPORTUNITY_PARTICIPANTS(opportunityId).url}?${queryParams.toString()}`;
-
   return apiRequest({
-    endpoint: {
-      method: "GET",
-      url,
-    },
+    endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANTS(opportunityId),
+    params: queryParams,
   });
 };
 
