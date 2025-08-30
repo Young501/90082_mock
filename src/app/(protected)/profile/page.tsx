@@ -336,6 +336,7 @@ const Profile = () => {
     delete submissionData.location_geocode_lookup;
     delete submissionData.members;
     delete submissionData.email_domain;
+    delete submissionData.organisation.organisation;
     Object.keys(submissionData).forEach((key) => {
       if (submissionData[key] === null || submissionData[key] === undefined) {
         delete submissionData[key];
@@ -361,10 +362,12 @@ const Profile = () => {
         finalSubmissionData = {
           ...submissionData,
           organisation: {
-            ...submissionData.organisation,
+            ...submissionData,
           },
         };
       }
+      console.log(finalSubmissionData);
+      console.log(submissionData);
       const profileUpdateResponse =
         await profileUpdateMutation.mutateAsync(finalSubmissionData);
       toast.success("Profile updated successfully!");
