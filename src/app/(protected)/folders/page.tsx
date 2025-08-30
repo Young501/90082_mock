@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Box,
   Button,
@@ -7,7 +7,6 @@ import {
   VStack,
   SimpleGrid,
   HStack,
-  Avatar,
   Select,
   createListCollection,
 } from "@chakra-ui/react";
@@ -39,8 +38,7 @@ const Folder = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const folderId = searchParams.get("id");
-  const { user, getUserType } = useAuthStore();
-  const userType = getUserType();
+  const { user } = useAuthStore();
   const { folders, isLoadingFolders, folderModal } = useFolderManagement();
   const deleteFolder = useDeleteFolder();
   const removeMemberFromFolder = useRemoveMemberFromFolder();
@@ -69,16 +67,6 @@ const Folder = () => {
       toast.error(error.response.data?.detail);
     }
   };
-
-  // ================================
-
-  // Redirect to dashboard page if user is a coordinator
-  useEffect(() => {
-    if (userType === "coordinator") {
-      router.push("/dashboard");
-    }
-  }, [userType, router]);
-  // ================================
 
   const handleEditFolder = (folder: FolderType) => {
     folderModal.onOpen(folder);
