@@ -694,7 +694,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
     resumeUpload.isPending;
 
   const totalSteps = () => {
-    console.log("pages.length", pages.length);
     if (pages.length === 1) {
       return 2;
     }
