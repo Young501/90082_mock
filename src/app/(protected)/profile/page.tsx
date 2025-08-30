@@ -189,7 +189,6 @@ const Profile = () => {
       );
 
       if (userType === "organisation" && profileData.organisation) {
-        console.log("Processing organisation data:", profileData.organisation);
         Object.entries(profileData.organisation).forEach(([key, value]) => {
           if (
             value !== null &&
@@ -197,13 +196,11 @@ const Profile = () => {
             key !== "organisation" &&
             key !== "members"
           ) {
-            console.log(`Setting field ${key} to:`, value);
             cleanedProfileData[`${key}`] = value;
           }
         });
       }
 
-      console.log("Cleaned profile ", cleanedProfileData);
       reset(cleanedProfileData);
     }
   }, [profileData, reset, activeTab, userType]);
@@ -333,7 +330,6 @@ const Profile = () => {
   const handleUpdate = async (data: any) => {
     setHasAttemptedSubmit(true);
     const allData = { ...profileData, ...data };
-    console.log(allData);
 
     const submissionData = { ...allData };
     delete submissionData.profile_picture_url;
@@ -357,8 +353,6 @@ const Profile = () => {
       }
     });
 
-    console.log("Submission data :", submissionData);
-
     if (Object.keys(errors).length > 0) {
       setShowValidationError(true);
       return;
@@ -366,7 +360,6 @@ const Profile = () => {
       setShowValidationError(false);
     }
 
-    console.log(Object.keys(errors));
     try {
       let finalSubmissionData = submissionData;
       if (userType === "organisation") {
@@ -379,30 +372,20 @@ const Profile = () => {
 
         const { first_name, last_name, role } = submissionData;
 
-        const organisationFields = [
-          "name",
-          "description",
-          "abn_acn",
-          "sector",
-          "industry",
-          "website",
-          "instagram",
-          "linkedin",
-          "contact_email",
-          "allow_contact",
-          "logo_url",
-          "location",
-        ];
-
         const organisationData: any = {};
-        organisationFields.forEach((field) => {
-          if (
-            submissionData[field] !== undefined &&
-            submissionData[field] !== null
-          ) {
-            organisationData[field] = submissionData[field];
-          }
-        });
+
+        if (profileData?.organisation) {
+          Object.keys(profileData.organisation).forEach((field) => {
+            if (
+              field !== "organisation" &&
+              field !== "members" &&
+              submissionData[field] !== undefined &&
+              submissionData[field] !== null
+            ) {
+              organisationData[field] = submissionData[field];
+            }
+          });
+        }
 
         finalSubmissionData = {
           first_name,
@@ -411,8 +394,6 @@ const Profile = () => {
           organisation: organisationData,
         };
       }
-      console.log("Final submission data:", finalSubmissionData);
-      console.log("Original submission data:", submissionData);
       const profileUpdateResponse =
         await profileUpdateMutation.mutateAsync(finalSubmissionData);
       toast.success("Profile updated successfully!");
