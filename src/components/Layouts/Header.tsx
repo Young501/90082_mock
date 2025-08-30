@@ -8,7 +8,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import React, { useState, useEffect } from "react";
-import { UserRound, Menu, X } from "lucide-react";
+import { UserRound, Menu, X, HelpCircle } from "lucide-react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import Image from "next/image";
@@ -73,18 +73,18 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       isStudent: true,
       isProtected: true,
     },
-    // {
-    //   label: "INBOX",
-    //   href: "/inbox/",
-    //   isCoordinator: false,
-    //   isOrganisation: true,
-    //   isStudent: true,
-    //   isProtected: true,
-    // },
     {
       label: "FOLDERS",
       href: "/folders/",
       isCoordinator: false,
+      isOrganisation: true,
+      isStudent: true,
+      isProtected: true,
+    },
+    {
+      label: "CONTACT",
+      href: "/contact/",
+      isCoordinator: true,
       isOrganisation: true,
       isStudent: true,
       isProtected: true,
@@ -156,20 +156,15 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
         </Button>
       );
     }
-    // if (item.label === "INBOX") {
-    //   return (
-    //     <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>
-    //       <Box py={isMobile ? 4 : 0}>
-    //         <Image
-    //           src="/assets/inbox.svg"
-    //           alt="inbox"
-    //           width={isMobile ? 24 : 30}
-    //           height={isMobile ? 24 : 30}
-    //         />
-    //       </Box>
-    //     </Link>
-    //   );
-    // }
+    if (item.label === "CONTACT") {
+      return (
+        <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>
+          <Box py={isMobile ? 4 : 0}>
+            <HelpCircle size={isMobile ? 24 : 30} color="white" />
+          </Box>
+        </Link>
+      );
+    }
     if (item.label === "FOLDERS") {
       return (
         <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>
@@ -308,7 +303,9 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                     textAlign="center"
                     textDecoration="underline"
                   >
-                    <Link href="/contact/">Need Help ? Contact Us</Link>
+                    <Link href="/contact/" onClick={handleMenuItemClick}>
+                      Need Help ? Contact Us
+                    </Link>
                   </Text>
                   <Text fontSize="12px" color="#ffffff" textAlign="center">
                     Copyright
