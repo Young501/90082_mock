@@ -303,7 +303,9 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                     textAlign="center"
                     textDecoration="underline"
                   >
-                    <Link href="/contact/">Need Help ? Contact Us</Link>
+                    <Link href="/contact/" onClick={handleMenuItemClick}>
+                      Need Help ? Contact Us
+                    </Link>
                   </Text>
                   <Text fontSize="12px" color="#ffffff" textAlign="center">
                     Copyright
