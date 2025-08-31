@@ -257,10 +257,20 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       >
         <Box
           display="flex"
-          justifyContent="flex-end"
-          alignItems="flex-end"
+          justifyContent="space-between"
+          alignItems="center"
           p={4}
         >
+          <Link href="/home/" onClick={handleMenuItemClick}>
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              transition="background 0.2s"
+            >
+              <Logo variant="header" width="200px" height="60px" />
+            </Box>
+          </Link>
           <Button
             aria-label="Close menu"
             variant="ghost"
@@ -268,7 +278,14 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             size="sm"
             onClick={handleMenuToggle}
           >
-            <X size={34} color={isProtected ? "white" : "black"} />
+            <Image
+              src={
+                isProtected ? "/assets/cancelwhite.svg" : "/assets/cancel.svg"
+              }
+              alt="close"
+              width={20}
+              height={20}
+            />
           </Button>
         </Box>
         <Box p={0}>
@@ -318,15 +335,29 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             </VStack>
           ) : (
             <VStack gap={0} align="stretch">
-              <Box p={6} borderBottom="1px solid rgba(0, 0, 0, 0.1)">
-                <HStack gap={3}>
+              <Box p={6}>
+                <HStack
+                  gap={3}
+                  pb={3}
+                  borderBottom="1px solid rgba(0, 0, 0, 0.1)"
+                >
                   <UserRound size={20} color="black" />
                   <Text fontSize="16px" fontWeight="600" color="black">
                     Account
                   </Text>
                 </HStack>
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  gap={6}
+                  h="100%"
+                  pt={6}
+                >
+                  {getMenuItems().map((item) => renderMenuItem(item, true))}
+                </Box>
               </Box>
-              {getMenuItems().map((item) => renderMenuItem(item, true))}
             </VStack>
           )}
         </Box>
@@ -368,12 +399,21 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               display={{ base: "flex", md: "none" }}
               onClick={handleMenuToggle}
             >
-              <Image
-                src="/assets/hamburger.svg"
-                alt="menu"
-                width={30}
-                height={30}
-              />
+              {isMobileMenuOpen ? (
+                <Image
+                  src="/assets/whitecancel.svg"
+                  alt="menu"
+                  width={20}
+                  height={20}
+                />
+              ) : (
+                <Image
+                  src="/assets/hamburger.svg"
+                  alt="menu"
+                  width={20}
+                  height={20}
+                />
+              )}
             </Button>
           </Box>
           {isMobile && <MobileMenu />}
@@ -382,7 +422,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
         <>
           <Box
             bg="rgba(255, 255, 255, 0.91)"
-            h="126px"
+            h="80px"
             display="flex"
             alignItems="center"
             justifyContent="space-between"
@@ -403,7 +443,12 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               display={{ base: "flex", md: "none" }}
               onClick={handleMenuToggle}
             >
-              <Menu size={30} color="black" />
+              <Image
+                src="/assets/blackhamburger.svg"
+                alt="menu"
+                width={20}
+                height={20}
+              />
             </Button>
             <HStack gap={6} display={{ base: "none", md: "flex" }}>
               <UserRound size={20} color="black" />

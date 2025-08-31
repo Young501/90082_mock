@@ -2,11 +2,11 @@ import { Box, Text, VStack } from "@chakra-ui/react";
 import React from "react";
 import Logo from "../Logo";
 import Image from "next/image";
-import { useBreakpointValue } from "@chakra-ui/react";
+// import { useBreakpointValue } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 
 const Footer = () => {
-  const isMobile = useBreakpointValue({ base: true, lg: false });
+  // const isMobile = useBreakpointValue({ base: false, lg: true });
   const router = useRouter();
   return (
     <div style={{ marginTop: "auto", width: "100%" }}>
@@ -36,11 +36,12 @@ const Footer = () => {
           </Text>
         </VStack>
 
-        {!isMobile ? (
-          <Image alt="logo" src="/uni.png" width={300} height={80} />
-        ) : (
+        <Box display={{ base: "block", md: "none" }}>
           <Image alt="logo" src="/uni.png" width={100} height={22} />
-        )}
+        </Box>
+        <Box display={{ base: "none", md: "block" }}>
+          <Image alt="logo" src="/uni.png" width={300} height={80} />
+        </Box>
       </Box>
     </div>
   );
