@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const { user, isAuthenticated, token } = useAuthStore();
   const router = useRouter();
-  const pathname = window.location.pathname;
 
   useEffect(() => {
     if (isAuthenticated && token && user) {
@@ -21,7 +20,7 @@ export default function Home() {
     } else {
       router.push("/user-type/");
     }
-  }, [isAuthenticated, token, user, router, pathname]);
+  }, [isAuthenticated, token, user, router]);
 
   return null;
 }
