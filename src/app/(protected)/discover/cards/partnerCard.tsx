@@ -14,13 +14,14 @@ import { FullProfileCard } from "./FullProfileCard";
 import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
 import { DeleteModal } from "../../folders/modals/DeleteModal";
 import { Button } from "@/components/ui/Button";
+import { Globe } from "lucide-react";
 
 interface PartnerCardProps {
   organisation: OrganisationProfile;
   maxW?: string;
   profilePictureUrl?: string | null;
   isInFolder?: boolean;
-  onRemoveFromFolder?: () => void; 
+  onRemoveFromFolder?: () => void;
   disableViewFullProfile?: boolean;
   disableAddToFolder?: boolean;
 }
@@ -222,14 +223,9 @@ export function PartnerCard({
                         alignItems="center"
                         justifyContent="center"
                         flexShrink={0}
+                        mt="3px" // tweak until aligned with text
                       >
-                        <Image
-                          width={12}
-                          height={12}
-                          src="/assets/emailicon.svg"
-                          alt="progress"
-                          objectFit="contain"
-                        />
+                        <Globe size={16} color="#C3C3C3" />
                       </Box>
                       <Text
                         fontSize="sm"
