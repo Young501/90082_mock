@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Box,
@@ -21,7 +21,6 @@ import { toast } from "react-toastify";
 import Loader from "@/components/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
-import { useAuthStore } from "@/store/authStore";
 
 const Match = () => {
   const router = useRouter();
@@ -33,19 +32,6 @@ const Match = () => {
   const [pageSize, setPageSize] = useState(10);
   const [selectedOrg, setSelectedOrg] = useState<Participant | null>(null);
   const { open, onOpen, onClose } = useDisclosure();
-  const { getUserType } = useAuthStore();
-  const userType = getUserType();
-
-  // ================================
-
-  // Redirect to discover page if user is a student or organisation
-  useEffect(() => {
-    if (userType === "student" || userType === "organisation") {
-      router.push("/discover");
-    }
-  }, [userType, router]);
-
-  // ================================
 
   const filters = useMemo(
     () => ({

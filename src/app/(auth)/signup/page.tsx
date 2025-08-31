@@ -231,7 +231,7 @@ const SignupPage = () => {
                 fontSize="20px"
                 fontWeight="400"
                 onClick={() => {
-                  toast.error("This feature is coming soon ...");
+                  toast.info("This feature is coming soon ...");
                 }}
               >
                 @ | CONNECT WITH UNIVERSITY ID

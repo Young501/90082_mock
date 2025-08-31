@@ -5,6 +5,7 @@ import axios, {
 } from "axios";
 import { useAuthStore } from "@/store";
 import { ApiEndpoint, ApiRequestParams } from "@/types/api";
+import { User } from "@/types/user";
 
 const getCurrentToken = (): string | null => {
   return useAuthStore.getState().getCurrentToken();
@@ -42,6 +43,10 @@ apiClient.interceptors.request.use(
     return config;
   },
   (error: AxiosError) => {
+    if (error.status === 401) {
+      useAuthStore.getState().setAuthData("", {} as User);
+      window.location.href = "/login";
+    }
     if (process.env.NODE_ENV === "development") {
       console.error("❌ Request interceptor error:", error);
     }
@@ -63,6 +68,10 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
+    if (error.status === 401) {
+      useAuthStore.getState().setAuthData("", {} as User);
+      window.location.href = "/login";
+    }
     if (process.env.NODE_ENV === "development") {
       console.error(
         `❌ ${error.config?.method?.toUpperCase()} ${error.config?.url}`,

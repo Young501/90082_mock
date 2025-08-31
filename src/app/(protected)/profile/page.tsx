@@ -190,7 +190,12 @@ const Profile = () => {
 
       if (userType === "organisation" && profileData.organisation) {
         Object.entries(profileData.organisation).forEach(([key, value]) => {
-          if (value !== null && value !== undefined) {
+          if (
+            value !== null &&
+            value !== undefined &&
+            key !== "organisation" &&
+            key !== "members"
+          ) {
             cleanedProfileData[`${key}`] = value;
           }
         });
@@ -336,11 +341,18 @@ const Profile = () => {
     delete submissionData.location_geocode_lookup;
     delete submissionData.members;
     delete submissionData.email_domain;
+    if (
+      submissionData.organisation &&
+      submissionData.organisation.organisation
+    ) {
+      delete submissionData.organisation.organisation;
+    }
     Object.keys(submissionData).forEach((key) => {
       if (submissionData[key] === null || submissionData[key] === undefined) {
         delete submissionData[key];
       }
     });
+
     if (Object.keys(errors).length > 0) {
       setShowValidationError(true);
       return;
@@ -348,7 +360,6 @@ const Profile = () => {
       setShowValidationError(false);
     }
 
-    console.log(Object.keys(errors));
     try {
       let finalSubmissionData = submissionData;
       if (userType === "organisation") {
@@ -358,11 +369,29 @@ const Profile = () => {
           finalSubmissionData.allow_contact = false;
         }
         delete finalSubmissionData.organisation.email_domain;
+
+        const { first_name, last_name, role } = submissionData;
+
+        const organisationData: any = {};
+
+        if (profileData?.organisation) {
+          Object.keys(profileData.organisation).forEach((field) => {
+            if (
+              field !== "organisation" &&
+              field !== "members" &&
+              submissionData[field] !== undefined &&
+              submissionData[field] !== null
+            ) {
+              organisationData[field] = submissionData[field];
+            }
+          });
+        }
+
         finalSubmissionData = {
-          ...submissionData,
-          organisation: {
-            ...submissionData.organisation,
-          },
+          first_name,
+          last_name,
+          role,
+          organisation: organisationData,
         };
       }
       const profileUpdateResponse =
