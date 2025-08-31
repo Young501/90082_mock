@@ -360,18 +360,14 @@ const RenderStudentDetails = ({
           {student.linkedin && (
             <Box display="flex" gap={2} alignItems="center">
               <Image
-                src="/assets/linkedin.svg"
+                src="/assets/linkedIn.svg"
                 alt="LinkedIn"
-                width={20}
-                height={20}
-                objectFit="contain"
+                width={24}
+                height={24}
               />
-              <Text
-                textDecoration="underline"
-                onClick={() => window.open(student.linkedin, "_blank")}
-              >
-                LinkedIn
-              </Text>
+              <Link href={student.linkedin} target="_blank">
+                <Text textDecoration="underline">LinkedIn</Text>
+              </Link>
             </Box>
           )}
           {student.instagram && (
@@ -383,12 +379,9 @@ const RenderStudentDetails = ({
                 height={20}
                 objectFit="contain"
               />
-              <Text
-                textDecoration="underline"
-                onClick={() => window.open(student.instagram, "_blank")}
-              >
-                Instagram
-              </Text>
+              <Link href={student.instagram} target="_blank">
+                <Text textDecoration="underline">Instagram</Text>
+              </Link>
             </Box>
           )}
           {student.bluesky && (
@@ -399,12 +392,9 @@ const RenderStudentDetails = ({
                 width={20}
                 height={20}
               />
-              <Text
-                textDecoration="underline"
-                onClick={() => window.open(student.bluesky, "_blank")}
-              >
-                Bluesky
-              </Text>
+              <Link href={student.bluesky} target="_blank">
+                <Text textDecoration="underline">Bluesky</Text>
+              </Link>
             </Box>
           )}
         </VStack>
@@ -917,7 +907,12 @@ const RenderPartnerDetails = ({
                 </Link>
               )}
               {organisation.allow_contact && (
-                <Box cursor="pointer" onClick={() => setShowContactModal(true)}>
+                <Box
+                  cursor="pointer"
+                  onClick={() => {
+                    if (!disableBtns) setShowContactModal(true);
+                  }}
+                >
                   <Image
                     src="/assets/mailicon.svg"
                     alt="Email"
