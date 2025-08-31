@@ -87,7 +87,6 @@ export function useDeleteFolder() {
   });
 }
 
-
 export function useFolderMembersPaginated(
   folderId: string,
   page: number = 1,

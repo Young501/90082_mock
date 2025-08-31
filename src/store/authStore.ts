@@ -1,7 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { User } from "@/types/user";
-import { UserProfile, Organisation, tempOrganisationUser } from "@/types/shared";
+import {
+  UserProfile,
+  Organisation,
+  tempOrganisationUser,
+} from "@/types/shared";
 
 export interface AuthState {
   user: User | null;
@@ -121,7 +125,8 @@ export const useAuthStore = create<AuthState>()(
       setLogoUrl: (url: string) => {
         set({ logoUrl: url });
       },
-      getLogoUrl: () => get().logoUrl || get().userProfile?.organisation?.logo_url || null,
+      getLogoUrl: () =>
+        get().logoUrl || get().userProfile?.organisation?.logo_url || null,
 
       setUserProfile: (profile: UserProfile) => {
         set({ userProfile: profile });
@@ -218,22 +223,22 @@ export const useAuthStore = create<AuthState>()(
         return get().isOrganisationMemberOnboarding;
       },
     }),
-          {
-        name: "auth-storage",
-        partialize: (state) => ({
-          user: state.user,
-          token: state.token,
-          isAuthenticated: state.isAuthenticated,
-          logoUrl: state.logoUrl,
-          userProfile: state.userProfile,
-          userProfilePictureUrl: state.userProfilePictureUrl,
-          coordinatorOpportunities: state.coordinatorOpportunities,
-          inviteToken: state.inviteToken,
-          inviteOpportunityId: state.inviteOpportunityId,
-          tempOrganisation: state.tempOrganisation,
-          tempOrganisationUser: state.tempOrganisationUser,
-          isOrganisationMemberOnboarding: state.isOrganisationMemberOnboarding,
-        }),
-      }
+    {
+      name: "auth-storage",
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+        logoUrl: state.logoUrl,
+        userProfile: state.userProfile,
+        userProfilePictureUrl: state.userProfilePictureUrl,
+        coordinatorOpportunities: state.coordinatorOpportunities,
+        inviteToken: state.inviteToken,
+        inviteOpportunityId: state.inviteOpportunityId,
+        tempOrganisation: state.tempOrganisation,
+        tempOrganisationUser: state.tempOrganisationUser,
+        isOrganisationMemberOnboarding: state.isOrganisationMemberOnboarding,
+      }),
+    }
   )
 );

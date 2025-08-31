@@ -121,10 +121,9 @@ export const useDiscovery = () => {
     useAcceptedOpportunities();
   const currentOpportunityId = acceptedOpportunities?.[0]?.id;
 
-  const { data, isLoading: isOnboardingLoading } =
-    useOnboardingPages(targetUserType || "");
-
-
+  const { data, isLoading: isOnboardingLoading } = useOnboardingPages(
+    targetUserType || ""
+  );
 
   const userOnboardingData = data?.onboarding_pages?.user;
   const organisationOnboardingData = data?.onboarding_pages?.organisation;

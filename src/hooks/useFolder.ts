@@ -103,12 +103,8 @@ export function useFolderMembersManagement(folderId: string) {
   const [pageSize, setPageSize] = useState(20);
   const [memberType, setMemberType] = useState<string | undefined>(undefined);
 
-  const { data: folderMembers, isLoading: isLoadingMembers } = useFolderMembersPaginated(
-    folderId,
-    currentPage,
-    pageSize,
-    memberType
-  );
+  const { data: folderMembers, isLoading: isLoadingMembers } =
+    useFolderMembersPaginated(folderId, currentPage, pageSize, memberType);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);

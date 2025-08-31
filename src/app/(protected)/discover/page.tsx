@@ -33,8 +33,6 @@ export default function DiscoveryPage() {
 
   const { control, watch, getValues } = form;
   const watchedValues = watch();
- 
-     
 
   return (
     <>

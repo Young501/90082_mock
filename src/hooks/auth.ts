@@ -70,7 +70,10 @@ export const checkOnboardingStatus = async ({
   }
 };
 
-const checkOrganisationDomain = async (user: User, router: AppRouterInstance) => {
+const checkOrganisationDomain = async (
+  user: User,
+  router: AppRouterInstance
+) => {
   try {
     const response = await apiRequest<OrganisationCheckResponse>({
       endpoint: API_ENDPOINTS.ORGANISATION_CHECK_DOMAIN,

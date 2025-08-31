@@ -43,10 +43,11 @@ apiClient.interceptors.request.use(
     return config;
   },
   (error: AxiosError) => {
-    if (error.status === 401) {
-      useAuthStore.getState().setAuthData("", {} as User);
-      window.location.href = "/login";
-    }
+    // [BJ] Breaks opportunity invite if user is not logged in
+    // if (error.status === 401) {
+    //   useAuthStore.getState().setAuthData("", {} as User);
+    //   window.location.href = "/login/";
+    // }
     if (process.env.NODE_ENV === "development") {
       console.error("❌ Request interceptor error:", error);
     }
@@ -68,10 +69,11 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
-    if (error.status === 401) {
-      useAuthStore.getState().setAuthData("", {} as User);
-      window.location.href = "/login";
-    }
+    // [BJ] Breaks opportunity invite if user is not logged in
+    // if (error.status === 401) {
+    //   useAuthStore.getState().setAuthData("", {} as User);
+    //   window.location.href = "/login/";
+    // }
     if (process.env.NODE_ENV === "development") {
       console.error(
         `❌ ${error.config?.method?.toUpperCase()} ${error.config?.url}`,

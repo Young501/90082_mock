@@ -23,7 +23,7 @@ export const userTypesData: UserTypeData[] = [
   {
     key: "student",
     name: "STUDENT",
-  color: "#DC2626",
+    color: "#DC2626",
     bgColor: "#DC2626",
     shadowColor: "rgba(220, 38, 38, 0.25)",
   },
