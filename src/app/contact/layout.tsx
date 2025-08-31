@@ -1,16 +1,19 @@
 "use client";
 
-import { Container, useBreakpointValue, Box } from "@chakra-ui/react";
+import { Box, Container, useBreakpointValue } from "@chakra-ui/react";
 import { ReactNode, Suspense } from "react";
 import Footer from "@/components/Layouts/Footer";
 import Header from "@/components/Layouts/Header";
+import { useAuthStore } from "@/store";
 
-interface AuthLayoutProps {
+interface ContactLayoutProps {
   children: ReactNode;
 }
 
-export default function Layout({ children }: AuthLayoutProps) {
+export default function ContactLayout({ children }: ContactLayoutProps) {
+  const isMobile = useBreakpointValue({ base: true, lg: false });
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
+  const isProtected = useAuthStore((state) => state.isAuthenticated);
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
@@ -23,7 +26,7 @@ export default function Layout({ children }: AuthLayoutProps) {
           width: "100%",
         }}
       >
-        <Header />
+        <Header isProtected={isProtected} />
 
         <Box
           flex="1"
@@ -42,7 +45,7 @@ export default function Layout({ children }: AuthLayoutProps) {
             {children}
           </Container>
         </Box>
-        <Footer />
+        {!isMobile && <Footer />}
       </div>
     </Suspense>
   );

@@ -116,7 +116,7 @@ const Profile = () => {
               ...page,
               questions: page.questions.map((question: Question) => ({
                 ...question,
-                field: `organisation.${question.field}`,
+                field: `${question.field}`,
                 label: `${question.label || question.field}`,
               })),
             })
@@ -190,8 +190,13 @@ const Profile = () => {
 
       if (userType === "organisation" && profileData.organisation) {
         Object.entries(profileData.organisation).forEach(([key, value]) => {
-          if (value !== null && value !== undefined) {
-            cleanedProfileData[`organisation.${key}`] = value;
+          if (
+            value !== null &&
+            value !== undefined &&
+            key !== "organisation" &&
+            key !== "members"
+          ) {
+            cleanedProfileData[`${key}`] = value;
           }
         });
       }
@@ -236,12 +241,10 @@ const Profile = () => {
       ): string[] => {
         const questionFields = [question.field];
         let userAnswer;
-        if (question.field.startsWith("organisation.")) {
-          const orgField = question.field.replace("organisation.", "");
+        if (userType === "organisation") {
+          const orgField = question.field;
           userAnswer =
-            userProfile.organisation?.[
-              orgField as keyof typeof userProfile.organisation
-            ];
+            userProfile[orgField as keyof typeof userProfile.organisation];
         } else {
           userAnswer = (userProfile as any)[question.field];
         }
@@ -271,14 +274,25 @@ const Profile = () => {
 
     const allOnboardingFields = getAllFieldsFromPages(pages, userProfile);
 
-    const filledFields = allOnboardingFields.filter((field) => {
+    const coreMemberFields =
+      userType === "organisation"
+        ? ["first_name", "last_name", "role", "profile_picture_url"]
+        : [];
+
+    const allFields = [...allOnboardingFields, ...coreMemberFields];
+
+    const filledFields = allFields.filter((field) => {
       let value;
-      if (field.startsWith("organisation.")) {
-        const orgField = field.replace("organisation.", "");
-        value =
-          userProfile.organisation?.[
-            orgField as keyof typeof userProfile.organisation
-          ];
+      if (userType === "organisation") {
+        if (coreMemberFields.includes(field)) {
+          value = userProfile[field as keyof UserProfile];
+        } else {
+          const orgField = field;
+          value =
+            userProfile.organisation?.[
+              orgField as keyof typeof userProfile.organisation
+            ];
+        }
       } else {
         value = userProfile[field as keyof UserProfile];
       }
@@ -291,7 +305,7 @@ const Profile = () => {
       );
     });
 
-    return Math.round((filledFields.length / allOnboardingFields.length) * 100);
+    return Math.round((filledFields.length / allFields.length) * 100);
   };
 
   if ((isOnboardingLoading || !pages.length) && !isCoordinator) {
@@ -327,11 +341,18 @@ const Profile = () => {
     delete submissionData.location_geocode_lookup;
     delete submissionData.members;
     delete submissionData.email_domain;
+    if (
+      submissionData.organisation &&
+      submissionData.organisation.organisation
+    ) {
+      delete submissionData.organisation.organisation;
+    }
     Object.keys(submissionData).forEach((key) => {
       if (submissionData[key] === null || submissionData[key] === undefined) {
         delete submissionData[key];
       }
     });
+
     if (Object.keys(errors).length > 0) {
       setShowValidationError(true);
       return;
@@ -339,7 +360,6 @@ const Profile = () => {
       setShowValidationError(false);
     }
 
-    console.log(Object.keys(errors));
     try {
       let finalSubmissionData = submissionData;
       if (userType === "organisation") {
@@ -349,11 +369,29 @@ const Profile = () => {
           finalSubmissionData.allow_contact = false;
         }
         delete finalSubmissionData.organisation.email_domain;
+
+        const { first_name, last_name, role } = submissionData;
+
+        const organisationData: any = {};
+
+        if (profileData?.organisation) {
+          Object.keys(profileData.organisation).forEach((field) => {
+            if (
+              field !== "organisation" &&
+              field !== "members" &&
+              submissionData[field] !== undefined &&
+              submissionData[field] !== null
+            ) {
+              organisationData[field] = submissionData[field];
+            }
+          });
+        }
+
         finalSubmissionData = {
-          ...submissionData,
-          organisation: {
-            ...submissionData.organisation,
-          },
+          first_name,
+          last_name,
+          role,
+          organisation: organisationData,
         };
       }
       const profileUpdateResponse =

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { Box, VStack, Heading, Text, Separator } from "@chakra-ui/react";
 import { useDiscovery } from "@/hooks/useDiscovery";
 import { DiscoveryFilterBox } from "./DiscoveryFilterBox";
@@ -33,6 +33,8 @@ export default function DiscoveryPage() {
 
   const { control, watch, getValues } = form;
   const watchedValues = watch();
+ 
+     
 
   return (
     <>
