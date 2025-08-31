@@ -7,7 +7,6 @@ import {
   VStack,
   SimpleGrid,
   HStack,
-  Avatar,
   Select,
   createListCollection,
 } from "@chakra-ui/react";
