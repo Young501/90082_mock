@@ -11,6 +11,7 @@ export const DISALLOWED_DOMAINS = [
   "mail.com",
   "zoho.com",
   "yandex.com",
+  "education.vic.gov.au",
 ];
 
 export const isDisallowedDomain = (email: string): boolean => {
