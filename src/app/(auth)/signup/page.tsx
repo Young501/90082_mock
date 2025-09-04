@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Box, Heading, VStack, Text, Flex, HStack } from "@chakra-ui/react";
+import {
+  Box,
+  Heading,
+  VStack,
+  Text,
+  Flex,
+  HStack,
+  Checkbox,
+} from "@chakra-ui/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { InputField, Button } from "@/components/ui";
 import { useForm } from "react-hook-form";
@@ -18,10 +26,14 @@ import {
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { toast } from "react-toastify";
+import { Underline } from "lucide-react";
 
 interface FormData {
   email: string;
   password: string;
+  student_terms_and_conditions?: boolean;
+  organisation_terms_and_conditions?: boolean;
+  privacy_policy: boolean;
 }
 
 const SignupPage = () => {
@@ -69,19 +81,21 @@ const SignupPage = () => {
     handleSubmit,
     formState: { errors },
     watch,
-  } = useForm<FormData>({
-    resolver: yupResolver(validationSchema),
+  } = useForm<any>({
+    resolver: yupResolver(validationSchema as any),
     mode: "onChange",
     defaultValues: {
       email: "",
       password: "",
+      student_terms_and_conditions: false,
+      organisation_terms_and_conditions: false,
+      privacy_policy: false,
     },
   });
 
   const emailValue = watch("email");
   const passwordValue = watch("password");
-
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: any) => {
     try {
       setIsLoading(true);
       await handleSignup({
@@ -180,7 +194,7 @@ const SignupPage = () => {
                 label="EMAIL"
                 type="email"
                 autoComplete="email"
-                error={errors.email?.message}
+                error={errors.email?.message as string}
                 labelStyle="floating"
                 {...register("email")}
                 value={emailValue || ""}
@@ -190,7 +204,7 @@ const SignupPage = () => {
                 label="PASSWORD"
                 type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
-                error={errors.password?.message}
+                error={errors.password?.message as string}
                 showPasswordToggle
                 showPassword={showPassword}
                 onTogglePassword={() => setShowPassword(!showPassword)}
@@ -198,6 +212,112 @@ const SignupPage = () => {
                 {...register("password")}
                 value={passwordValue || ""}
               />
+
+              {signupSelectedUserType === "student" && (
+                <VStack align="stretch" gap={1} mt={4}>
+                  <Checkbox.Root
+                    colorPalette="blue"
+                    color="#282F68"
+                    {...register("student_terms_and_conditions")}
+                  >
+                    <Checkbox.HiddenInput />
+                    <Checkbox.Control />
+                    <Checkbox.Label fontSize="16px" fontWeight="400">
+                      I agree to the{" "}
+                      <span
+                        style={{
+                          textDecoration: "underline",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        <Link
+                          href="/legal/terms-student"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Terms & Conditions
+                        </Link>
+                      </span>
+                    </Checkbox.Label>
+                  </Checkbox.Root>
+                  {errors.student_terms_and_conditions && (
+                    <Text color="red.500" fontSize="14px">
+                      {errors.student_terms_and_conditions.message as string}
+                    </Text>
+                  )}
+                </VStack>
+              )}
+
+              {signupSelectedUserType === "organisation" && (
+                <VStack align="stretch" gap={1}>
+                  <Checkbox.Root
+                    colorPalette="blue"
+                    color="#282F68"
+                    {...register("organisation_terms_and_conditions")}
+                  >
+                    <Checkbox.HiddenInput />
+                    <Checkbox.Control />
+                    <Checkbox.Label fontSize="16px" fontWeight="400">
+                      I agree to the{" "}
+                      <span
+                        style={{
+                          textDecoration: "underline",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        <Link
+                          href="/legal/terms-organisation"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Terms & Conditions
+                        </Link>
+                      </span>
+                    </Checkbox.Label>
+                  </Checkbox.Root>
+                  {errors.organisation_terms_and_conditions && (
+                    <Text color="red.500" fontSize="14px">
+                      {
+                        errors.organisation_terms_and_conditions
+                          .message as string
+                      }
+                    </Text>
+                  )}
+                </VStack>
+              )}
+
+              <VStack align="stretch" gap={1} mb={4}>
+                <Checkbox.Root
+                  colorPalette="blue"
+                  color="#282F68"
+                  {...register("privacy_policy")}
+                >
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control />
+                  <Checkbox.Label fontSize="16px" fontWeight="400">
+                    I agree to the{" "}
+                    <span
+                      style={{
+                        textDecoration: "underline",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      <Link
+                        href="/legal/privacy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Privacy Policy
+                      </Link>
+                    </span>
+                  </Checkbox.Label>
+                </Checkbox.Root>
+                {errors.privacy_policy && (
+                  <Text color="red.500" fontSize="14px">
+                    {errors.privacy_policy.message as string}
+                  </Text>
+                )}
+              </VStack>
 
               <Button
                 type="submit"
