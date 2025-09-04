@@ -234,9 +234,6 @@ to the following Terms and Conditions.
 > Except as expressly stated in these Terms and Conditions, these Terms
 > and Conditions constitute the entire agreement between the parties,
 > and supersede
->
-> 4
->
 > all prior and contemporaneous agreements, proposals or
 > representations, written or oral, concerning the subject matter of
 > these Terms and Conditions.

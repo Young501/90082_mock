@@ -83,17 +83,39 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       </Text>
     ),
     ul: ({ children, ...props }: any) => (
-      <List.Root gap={2} mb={4} pl={4} {...props}>
+      <List.Root
+        gap={2}
+        mb={4}
+        pl={4}
+        listStyleType="disc"
+        listStylePosition="outside"
+        {...props}
+      >
         {children}
       </List.Root>
     ),
     ol: ({ children, ...props }: any) => (
-      <List.Root as="ol" gap={2} mb={4} pl={4} {...props}>
+      <List.Root
+        as="ol"
+        gap={2}
+        mb={4}
+        pl={4}
+        listStyleType="decimal"
+        listStylePosition="outside"
+        {...props}
+      >
         {children}
       </List.Root>
     ),
     li: ({ children, ...props }: any) => (
-      <List.Item fontSize="16px" lineHeight="1.6" color="#333" {...props}>
+      <List.Item
+        fontSize="16px"
+        lineHeight="1.6"
+        color="#333"
+        borderLeft="none"
+        pl={0}
+        {...props}
+      >
         {children}
       </List.Item>
     ),
@@ -146,6 +168,16 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
 
   return (
     <Box mx="auto" p={6}>
+      <style jsx>{`
+        ul li::marker {
+          font-weight: bold;
+          color: #333;
+        }
+        ol li::marker {
+          font-weight: bold;
+          color: #333;
+        }
+      `}</style>
       <VStack align="stretch" gap={6}>
         <Box textAlign="center" borderBottom="2px solid #282F68" pb={4}>
           <Heading as="h1" size="2xl" color="#282F68" fontWeight="bold" mb={2}>
