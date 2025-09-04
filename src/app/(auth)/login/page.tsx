@@ -88,7 +88,7 @@ export default function LoginPage() {
           position="relative"
           overflow="hidden"
           flex={1}
-          direction={{ base: "column", lg: "row" }}
+          direction={{ base: "column-reverse", lg: "row" }}
           align="center"
           justify={{ base: "center", lg: "space-between" }}
           zIndex={2}
@@ -131,7 +131,6 @@ export default function LoginPage() {
                   {...register("email")}
                   value={emailValue || ""}
                 />
-
                 <InputField
                   label="PASSWORD"
                   autoComplete="current-password"
