@@ -279,7 +279,7 @@ export const organisationAuthValidationSchema = yup.object({
     .matches(/^[^@]+@[^@]+\.[^@]+$/, "Invalid email format")
     .test(
       "disallowed-domain",
-      "Please use your work email address to sign up as an organisation.",
+      "Please use a unique work email domain to sign up as an organisation.",
       (value) => {
         if (!value) return true;
         return !isDisallowedDomain(value);
