@@ -2,15 +2,7 @@
 
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
-import {
-  Box,
-  Heading,
-  Text,
-  VStack,
-  Link,
-  List,
-  ListItem,
-} from "@chakra-ui/react";
+import { Box, Heading, Text, VStack, Link } from "@chakra-ui/react";
 import { ExternalLink } from "lucide-react";
 import Image from "next/image";
 
@@ -83,7 +75,8 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       </Text>
     ),
     ul: ({ children, ...props }: any) => (
-      <List.Root
+      <Box
+        as="ul"
         gap={2}
         mb={4}
         pl={4}
@@ -92,10 +85,10 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
         {...props}
       >
         {children}
-      </List.Root>
+      </Box>
     ),
     ol: ({ children, ...props }: any) => (
-      <List.Root
+      <Box
         as="ol"
         gap={2}
         mb={4}
@@ -105,28 +98,28 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
         {...props}
       >
         {children}
-      </List.Root>
+      </Box>
     ),
     li: ({ children, ...props }: any) => (
-      <List.Item
+      <Box
+        as="li"
         fontSize="16px"
         lineHeight="1.6"
         color="#333"
-        borderLeft="none"
-        pl={0}
+        mb={1}
         {...props}
       >
         {children}
-      </List.Item>
+      </Box>
     ),
     blockquote: ({ children, ...props }: any) => (
       <Box
-        borderLeft="4px solid #282F68"
         pl={4}
         py={2}
         my={4}
         bg="gray.50"
         borderRadius="md"
+        borderLeft="4px solid #282F68"
         {...props}
       >
         {children}
@@ -171,11 +164,13 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       <style jsx>{`
         ul li::marker {
           font-weight: bold;
-          color: #333;
+          font-size: 16px;
+          color: #282f68;
         }
         ol li::marker {
           font-weight: bold;
-          color: #333;
+          font-size: 16px;
+          color: #282f68;
         }
       `}</style>
       <VStack align="stretch" gap={6}>
@@ -186,20 +181,26 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
           {(lastUpdated || version) && (
             <VStack gap={1}>
               {lastUpdated && (
-                <Text fontSize="sm" color="gray.600">
-                  Last updated: {lastUpdated}
+                <Text fontSize="sm">
+                  <span style={{ fontWeight: "bold", color: "#282F68" }}>
+                    Last updated:
+                  </span>{" "}
+                  {lastUpdated}
                 </Text>
               )}
               {version && (
-                <Text fontSize="sm" color="gray.600">
-                  Version: {version}
+                <Text fontSize="sm">
+                  <span style={{ fontWeight: "bold", color: "#282F68" }}>
+                    Version:
+                  </span>{" "}
+                  {version}
                 </Text>
               )}
             </VStack>
           )}
         </Box>
 
-        <Box bg="white" borderRadius="lg" p={8}>
+        <Box bg="white" borderRadius="lg" px={8} pb={8}>
           <ReactMarkdown components={components} rehypePlugins={[rehypeRaw]}>
             {content}
           </ReactMarkdown>

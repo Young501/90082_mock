@@ -6,14 +6,9 @@ UniConnected, a platform developed by the Faculty of Education at the
 University of Melbourne (University), is collecting and processing your
 personal information to:
 
-> • Verify your status as eligible user for the platform. • Create your
-> UniConnected employment profile.
->
-> • Facilitate connections between you and industry partners, University
-> students, and academic and professional staff, as appropriate.
->
-> • Inform general business or research analysis, quality assurance,
-> reporting and planning activities.
+- Verify your status as eligible user for the platform. • Create your UniConnected employment profile.
+- Facilitate connections between you and industry partners, University students, and academic and professional staff, as appropriate.
+- Inform general business or research analysis, quality assurance, reporting and planning activities.
 
 The “processing" of personal information refers to all activities
 relating to the management of your personal information, from its
@@ -26,12 +21,9 @@ We will process your personal information as necessary for our
 legitimate interests, in accordance with applicable privacy laws, and
 only under the following circumstances:
 
-> • for the purpose for which it was collected; or
->
-> • a related purpose which you might reasonably expect; or • where you
-> have consented to the processing; or
->
-> • if we are required or permitted to do so by law.
+- for the purpose for which it was collected; or
+- a related purpose which you might reasonably expect; or • where you have consented to the processing; or
+- if we are required or permitted to do so by law.
 
 We may share your personal information with industry partners, and
 contracted service providers or partners engaged by us to perform
@@ -69,11 +61,8 @@ for general information
 about how we process and protect personal information, including: • our
 lawful basis for processing personal information;
 
-> • collection, use and disclosure of personal information; • accuracy,
-> security and storage of personal information; • retention and disposal
-> of personal information;
->
-> • your individual rights; and • applicable privacy laws.
+- collection, use and disclosure of personal information; • accuracy, security and storage of personal information; • retention and disposal of personal information;
+- your individual rights; and • applicable privacy laws.
 
 Refer to the University’s [<u>Online Privacy
 Statement</u>](https://www.unimelb.edu.au/legal/online-privacy) for
