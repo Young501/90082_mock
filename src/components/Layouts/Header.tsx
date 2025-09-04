@@ -14,7 +14,7 @@ import Logo from "@/components/Logo";
 import Image from "next/image";
 import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 interface MenuItem {
   label: string;
@@ -32,11 +32,15 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const { logout, getUserType } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const userType = getUserType();
   const isCoordinator = userType === "coordinator";
   const isOrganisation = userType === "organisation";
   const isStudent = userType === "student";
+
+  const isOnInviteOrOnboardingPage =
+    pathname?.includes("/invite") || pathname?.includes("/onboarding");
 
   const getSignupLink = () => {
     const inviteToken = searchParams.get("invite_token");
@@ -117,7 +121,13 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
 
   const getMenuItems = () => {
     if (!isProtected) {
-      return MENU_ITEMS.filter((item) => !item.isProtected);
+      const publicItems = MENU_ITEMS.filter((item) => !item.isProtected);
+      if (isOnInviteOrOnboardingPage) {
+        return publicItems.filter(
+          (item) => item.label !== "LOGIN" && item.label !== "SIGN UP"
+        );
+      }
+      return publicItems;
     }
     if (isCoordinator) {
       return MENU_ITEMS.filter(
