@@ -85,8 +85,7 @@ information prior to you withdrawing your consent.
 
 ## Contact
 
-For further information you can contact us at
-UniConnected-team@unimelb.edu.au
+For further information you can contact us at [<u>contactus@uniconnected.com</u>](mailto:contactus@uniconnected.com).
 
 For further information about how the University manages personal
 information, and for details of how to make an enquiry, lodge a

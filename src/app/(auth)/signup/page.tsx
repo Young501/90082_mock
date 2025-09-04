@@ -214,7 +214,7 @@ const SignupPage = () => {
               />
 
               {signupSelectedUserType === "student" && (
-                <VStack align="stretch" gap={1}>
+                <VStack align="stretch" gap={1} mt={4}>
                   <Checkbox.Root
                     colorPalette="blue"
                     color="#282F68"
@@ -230,7 +230,11 @@ const SignupPage = () => {
                           fontWeight: "bold",
                         }}
                       >
-                        <Link href="/legal/terms-student" passHref>
+                        <Link
+                          href="/legal/terms-student"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           Terms & Conditions
                         </Link>
                       </span>
@@ -261,7 +265,11 @@ const SignupPage = () => {
                           fontWeight: "bold",
                         }}
                       >
-                        <Link href="/legal/terms-organisation" passHref>
+                        <Link
+                          href="/legal/terms-organisation"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           Terms & Conditions
                         </Link>
                       </span>
@@ -278,7 +286,7 @@ const SignupPage = () => {
                 </VStack>
               )}
 
-              <VStack align="stretch" gap={1}>
+              <VStack align="stretch" gap={1} mb={4}>
                 <Checkbox.Root
                   colorPalette="blue"
                   color="#282F68"
@@ -294,7 +302,11 @@ const SignupPage = () => {
                         fontWeight: "bold",
                       }}
                     >
-                      <Link href="/legal/privacy" passHref>
+                      <Link
+                        href="/legal/privacy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         Privacy Policy
                       </Link>
                     </span>

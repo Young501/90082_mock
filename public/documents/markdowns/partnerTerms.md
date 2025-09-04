@@ -132,7 +132,7 @@ We make no representation or warranty that any services, information or content 
 
 ## 10. CONTACTING US
 
-If you have any general questions about UniConnected, please contact us on [<u>UniConnected-team@unimelb.edu.au</u>](mailto:UniConnected-team@unimelb.edu.au).
+If you have any general questions about UniConnected, please contact us at [<u>contactus@uniconnected.com</u>](mailto:contactus@uniconnected.com).
 
 **Last updated:** August 26, 2025
 
