@@ -151,7 +151,8 @@ export const FieldRenderer = ({
     if (
       question.type === "text" ||
       question.type === "location" ||
-      question.type === "url"
+      question.type === "url" ||
+      question.type === "email"
     ) {
       return (
         <InputField
@@ -160,6 +161,7 @@ export const FieldRenderer = ({
           required={question.required}
           placeholder={`${question.label}`}
           icon={question.icon}
+          type={question.type}
           inputProps={{
             h: "60px",
             borderRadius: "0px",

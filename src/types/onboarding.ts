@@ -37,7 +37,8 @@ export interface Question {
     | "checkbox-group"
     | "boolean-checkbox"
     | "card-select"
-    | "location_geocode_lookup";
+    | "location_geocode_lookup"
+    | "email";
 
   required?: boolean;
   icon?: string;

@@ -1,13 +1,14 @@
 import { forwardRef } from "react";
 import { Input as ChakraInput, Field, Box, Textarea } from "@chakra-ui/react";
 import { UseFormRegisterReturn } from "react-hook-form";
+import { useAuthStore } from "@/store";
 
 interface InputFieldProps {
   label?: string;
   error?: string;
   register: UseFormRegisterReturn;
   placeholder?: string;
-  type?: "text" | "url" | "number" | "location";
+  type?: "text" | "url" | "number" | "location" | "email";
   required?: boolean;
   inputProps?: any;
   icon?: string;
@@ -28,6 +29,11 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
     },
     _ref
   ) => {
+    const { user } = useAuthStore();
+    const inputType = type === "email" ? "email" : type;
+    const defaultValue =
+      type === "email" && user?.email ? user.email : undefined;
+
     return (
       <Field.Root invalid={!!error}>
         {label && (
@@ -81,7 +87,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
               </Box>
             )}
             <ChakraInput
-              type={type === "location" ? "text" : type}
+              type={type === "location" ? "text" : inputType}
               placeholder={placeholder}
               h="60px"
               bg="white"
@@ -102,6 +108,10 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
               {...register}
               {...props}
               {...inputProps}
+              {...(type === "email" && {
+                autoComplete: "email",
+                defaultValue: defaultValue,
+              })}
             />
           </Box>
         </Box>
