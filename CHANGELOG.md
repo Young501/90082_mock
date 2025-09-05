@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Full card for student now doesn't show Opportuntiy Answers in profile page preview.
+- Fixed the design of the Opportunity Answers in full card.
+
 ---
 
 ## [1.0.1] -2025-09-05

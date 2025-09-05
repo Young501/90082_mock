@@ -26,19 +26,6 @@ const getQuestionnaireFieldLabel = (fieldName: string): string => {
   return fieldName.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 };
 
-const formatQuestionnaireAnswer = (value: any): string => {
-  if (Array.isArray(value)) {
-    return value.join(", ");
-  }
-  if (typeof value === "boolean") {
-    return value ? "Yes" : "No";
-  }
-  if (value === null || value === undefined) {
-    return "Not specified";
-  }
-  return String(value);
-};
-
 interface FullProfileCardProps {
   profileId: string;
   profileType: "student" | "organisation";
@@ -553,21 +540,21 @@ const RenderStudentDetails = ({
           />
           <BadgeSection title="Available For" items={student.position_type} />
 
-          {student.questionnaire_answers && (
-            <Box w="full">
-              <Text mb={3} fontSize="14px" fontWeight="600" color="black">
-                Opportunity Answers
-              </Text>
-              <HStack
-                gap={3}
-                align="start"
-                w="full"
-                flexWrap="wrap"
-                flexDirection={{ base: "column", lg: "row" }}
-                justifyContent={{ base: "center", lg: "start" }}
-              >
-                {Object.keys(student.questionnaire_answers).length > 0 ? (
-                  Object.entries(student.questionnaire_answers).map(
+          {student.questionnaire_answers &&
+            Object.keys(student.questionnaire_answers).length > 0 && (
+              <Box w="full">
+                <Text mb={3} fontSize="14px" fontWeight="600" color="black">
+                  Opportunity Requirements
+                </Text>
+                <HStack
+                  gap={3}
+                  align="start"
+                  w="full"
+                  flexWrap="wrap"
+                  flexDirection={{ base: "column", lg: "row" }}
+                  justifyContent={{ base: "center", lg: "start" }}
+                >
+                  {Object.entries(student.questionnaire_answers).map(
                     ([field, value]) => (
                       <Box
                         key={field}
@@ -577,29 +564,22 @@ const RenderStudentDetails = ({
                         alignItems="center"
                         flexWrap="wrap"
                       >
-                        <VStack align="start" gap={1} flex={1}>
-                          <Text fontSize="12px" fontWeight="500" color="black">
-                            {getQuestionnaireFieldLabel(field)}
-                          </Text>
-                          <Text
-                            fontSize="12px"
-                            color="#52525B"
-                            fontWeight="400"
-                          >
-                            {formatQuestionnaireAnswer(value)}
-                          </Text>
-                        </VStack>
+                        <BadgeSection
+                          title={getQuestionnaireFieldLabel(field)}
+                          items={value}
+                          titleProps={{
+                            fontSize: "sm",
+                            color: "gray.600",
+                            mb: 2,
+                            ml: 3,
+                          }}
+                        />
                       </Box>
                     )
-                  )
-                ) : (
-                  <Text fontSize="12px" color="#52525B" fontWeight="400">
-                    No answers provided yet
-                  </Text>
-                )}
-              </HStack>
-            </Box>
-          )}
+                  )}
+                </HStack>
+              </Box>
+            )}
         </VStack>
       </Box>
 

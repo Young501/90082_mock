@@ -9,6 +9,7 @@ interface BadgeSectionProps {
     fontWeight?: string;
     color?: string;
     mb?: number;
+    ml?: number;
   };
   showFallback?: boolean;
   fallbackText?: string;
