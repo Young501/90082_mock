@@ -40,7 +40,9 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isStudent = userType === "student";
 
   const isOnInviteOrOnboardingPage =
-    pathname?.includes("/invite") || pathname?.includes("/onboarding");
+    pathname?.includes("/invite") ||
+    pathname?.includes("/onboarding") ||
+    pathname?.includes("/verify-email");
 
   const getSignupLink = () => {
     const inviteToken = searchParams.get("invite_token");
@@ -271,7 +273,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
           alignItems="center"
           p={4}
         >
-          <Link href="/home/" onClick={handleMenuItemClick}>
+          <Link href="/" onClick={handleMenuItemClick}>
             <Box
               display="flex"
               justifyContent="center"
@@ -301,7 +303,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
         <Box p={0}>
           {isProtected ? (
             <VStack gap={0} p={6} align="stretch">
-              <Link href="/home/" onClick={handleMenuItemClick}>
+              <Link href="/" onClick={handleMenuItemClick}>
                 <Box
                   display="flex"
                   pb={6}
@@ -394,11 +396,14 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             width="100%"
             maxHeight="126px"
           >
-            {isMobile ? (
-              <Image alt="logo" src="/uni.png" width={164} height={34} />
-            ) : (
-              <Image alt="logo" src="/uni.png" width={300} height={80} />
-            )}
+            <Link href="/" onClick={handleMenuItemClick}>
+              {isMobile ? (
+                <Image alt="logo" src="/uni.png" width={164} height={34} />
+              ) : (
+                <Image alt="logo" src="/uni.png" width={300} height={80} />
+              )}
+            </Link>
+
             <HStack gap={10} display={{ base: "none", md: "flex" }}>
               {getMenuItems().map((item) => renderMenuItem(item, false))}
             </HStack>
@@ -445,7 +450,9 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             width="100%"
             maxHeight="126px"
           >
-            <Logo variant="header" width="200px" height="60px" />
+            <Link href="/" onClick={handleMenuItemClick}>
+              <Logo variant="header" width="200px" height="60px" />
+            </Link>
             <Button
               aria-label="Open menu"
               variant="ghost"
