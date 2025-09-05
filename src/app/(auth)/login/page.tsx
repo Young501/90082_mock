@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/auth";
-import { authValidationSchema } from "@/utils/validationSchemas";
+import { loginValidationSchema } from "@/utils/validationSchemas";
 import { useAuthStore } from "@/store";
 import Link from "next/link";
 import { PAGE_TITLES } from "@/utils/pageTitles";
@@ -42,7 +42,7 @@ export default function LoginPage() {
     setError,
     setValue,
   } = useForm<FormData>({
-    resolver: yupResolver(authValidationSchema),
+    resolver: yupResolver(loginValidationSchema),
     mode: "onChange",
     defaultValues: {
       email: "",

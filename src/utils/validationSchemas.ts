@@ -257,6 +257,18 @@ export const createPageSchema = (
   return yup.object().shape(shape);
 };
 
+export const loginValidationSchema = yup.object({
+  email: yup
+    .string()
+    .required("Email is required")
+    .email("Invalid email format")
+    .matches(/^[^@]+@[^@]+\.[^@]+$/, "Invalid email format"),
+  password: yup
+    .string()
+    .required("Password is required")
+    .min(8, "Password must be at least 8 characters"),
+});
+
 export const authValidationSchema = yup.object({
   email: yup
     .string()
@@ -267,8 +279,14 @@ export const authValidationSchema = yup.object({
     .string()
     .required("Password is required")
     .min(8, "Password must be at least 8 characters"),
-  student_terms_and_conditions: yup.boolean().transform((value) => value === "on" || value === true).oneOf([true], "Terms and conditions are required"),
-  privacy_policy: yup.boolean().transform((value) => value === "on" || value === true).oneOf([true], "Privacy policy is required"),
+  student_terms_and_conditions: yup
+    .boolean()
+    .transform((value) => value === "on" || value === true)
+    .oneOf([true], "Terms and conditions are required"),
+  privacy_policy: yup
+    .boolean()
+    .transform((value) => value === "on" || value === true)
+    .oneOf([true], "Privacy policy is required"),
 });
 
 export const organisationAuthValidationSchema = yup.object({
@@ -289,8 +307,14 @@ export const organisationAuthValidationSchema = yup.object({
     .string()
     .required("Password is required")
     .min(8, "Password must be at least 8 characters"),
-  organisation_terms_and_conditions: yup.boolean().transform((value) => value === "on" || value === true).oneOf([true], "Terms and conditions are required"),
-  privacy_policy: yup.boolean().transform((value) => value === "on" || value === true).oneOf([true], "Privacy policy is required"),
+  organisation_terms_and_conditions: yup
+    .boolean()
+    .transform((value) => value === "on" || value === true)
+    .oneOf([true], "Terms and conditions are required"),
+  privacy_policy: yup
+    .boolean()
+    .transform((value) => value === "on" || value === true)
+    .oneOf([true], "Privacy policy is required"),
 });
 
 export const resetPasswordValidationSchema = yup.object({
