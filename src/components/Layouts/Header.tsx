@@ -14,7 +14,7 @@ import Logo from "@/components/Logo";
 import Image from "next/image";
 import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 interface MenuItem {
   label: string;
@@ -32,11 +32,17 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const { logout, getUserType } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const userType = getUserType();
   const isCoordinator = userType === "coordinator";
   const isOrganisation = userType === "organisation";
   const isStudent = userType === "student";
+
+  const isOnInviteOrOnboardingPage =
+    pathname?.includes("/invite") ||
+    pathname?.includes("/onboarding") ||
+    pathname?.includes("/verify-email");
 
   const getSignupLink = () => {
     const inviteToken = searchParams.get("invite_token");
@@ -117,7 +123,13 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
 
   const getMenuItems = () => {
     if (!isProtected) {
-      return MENU_ITEMS.filter((item) => !item.isProtected);
+      const publicItems = MENU_ITEMS.filter((item) => !item.isProtected);
+      if (isOnInviteOrOnboardingPage) {
+        return publicItems.filter(
+          (item) => item.label !== "LOGIN" && item.label !== "SIGN UP"
+        );
+      }
+      return publicItems;
     }
     if (isCoordinator) {
       return MENU_ITEMS.filter(
@@ -261,7 +273,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
           alignItems="center"
           p={4}
         >
-          <Link href="/home/" onClick={handleMenuItemClick}>
+          <Link href="/" onClick={handleMenuItemClick}>
             <Box
               display="flex"
               justifyContent="center"
@@ -291,7 +303,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
         <Box p={0}>
           {isProtected ? (
             <VStack gap={0} p={6} align="stretch">
-              <Link href="/home/" onClick={handleMenuItemClick}>
+              <Link href="/" onClick={handleMenuItemClick}>
                 <Box
                   display="flex"
                   pb={6}
@@ -384,11 +396,14 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             width="100%"
             maxHeight="126px"
           >
-            {isMobile ? (
-              <Image alt="logo" src="/uni.png" width={164} height={34} />
-            ) : (
-              <Image alt="logo" src="/uni.png" width={300} height={80} />
-            )}
+            <Link href="/" onClick={handleMenuItemClick}>
+              {isMobile ? (
+                <Image alt="logo" src="/uni.png" width={164} height={34} />
+              ) : (
+                <Image alt="logo" src="/uni.png" width={300} height={80} />
+              )}
+            </Link>
+
             <HStack gap={10} display={{ base: "none", md: "flex" }}>
               {getMenuItems().map((item) => renderMenuItem(item, false))}
             </HStack>
@@ -435,7 +450,9 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             width="100%"
             maxHeight="126px"
           >
-            <Logo variant="header" width="200px" height="60px" />
+            <Link href="/" onClick={handleMenuItemClick}>
+              <Logo variant="header" width="200px" height="60px" />
+            </Link>
             <Button
               aria-label="Open menu"
               variant="ghost"
