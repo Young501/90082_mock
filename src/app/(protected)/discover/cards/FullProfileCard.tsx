@@ -724,38 +724,30 @@ const RenderPartnerDetails = ({
                     fontWeight="bold"
                   />
                 </Avatar.Root>
-                <HStack align="center" gap={1} flex={1}>
-                  <Tooltip
-                    content={person.first_name + " " + person.last_name}
-                    showArrow
+                <VStack align="start" gap={0} flex={1}>
+                  <Text
+                    fontSize="14px"
+                    fontWeight="600"
+                    w="300px"
+                    color="black"
+                    whiteSpace="nowrap"
+                    overflow="hidden"
+                    // textOverflow="ellipsis"
                   >
-                    <Text
-                      fontSize="14px"
-                      fontWeight="600"
-                      w="100px"
-                      color="black"
-                      whiteSpace="nowrap"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {person.first_name + " " + person.last_name}
-                    </Text>
-                  </Tooltip>
-                  {"- "}
-                  <Tooltip content={person.role} showArrow>
-                    <Text
-                      fontSize="14px"
-                      fontWeight="600"
-                      w="100px"
-                      color="black"
-                      whiteSpace="nowrap"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {person.role}
-                    </Text>
-                  </Tooltip>
-                </HStack>
+                    {person.first_name + " " + person.last_name}
+                  </Text>
+                  <Text
+                    fontSize="12px"
+                    fontWeight="300"
+                    w="350px"
+                    color="black"
+                    whiteSpace="nowrap"
+                    overflow="hidden"
+                    textOverflow="ellipsis"
+                  >
+                    {person.role}
+                  </Text>
+                </VStack>
               </HStack>
             ))}
           </VStack>
