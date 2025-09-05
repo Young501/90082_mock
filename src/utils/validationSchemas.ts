@@ -51,7 +51,13 @@ export const createPageSchema = (
       } else if (question.type === "text") {
         fieldSchema = yup.string();
       } else if (question.type === "email") {
-        fieldSchema = yup.string().email("Please enter a valid email address");
+        fieldSchema = yup
+          .string()
+          .email("Please enter a valid email address")
+          .matches(
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            "Please enter a valid email address"
+          );
       } else if (question.type === "location_geocode_lookup") {
         fieldSchema = yup.string().transform((value: any) => {
           if (value === "" || value === null || value === undefined) {
