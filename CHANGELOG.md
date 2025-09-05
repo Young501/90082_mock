@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added checkboxes for privacy policy and Terms and Conditions for student and partner. These have to be checked for a user to be able to sign up.
-- Added links to uniconnected logo in navbar
+- Now organisation full card displays the role of the organisation member.
 
 ---
 
