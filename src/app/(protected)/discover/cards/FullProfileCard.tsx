@@ -715,11 +715,10 @@ const RenderPartnerDetails = ({
             {organisation.members?.map((person, index) => (
               <HStack key={index} gap={3} align="center">
                 <Avatar.Root w="40px" h="40px" borderRadius="50%">
-                  <Avatar.Image src={person.profile_picture_url || ""} />
+                  <Avatar.Image src={person.profile_picture_url || undefined} />
                   <Avatar.Fallback
                     name={person.first_name + " " + person.last_name}
-                    bg="white"
-                    color="black"
+                    color="grey"
                     fontSize="14px"
                     fontWeight="bold"
                   />
