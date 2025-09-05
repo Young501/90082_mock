@@ -20,6 +20,7 @@ import { Globe } from "lucide-react";
 import Loader from "@/components/Loader";
 import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/Button";
+import { Tooltip } from "@/components/ui/tooltip";
 
 const getQuestionnaireFieldLabel = (fieldName: string): string => {
   return fieldName.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
@@ -704,7 +705,13 @@ const RenderPartnerDetails = ({
             organisation
           </Text>
 
-          <VStack gap={3} align="stretch" maxH="250px" overflowY="auto">
+          <VStack
+            gap={3}
+            align="stretch"
+            maxH="250px"
+            overflowX="hidden"
+            overflowY="auto"
+          >
             {organisation.members?.map((person, index) => (
               <HStack key={index} gap={3} align="center">
                 <Avatar.Root w="40px" h="40px" borderRadius="50%">
@@ -718,8 +725,27 @@ const RenderPartnerDetails = ({
                   />
                 </Avatar.Root>
                 <VStack align="start" gap={0} flex={1}>
-                  <Text fontSize="14px" fontWeight="600" color="black">
+                  <Text
+                    fontSize="14px"
+                    fontWeight="600"
+                    w="300px"
+                    color="black"
+                    whiteSpace="nowrap"
+                    overflow="hidden"
+                    // textOverflow="ellipsis"
+                  >
                     {person.first_name + " " + person.last_name}
+                  </Text>
+                  <Text
+                    fontSize="12px"
+                    fontWeight="300"
+                    w="350px"
+                    color="black"
+                    whiteSpace="nowrap"
+                    overflow="hidden"
+                    textOverflow="ellipsis"
+                  >
+                    {person.role}
                   </Text>
                 </VStack>
               </HStack>
