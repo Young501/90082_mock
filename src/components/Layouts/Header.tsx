@@ -40,7 +40,9 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isStudent = userType === "student";
 
   const isOnInviteOrOnboardingPage =
-    pathname?.includes("/invite") || pathname?.includes("/onboarding");
+    pathname?.includes("/invite") ||
+    pathname?.includes("/onboarding") ||
+    pathname?.includes("/verify-email");
 
   const getSignupLink = () => {
     const inviteToken = searchParams.get("invite_token");
