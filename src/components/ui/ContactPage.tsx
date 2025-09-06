@@ -25,20 +25,23 @@ export function ContactPage({
   recipientName,
   profileType,
   onBack,
-  companyName,
-  companyContact,
+  organisationName,
+  organisationContact,
   organisationId,
 }: ContactPageProps) {
   const { userProfile, user } = useAuthStore();
   const contactMutation = useContactUser();
   const { data: acceptedOpportunities } = useAcceptedOpportunities();
 
+  console.log(organisationName, "organisationName");
+
   const getDefaultSubject = () => {
     const fullName = `${userProfile?.first_name} ${userProfile?.last_name}`;
+    console.log(profileType, "profileType");
     if (profileType === "organisation") {
       return `New message from ${fullName || "User"} via UniConnected`;
     } else {
-      return `New message from ${companyName || fullName || "User"} via UniConnected`;
+      return `New message from ${organisationName || "User"} via UniConnected`;
     }
   };
 
@@ -53,7 +56,7 @@ export function ContactPage({
     resolver: yupResolver(emailContactValidationSchema),
     defaultValues: {
       user_id: recipientId,
-      reply_to: companyContact || user?.email || "",
+      reply_to: organisationContact || user?.email || "",
       subject: getDefaultSubject(),
       message: "",
     },

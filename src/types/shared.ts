@@ -21,6 +21,7 @@ export interface Organisation {
   allow_contact?: boolean;
   company_size?: string;
   created_at?: string;
+  contact_email?: string;
 }
 
 export interface tempOrganisationUser {

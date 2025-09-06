@@ -588,8 +588,8 @@ const RenderStudentDetails = ({
           recipientId={student.id}
           recipientName={`${student.first_name} ${student.last_name}`}
           profileType="student"
-          companyName={userProfile?.name || ""}
-          companyContact={userProfile?.contact_email || ""}
+          organisationName={userProfile?.organisation?.name || ""}
+          organisationContact={userProfile?.organisation?.contact_email || ""}
           onBack={() => setShowContactModal(false)}
         />
       )}
