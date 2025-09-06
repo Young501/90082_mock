@@ -33,19 +33,14 @@ export function ContactPage({
   const contactMutation = useContactUser();
   const { data: acceptedOpportunities } = useAcceptedOpportunities();
 
-  console.log(organisationName, "organisationName");
-
   const getDefaultSubject = () => {
     const fullName = `${userProfile?.first_name} ${userProfile?.last_name}`;
-    console.log(profileType, "profileType");
     if (profileType === "organisation") {
       return `New message from ${fullName || "User"} via UniConnected`;
     } else {
       return `New message from ${organisationName || "User"} via UniConnected`;
     }
   };
-
-  console.log(profileType, "profileType");
 
   const {
     register,
