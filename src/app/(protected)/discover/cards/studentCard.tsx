@@ -69,7 +69,7 @@ export function StudentCard({
   };
 
   const handleViewFullProfile = () => {
-    if (student.id && !disableViewFullProfile) {
+    if (student.id && !disableViewFullProfile && !isMatched) {
       setShowFullProfile(true);
     }
   };
@@ -86,6 +86,8 @@ export function StudentCard({
       setClickBackground(false);
     }
   };
+
+  const isMatched = student?.matched;
 
   const skills = getSkillsData();
   const maxVisibleSkills = 2;
@@ -107,6 +109,8 @@ export function StudentCard({
         borderTopRightRadius="20px"
         w="100%"
         maxW={maxW}
+        pointerEvents={isMatched ? "none" : "auto"}
+        opacity={isMatched ? 0.6 : 1}
       >
         <Box position="absolute" top={4} right={4} zIndex={1}>
           <Box
@@ -373,7 +377,7 @@ export function StudentCard({
             py={6}
             mt={4}
             onClick={handleViewFullProfile}
-            disabled={!student.id || disableViewFullProfile}
+            disabled={!student.id || disableViewFullProfile || isMatched}
           >
             View Full Profile
           </Button>
