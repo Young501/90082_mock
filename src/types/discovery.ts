@@ -46,12 +46,14 @@ export interface StudentProfile {
   faculty?: string;
   resume_url?: string;
   questionnaire_answers?: Record<string, any>;
+  matched?: boolean;
 }
 
 export interface OrganisationProfile {
   id?: number;
   first_name?: string;
   last_name?: string;
+  organisation?: Organisation;
   location?: string;
   profile_picture_url?: string | null;
   name?: string;
