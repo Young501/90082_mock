@@ -46,6 +46,7 @@ export interface StudentProfile {
   faculty?: string;
   resume_url?: string;
   questionnaire_answers?: Record<string, any>;
+  matched?: boolean;
 }
 
 export interface OrganisationProfile {

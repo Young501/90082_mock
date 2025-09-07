@@ -14,6 +14,8 @@ import { FullProfileCard } from "./FullProfileCard";
 import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
 import { DeleteModal } from "../../folders/modals/DeleteModal";
 import { Button } from "@/components/ui/Button";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Ban } from "lucide-react";
 
 interface StudentCardProps {
   student: StudentProfile;
@@ -69,7 +71,7 @@ export function StudentCard({
   };
 
   const handleViewFullProfile = () => {
-    if (student.id && !disableViewFullProfile) {
+    if (student.id && !disableViewFullProfile && !isMatched) {
       setShowFullProfile(true);
     }
   };
@@ -87,6 +89,8 @@ export function StudentCard({
     }
   };
 
+  const isMatched = student?.matched;
+
   const skills = getSkillsData();
   const maxVisibleSkills = 2;
   const visibleSkills = skills.slice(0, maxVisibleSkills);
@@ -96,289 +100,304 @@ export function StudentCard({
 
   return (
     <>
-      <Box
-        bg={clickBackground ? "#2CA9DF" : "#D1D1D1"}
-        borderRadius="20px"
-        border="1px solid"
-        borderColor="gray.200"
-        boxShadow="0px 3.37px 6.74px 3.37px rgba(0, 0, 0, 0.25)"
-        overflow="hidden"
-        position="relative"
-        borderTopRightRadius="20px"
-        w="100%"
-        maxW={maxW}
+      <Tooltip
+        disabled={!isMatched}
+        showArrow
+        positioning={{ placement: "top", offset: { mainAxis: 8 } }}
+        content="This student is already matched to an organisation."
       >
-        <Box position="absolute" top={4} right={4} zIndex={1}>
-          <Box
-            w={6}
-            h={6}
-            bg={clickBackground ? "#2CA9DF" : "transparent"}
-            borderRadius="md"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            cursor="pointer"
-            // _focus={{
-            //   outline: "none",
-            //   bg: "#2CA9DF",
-            // }}
-            onClick={disableAddToFolder ? undefined : handleAddToFolder}
-          >
-            {isInFolder ? (
-              <i
-                className="fa-solid fa-trash"
-                style={{ color: "#DC2626", fontSize: "20px" }}
-              />
-            ) : (
-              <Image
-                width={20}
-                height={20}
-                src="/assets/addicon.svg"
-                alt="add"
-                objectFit="contain"
-              />
-            )}
-          </Box>
-        </Box>
-
         <Box
-          px="20px"
-          py="40px"
-          bg="white"
-          borderTopRightRadius="150px"
-          display="flex"
-          flexDirection="column"
+          bg={clickBackground ? "#2CA9DF" : "#D1D1D1"}
+          borderRadius="20px"
+          border="1px solid"
+          borderColor="gray.200"
           boxShadow="0px 3.37px 6.74px 3.37px rgba(0, 0, 0, 0.25)"
-          w="full"
-          h="full"
+          overflow="hidden"
+          position="relative"
+          borderTopRightRadius="20px"
+          w="100%"
+          maxW={maxW}
+          // pointerEvents={isMatched ? "auto" : "auto"}
+          opacity={isMatched ? 0.6 : 1}
+          cursor={isMatched ? "not-allowed" : "auto"}
         >
+          <Box position="absolute" top={4} right={4} zIndex={1}>
+            <Box
+              w={6}
+              h={6}
+              bg={clickBackground ? "#2CA9DF" : "transparent"}
+              borderRadius="md"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              cursor={isMatched || disableAddToFolder ? "default" : "pointer"}
+              pointerEvents={isMatched ? "none" : "auto"}
+              onClick={disableAddToFolder ? undefined : handleAddToFolder}
+            >
+              {isInFolder ? (
+                <i
+                  className="fa-solid fa-trash"
+                  style={{ color: "#DC2626", fontSize: "20px" }}
+                />
+              ) : (
+                <Image
+                  width={20}
+                  height={20}
+                  src="/assets/addicon.svg"
+                  alt="add"
+                  objectFit="contain"
+                />
+              )}
+            </Box>
+          </Box>
+
           <Box
+            px="20px"
+            py="40px"
+            bg="white"
+            borderTopRightRadius="150px"
             display="flex"
             flexDirection="column"
-            justifyContent="space-between"
-            flex="1"
+            boxShadow="0px 3.37px 6.74px 3.37px rgba(0, 0, 0, 0.25)"
+            w="full"
+            h="full"
           >
             <Box
               display="flex"
-              flexDirection="row"
-              gap={4}
-              justifyContent="center"
-              w="full"
+              flexDirection="column"
+              justifyContent="space-between"
+              flex="1"
             >
-              <Avatar.Root
-                w="130px"
-                h="130px"
-                border="6px solid #DC2626"
-                borderRadius="full"
+              <Box
+                display="flex"
+                flexDirection="row"
+                gap={4}
+                justifyContent="center"
+                w="full"
               >
-                <Avatar.Fallback
-                  name={student.first_name + " " + student.last_name}
-                  bg="gray.200"
-                  color="gray.800"
-                  fontWeight="bold"
-                  fontSize="2xl"
-                />
-                {getProfileImage() && (
-                  <Avatar.Image src={getProfileImage() || ""} />
-                )}
-              </Avatar.Root>
-
-              <Box display="flex" flexDirection="column" gap={6} w="full">
-                <Box>
-                  <Heading
-                    fontSize={{ base: "16px", md: "20px" }}
-                    textTransform="capitalize"
-                    mb={2}
+                <Avatar.Root
+                  w="130px"
+                  h="130px"
+                  border="6px solid #DC2626"
+                  borderRadius="full"
+                >
+                  <Avatar.Fallback
+                    name={student.first_name + " " + student.last_name}
+                    bg="gray.200"
+                    color="gray.800"
                     fontWeight="bold"
-                    color="#000000"
-                    whiteSpace="normal"
-                    wordBreak="break-word"
-                  >
-                    {getDisplayName()}
-                  </Heading>
-                  <Text
-                    fontSize="14px"
-                    textTransform="capitalize"
-                    fontWeight="400"
-                    color="#000000"
-                    whiteSpace="normal"
-                    wordBreak="break-word"
-                  >
-                    {userType}
-                  </Text>
-                </Box>
-
-                <Box display="flex" flexDirection="column" gap={2} mb={4}>
-                  {student.course_name && (
-                    <HStack gap={2} align="start">
-                      <Box
-                        w="16px"
-                        h="16px"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        flexShrink={0}
-                      >
-                        <Image
-                          width={12}
-                          height={12}
-                          src="/assets/educationIcon.svg"
-                          alt="course"
-                          objectFit="contain"
-                        />
-                      </Box>
-                      <Text
-                        fontSize="sm"
-                        color="gray.600"
-                        whiteSpace="normal"
-                        wordBreak="break-word"
-                      >
-                        {student.course_name} <br />
-                        {student.course_progression}
-                      </Text>
-                    </HStack>
+                    fontSize="2xl"
+                  />
+                  {getProfileImage() && (
+                    <Avatar.Image src={getProfileImage() || ""} />
                   )}
+                </Avatar.Root>
 
-                  {student.location && (
-                    <HStack gap={2} align="center">
-                      <Box
-                        w="16px"
-                        h="16px"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        flexShrink={0}
-                      >
-                        <Image
-                          width={12}
-                          height={12}
-                          src="/assets/locationIcon.svg"
-                          alt="location"
-                          objectFit="contain"
-                        />
-                      </Box>
-                      <Text
-                        fontSize="sm"
-                        color="gray.600"
-                        whiteSpace="normal"
-                        wordBreak="break-word"
-                      >
-                        {student.location}
-                      </Text>
-                    </HStack>
-                  )}
-
-                  {student.credentials && student.credentials.length > 0 && (
-                    <HStack gap={2} align="start">
-                      <Box
-                        w="16px"
-                        h="16px"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        flexShrink={0}
-                      >
-                        <Image
-                          width={12}
-                          height={12}
-                          src="/assets/certificationIcon.svg"
-                          alt="specialization"
-                          objectFit="contain"
-                        />
-                      </Box>
-                      <Text
-                        fontSize="sm"
-                        color="gray.600"
-                        whiteSpace="normal"
-                        wordBreak="break-word"
-                      >
-                        {student.credentials.join(", ")}
-                      </Text>
-                    </HStack>
-                  )}
-
-                  <HStack gap={2} align="start">
-                    <Box
-                      w="16px"
-                      h="16px"
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      flexShrink={0}
-                    >
-                      <Image
-                        width={12}
-                        height={12}
-                        src="/assets/calenderIcon.svg"
-                        alt="progress"
-                        objectFit="contain"
-                      />
-                    </Box>
-                    <Text
-                      fontSize="sm"
-                      color="gray.600"
+                <Box display="flex" flexDirection="column" gap={6} w="full">
+                  <Box>
+                    <Heading
+                      fontSize={{ base: "16px", md: "20px" }}
+                      textTransform="capitalize"
+                      mb={2}
+                      fontWeight="bold"
+                      color="#000000"
                       whiteSpace="normal"
                       wordBreak="break-word"
                     >
-                      Available Immediately
+                      {getDisplayName()}
+                    </Heading>
+                    <Text
+                      fontSize="14px"
+                      textTransform="capitalize"
+                      fontWeight="400"
+                      color="#000000"
+                      whiteSpace="normal"
+                      wordBreak="break-word"
+                    >
+                      {userType}
                     </Text>
-                  </HStack>
+                  </Box>
+
+                  <Box display="flex" flexDirection="column" gap={2} mb={4}>
+                    {student.course_name && (
+                      <HStack gap={2} align="start">
+                        <Box
+                          w="16px"
+                          h="16px"
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          flexShrink={0}
+                          mt="2px"
+                        >
+                          <Image
+                            width={12}
+                            height={12}
+                            src="/assets/educationIcon.svg"
+                            alt="course"
+                            objectFit="contain"
+                          />
+                        </Box>
+                        <Text
+                          fontSize="sm"
+                          color="gray.600"
+                          whiteSpace="normal"
+                          wordBreak="break-word"
+                        >
+                          {student.course_name} <br />
+                          {student.course_progression}
+                        </Text>
+                      </HStack>
+                    )}
+
+                    {student.location && (
+                      <HStack gap={2} align="center">
+                        <Box
+                          w="16px"
+                          h="16px"
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          flexShrink={0}
+                          mt="2px"
+                        >
+                          <Image
+                            width={12}
+                            height={12}
+                            src="/assets/locationIcon.svg"
+                            alt="location"
+                            objectFit="contain"
+                          />
+                        </Box>
+                        <Text
+                          fontSize="sm"
+                          color="gray.600"
+                          whiteSpace="normal"
+                          wordBreak="break-word"
+                        >
+                          {student.location}
+                        </Text>
+                      </HStack>
+                    )}
+
+                    {student.credentials && student.credentials.length > 0 && (
+                      <HStack gap={2} align="start">
+                        <Box
+                          w="16px"
+                          h="16px"
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          flexShrink={0}
+                          mt="2px"
+                        >
+                          <Image
+                            width={12}
+                            height={12}
+                            src="/assets/certificationIcon.svg"
+                            alt="specialization"
+                            objectFit="contain"
+                          />
+                        </Box>
+                        <Text
+                          fontSize="sm"
+                          color="gray.600"
+                          whiteSpace="normal"
+                          wordBreak="break-word"
+                        >
+                          {student.credentials.join(", ")}
+                        </Text>
+                      </HStack>
+                    )}
+
+                    <HStack gap={2} align="start">
+                      <Box
+                        w="16px"
+                        h="16px"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        flexShrink={0}
+                        mt="2px"
+                      >
+                        {isMatched ? (
+                          <Ban size={16} color="#DC2626" />
+                        ) : (
+                          <Image
+                            width={12}
+                            height={12}
+                            src="/assets/calenderIcon.svg"
+                            alt="progress"
+                            objectFit="contain"
+                          />
+                        )}
+                      </Box>
+                      <Text
+                        fontSize="sm"
+                        color="gray.600"
+                        whiteSpace="normal"
+                        wordBreak="break-word"
+                      >
+                        {isMatched ? "Not available" : "Available Immediately"}
+                      </Text>
+                    </HStack>
+                  </Box>
                 </Box>
               </Box>
+
+              {showSkillsSection && (
+                <Box display="flex" flexDirection="row" gap={2} flexWrap="wrap">
+                  {visibleSkills.map((skill, index) => (
+                    <Box
+                      key={index}
+                      bg="#FFB3AC"
+                      color="#000000"
+                      borderRadius="xl"
+                      py={2}
+                      px={3}
+                      fontSize="12px"
+                      fontWeight="400"
+                    >
+                      {skill}
+                    </Box>
+                  ))}
+
+                  {hasMoreSkills && (
+                    <Box
+                      bg="#FFB3AC"
+                      color="#000000"
+                      borderRadius="xl"
+                      py={2}
+                      px={3}
+                      fontSize="12px"
+                      fontWeight="400"
+                      cursor="pointer"
+                      position="relative"
+                      _hover={{
+                        bg: "#FFB3AC",
+                      }}
+                      title={remainingSkills.join(", ")}
+                    >
+                      +{remainingSkills.length}
+                    </Box>
+                  )}
+                </Box>
+              )}
             </Box>
 
-            {showSkillsSection && (
-              <Box display="flex" flexDirection="row" gap={2} flexWrap="wrap">
-                {visibleSkills.map((skill, index) => (
-                  <Box
-                    key={index}
-                    bg="#FFB3AC"
-                    color="#000000"
-                    borderRadius="xl"
-                    py={2}
-                    px={3}
-                    fontSize="12px"
-                    fontWeight="400"
-                  >
-                    {skill}
-                  </Box>
-                ))}
-
-                {hasMoreSkills && (
-                  <Box
-                    bg="#FFB3AC"
-                    color="#000000"
-                    borderRadius="xl"
-                    py={2}
-                    px={3}
-                    fontSize="12px"
-                    fontWeight="400"
-                    cursor="pointer"
-                    position="relative"
-                    _hover={{
-                      bg: "#FFB3AC",
-                    }}
-                    title={remainingSkills.join(", ")}
-                  >
-                    +{remainingSkills.length}
-                  </Box>
-                )}
-              </Box>
-            )}
+            <Button
+              variant="student"
+              w="full"
+              py={6}
+              mt={4}
+              onClick={handleViewFullProfile}
+              disabled={!student.id || disableViewFullProfile || isMatched}
+            >
+              View Full Profile
+            </Button>
           </Box>
-
-          <Button
-            variant="student"
-            w="full"
-            py={6}
-            mt={4}
-            onClick={handleViewFullProfile}
-            disabled={!student.id || disableViewFullProfile}
-          >
-            View Full Profile
-          </Button>
         </Box>
-      </Box>
+      </Tooltip>
 
       {showFullProfile && student.id && (
         <FullProfileCard
