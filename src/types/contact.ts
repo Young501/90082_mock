@@ -3,8 +3,8 @@ export interface ContactPageProps {
   recipientName: string;
   profileType: "student" | "organisation";
   onBack: () => void;
-  companyName?: string;
-  companyContact?: string;
+  organisationName?: string;
+  organisationContact?: string;
   organisationId?: string;
 }
 
