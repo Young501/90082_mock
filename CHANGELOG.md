@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+---
+
+## [1.0.2] -2025-09-07
+
+### Added
+
 - Full card for student now doesn't show Opportuntiy Answers in profile page preview.
 - Fixed the design of the Opportunity Answers in full card.
 - Now Students that are matched will appear in discover but their cards are unclickable, and it will say "Not Available"
