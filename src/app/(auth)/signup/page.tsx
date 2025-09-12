@@ -20,7 +20,8 @@ import { useAuthStore } from "@/store/authStore";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  authValidationSchema,
+  baseAuthSchema,
+  studentAuthValidationSchema,
   organisationAuthValidationSchema,
 } from "@/utils/validationSchemas";
 import { PageTitle } from "@/components/PageTitle";
@@ -50,7 +51,9 @@ const SignupPage = () => {
   const validationSchema =
     signupSelectedUserType === "organisation"
       ? organisationAuthValidationSchema
-      : authValidationSchema;
+      : signupSelectedUserType === "student"
+        ? studentAuthValidationSchema
+        : baseAuthSchema; // coordinator & others
 
   useEffect(() => {
     if (!signupSelectedUserType) {
