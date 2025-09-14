@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useUnmatch } from "@/services/manage";
 import { MatchConfirmationModal } from "@/components/ui";
 import { Button } from "@/components/ui/Button";
+import { FullProfileCard } from "@/app/(protected)/discover/cards/FullProfileCard";
 
 interface UserMatchingStatusProps {
   participant: Participant | null;
@@ -22,6 +23,7 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
   opportunityId,
   onParticipantUpdate,
 }) => {
+  const [showFullProfile, setShowFullProfile] = useState(false);
   const router = useRouter();
   const unmatchMutation = useUnmatch(
     opportunityId.toString(),
@@ -92,6 +94,10 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
     setIsUnmatching(false);
   };
 
+  const handleViewFullProfile = () => {
+    setShowFullProfile(true);
+  };
+
   if (!participant) {
     return (
       <Box height="100%">
@@ -140,34 +146,60 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
       </Text>
 
       <VStack align="stretch" gap={4}>
-        <HStack gap={4} mb={{ base: "20px", lg: "40px" }}>
-          <Box
-            w={{ base: "90px" }}
-            h={{ base: "90px" }}
-            borderRadius="50%"
-            border={`10px solid ${getBorderColor()}`}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
+        <HStack
+          align="center"
+          gap={4}
+          flexDirection={{ base: "column", md: "row" }}
+          justifyContent="space-between"
+          alignItems="center"
+          w="100%"
+        >
+          <HStack gap={4}>
+            <Box
+              w={{ base: "90px" }}
+              h={{ base: "90px" }}
+              borderRadius="50%"
+              border={`10px solid ${getBorderColor()}`}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Avatar.Root width="85px" height="85px">
+                <Avatar.Fallback
+                  name={getInitial(participant.name || "")}
+                  bg="gray.200"
+                  color="gray.800"
+                  fontWeight="bold"
+                  fontSize={{ base: "20px", lg: "35px" }}
+                />
+                {participant.image_url && (
+                  <Avatar.Image src={participant.image_url} w="85px" h="85px" />
+                )}
+              </Avatar.Root>
+            </Box>
+            <VStack align="start" gap={1}>
+              <Text fontWeight="600" fontSize={{ base: "16px", lg: "20px" }}>
+                {participant.name}
+              </Text>
+            </VStack>
+          </HStack>
+
+          <Button
+            onClick={() => {
+              handleViewFullProfile();
+            }}
+            variant="primary"
+            color="white"
+            bg="#002157"
+            fontSize={{ base: "20px" }}
+            fontWeight="600"
+            borderRadius="18px"
+            py={{ base: "10px", lg: "20px" }}
+            px={{ base: "20px", lg: "40px" }}
+            maxW={{ base: "100%", lg: "200px" }}
           >
-            <Avatar.Root width="85px" height="85px">
-              <Avatar.Fallback
-                name={getInitial(participant.name || "")}
-                bg="gray.200"
-                color="gray.800"
-                fontWeight="bold"
-                fontSize={{ base: "20px", lg: "35px" }}
-              />
-              {participant.image_url && (
-                <Avatar.Image src={participant.image_url} w="85px" h="85px" />
-              )}
-            </Avatar.Root>
-          </Box>
-          <VStack align="start" gap={1}>
-            <Text fontWeight="600" fontSize={{ base: "16px", lg: "20px" }}>
-              {participant.name}
-            </Text>
-          </VStack>
+            View Full Profile
+          </Button>
         </HStack>
 
         <Separator borderColor="#000000" mb={{ base: "20px", lg: "40px" }} />
@@ -419,6 +451,15 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
           </Box>
         )}
       </VStack>
+
+      {showFullProfile && (
+        <FullProfileCard
+          profileId={participant.id.toString()}
+          profileType={userType}
+          onClose={() => setShowFullProfile(false)}
+          opportunityId={opportunityId}
+        />
+      )}
 
       <MatchConfirmationModal
         isOpen={isUnmatching}
