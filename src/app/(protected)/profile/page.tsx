@@ -60,6 +60,7 @@ const Profile = () => {
   >(null);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [showValidationError, setShowValidationError] = useState(false);
+  const [fileUploadKey, setFileUploadKey] = useState(0);
   const { handleChangePassword, changePasswordMutation } = useAuth();
   const [changePasswordSuccess, setChangePasswordSuccess] = useState(false);
   const [changePasswordError, setChangePasswordError] = useState("");
@@ -184,6 +185,9 @@ const Profile = () => {
           if (value === null) {
             return [key, undefined];
           }
+          if (value instanceof File) {
+            return [key, undefined];
+          }
           return [key, value];
         })
       );
@@ -194,7 +198,8 @@ const Profile = () => {
             value !== null &&
             value !== undefined &&
             key !== "organisation" &&
-            key !== "members"
+            key !== "members" &&
+            !(value instanceof File)
           ) {
             cleanedProfileData[`${key}`] = value;
           }
@@ -426,6 +431,8 @@ const Profile = () => {
           toast.success("All files uploaded successfully.");
         }
       }
+
+      setFileUploadKey((prev) => prev + 1);
     } catch (error: any) {
       const errorMessage =
         error?.response?.data?.error ||
@@ -746,6 +753,7 @@ const Profile = () => {
                     errors={errors}
                     clearErrors={clearErrors}
                     unregister={unregister}
+                    fileUploadKey={fileUploadKey}
                   />
                 ))}
                 <Button
