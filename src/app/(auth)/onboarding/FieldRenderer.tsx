@@ -31,6 +31,8 @@ interface FieldRendererProps {
   onFieldUnregistered?: (fieldName: string) => void;
   onParentValueChange?: (fieldName: string, newValue: any) => void;
   fileUploadKey?: number;
+  onFileRemove?: (fieldName: string) => void;
+  removedFiles?: Set<string>;
 }
 
 const FILE_FIELD_TYPES = {
@@ -49,6 +51,8 @@ export const FieldRenderer = ({
   onFieldUnregistered,
   onParentValueChange,
   fileUploadKey,
+  onFileRemove,
+  removedFiles,
 }: FieldRendererProps) => {
   const error = errors[question.field]?.message as string | undefined;
   const rawFieldOptions = question.options || question.option || [];
@@ -322,6 +326,10 @@ export const FieldRenderer = ({
               ? question.field
               : undefined
           }
+          onRemove={
+            onFileRemove ? () => onFileRemove(question.field) : undefined
+          }
+          isRemoved={removedFiles?.has(question.field) || false}
         />
       );
     }
@@ -358,6 +366,8 @@ export const FieldRenderer = ({
             onFieldUnregistered={onFieldUnregistered}
             onParentValueChange={onParentValueChange}
             fileUploadKey={fileUploadKey}
+            onFileRemove={onFileRemove}
+            removedFiles={removedFiles}
           />
         </Box>
       ))}

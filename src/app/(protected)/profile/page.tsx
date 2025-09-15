@@ -50,6 +50,7 @@ const Profile = () => {
     setUserProfile,
     getUserProfilePictureUrl,
     getLogoUrl,
+    setLogoUrl,
     setUserProfilePictureUrl,
   } = useAuthStore();
   const userProfile: UserProfile | null = getUserProfile();
@@ -67,6 +68,7 @@ const Profile = () => {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+  const [removedFiles, setRemovedFiles] = useState<Set<string>>(new Set());
   const changePasswordForm = useForm({
     resolver: yupResolver(changePasswordSchema),
     mode: "onChange",
@@ -231,6 +233,17 @@ const Profile = () => {
     return onboardingTabs;
   }, [pages, isCoordinator]);
 
+  const handleFileRemoval = (fieldName: string) => {
+    setRemovedFiles((prev) => new Set(prev).add(fieldName));
+    if (fieldName === "profile_picture_url") {
+      setUpdatedProfilePicture(null);
+      setUserProfilePictureUrl("");
+    } else if (userType === "organisation" && fieldName === "logo_url") {
+      setUpdatedProfilePicture(null);
+      setLogoUrl("");
+    }
+  };
+
   const calculateProfileCompletion = (): number => {
     if (!userProfile || !pages.length) return 0;
 
@@ -346,6 +359,13 @@ const Profile = () => {
     delete submissionData.location_geocode_lookup;
     delete submissionData.members;
     delete submissionData.email_domain;
+
+    Object.keys(submissionData).forEach((key) => {
+      const value = submissionData[key];
+      if (value instanceof File && value.name === "imgplaceholder.png") {
+        submissionData[key] = null;
+      }
+    });
     if (
       submissionData.organisation &&
       submissionData.organisation.organisation
@@ -403,6 +423,7 @@ const Profile = () => {
         await profileUpdateMutation.mutateAsync(finalSubmissionData);
       toast.success("Profile updated successfully!");
       setUserProfile(profileUpdateResponse);
+      setRemovedFiles(new Set());
       const uploadTasks = [];
       if (allData.profile_picture_url instanceof File) {
         const response = await profilePictureUpload.mutateAsync(
@@ -499,8 +520,9 @@ const Profile = () => {
                   )}
                   <Avatar.Fallback
                     name={
-                      userType === "organisation" && userProfile?.name
-                        ? userProfile.name
+                      userType === "organisation" &&
+                      userProfile?.organisation?.name
+                        ? userProfile.organisation.name
                         : isCoordinator
                           ? "Coordinator"
                           : `${userProfile?.first_name} ${userProfile?.last_name}`
@@ -754,6 +776,8 @@ const Profile = () => {
                     clearErrors={clearErrors}
                     unregister={unregister}
                     fileUploadKey={fileUploadKey}
+                    onFileRemove={handleFileRemoval}
+                    removedFiles={removedFiles}
                   />
                 ))}
                 <Button
