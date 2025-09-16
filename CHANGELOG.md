@@ -43,12 +43,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Mock opportunities** created for testing the dropdown behavior.  
 
----
 
 ### Fixed
 - Organisation profile page infinite loading spinner: resolved by ensuring correct query handling and preventing endless state loops.  
 
----
 
 ### Changed
 - Auth hook: now invalidates `["accessible-opportunities"]` cache key on login success to refresh Discover menu.  
@@ -57,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fallback logic: v2 failures auto-fallback to v1 accepted opportunities, mapped into a consistent format.  
 
 ---
+
 
 ## [1.0.2] -2025-09-09
 
@@ -70,14 +69,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - On success → update local `keyword` state with the returned `title`, used to display opportunity title.  
   - On failure or missing `title` → display default *“Unknown”*.  
 
----
 
 ### Fixed
 - **Empty state handling**  
   - When `useAccessibleOpportunities()` returns empty (e.g., `mock-empty`), Discover dropdown does not render.  
   - Clicking Discover in this case correctly shows an empty/disabled state instead of breaking navigation.
     
----
 
 ### Changed
 - **Not Enrolled navigation logic** (in `Discover → Header.tsx`)  
@@ -85,7 +82,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Not Enrolled** opportunities → now redirect to `/nothing` page with `id` and `title` as query params.  
   - `nothing.tsx` renders the corresponding opportunity title accordingly.  
 
----
 
  
 --- 
