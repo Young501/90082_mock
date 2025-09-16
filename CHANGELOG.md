@@ -16,27 +16,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.2] -2025-09-11
 
 ### Added
+- **Discover dropdown navigation**  
+  - Dynamic states depending on accessible opportunities:  
+    - **0 items** → Discover disabled, clicking shows toast *“No opportunities yet.”*  
+    - **1 item** → direct link to the single opportunity page.  
+    - **2+ items** → dropdown listing all opportunities with name + status badge (Enrolled / Not Enrolled).  
+  - **Mobile support**: collapsible list inside hamburger menu.  
+  - **Status badges**: green for *Enrolled*, gray for *Not Enrolled*.  
+  - **Responsive design**: desktop popover dropdown, mobile stacked list.  
 
-Discover navigation: turned into a dropdown listing accessible opportunities
+- **API integration**  
+  - Added `GET /api/v2/opportunities/all/` endpoint (`OPPORTUNITIES_ALL_V2`) to retrieve accessible opportunities (UC-314).  
 
-0 items → Discover disabled; clicking shows toast “No opportunities yet.”
+- **Hook `useAccessibleOpportunities`**  
+  - Unified type mapping for v1 and v2 data.  
+  - Automatic fallback to v1 endpoint if v2 fails.  
+  - Environment variable (`NEXT_PUBLIC_OPPS_SOURCE`) to force v1 testing.  
+  - React Query caching (5 min), 404 non-retry, user-dependent enable.  
 
-1 item → plain link to the single opportunity
+- **Routing adaptation**  
+  - Replaced dynamic route `/discover/[id]` with query param `/discover/?id={id}` for static export compatibility.  
 
-2+ items → dropdown with name + status badge (Enrolled / Not Enrolled), click → /discover/{id}
+- **Header refactor**  
+  - Three-state rendering (disabled / single link / dropdown).  
+  - Outside-click handler for closing dropdown.  
 
-Mobile responsive: collapsible within header menu
+- **Mock opportunities** created for testing the dropdown behavior.  
+
+---
+
+### Fixed
+- Organisation profile page infinite loading spinner: resolved by ensuring correct query handling and preventing endless state loops.  
 
 ---
 
 ### Changed
+- Auth hook: now invalidates `["accessible-opportunities"]` cache key on login success to refresh Discover menu.  
+- useDiscovery hook: enhanced to support overriding current opportunity ID via parameter.  
+- Header component: restructured to consume `useAccessibleOpportunities` and handle responsive dropdown rendering.  
+- Fallback logic: v2 failures auto-fallback to v1 accepted opportunities, mapped into a consistent format.  
 
-Core backend refactor (Django): organisation models
-
-Frontend routing: redirect based on user type (/dashboard vs /discover)
-
-Opportunities retrieval: on auth/login (and whenever auth state changes), app now calls
-GET /api/v2/opportunities/all (UC-314) to fetch opportunities and render Discover menu with correct statuses
 
 ## [1.0.1] -2025-09-05
 
