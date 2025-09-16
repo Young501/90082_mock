@@ -17,7 +17,6 @@ import { Button } from "@/components/ui/Button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Ban } from "lucide-react";
 
-
 interface StudentCardProps {
   student: StudentProfile;
   userType: string;

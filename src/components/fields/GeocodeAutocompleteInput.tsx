@@ -242,8 +242,10 @@ export const GeocodeAutocompleteInput = memo(
                 bg="white"
                 fontSize="16px"
                 px={icon ? 12 : 6}
-                value={controller ? controller.field.value : value ?? ""}
-                onChange={controller ? controller.field.onChange : handleInputChange}
+                {...(controller
+                  ? controller.field
+                  : { value: inputValue || "" })}
+                onChange={handleInputChange}
                 ref={inputRef}
               />
             </Box>

@@ -272,7 +272,6 @@ export function useAccessibleOpportunities() {
     },
   });
 }
-
 export function useContactUser() {
   return useMutation({
     mutationFn: async (data: {

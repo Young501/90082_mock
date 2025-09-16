@@ -66,6 +66,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     };
   }, [isDiscoverDropdownOpen]);
 
+
   const getSignupLink = () => {
     const inviteToken = searchParams.get("invite_token");
     const opportunityId = searchParams.get("opportunity_id");
@@ -251,8 +252,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     const handleDisabledClick = (e: React.MouseEvent) => {
       e.preventDefault();
       toast.info("No opportunities yet.");
-      if (isMobile) setIsMobileMenuOpen(false);
-      // 👇 跳转到 nothing 页面（id=0, title=Unknown）
+      if (isMobile) setIsMobileMenuOpen(false)
   router.push(`/discover/nothing?id=0&title=Unknown`);
     };
 
@@ -354,7 +354,6 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       </Box>
     );
   };
-
   const handleUserLogout = async () => {
     await handleLogout();
     logout();

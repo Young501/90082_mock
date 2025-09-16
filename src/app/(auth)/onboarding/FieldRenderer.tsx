@@ -30,6 +30,7 @@ interface FieldRendererProps {
   unregister?: (name: string) => void;
   onFieldUnregistered?: (fieldName: string) => void;
   onParentValueChange?: (fieldName: string, newValue: any) => void;
+  fileUploadKey?: number;
 }
 
 const FILE_FIELD_TYPES = {
@@ -47,6 +48,7 @@ export const FieldRenderer = ({
   unregister,
   onFieldUnregistered,
   onParentValueChange,
+  fileUploadKey,
 }: FieldRendererProps) => {
   const error = errors[question.field]?.message as string | undefined;
   // const fieldOptions = question.options || question.option || [];
@@ -306,6 +308,7 @@ export const FieldRenderer = ({
       }
       return (
         <FileField
+          key={`${question.field}-${fileUploadKey || 0}`}
           name={question.field}
           label={question.label}
           control={control}
@@ -355,6 +358,7 @@ export const FieldRenderer = ({
             unregister={unregister}
             onFieldUnregistered={onFieldUnregistered}
             onParentValueChange={onParentValueChange}
+            fileUploadKey={fileUploadKey}
           />
         </Box>
       ))}
