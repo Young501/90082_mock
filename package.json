@@ -1,0 +1,53 @@
+{
+  "name": "uniconnected2-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^3.26.0",
+    "@chakra-ui/system": "^2.6.2",
+    "@chakra-ui/theme": "^3.4.6",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "@fortawesome/free-brands-svg-icons": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
+    "@hookform/resolvers": "^5.1.1",
+    "@next/third-parties": "^15.4.6",
+    "@tanstack/react-query": "^5.80.6",
+    "@tanstack/react-query-devtools": "^5.80.6",
+    "axios": "^1.9.0",
+    "framer-motion": "^12.15.0",
+    "lucide-react": "^0.513.0",
+    "next": "^15.3.2",
+    "next-themes": "^0.4.6",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-hook-form": "^7.57.0",
+    "react-icons": "^5.5.0",
+    "react-markdown": "^10.1.0",
+    "react-toastify": "^11.0.5",
+    "rehype-raw": "^7.0.0",
+    "yup": "^1.6.1",
+    "zustand": "^5.0.5"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.2",
+    "prettier": "^3.5.3",
+    "typescript": "^5"
+  }
+}

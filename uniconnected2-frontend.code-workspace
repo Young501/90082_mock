@@ -1,0 +1,31 @@
+{
+  "folders": [
+    {
+      "path": ".",
+    },
+  ],
+  "settings": {
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "eslint.workingDirectories": [{ "mode": "auto" }],
+
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+    },
+    "eslint.useFlatConfig": true,
+  },
+  "launch": {
+    "configurations": [
+      {
+        "type": "chrome",
+        "request": "launch",
+        "name": "Next.js: Chrome",
+        "url": "http://localhost:3000",
+        "webRoot": "${workspaceFolder}",
+        "sourceMaps": true,
+        "trace": true,
+      },
+    ],
+  },
+}
