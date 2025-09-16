@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.2] -2025-09-11
+## [1.0.3] -2025-09-11
 
 ### Added
 - **Discover dropdown navigation**  
@@ -56,6 +56,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Header component: restructured to consume `useAccessibleOpportunities` and handle responsive dropdown rendering.  
 - Fallback logic: v2 failures auto-fallback to v1 accepted opportunities, mapped into a consistent format.  
 
+---
+
+## [1.0.2] -2025-09-09
+
+### Added
+- **New page creation**  
+  - Added **Nothing page** under Discover, serving as a transition/bridge between Discover and Invite pages.  
+  - Page dynamically displays different content based on the passed opportunity information.  
+
+- **API integration (using Mock data for now)**  
+  - In `nothing.tsx`, opportunity details API is called using the `id` parameter from the URL.  
+  - On success → update local `keyword` state with the returned `title`, used to display opportunity title.  
+  - On failure or missing `title` → display default *“Unknown”*.  
+
+---
+
+### Fixed
+- **Empty state handling**  
+  - When `useAccessibleOpportunities()` returns empty (e.g., `mock-empty`), Discover dropdown does not render.  
+  - Clicking Discover in this case correctly shows an empty/disabled state instead of breaking navigation.
+    
+---
+
+### Changed
+- **Not Enrolled navigation logic** (in `Discover → Header.tsx`)  
+  - **Enrolled** opportunities → keep original behavior (navigate to Discover).  
+  - **Not Enrolled** opportunities → now redirect to `/nothing` page with `id` and `title` as query params.  
+  - `nothing.tsx` renders the corresponding opportunity title accordingly.  
+
+---
+
+ 
+--- 
 
 ## [1.0.1] -2025-09-05
 
