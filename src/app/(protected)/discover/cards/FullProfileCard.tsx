@@ -12,7 +12,11 @@ import {
   Alert,
 } from "@chakra-ui/react";
 import { StudentProfile, OrganisationProfile } from "@/types/discovery";
-import { useStudentProfile, usePartnerProfile } from "@/services/shared";
+import {
+  useStudentProfile,
+  usePartnerProfile,
+  useCoordinatorViewUserProfile,
+} from "@/services/shared";
 import Image from "next/image";
 import BadgeSection from "@/components/BadgeSection";
 import { ContactPage } from "@/components/ui/ContactPage";
@@ -35,6 +39,7 @@ interface FullProfileCardProps {
   organisationProfile?: OrganisationProfile;
   disableBtns?: boolean;
   opportunityId?: string;
+  isCoordinator?: boolean;
 }
 
 export function FullProfileCard({
@@ -46,11 +51,14 @@ export function FullProfileCard({
   organisationProfile,
   disableBtns = false,
   opportunityId,
+  isCoordinator = false,
 }: FullProfileCardProps) {
-  const shouldFetchStudent = profileType === "student" && !studentProfile;
+  const shouldFetchStudent =
+    profileType === "student" && !studentProfile && !isCoordinator;
   const shouldFetchPartner =
-    profileType === "organisation" && !organisationProfile;
-  const { userProfile } = useAuthStore();
+    profileType === "organisation" && !organisationProfile && !isCoordinator;
+  const { userProfile, getUserType } = useAuthStore();
+  const userType = getUserType();
 
   const {
     data: studentData,
@@ -70,10 +78,22 @@ export function FullProfileCard({
     opportunityId || ""
   );
 
-  const isLoading = isStudentLoading || isPartnerLoading;
-  const error = studentError || partnerError;
-  const profile =
-    profileType === "student"
+  const {
+    data: coordinatorData,
+    isLoading: isCoordinatorLoading,
+    error: coordinatorError,
+  } = useCoordinatorViewUserProfile(
+    isCoordinator ? profileId : "",
+    isCoordinator ? opportunityId || "" : ""
+  );
+
+  const isLoading = isCoordinator
+    ? isCoordinatorLoading
+    : isStudentLoading || isPartnerLoading;
+  const error = isCoordinator ? coordinatorError : studentError || partnerError;
+  const profile = isCoordinator
+    ? coordinatorData?.data
+    : profileType === "student"
       ? studentProfile || studentData
       : organisationProfile || partnerData;
 
@@ -175,11 +195,15 @@ export function FullProfileCard({
             student={profile as StudentProfile}
             disableBtns={disableBtns}
             userProfile={userProfile as OrganisationProfile}
+            opportunityId={opportunityId}
+            userType={userType}
           />
         ) : (
           <RenderPartnerDetails
             organisation={profile as OrganisationProfile}
             disableBtns={disableBtns}
+            opportunityId={opportunityId}
+            userType={userType}
           />
         )}
       </VStack>
@@ -277,10 +301,14 @@ const RenderStudentDetails = ({
   student,
   disableBtns,
   userProfile,
+  opportunityId,
+  userType,
 }: {
   student: StudentProfile;
   disableBtns: boolean;
   userProfile: OrganisationProfile;
+  opportunityId?: string;
+  userType?: string;
 }) => {
   const [showContactModal, setShowContactModal] = useState(false);
   return (
@@ -416,7 +444,7 @@ const RenderStudentDetails = ({
             w="100%"
             boxShadow="0px 3.34px 3.34px 0px #00000040"
             onClick={() => setShowContactModal(true)}
-            disabled={disableBtns}
+            disabled={disableBtns || userType === "coordinator"}
           >
             Contact
           </Button>
@@ -591,6 +619,7 @@ const RenderStudentDetails = ({
           organisationName={userProfile?.organisation?.name || ""}
           organisationContact={userProfile?.organisation?.contact_email || ""}
           onBack={() => setShowContactModal(false)}
+          acceptedOpportunityId={opportunityId}
         />
       )}
     </Box>
@@ -600,9 +629,13 @@ const RenderStudentDetails = ({
 const RenderPartnerDetails = ({
   organisation,
   disableBtns,
+  opportunityId,
+  userType,
 }: {
   organisation: OrganisationProfile;
   disableBtns: boolean;
+  opportunityId?: string;
+  userType?: string;
 }) => {
   const [showContactModal, setShowContactModal] = useState(false);
   const getCompanyLogo = () => {
@@ -939,7 +972,7 @@ const RenderPartnerDetails = ({
                 display="flex"
                 justifyContent="center"
                 maxW="200px"
-                disabled={disableBtns}
+                disabled={disableBtns || userType === "coordinator"}
                 onClick={() => setShowContactModal(true)}
               >
                 Contact
@@ -953,6 +986,7 @@ const RenderPartnerDetails = ({
         <ContactPage
           recipientId={organisation.id}
           organisationId={organisation.id.toString()}
+          acceptedOpportunityId={opportunityId}
           recipientName={
             organisation.name ||
             `${organisation.first_name} ${organisation.last_name}`

@@ -279,6 +279,10 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v1/organisation/${id}/`,
   }),
+  COORDINATOR_VIEW_USER_PROFILE: (participantId: string, opportunityId: string): ApiEndpoint => ({
+    method: "GET",
+    url: `/api/v1/opportunities/${opportunityId}/participant/${participantId}/`,
+  }),
 };
 
 /*********

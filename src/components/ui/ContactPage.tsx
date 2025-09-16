@@ -28,14 +28,18 @@ export function ContactPage({
   organisationName,
   organisationContact,
   organisationId,
+  acceptedOpportunityId,
 }: ContactPageProps) {
-  const { userProfile, user } = useAuthStore();
+  const { userProfile, user, getUserType } = useAuthStore();
+  const userType = getUserType();
   const contactMutation = useContactUser();
   const { data: acceptedOpportunities } = useAcceptedOpportunities();
 
   const getDefaultSubject = () => {
     const fullName = `${userProfile?.first_name} ${userProfile?.last_name}`;
-    if (profileType === "organisation") {
+    if (userType === "coordinator") {
+      return `New message from ${"Coordinator"} via UniConnected`;
+    } else if (profileType === "organisation") {
       return `New message from ${fullName || "User"} via UniConnected`;
     } else {
       return `New message from ${organisationName || "User"} via UniConnected`;
@@ -58,6 +62,7 @@ export function ContactPage({
   });
 
   const onSubmit: SubmitHandler<ContactFormData> = async (data) => {
+    // if userType is coordinator and cordinator is allowed to contact all, this will as well take acceptedOpportunityId here
     const currentOpportunityId = acceptedOpportunities?.[0]?.id;
 
     if (!currentOpportunityId) {
