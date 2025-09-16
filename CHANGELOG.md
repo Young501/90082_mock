@@ -13,15 +13,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.2] -2025-09-07
+## [1.0.2] -2025-09-11
 
 ### Added
 
-- Full card for student now doesn't show Opportuntiy Answers in profile page preview.
-- Fixed the design of the Opportunity Answers in full card.
-- Now Students that are matched will appear in discover but their cards are unclickable, and it will say "Not Available"
+Discover navigation: turned into a dropdown listing accessible opportunities
+
+0 items → Discover disabled; clicking shows toast “No opportunities yet.”
+
+1 item → plain link to the single opportunity
+
+2+ items → dropdown with name + status badge (Enrolled / Not Enrolled), click → /discover/{id}
+
+Mobile responsive: collapsible within header menu
 
 ---
+
+Changed
+
+Core backend refactor (Django): organisation models
+
+Frontend routing: redirect based on user type (/dashboard vs /discover)
+
+Opportunities retrieval: on auth/login (and whenever auth state changes), app now calls
+GET /api/v2/opportunities/all (UC-314) to fetch opportunities and render Discover menu with correct statuses
 
 ## [1.0.1] -2025-09-05
 
