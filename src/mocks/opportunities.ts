@@ -9,7 +9,7 @@ export const MOCK_OPPORTUNITIES: AccessibleOpportunity[] = [
   },
   {
     id: 2,
-    title: "Graduate Research Opportunity",
+    title: "Research Opportunity",
     status: "Not Enrolled"
   },
   {

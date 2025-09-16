@@ -253,7 +253,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       e.preventDefault();
       toast.info("No opportunities yet.");
       if (isMobile) setIsMobileMenuOpen(false)
-  router.push(`/discover/nothing?id=0&title=Unknown`);
+    router.push(`/discover/nothing?id=0&title=Unknown`);
     };
 
     if (!opps || opps.length === 0) {

@@ -131,7 +131,10 @@ export const useDiscovery = (opportunityIdOverride?: string) => {
     userType === "student" ? organisationOnboardingData : userOnboardingData;
 
   const { data: questionnaireFilters, isLoading: isQuestionnaireLoading } =
-    useQuestionnaireFilters(currentOpportunityId || "", targetUserType || "");
+    useQuestionnaireFilters(
+      currentOpportunityId || "", 
+      targetUserType || ""
+    );
 
   const {
     data: searchData,

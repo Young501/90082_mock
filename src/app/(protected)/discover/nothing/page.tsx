@@ -129,9 +129,8 @@ const title = searchParams.get("title");
               graduate roles within your university community.
               </Text>
               
-          <NextLink href="/invite" passHref>
+          <NextLink href="/invite">
           <Button
-           as="a" // 👈 渲染成 <a>
            colorScheme="green"
            bg="green.600"
            color="white"
