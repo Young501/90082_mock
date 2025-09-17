@@ -63,7 +63,8 @@ export function ContactPage({
 
   const onSubmit: SubmitHandler<ContactFormData> = async (data) => {
     // if userType is coordinator and cordinator is allowed to contact all, this will as well take acceptedOpportunityId here
-    const currentOpportunityId = acceptedOpportunities?.[0]?.id;
+    const currentOpportunityId =
+      acceptedOpportunities?.[0]?.id || acceptedOpportunityId;
 
     if (!currentOpportunityId) {
       toast.error("No opportunity found. Please join an opportunity first.");

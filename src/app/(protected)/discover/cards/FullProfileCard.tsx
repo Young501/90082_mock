@@ -948,7 +948,8 @@ const RenderPartnerDetails = ({
                 <Box
                   cursor="pointer"
                   onClick={() => {
-                    if (!disableBtns) setShowContactModal(true);
+                    if (!disableBtns && userType != "coordinator")
+                      setShowContactModal(true);
                   }}
                 >
                   <Image
