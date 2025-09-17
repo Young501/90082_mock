@@ -264,3 +264,20 @@ export function useInviteParticipants() {
     },
   });
 }
+
+export function useCoordinatorViewUserProfile(participantId: string, opportunityId: string) {
+  return useQuery({
+    queryKey: ["coordinator-view-user-profile", participantId, opportunityId],
+    queryFn: () =>
+      apiRequest({ endpoint: API_ENDPOINTS.COORDINATOR_VIEW_USER_PROFILE(participantId, opportunityId) }),
+    enabled: !!participantId && !!opportunityId,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+
+}
