@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Cleaned up the auth sign up validation schema
+- Now coordinator can view full profiles of students and organisations.
+
 ---
 
 ## [1.0.2] -2025-09-07
