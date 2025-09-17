@@ -11,6 +11,23 @@ const getCurrentToken = (): string | null => {
   return useAuthStore.getState().getCurrentToken();
 };
 
+/*****
+ * Matches invite pattern to avoid breaking opportunity invite if user is not logged in so on 401 we exclude invite pages since redrirect is already handled in component
+ */
+
+const matchesInvitePattern = (url: string): boolean => {
+  try {
+    const urlObj = new URL(url, window.location.origin);
+    
+    if (urlObj.pathname !== '/invite/') return false;
+    
+    const params = urlObj.searchParams;
+    return params.has('token') && params.has('opportunity');
+  } catch {
+    return false;
+  }
+};
+
 // ============= AXIOS CONFIG =============
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -44,10 +61,12 @@ apiClient.interceptors.request.use(
   },
   (error: AxiosError) => {
     // [BJ] Breaks opportunity invite if user is not logged in
-    // if (error.status === 401) {
-    //   useAuthStore.getState().setAuthData("", {} as User);
-    //   window.location.href = "/login/";
-    // }
+    const currentUrl = window.location.href;
+    const isInvitePage = matchesInvitePattern(currentUrl);
+    
+    if (error.status === 401 && !isInvitePage) {
+      window.location.href = "/login/";
+    }
     if (process.env.NODE_ENV === "development") {
       console.error("❌ Request interceptor error:", error);
     }
@@ -70,10 +89,13 @@ apiClient.interceptors.response.use(
   },
   (error: AxiosError) => {
     // [BJ] Breaks opportunity invite if user is not logged in
-    // if (error.status === 401) {
-    //   useAuthStore.getState().setAuthData("", {} as User);
-    //   window.location.href = "/login/";
-    // }
+    const currentUrl = window.location.href;
+    const isInvitePage = matchesInvitePattern(currentUrl);
+    
+    if (error.status === 401 && !isInvitePage) {
+      useAuthStore.getState().setAuthData("", {} as User);
+      window.location.href = "/login/";
+    }
     if (process.env.NODE_ENV === "development") {
       console.error(
         `❌ ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
