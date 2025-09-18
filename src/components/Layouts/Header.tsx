@@ -281,22 +281,62 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     // dropdown/list
     if (isMobile) {
       return (
-        <Box key="DISCOVER" w="100%">
-          <Text py={4} fontSize="16px" fontWeight="600" color={isProtected ? "white" : "black"}>
-            DISCOVER
-          </Text>
-          <VStack align="stretch" pl={2} gap={2}>
-            {opps.map((o) => (
-              <Link href={`/discover/?id=${o.id}`} key={o.id} onClick={handleMenuItemClick}>
-                <HStack justify="space-between">
-                  <Text color={isProtected ? "white" : "black"}>{o.title || `Opportunity ${o.id}`}</Text>
-                  <Box as="span" fontSize="12px" px={2} py={0.5} borderRadius="md" bg={o.status === "Enrolled" ? "green.500" : "gray.500"} color="white">
-                    {o.status}
-                  </Box>
-                </HStack>
-              </Link>
-            ))}
-          </VStack>
+        <Box key="DISCOVER">
+          <Box 
+            py={4} 
+            fontSize="16px" 
+            fontWeight="600" 
+            color={isProtected ? "white" : "black"}
+            cursor="pointer"
+            onClick={() => setIsDiscoverDropdownOpen(!isDiscoverDropdownOpen)}
+          >
+            <HStack>
+              <Text>DISCOVER</Text>
+              <Box
+                as="span"
+                ml={1}
+                mt={isDiscoverDropdownOpen ? "3px" : "-6px"} 
+                display="inline-block"
+                width="10px"
+                height="10px"
+                borderRight="1.5px solid"
+                borderBottom="1.5px solid"
+                borderColor={isProtected ? "white" : "black"}
+                transform={isDiscoverDropdownOpen ? "rotate(225deg)" : "rotate(45deg)"}
+                transformOrigin="center"
+                transition="transform 0.2s, margin-top 0.2s"
+              />
+            </HStack>
+          </Box>
+          {isDiscoverDropdownOpen && (
+            <VStack align="stretch" pl={2} gap={2}>
+              {opps.map((o) => (
+                <Link 
+                  href={
+                    o.status === "Not Enrolled"
+                      ? `/discover/nothing?id=${o.id}&title=${encodeURIComponent(o.title)}`
+                      : `/discover/?id=${o.id}` 
+                  } 
+                  key={o.id} 
+                  onClick={handleMobileOpportunityClick}
+                >
+                
+                  <VStack align="stretch" gap={1}>
+                    <Box as="span" fontSize="8px" px={1.0} py={0.5} borderRadius="md" 
+                         bg={o.status === "Enrolled" ? "green.300" : "yellow.200"} 
+                         color="black"
+                         fontWeight="bold"
+                         alignSelf="flex-start"
+                         minW="80px"
+                         textAlign="center">
+                      {o.status}
+                    </Box>
+                    <Text color={isProtected ? "white" : "black"} fontWeight="bold" fontSize="15px">{o.title || `Opportunity ${o.id}`}</Text>
+                  </VStack>
+                </Link>
+              ))}
+            </VStack>
+          )}
         </Box>
       );
     }
@@ -304,7 +344,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     // Desktop dropdown (simple custom popover)
     return (
       <Box key="DISCOVER" position="relative" ref={discoverDropdownRef}>
-        <Text 
+        <HStack 
           py={0} 
           fontSize="18px" 
           fontWeight="700" 
@@ -312,8 +352,21 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
           cursor="pointer"
           onClick={() => setIsDiscoverDropdownOpen(!isDiscoverDropdownOpen)}
         >
-          DISCOVER
-        </Text>
+          <Text>DISCOVER</Text>
+          <Box
+  as="span"
+  ml={1}
+  mt={isDiscoverDropdownOpen ? "3px" : "-6px"} 
+  display="inline-block"
+  width="10px"
+  height="10px"
+  borderRight="1.5px solid white"
+  borderBottom="1.5px solid white"
+  transform={isDiscoverDropdownOpen ? "rotate(225deg)" : "rotate(45deg)"}
+  transformOrigin="center"
+  transition="transform 0.2s, margin-top 0.2s"
+/>
+        </HStack>
         {isDiscoverDropdownOpen && (
           <Box
             position="absolute"
@@ -339,13 +392,18 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   key={o.id}
   onClick={handleMenuItemClick}
 >
-                <HStack _hover={{ bg: "gray.100" }} borderRadius="md" px={3} py={2} justify="space-between">
-                  <Text truncate>{o.title || `Opportunity ${o.id}`}</Text>
-                  
-                  <Box as="span" fontSize="12px" px={2} py={0.5} borderRadius="md" bg={o.status === "Enrolled" ? "green.500" : "gray.500"} color="white">
+                <VStack _hover={{ bg: "gray.100" }} borderRadius="md" px={3} py={2} align="stretch" gap={1}>
+                  <Box as="span" fontSize="10px" px={1.5} py={0.5} borderRadius="md" 
+                       bg={o.status === "Enrolled" ? "green.300" : "yellow.200"} 
+                       color={o.status === "Enrolled" ? "black" : "black"}
+                       fontWeight="bold"
+                       alignSelf="flex-start"
+                       minW="80px"
+                       textAlign="center">
                     {o.status}
                   </Box>
-                </HStack>
+                  <Text truncate fontWeight="bold" fontSize="16px">{o.title || `Opportunity ${o.id}`}</Text>
+                </VStack>
               </Link>
             ))}
           </VStack>
@@ -368,6 +426,10 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const handleMenuItemClick = () => {
     setIsMobileMenuOpen(false);
     setIsDiscoverDropdownOpen(false);
+  };
+
+  const handleMobileOpportunityClick = () => {
+    setIsMobileMenuOpen(false);
   };
 
   const Overlay = () => (
