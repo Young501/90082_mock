@@ -8,7 +8,7 @@ import {
   useImperativeHandle,
   forwardRef,
 } from "react";
-import { createPageSchema } from "@/utils/validationSchemas"; // 直接复用现有的 schema 创建函数
+import { createPageSchema } from "@/utils/validationSchemas"; // Reuse existing schema creation function
 import { FieldRenderer } from "@/app/(auth)/onboarding/FieldRenderer";
 import { QuestionnaireFormProps } from "@/types/invite";
 

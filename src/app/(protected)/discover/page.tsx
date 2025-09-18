@@ -7,7 +7,7 @@ import { DiscoveryFilterBox } from "./DiscoveryFilterBox";
 import { DiscoveryResultBox } from "./DiscoveryResultBox";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useOpportunityDetail, useAccessibleOpportunities } from "@/services/shared";
 import { Opportunity } from "@/types/invite";
 import { QuestionnaireForm, QuestionnaireFormRef } from "@/app/(public)/invite/QuestionnaireForm";
@@ -16,6 +16,7 @@ import Footer from "@/components/Layouts/Footer";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
+  const router = useRouter();
   const idParam = sp.get("id") || undefined;
   const { user } = useAuthStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,7 +32,7 @@ export default function DiscoveryPage() {
   } = useOpportunityDetail(idParam || "");
 
   // Get user's accessible opportunities to check enrollment status
-  const { data: accessibleOpportunities } = useAccessibleOpportunities();
+  const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } = useAccessibleOpportunities();
   
   // Check if user is enrolled in this opportunity
   const isEnrolled = useMemo(() => {
@@ -39,6 +40,20 @@ export default function DiscoveryPage() {
     const currentOpportunity = accessibleOpportunities.find(opp => opp.id.toString() === idParam);
     return currentOpportunity?.status === "Enrolled";
   }, [idParam, accessibleOpportunities]);
+
+  // Auto-redirect logic when no id is provided
+  useEffect(() => {
+    if (!idParam && !isOpportunitiesLoading && accessibleOpportunities) {
+      if (accessibleOpportunities.length > 0) {
+        // Find the minimum opportunity id
+        const minOpportunity = accessibleOpportunities.reduce((min, current) => 
+          current.id < min.id ? current : min
+        );
+        // Redirect to the minimum opportunity id
+        router.replace(`/discover?id=${minOpportunity.id}`);
+      }
+    }
+  }, [idParam, isOpportunitiesLoading, accessibleOpportunities, router]);
 
   const {
     searchResults,
@@ -150,7 +165,7 @@ export default function DiscoveryPage() {
                 mb={{ base: 8, md: 20 }}
                 lineHeight="1.3"
               >
-                You've discovered the{" "}
+                You&apos;ve discovered the{" "}
                 <Box
                   as="span"
                   bg="blue.600"
@@ -170,14 +185,14 @@ export default function DiscoveryPage() {
                 // Enrolled user - show discovery interface
                 <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
                   <VStack align="stretch" mb={8}>
-                    <Heading size="lg" color="#282F68">
-                      Discover {targetUserType === "student" ? "Organizations" : "Students"}
-                    </Heading>
-                    <Text color="gray.600">
-                      Search and filter{" "}
-                      {targetUserType === "student" ? "organizations" : "students"} based on
-                      your criteria
-                    </Text>
+                  <Heading size="lg" color="#282F68">
+            Discover {targetUserType === "student" ? "Students" : "Partners"}
+          </Heading>
+          <Text color="gray.600">
+            Search and filter{" "}
+            {targetUserType === "student" ? "students" : "partners"} based on
+            your criteria
+          </Text>
                   </VStack>
 
                   <Box borderRadius="md" mb={8} w="100%">
@@ -249,7 +264,7 @@ export default function DiscoveryPage() {
                       {!opportunity.description && (
                         <Text fontSize="lg" color="gray.600">
                           Ready to connect with industry partners seeking university talent?
-                          Join the Employment Opportunity to access part-time, casual, and
+                          Join the Opportunity to access part-time, casual, and
                           graduate roles within your university community.
                         </Text>
                       )}
@@ -366,7 +381,7 @@ export default function DiscoveryPage() {
                   </VStack>
                 ) : (
                   <VStack gap={4} align="stretch">
-                    <Text>This opportunity doesn't require a questionnaire. Do you want to confirm enrollment?</Text>
+                    <Text>This opportunity doesn&apos;t require a questionnaire. Do you want to confirm enrollment?</Text>
                     <Flex gap={4} justify="flex-end">
                       <Button variant="outline" onClick={() => setIsModalOpen(false)}>
                         Cancel
@@ -390,47 +405,48 @@ export default function DiscoveryPage() {
     <>
       <PageTitle title={PAGE_TITLES.DISCOVER} />
       <Box p={{ base: 4, md: 6 }} maxW="1280px" mx="auto" mt={{ base: "80px", lg: "126px" }} w="100%" overflow="hidden">
-        <VStack align="stretch" mb={8}>
-          <Heading size="lg" color="#282F68">
-            Discover {targetUserType === "student" ? "Students" : "Partners"}
-          </Heading>
-          <Text color="gray.600">
-            Search and filter{" "}
-            {targetUserType === "student" ? "students" : "partners"} based on
-            your criteria
-          </Text>
-        </VStack>
-
-        <Box borderRadius="md" mb={8} w="100%">
-          <DiscoveryFilterBox
-            fields={filterableFields}
-            control={control}
-            watchedValues={watchedValues}
-            checkDependencies={checkDependencies}
-            hasSearched={hasSearched}
-            isSearching={isSearching}
-            onSubmit={handleSearch}
-            onReset={handleReset}
-            filterOptions={filterOptions}
-          />
-        </Box>
-
-        <Separator my={6} />
-
-        <DiscoveryResultBox
-          results={searchResults}
-          count={resultsCount}
-          isLoading={isSearching}
-          hasSearched={hasSearched}
-          show={showResults}
-          userType={targetUserType!}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          pageSize={pageSize}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          opportunityId={opportunityId}
-        />
+        {/* Loading state while checking opportunities */}
+        {isOpportunitiesLoading ? (
+          <Flex justify="center" align="center" minH="400px">
+            <VStack gap={4} align="center">
+              <Spinner size="xl" color="blue.500" />
+              <Text>Loading opportunities...</Text>
+            </VStack>
+          </Flex>
+        ) : !accessibleOpportunities || accessibleOpportunities.length === 0 ? (
+          // No opportunities available
+          <Flex justify="center" align="center" minH="400px">
+            <VStack gap={6} align="center" textAlign="center">
+              <Image
+                src="/assets/discoverNothing.png" 
+                alt="No opportunities"
+                width={300}
+                height={200}
+                style={{ height: "auto", width: "100%", maxWidth: "200px" }}
+              />
+              <VStack gap={4} align="center">
+                <Heading size="lg" color="#282F68">
+                You haven&apos;t added any opportunities yet.
+                </Heading>
+                <Text color="gray.600" fontSize="lg" maxW="500px">
+                Please accept an opportunity invitation first, and then you&apos;ll be able to start discovering and connecting with other users.
+                </Text>
+              </VStack>
+            </VStack>
+          </Flex>
+        ) : (
+          // Default discovery interface (this should not be reached due to auto-redirect)
+          <VStack align="stretch" mb={8}>
+            <Heading size="lg" color="#282F68">
+              Discover {targetUserType === "student" ? "Students" : "Partners"}
+            </Heading>
+            <Text color="gray.600">
+              Search and filter{" "}
+              {targetUserType === "student" ? "students" : "partners"} based on
+              your criteria
+            </Text>
+          </VStack>
+        )}
       </Box>
     </>
   );

@@ -290,7 +290,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             cursor="pointer"
             onClick={() => setIsDiscoverDropdownOpen(!isDiscoverDropdownOpen)}
           >
-            <HStack>
+            <HStack justify="center">
               <Text>DISCOVER</Text>
               <Box
                 as="span"
@@ -309,27 +309,38 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             </HStack>
           </Box>
           {isDiscoverDropdownOpen && (
-            <VStack align="stretch" pl={2} gap={2}>
+            <VStack align="stretch" gap={2}>
               {opps.map((o) => (
-                <Link 
-                  href={`/discover/?id=${o.id}`}
+                <Box 
                   key={o.id} 
-                  onClick={handleMobileOpportunityClick}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleMobileOpportunityClick(o.id);
+                  }}
+                  onMouseUp={(e) => {
+                    e.stopPropagation();
+                    handleMobileOpportunityClick(o.id);
+                  }}
+                  onTouchEnd={(e) => {
+                    e.stopPropagation();
+                    handleMobileOpportunityClick(o.id);
+                  }}
+                  cursor="pointer"
+                  position="relative"
+                  zIndex={1003}
                 >
-                
-                  <VStack align="stretch" gap={1}>
+                  <VStack align="center" gap={1}>
                     <Box as="span" fontSize="8px" px={1.0} py={0.5} borderRadius="md" 
                          bg={o.status === "Enrolled" ? "green.300" : "yellow.200"} 
                          color="black"
                          fontWeight="bold"
-                         alignSelf="flex-start"
                          minW="80px"
                          textAlign="center">
                       {o.status}
                     </Box>
-                    <Text color={isProtected ? "white" : "black"} fontWeight="bold" fontSize="15px">{o.title || `Opportunity ${o.id}`}</Text>
+                    <Text color={isProtected ? "white" : "black"} fontWeight="bold" fontSize="15px" textAlign="center">{o.title || `Opportunity ${o.id}`}</Text>
                   </VStack>
-                </Link>
+                </Box>
               ))}
             </VStack>
           )}
@@ -420,8 +431,10 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     setIsDiscoverDropdownOpen(false);
   };
 
-  const handleMobileOpportunityClick = () => {
+  const handleMobileOpportunityClick = (opportunityId: number) => {
     setIsMobileMenuOpen(false);
+    setIsDiscoverDropdownOpen(false);
+    router.push(`/discover/?id=${opportunityId}`);
   };
 
   const Overlay = () => (
@@ -436,7 +449,12 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       opacity={isMobileMenuOpen ? 1 : 0}
       visibility={isMobileMenuOpen ? "visible" : "hidden"}
       transition="all 0.3s ease"
-      onClick={() => setIsMobileMenuOpen(false)}
+      onClick={(e) => {
+        // Only close menu if clicking directly on overlay, not on child elements
+        if (e.target === e.currentTarget) {
+          setIsMobileMenuOpen(false);
+        }
+      }}
     />
   );
 
