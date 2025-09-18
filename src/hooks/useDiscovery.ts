@@ -198,6 +198,14 @@ export const useDiscovery = (opportunityIdOverride?: string) => {
     }
   }, [filterableFields, form]);
 
+  // Reset form when opportunity changes
+  useEffect(() => {
+    if (currentOpportunityId && filterableFields.length > 0) {
+      const defaultValues = getDefaultValues(filterableFields);
+      form.reset(defaultValues);
+    }
+  }, [currentOpportunityId, filterableFields, form]);
+
   useEffect(() => {
     if (
       targetUserType &&
@@ -434,8 +442,18 @@ export const useDiscovery = (opportunityIdOverride?: string) => {
       setSearchParams(null);
       setIsSearching(false);
       setCurrentPage(1);
+    } else {
+      // When opportunity changes, reset search and trigger new search
+      setSearchParams({
+        user_type: targetUserType,
+        opportunity_id: currentOpportunityId,
+        page: 1,
+        page_size: pageSize,
+      });
+      setCurrentPage(1);
+      setIsSearching(true);
     }
-  }, [targetUserType, currentOpportunityId]);
+  }, [targetUserType, currentOpportunityId, pageSize]);
 
   const hasSearchFilters = useMemo(() => {
     if (!searchParams) return false;

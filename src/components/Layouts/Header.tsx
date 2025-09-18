@@ -253,7 +253,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       e.preventDefault();
       toast.info("No opportunities yet.");
       if (isMobile) setIsMobileMenuOpen(false)
-    router.push(`/discover/nothing?id=0&title=Unknown`);
+    router.push(`/discover/?id=0`);
     };
 
     if (!opps || opps.length === 0) {
@@ -312,11 +312,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             <VStack align="stretch" pl={2} gap={2}>
               {opps.map((o) => (
                 <Link 
-                  href={
-                    o.status === "Not Enrolled"
-                      ? `/discover/nothing?id=${o.id}&title=${encodeURIComponent(o.title)}`
-                      : `/discover/?id=${o.id}` 
-                  } 
+                  href={`/discover/?id=${o.id}`}
                   key={o.id} 
                   onClick={handleMobileOpportunityClick}
                 >
@@ -382,16 +378,12 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
           >
           <VStack align="stretch" gap={1}>
               {opps.map((o) => (
-              // this is the place to when user click on the not enrolled opp, it goes to the /discover/nothing page
+              // Navigate to opportunity details page
               <Link
-  href={
-    o.status === "Not Enrolled"
-      ? `/discover/nothing?id=${o.id}&title=${encodeURIComponent(o.title)}`
-      : `/discover/?id=${o.id}`
-  }
-  key={o.id}
-  onClick={handleMenuItemClick}
->
+                href={`/discover/?id=${o.id}`}
+                key={o.id}
+                onClick={handleMenuItemClick}
+              >
                 <VStack _hover={{ bg: "gray.100" }} borderRadius="md" px={3} py={2} align="stretch" gap={1}>
                   <Box as="span" fontSize="10px" px={1.5} py={0.5} borderRadius="md" 
                        bg={o.status === "Enrolled" ? "green.300" : "yellow.200"} 

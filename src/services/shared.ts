@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import { useAuthStore } from "@/store/authStore";
-import { MOCK_SCENARIOS, simulateNetworkDelay } from "@/mocks/opportunities";
 
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
@@ -214,39 +213,8 @@ export function useAccessibleOpportunities() {
   return useQuery<AccessibleOpportunity[]>({
     queryKey: ["accessible-opportunities"],
     //queryFn: () =>
-    //  apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITIES_ALL_V2 }),
-    // V1 test start
+    //apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITIES_ALL_V2 }),
     queryFn: async () => {
-      const source = process.env.NEXT_PUBLIC_OPPS_SOURCE;
-      
-      // Mock data for testing
-      if (source === "mock") {
-        await simulateNetworkDelay(500);
-        return MOCK_SCENARIOS.MULTIPLE_OPPORTUNITIES;
-      }
-      
-      if (source === "mock-empty") {
-        await simulateNetworkDelay(300);
-        return MOCK_SCENARIOS.NO_OPPORTUNITIES;
-      }
-      
-      if (source === "mock-single") {
-        await simulateNetworkDelay(400);
-        return MOCK_SCENARIOS.SINGLE_OPPORTUNITY;
-      }
-      
-      // Force v1 for testing if env set
-      if (source === "v1") {
-        const v1 = await apiRequest<any[]>({
-          endpoint: API_ENDPOINTS.ACCEPTED_OPPORTUNITIES,
-        });
-        return (v1 || []).map((o: any) => ({
-          id: o.id,
-          title: o.title || o.name,
-          status: "Enrolled",
-        }));
-      }
-
       try {
         return await apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITIES_ALL_V2 });
       } catch (e: any) {
@@ -261,7 +229,6 @@ export function useAccessibleOpportunities() {
         }));
       }
     },
-    // v1 test end
     enabled: !!user,
     staleTime: 5 * 60 * 1000,
     retry: (failureCount, error: any) => {
@@ -350,5 +317,20 @@ export function useCoordinatorViewUserProfile(participantId: string, opportunity
       return failureCount < 2;
     },
   });
+}
 
+export function useOpportunityDetail(opportunityId: string) {
+  return useQuery({
+    queryKey: ["opportunity-detail", opportunityId],
+    queryFn: () =>
+      apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITY_DETAIL(opportunityId) }),
+    enabled: !!opportunityId,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
 }
