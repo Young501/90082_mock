@@ -6,6 +6,7 @@ export interface ContactPageProps {
   organisationName?: string;
   organisationContact?: string;
   organisationId?: string;
+  acceptedOpportunityId?: string;
 }
 
 export interface ContactFormData {
