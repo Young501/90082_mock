@@ -10,7 +10,6 @@ import { PAGE_TITLES } from "@/utils/pageTitles";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useOpportunityDetail, useAccessibleOpportunities } from "@/services/shared";
 import { Opportunity } from "@/types/invite";
-import { QuestionnaireForm, QuestionnaireFormRef } from "@/app/(public)/invite/QuestionnaireForm";
 import { useAuthStore } from "@/store";
 import Footer from "@/components/Layouts/Footer";
 
@@ -19,10 +18,7 @@ export default function DiscoveryPage() {
   const router = useRouter();
   const idParam = sp.get("id") || undefined;
   const { user } = useAuthStore();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [questionnaireAnswers, setQuestionnaireAnswers] = useState<Record<string, any>>({});
-  const [validationError, setValidationError] = useState<string | null>(null);
-  const questionnaireRef = useRef<QuestionnaireFormRef>(null);
 
   // Fetch opportunity details if id is provided
   const { 
@@ -80,7 +76,7 @@ export default function DiscoveryPage() {
   const { control, watch, getValues } = form;
   const watchedValues = watch();
 
-  // Get questionnaire questions
+  // Get questionnaire questions for state management
   const userType = user?.user_types?.[0];
   const questions = useMemo(
     () =>
@@ -90,33 +86,38 @@ export default function DiscoveryPage() {
     [userType, opportunity?.questionnaire]
   );
 
-  const handleQuestionnaireChange = useCallback(
-    (answers: Record<string, any>) => {
-      setQuestionnaireAnswers(answers);
-      if (validationError) {
-        setValidationError(null);
-      }
-    },
-    [validationError]
-  );
-
-  const handleEnroll = useCallback(async () => {
-    if (questions.length > 0 && questionnaireRef.current) {
-      const isValid = await questionnaireRef.current.validate();
-      if (!isValid) {
-        setValidationError("Please fill in all required fields");
-        return;
-      }
+  // Update questionnaire answers state when questions change
+  useEffect(() => {
+    if (questions.length > 0) {
+      const defaultAnswers = questions.reduce((acc: Record<string, any>, question: any) => {
+        switch (question.type) {
+          case "multi-select":
+          case "tag-select":
+            acc[question.field] = [];
+            break;
+          case "checkbox-group":
+            acc[question.field] = question.max_selection === 1 ? "" : [];
+            break;
+          case "card-select":
+            acc[question.field] = question.max_selection === 1 ? "" : [];
+            break;
+          case "boolean-checkbox":
+            acc[question.field] = undefined;
+            break;
+          case "range":
+            acc[question.field] = question.min !== undefined ? question.min : 0;
+            break;
+          case "number":
+            acc[question.field] = undefined;
+            break;
+          default:
+            acc[question.field] = "";
+        }
+        return acc;
+      }, {} as Record<string, any>);
+      setQuestionnaireAnswers(defaultAnswers);
     }
-
-    setValidationError(null);
-    
-    // TODO: Implement actual enrollment logic
-    console.log("Enrolling with answers:", questionnaireAnswers);
-    
-    // Close modal
-    setIsModalOpen(false);
-  }, [questionnaireAnswers, questions.length]);
+  }, [questions]);
 
   // If id parameter is provided, show opportunity-specific content
   if (idParam) {
@@ -293,7 +294,11 @@ export default function DiscoveryPage() {
                         borderRadius="xl"
                         h="36px"
                         w={{ base: "full", md: "120px" }}
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={() => {
+                          // Save questionnaire state for other team to use
+                          console.log("Enroll clicked - questionnaire state saved:", questionnaireAnswers);
+                          // No modal or routing - handled by other team
+                        }}
                       >
                         Enroll
                       </Button>
@@ -307,95 +312,6 @@ export default function DiscoveryPage() {
       
         <Footer />
 
-        {/* Questionnaire modal - only show for not enrolled users */}
-        {isModalOpen && !isEnrolled && (
-          <Box
-            position="fixed"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
-            bg="blackAlpha.600"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            zIndex={1000}
-            onClick={() => setIsModalOpen(false)}
-          >
-            <Box
-              bg="white"
-              borderRadius="20px"
-              w="90%"
-              maxW="600px"
-              p={6}
-              boxShadow="0px 5.92px 11.84px 5.92px #00000040"
-              onClick={(e) => e.stopPropagation()}
-              position="relative"
-              maxH="80vh"
-              overflowY="auto"
-            >
-              <Button
-                position="absolute"
-                top={4}
-                right={4}
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsModalOpen(false)}
-              >
-                <Image src="/assets/cancel.svg" alt="Close" width={25} height={25} />
-              </Button>
-
-              <VStack align="stretch" gap={6} pt={4}>
-                <Text
-                  fontSize="24px"
-                  fontWeight="bold"
-                  color="#000000"
-                  textAlign="left"
-                >
-                  Enroll in Opportunity
-                </Text>
-
-                {questions.length > 0 ? (
-                  <VStack gap={4} align="stretch">
-                    <QuestionnaireForm
-                      ref={questionnaireRef}
-                      questions={questions}
-                      onAnswersChange={handleQuestionnaireChange}
-                    />
-                    
-                    {validationError && (
-                      <Alert.Root status="error">
-                        <Alert.Indicator />
-                        <Alert.Title>{validationError}</Alert.Title>
-                      </Alert.Root>
-                    )}
-                    
-                    <Flex gap={4} justify="flex-end">
-                      <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-                        Cancel
-                      </Button>
-                      <Button colorScheme="green" onClick={handleEnroll}>
-                        Confirm Enrollment
-                      </Button>
-                    </Flex>
-                  </VStack>
-                ) : (
-                  <VStack gap={4} align="stretch">
-                    <Text>This opportunity doesn&apos;t require a questionnaire. Do you want to confirm enrollment?</Text>
-                    <Flex gap={4} justify="flex-end">
-                      <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-                        Cancel
-                      </Button>
-                      <Button colorScheme="green" onClick={handleEnroll}>
-                        Confirm Enrollment
-                      </Button>
-                    </Flex>
-                  </VStack>
-                )}
-              </VStack>
-            </Box>
-          </Box>
-        )}
       </Box>
     );
   }
