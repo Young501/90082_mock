@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import { useAuthStore } from "@/store/authStore";
+import { Opportunity, OpportunitiesResponse, OpportunitiesMap, CategorizedOpportunities, ParticipantRecord } from "@/types/opportunities";
 
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
@@ -212,16 +213,80 @@ export function useAccessibleOpportunities() {
   const { user } = useAuthStore();
   return useQuery<AccessibleOpportunity[]>({
     queryKey: ["accessible-opportunities"],
-    //queryFn: () =>
-    //apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITIES_ALL_V2 }),
     queryFn: async () => {
       try {
-        return await apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITIES_ALL_V2 });
+        const response = await apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITIES_ALL_V2 });
+        console.log("🔍 V2 API Response:", response);
+        console.log("🔍 Response type:", typeof response);
+        console.log("🔍 Is array:", Array.isArray(response));
+        
+        let opportunities: any[] = [];
+        
+        // Handle different response structures
+        if (Array.isArray(response)) {
+          opportunities = response;
+        } else if (response.opportunities && Array.isArray(response.opportunities)) {
+          opportunities = response.opportunities;
+        } else {
+          console.warn("⚠️ Unexpected V2 API response structure:", response);
+          return [];
+        }
+        
+        console.log("🔍 Processing opportunities:", opportunities.length);
+        
+        // For each opportunity, check enrollment status
+        const opportunitiesWithStatus = await Promise.all(
+          opportunities.map(async (o: any) => {
+            console.log("🔍 Processing opportunity:", o);
+            console.log("🔍 Available fields in opportunity:", Object.keys(o));
+            
+            let enrollmentStatus = "Not Enrolled";
+            
+            try {
+              // Try to get participant record for this opportunity
+              const participantResponse = await apiRequest({ 
+                endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(o.id.toString())
+              });
+              console.log("🔍 Participant response for opportunity", o.id, ":", participantResponse);
+              console.log("🔍 Participant response fields:", Object.keys(participantResponse));
+              
+              // Check different possible enrollment indicators
+              if (participantResponse) {
+                if (participantResponse.status === "active") {
+                  enrollmentStatus = "Enrolled";
+                } else if (participantResponse.accepted === true) {
+                  enrollmentStatus = "Enrolled";
+                } else if (participantResponse.id) {
+                  // If we have a participant record with an ID, consider it enrolled
+                  enrollmentStatus = "Enrolled";
+                }
+              }
+            } catch (participantError: any) {
+              console.log("🔍 No participant record for opportunity", o.id, ":", participantError?.response?.status);
+              // 404 means no participant record, which means not enrolled
+              // Other errors also default to not enrolled
+            }
+            
+            const mappedOpp = {
+              id: o.id,
+              title: o.title || o.name,
+              status: enrollmentStatus,
+            };
+            console.log("🔍 Mapped opportunity:", mappedOpp);
+            return mappedOpp;
+          })
+        );
+        
+        console.log("🔍 Final mapped opportunities with status:", opportunitiesWithStatus);
+        return opportunitiesWithStatus;
+        
       } catch (e: any) {
+        console.log("❌ V2 API failed, falling back to V1:", e);
         // Fallback to v1 accepted if v2 not available
         const v1 = await apiRequest<any[]>({
           endpoint: API_ENDPOINTS.ACCEPTED_OPPORTUNITIES,
         });
+        console.log("🔍 V1 fallback response:", v1);
         return (v1 || []).map((o: any) => ({
           id: o.id,
           title: o.title || o.name,
@@ -328,6 +393,167 @@ export function useOpportunityDetail(opportunityId: string) {
     staleTime: 5 * 60 * 1000,
     retry: (failureCount, error: any) => {
       if (error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+}
+
+// UC-326: My Opportunities - Fetch all opportunities with enrollment status
+export function useAllOpportunities() {
+  const { user } = useAuthStore();
+  
+  return useQuery<Opportunity[]>({
+    queryKey: ["all-opportunities"],
+    queryFn: async () => {
+      try {
+        const response = await apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITIES_ALL_V2 });
+        console.log("🔍 MyOpportunities - V2 API Response:", response);
+        
+        let opportunities: any[] = [];
+        
+        // Handle different response structures
+        if (Array.isArray(response)) {
+          opportunities = response;
+        } else if (response.opportunities && Array.isArray(response.opportunities)) {
+          opportunities = response.opportunities;
+        } else {
+          console.warn("⚠️ MyOpportunities - Unexpected V2 API response structure:", response);
+          return [];
+        }
+        
+        console.log("🔍 MyOpportunities - Processing opportunities:", opportunities.length);
+        
+        // For each opportunity, check enrollment status and get participant record
+        const opportunitiesWithStatus = await Promise.all(
+          opportunities.map(async (o: any) => {
+            console.log("🔍 MyOpportunities - Processing opportunity:", o);
+            
+            let enrollmentStatus = "Not Enrolled";
+            let participantRecord = null;
+            
+            try {
+              // Try to get participant record for this opportunity
+              const participantResponse = await apiRequest({ 
+                endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(o.id.toString())
+              });
+              console.log("🔍 MyOpportunities - Participant response for opportunity", o.id, ":", participantResponse);
+              
+              // Check different possible enrollment indicators
+              if (participantResponse) {
+                participantRecord = participantResponse;
+                if (participantResponse.status === "active") {
+                  enrollmentStatus = "Enrolled";
+                } else if (participantResponse.accepted === true) {
+                  enrollmentStatus = "Enrolled";
+                } else if (participantResponse.id) {
+                  // If we have a participant record with an ID, consider it enrolled
+                  enrollmentStatus = "Enrolled";
+                }
+              }
+            } catch (participantError: any) {
+              console.log("🔍 MyOpportunities - No participant record for opportunity", o.id, ":", participantError?.response?.status);
+              // 404 means no participant record, which means not enrolled
+            }
+            
+            const mappedOpp = {
+              id: o.id,
+              title: o.title || o.name,
+              description: o.description,
+              start_date: o.start_date,
+              end_date: o.end_date,
+              created_by: o.created_by,
+              is_active: o.is_active,
+              created_at: o.created_at,
+              updated_at: o.updated_at,
+              questionnaire: o.questionnaire,
+              is_enrolled: enrollmentStatus === "Enrolled",
+              participant_record: participantRecord,
+            };
+            console.log("🔍 MyOpportunities - Mapped opportunity:", mappedOpp);
+            return mappedOpp;
+          })
+        );
+        
+        console.log("🔍 MyOpportunities - Final mapped opportunities:", opportunitiesWithStatus);
+        return opportunitiesWithStatus;
+        
+      } catch (error: any) {
+        console.error("Failed to fetch all opportunities:", error);
+        throw error;
+      }
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+}
+
+// Helper function to create normalized map of opportunities
+export function createOpportunitiesMap(opportunities: Opportunity[]): OpportunitiesMap {
+  return opportunities.reduce((map, opportunity) => {
+    map[opportunity.id] = opportunity;
+    return map;
+  }, {} as OpportunitiesMap);
+}
+
+// Helper function to categorize opportunities
+export function categorizeOpportunities(opportunities: Opportunity[]): CategorizedOpportunities {
+  const enrolled: Opportunity[] = [];
+  const closed: Opportunity[] = [];
+  
+  opportunities.forEach(opportunity => {
+    console.log("🔍 Categorizing opportunity:", opportunity.id, "is_enrolled:", opportunity.is_enrolled);
+    
+    // Check if user is enrolled based on the updated logic
+    const isEnrolled = opportunity.is_enrolled === true || 
+                      opportunity.participant_record?.status === "active" ||
+                      opportunity.participant_record?.accepted === true;
+    
+    if (isEnrolled) {
+      enrolled.push(opportunity);
+      console.log("🔍 Added to enrolled:", opportunity.id);
+    } else {
+      closed.push(opportunity);
+      console.log("🔍 Added to closed:", opportunity.id);
+    }
+  });
+  
+  console.log("🔍 Final categorization - Enrolled:", enrolled.length, "Closed:", closed.length);
+  return { enrolled, closed };
+}
+
+// UC-326: Get participant record for a specific opportunity
+export function useOpportunityParticipant(opportunityId: string | number) {
+  const { user } = useAuthStore();
+  
+  return useQuery<ParticipantRecord>({
+    queryKey: ["opportunity-participant", opportunityId],
+    queryFn: async () => {
+      try {
+        const response = await apiRequest<ParticipantRecord>({ 
+          endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(opportunityId.toString())
+        });
+        return response;
+      } catch (error: any) {
+        console.error("Failed to fetch participant record:", error);
+        throw error;
+      }
+    },
+    enabled: !!user && !!opportunityId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) {
+        // Participant record not found - this is expected for non-enrolled opportunities
+        return false;
+      }
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
         return false;
       }
       return failureCount < 2;

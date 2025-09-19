@@ -241,6 +241,11 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: "/api/v2/opportunities/all/",
   },
+  // UC-326: Get current user's participant record for an opportunity
+  OPPORTUNITY_PARTICIPANT: (opportunityId: string): ApiEndpoint => ({
+    method: "GET",
+    url: `/api/v2/opportunities/${opportunityId}/participant/`,
+  }),
   CONTACT_USER: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/contact/`,
