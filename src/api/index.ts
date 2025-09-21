@@ -246,6 +246,21 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v2/opportunities/${opportunityId}/participant/`,
   }),
+  // UC-326: Update current user's participant record for an opportunity
+  UPDATE_OPPORTUNITY_PARTICIPANT: (opportunityId: string, participantId: string): ApiEndpoint => ({
+    method: "PATCH",
+    url: `/api/v2/opportunities/${opportunityId}/participant/${participantId}/`,
+  }),
+  // UC-326: Re-enroll in an opportunity
+  RE_ENROLL_OPPORTUNITY: (opportunityId: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v2/opportunities/${opportunityId}/participant/`,
+  }),
+  // UC-326: Cancel enrollment in an opportunity
+  CANCEL_OPPORTUNITY_ENROLLMENT: (opportunityId: string): ApiEndpoint => ({
+    method: "DELETE",
+    url: `/api/v2/opportunities/${opportunityId}/participant/`,
+  }),
   CONTACT_USER: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/contact/`,

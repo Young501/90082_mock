@@ -9,14 +9,45 @@ import {
   HStack,
   Spinner,
   Alert,
+  Skeleton,
+  SkeletonText,
 } from "@chakra-ui/react";
 import { useAllOpportunities, categorizeOpportunities, useOpportunityParticipant } from "@/services/shared";
+import { useUpdateOpportunityParticipant, useReEnrollOpportunity, useCancelOpportunityEnrollment } from "@/services/updateParticipant";
 import { Opportunity, ParticipantRecord } from "@/types/opportunities";
 import { FieldRenderer } from "@/app/(auth)/onboarding/FieldRenderer";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { createPageSchema } from "@/utils/validationSchemas";
 import { Question } from "@/types/onboarding";
+import { toast } from "react-toastify";
+
+// Skeleton component for opportunity cards
+const OpportunityCardSkeleton: React.FC = () => (
+  <Box
+    borderRadius="12px"
+    bg="white"
+    border="1px solid #E2E8F0"
+    boxShadow="0 1px 3px rgba(0,0,0,0.1)"
+    overflow="hidden"
+  >
+    <Box p={4}>
+      <Flex justify="space-between" align="start">
+        <Box flex={1}>
+          <Skeleton height="20px" width="70%" mb={2} />
+          <SkeletonText noOfLines={2} mb={3} />
+          <HStack gap={4}>
+            <Skeleton height="16px" width="120px" />
+            <Skeleton height="16px" width="120px" />
+          </HStack>
+        </Box>
+        <Box>
+          <Skeleton height="32px" width="100px" />
+        </Box>
+      </Flex>
+    </Box>
+  </Box>
+);
 
 // Simple Opportunity Card Component
 interface OpportunityCardProps {
@@ -28,6 +59,7 @@ interface OpportunityCardProps {
 const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, userType, type }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [originalAnswers, setOriginalAnswers] = useState<Record<string, any>>({});
   
   // Fetch participant record when expanded
   const { 
@@ -35,6 +67,15 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, userType
     isLoading: isParticipantLoading, 
     error: participantError 
   } = useOpportunityParticipant(opportunity.id);
+  
+  // Update mutation
+  const updateParticipantMutation = useUpdateOpportunityParticipant();
+  
+  // Re-enroll mutation
+  const reEnrollMutation = useReEnrollOpportunity();
+  
+  // Cancel enrollment mutation
+  const cancelEnrollmentMutation = useCancelOpportunityEnrollment();
   
   // Parse questionnaire from opportunity
   const questionnaire = useMemo(() => {
@@ -68,6 +109,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, userType
   useEffect(() => {
     if (participantRecord?.questionnaire_answers) {
       reset(participantRecord.questionnaire_answers);
+      setOriginalAnswers(participantRecord.questionnaire_answers);
     }
   }, [participantRecord, reset]);
   
@@ -82,10 +124,95 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, userType
     setIsEditMode(!isEditMode);
   };
   
+  const handleReEnroll = async (data?: any) => {
+    try {
+      // Get form values from parameter or current form state
+      const questionnaireAnswers = data || getValues();
+      
+      await reEnrollMutation.mutateAsync({
+        opportunityId: opportunity.id,
+        questionnaireAnswers: Object.keys(questionnaireAnswers).length > 0 ? questionnaireAnswers : undefined
+      });
+      
+      toast.success("Successfully re-enrolled in opportunity!");
+      
+      // Close expanded view after successful re-enrollment
+      setIsExpanded(false);
+      setIsEditMode(false);
+      
+    } catch (error: any) {
+      console.error("Re-enroll failed:", error);
+      const errorMessage = error?.response?.data?.error || 
+                          error?.response?.data?.detail || 
+                          error?.response?.data?.message ||
+                          "Failed to re-enroll in opportunity";
+      toast.error(errorMessage);
+    }
+  };
+  
+  const handleCancelEnrollment = async () => {
+    try {
+      await cancelEnrollmentMutation.mutateAsync({
+        opportunityId: opportunity.id
+      });
+      
+      toast.success("Successfully cancelled enrollment!");
+      
+      // Close expanded view after successful cancellation
+      setIsExpanded(false);
+      setIsEditMode(false);
+      
+    } catch (error: any) {
+      console.error("Cancel enrollment failed:", error);
+      const errorMessage = error?.response?.data?.error || 
+                          error?.response?.data?.detail || 
+                          error?.response?.data?.message ||
+                          "Failed to cancel enrollment";
+      toast.error(errorMessage);
+    }
+  };
+  
   const handleSave = async (data: any) => {
-    // TODO: Implement save functionality
-    console.log("Save questionnaire answers:", data);
-    setIsEditMode(false);
+    if (!participantRecord?.id) {
+      toast.error("No participant record found");
+      return;
+    }
+    
+    try {
+      // Find only changed fields
+      const changedFields: Record<string, any> = {};
+      Object.keys(data).forEach(key => {
+        const originalValue = originalAnswers[key];
+        const newValue = data[key];
+        
+        // Deep comparison for arrays and objects
+        if (JSON.stringify(originalValue) !== JSON.stringify(newValue)) {
+          changedFields[key] = newValue;
+        }
+      });
+      
+      if (Object.keys(changedFields).length === 0) {
+        toast.info("No changes to save");
+        setIsEditMode(false);
+        return;
+      }
+      
+      await updateParticipantMutation.mutateAsync({
+        opportunityId: opportunity.id,
+        participantId: participantRecord.id,
+        questionnaireAnswers: changedFields
+      });
+      
+      toast.success("Saved.");
+      setIsEditMode(false);
+      
+    } catch (error: any) {
+      console.error("Save failed:", error);
+      const errorMessage = error?.response?.data?.error || 
+                          error?.response?.data?.detail || 
+                          "Failed to save changes";
+      toast.error(errorMessage);
+    }
   };
   
   return (
@@ -125,7 +252,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, userType
               colorScheme={userType === "student" ? "red" : "green"}
               onClick={handleExpand}
             >
-              {isExpanded ? "Collapse" : (type === "enrolled" ? "View Details" : "Re-enroll")}
+              {isExpanded ? "Collapse" : (type === "enrolled" ? "View Details" : "View Details")}
             </Button>
           </Box>
         </Flex>
@@ -146,14 +273,97 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, userType
               </Text>
             </VStack>
           ) : participantError ? (
-            <Alert.Root status="warning">
-              <Alert.Indicator />
-              <Alert.Title>
-                {type === "enrolled" 
-                  ? "Unable to load participant details" 
-                  : "No participant record found"}
-              </Alert.Title>
-            </Alert.Root>
+            <VStack gap={4} align="stretch">
+              {/* Show error message for enrolled opportunities */}
+              {type === "enrolled" && (
+                <Alert.Root status="warning">
+                  <Alert.Indicator />
+                  <Alert.Title>
+                    Unable to load participant details
+                  </Alert.Title>
+                </Alert.Root>
+              )}
+              
+              {/* For closed opportunities, show re-enroll option even without participant record */}
+              {type === "closed" && (
+                <Box>
+                  <Alert.Root status="info" mb={4}>
+                    <Alert.Indicator />
+                    <Alert.Title>
+                      You are not currently enrolled in this opportunity
+                    </Alert.Title>
+                  </Alert.Root>
+                  
+                  {/* Show questionnaire for re-enrollment if available */}
+                  {questionnaire.length > 0 && (
+                    <Box mb={4}>
+                      <Text fontSize="16px" fontWeight="600" color="#1F2937" mb={3}>
+                        Complete Questionnaire to Re-enroll
+                      </Text>
+                      
+                      {isEditMode ? (
+                        <form onSubmit={handleSubmit(handleReEnroll)}>
+                          <VStack gap={4} align="stretch">
+                            {questionnaire.map((question: Question) => (
+                              <FieldRenderer
+                                key={question.field}
+                                question={question}
+                                register={register}
+                                control={control}
+                                errors={errors}
+                              />
+                            ))}
+                            <HStack gap={2} justify="flex-end">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setIsEditMode(false)}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                size="sm"
+                                type="submit"
+                                colorScheme={userType === "student" ? "red" : "green"}
+                                loading={reEnrollMutation.isPending}
+                              >
+                                Re-enroll with Answers
+                              </Button>
+                            </HStack>
+                          </VStack>
+                        </form>
+                      ) : (
+                        <VStack gap={3} align="stretch">
+                          {questionnaire.map((question: Question) => (
+                            <Box key={question.field} p={3} bg="white" borderRadius="8px" border="1px solid #E2E8F0">
+                              <Text fontSize="14px" fontWeight="600" color="#374151" mb={1}>
+                                {question.label}
+                              </Text>
+                              <Text fontSize="14px" color="#6B7280">
+                                No answer provided
+                              </Text>
+                            </Box>
+                          ))}
+                        </VStack>
+                      )}
+                    </Box>
+                  )}
+                  
+                  {/* Re-enroll button */}
+                  <Box>
+                    <Button
+                      size="md"
+                      colorScheme={userType === "student" ? "red" : "green"}
+                      onClick={questionnaire.length > 0 ? () => setIsEditMode(true) : handleReEnroll}
+                      loading={reEnrollMutation.isPending}
+                      w="full"
+                    >
+                      {questionnaire.length > 0 ? "Complete Questionnaire & Re-enroll" : "Re-enroll in Opportunity"}
+                    </Button>
+                  </Box>
+                </Box>
+              )}
+            </VStack>
           ) : (
             <VStack gap={4} align="stretch">
               {/* Participant info */}
@@ -222,6 +432,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, userType
                             size="sm"
                             type="submit"
                             colorScheme={userType === "student" ? "red" : "green"}
+                            loading={updateParticipantMutation.isPending}
                           >
                             Save Changes
                           </Button>
@@ -248,6 +459,22 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, userType
                       })}
                     </VStack>
                   )}
+                </Box>
+              )}
+              
+              {/* Cancel enrollment button for enrolled opportunities */}
+              {type === "enrolled" && (
+                <Box>
+                  <Button
+                    size="md"
+                    variant="outline"
+                    colorScheme="red"
+                    onClick={handleCancelEnrollment}
+                    loading={cancelEnrollmentMutation.isPending}
+                    w="full"
+                  >
+                    Cancel Enrollment
+                  </Button>
                 </Box>
               )}
             </VStack>
@@ -353,23 +580,14 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
 
       {/* Tab content */}
       <Box>
-        {/* Loading state */}
-        {isLoading && (
-          <Box
-            p={8}
-            borderRadius="12px"
-            bg="#F8F9FA"
-            border="1px solid #E2E8F0"
-            textAlign="center"
-          >
-            <VStack gap={4}>
-              <Spinner size="lg" color={userType === "student" ? "#DC2626" : "#089C3F"} />
-              <Text fontSize="16px" color="#6B7280">
-                Loading opportunities...
-              </Text>
-            </VStack>
-          </Box>
-        )}
+               {/* Loading state with skeletons */}
+               {isLoading && (
+                 <VStack gap={4} align="stretch">
+                   <OpportunityCardSkeleton />
+                   <OpportunityCardSkeleton />
+                   <OpportunityCardSkeleton />
+                 </VStack>
+               )}
 
         {/* Error state */}
         {error && (
@@ -402,35 +620,31 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
                   />
                 ))}
               </VStack>
-            ) : (
-              <Box
-                p={8}
-                borderRadius="12px"
-                bg="#F8F9FA"
-                border="1px solid #E2E8F0"
-                textAlign="center"
-              >
-                <VStack gap={4}>
-                  <i
-                    className="fa-solid fa-folder-closed"
-                    style={{
-                      fontSize: "48px",
-                      color: "#9CA3AF",
-                    }}
-                  />
-                  <Text fontSize="18px" fontWeight="600" color="#374151">
-                    Enrolled Opportunities
-                  </Text>
-                  <Text fontSize="14px" color="#6B7280" maxW="400px">
-                    You are currently enrolled in the following opportunities. 
-                    Click on any opportunity to view details or cancel enrollment.
-                  </Text>
-                  <Text fontSize="12px" color="#9CA3AF" fontStyle="italic">
-                    No enrolled opportunities found
-                  </Text>
-                </VStack>
-              </Box>
-            )}
+                     ) : (
+                       <Box
+                         p={8}
+                         borderRadius="12px"
+                         bg="#F8F9FA"
+                         border="1px solid #E2E8F0"
+                         textAlign="center"
+                       >
+                         <VStack gap={4}>
+                           <i
+                             className="fa-solid fa-folder-closed"
+                             style={{
+                               fontSize: "48px",
+                               color: "#9CA3AF",
+                             }}
+                           />
+                           <Text fontSize="18px" fontWeight="600" color="#374151">
+                             Enrolled Opportunities
+                           </Text>
+                           <Text fontSize="14px" color="#6B7280" maxW="400px">
+                             You're not enrolled in any opportunities yet.
+                           </Text>
+                         </VStack>
+                       </Box>
+                     )}
           </Box>
         )}
 
@@ -448,35 +662,31 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
                   />
                 ))}
               </VStack>
-            ) : (
-              <Box
-                p={8}
-                borderRadius="12px"
-                bg="#F8F9FA"
-                border="1px solid #E2E8F0"
-                textAlign="center"
-              >
-                <VStack gap={4}>
-                  <i
-                    className="fa-solid fa-archive"
-                    style={{
-                      fontSize: "48px",
-                      color: "#9CA3AF",
-                    }}
-                  />
-                  <Text fontSize="18px" fontWeight="600" color="#374151">
-                    Closed Opportunities
-                  </Text>
-                  <Text fontSize="14px" color="#6B7280" maxW="400px">
-                    These are opportunities you were previously enrolled in but are no longer active. 
-                    You can re-enroll in some of these opportunities.
-                  </Text>
-                  <Text fontSize="12px" color="#9CA3AF" fontStyle="italic">
-                    No closed opportunities found
-                  </Text>
-                </VStack>
-              </Box>
-            )}
+                     ) : (
+                       <Box
+                         p={8}
+                         borderRadius="12px"
+                         bg="#F8F9FA"
+                         border="1px solid #E2E8F0"
+                         textAlign="center"
+                       >
+                         <VStack gap={4}>
+                           <i
+                             className="fa-solid fa-archive"
+                             style={{
+                               fontSize: "48px",
+                               color: "#9CA3AF",
+                             }}
+                           />
+                           <Text fontSize="18px" fontWeight="600" color="#374151">
+                             Closed Opportunities
+                           </Text>
+                           <Text fontSize="14px" color="#6B7280" maxW="400px">
+                             No closed opportunities.
+                           </Text>
+                         </VStack>
+                       </Box>
+                     )}
           </Box>
         )}
       </Box>

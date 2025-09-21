@@ -32,20 +32,12 @@ export default function DiscoveryPage() {
   
   // Check if user is enrolled in this opportunity
   const isEnrolled = useMemo(() => {
-    console.log("🔍 Checking enrollment status:");
-    console.log("🔍 idParam:", idParam);
-    console.log("🔍 accessibleOpportunities:", accessibleOpportunities);
-    
     if (!idParam || !accessibleOpportunities) {
-      console.log("🔍 No idParam or accessibleOpportunities, returning false");
       return false;
     }
     
     const currentOpportunity = accessibleOpportunities.find(opp => opp.id.toString() === idParam);
-    console.log("🔍 Found current opportunity:", currentOpportunity);
-    
     const enrolled = currentOpportunity?.status === "Enrolled";
-    console.log("🔍 Is enrolled:", enrolled);
     
     return enrolled;
   }, [idParam, accessibleOpportunities]);

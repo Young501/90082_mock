@@ -19,6 +19,7 @@ export function useOnboardingSubmission(userType: string) {
   });
 }
 
+
 export function useProfilePictureUpload() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -37,6 +38,7 @@ export function useProfilePictureUpload() {
   });
 }
 
+
 export function useResumeUpload(userType: string) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -54,6 +56,7 @@ export function useResumeUpload(userType: string) {
   });
 }
 
+
 export function useProfileUpdate(userType: string) {
   const queryClient = useQueryClient();
 
@@ -70,6 +73,7 @@ export function useProfileUpdate(userType: string) {
   });
 }
 
+
 export function useOnboardingPages(userType: string) {
   return useQuery({
     queryKey: ["onboarding-pages", userType],
@@ -79,6 +83,7 @@ export function useOnboardingPages(userType: string) {
     staleTime: 10 * 60 * 1000,
   });
 }
+
 
 export function useLogoUpload(userType: string) {
   const queryClient = useQueryClient();
@@ -97,6 +102,7 @@ export function useLogoUpload(userType: string) {
   });
 }
 
+
 export function useOrganisationDomainCheck() {
   return useQuery({
     queryKey: ["organisation-domain-check"],
@@ -107,6 +113,7 @@ export function useOrganisationDomainCheck() {
   });
 }
 
+
 export function useOrganisationDetail(id: string) {
   return useQuery({
     queryKey: ["organisation-detail", id],
@@ -116,6 +123,7 @@ export function useOrganisationDetail(id: string) {
     staleTime: 10 * 60 * 1000,
   });
 }
+
 
 export function useGeocode() {
   const { getUserType } = useAuthStore();
@@ -133,6 +141,7 @@ export function useGeocode() {
   });
 }
 
+
 export function useUserProfile(userType: string) {
   return useQuery({
     queryKey: ["user-profile", userType],
@@ -148,6 +157,7 @@ export function useUserProfile(userType: string) {
     },
   });
 }
+
 
 export function useStudentProfile(id: string, opportunityId: string) {
   return useQuery({
@@ -167,6 +177,7 @@ export function useStudentProfile(id: string, opportunityId: string) {
   });
 }
 
+
 export function usePartnerProfile(id: string, opportunityId: string) {
   return useQuery({
     queryKey: ["partner-profile", id, opportunityId],
@@ -185,6 +196,7 @@ export function usePartnerProfile(id: string, opportunityId: string) {
   });
 }
 
+
 export function useAcceptedOpportunities() {
   const { user } = useAuthStore();
   return useQuery({
@@ -202,6 +214,7 @@ export function useAcceptedOpportunities() {
   });
 }
 
+
 // UC-314: All accessible opportunities for current user
 export interface AccessibleOpportunity {
   id: number;
@@ -216,9 +229,6 @@ export function useAccessibleOpportunities() {
     queryFn: async () => {
       try {
         const response = await apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITIES_ALL_V2 });
-        console.log("🔍 V2 API Response:", response);
-        console.log("🔍 Response type:", typeof response);
-        console.log("🔍 Is array:", Array.isArray(response));
         
         let opportunities: any[] = [];
         
@@ -232,13 +242,9 @@ export function useAccessibleOpportunities() {
           return [];
         }
         
-        console.log("🔍 Processing opportunities:", opportunities.length);
-        
         // For each opportunity, check enrollment status
         const opportunitiesWithStatus = await Promise.all(
           opportunities.map(async (o: any) => {
-            console.log("🔍 Processing opportunity:", o);
-            console.log("🔍 Available fields in opportunity:", Object.keys(o));
             
             let enrollmentStatus = "Not Enrolled";
             
@@ -247,8 +253,6 @@ export function useAccessibleOpportunities() {
               const participantResponse = await apiRequest({ 
                 endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(o.id.toString())
               });
-              console.log("🔍 Participant response for opportunity", o.id, ":", participantResponse);
-              console.log("🔍 Participant response fields:", Object.keys(participantResponse));
               
               // Check different possible enrollment indicators
               if (participantResponse) {
@@ -262,7 +266,6 @@ export function useAccessibleOpportunities() {
                 }
               }
             } catch (participantError: any) {
-              console.log("🔍 No participant record for opportunity", o.id, ":", participantError?.response?.status);
               // 404 means no participant record, which means not enrolled
               // Other errors also default to not enrolled
             }
@@ -272,21 +275,17 @@ export function useAccessibleOpportunities() {
               title: o.title || o.name,
               status: enrollmentStatus,
             };
-            console.log("🔍 Mapped opportunity:", mappedOpp);
             return mappedOpp;
           })
         );
         
-        console.log("🔍 Final mapped opportunities with status:", opportunitiesWithStatus);
         return opportunitiesWithStatus;
         
       } catch (e: any) {
-        console.log("❌ V2 API failed, falling back to V1:", e);
         // Fallback to v1 accepted if v2 not available
         const v1 = await apiRequest<any[]>({
           endpoint: API_ENDPOINTS.ACCEPTED_OPPORTUNITIES,
         });
-        console.log("🔍 V1 fallback response:", v1);
         return (v1 || []).map((o: any) => ({
           id: o.id,
           title: o.title || o.name,
@@ -304,6 +303,7 @@ export function useAccessibleOpportunities() {
     },
   });
 }
+
 export function useContactUser() {
   return useMutation({
     mutationFn: async (data: {
@@ -328,6 +328,7 @@ export function useContactUser() {
   });
 }
 
+
 export function useQuestionnaireFilters(
   opportunityId: string,
   userType: string
@@ -349,6 +350,7 @@ export function useQuestionnaireFilters(
   });
 }
 
+
 export function useInviteParticipants() {
   return useMutation({
     mutationFn: async (data: {
@@ -368,6 +370,7 @@ export function useInviteParticipants() {
   });
 }
 
+
 export function useCoordinatorViewUserProfile(participantId: string, opportunityId: string) {
   return useQuery({
     queryKey: ["coordinator-view-user-profile", participantId, opportunityId],
@@ -383,6 +386,7 @@ export function useCoordinatorViewUserProfile(participantId: string, opportunity
     },
   });
 }
+
 
 export function useOpportunityDetail(opportunityId: string) {
   return useQuery({
@@ -400,7 +404,8 @@ export function useOpportunityDetail(opportunityId: string) {
   });
 }
 
-// UC-326: My Opportunities - Fetch all opportunities with enrollment status
+
+// UC-310: My Opportunities - Fetch all opportunities with enrollment status
 export function useAllOpportunities() {
   const { user } = useAuthStore();
   
@@ -409,7 +414,6 @@ export function useAllOpportunities() {
     queryFn: async () => {
       try {
         const response = await apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITIES_ALL_V2 });
-        console.log("🔍 MyOpportunities - V2 API Response:", response);
         
         let opportunities: any[] = [];
         
@@ -423,12 +427,9 @@ export function useAllOpportunities() {
           return [];
         }
         
-        console.log("🔍 MyOpportunities - Processing opportunities:", opportunities.length);
-        
         // For each opportunity, check enrollment status and get participant record
         const opportunitiesWithStatus = await Promise.all(
           opportunities.map(async (o: any) => {
-            console.log("🔍 MyOpportunities - Processing opportunity:", o);
             
             let enrollmentStatus = "Not Enrolled";
             let participantRecord = null;
@@ -438,7 +439,6 @@ export function useAllOpportunities() {
               const participantResponse = await apiRequest({ 
                 endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(o.id.toString())
               });
-              console.log("🔍 MyOpportunities - Participant response for opportunity", o.id, ":", participantResponse);
               
               // Check different possible enrollment indicators
               if (participantResponse) {
@@ -453,7 +453,6 @@ export function useAllOpportunities() {
                 }
               }
             } catch (participantError: any) {
-              console.log("🔍 MyOpportunities - No participant record for opportunity", o.id, ":", participantError?.response?.status);
               // 404 means no participant record, which means not enrolled
             }
             
@@ -471,12 +470,10 @@ export function useAllOpportunities() {
               is_enrolled: enrollmentStatus === "Enrolled",
               participant_record: participantRecord,
             };
-            console.log("🔍 MyOpportunities - Mapped opportunity:", mappedOpp);
             return mappedOpp;
           })
         );
         
-        console.log("🔍 MyOpportunities - Final mapped opportunities:", opportunitiesWithStatus);
         return opportunitiesWithStatus;
         
       } catch (error: any) {
@@ -495,6 +492,7 @@ export function useAllOpportunities() {
   });
 }
 
+
 // Helper function to create normalized map of opportunities
 export function createOpportunitiesMap(opportunities: Opportunity[]): OpportunitiesMap {
   return opportunities.reduce((map, opportunity) => {
@@ -509,7 +507,6 @@ export function categorizeOpportunities(opportunities: Opportunity[]): Categoriz
   const closed: Opportunity[] = [];
   
   opportunities.forEach(opportunity => {
-    console.log("🔍 Categorizing opportunity:", opportunity.id, "is_enrolled:", opportunity.is_enrolled);
     
     // Check if user is enrolled based on the updated logic
     const isEnrolled = opportunity.is_enrolled === true || 
@@ -518,18 +515,15 @@ export function categorizeOpportunities(opportunities: Opportunity[]): Categoriz
     
     if (isEnrolled) {
       enrolled.push(opportunity);
-      console.log("🔍 Added to enrolled:", opportunity.id);
     } else {
       closed.push(opportunity);
-      console.log("🔍 Added to closed:", opportunity.id);
     }
   });
   
-  console.log("🔍 Final categorization - Enrolled:", enrolled.length, "Closed:", closed.length);
   return { enrolled, closed };
 }
 
-// UC-326: Get participant record for a specific opportunity
+// UC-310: Get participant record for a specific opportunity
 export function useOpportunityParticipant(opportunityId: string | number) {
   const { user } = useAuthStore();
   
@@ -560,3 +554,4 @@ export function useOpportunityParticipant(opportunityId: string | number) {
     },
   });
 }
+
