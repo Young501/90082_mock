@@ -201,6 +201,23 @@ export function useAcceptedOpportunities() {
   });
 }
 
+export function useAllOpportunities() {
+  const { user } = useAuthStore();
+  return useQuery({
+    queryKey: ["all-opportunities"],
+    queryFn: () =>
+      apiRequest({ endpoint: API_ENDPOINTS.ALL_OPPORTUNITIES }),
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 403 || error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+}
+
 export function useContactUser() {
   return useMutation({
     mutationFn: async (data: {
