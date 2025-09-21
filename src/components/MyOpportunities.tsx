@@ -512,7 +512,7 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
       count: categorizedOpportunities.enrolled.length,
     },
     {
-      title: "Closed Opportunities", 
+      title: "Cancelled Opportunities",
       icon: "fa-solid fa-times-circle",
       count: categorizedOpportunities.closed.length,
     },
@@ -558,21 +558,22 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
                 }}
               />
               <Text>{tab.title}</Text>
-              {tab.count !== undefined && (
-                <Box
-                  bg={userType === "student" ? "#DC2626" : "#089C3F"}
-                  color="white"
-                  borderRadius="full"
-                  px={2}
-                  py={1}
-                  fontSize="12px"
-                  fontWeight="600"
-                  minW="20px"
-                  textAlign="center"
-                >
-                  {tab.count}
-                </Box>
-              )}
+                       {tab.count !== undefined && (
+                         <Box
+                           bg={userType === "student" ? "#DC2626" : "#089C3F"}
+                           color="white"
+                           borderRadius="50%"
+                           width="20px"
+                           height="20px"
+                           fontSize="12px"
+                           fontWeight="600"
+                           display="flex"
+                           alignItems="center"
+                           justifyContent="center"
+                         >
+                           {tab.count}
+                         </Box>
+                       )}
             </HStack>
           </Button>
         ))}
@@ -648,7 +649,7 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
           </Box>
         )}
 
-        {/* Closed Opportunities */}
+        {/* Cancelled Opportunities */}
         {!isLoading && !error && activeSubTab === 1 && (
           <Box>
             {categorizedOpportunities.closed.length > 0 ? (
@@ -679,10 +680,10 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
                              }}
                            />
                            <Text fontSize="18px" fontWeight="600" color="#374151">
-                             Closed Opportunities
+                             Cancelled Opportunities
                            </Text>
                            <Text fontSize="14px" color="#6B7280" maxW="400px">
-                             No closed opportunities.
+                             No cancelled opportunities.
                            </Text>
                          </VStack>
                        </Box>
