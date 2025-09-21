@@ -1,9 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
+import { useAuthStore } from "@/store";
 
 // UC-310: Update participant record for a specific opportunity
 export function useUpdateOpportunityParticipant() {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
   
   return useMutation({
     mutationFn: async ({ 
@@ -34,17 +36,17 @@ export function useUpdateOpportunityParticipant() {
     onSuccess: (data, variables) => {
       // Invalidate and refetch participant data
       queryClient.invalidateQueries({ 
-        queryKey: ["opportunity-participant", variables.opportunityId] 
+        queryKey: ["opportunity-participant", variables.opportunityId, user?.id] 
       });
       
       // Also invalidate all opportunities to update enrollment status
       queryClient.invalidateQueries({ 
-        queryKey: ["all-opportunities"] 
+        queryKey: ["all-opportunities", user?.id] 
       });
       
       // Optimistic update for immediate UI feedback
       queryClient.setQueryData(
-        ["opportunity-participant", variables.opportunityId],
+        ["opportunity-participant", variables.opportunityId, user?.id],
         (oldData: any) => {
           if (oldData) {
             return {
@@ -65,9 +67,10 @@ export function useUpdateOpportunityParticipant() {
   });
 }
 
-// UC-326: Re-enroll in an opportunity
+// UC-310: Re-enroll in an opportunity
 export function useReEnrollOpportunity() {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
   
   return useMutation({
     mutationFn: async ({ 
@@ -92,7 +95,7 @@ export function useReEnrollOpportunity() {
     },
     onSuccess: (data, variables) => {
       // Optimistically update the all-opportunities cache
-      queryClient.setQueryData(["all-opportunities"], (oldData: any) => {
+      queryClient.setQueryData(["all-opportunities", user?.id], (oldData: any) => {
         if (!oldData) return oldData;
         
         return oldData.map((opportunity: any) => {
@@ -108,7 +111,7 @@ export function useReEnrollOpportunity() {
       });
       
       // Optimistically update the accessible-opportunities cache as well
-      queryClient.setQueryData(["accessible-opportunities"], (oldData: any) => {
+      queryClient.setQueryData(["accessible-opportunities", user?.id], (oldData: any) => {
         if (!oldData) return oldData;
         
         return oldData.map((opportunity: any) => {
@@ -124,17 +127,17 @@ export function useReEnrollOpportunity() {
       
       // Invalidate and refetch all opportunities to update enrollment status
       queryClient.invalidateQueries({ 
-        queryKey: ["all-opportunities"] 
+        queryKey: ["all-opportunities", user?.id] 
       });
       
       // Invalidate accessible opportunities as well
       queryClient.invalidateQueries({ 
-        queryKey: ["accessible-opportunities"] 
+        queryKey: ["accessible-opportunities", user?.id] 
       });
       
       // Invalidate participant record for this opportunity
       queryClient.invalidateQueries({ 
-        queryKey: ["opportunity-participant", variables.opportunityId] 
+        queryKey: ["opportunity-participant", variables.opportunityId, user?.id] 
       });
     },
     onError: (error: any) => {
@@ -143,9 +146,10 @@ export function useReEnrollOpportunity() {
   });
 }
 
-// UC-326: Cancel enrollment in an opportunity
+// UC-310: Cancel enrollment in an opportunity
 export function useCancelOpportunityEnrollment() {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
   
   return useMutation({
     mutationFn: async ({ 
@@ -165,7 +169,7 @@ export function useCancelOpportunityEnrollment() {
     },
     onSuccess: (data, variables) => {
       // Optimistically update the all-opportunities cache
-      queryClient.setQueryData(["all-opportunities"], (oldData: any) => {
+      queryClient.setQueryData(["all-opportunities", user?.id], (oldData: any) => {
         if (!oldData) return oldData;
         
         return oldData.map((opportunity: any) => {
@@ -182,11 +186,11 @@ export function useCancelOpportunityEnrollment() {
       
       // Invalidate and refetch all opportunities to ensure data consistency
       queryClient.invalidateQueries({ 
-        queryKey: ["all-opportunities"] 
+        queryKey: ["all-opportunities", user?.id] 
       });
       
       // Optimistically update the accessible-opportunities cache as well
-      queryClient.setQueryData(["accessible-opportunities"], (oldData: any) => {
+      queryClient.setQueryData(["accessible-opportunities", user?.id], (oldData: any) => {
         if (!oldData) return oldData;
         
         return oldData.map((opportunity: any) => {
@@ -202,12 +206,17 @@ export function useCancelOpportunityEnrollment() {
       
       // Invalidate accessible opportunities as well
       queryClient.invalidateQueries({ 
-        queryKey: ["accessible-opportunities"] 
+        queryKey: ["accessible-opportunities", user?.id] 
       });
       
       // Invalidate participant record for this opportunity
       queryClient.invalidateQueries({ 
-        queryKey: ["opportunity-participant", variables.opportunityId] 
+        queryKey: ["opportunity-participant", variables.opportunityId, user?.id] 
+      });
+      
+      // Clear participant record cache completely for cancelled opportunities
+      queryClient.removeQueries({ 
+        queryKey: ["opportunity-participant", variables.opportunityId, user?.id] 
       });
     },
     onError: (error: any) => {

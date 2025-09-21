@@ -225,7 +225,7 @@ export interface AccessibleOpportunity {
 export function useAccessibleOpportunities() {
   const { user } = useAuthStore();
   return useQuery<AccessibleOpportunity[]>({
-    queryKey: ["accessible-opportunities"],
+    queryKey: ["accessible-opportunities", user?.id],
     queryFn: async () => {
       try {
         const response = await apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITIES_ALL_V2 });
@@ -410,7 +410,7 @@ export function useAllOpportunities() {
   const { user } = useAuthStore();
   
   return useQuery<Opportunity[]>({
-    queryKey: ["all-opportunities"],
+    queryKey: ["all-opportunities", user?.id],
     queryFn: async () => {
       try {
         const response = await apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITIES_ALL_V2 });
@@ -528,7 +528,7 @@ export function useOpportunityParticipant(opportunityId: string | number) {
   const { user } = useAuthStore();
   
   return useQuery<ParticipantRecord>({
-    queryKey: ["opportunity-participant", opportunityId],
+    queryKey: ["opportunity-participant", opportunityId, user?.id],
     queryFn: async () => {
       try {
         const response = await apiRequest<ParticipantRecord>({ 

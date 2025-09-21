@@ -203,7 +203,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, userType
         questionnaireAnswers: changedFields
       });
       
-      toast.success("Saved.");
+      toast.success("All changes have been saved!");
       setIsEditMode(false);
       
     } catch (error: any) {
@@ -327,7 +327,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, userType
                                 colorScheme={userType === "student" ? "red" : "green"}
                                 loading={reEnrollMutation.isPending}
                               >
-                                Re-enroll with Answers
+                                Re-enroll
                               </Button>
                             </HStack>
                           </VStack>
