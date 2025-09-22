@@ -5,12 +5,12 @@
 /**
  * Extracts the domain from an email address
  * @param email - The email address to extract domain from
- * @returns The domain part of the email (lowercase and trimmed)
+ * @returns The domain part of the email (lowercase and trimmed), or null if email is invalid
  */
-export const extractEmailDomain = (email: string): string => {
+export const extractEmailDomain = (email: string): string | null => {
   // Use regex to ensure exactly one '@' and extract the domain part
   const match = email.toLowerCase().trim().match(/^[^@]+@([^@]+)$/);
-  return match ? match[1] : '';
+  return match ? match[1] : null;
 };
 
 /**
@@ -29,7 +29,7 @@ export const isStudentEligibleForOpportunity = (
   }
 
   const userDomain = extractEmailDomain(userEmail);
-  if (!userDomain) {
+  if (userDomain === null) {
     return false;
   }
 
