@@ -563,6 +563,7 @@ const RenderStudentDetails = ({
           <BadgeSection
             title="Open to Work Locations"
             items={student.preferred_location}
+            withinDistance={student.within_distance_km}
             showFallback={true}
             fallbackText={student.location || "Not specified"}
           />
