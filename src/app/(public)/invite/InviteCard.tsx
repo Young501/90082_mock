@@ -13,6 +13,8 @@ import { Opportunity, InviteAcceptResponse, Question } from "@/types/invite";
 import { useAuthStore } from "@/store";
 import { QuestionnaireForm, QuestionnaireFormRef } from "./QuestionnaireForm";
 import { useState, useCallback, useMemo, useRef } from "react";
+import { toaster } from "@/components/ui/toaster";
+import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 
 interface InviteCardProps {
   opportunity: Opportunity | undefined;
@@ -66,6 +68,24 @@ export const InviteCard = ({
   );
 
   const handleAccept = useCallback(async () => {
+    // Check domain eligibility for students first
+    if (userType === 'student' && user?.email && opportunity?.allowed_student_email_domains) {
+      const isEligible = isStudentEligibleForOpportunity(
+        user.email,
+        opportunity.allowed_student_email_domains
+      );
+      
+      if (!isEligible) {
+        toaster.create({
+          title: "This opportunity is not available for your university.",
+          type: "warning",
+          duration: 6000,
+          meta: { closable: true },
+        });
+        return;
+      }
+    }
+
     if (questions.length > 0 && questionnaireRef.current) {
       const isValid = await questionnaireRef.current.validate();
 
@@ -81,7 +101,7 @@ export const InviteCard = ({
         ? questionnaireAnswers
         : undefined
     );
-  }, [onAccept, questionnaireAnswers, questions.length]);
+  }, [onAccept, questionnaireAnswers, questions.length, userType, user?.email, opportunity?.allowed_student_email_domains]);
 
   return (
     <Box
