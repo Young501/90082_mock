@@ -2,15 +2,23 @@
  * Utility functions for checking student email domain eligibility
  */
 
+import validator from 'validator';
 /**
  * Extracts the domain from an email address
  * @param email - The email address to extract domain from
  * @returns The domain part of the email (lowercase and trimmed), or null if email is invalid
  */
 export const extractEmailDomain = (email: string): string | null => {
-  // Use regex to ensure exactly one '@' and extract the domain part
-  const match = email.toLowerCase().trim().match(/^[^@]+@([^@]+)$/);
-  return match ? match[1] : null;
+  const normalizedEmail = email.toLowerCase().trim();
+  if (!validator.isEmail(normalizedEmail)) {
+    return null;
+  }
+  // Extract domain part after the last '@'
+  const atIndex = normalizedEmail.lastIndexOf('@');
+  if (atIndex === -1 || atIndex === normalizedEmail.length - 1) {
+    return null;
+  }
+  return normalizedEmail.slice(atIndex + 1);
 };
 
 /**
