@@ -69,7 +69,12 @@ export const InviteCard = ({
 
   const handleAccept = useCallback(async () => {
     // Check domain eligibility for students first
-    if (userType === 'student' && user?.email && opportunity?.allowed_student_email_domains) {
+    if (
+      userType === 'student' &&
+      user?.email &&
+      Array.isArray(opportunity?.allowed_student_email_domains) &&
+      opportunity.allowed_student_email_domains.length > 0
+    ) {
       const isEligible = isStudentEligibleForOpportunity(
         user.email,
         opportunity.allowed_student_email_domains
