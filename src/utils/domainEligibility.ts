@@ -8,7 +8,9 @@
  * @returns The domain part of the email (lowercase and trimmed)
  */
 export const extractEmailDomain = (email: string): string => {
-  return email.toLowerCase().trim().split('@')[1] || '';
+  // Use regex to ensure exactly one '@' and extract the domain part
+  const match = email.toLowerCase().trim().match(/^[^@]+@([^@]+)$/);
+  return match ? match[1] : '';
 };
 
 /**
