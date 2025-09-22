@@ -20,6 +20,7 @@ export interface Opportunity {
   created_at: string;
   updated_at: string;
   questionnaire: Record<string, Question[]>;
+  allowed_student_email_domains?: string[];
 }
 
 export interface QuestionnaireFormProps {
