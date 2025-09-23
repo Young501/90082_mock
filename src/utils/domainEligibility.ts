@@ -2,7 +2,8 @@
  * Utility functions for checking student email domain eligibility
  */
 
-import validator from 'validator';
+import * as yup from 'yup';
+
 /**
  * Extracts the domain from an email address
  * @param email - The email address to extract domain from
@@ -10,9 +11,14 @@ import validator from 'validator';
  */
 export const extractEmailDomain = (email: string): string | null => {
   const normalizedEmail = email.toLowerCase().trim();
-  if (!validator.isEmail(normalizedEmail)) {
+  
+  // Use Yup to validate email format
+  try {
+    yup.string().email().validateSync(normalizedEmail);
+  } catch {
     return null;
   }
+  
   // Extract domain part after the last '@'
   const atIndex = normalizedEmail.lastIndexOf('@');
   return normalizedEmail.slice(atIndex + 1);
