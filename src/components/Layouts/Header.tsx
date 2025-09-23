@@ -52,20 +52,22 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (discoverDropdownRef.current && !discoverDropdownRef.current.contains(event.target as Node)) {
+      if (
+        discoverDropdownRef.current &&
+        !discoverDropdownRef.current.contains(event.target as Node)
+      ) {
         setIsDiscoverDropdownOpen(false);
       }
     };
 
     if (isDiscoverDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isDiscoverDropdownOpen]);
-
 
   const getSignupLink = () => {
     const inviteToken = searchParams.get("invite_token");
@@ -252,15 +254,25 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     const handleDisabledClick = (e: React.MouseEvent) => {
       e.preventDefault();
       toast.info("No opportunities yet.");
-      if (isMobile) setIsMobileMenuOpen(false)
-    router.push(`/discover/?id=0`);
+      if (isMobile) setIsMobileMenuOpen(false);
+      router.push(`/discover/?id=0`);
     };
 
     if (!opps || opps.length === 0) {
       // Disabled state
       return (
-        <Box key="DISCOVER" py={isMobile ? 4 : 0} opacity={0.6} cursor="not-allowed" onClick={handleDisabledClick}>
-          <Text fontSize={isMobile ? "16px" : "18px"} fontWeight={isMobile ? "600" : "700"} color={isProtected ? "white" : "black"}>
+        <Box
+          key="DISCOVER"
+          py={isMobile ? 4 : 0}
+          opacity={0.6}
+          cursor="not-allowed"
+          onClick={handleDisabledClick}
+        >
+          <Text
+            fontSize={isMobile ? "16px" : "18px"}
+            fontWeight={isMobile ? "600" : "700"}
+            color={isProtected ? "white" : "black"}
+          >
             DISCOVER
           </Text>
         </Box>
@@ -270,8 +282,17 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     if (opps.length === 1) {
       const only = opps[0];
       return (
-        <Link href={`/discover/?id=${only.id}`} key="DISCOVER" onClick={handleMenuItemClick}>
-          <Text py={isMobile ? 4 : 0} fontSize={isMobile ? "16px" : "18px"} fontWeight={isMobile ? "600" : "700"} color={isProtected ? "white" : "black"}>
+        <Link
+          href={`/discover/?id=${only.id}`}
+          key="DISCOVER"
+          onClick={handleMenuItemClick}
+        >
+          <Text
+            py={isMobile ? 4 : 0}
+            fontSize={isMobile ? "16px" : "18px"}
+            fontWeight={isMobile ? "600" : "700"}
+            color={isProtected ? "white" : "black"}
+          >
             DISCOVER
           </Text>
         </Link>
@@ -282,10 +303,10 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     if (isMobile) {
       return (
         <Box key="DISCOVER">
-          <Box 
-            py={4} 
-            fontSize="16px" 
-            fontWeight="600" 
+          <Box
+            py={4}
+            fontSize="16px"
+            fontWeight="600"
             color={isProtected ? "white" : "black"}
             cursor="pointer"
             onClick={() => setIsDiscoverDropdownOpen(!isDiscoverDropdownOpen)}
@@ -295,14 +316,16 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               <Box
                 as="span"
                 ml={1}
-                mt={isDiscoverDropdownOpen ? "3px" : "-6px"} 
+                mt={isDiscoverDropdownOpen ? "3px" : "-6px"}
                 display="inline-block"
                 width="10px"
                 height="10px"
                 borderRight="1.5px solid"
                 borderBottom="1.5px solid"
                 borderColor={isProtected ? "white" : "black"}
-                transform={isDiscoverDropdownOpen ? "rotate(225deg)" : "rotate(45deg)"}
+                transform={
+                  isDiscoverDropdownOpen ? "rotate(225deg)" : "rotate(45deg)"
+                }
                 transformOrigin="center"
                 transition="transform 0.2s, margin-top 0.2s"
               />
@@ -311,8 +334,8 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
           {isDiscoverDropdownOpen && (
             <VStack align="stretch" gap={2}>
               {opps.map((o) => (
-                <Box 
-                  key={o.id} 
+                <Box
+                  key={o.id}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleMobileOpportunityClick(o.id);
@@ -330,15 +353,28 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                   zIndex={1003}
                 >
                   <VStack align="center" gap={1}>
-                    <Box as="span" fontSize="8px" px={1.0} py={0.5} borderRadius="md" 
-                         bg={o.status === "Enrolled" ? "green.300" : "yellow.200"} 
-                         color="black"
-                         fontWeight="bold"
-                         minW="80px"
-                         textAlign="center">
+                    <Box
+                      as="span"
+                      fontSize="8px"
+                      px={1.0}
+                      py={0.5}
+                      borderRadius="md"
+                      bg={o.status === "Enrolled" ? "green.300" : "yellow.200"}
+                      color="black"
+                      fontWeight="bold"
+                      minW="80px"
+                      textAlign="center"
+                    >
                       {o.status}
                     </Box>
-                    <Text color={isProtected ? "white" : "black"} fontWeight="bold" fontSize="15px" textAlign="center">{o.title || `Opportunity ${o.id}`}</Text>
+                    <Text
+                      color={isProtected ? "white" : "black"}
+                      fontWeight="bold"
+                      fontSize="15px"
+                      textAlign="center"
+                    >
+                      {o.title || `Opportunity ${o.id}`}
+                    </Text>
                   </VStack>
                 </Box>
               ))}
@@ -351,28 +387,30 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     // Desktop dropdown (simple custom popover)
     return (
       <Box key="DISCOVER" position="relative" ref={discoverDropdownRef}>
-        <HStack 
-          py={0} 
-          fontSize="18px" 
-          fontWeight="700" 
+        <HStack
+          py={0}
+          fontSize="18px"
+          fontWeight="700"
           color={isProtected ? "white" : "black"}
           cursor="pointer"
           onClick={() => setIsDiscoverDropdownOpen(!isDiscoverDropdownOpen)}
         >
           <Text>DISCOVER</Text>
           <Box
-  as="span"
-  ml={1}
-  mt={isDiscoverDropdownOpen ? "3px" : "-6px"} 
-  display="inline-block"
-  width="10px"
-  height="10px"
-  borderRight="1.5px solid white"
-  borderBottom="1.5px solid white"
-  transform={isDiscoverDropdownOpen ? "rotate(225deg)" : "rotate(45deg)"}
-  transformOrigin="center"
-  transition="transform 0.2s, margin-top 0.2s"
-/>
+            as="span"
+            ml={1}
+            mt={isDiscoverDropdownOpen ? "3px" : "-6px"}
+            display="inline-block"
+            width="10px"
+            height="10px"
+            borderRight="1.5px solid white"
+            borderBottom="1.5px solid white"
+            transform={
+              isDiscoverDropdownOpen ? "rotate(225deg)" : "rotate(45deg)"
+            }
+            transformOrigin="center"
+            transition="transform 0.2s, margin-top 0.2s"
+          />
         </HStack>
         {isDiscoverDropdownOpen && (
           <Box
@@ -387,29 +425,44 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             zIndex={10000}
             p={2}
           >
-          <VStack align="stretch" gap={1}>
+            <VStack align="stretch" gap={1}>
               {opps.map((o) => (
-              // Navigate to opportunity details page
-              <Link
-                href={`/discover/?id=${o.id}`}
-                key={o.id}
-                onClick={handleMenuItemClick}
-              >
-                <VStack _hover={{ bg: "gray.100" }} borderRadius="md" px={3} py={2} align="stretch" gap={1}>
-                  <Box as="span" fontSize="10px" px={1.5} py={0.5} borderRadius="md" 
-                       bg={o.status === "Enrolled" ? "green.300" : "yellow.200"} 
-                       color={o.status === "Enrolled" ? "black" : "black"}
-                       fontWeight="bold"
-                       alignSelf="flex-start"
-                       minW="80px"
-                       textAlign="center">
-                    {o.status}
-                  </Box>
-                  <Text truncate fontWeight="bold" fontSize="16px">{o.title || `Opportunity ${o.id}`}</Text>
-                </VStack>
-              </Link>
-            ))}
-          </VStack>
+                // Navigate to opportunity details page
+                <Link
+                  href={`/discover/?id=${o.id}`}
+                  key={o.id}
+                  onClick={handleMenuItemClick}
+                >
+                  <VStack
+                    _hover={{ bg: "gray.100" }}
+                    borderRadius="md"
+                    px={3}
+                    py={2}
+                    align="stretch"
+                    gap={1}
+                  >
+                    <Box
+                      as="span"
+                      fontSize="10px"
+                      px={1.5}
+                      py={0.5}
+                      borderRadius="md"
+                      bg={o.status === "Enrolled" ? "green.300" : "yellow.200"}
+                      color={o.status === "Enrolled" ? "black" : "black"}
+                      fontWeight="bold"
+                      alignSelf="flex-start"
+                      minW="80px"
+                      textAlign="center"
+                    >
+                      {o.status}
+                    </Box>
+                    <Text truncate fontWeight="bold" fontSize="16px">
+                      {o.title || `Opportunity ${o.id}`}
+                    </Text>
+                  </VStack>
+                </Link>
+              ))}
+            </VStack>
           </Box>
         )}
       </Box>
