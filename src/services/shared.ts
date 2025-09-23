@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import { useAuthStore } from "@/store/authStore";
-import { Opportunity, OpportunitiesResponse, OpportunitiesMap, CategorizedOpportunities, ParticipantRecord } from "@/types/opportunities";
+import {
+  Opportunity,
+  OpportunitiesResponse,
+  OpportunitiesMap,
+  CategorizedOpportunities,
+  ParticipantRecord,
+} from "@/types/opportunities";
 
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
@@ -215,44 +221,55 @@ export function useAccessibleOpportunities() {
     queryKey: ["accessible-opportunities"],
     queryFn: async () => {
       try {
-        const response = await apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITIES_ALL_V2 });
+        const response = await apiRequest({
+          endpoint: API_ENDPOINTS.ALL_OPPORTUNITIES,
+        });
         console.log("🔍 V2 API Response:", response);
         console.log("🔍 Response type:", typeof response);
         console.log("🔍 Is array:", Array.isArray(response));
-        
+
         let opportunities: any[] = [];
-        
+
         // Handle different response structures
         if (Array.isArray(response)) {
           opportunities = response;
-        } else if (response.opportunities && Array.isArray(response.opportunities)) {
+        } else if (
+          response.opportunities &&
+          Array.isArray(response.opportunities)
+        ) {
           opportunities = response.opportunities;
         } else {
           console.warn("⚠️ Unexpected V2 API response structure:", response);
           return [];
         }
-        
+
         console.log("🔍 Processing opportunities:", opportunities.length);
-        
+
         // Map opportunities using enrollment_status from API response
         const opportunitiesWithStatus = opportunities.map((o: any) => {
           console.log("🔍 Processing opportunity:", o);
           console.log("🔍 Available fields in opportunity:", Object.keys(o));
-          
+
           // Use enrollment_status from API response if available
           let enrollmentStatus = "Not Enrolled";
           if (o.enrollment_status) {
             // Map API enrollment_status to our expected format
-            if (o.enrollment_status === "enrolled" || o.enrollment_status === "Enrolled") {
+            if (
+              o.enrollment_status === "enrolled" ||
+              o.enrollment_status === "Enrolled"
+            ) {
               enrollmentStatus = "Enrolled";
-            } else if (o.enrollment_status === "not_enrolled" || o.enrollment_status === "Not Enrolled") {
+            } else if (
+              o.enrollment_status === "not_enrolled" ||
+              o.enrollment_status === "Not Enrolled"
+            ) {
               enrollmentStatus = "Not Enrolled";
             } else {
               // Handle other possible values
               enrollmentStatus = o.enrollment_status;
             }
           }
-          
+
           const mappedOpp = {
             id: o.id,
             title: o.title || o.name,
@@ -261,10 +278,12 @@ export function useAccessibleOpportunities() {
           console.log("🔍 Mapped opportunity:", mappedOpp);
           return mappedOpp;
         });
-        
-        console.log("🔍 Final mapped opportunities with status:", opportunitiesWithStatus);
+
+        console.log(
+          "🔍 Final mapped opportunities with status:",
+          opportunitiesWithStatus
+        );
         return opportunitiesWithStatus;
-        
       } catch (e: any) {
         console.log("❌ V2 API failed, falling back to V1:", e);
         // Fallback to v1 accepted if v2 not available
@@ -353,11 +372,19 @@ export function useInviteParticipants() {
   });
 }
 
-export function useCoordinatorViewUserProfile(participantId: string, opportunityId: string) {
+export function useCoordinatorViewUserProfile(
+  participantId: string,
+  opportunityId: string
+) {
   return useQuery({
     queryKey: ["coordinator-view-user-profile", participantId, opportunityId],
     queryFn: () =>
-      apiRequest({ endpoint: API_ENDPOINTS.COORDINATOR_VIEW_USER_PROFILE(participantId, opportunityId) }),
+      apiRequest({
+        endpoint: API_ENDPOINTS.COORDINATOR_VIEW_USER_PROFILE(
+          participantId,
+          opportunityId
+        ),
+      }),
     enabled: !!participantId && !!opportunityId,
     staleTime: 5 * 60 * 1000,
     retry: (failureCount, error: any) => {
@@ -388,43 +415,61 @@ export function useOpportunityDetail(opportunityId: string) {
 // UC-326: My Opportunities - Fetch all opportunities with enrollment status
 export function useAllOpportunities() {
   const { user } = useAuthStore();
-  
+
   return useQuery<Opportunity[]>({
     queryKey: ["all-opportunities"],
     queryFn: async () => {
       try {
-        const response = await apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITIES_ALL_V2 });
+        const response = await apiRequest({
+          endpoint: API_ENDPOINTS.ALL_OPPORTUNITIES,
+        });
         console.log("🔍 MyOpportunities - V2 API Response:", response);
-        
+
         let opportunities: any[] = [];
-        
+
         // Handle different response structures
         if (Array.isArray(response)) {
           opportunities = response;
-        } else if (response.opportunities && Array.isArray(response.opportunities)) {
+        } else if (
+          response.opportunities &&
+          Array.isArray(response.opportunities)
+        ) {
           opportunities = response.opportunities;
         } else {
-          console.warn("⚠️ MyOpportunities - Unexpected V2 API response structure:", response);
+          console.warn(
+            "⚠️ MyOpportunities - Unexpected V2 API response structure:",
+            response
+          );
           return [];
         }
-        
-        console.log("🔍 MyOpportunities - Processing opportunities:", opportunities.length);
-        
+
+        console.log(
+          "🔍 MyOpportunities - Processing opportunities:",
+          opportunities.length
+        );
+
         // For each opportunity, check enrollment status and get participant record
         const opportunitiesWithStatus = await Promise.all(
           opportunities.map(async (o: any) => {
             console.log("🔍 MyOpportunities - Processing opportunity:", o);
-            
+
             let enrollmentStatus = "Not Enrolled";
             let participantRecord = null;
-            
+
             try {
               // Try to get participant record for this opportunity
-              const participantResponse = await apiRequest({ 
-                endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(o.id.toString())
+              const participantResponse = await apiRequest({
+                endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(
+                  o.id.toString()
+                ),
               });
-              console.log("🔍 MyOpportunities - Participant response for opportunity", o.id, ":", participantResponse);
-              
+              console.log(
+                "🔍 MyOpportunities - Participant response for opportunity",
+                o.id,
+                ":",
+                participantResponse
+              );
+
               // Check different possible enrollment indicators
               if (participantResponse) {
                 participantRecord = participantResponse;
@@ -438,10 +483,15 @@ export function useAllOpportunities() {
                 }
               }
             } catch (participantError: any) {
-              console.log("🔍 MyOpportunities - No participant record for opportunity", o.id, ":", participantError?.response?.status);
+              console.log(
+                "🔍 MyOpportunities - No participant record for opportunity",
+                o.id,
+                ":",
+                participantError?.response?.status
+              );
               // 404 means no participant record, which means not enrolled
             }
-            
+
             const mappedOpp = {
               id: o.id,
               title: o.title || o.name,
@@ -460,10 +510,12 @@ export function useAllOpportunities() {
             return mappedOpp;
           })
         );
-        
-        console.log("🔍 MyOpportunities - Final mapped opportunities:", opportunitiesWithStatus);
+
+        console.log(
+          "🔍 MyOpportunities - Final mapped opportunities:",
+          opportunitiesWithStatus
+        );
         return opportunitiesWithStatus;
-        
       } catch (error: any) {
         console.error("Failed to fetch all opportunities:", error);
         throw error;
@@ -481,7 +533,9 @@ export function useAllOpportunities() {
 }
 
 // Helper function to create normalized map of opportunities
-export function createOpportunitiesMap(opportunities: Opportunity[]): OpportunitiesMap {
+export function createOpportunitiesMap(
+  opportunities: Opportunity[]
+): OpportunitiesMap {
   return opportunities.reduce((map, opportunity) => {
     map[opportunity.id] = opportunity;
     return map;
@@ -489,18 +543,26 @@ export function createOpportunitiesMap(opportunities: Opportunity[]): Opportunit
 }
 
 // Helper function to categorize opportunities
-export function categorizeOpportunities(opportunities: Opportunity[]): CategorizedOpportunities {
+export function categorizeOpportunities(
+  opportunities: Opportunity[]
+): CategorizedOpportunities {
   const enrolled: Opportunity[] = [];
   const closed: Opportunity[] = [];
-  
-  opportunities.forEach(opportunity => {
-    console.log("🔍 Categorizing opportunity:", opportunity.id, "is_enrolled:", opportunity.is_enrolled);
-    
+
+  opportunities.forEach((opportunity) => {
+    console.log(
+      "🔍 Categorizing opportunity:",
+      opportunity.id,
+      "is_enrolled:",
+      opportunity.is_enrolled
+    );
+
     // Check if user is enrolled based on the updated logic
-    const isEnrolled = opportunity.is_enrolled === true || 
-                      opportunity.participant_record?.status === "active" ||
-                      opportunity.participant_record?.accepted === true;
-    
+    const isEnrolled =
+      opportunity.is_enrolled === true ||
+      opportunity.participant_record?.status === "active" ||
+      opportunity.participant_record?.accepted === true;
+
     if (isEnrolled) {
       enrolled.push(opportunity);
       console.log("🔍 Added to enrolled:", opportunity.id);
@@ -509,21 +571,28 @@ export function categorizeOpportunities(opportunities: Opportunity[]): Categoriz
       console.log("🔍 Added to closed:", opportunity.id);
     }
   });
-  
-  console.log("🔍 Final categorization - Enrolled:", enrolled.length, "Closed:", closed.length);
+
+  console.log(
+    "🔍 Final categorization - Enrolled:",
+    enrolled.length,
+    "Closed:",
+    closed.length
+  );
   return { enrolled, closed };
 }
 
 // UC-326: Get participant record for a specific opportunity
 export function useOpportunityParticipant(opportunityId: string | number) {
   const { user } = useAuthStore();
-  
+
   return useQuery<ParticipantRecord>({
     queryKey: ["opportunity-participant", opportunityId],
     queryFn: async () => {
       try {
-        const response = await apiRequest<ParticipantRecord>({ 
-          endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(opportunityId.toString())
+        const response = await apiRequest<ParticipantRecord>({
+          endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(
+            opportunityId.toString()
+          ),
         });
         return response;
       } catch (error: any) {
