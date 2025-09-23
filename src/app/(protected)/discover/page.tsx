@@ -12,6 +12,8 @@ import { useOpportunityDetail, useAccessibleOpportunities } from "@/services/sha
 import { Opportunity } from "@/types/invite";
 import { useAuthStore } from "@/store";
 import Footer from "@/components/Layouts/Footer";
+import { toaster } from "@/components/ui/toaster";
+import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
@@ -131,6 +133,36 @@ export default function DiscoveryPage() {
       setQuestionnaireAnswers(defaultAnswers);
     }
   }, [questions]);
+
+  // Handle enrollment with domain eligibility check
+  const handleEnroll = useCallback(() => {
+    // Check domain eligibility for students first
+    if (
+      userType === 'student' &&
+      user?.email &&
+      Array.isArray(opportunity?.allowed_student_email_domains) &&
+      opportunity.allowed_student_email_domains.length > 0
+    ) {
+      const isEligible = isStudentEligibleForOpportunity(
+        user.email,
+        opportunity.allowed_student_email_domains
+      );
+      
+      if (!isEligible) {
+        toaster.create({
+          title: "This opportunity is not available for your university.",
+          type: "warning",
+          duration: 6000,
+          meta: { closable: true },
+        });
+        return;
+      }
+    }
+
+    // Save questionnaire state for other team to use
+    console.log("Enroll clicked - questionnaire state saved:", questionnaireAnswers);
+    // No modal or routing - handled by other team
+  }, [userType, user?.email, opportunity?.allowed_student_email_domains, questionnaireAnswers]);
 
   // If id parameter is provided, show opportunity-specific content
   if (idParam) {
@@ -307,11 +339,7 @@ export default function DiscoveryPage() {
                         borderRadius="xl"
                         h="36px"
                         w={{ base: "full", md: "120px" }}
-                        onClick={() => {
-                          // Save questionnaire state for other team to use
-                          console.log("Enroll clicked - questionnaire state saved:", questionnaireAnswers);
-                          // No modal or routing - handled by other team
-                        }}
+                        onClick={handleEnroll}
                       >
                         Enroll
                       </Button>
