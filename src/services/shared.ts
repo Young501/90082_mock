@@ -234,48 +234,33 @@ export function useAccessibleOpportunities() {
         
         console.log("🔍 Processing opportunities:", opportunities.length);
         
-        // For each opportunity, check enrollment status
-        const opportunitiesWithStatus = await Promise.all(
-          opportunities.map(async (o: any) => {
-            console.log("🔍 Processing opportunity:", o);
-            console.log("🔍 Available fields in opportunity:", Object.keys(o));
-            
-            let enrollmentStatus = "Not Enrolled";
-            
-            try {
-              // Try to get participant record for this opportunity
-              const participantResponse = await apiRequest({ 
-                endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(o.id.toString())
-              });
-              console.log("🔍 Participant response for opportunity", o.id, ":", participantResponse);
-              console.log("🔍 Participant response fields:", Object.keys(participantResponse));
-              
-              // Check different possible enrollment indicators
-              if (participantResponse) {
-                if (participantResponse.status === "active") {
-                  enrollmentStatus = "Enrolled";
-                } else if (participantResponse.accepted === true) {
-                  enrollmentStatus = "Enrolled";
-                } else if (participantResponse.id) {
-                  // If we have a participant record with an ID, consider it enrolled
-                  enrollmentStatus = "Enrolled";
-                }
-              }
-            } catch (participantError: any) {
-              console.log("🔍 No participant record for opportunity", o.id, ":", participantError?.response?.status);
-              // 404 means no participant record, which means not enrolled
-              // Other errors also default to not enrolled
+        // Map opportunities using enrollment_status from API response
+        const opportunitiesWithStatus = opportunities.map((o: any) => {
+          console.log("🔍 Processing opportunity:", o);
+          console.log("🔍 Available fields in opportunity:", Object.keys(o));
+          
+          // Use enrollment_status from API response if available
+          let enrollmentStatus = "Not Enrolled";
+          if (o.enrollment_status) {
+            // Map API enrollment_status to our expected format
+            if (o.enrollment_status === "enrolled" || o.enrollment_status === "Enrolled") {
+              enrollmentStatus = "Enrolled";
+            } else if (o.enrollment_status === "not_enrolled" || o.enrollment_status === "Not Enrolled") {
+              enrollmentStatus = "Not Enrolled";
+            } else {
+              // Handle other possible values
+              enrollmentStatus = o.enrollment_status;
             }
-            
-            const mappedOpp = {
-              id: o.id,
-              title: o.title || o.name,
-              status: enrollmentStatus,
-            };
-            console.log("🔍 Mapped opportunity:", mappedOpp);
-            return mappedOpp;
-          })
-        );
+          }
+          
+          const mappedOpp = {
+            id: o.id,
+            title: o.title || o.name,
+            status: enrollmentStatus,
+          };
+          console.log("🔍 Mapped opportunity:", mappedOpp);
+          return mappedOpp;
+        });
         
         console.log("🔍 Final mapped opportunities with status:", opportunitiesWithStatus);
         return opportunitiesWithStatus;
