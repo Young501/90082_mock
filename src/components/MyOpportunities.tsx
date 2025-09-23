@@ -107,9 +107,9 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, userType
   
   // Reset form when participant record loads
   useEffect(() => {
-    if (participantRecord?.questionnaire_answers) {
-      reset(participantRecord.questionnaire_answers);
-      setOriginalAnswers(participantRecord.questionnaire_answers);
+    if (participantRecord?.data?.questionnaire_answers) {
+      reset(participantRecord.data.questionnaire_answers);
+      setOriginalAnswers(participantRecord.data.questionnaire_answers);
     }
   }, [participantRecord, reset]);
   
@@ -173,7 +173,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, userType
   };
   
   const handleSave = async (data: any) => {
-    if (!participantRecord?.id) {
+    if (!participantRecord?.participant_id) {
       toast.error("No participant record found");
       return;
     }
@@ -199,7 +199,6 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, userType
       
       await updateParticipantMutation.mutateAsync({
         opportunityId: opportunity.id,
-        participantId: participantRecord.id,
         questionnaireAnswers: changedFields
       });
       
@@ -387,15 +386,13 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, userType
                   
                   <HStack gap={4} fontSize="14px" color="#6B7280" mb={4}>
                     <Text>Status: <Text as="span" fontWeight="600" color="#1F2937">
-                      {participantRecord.status_display || participantRecord.status || "Active"}
+                      {participantRecord.accepted ? "Accepted" : "Pending"}
                     </Text></Text>
-                    <Text>Enrolled: <Text as="span" fontWeight="600" color="#1F2937">
-                      {participantRecord.invited_time 
-                        ? new Date(participantRecord.invited_time).toLocaleDateString()
-                        : participantRecord.enrolled_at 
-                          ? new Date(participantRecord.enrolled_at).toLocaleDateString()
-                          : "Unknown"
-                      }
+                    <Text>Type: <Text as="span" fontWeight="600" color="#1F2937">
+                      {participantRecord.type || "Unknown"}
+                    </Text></Text>
+                    <Text>Email: <Text as="span" fontWeight="600" color="#1F2937">
+                      {participantRecord.email || "Unknown"}
                     </Text></Text>
                   </HStack>
                 </Box>
@@ -442,7 +439,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, userType
                   ) : (
                     <VStack gap={3} align="stretch">
                       {questionnaire.map((question: Question) => {
-                        const answer = participantRecord?.questionnaire_answers?.[question.field];
+                        const answer = participantRecord?.data?.questionnaire_answers?.[question.field];
                         return (
                           <Box key={question.field} p={3} bg="white" borderRadius="8px" border="1px solid #E2E8F0">
                             <Text fontSize="14px" fontWeight="600" color="#374151" mb={1}>

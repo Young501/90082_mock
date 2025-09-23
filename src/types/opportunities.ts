@@ -15,21 +15,41 @@ export interface Opportunity {
 }
 
 export interface ParticipantRecord {
-  id: number;
-  opportunity_id?: number;
-  user_id?: number;
-  email?: string;
-  user_type_key?: string;
-  user_type_name?: string;
-  accepted?: boolean;
-  invited_time?: string;
-  participant_name?: string;
-  questionnaire_answers?: Record<string, any>;
-  status_display?: string;
-  status?: "active" | "inactive" | "pending";
-  enrolled_at?: string;
-  created_at?: string;
-  updated_at?: string;
+  user_type_key: string;
+  participant_id: number;
+  email: string;
+  accepted: boolean;
+  type: string;
+  data: {
+    // User profile data
+    id: number;
+    first_name: string;
+    last_name: string;
+    email?: string;
+    location?: string;
+    profile_picture_url?: string;
+    course_name?: string;
+    course_stream?: string;
+    course_progression?: string;
+    specialization?: string[];
+    skills?: string[];
+    credentials?: string[];
+    preferred_location?: string[];
+    availability?: string;
+    discovery_pools?: string;
+    position_type?: string;
+    within_distance_km?: string;
+    homepage?: string;
+    linkedin?: string;
+    instagram?: string;
+    bluesky?: string;
+    status?: string;
+    faculty?: string;
+    resume_url?: string;
+    questionnaire_answers?: Record<string, any>;
+    matched?: boolean;
+    user?: number;
+  };
 }
 
 export interface OpportunitiesResponse {

@@ -10,18 +10,15 @@ export function useUpdateOpportunityParticipant() {
   return useMutation({
     mutationFn: async ({ 
       opportunityId, 
-      participantId, 
       questionnaireAnswers 
     }: { 
       opportunityId: string | number; 
-      participantId: string | number; 
       questionnaireAnswers: Record<string, any> 
     }) => {
       try {
         const response = await apiRequest({ 
           endpoint: API_ENDPOINTS.UPDATE_OPPORTUNITY_PARTICIPANT(
-            opportunityId.toString(), 
-            participantId.toString()
+            Number(opportunityId)
           ),
           body: {
             questionnaire_answers: questionnaireAnswers
@@ -81,11 +78,13 @@ export function useReEnrollOpportunity() {
       questionnaireAnswers?: Record<string, any> 
     }) => {
       try {
+        const userType = user?.user_types?.[0] || "student";
         const response = await apiRequest({ 
-          endpoint: API_ENDPOINTS.RE_ENROLL_OPPORTUNITY(opportunityId.toString()),
-          body: questionnaireAnswers ? {
-            questionnaire_answers: questionnaireAnswers
-          } : {}
+          endpoint: API_ENDPOINTS.RE_ENROLL_OPPORTUNITY(Number(opportunityId)),
+          body: {
+            user_type: userType,
+            ...(questionnaireAnswers && { questionnaire_answers: questionnaireAnswers })
+          }
         });
         return response;
       } catch (error: any) {
@@ -159,7 +158,7 @@ export function useCancelOpportunityEnrollment() {
     }) => {
       try {
         const response = await apiRequest({ 
-          endpoint: API_ENDPOINTS.CANCEL_OPPORTUNITY_ENROLLMENT(opportunityId.toString())
+          endpoint: API_ENDPOINTS.CANCEL_OPPORTUNITY_ENROLLMENT(Number(opportunityId))
         });
         return response;
       } catch (error: any) {
