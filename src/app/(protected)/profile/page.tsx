@@ -42,7 +42,6 @@ import Loader from "@/components/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { OrganisationProfile } from "@/types/discovery";
-import MyOpportunities from "@/components/MyOpportunities";
 
 const Profile = () => {
   const {
@@ -55,7 +54,6 @@ const Profile = () => {
   } = useAuthStore();
   const userProfile: UserProfile | null = getUserProfile();
   const [activeTab, setActiveTab] = useState<number>(0);
-  const [activeOpportunityTab, setActiveOpportunityTab] = useState<number>(0);
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
   const [updatedProfilePicture, setUpdatedProfilePicture] = useState<
     string | null
@@ -213,61 +211,12 @@ const Profile = () => {
   }, [profileData, reset, activeTab, userType]);
 
   const tabs: Tab[] = useMemo(() => {
-    // For users who have completed onboarding but have no pages, show basic tabs
-    if (!pages.length && !isCoordinator) {
-      const basicTabs: Tab[] = [];
-      if (userProfile || fetchedUserProfile) {
-        basicTabs.push({
-          title: "Profile Preview",
-          icon: "fa-solid fa-eye",
-        });
-      }
-      basicTabs.push({
-        title: "My Opportunities",
-        icon: "fa-solid fa-folder-closed",
-      });
-      basicTabs.push({
-        title: "Change Password",
-        icon: "fa-solid fa-key",
-      });
-      return basicTabs;
-    }
+    if (!pages.length && !isCoordinator) return [];
 
-    const onboardingTabs: Tab[] = [];
-    let myOpportunitiesInserted = false;
-    
-    // Add onboarding pages and insert My Opportunities after "My degree" or similar education-related page
-    pages.forEach((page: OnboardingPage) => {
-      onboardingTabs.push({
-        title: page.short_title || page.title,
-        icon: page.title_icon,
-      });
-      
-      // Insert My Opportunities after education/degree related pages
-      if (!myOpportunitiesInserted && (
-        page.title?.toLowerCase().includes('degree') ||
-        page.title?.toLowerCase().includes('education') ||
-        page.title?.toLowerCase().includes('academic') ||
-        page.short_title?.toLowerCase().includes('degree') ||
-        page.short_title?.toLowerCase().includes('education') ||
-        page.short_title?.toLowerCase().includes('academic')
-      )) {
-        onboardingTabs.push({
-          title: "My Opportunities",
-          icon: "fa-solid fa-folder-closed",
-        });
-        myOpportunitiesInserted = true;
-      }
-    });
-    
-    // If My Opportunities wasn't inserted after any specific page, insert it after all onboarding pages
-    if (!myOpportunitiesInserted) {
-      onboardingTabs.push({
-        title: "My Opportunities",
-        icon: "fa-solid fa-folder-closed",
-      });
-    }
-    
+    const onboardingTabs: Tab[] = pages.map((page: OnboardingPage) => ({
+      title: page.short_title || page.title,
+      icon: page.title_icon,
+    }));
     if (!isCoordinator) {
       onboardingTabs.push({
         title: "Profile Preview",
@@ -280,13 +229,10 @@ const Profile = () => {
     });
 
     return onboardingTabs;
-  }, [pages, isCoordinator, userProfile, fetchedUserProfile]);
+  }, [pages, isCoordinator]);
 
   const calculateProfileCompletion = (): number => {
-    if (!userProfile) return 0;
-    
-    // For users who have completed onboarding (no pages), return 100%
-    if (!pages.length) return 100;
+    if (!userProfile || !pages.length) return 0;
 
     const getAllFieldsFromPages = (
       pages: OnboardingPage[],
@@ -367,15 +313,7 @@ const Profile = () => {
     return Math.round((filledFields.length / allFields.length) * 100);
   };
 
-
-  // For organisation users who have completed onboarding, show profile even if no pages
-  const shouldShowLoading = (isOnboardingLoading || isProfileLoading) && !isCoordinator;
-  const hasNoPages = !pages.length && !isCoordinator;
-  
-  // If user has profile data but no onboarding pages, they've completed onboarding
-  const hasCompletedOnboarding = (userProfile || fetchedUserProfile) && hasNoPages;
-  
-  if (shouldShowLoading && !hasCompletedOnboarding) {
+  if ((isOnboardingLoading || !pages.length) && !isCoordinator) {
     return (
       <Box p={6} maxW="1280px" mx="auto" mt={{ base: "80px", lg: "126px" }}>
         <Loader size="lg" />
@@ -664,7 +602,7 @@ const Profile = () => {
               {tabs[activeTab]?.title || "Tab Details"}
             </Text>
 
-            {tabs[activeTab]?.title === "Profile Preview" ? (
+            {activeTab === tabs.length - 2 ? (
               <Box>
                 {userProfile &&
                   (userType === "student" ? (
@@ -706,9 +644,7 @@ const Profile = () => {
                     </VStack>
                   ) : null)}
               </Box>
-            ) : tabs[activeTab]?.title === "My Opportunities" ? (
-              <MyOpportunities userType={userType} />
-            ) : tabs[activeTab]?.title === "Change Password" ? (
+            ) : activeTab === tabs.length - 1 ? (
               <Box
                 maxW="500px"
                 mx="auto"
