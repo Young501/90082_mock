@@ -15,9 +15,6 @@ export const extractEmailDomain = (email: string): string | null => {
   }
   // Extract domain part after the last '@'
   const atIndex = normalizedEmail.lastIndexOf('@');
-  if (atIndex === -1 || atIndex === normalizedEmail.length - 1) {
-    return null;
-  }
   return normalizedEmail.slice(atIndex + 1);
 };
 
