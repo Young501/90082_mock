@@ -47,8 +47,11 @@ export const isStudentEligibleForOpportunity = (
       return true;
     }
     
-    // Subdomain match (user domain ends with .allowedDomain)
-    if (userDomain.endsWith(`.${normalizedAllowedDomain}`)) {
+    // Subdomain match: userDomain must end with .allowedDomain and have at least one label before the dot
+    if (
+      userDomain.length > normalizedAllowedDomain.length + 1 && // at least one label before the dot
+      userDomain.endsWith(`.${normalizedAllowedDomain}`)
+    ) {
       return true;
     }
     
