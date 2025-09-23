@@ -232,9 +232,14 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v1/folders/${folderId}/members/`,
   }),
+  // v2 opportunities endpoints
   COORDINATOR_OPPORTUNITIES: {
     method: "GET",
-    url: "/api/v1/opportunities/all/",
+    url: "/api/v2/opportunities/coordinator/all/",
+  },
+  ALL_OPPORTUNITIES: {
+    method: "GET",
+    url: "/api/v2/opportunities/all/",
   },
   CONTACT_USER: (opportunityId: string): ApiEndpoint => ({
     method: "POST",

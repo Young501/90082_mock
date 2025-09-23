@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.4]
+
+### Added
+
+- Now we show Within x km in the student profile
+
+---
+
 ## [1.0.3]
 
 ### Added
