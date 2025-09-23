@@ -105,21 +105,6 @@ const fetchCoordinatorOpportunities = async () => {
   }
 };
 
-export const fetchAllOpportunities = async () => {
-  try {
-    const response = await apiRequest({
-      endpoint: API_ENDPOINTS.ALL_OPPORTUNITIES,
-    });
-
-    // This returns all public opportunities + private opportunities where user is invited
-    return response;
-  } catch (error: any) {
-    console.error("Failed to fetch all opportunities:", error);
-    toast.error("Failed to fetch opportunities");
-    throw error;
-  }
-};
-
 export const useAuth = () => {
   const router = useRouter();
   const { setAuthData, user, setUserProfile } = useAuthStore();
@@ -386,7 +371,6 @@ export const useAuth = () => {
     errorMsg,
     changePasswordMutation,
     handleChangePassword,
-    fetchAllOpportunities,
   };
 };
 
