@@ -242,6 +242,7 @@ export function useAccessibleOpportunities() {
           return [];
         }
         
+        console.log("🔍 Processing opportunities:", opportunities.length);
         // Map opportunities using enrollment_status from API response
         const opportunitiesWithStatus = opportunities.map((o: any) => {
           console.log("🔍 Processing opportunity:", o);
