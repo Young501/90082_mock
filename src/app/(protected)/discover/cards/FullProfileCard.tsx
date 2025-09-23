@@ -556,10 +556,6 @@ const RenderStudentDetails = ({
         </Grid>
 
         <VStack gap={4} w="full" align="start">
-          <BadgeSection title="Specialization" items={student.specialization} />
-
-          <BadgeSection title="Skills" items={student.skills} />
-
           <BadgeSection
             title="Open to Work Locations"
             items={student.preferred_location}
@@ -567,6 +563,11 @@ const RenderStudentDetails = ({
             showFallback={true}
             fallbackText={student.location || "Not specified"}
           />
+
+          <BadgeSection title="Specialization" items={student.specialization} />
+
+          <BadgeSection title="Skills" items={student.skills} />
+
           <BadgeSection title="Available For" items={student.position_type} />
 
           {student.questionnaire_answers &&

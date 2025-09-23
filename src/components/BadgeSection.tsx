@@ -62,7 +62,7 @@ const BadgeSection = ({
     return (
       item +
       " " +
-      (withinDistance && item === "Within" ? `(${withinDistance}) km` : "")
+      (withinDistance && item === "Within" ? `${withinDistance} km` : "")
     );
   };
 
