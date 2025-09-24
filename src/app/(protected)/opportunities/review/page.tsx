@@ -25,6 +25,7 @@ import { ChevronLeftIcon, EditIcon, Loader } from "lucide-react";
 import { toast } from "react-toastify";
 import { Question } from "@/types/onboarding";
 import { useQuestionnaireAnswers } from "@/hooks/useQuestionnaireAnswers";
+import { getErrorStatus, getEnrollmentErrorMessage } from "@/utils/apiErrorHandling";
 
 export default function OpportunityReviewPage() {
   const sp = useSearchParams();
@@ -85,36 +86,15 @@ export default function OpportunityReviewPage() {
     } catch (error: unknown) {
       console.error("Enrollment error:", error);
       
-      // Handle different error responses
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "response" in error &&
-        typeof (error as any).response === "object" &&
-        (error as any).response !== null
-      ) {
-        const response = (error as any).response;
-        const status = response.status;
-        if (status === 409) {
-          setSubmitError("You have already enrolled in this opportunity.");
-        } else if (status === 403) {
-          setSubmitError("You don't have permission to enroll in this opportunity. Please check if you have a valid private invite.");
-        } else if (status === 401) {
-          router.push("/login");
-        } else if (status === 400) {
-          const errorData = response.data;
-          if (errorData && typeof errorData === "object") {
-            const errorMessages = Object.values(errorData).flat().join(", ");
-            setSubmitError(`Please correct the following: ${errorMessages}`);
-          } else {
-            setSubmitError("Please check your answers and try again.");
-          }
-        } else {
-          setSubmitError("An unexpected error occurred. Please try again.");
-        }
-      } else {
-        setSubmitError("An unexpected error occurred. Please try again.");
+      // Handle authentication redirect
+      const status = getErrorStatus(error);
+      if (status === 401) {
+        router.push("/login");
+        return;
       }
+      
+      // Set appropriate error message
+      setSubmitError(getEnrollmentErrorMessage(error));
     }
   };
 
