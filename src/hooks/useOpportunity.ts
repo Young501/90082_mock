@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import { Opportunity } from "@/types/opportunities";
 
@@ -21,6 +21,8 @@ export interface ParticipantRequest {
 }
 
 export function useEnrollInOpportunity() {
+  const queryClient = useQueryClient();
+  
   return useMutation({
     mutationFn: async ({
       opportunityId,
@@ -34,6 +36,21 @@ export function useEnrollInOpportunity() {
         body: data,
       });
     },
+    onSuccess: (_data, { opportunityId }) => {
+      // Invalidate opportunity detail to refetch with updated enrollment status
+      queryClient.invalidateQueries({
+        queryKey: ["opportunity", opportunityId],
+      });
+      
+      // Invalidate accessible opportunities to update enrollment status
+      queryClient.invalidateQueries({
+        queryKey: ["accessible-opportunities"],
+      });
+      
+      // Invalidate accepted opportunities as well since enrollment status changed
+      queryClient.invalidateQueries({
+        queryKey: ["accepted-opportunities"],
+      });
+    },
   });
-
 }
