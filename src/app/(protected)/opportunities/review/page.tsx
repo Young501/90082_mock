@@ -36,7 +36,6 @@ export default function OpportunityReviewPage() {
 
   const {
     questionnaireAnswers: answers,
-    clearAnswers,
   } = useQuestionnaireAnswers(opportunityId);
   
   const enrollMutation = useEnrollInOpportunity();
@@ -81,10 +80,7 @@ export default function OpportunityReviewPage() {
         },
       });
 
-      // Clear saved answers on successful submission
-      clearAnswers();
-      
-      // Navigate to success page
+      // Navigate to success page (complete page will handle clearing answers)
       router.push(`/opportunities/complete?id=${opportunityId}`);
     } catch (error: unknown) {
       console.error("Enrollment error:", error);

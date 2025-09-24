@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Box,
   VStack,
@@ -27,6 +28,7 @@ export default function OpportunityCompletePage() {
   const router = useRouter();
   const opportunityId = sp.get("id");
   const { user } = useAuthStore();
+  const queryClient = useQueryClient();
 
   if (!opportunityId) {
     router.push('/opportunities');
@@ -41,10 +43,20 @@ export default function OpportunityCompletePage() {
     error,
   } = useOpportunityDetail(opportunityId);
 
-  // Clear saved answers when component mounts (application completed)
+  // Clear saved answers and invalidate cache when component mounts (application completed)
   useEffect(() => {
     clearAnswers();
-  }, [clearAnswers]);
+    
+    // Invalidate opportunity cache to ensure fresh data when navigating back
+    queryClient.invalidateQueries({
+      queryKey: ["opportunity", opportunityId],
+    });
+    
+    // Invalidate accessible opportunities to update enrollment status
+    queryClient.invalidateQueries({
+      queryKey: ["accessible-opportunities"],
+    });
+  }, [clearAnswers, queryClient, opportunityId]);
 
   const handleViewProfile = () => {
     router.push("/profile");
