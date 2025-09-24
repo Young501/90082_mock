@@ -11,7 +11,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useOpportunityDetail, useAccessibleOpportunities } from "@/services/shared";
 import { Opportunity } from "@/types/invite";
 import { useAuthStore } from "@/store";
-import Footer from "@/components/Layouts/Footer";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
@@ -322,9 +321,6 @@ export default function DiscoveryPage() {
             </>
           )}
         </Box>
-      
-        <Footer />
-
       </Box>
     );
   }
