@@ -3,7 +3,6 @@ import React, {
   useEffect,
   useMemo,
   useCallback,
-  useRef,
 } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -97,7 +96,6 @@ const extractFilterOptions = (
 // ===== Main Hook =====
 export const useDiscovery = (opportunityIdOverride?: string) => {
   const { user } = useAuthStore();
-  const hasShownWarningRef = useRef(false);
   const [filterableFields, setFilterableFields] = useState<ProcessedField[]>(
     []
   );
@@ -206,50 +204,7 @@ export const useDiscovery = (opportunityIdOverride?: string) => {
     }
   }, [currentOpportunityId, filterableFields, form]);
 
-  useEffect(() => {
-    if (
-      targetUserType &&
-      !searchParams &&
-      !isOpportunitiesLoading &&
-      currentOpportunityId
-    ) {
-      setSearchParams({
-        user_type: targetUserType,
-        opportunity_id: currentOpportunityId,
-        page: currentPage,
-        page_size: pageSize,
-      });
-      setIsSearching(true);
-    }
-  }, [
-    targetUserType,
-    searchParams,
-    currentPage,
-    pageSize,
-    currentOpportunityId,
-    isOpportunitiesLoading,
-  ]);
 
-  useEffect(() => {
-    const shouldShowWarning =
-      !isOpportunitiesLoading &&
-      acceptedOpportunities !== undefined &&
-      !currentOpportunityId &&
-      !hasShownWarningRef.current;
-
-    if (shouldShowWarning) {
-      hasShownWarningRef.current = true;
-      setTimeout(() => {
-        toast.warning(
-          "You haven't joined any opportunities yet. Please accept an opportunity invitation to search for users."
-        );
-      }, 100);
-    }
-
-    if (currentOpportunityId && hasShownWarningRef.current) {
-      hasShownWarningRef.current = false;
-    }
-  }, [isOpportunitiesLoading, acceptedOpportunities, currentOpportunityId]);
 
   const processFollowupQuestions = useCallback(
     (
@@ -443,17 +398,29 @@ export const useDiscovery = (opportunityIdOverride?: string) => {
       setIsSearching(false);
       setCurrentPage(1);
     } else {
-      // When opportunity changes, reset search and trigger new search
-      setSearchParams({
-        user_type: targetUserType,
-        opportunity_id: currentOpportunityId,
-        page: 1,
-        page_size: pageSize,
-      });
-      setCurrentPage(1);
-      setIsSearching(true);
+      // Check if user is enrolled in the current opportunity
+      const isEnrolled = acceptedOpportunities?.some((opp: any) => 
+        opp.id.toString() === currentOpportunityId
+      );
+      
+      if (isEnrolled) {
+        // Only search if user is enrolled in the opportunity
+        setSearchParams({
+          user_type: targetUserType,
+          opportunity_id: currentOpportunityId,
+          page: 1,
+          page_size: pageSize,
+        });
+        setCurrentPage(1);
+        setIsSearching(true);
+      } else {
+        // Don't search if not enrolled
+        setSearchParams(null);
+        setIsSearching(false);
+        setCurrentPage(1);
+      }
     }
-  }, [targetUserType, currentOpportunityId, pageSize]);
+  }, [targetUserType, currentOpportunityId, pageSize, acceptedOpportunities]);
 
   const hasSearchFilters = useMemo(() => {
     if (!searchParams) return false;

@@ -253,9 +253,10 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
 
     const handleDisabledClick = (e: React.MouseEvent) => {
       e.preventDefault();
+      e.stopPropagation();
       toast.info("No opportunities yet.");
       if (isMobile) setIsMobileMenuOpen(false);
-      router.push(`/discover/?id=0`);
+      // Do not navigate - just show the toast
     };
 
     if (!opps || opps.length === 0) {

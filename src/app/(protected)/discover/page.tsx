@@ -18,7 +18,7 @@ import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 export default function DiscoveryPage() {
   const sp = useSearchParams();
   const router = useRouter();
-  const idParam = sp.get("id") || undefined;
+  const opportunityId = sp.get("id") || undefined;
   const { user } = useAuthStore();
   const [questionnaireAnswers, setQuestionnaireAnswers] = useState<Record<string, any>>({});
 
@@ -27,7 +27,7 @@ export default function DiscoveryPage() {
     data: opportunity, 
     isLoading: isOpportunityLoading, 
     error: opportunityError 
-  } = useOpportunityDetail(idParam || "");
+  } = useOpportunityDetail(opportunityId || "");
 
   // Get user's accessible opportunities to check enrollment status
   const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } = useAccessibleOpportunities();
@@ -35,26 +35,26 @@ export default function DiscoveryPage() {
   // Check if user is enrolled in this opportunity
   const isEnrolled = useMemo(() => {
     console.log("🔍 Checking enrollment status:");
-    console.log("🔍 idParam:", idParam);
+    console.log("🔍 opportunityId:", opportunityId);
     console.log("🔍 accessibleOpportunities:", accessibleOpportunities);
     
-    if (!idParam || !accessibleOpportunities) {
-      console.log("🔍 No idParam or accessibleOpportunities, returning false");
+    if (!opportunityId || !accessibleOpportunities) {
+      console.log("🔍 No opportunityId or accessibleOpportunities, returning false");
       return false;
     }
     
-    const currentOpportunity = accessibleOpportunities.find(opp => opp.id.toString() === idParam);
+    const currentOpportunity = accessibleOpportunities.find(opp => opp.id.toString() === opportunityId);
     console.log("🔍 Found current opportunity:", currentOpportunity);
     
     const enrolled = currentOpportunity?.status === "Enrolled";
     console.log("🔍 Is enrolled:", enrolled);
     
     return enrolled;
-  }, [idParam, accessibleOpportunities]);
+  }, [opportunityId, accessibleOpportunities]);
 
   // Auto-redirect logic when no id is provided
   useEffect(() => {
-    if (!idParam && !isOpportunitiesLoading && accessibleOpportunities) {
+    if (!opportunityId && !isOpportunitiesLoading && accessibleOpportunities) {
       if (accessibleOpportunities.length > 0) {
         // Find the minimum opportunity id
         const minOpportunity = accessibleOpportunities.reduce((min, current) => 
@@ -64,7 +64,7 @@ export default function DiscoveryPage() {
         router.replace(`/discover?id=${minOpportunity.id}`);
       }
     }
-  }, [idParam, isOpportunitiesLoading, accessibleOpportunities, router]);
+  }, [opportunityId, isOpportunitiesLoading, accessibleOpportunities, router]);
 
   const {
     searchResults,
@@ -85,8 +85,8 @@ export default function DiscoveryPage() {
     totalPages,
     handlePageChange,
     handlePageSizeChange,
-    opportunityId,
-  } = useDiscovery(idParam);
+    opportunityId: currentOpportunityId,
+  } = useDiscovery(opportunityId);
 
   const { control, watch, getValues } = form;
   const watchedValues = watch();
@@ -159,8 +159,8 @@ export default function DiscoveryPage() {
     // No modal or routing - handled by other team
   }, [userType, user?.email, opportunity?.allowed_student_email_domains, questionnaireAnswers]);
 
-  // If id parameter is provided, show opportunity-specific content
-  if (idParam) {
+  // If opportunity id parameter is provided, show opportunity-specific content
+  if (opportunityId) {
     return (
       <Box display="flex" flexDirection="column" minH="100vh" position="relative" overflow="hidden">
         <PageTitle title={PAGE_TITLES.DISCOVER} />
@@ -264,7 +264,7 @@ export default function DiscoveryPage() {
                     pageSize={pageSize}
                     onPageChange={handlePageChange}
                     onPageSizeChange={handlePageSizeChange}
-                    opportunityId={opportunityId}
+                    opportunityId={currentOpportunityId}
                   />
                 </Box>
               ) : (
@@ -345,9 +345,6 @@ export default function DiscoveryPage() {
             </>
           )}
         </Box>
-      
-        <Footer />
-
       </Box>
     );
   }
