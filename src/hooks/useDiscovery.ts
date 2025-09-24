@@ -130,7 +130,7 @@ export const useDiscovery = (opportunityIdOverride?: string) => {
 
   const { data: questionnaireFilters, isLoading: isQuestionnaireLoading } =
     useQuestionnaireFilters(
-      currentOpportunityId || "", 
+      currentOpportunityId || "",
       targetUserType || ""
     );
 
@@ -399,10 +399,10 @@ export const useDiscovery = (opportunityIdOverride?: string) => {
       setCurrentPage(1);
     } else {
       // Check if user is enrolled in the current opportunity
-      const isEnrolled = acceptedOpportunities?.some((opp: any) => 
+      const isEnrolled = acceptedOpportunities?.some((opp: any) =>
         opp.id.toString() === currentOpportunityId
       );
-      
+
       if (isEnrolled) {
         // Only search if user is enrolled in the opportunity
         setSearchParams({
@@ -443,14 +443,9 @@ export const useDiscovery = (opportunityIdOverride?: string) => {
     isLoading: isOnboardingLoading || isSearchLoading || isQuestionnaireLoading,
     isSearching,
     form,
-    handleSearch: form.handleSubmit(
-      (data) => {
-        handleSearch(data);
-      },
-      (errors) => {
-        console.log(errors);
-      }
-    ),
+    handleSearch: form.handleSubmit((data) => {
+      handleSearch(data);
+    }),
     handleReset,
     checkDependencies,
     resultsCount: searchData?.count || 0,

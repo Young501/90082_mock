@@ -31,20 +31,12 @@ export default function DiscoveryPage() {
 
   // Check if user is enrolled in this opportunity
   const isEnrolled = useMemo(() => {
-    console.log("🔍 Checking enrollment status:");
-    console.log("🔍 opportunityId:", opportunityId);
-    console.log("🔍 accessibleOpportunities:", accessibleOpportunities);
-
     if (!opportunityId || !accessibleOpportunities) {
-      console.log("🔍 No opportunityId or accessibleOpportunities, returning false");
       return false;
     }
 
     const currentOpportunity = accessibleOpportunities.find(opp => opp.id.toString() === opportunityId);
-    console.log("🔍 Found current opportunity:", currentOpportunity);
-
     const enrolled = currentOpportunity?.status === "Enrolled";
-    console.log("🔍 Is enrolled:", enrolled);
 
     return enrolled;
   }, [opportunityId, accessibleOpportunities]);
@@ -307,9 +299,6 @@ export default function DiscoveryPage() {
                         h="36px"
                         w={{ base: "full", md: "120px" }}
                         onClick={() => {
-                          // Save questionnaire state for other team to use
-                          console.log("Enroll clicked - questionnaire state saved:", questionnaireAnswers);
-                          // No modal or routing - handled by other team
                         }}
                       >
                         Enroll

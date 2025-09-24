@@ -6,17 +6,17 @@ import { useAuthStore } from "@/store";
 export function useUpdateOpportunityParticipant() {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
-  
+
   return useMutation({
-    mutationFn: async ({ 
-      opportunityId, 
-      questionnaireAnswers 
-    }: { 
-      opportunityId: string | number; 
-      questionnaireAnswers: Record<string, any> 
+    mutationFn: async ({
+      opportunityId,
+      questionnaireAnswers
+    }: {
+      opportunityId: string | number;
+      questionnaireAnswers: Record<string, any>
     }) => {
       try {
-        const response = await apiRequest({ 
+        const response = await apiRequest({
           endpoint: API_ENDPOINTS.UPDATE_OPPORTUNITY_PARTICIPANT(
             Number(opportunityId)
           ),
@@ -32,25 +32,27 @@ export function useUpdateOpportunityParticipant() {
     },
     onSuccess: (data, variables) => {
       // Invalidate and refetch participant data
-      queryClient.invalidateQueries({ 
-        queryKey: ["opportunity-participant", variables.opportunityId, user?.id] 
+      queryClient.invalidateQueries({
+        queryKey: ["opportunity-participant", variables.opportunityId, user?.id]
       });
-      
+
       // Also invalidate all opportunities to update enrollment status
-      queryClient.invalidateQueries({ 
-        queryKey: ["all-opportunities", user?.id] 
+      queryClient.invalidateQueries({
+        queryKey: ["all-opportunities", user?.id]
       });
-      
+
       // Optimistic update for immediate UI feedback
       queryClient.setQueryData(
         ["opportunity-participant", variables.opportunityId, user?.id],
         (oldData: any) => {
           if (oldData) {
+            // Since we're now sending complete questionnaire_answers, 
+            // we can directly use the sent data
             return {
               ...oldData,
-              questionnaire_answers: {
-                ...oldData.questionnaire_answers,
-                ...variables.questionnaireAnswers
+              data: {
+                ...oldData.data,
+                questionnaire_answers: variables.questionnaireAnswers
               }
             };
           }
@@ -68,18 +70,18 @@ export function useUpdateOpportunityParticipant() {
 export function useReEnrollOpportunity() {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
-  
+
   return useMutation({
-    mutationFn: async ({ 
-      opportunityId, 
-      questionnaireAnswers 
-    }: { 
-      opportunityId: string | number; 
-      questionnaireAnswers?: Record<string, any> 
+    mutationFn: async ({
+      opportunityId,
+      questionnaireAnswers
+    }: {
+      opportunityId: string | number;
+      questionnaireAnswers?: Record<string, any>
     }) => {
       try {
         const userType = user?.user_types?.[0] || "student";
-        const response = await apiRequest({ 
+        const response = await apiRequest({
           endpoint: API_ENDPOINTS.RE_ENROLL_OPPORTUNITY(Number(opportunityId)),
           body: {
             user_type: userType,
@@ -96,7 +98,7 @@ export function useReEnrollOpportunity() {
       // Optimistically update the all-opportunities cache
       queryClient.setQueryData(["all-opportunities", user?.id], (oldData: any) => {
         if (!oldData) return oldData;
-        
+
         return oldData.map((opportunity: any) => {
           if (opportunity.id === variables.opportunityId) {
             return {
@@ -108,11 +110,11 @@ export function useReEnrollOpportunity() {
           return opportunity;
         });
       });
-      
+
       // Optimistically update the accessible-opportunities cache as well
       queryClient.setQueryData(["accessible-opportunities", user?.id], (oldData: any) => {
         if (!oldData) return oldData;
-        
+
         return oldData.map((opportunity: any) => {
           if (opportunity.id === variables.opportunityId) {
             return {
@@ -123,20 +125,20 @@ export function useReEnrollOpportunity() {
           return opportunity;
         });
       });
-      
+
       // Invalidate and refetch all opportunities to update enrollment status
-      queryClient.invalidateQueries({ 
-        queryKey: ["all-opportunities", user?.id] 
+      queryClient.invalidateQueries({
+        queryKey: ["all-opportunities", user?.id]
       });
-      
+
       // Invalidate accessible opportunities as well
-      queryClient.invalidateQueries({ 
-        queryKey: ["accessible-opportunities", user?.id] 
+      queryClient.invalidateQueries({
+        queryKey: ["accessible-opportunities", user?.id]
       });
-      
+
       // Invalidate participant record for this opportunity
-      queryClient.invalidateQueries({ 
-        queryKey: ["opportunity-participant", variables.opportunityId, user?.id] 
+      queryClient.invalidateQueries({
+        queryKey: ["opportunity-participant", variables.opportunityId, user?.id]
       });
     },
     onError: (error: any) => {
@@ -149,15 +151,15 @@ export function useReEnrollOpportunity() {
 export function useCancelOpportunityEnrollment() {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
-  
+
   return useMutation({
-    mutationFn: async ({ 
-      opportunityId 
-    }: { 
-      opportunityId: string | number; 
+    mutationFn: async ({
+      opportunityId
+    }: {
+      opportunityId: string | number;
     }) => {
       try {
-        const response = await apiRequest({ 
+        const response = await apiRequest({
           endpoint: API_ENDPOINTS.CANCEL_OPPORTUNITY_ENROLLMENT(Number(opportunityId))
         });
         return response;
@@ -170,7 +172,7 @@ export function useCancelOpportunityEnrollment() {
       // Optimistically update the all-opportunities cache
       queryClient.setQueryData(["all-opportunities", user?.id], (oldData: any) => {
         if (!oldData) return oldData;
-        
+
         return oldData.map((opportunity: any) => {
           if (opportunity.id === variables.opportunityId) {
             return {
@@ -182,16 +184,11 @@ export function useCancelOpportunityEnrollment() {
           return opportunity;
         });
       });
-      
-      // Invalidate and refetch all opportunities to ensure data consistency
-      queryClient.invalidateQueries({ 
-        queryKey: ["all-opportunities", user?.id] 
-      });
-      
+
       // Optimistically update the accessible-opportunities cache as well
       queryClient.setQueryData(["accessible-opportunities", user?.id], (oldData: any) => {
         if (!oldData) return oldData;
-        
+
         return oldData.map((opportunity: any) => {
           if (opportunity.id === variables.opportunityId) {
             return {
@@ -202,20 +199,16 @@ export function useCancelOpportunityEnrollment() {
           return opportunity;
         });
       });
-      
-      // Invalidate accessible opportunities as well
-      queryClient.invalidateQueries({ 
-        queryKey: ["accessible-opportunities", user?.id] 
-      });
-      
-      // Invalidate participant record for this opportunity
-      queryClient.invalidateQueries({ 
-        queryKey: ["opportunity-participant", variables.opportunityId, user?.id] 
-      });
-      
+
       // Clear participant record cache completely for cancelled opportunities
-      queryClient.removeQueries({ 
-        queryKey: ["opportunity-participant", variables.opportunityId, user?.id] 
+      // This avoids the need for GET v2 participant call
+      queryClient.removeQueries({
+        queryKey: ["opportunity-participant", variables.opportunityId, user?.id]
+      });
+
+      // Invalidate accessible-opportunities to trigger re-fetch in MyOpportunities component
+      queryClient.invalidateQueries({
+        queryKey: ["accessible-opportunities", user?.id]
       });
     },
     onError: (error: any) => {

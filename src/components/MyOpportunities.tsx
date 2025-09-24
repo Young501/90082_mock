@@ -13,7 +13,7 @@ import {
   SkeletonText,
 } from "@chakra-ui/react";
 import {
-  useAllOpportunities,
+  useAccessibleOpportunities,
   categorizeOpportunities,
   useOpportunityParticipant,
 } from "@/services/shared";
@@ -75,12 +75,12 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     {}
   );
 
-  // Fetch participant record when expanded
+  // Fetch participant record when expanded (only for enrolled opportunities)
   const {
     data: participantRecord,
     isLoading: isParticipantLoading,
     error: participantError,
-  } = useOpportunityParticipant(opportunity.id);
+  } = useOpportunityParticipant(opportunity.id, type === "enrolled");
 
   // Update mutation
   const updateParticipantMutation = useUpdateOpportunityParticipant();
@@ -105,6 +105,19 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     return questions;
   }, [opportunity.questionnaire]);
 
+  // Check if questionnaire answers are empty
+  const hasQuestionnaireAnswers = useMemo(() => {
+    if (!participantRecord?.data?.questionnaire_answers) return false;
+
+    const answers = participantRecord.data.questionnaire_answers;
+    return Object.values(answers).some(value =>
+      value !== undefined &&
+      value !== null &&
+      value !== "" &&
+      !(Array.isArray(value) && value.length === 0)
+    );
+  }, [participantRecord?.data?.questionnaire_answers]);
+
   // Form setup for editing
   const schema = useMemo(
     () => createPageSchema(questionnaire, true),
@@ -125,10 +138,21 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   // Reset form when participant record loads
   useEffect(() => {
     if (participantRecord?.data?.questionnaire_answers) {
-      reset(participantRecord.data.questionnaire_answers);
-      setOriginalAnswers(participantRecord.data.questionnaire_answers);
+      const answers = participantRecord.data.questionnaire_answers;
+      reset(answers);
+      setOriginalAnswers(answers);
     }
   }, [participantRecord, reset]);
+
+  // Update originalAnswers when participant record changes (e.g., after successful save)
+  useEffect(() => {
+    if (participantRecord?.data?.questionnaire_answers && !isEditMode) {
+      const answers = participantRecord.data.questionnaire_answers;
+      setOriginalAnswers(answers);
+      // Also reset the form to match the latest data
+      reset(answers);
+    }
+  }, [participantRecord?.data?.questionnaire_answers, isEditMode, reset]);
 
   const handleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -138,20 +162,26 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   };
 
   const handleEdit = () => {
+    if (!isEditMode) {
+      // When entering edit mode, reset form to current participant answers
+      // This ensures we start with the latest data, not stale originalAnswers
+      if (participantRecord?.data?.questionnaire_answers) {
+        reset(participantRecord.data.questionnaire_answers);
+        setOriginalAnswers(participantRecord.data.questionnaire_answers);
+      }
+    } else {
+      // When canceling edit mode, reset form back to original answers
+      reset(originalAnswers);
+    }
     setIsEditMode(!isEditMode);
   };
 
   const handleReEnroll = async (data?: any) => {
     try {
-      // Get form values from parameter or current form state
-      const questionnaireAnswers = data || getValues();
-
+      // Re-enrollment no longer requires questionnaire answers
       await reEnrollMutation.mutateAsync({
         opportunityId: opportunity.id,
-        questionnaireAnswers:
-          Object.keys(questionnaireAnswers).length > 0
-            ? questionnaireAnswers
-            : undefined,
+        // No questionnaire answers needed for re-enrollment
       });
 
       toast.success("Successfully re-enrolled in opportunity!");
@@ -171,6 +201,15 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   };
 
   const handleCancelEnrollment = async () => {
+    // Show confirmation dialog before canceling enrollment
+    const confirmed = window.confirm(
+      "Please confirm your cancellation."
+    );
+
+    if (!confirmed) {
+      return; // User cancelled the action
+    }
+
     try {
       await cancelEnrollmentMutation.mutateAsync({
         opportunityId: opportunity.id,
@@ -199,28 +238,34 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     }
 
     try {
-      // Find only changed fields
-      const changedFields: Record<string, any> = {};
+      // Check if there are any changes
+      let hasChanges = false;
       Object.keys(data).forEach((key) => {
         const originalValue = originalAnswers[key];
         const newValue = data[key];
-
-        // Deep comparison for arrays and objects
         if (JSON.stringify(originalValue) !== JSON.stringify(newValue)) {
-          changedFields[key] = newValue;
+          hasChanges = true;
         }
       });
 
-      if (Object.keys(changedFields).length === 0) {
+      if (!hasChanges) {
         toast.info("No changes to save");
         setIsEditMode(false);
         return;
       }
 
+      // Send the complete questionnaire_answers object to preserve all existing data
+      // The backend needs the full object to avoid losing other fields
       await updateParticipantMutation.mutateAsync({
         opportunityId: opportunity.id,
-        questionnaireAnswers: changedFields,
+        questionnaireAnswers: data, // Send complete form data, not just changed fields
       });
+
+      // Update original answers with the complete form data
+      setOriginalAnswers(data);
+
+      // Don't reset the form here - let the optimistic update handle the UI
+      // The form should maintain its current state until the data is refetched
 
       toast.success("All changes have been saved!");
       setIsEditMode(false);
@@ -288,7 +333,30 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
       {/* Expanded content */}
       {isExpanded && (
         <Box borderTop="1px solid #E2E8F0" bg="#F8F9FA" p={4}>
-          {isParticipantLoading ? (
+          {type === "closed" ? (
+            // For cancelled opportunities, show re-enroll option directly
+            <VStack gap={4} align="stretch">
+              <Alert.Root status="info" mb={4}>
+                <Alert.Indicator />
+                <Alert.Title>
+                  You are not currently enrolled in this opportunity
+                </Alert.Title>
+              </Alert.Root>
+
+              {/* Re-enroll button - no questionnaire required */}
+              <Box>
+                <Button
+                  size="md"
+                  colorScheme={userType === "student" ? "red" : "green"}
+                  onClick={handleReEnroll}
+                  loading={reEnrollMutation.isPending}
+                  w="full"
+                >
+                  Re-enroll in Opportunity
+                </Button>
+              </Box>
+            </VStack>
+          ) : isParticipantLoading ? (
             <VStack gap={4}>
               <Spinner
                 size="md"
@@ -308,109 +376,6 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                 </Alert.Root>
               )}
 
-              {/* For closed opportunities, show re-enroll option even without participant record */}
-              {type === "closed" && (
-                <Box>
-                  <Alert.Root status="info" mb={4}>
-                    <Alert.Indicator />
-                    <Alert.Title>
-                      You are not currently enrolled in this opportunity
-                    </Alert.Title>
-                  </Alert.Root>
-
-                  {/* Show questionnaire for re-enrollment if available */}
-                  {questionnaire.length > 0 && (
-                    <Box mb={4}>
-                      <Text
-                        fontSize="16px"
-                        fontWeight="600"
-                        color="#1F2937"
-                        mb={3}
-                      >
-                        Complete Questionnaire to Re-enroll
-                      </Text>
-
-                      {isEditMode ? (
-                        <form onSubmit={handleSubmit(handleReEnroll)}>
-                          <VStack gap={4} align="stretch">
-                            {questionnaire.map((question: Question) => (
-                              <FieldRenderer
-                                key={question.field}
-                                question={question}
-                                register={register}
-                                control={control}
-                                errors={errors}
-                              />
-                            ))}
-                            <HStack gap={2} justify="flex-end">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => setIsEditMode(false)}
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                size="sm"
-                                type="submit"
-                                colorScheme={
-                                  userType === "student" ? "red" : "green"
-                                }
-                                loading={reEnrollMutation.isPending}
-                              >
-                                Re-enroll
-                              </Button>
-                            </HStack>
-                          </VStack>
-                        </form>
-                      ) : (
-                        <VStack gap={3} align="stretch">
-                          {questionnaire.map((question: Question) => (
-                            <Box
-                              key={question.field}
-                              p={3}
-                              bg="white"
-                              borderRadius="8px"
-                              border="1px solid #E2E8F0"
-                            >
-                              <Text
-                                fontSize="14px"
-                                fontWeight="600"
-                                color="#374151"
-                                mb={1}
-                              >
-                                {question.label}
-                              </Text>
-                              <Text fontSize="14px" color="#6B7280">
-                                No answer provided
-                              </Text>
-                            </Box>
-                          ))}
-                        </VStack>
-                      )}
-                    </Box>
-                  )}
-
-                  {/* Re-enroll button */}
-                  <Box>
-                    <Button
-                      size="md"
-                      colorScheme={userType === "student" ? "red" : "green"}
-                      onClick={
-                        questionnaire.length > 0
-                          ? () => setIsEditMode(true)
-                          : handleReEnroll
-                      }
-                      loading={reEnrollMutation.isPending}
-                      w="full"
-                    >
-                      {questionnaire.length > 0
-                        ? "Complete Questionnaire & Re-enroll"
-                        : "Re-enroll in Opportunity"}
-                    </Button>
-                  </Box>
-                </Box>
-              )}
             </VStack>
           ) : (
             <VStack gap={4} align="stretch">
@@ -456,8 +421,8 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                 </Box>
               )}
 
-              {/* Questionnaire */}
-              {questionnaire.length > 0 && (
+              {/* Questionnaire - only show if there are actual answers */}
+              {questionnaire.length > 0 && hasQuestionnaireAnswers && (
                 <Box>
                   <Text fontSize="16px" fontWeight="600" color="#1F2937" mb={3}>
                     Questionnaire Answers
@@ -501,7 +466,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                       {questionnaire.map((question: Question) => {
                         const answer =
                           participantRecord?.data?.questionnaire_answers?.[
-                            question.field
+                          question.field
                           ];
                         return (
                           <Box
@@ -565,12 +530,13 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
   const [activeSubTab, setActiveSubTab] = useState<number>(0);
 
   // Fetch all opportunities
-  const { data: opportunities, isLoading, error } = useAllOpportunities();
+  const { data: opportunities, isLoading, error } = useAccessibleOpportunities();
 
   // Categorize opportunities
   const categorizedOpportunities = useMemo(() => {
     if (!opportunities) return { enrolled: [], closed: [] };
-    return categorizeOpportunities(opportunities);
+    // AccessibleOpportunity now has all the necessary fields
+    return categorizeOpportunities(opportunities as any);
   }, [opportunities]);
 
   const opportunityTabs = [
@@ -625,7 +591,7 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
               <Text>{tab.title}</Text>
               {tab.count !== undefined && (
                 <Box
-                  bg={userType === "student" ? "#DC2626" : "#089C3F"}
+                  bg={tab.title === "Enrolled Opportunities" ? "#089C3F" : "#DC2626"}
                   color="white"
                   borderRadius="50%"
                   width="20px"
@@ -708,7 +674,7 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
                     Enrolled Opportunities
                   </Text>
                   <Text fontSize="14px" color="#6B7280" maxW="400px">
-                    You're not enrolled in any opportunities yet.
+                    You&apos;re not enrolled in any opportunities yet.
                   </Text>
                 </VStack>
               </Box>

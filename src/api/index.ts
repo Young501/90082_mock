@@ -58,19 +58,6 @@ apiClient.interceptors.request.use(
         ? { ...headersObj, Authorization: "[HIDDEN]" }
         : headersObj;
 
-      // Build a readable URL with query string
-      const qs =
-        config.params &&
-        new URLSearchParams(config.params as Record<string, string>).toString();
-      const fullUrl = `${config.baseURL ?? ""}${config.url}${
-        qs ? `?${qs}` : ""
-      }`;
-
-      console.log(`🚀 ${config.method?.toUpperCase()} ${fullUrl}`, {
-        params: config.params,
-        data: config.data,
-        headers: safeHeaders,
-      });
     }
 
     return config;
@@ -92,15 +79,6 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
-    if (process.env.NODE_ENV === "development") {
-      console.log(
-        `✅ ${response.config.method?.toUpperCase()} ${response.config.url}`,
-        {
-          status: response.status,
-          data: response.data,
-        }
-      );
-    }
     return response;
   },
   (error: AxiosError) => {

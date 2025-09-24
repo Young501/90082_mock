@@ -6,7 +6,7 @@ import {
   OpportunitiesResponse,
   CategorizedOpportunities,
   ParticipantRecord,
-} from "@/types/opportunity";
+} from "@/types/opportunities";
 
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
@@ -212,6 +212,15 @@ export interface AccessibleOpportunity {
   id: number;
   title: string;
   status: "Enrolled" | "Not Enrolled" | string;
+  description: string;
+  start_date: string;
+  end_date: string;
+  created_by: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  questionnaire: Record<string, any>;
+  is_enrolled: boolean;
 }
 
 export function useAccessibleOpportunities() {
@@ -239,11 +248,8 @@ export function useAccessibleOpportunities() {
           return [];
         }
 
-        console.log("🔍 Processing opportunities:", opportunities.length);
         // Map opportunities using enrollment_status from API response
         const opportunitiesWithStatus = opportunities.map((o: any) => {
-          console.log("🔍 Processing opportunity:", o);
-          console.log("🔍 Available fields in opportunity:", Object.keys(o));
 
           // Use enrollment_status from API response if available
           let enrollmentStatus = "Not Enrolled";
@@ -269,8 +275,16 @@ export function useAccessibleOpportunities() {
             id: o.id,
             title: o.title || o.name,
             status: enrollmentStatus,
+            description: o.description || "",
+            start_date: o.start_date || "",
+            end_date: o.end_date || "",
+            created_by: o.created_by || 0,
+            is_active: o.is_active !== undefined ? o.is_active : true,
+            created_at: o.created_at || "",
+            updated_at: o.updated_at || "",
+            questionnaire: o.questionnaire || {},
+            is_enrolled: enrollmentStatus === "Enrolled",
           };
-          console.log("🔍 Mapped opportunity:", mappedOpp);
           return mappedOpp;
         });
 
@@ -403,48 +417,23 @@ export function categorizeOpportunities(
   const enrolled: Opportunity[] = [];
   const closed: Opportunity[] = [];
 
-  console.log(
-    "🔍 categorizeOpportunities - Total opportunities:",
-    opportunities.length
-  );
-
   opportunities.forEach((opportunity) => {
-    console.log(
-      "🔍 categorizeOpportunities - Processing opportunity:",
-      opportunity.id,
-      "is_enrolled:",
-      opportunity.is_enrolled
-    );
 
     // Check if user is enrolled based on the is_enrolled field
     const isEnrolled = opportunity.is_enrolled === true;
 
     if (isEnrolled) {
       enrolled.push(opportunity);
-      console.log(
-        "🔍 categorizeOpportunities - Added to enrolled:",
-        opportunity.id
-      );
     } else {
       closed.push(opportunity);
-      console.log(
-        "🔍 categorizeOpportunities - Added to closed:",
-        opportunity.id
-      );
     }
   });
 
-  console.log(
-    "🔍 categorizeOpportunities - Final result - Enrolled:",
-    enrolled.length,
-    "Closed:",
-    closed.length
-  );
   return { enrolled, closed };
 }
 
 // UC-310: Get participant record for a specific opportunity
-export function useOpportunityParticipant(opportunityId: string | number) {
+export function useOpportunityParticipant(opportunityId: string | number, enabled: boolean = true) {
   const { user } = useAuthStore();
 
   return useQuery<ParticipantRecord>({
@@ -462,7 +451,7 @@ export function useOpportunityParticipant(opportunityId: string | number) {
         throw error;
       }
     },
-    enabled: !!user && !!opportunityId,
+    enabled: !!user && !!opportunityId && enabled,
     staleTime: 2 * 60 * 1000, // 2 minutes
     retry: (failureCount, error: any) => {
       if (error?.response?.status === 404) {

@@ -222,10 +222,13 @@ const Profile = () => {
           icon: "fa-solid fa-eye",
         });
       }
-      basicTabs.push({
-        title: "My Opportunities",
-        icon: "fa-solid fa-folder-closed",
-      });
+      // Only add My Opportunities for non-coordinator users
+      if (!isCoordinator) {
+        basicTabs.push({
+          title: "My Opportunities",
+          icon: "fa-solid fa-folder-closed",
+        });
+      }
       basicTabs.push({
         title: "Change Password",
         icon: "fa-solid fa-key",
@@ -235,16 +238,16 @@ const Profile = () => {
 
     const onboardingTabs: Tab[] = [];
     let myOpportunitiesInserted = false;
-    
+
     // Add onboarding pages and insert My Opportunities after "My degree" or similar education-related page
     pages.forEach((page: OnboardingPage) => {
       onboardingTabs.push({
         title: page.short_title || page.title,
         icon: page.title_icon,
       });
-      
-      // Insert My Opportunities after education/degree related pages
-      if (!myOpportunitiesInserted && (
+
+      // Insert My Opportunities after education/degree related pages (only for non-coordinators)
+      if (!myOpportunitiesInserted && !isCoordinator && (
         page.title?.toLowerCase().includes('degree') ||
         page.title?.toLowerCase().includes('education') ||
         page.title?.toLowerCase().includes('academic') ||
@@ -259,15 +262,15 @@ const Profile = () => {
         myOpportunitiesInserted = true;
       }
     });
-    
-    // If My Opportunities wasn't inserted after any specific page, insert it after all onboarding pages
-    if (!myOpportunitiesInserted) {
+
+    // If My Opportunities wasn't inserted after any specific page, insert it after all onboarding pages (only for non-coordinators)
+    if (!myOpportunitiesInserted && !isCoordinator) {
       onboardingTabs.push({
         title: "My Opportunities",
         icon: "fa-solid fa-folder-closed",
       });
     }
-    
+
     if (!isCoordinator) {
       onboardingTabs.push({
         title: "Profile Preview",
@@ -284,7 +287,7 @@ const Profile = () => {
 
   const calculateProfileCompletion = (): number => {
     if (!userProfile) return 0;
-    
+
     // For users who have completed onboarding (no pages), return 100%
     if (!pages.length) return 100;
 
@@ -349,7 +352,7 @@ const Profile = () => {
           const orgField = field;
           value =
             userProfile.organisation?.[
-              orgField as keyof typeof userProfile.organisation
+            orgField as keyof typeof userProfile.organisation
             ];
         }
       } else {
@@ -371,10 +374,10 @@ const Profile = () => {
   // For organisation users who have completed onboarding, show profile even if no pages
   const shouldShowLoading = (isOnboardingLoading || isProfileLoading) && !isCoordinator;
   const hasNoPages = !pages.length && !isCoordinator;
-  
+
   // If user has profile data but no onboarding pages, they've completed onboarding
   const hasCompletedOnboarding = (userProfile || fetchedUserProfile) && hasNoPages;
-  
+
   if (shouldShowLoading && !hasCompletedOnboarding) {
     return (
       <Box p={6} maxW="1280px" mx="auto" mt={{ base: "80px", lg: "126px" }}>
@@ -549,16 +552,16 @@ const Profile = () => {
                     (userType === "student"
                       ? getUserProfilePictureUrl()
                       : getLogoUrl())) && (
-                    <Avatar.Image
-                      src={
-                        updatedProfilePicture ||
-                        (userType === "student"
-                          ? getUserProfilePictureUrl()
-                          : getLogoUrl()) ||
-                        undefined
-                      }
-                    />
-                  )}
+                      <Avatar.Image
+                        src={
+                          updatedProfilePicture ||
+                          (userType === "student"
+                            ? getUserProfilePictureUrl()
+                            : getLogoUrl()) ||
+                          undefined
+                        }
+                      />
+                    )}
                   <Avatar.Fallback
                     name={
                       userType === "organisation" && userProfile?.name
@@ -634,7 +637,7 @@ const Profile = () => {
                       activeTab === index && userType === "student"
                         ? "4px solid #DC2626"
                         : activeTab === index &&
-                            (userType === "organisation" || isCoordinator)
+                          (userType === "organisation" || isCoordinator)
                           ? "4px solid #089C3F"
                           : ""
                     }

@@ -13,45 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **My Opportunities tab on Profile page**
 
-  - **Navigation & Layout**:
-    - Added "My Opportunities" tab to Profile page navigation
-    - Two sub-tabs: "Enrolled Opportunities" and "Closed Opportunities"
-    - Dynamic tab counts with color-coded badges
-
-  - **Data Fetching & Categorization**:
-    - `useAllOpportunities` hook to fetch all opportunities with enrollment status
-    - Automatic participant record fetching for each opportunity
-
-  - **Opportunity Cards**:
-    - Expandable cards showing opportunity details
-    - Participant information display (status, enrollment date)
-    - Questionnaire answers rendering using existing `FieldRenderer` components
-    - Edit mode for questionnaire answers with form validation
-
-  - **Enrollment Management**:
-    - **Re-enrollment**: Complete questionnaire and re-enroll from Closed opportunities
-    - **Cancel Enrollment**: One-click cancellation from Enrolled opportunities
-    - **Save Changes**: Update questionnaire answers with optimistic updates
-    - Success/error toast notifications for all actions
-
-  - **UX/State Improvements**:
-    - Skeleton loading screens for opportunity lists
-    - Spinner loading for expand panels
-    - Clean empty states: "You're not enrolled in any opportunities yet." / "No closed opportunities."
-    - Chakra UI Alert components for error handling
-    - Responsive design with proper mobile support
-
-  - **API Integration**:
-    - `GET /api/v2/opportunities/all/` for fetching all opportunities
-    - `GET /api/v2/opportunities/{id}/participant/` for participant records
-    - `PATCH /api/v2/opportunities/{id}/participant/{participant_id}/` for updating answers
-    - `POST /api/v2/opportunities/{id}/participant/` for re-enrollment
-    - `DELETE /api/v2/opportunities/{id}/participant/` for canceling enrollment
-
-### Fixed
-
-- **My Opportunities data consistency**:
-  - Ensured canceled opportunities remain visible in DISCOVER dropdown menu
+  - My Opportunities tab on the Profile page, including enrolled/closed sub-tabs, dynamic badges, expandable opportunity cards, questionnaire editing, enrollment management (re-enroll, cancel, save changes), and responsive UX with loading states and toast notifications.
 
 ---
 
