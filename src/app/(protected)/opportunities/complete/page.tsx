@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { CheckCircle, Loader } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import ProgressTrack from "@/components/ProgressTrack";
 import { useOpportunityDetail } from "@/hooks/useOpportunity";
 import { useAuthStore } from "@/store";
 import { Question } from "@/types/onboarding";
@@ -112,10 +113,13 @@ export default function OpportunityCompletePage() {
   }
 
   return (
-    <Box maxW="700px" mx="auto" p={6} pt={{ base: "90px", lg: "140px" }}>
-      <VStack gap={8} align="stretch" textAlign="center">
+    <Box maxW="800px" mx="auto" p={6} pt={{ base: "90px", lg: "140px" }}>
+      <VStack gap={8} align="stretch">
+        {/* Progress Tracker */}
+        <ProgressTrack progressPercent={100} totalSteps={4} />
+        
         {/* Success Icon */}
-        <Box>
+        <Box textAlign="center">
           <Icon
             as={CheckCircle}
             boxSize={20}
@@ -126,7 +130,7 @@ export default function OpportunityCompletePage() {
         </Box>
 
         {/* Success Message */}
-        <VStack gap={4}>
+        <VStack gap={4} textAlign="center">
           <Heading
             fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
             fontWeight="700"
@@ -239,7 +243,7 @@ export default function OpportunityCompletePage() {
         </VStack>
 
         {/* Footer Note */}
-        <Text fontSize="xs" color="gray.500" pt={4}>
+        <Text fontSize="xs" color="gray.500" pt={4} textAlign="center">
           Application submitted on {new Date().toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",

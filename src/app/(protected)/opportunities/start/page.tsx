@@ -19,7 +19,7 @@ import { useAuthStore } from "@/store";
 import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/Button";
-
+import ProgressTrack from "@/components/ProgressTrack";
 
 import { PageTitle } from "@/components/PageTitle";
 import Footer from "@/components/Layouts/Footer";
@@ -126,6 +126,9 @@ export default function OpportunityStartPage() {
   return (
     <Box maxW="800px" mx="auto" p={6} pt={{ base: "90px", lg: "140px" }}>
       <VStack gap={8} align="stretch">
+        {/* Progress Tracker */}
+        <ProgressTrack progressPercent={25} totalSteps={4} />
+        
         {/* Header */}
         <Box textAlign="center">
           <Heading
