@@ -27,8 +27,8 @@ export const QuestionnaireForm = forwardRef<
   );
 
   const defaultValues = useMemo(
-    () =>
-      questions.reduce(
+    () => {
+      const baseDefaults = questions.reduce(
         (acc, question) => {
           switch (question.type) {
             case "multi-select":
@@ -57,7 +57,10 @@ export const QuestionnaireForm = forwardRef<
           return acc;
         },
         {} as Record<string, any>
-      ),
+      );
+
+      return baseDefaults;
+    },
     [questions]
   );
 
@@ -67,6 +70,7 @@ export const QuestionnaireForm = forwardRef<
     watch,
     trigger,
     getValues,
+    reset,
     formState: { errors },
     clearErrors,
     unregister,
@@ -74,6 +78,8 @@ export const QuestionnaireForm = forwardRef<
     resolver: yupResolver(validationSchema),
     defaultValues,
   });
+
+
 
   useImperativeHandle(ref, () => ({
     validate: async () => {
