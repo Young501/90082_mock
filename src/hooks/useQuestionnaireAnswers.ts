@@ -15,7 +15,8 @@ export function useQuestionnaireAnswers(opportunityId: string | null) {
           const parsedAnswers = JSON.parse(stored);
           setQuestionnaireAnswers(parsedAnswers);
         } catch (e) {
-          // Failed to parse stored data, reset to empty state
+          // Failed to parse stored data, log error and reset to empty state
+          console.error("Failed to parse questionnaire answers from sessionStorage:", e, "Stored value:", stored);
           setQuestionnaireAnswers({});
         }
       } else {
