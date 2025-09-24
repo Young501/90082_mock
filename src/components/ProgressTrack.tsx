@@ -3,11 +3,12 @@ import { Box, Text, Flex } from "@chakra-ui/react";
 
 const ProgressTrack = ({ progressPercent = 0, totalSteps = 5 }) => {
   const filledSteps = Math.floor((progressPercent / 100) * totalSteps);
+  const currentStep = filledSteps === 0 ? 1 : filledSteps;
 
   return (
     <Box mb={6}>
       <Text fontSize="sm" mb={3} color="gray.600">
-        Progress: {progressPercent}%
+        Step {currentStep} of {totalSteps}
       </Text>
 
       <Flex align="center" gap={0}>

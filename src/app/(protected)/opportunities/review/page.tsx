@@ -166,8 +166,11 @@ export default function OpportunityReviewPage() {
   }
 
   return (
-    <Box maxW="900px" mx="auto" p={6} pt={{ base: "90px", lg: "140px" }}>
+    <Box maxW="800px" mx="auto" p={6} pt={{ base: "90px", lg: "140px" }}>
       <VStack gap={6} align="stretch">
+        {/* Progress Tracker */}
+        <ProgressTrack progressPercent={75} totalSteps={4} />
+        
         {/* Header */}
         <Box>
           <HStack gap={3} mb={4}>
@@ -196,11 +199,6 @@ export default function OpportunityReviewPage() {
           >
             Please review your answers for: <Text as="span" fontWeight="600">{opportunity.title}</Text>
           </Text>
-
-          {/* Progress Bar */}
-          <Box mb={6}>
-            <ProgressTrack progressPercent={100} totalSteps={4} />
-          </Box>
         </Box>
 
         {/* Submit Error */}

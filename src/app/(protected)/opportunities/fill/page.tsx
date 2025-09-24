@@ -69,21 +69,9 @@ export default function OpportunityFillPage() {
     }
   };
 
-  // Calculate progress based on answered required questions
-  const progressPercentage = useMemo(() => {
-    const requiredQuestions = questions.filter(q => q.required);
-    if (requiredQuestions.length === 0) return 100;
-
-    const answeredRequired = requiredQuestions.filter(q => {
-      const answer = answers[q.field];
-      if (Array.isArray(answer)) {
-        return answer.length > 0;
-      }
-      return answer !== undefined && answer !== null && answer !== "";
-    });
-
-    return Math.round((answeredRequired.length / requiredQuestions.length) * 100);
-  }, [questions, answers]);
+  // Use stage-based progress tracking (Fill = Step 2 of 4)
+  const currentStep = 2;
+  const totalSteps = 4;
 
   if (isLoading) {
     return (
@@ -127,8 +115,11 @@ export default function OpportunityFillPage() {
   }
 
   return (
-    <Box maxW="900px" mx="auto" p={6} pt={{ base: "90px", lg: "140px" }}>
+    <Box maxW="800px" mx="auto" p={6} pt={{ base: "90px", lg: "140px" }}>
       <VStack gap={6} align="stretch">
+        {/* Progress Tracker */}
+        <ProgressTrack progressPercent={50} totalSteps={4} />
+        
         {/* Header */}
         <Box>
           <HStack gap={3} mb={4}>
@@ -157,11 +148,6 @@ export default function OpportunityFillPage() {
           >
             Fill out the questionnaire for: <Text as="span" fontWeight="600">{opportunity.title}</Text>
           </Text>
-
-          {/* Progress Bar */}
-          <Box mb={6}>
-            <ProgressTrack progressPercent={progressPercentage} totalSteps={4} />
-          </Box>
         </Box>
 
           <Text fontSize="sm" color="gray.600" mb={4}>
