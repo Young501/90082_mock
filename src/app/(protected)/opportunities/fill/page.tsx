@@ -1,36 +1,38 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   Box,
   VStack,
   Heading,
   Text,
-  Spinner,
   Alert,
-  Container,
-  Progress,
   HStack,
-  IconButton,
 } from "@chakra-ui/react";
+import ProgressTrack from "@/components/ProgressTrack";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useOpportunityDetail } from "@/services/shared";
+import { useOpportunityDetail } from "@/hooks/useOpportunity";
 import { useAuthStore } from "@/store";
-import { PageTitle } from "@/components/PageTitle";
-import Footer from "@/components/Layouts/Footer";
-import { QuestionnaireForm, QuestionnaireFormRef } from "@/app/(public)/invite/QuestionnaireForm";
-import { Button } from "@/components/ui";
-import { ChevronLeftIcon } from "lucide-react";
+import { QuestionnaireForm, QuestionnaireFormRef } from "@/components/questionnaire/QuestionnaireForm";
+import { Button } from "@/components/ui/Button";
+import { Loader } from "lucide-react";
 import { useQuestionnaireAnswers } from "@/hooks/useQuestionnaireAnswers";
+import { Question } from "@/types/onboarding";
 
 export default function OpportunityFillPage() {
   const sp = useSearchParams();
   const router = useRouter();
   const opportunityId = sp.get("id");
   const { user } = useAuthStore();
-  const formRef = useRef<QuestionnaireFormRef>(null);
 
-  const [isValidating, setIsValidating] = useState(false);
+  const [hasValidationError, setHasValidationError] = useState(false);
+  const questionnaireRef = useRef<QuestionnaireFormRef>(null);
+
+  const {
+    questionnaireAnswers: answers,
+    updateAnswers,
+    clearAnswers,
+  } = useQuestionnaireAnswers(opportunityId);
 
   const {
     data: opportunity,
@@ -38,180 +40,191 @@ export default function OpportunityFillPage() {
     error,
   } = useOpportunityDetail(opportunityId || "");
 
-  const { questionnaireAnswers, updateAnswers } = useQuestionnaireAnswers(opportunityId);
+  const userType = user?.user_types?.[0] || "student";
 
-  const userType = user?.user_types?.[0];
-  const questions = useMemo(
-    () =>
-      userType && opportunity?.questionnaire?.[userType]
-        ? opportunity.questionnaire[userType]
-        : [],
-    [opportunity, userType]
-  );
+  const questions: Question[] = useMemo(() => {
+    if (!opportunity?.questionnaire) return [];
+    return opportunity.questionnaire[userType] || [];
+  }, [userType, opportunity?.questionnaire]);
 
-  useEffect(() => {
-    if (!opportunityId) {
-      router.push("/discover");
+  const handleAnswersChange = useCallback((newAnswers: Record<string, any>) => {
+    updateAnswers(newAnswers);
+    if (hasValidationError) {
+      setHasValidationError(false);
     }
-  }, [opportunityId, router]);
-
-  const handleAnswersChange = (answers: Record<string, any>) => {
-    updateAnswers(answers);
-  };
+  }, [updateAnswers, hasValidationError]);
 
   const handleBack = () => {
     router.push(`/opportunities/start?id=${opportunityId}`);
   };
 
   const handleNext = async () => {
-    if (!formRef.current) return;
-
-    setIsValidating(true);
-    try {
-      const isValid = await formRef.current.validate();
+    if (questionnaireRef.current) {
+      const isValid = await questionnaireRef.current.validate();
       if (isValid) {
         router.push(`/opportunities/review?id=${opportunityId}`);
+      } else {
+        setHasValidationError(true);
       }
-    } catch (error) {
-      console.error("Validation error:", error);
-    } finally {
-      setIsValidating(false);
     }
   };
 
-  if (!opportunityId) {
-    return null;
-  }
+  // Calculate progress based on answered required questions
+  const progressPercentage = useMemo(() => {
+    const requiredQuestions = questions.filter(q => q.required);
+    if (requiredQuestions.length === 0) return 100;
+
+    const answeredRequired = requiredQuestions.filter(q => {
+      const answer = answers[q.field];
+      if (Array.isArray(answer)) {
+        return answer.length > 0;
+      }
+      return answer !== undefined && answer !== null && answer !== "";
+    });
+
+    return Math.round((answeredRequired.length / requiredQuestions.length) * 100);
+  }, [questions, answers]);
 
   if (isLoading) {
     return (
-      <Container maxW="4xl" py={8}>
-        <VStack gap={8} align="center">
-          <Spinner size="xl" color="blue.500" />
-          <Text>Loading questionnaire...</Text>
-        </VStack>
-      </Container>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minH="60vh"
+      >
+        <Loader />
+      </Box>
     );
   }
 
-  if (error || !opportunity) {
+  if (error) {
     return (
-      <Container maxW="4xl" py={8}>
-        <Alert.Root status="error" borderRadius="lg">
+      <Box maxW="800px" mx="auto" p={6}>
+        <Alert.Root status="error">
           <Alert.Indicator />
-          <Alert.Title>Failed to load opportunity details. Please try again.</Alert.Title>
+          <Alert.Title>Error loading opportunity</Alert.Title>
+          <Alert.Description>
+            {error?.message || "Failed to load opportunity details"}
+          </Alert.Description>
         </Alert.Root>
-      </Container>
+      </Box>
     );
   }
 
-  const hasQuestionnaire = questions.length > 0;
-
-  if (!hasQuestionnaire) {
-    // If no questionnaire, redirect to review to submit directly
-    router.push(`/opportunities/review?id=${opportunityId}`);
-    return null;
+  if (!opportunity) {
+    return (
+      <Box maxW="800px" mx="auto" p={6}>
+        <Alert.Root status="warning">
+          <Alert.Indicator />
+          <Alert.Title>Opportunity not found</Alert.Title>
+          <Alert.Description>
+            The opportunity you&apos;re looking for doesn&apos;t exist or has been removed.
+          </Alert.Description>
+        </Alert.Root>
+      </Box>
+    );
   }
-
-  const answeredQuestions = Object.keys(questionnaireAnswers).filter(
-    key => questionnaireAnswers[key] !== "" && 
-           questionnaireAnswers[key] !== null && 
-           questionnaireAnswers[key] !== undefined &&
-           !(Array.isArray(questionnaireAnswers[key]) && questionnaireAnswers[key].length === 0)
-  ).length;
-
-  const progressPercent = questions.length > 0 ? (answeredQuestions / questions.length) * 100 : 0;
 
   return (
-    <>
-      <PageTitle title="Complete Questionnaire" />
-      <Container maxW="4xl" py={8}>
-        <VStack gap={8} align="stretch">
-          {/* Header */}
-          <Box>
-            <HStack mb={4}>
-              <IconButton
-                aria-label="Go back"
-                onClick={handleBack}
-                variant="ghost"
-                size="lg"
-              >
-                <ChevronLeftIcon size={20} />
-              </IconButton>
-              <Text fontSize="md" color="gray.600">
-                Back
-              </Text>
-            </HStack>
-
-            <Heading
-              as="h1"
-              size="xl"
-              mb={2}
-              color="gray.800"
-              fontWeight="600"
-            >
-              {opportunity.title}
-            </Heading>
-            
-            <Text fontSize="lg" color="gray.600" mb={6}>
-              Complete the questionnaire to enroll in this opportunity
-            </Text>
-
-            {/* Progress */}
-            <Box>
-              <HStack justify="space-between" mb={2}>
-                <Text fontSize="sm" color="gray.600">
-                  Progress
-                </Text>
-                <Text fontSize="sm" color="gray.600">
-                  {answeredQuestions} of {questions.length} questions
-                </Text>
-              </HStack>
-              <Progress.Root
-                value={progressPercent}
-                colorPalette="blue"
-                borderRadius="full"
-                size="sm"
-              >
-                <Progress.Track>
-                  <Progress.Range />
-                </Progress.Track>
-              </Progress.Root>
-            </Box>
-          </Box>
-
-          {/* Questionnaire Form */}
-          <QuestionnaireForm
-            ref={formRef}
-            questions={questions}
-            onAnswersChange={handleAnswersChange}
-          />
-
-          {/* Actions */}
-          <HStack justify="space-between" pt={4}>
+    <Box maxW="900px" mx="auto" p={6} pt={{ base: "90px", lg: "140px" }}>
+      <VStack gap={6} align="stretch">
+        {/* Header */}
+        <Box>
+          <HStack gap={3} mb={4}>
             <Button
-              variant="secondary"
-              size="lg"
+              variant="ghost"
               onClick={handleBack}
-              minW="120px"
+              size="sm"
+              p={2}
             >
-              Back
-            </Button>
-            
-            <Button
-              colorScheme="blue"
-              size="lg"
-              onClick={handleNext}
-              isLoading={isValidating}
-              loadingText="Validating..."
-              minW="120px"
-            >
-              Review
+              ← Back
             </Button>
           </HStack>
-        </VStack>
-      </Container>
-      <Footer />
-    </>
+
+          <Heading
+            fontSize={{ base: "2xl", md: "3xl" }}
+            fontWeight="700"
+            color="gray.900"
+            mb={2}
+          >
+            Employment Application
+          </Heading>
+          <Text
+            fontSize="md"
+            color="gray.600"
+            mb={4}
+          >
+            Fill out the questionnaire for: <Text as="span" fontWeight="600">{opportunity.title}</Text>
+          </Text>
+
+          {/* Progress Bar */}
+          <Box mb={6}>
+            <ProgressTrack progressPercent={progressPercentage} totalSteps={4} />
+          </Box>
+        </Box>
+
+          <Text fontSize="sm" color="gray.600" mb={4}>
+            Required fields are marked with{" "}
+            <Text as="span" color="red.500">
+              *
+            </Text>
+          </Text>
+
+        {/* Validation Error */}
+        {hasValidationError && (
+          <Alert.Root status="error">
+            <Alert.Indicator />
+            <Alert.Title>Please complete all required fields</Alert.Title>
+            <Alert.Description>
+              Some required fields are missing or incomplete. Please review and fill in all required information.
+            </Alert.Description>
+          </Alert.Root>
+        )}
+
+        {/* Questionnaire Form */}
+        {questions.length > 0 ? (
+          <QuestionnaireForm
+            ref={questionnaireRef}
+            questions={questions}
+            onAnswersChange={handleAnswersChange}
+            initialValues={answers}
+          />
+        ) : (
+          <Alert.Root status="info">
+            <Alert.Indicator />
+            <Alert.Title>No questionnaire available</Alert.Title>
+            <Alert.Description>
+              There are currently no questionnaire questions for this opportunity.
+            </Alert.Description>
+          </Alert.Root>
+        )}
+
+        {/* Navigation Buttons */}
+        <HStack gap={4} justify="space-between" pt={6}>
+          <Button
+            variant="secondary"
+            onClick={handleBack}
+          >
+            ← Back
+          </Button>
+
+          <Button
+            onClick={handleNext}
+            bg="blue.500"
+            color="white"
+            _hover={{ bg: "blue.600" }}
+            disabled={questions.length === 0}
+          >
+            Review Answers →
+          </Button>
+        </HStack>
+
+        {/* Auto-save indicator */}
+        <Text fontSize="xs" color="gray.500" textAlign="center">
+          Your answers are automatically saved as you type
+        </Text>
+      </VStack>
+    </Box>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 const QUESTIONNAIRE_STORAGE_KEY = "questionnaire_answers_";
 
@@ -15,7 +15,7 @@ export function useQuestionnaireAnswers(opportunityId: string | null) {
           const parsedAnswers = JSON.parse(stored);
           setQuestionnaireAnswers(parsedAnswers);
         } catch (e) {
-          console.error("Failed to parse stored questionnaire answers:", e);
+          // Failed to parse stored data, reset to empty state
           setQuestionnaireAnswers({});
         }
       } else {
@@ -32,17 +32,17 @@ export function useQuestionnaireAnswers(opportunityId: string | null) {
     }
   }, [opportunityId, questionnaireAnswers]);
 
-  const updateAnswers = (answers: Record<string, any>) => {
+  const updateAnswers = useCallback((answers: Record<string, any>) => {
     setQuestionnaireAnswers(answers);
-  };
+  }, []);
 
-  const clearAnswers = () => {
+  const clearAnswers = useCallback(() => {
     if (opportunityId) {
       const storageKey = `${QUESTIONNAIRE_STORAGE_KEY}${opportunityId}`;
       sessionStorage.removeItem(storageKey);
       setQuestionnaireAnswers({});
     }
-  };
+  }, [opportunityId]);
 
   return {
     questionnaireAnswers,

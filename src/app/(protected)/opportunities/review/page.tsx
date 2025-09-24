@@ -14,13 +14,14 @@ import {
   Card,
   Flex,
 } from "@chakra-ui/react";
+import ProgressTrack from "@/components/ProgressTrack";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useOpportunityDetail, useOpportunityEnrollment } from "@/services/shared";
+import { useOpportunityDetail, useEnrollInOpportunity } from "@/hooks/useOpportunity";
 import { useAuthStore } from "@/store";
 import { PageTitle } from "@/components/PageTitle";
 import Footer from "@/components/Layouts/Footer";
-import { Button } from "@/components/ui";
-import { ChevronLeftIcon, EditIcon } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { ChevronLeftIcon, EditIcon, Loader } from "lucide-react";
 import { toast } from "react-toastify";
 import { Question } from "@/types/onboarding";
 import { useQuestionnaireAnswers } from "@/hooks/useQuestionnaireAnswers";
@@ -28,241 +29,310 @@ import { useQuestionnaireAnswers } from "@/hooks/useQuestionnaireAnswers";
 export default function OpportunityReviewPage() {
   const sp = useSearchParams();
   const router = useRouter();
-  const opportunityId = sp.get("id");
+  const opportunityId = sp.get("id") || "";
   const { user } = useAuthStore();
+
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const {
+    questionnaireAnswers: answers,
+    clearAnswers,
+  } = useQuestionnaireAnswers(opportunityId);
+  
+  const enrollMutation = useEnrollInOpportunity();
 
   const {
     data: opportunity,
     isLoading,
     error,
-  } = useOpportunityDetail(opportunityId || "");
+  } = useOpportunityDetail(opportunityId);
 
-  const enrollmentMutation = useOpportunityEnrollment();
-  const { questionnaireAnswers, clearAnswers } = useQuestionnaireAnswers(opportunityId);
+  const userType = user?.user_types?.[0] || "student";
 
-  const userType = user?.user_types?.[0];
-  const questions = useMemo(
-    () =>
-      userType && opportunity?.questionnaire?.[userType]
-        ? opportunity.questionnaire[userType]
-        : [],
-    [opportunity, userType]
-  );
-
-  useEffect(() => {
-    if (!opportunityId) {
-      router.push("/discover");
-    }
-  }, [opportunityId, router]);
+  const questions: Question[] = useMemo(() => {
+    if (!opportunity?.questionnaire) return [];
+    return opportunity.questionnaire[userType] || [];
+  }, [userType, opportunity?.questionnaire]);
 
   const handleBack = () => {
-    if (questions.length > 0) {
-      router.push(`/opportunities/fill?id=${opportunityId}`);
-    } else {
-      router.push(`/opportunities/start?id=${opportunityId}`);
-    }
-  };
-
-  const handleEdit = () => {
     router.push(`/opportunities/fill?id=${opportunityId}`);
   };
 
+  const handleEdit = (fieldName: string) => {
+    // Navigate back to fill page and scroll to the specific field
+    router.push(`/opportunities/fill?id=${opportunityId}&edit=${fieldName}`);
+  };
+
   const handleSubmit = async () => {
-    if (!opportunityId || !user?.email || !userType) return;
+    if (!user?.email) {
+      setSubmitError("User email is required");
+      return;
+    }
+
+    setSubmitError(null);
 
     try {
-      await enrollmentMutation.mutateAsync({
+      await enrollMutation.mutateAsync({
         opportunityId,
-        email: user.email,
-        userType,
-        questionnaireAnswers,
+        data: {
+          email: user.email,
+          user_type: userType,
+          questionnaire_answers: answers,
+        },
       });
 
-      // Clear stored answers on success
+      // Clear saved answers on successful submission
       clearAnswers();
-
-      // Show success and redirect
-      toast.success("Successfully enrolled in opportunity!");
-      router.push(`/opportunities/complete?id=${opportunityId}`);
-    } catch (error: any) {
-      console.error("Submission error:", error);
       
-      if (error?.response?.status === 409) {
-        toast.info("You're already enrolled in this opportunity!");
-        router.push(`/discover?id=${opportunityId}`);
-      } else if (error?.response?.status === 403) {
-        toast.error("Private invite required. Please check your invitation.");
-      } else if (error?.response?.status === 401) {
-        toast.error("Please log in to continue.");
-        router.push("/login");
-      } else if (error?.response?.status === 400) {
-        toast.error("Please check your form responses and try again.");
+      // Navigate to success page
+      router.push(`/opportunities/complete?id=${opportunityId}`);
+    } catch (error: unknown) {
+      console.error("Enrollment error:", error);
+      
+      // Handle different error responses
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof (error as any).response === "object" &&
+        (error as any).response !== null
+      ) {
+        const response = (error as any).response;
+        const status = response.status;
+        if (status === 409) {
+          setSubmitError("You have already enrolled in this opportunity.");
+        } else if (status === 403) {
+          setSubmitError("You don't have permission to enroll in this opportunity. Please check if you have a valid private invite.");
+        } else if (status === 401) {
+          router.push("/login");
+        } else if (status === 400) {
+          const errorData = response.data;
+          if (errorData && typeof errorData === "object") {
+            const errorMessages = Object.values(errorData).flat().join(", ");
+            setSubmitError(`Please correct the following: ${errorMessages}`);
+          } else {
+            setSubmitError("Please check your answers and try again.");
+          }
+        } else {
+          setSubmitError("An unexpected error occurred. Please try again.");
+        }
       } else {
-        toast.error("Failed to submit. Please try again.");
+        setSubmitError("An unexpected error occurred. Please try again.");
       }
     }
   };
 
-  const formatAnswer = (question: any, answer: any) => {
-    if (answer === null || answer === undefined || answer === "") {
-      return "Not answered";
+  const formatAnswerValue = (value: any): string => {
+    if (Array.isArray(value)) {
+      return value.join(", ");
     }
-
-    if (Array.isArray(answer)) {
-      if (answer.length === 0) return "Not answered";
-      return answer.join(", ");
+    if (typeof value === "boolean") {
+      return value ? "Yes" : "No";
     }
-
-    if (typeof answer === "boolean") {
-      return answer ? "Yes" : "No";
-    }
-
-    return String(answer);
+    return String(value || "Not specified");
   };
 
-  if (!opportunityId) {
-    return null;
-  }
+  // Calculate progress based on answered required questions
+  const progressPercentage = useMemo(() => {
+    const requiredQuestions = questions.filter(q => q.required);
+    if (requiredQuestions.length === 0) return 100;
+
+    const answeredRequired = requiredQuestions.filter(q => {
+      const answer = answers[q.field];
+      if (Array.isArray(answer)) {
+        return answer.length > 0;
+      }
+      return answer !== undefined && answer !== null && answer !== "";
+    });
+
+    return Math.round((answeredRequired.length / requiredQuestions.length) * 100);
+  }, [questions, answers]);
 
   if (isLoading) {
     return (
-      <Container maxW="4xl" py={8}>
-        <VStack gap={8} align="center">
-          <Spinner size="xl" color="blue.500" />
-          <Text>Loading opportunity details...</Text>
-        </VStack>
-      </Container>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minH="60vh"
+      >
+        <Loader />
+      </Box>
     );
   }
 
-  if (error || !opportunity) {
+  if (error) {
     return (
-      <Container maxW="4xl" py={8}>
-        <Alert.Root status="error" borderRadius="lg">
+      <Box maxW="800px" mx="auto" p={6}>
+        <Alert.Root status="error">
           <Alert.Indicator />
-          <Alert.Title>Failed to load opportunity details. Please try again.</Alert.Title>
+          <Alert.Title>Error loading opportunity</Alert.Title>
+          <Alert.Description>
+            {error?.message || "Failed to load opportunity details"}
+          </Alert.Description>
         </Alert.Root>
-      </Container>
+      </Box>
     );
   }
 
-  const hasQuestionnaire = questions.length > 0;
+  if (!opportunity) {
+    return (
+      <Box maxW="800px" mx="auto" p={6}>
+        <Alert.Root status="warning">
+          <Alert.Indicator />
+          <Alert.Title>Opportunity not found</Alert.Title>
+          <Alert.Description>
+            The opportunity you&apos;re looking for doesn&apos;t exist or has been removed.
+          </Alert.Description>
+        </Alert.Root>
+      </Box>
+    );
+  }
 
   return (
-    <>
-      <PageTitle title="Review Application" />
-      <Container maxW="4xl" py={8}>
-        <VStack gap={8} align="stretch">
-          {/* Header */}
-          <Box>
-            <HStack mb={4}>
-              <IconButton
-                aria-label="Go back"
-                onClick={handleBack}
-                variant="ghost"
-                size="lg"
-              >
-                <ChevronLeftIcon size={20} />
-              </IconButton>
-              <Text fontSize="md" color="gray.600">
-                Back
-              </Text>
-            </HStack>
-
-            <Heading
-              as="h1"
-              size="xl"
-              mb={2}
-              color="gray.800"
-              fontWeight="600"
-            >
-              Review Your Application
-            </Heading>
-            
-            <Text fontSize="lg" color="gray.600" mb={6}>
-              {opportunity.title}
-            </Text>
-          </Box>
-
-          {/* Summary */}
-          {hasQuestionnaire ? (
-            <Card.Root>
-              <Card.Header>
-                <Flex justify="space-between" align="center">
-                  <Heading as="h2" size="lg" color="gray.800">
-                    Your Responses
-                  </Heading>
-                  <IconButton
-                    aria-label="Edit responses"
-                    onClick={handleEdit}
-                    variant="ghost"
-                    size="sm"
-                  >
-                    <EditIcon size={16} />
-                  </IconButton>
-                </Flex>
-              </Card.Header>
-              <Card.Body>
-                <VStack gap={6} align="stretch">
-                  {questions.map((question: Question, index: number) => (
-                    <Box key={question.field}>
-                      <Text fontSize="sm" color="gray.600" mb={1}>
-                        Question {index + 1}
-                      </Text>
-                      <Text fontSize="md" fontWeight="600" mb={2} color="gray.800">
-                        {question.label}
-                      </Text>
-                      <Text fontSize="md" color="gray.700">
-                        {formatAnswer(question, questionnaireAnswers[question.field])}
-                      </Text>
-                      {index < questions.length - 1 && (
-                        <Box borderBottom="1px solid" borderColor="gray.100" mt={4} />
-                      )}
-                    </Box>
-                  ))}
-                </VStack>
-              </Card.Body>
-            </Card.Root>
-          ) : (
-            <Card.Root>
-              <Card.Body>
-                <VStack gap={4} textAlign="center">
-                  <Heading as="h2" size="lg" color="gray.800">
-                    Ready to Enroll
-                  </Heading>
-                  <Text fontSize="md" color="gray.600">
-                    You&apos;re about to enroll in {opportunity.title}. 
-                    Click submit to complete your enrollment.
-                  </Text>
-                </VStack>
-              </Card.Body>
-            </Card.Root>
-          )}
-
-          {/* Actions */}
-          <HStack justify="space-between" pt={4}>
+    <Box maxW="900px" mx="auto" p={6} pt={{ base: "90px", lg: "140px" }}>
+      <VStack gap={6} align="stretch">
+        {/* Header */}
+        <Box>
+          <HStack gap={3} mb={4}>
             <Button
-              variant="secondary"
-              size="lg"
+              variant="ghost"
               onClick={handleBack}
-              minW="120px"
+              size="sm"
+              p={2}
             >
-              Back
-            </Button>
-            
-            <Button
-              variant="primary"
-              size="lg"
-              onClick={handleSubmit}
-              loading={enrollmentMutation.isPending}
-              minW="120px"
-            >
-              {enrollmentMutation.isPending ? "Submitting..." : "Submit Application"}
+              ← Back
             </Button>
           </HStack>
-        </VStack>
-      </Container>
-      <Footer />
-    </>
+
+          <Heading
+            fontSize={{ base: "2xl", md: "3xl" }}
+            fontWeight="700"
+            color="gray.900"
+            mb={2}
+          >
+            Review Your Application
+          </Heading>
+          <Text
+            fontSize="md"
+            color="gray.600"
+            mb={4}
+          >
+            Please review your answers for: <Text as="span" fontWeight="600">{opportunity.title}</Text>
+          </Text>
+
+          {/* Progress Bar */}
+          <Box mb={6}>
+            <ProgressTrack progressPercent={100} totalSteps={4} />
+          </Box>
+        </Box>
+
+        {/* Submit Error */}
+        {submitError && (
+          <Alert.Root status="error">
+            <Alert.Indicator />
+            <Alert.Title>Submission Error</Alert.Title>
+            <Alert.Description>{submitError}</Alert.Description>
+          </Alert.Root>
+        )}
+
+        {/* Answers Review */}
+        <Box
+          bg="white"
+          borderRadius="16px"
+          p={{ base: 6, md: 8 }}
+          border="1px solid"
+          borderColor="gray.200"
+          shadow="sm"
+        >
+          <VStack gap={6} align="stretch">
+            <Heading
+              fontSize="lg"
+              fontWeight="600"
+              color="gray.900"
+              mb={2}
+            >
+              Your Answers
+            </Heading>
+
+            {questions.map((question) => {
+              const answer = answers[question.field];
+              const hasAnswer = answer !== undefined && answer !== null && answer !== "";
+              
+              return (
+                <Box
+                  key={question.field}
+                  p={4}
+                  bg="gray.50"
+                  borderRadius="12px"
+                  border="1px solid"
+                  borderColor="gray.200"
+                >
+                  <HStack justify="space-between" align="start" mb={3}>
+                    <Box flex={1}>
+                      <Text
+                        fontSize="sm"
+                        fontWeight="600"
+                        color="gray.900"
+                        mb={1}
+                      >
+                        {question.label}
+                        {question.required && (
+                          <Text as="span" color="red.500" ml={1}>
+                            *
+                          </Text>
+                        )}
+                      </Text>
+                      <Text
+                        fontSize="md"
+                        color={hasAnswer ? "gray.700" : "gray.500"}
+                        fontStyle={hasAnswer ? "normal" : "italic"}
+                      >
+                        {hasAnswer ? formatAnswerValue(answer) : "Not answered"}
+                      </Text>
+                    </Box>
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleEdit(question.field)}
+                      size="sm"
+                      p={2}
+                      minW="auto"
+                    >
+                      Edit
+                    </Button>
+                  </HStack>
+                </Box>
+              );
+            })}
+          </VStack>
+        </Box>
+
+        {/* Navigation Buttons */}
+        <HStack gap={4} justify="space-between" pt={6}>
+          <Button
+            variant="secondary"
+            onClick={handleBack}
+          >
+            ← Back to Edit
+          </Button>
+
+          <Button
+            onClick={handleSubmit}
+            bg="green.500"
+            color="white"
+            _hover={{ bg: "green.600" }}
+            loading={enrollMutation.isPending}
+            disabled={enrollMutation.isPending}
+          >
+            Submit Application
+          </Button>
+        </HStack>
+
+        {/* Instructions */}
+        <Text fontSize="xs" color="gray.500" textAlign="center">
+          By submitting this application, you agree to share your information with the opportunity coordinator.
+        </Text>
+      </VStack>
+    </Box>
   );
 }

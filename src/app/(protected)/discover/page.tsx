@@ -8,8 +8,9 @@ import { DiscoveryResultBox } from "./DiscoveryResultBox";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useOpportunityDetail, useAccessibleOpportunities } from "@/services/shared";
-import { Opportunity } from "@/types/invite";
+import { useAccessibleOpportunities } from "@/services/shared";
+import { useOpportunityDetail } from "@/hooks/useOpportunity";
+import { Opportunity } from "@/types/opportunities";
 import { useAuthStore } from "@/store";
 import Footer from "@/components/Layouts/Footer";
 import { toast } from "react-toastify";
@@ -154,11 +155,12 @@ export default function DiscoveryPage() {
       }
     }
 
-    // Save questionnaire state for other team to use
-    console.log("Enroll clicked - questionnaire state saved:", questionnaireAnswers);
-    // No modal or routing - handled by other team
-  }, [userType, user?.email, opportunity?.allowed_student_email_domains, questionnaireAnswers]);
-
+    // If eligible or no restrictions, redirect to questionnaire
+    if (opportunityId) {
+      router.push(`/opportunities/start?id=${opportunityId}`);
+    }
+}, [userType, user?.email, opportunity?.allowed_student_email_domains, opportunityId, router]);
+    
   // If opportunity id parameter is provided, show opportunity-specific content
   if (opportunityId) {
     return (

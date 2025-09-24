@@ -386,24 +386,6 @@ export function useCoordinatorViewUserProfile(
   });
 }
 
-export function useOpportunityDetail(opportunityId: string) {
-  return useQuery({
-    queryKey: ["opportunity-detail", opportunityId],
-    queryFn: () =>
-      apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITY_DETAIL(opportunityId) }),
-    enabled: !!opportunityId,
-    staleTime: 5 * 60 * 1000,
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 404) {
-        return false;
-      }
-      return failureCount < 2;
-    },
-  });
-}
-
-
-
 // Helper function to categorize opportunities
 export function categorizeOpportunities(
   opportunities: Opportunity[]
@@ -476,8 +458,6 @@ export function useOpportunityParticipant(opportunityId: string | number) {
     },
   });
 }
-
-// UC-XXX: Enroll in opportunity
 export function useOpportunityEnrollment() {
   const queryClient = useQueryClient();
 
@@ -494,7 +474,7 @@ export function useOpportunityEnrollment() {
       questionnaireAnswers: Record<string, any>;
     }) => {
       return apiRequest({
-        endpoint: API_ENDPOINTS.OPPORTUNITY_ENROLL(opportunityId),
+        endpoint: API_ENDPOINTS.OPPORTUNITY_ENROLLMENT(opportunityId),
         body: {
           email,
           user_type: userType,
