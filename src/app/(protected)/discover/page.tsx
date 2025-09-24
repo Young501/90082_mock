@@ -12,7 +12,7 @@ import { useOpportunityDetail, useAccessibleOpportunities } from "@/services/sha
 import { Opportunity } from "@/types/invite";
 import { useAuthStore } from "@/store";
 import Footer from "@/components/Layouts/Footer";
-import { toaster } from "@/components/ui/toaster";
+import { toast } from "react-toastify";
 import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 
 export default function DiscoveryPage() {
@@ -149,12 +149,7 @@ export default function DiscoveryPage() {
       );
       
       if (!isEligible) {
-        toaster.create({
-          title: "This opportunity is not available for your university.",
-          type: "warning",
-          duration: 6000,
-          meta: { closable: true },
-        });
+        toast.warn("This opportunity is not available for your university.");
         return;
       }
     }
