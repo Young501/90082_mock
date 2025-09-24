@@ -4,10 +4,9 @@ import { useAuthStore } from "@/store/authStore";
 import {
   Opportunity,
   OpportunitiesResponse,
-  OpportunitiesMap,
   CategorizedOpportunities,
   ParticipantRecord,
-} from "@/types/opportunities";
+} from "@/types/opportunity";
 
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
@@ -276,16 +275,9 @@ export function useAccessibleOpportunities() {
         });
 
         return opportunitiesWithStatus;
-      } catch (e: any) {
-        // Fallback to v1 accepted if v2 not available
-        const v1 = await apiRequest<any[]>({
-          endpoint: API_ENDPOINTS.ACCEPTED_OPPORTUNITIES,
-        });
-        return (v1 || []).map((o: any) => ({
-          id: o.id,
-          title: o.title || o.name,
-          status: "Enrolled",
-        }));
+      } catch (error: any) {
+        console.error("❌ V2 API failed:", error);
+        throw error;
       }
     },
     enabled: !!user,
@@ -403,124 +395,6 @@ export function useOpportunityDetail(opportunityId: string) {
   });
 }
 
-// UC-310: My Opportunities - Fetch all opportunities with enrollment status
-export function useAllOpportunities() {
-  const { user } = useAuthStore();
-
-  return useQuery<Opportunity[]>({
-    queryKey: ["all-opportunities", user?.id],
-    queryFn: async () => {
-      try {
-        const response = await apiRequest({
-          endpoint: API_ENDPOINTS.ALL_OPPORTUNITIES,
-        });
-
-        let opportunities: any[] = [];
-
-        // Handle different response structures
-        if (Array.isArray(response)) {
-          opportunities = response;
-        } else if (
-          response.opportunities &&
-          Array.isArray(response.opportunities)
-        ) {
-          opportunities = response.opportunities;
-        } else {
-          console.warn(
-            "⚠️ MyOpportunities - Unexpected V2 API response structure:",
-            response
-          );
-          return [];
-        }
-
-        // Map opportunities using enrollment_status from API response
-        const opportunitiesWithStatus = opportunities.map((o: any) => {
-          console.log("🔍 MyOpportunities - Processing opportunity:", o);
-          console.log(
-            "🔍 MyOpportunities - Available fields in opportunity:",
-            Object.keys(o)
-          );
-          console.log(
-            "🔍 MyOpportunities - enrollment_status value:",
-            o.enrollment_status
-          );
-
-          // Use enrollment_status from API response
-          let enrollmentStatus = "Not Enrolled";
-
-          if (o.enrollment_status) {
-            // Map API enrollment_status to our expected format
-            if (
-              o.enrollment_status === "enrolled" ||
-              o.enrollment_status === "Enrolled"
-            ) {
-              enrollmentStatus = "Enrolled";
-            } else if (
-              o.enrollment_status === "not_enrolled" ||
-              o.enrollment_status === "Not Enrolled"
-            ) {
-              enrollmentStatus = "Not Enrolled";
-            } else {
-              // Handle other possible values
-              enrollmentStatus = o.enrollment_status;
-            }
-            console.log(
-              "🔍 MyOpportunities - Using API enrollment_status:",
-              enrollmentStatus
-            );
-          } else {
-            console.log(
-              "🔍 MyOpportunities - No enrollment_status field found, defaulting to Not Enrolled"
-            );
-          }
-
-          const mappedOpp = {
-            id: o.id,
-            title: o.title || o.name,
-            description: o.description,
-            start_date: o.start_date,
-            end_date: o.end_date,
-            created_by: o.created_by,
-            is_active: o.is_active,
-            created_at: o.created_at,
-            updated_at: o.updated_at,
-            questionnaire: o.questionnaire,
-            is_enrolled: enrollmentStatus === "Enrolled",
-            participant_record: undefined,
-          };
-          console.log(
-            "🔍 MyOpportunities - Final mapped opportunity:",
-            mappedOpp
-          );
-          return mappedOpp;
-        });
-
-        return opportunitiesWithStatus;
-      } catch (error: any) {
-        console.error("Failed to fetch all opportunities:", error);
-        throw error;
-      }
-    },
-    enabled: !!user,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 401 || error?.response?.status === 403) {
-        return false;
-      }
-      return failureCount < 2;
-    },
-  });
-}
-
-// Helper function to create normalized map of opportunities
-export function createOpportunitiesMap(
-  opportunities: Opportunity[]
-): OpportunitiesMap {
-  return opportunities.reduce((map, opportunity) => {
-    map[opportunity.id] = opportunity;
-    return map;
-  }, {} as OpportunitiesMap);
-}
 
 // Helper function to categorize opportunities
 export function categorizeOpportunities(

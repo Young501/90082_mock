@@ -61,46 +61,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Discover dropdown navigation**
 
-  - Dynamic states depending on accessible opportunities:
-    - **0 items** → Discover disabled, clicking shows toast _“No opportunities yet.”_
-    - **1 item** → direct link to the single opportunity page.
-    - **2+ items** → dropdown listing all opportunities with name + status badge (Enrolled / Not Enrolled).
-  - **Mobile support**: collapsible list inside hamburger menu.
-  - **Status badges**: green for _Enrolled_, gray for _Not Enrolled_.
-  - **Responsive design**: desktop popover dropdown, mobile stacked list.
+  - Discover dropdown feature with responsive design, enrollment-status badges, and new useAccessibleOpportunities hook using the /api/v2/opportunities/all/ endpoint.
 
-- **API integration**
-
-  - Added `GET /api/v2/opportunities/all/` endpoint (`OPPORTUNITIES_ALL_V2`) to retrieve accessible opportunities (UC-314).
-
-- **Hook `useAccessibleOpportunities`**
-
-  - Unified type mapping for v1 and v2 data.
-  - Automatic fallback to v1 endpoint if v2 fails.
-  - Environment variable (`NEXT_PUBLIC_OPPS_SOURCE`) to force v1 testing.
-  - React Query caching (5 min), 404 non-retry, user-dependent enable.
-
-- **Routing adaptation**
-
-  - Replaced dynamic route `/discover/[id]` with query param `/discover/?id={id}` for static export compatibility.
-
-- **Header refactor**
-
-  - Three-state rendering (disabled / single link / dropdown).
-  - Outside-click handler for closing dropdown.
-
-- **Mock opportunities** created for testing the dropdown behavior.
-
-### Fixed
-
-- Organisation profile page infinite loading spinner: resolved by ensuring correct query handling and preventing endless state loops.
 
 ### Changed
 
 - Auth hook: now invalidates `["accessible-opportunities"]` cache key on login success to refresh Discover menu.
 - useDiscovery hook: enhanced to support overriding current opportunity ID via parameter.
 - Header component: restructured to consume `useAccessibleOpportunities` and handle responsive dropdown rendering.
-- Fallback logic: v2 failures auto-fallback to v1 accepted opportunities, mapped into a consistent format.
 
 ---
 

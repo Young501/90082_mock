@@ -11,50 +11,57 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useOpportunityDetail, useAccessibleOpportunities } from "@/services/shared";
 import { Opportunity } from "@/types/invite";
 import { useAuthStore } from "@/store";
-import Footer from "@/components/Layouts/Footer";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
   const router = useRouter();
-  const idParam = sp.get("id") || undefined;
+  const opportunityId = sp.get("id") || undefined;
   const { user } = useAuthStore();
   const [questionnaireAnswers, setQuestionnaireAnswers] = useState<Record<string, any>>({});
 
   // Fetch opportunity details if id is provided
-  const { 
-    data: opportunity, 
-    isLoading: isOpportunityLoading, 
-    error: opportunityError 
-  } = useOpportunityDetail(idParam || "");
+  const {
+    data: opportunity,
+    isLoading: isOpportunityLoading,
+    error: opportunityError
+  } = useOpportunityDetail(opportunityId || "");
 
   // Get user's accessible opportunities to check enrollment status
   const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } = useAccessibleOpportunities();
-  
+
   // Check if user is enrolled in this opportunity
   const isEnrolled = useMemo(() => {
-    if (!idParam || !accessibleOpportunities) {
+    console.log("🔍 Checking enrollment status:");
+    console.log("🔍 opportunityId:", opportunityId);
+    console.log("🔍 accessibleOpportunities:", accessibleOpportunities);
+
+    if (!opportunityId || !accessibleOpportunities) {
+      console.log("🔍 No opportunityId or accessibleOpportunities, returning false");
       return false;
     }
-    
-    const currentOpportunity = accessibleOpportunities.find(opp => opp.id.toString() === idParam);
+
+    const currentOpportunity = accessibleOpportunities.find(opp => opp.id.toString() === opportunityId);
+    console.log("🔍 Found current opportunity:", currentOpportunity);
+
     const enrolled = currentOpportunity?.status === "Enrolled";
-    
+    console.log("🔍 Is enrolled:", enrolled);
+
     return enrolled;
-  }, [idParam, accessibleOpportunities]);
+  }, [opportunityId, accessibleOpportunities]);
 
   // Auto-redirect logic when no id is provided
   useEffect(() => {
-    if (!idParam && !isOpportunitiesLoading && accessibleOpportunities) {
+    if (!opportunityId && !isOpportunitiesLoading && accessibleOpportunities) {
       if (accessibleOpportunities.length > 0) {
         // Find the minimum opportunity id
-        const minOpportunity = accessibleOpportunities.reduce((min, current) => 
+        const minOpportunity = accessibleOpportunities.reduce((min, current) =>
           current.id < min.id ? current : min
         );
         // Redirect to the minimum opportunity id
         router.replace(`/discover?id=${minOpportunity.id}`);
       }
     }
-  }, [idParam, isOpportunitiesLoading, accessibleOpportunities, router]);
+  }, [opportunityId, isOpportunitiesLoading, accessibleOpportunities, router]);
 
   const {
     searchResults,
@@ -75,8 +82,8 @@ export default function DiscoveryPage() {
     totalPages,
     handlePageChange,
     handlePageSizeChange,
-    opportunityId,
-  } = useDiscovery(idParam);
+    opportunityId: currentOpportunityId,
+  } = useDiscovery(opportunityId);
 
   const { control, watch, getValues } = form;
   const watchedValues = watch();
@@ -124,12 +131,12 @@ export default function DiscoveryPage() {
     }
   }, [questions]);
 
-  // If id parameter is provided, show opportunity-specific content
-  if (idParam) {
+  // If opportunity id parameter is provided, show opportunity-specific content
+  if (opportunityId) {
     return (
       <Box display="flex" flexDirection="column" minH="100vh" position="relative" overflow="hidden">
         <PageTitle title={PAGE_TITLES.DISCOVER} />
-        
+
 
         {/* Main content */}
         <Box
@@ -191,14 +198,14 @@ export default function DiscoveryPage() {
                 // Enrolled user - show discovery interface
                 <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
                   <VStack align="stretch" mb={8}>
-                  <Heading size="lg" color="#282F68">
-            Discover {targetUserType === "student" ? "Students" : "Partners"}
-          </Heading>
-          <Text color="gray.600">
-            Search and filter{" "}
-            {targetUserType === "student" ? "students" : "partners"} based on
-            your criteria
-          </Text>
+                    <Heading size="lg" color="#282F68">
+                      Discover {targetUserType === "student" ? "Students" : "Partners"}
+                    </Heading>
+                    <Text color="gray.600">
+                      Search and filter{" "}
+                      {targetUserType === "student" ? "students" : "partners"} based on
+                      your criteria
+                    </Text>
                   </VStack>
 
                   <Box borderRadius="md" mb={8} w="100%">
@@ -229,7 +236,7 @@ export default function DiscoveryPage() {
                     pageSize={pageSize}
                     onPageChange={handlePageChange}
                     onPageSizeChange={handlePageSizeChange}
-                    opportunityId={opportunityId}
+                    opportunityId={currentOpportunityId}
                   />
                 </Box>
               ) : (
@@ -244,7 +251,7 @@ export default function DiscoveryPage() {
                     {/* Image */}
                     <Box flexShrink={0}>
                       <Image
-                        src="/assets/discoverNothing.png" 
+                        src="/assets/discoverNothing.png"
                         alt="Discover"
                         width={400}
                         height={300}
@@ -265,7 +272,7 @@ export default function DiscoveryPage() {
                           {opportunity.description}
                         </Text>
                       )}
-                      
+
                       {/* Default description (if no opportunity description) */}
                       {!opportunity.description && (
                         <Text fontSize="lg" color="gray.600">
@@ -288,7 +295,7 @@ export default function DiscoveryPage() {
                           </Text>
                         )}
                       </VStack>
-                      
+
                       {/* Enrollment button */}
                       <Button
                         colorScheme="green"
@@ -314,9 +321,6 @@ export default function DiscoveryPage() {
             </>
           )}
         </Box>
-      
-        <Footer />
-
       </Box>
     );
   }
@@ -339,7 +343,7 @@ export default function DiscoveryPage() {
           <Flex justify="center" align="center" minH="400px">
             <VStack gap={6} align="center" textAlign="center">
               <Image
-                src="/assets/discoverNothing.png" 
+                src="/assets/discoverNothing.png"
                 alt="No opportunities"
                 width={300}
                 height={200}
@@ -347,10 +351,10 @@ export default function DiscoveryPage() {
               />
               <VStack gap={4} align="center">
                 <Heading size="lg" color="#282F68">
-                You haven&apos;t added any opportunities yet.
+                  You haven&apos;t added any opportunities yet.
                 </Heading>
                 <Text color="gray.600" fontSize="lg" maxW="500px">
-                Please accept an opportunity invitation first, and then you&apos;ll be able to start discovering and connecting with other users.
+                  Please accept an opportunity invitation first, and then you&apos;ll be able to start discovering and connecting with other users.
                 </Text>
               </VStack>
             </VStack>
