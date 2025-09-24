@@ -464,8 +464,6 @@ export function useOpportunityParticipant(opportunityId: string | number, enable
     },
   });
 }
-
-// UC-XXX: Enroll in opportunity
 export function useOpportunityEnrollment() {
   const queryClient = useQueryClient();
 
@@ -482,7 +480,7 @@ export function useOpportunityEnrollment() {
       questionnaireAnswers: Record<string, any>;
     }) => {
       return apiRequest({
-        endpoint: API_ENDPOINTS.OPPORTUNITY_ENROLL(opportunityId),
+        endpoint: API_ENDPOINTS.OPPORTUNITY_ENROLLMENT(opportunityId),
         body: {
           email,
           user_type: userType,

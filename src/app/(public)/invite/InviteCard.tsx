@@ -9,9 +9,11 @@ import {
 } from "@chakra-ui/react";
 import { Calendar, Loader } from "lucide-react";
 import { UseMutationResult } from "@tanstack/react-query";
-import { Opportunity, InviteAcceptResponse, Question } from "@/types/invite";
+import { Opportunity } from "@/types/opportunities";
+import { Question } from "@/types/onboarding";
+import { InviteAcceptResponse } from "@/types/invite";
 import { useAuthStore } from "@/store";
-import { QuestionnaireForm, QuestionnaireFormRef } from "./QuestionnaireForm";
+import { QuestionnaireForm, QuestionnaireFormRef } from "@/components/questionnaire/QuestionnaireForm";
 import { useState, useCallback, useMemo, useRef } from "react";
 import { toast } from "react-toastify";
 

@@ -175,11 +175,12 @@ export default function DiscoveryPage() {
       }
     }
 
-    // Save questionnaire state for other team to use
-    console.log("Enroll clicked - questionnaire state saved:", questionnaireAnswers);
-    // No modal or routing - handled by other team
-  }, [userType, user?.email, opportunity?.allowed_student_email_domains, questionnaireAnswers]);
-
+    // If eligible or no restrictions, redirect to questionnaire
+    if (opportunityId) {
+      router.push(`/opportunities/start?id=${opportunityId}`);
+    }
+}, [userType, user?.email, opportunity?.allowed_student_email_domains, opportunityId, router]);
+    
   // If opportunity id parameter is provided, show opportunity-specific content
   if (opportunityId) {
     return (
