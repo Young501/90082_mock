@@ -476,3 +476,43 @@ export function useOpportunityParticipant(opportunityId: string | number) {
     },
   });
 }
+
+// UC-XXX: Enroll in opportunity
+export function useOpportunityEnrollment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      opportunityId,
+      email,
+      userType,
+      questionnaireAnswers,
+    }: {
+      opportunityId: string;
+      email: string;
+      userType: string;
+      questionnaireAnswers: Record<string, any>;
+    }) => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.OPPORTUNITY_ENROLL(opportunityId),
+        body: {
+          email,
+          user_type: userType,
+          questionnaire_answers: questionnaireAnswers,
+        },
+      });
+    },
+    onSuccess: (data, variables) => {
+      // Invalidate relevant queries after successful enrollment
+      queryClient.invalidateQueries({
+        queryKey: ["opportunity-participant", variables.opportunityId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["accessible-opportunities"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["opportunity-detail", variables.opportunityId],
+      });
+    },
+  });
+}

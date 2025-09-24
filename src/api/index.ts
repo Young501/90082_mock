@@ -262,6 +262,11 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v2/opportunities/${opportunityId}/participant/`,
   }),
+  // UC-XXX: Enroll in opportunity
+  OPPORTUNITY_ENROLL: (opportunityId: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v2/opportunities/${opportunityId}/participant/`,
+  }),
   CONTACT_USER: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/contact/`,
