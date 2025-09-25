@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -15,11 +10,7 @@ import {
   UserSearchParams,
 } from "@/types/discovery";
 import { useUserSearch } from "@/services/user";
-import {
-  useOnboardingPages,
-  useAcceptedOpportunities,
-  useQuestionnaireFilters,
-} from "@/services/shared";
+import { useOnboardingPages, useQuestionnaireFilters } from "@/services/shared";
 import { toast } from "react-toastify";
 import { UserProfile } from "@/types/shared";
 
@@ -93,8 +84,18 @@ const extractFilterOptions = (
   );
 };
 
+type UseDiscoveryOpts = {
+  isEnrolled?: boolean; // tri-state: undefined while unknown
+  isEnrollmentReady?: boolean; // when you've finished computing isEnrolled
+};
+
 // ===== Main Hook =====
-export const useDiscovery = (opportunityIdOverride?: string) => {
+export const useDiscovery = (
+  opportunityIdOverride?: string,
+  opts: UseDiscoveryOpts = {}
+) => {
+  const { isEnrolled, isEnrollmentReady } = opts;
+
   const { user } = useAuthStore();
   const [filterableFields, setFilterableFields] = useState<ProcessedField[]>(
     []
@@ -115,9 +116,7 @@ export const useDiscovery = (opportunityIdOverride?: string) => {
     return userType === "student" ? "organisation" : "student";
   }, [userType]);
 
-  const { data: acceptedOpportunities, isLoading: isOpportunitiesLoading } =
-    useAcceptedOpportunities();
-  const currentOpportunityId = opportunityIdOverride || acceptedOpportunities?.[0]?.id;
+  const currentOpportunityId = opportunityIdOverride;
 
   const { data, isLoading: isOnboardingLoading } = useOnboardingPages(
     targetUserType || ""
@@ -129,10 +128,7 @@ export const useDiscovery = (opportunityIdOverride?: string) => {
     userType === "student" ? organisationOnboardingData : userOnboardingData;
 
   const { data: questionnaireFilters, isLoading: isQuestionnaireLoading } =
-    useQuestionnaireFilters(
-      currentOpportunityId || "", 
-      targetUserType || ""
-    );
+    useQuestionnaireFilters(currentOpportunityId || "", targetUserType || "");
 
   const {
     data: searchData,
@@ -203,8 +199,6 @@ export const useDiscovery = (opportunityIdOverride?: string) => {
       form.reset(defaultValues);
     }
   }, [currentOpportunityId, filterableFields, form]);
-
-
 
   const processFollowupQuestions = useCallback(
     (
@@ -393,34 +387,32 @@ export const useDiscovery = (opportunityIdOverride?: string) => {
   ]);
 
   useEffect(() => {
-    if (!targetUserType || !currentOpportunityId) {
+    // Wait until we know enrollment (avoid flicker/extra calls)
+    if (!isEnrollmentReady) return;
+
+    if (!targetUserType || !currentOpportunityId || isEnrolled !== true) {
       setSearchParams(null);
       setIsSearching(false);
       setCurrentPage(1);
-    } else {
-      // Check if user is enrolled in the current opportunity
-      const isEnrolled = acceptedOpportunities?.some((opp: any) => 
-        opp.id.toString() === currentOpportunityId
-      );
-      
-      if (isEnrolled) {
-        // Only search if user is enrolled in the opportunity
-        setSearchParams({
-          user_type: targetUserType,
-          opportunity_id: currentOpportunityId,
-          page: 1,
-          page_size: pageSize,
-        });
-        setCurrentPage(1);
-        setIsSearching(true);
-      } else {
-        // Don't search if not enrolled
-        setSearchParams(null);
-        setIsSearching(false);
-        setCurrentPage(1);
-      }
+      return;
     }
-  }, [targetUserType, currentOpportunityId, pageSize, acceptedOpportunities]);
+
+    // Enrolled: prime the initial search
+    setSearchParams({
+      user_type: targetUserType,
+      opportunity_id: currentOpportunityId,
+      page: 1,
+      page_size: pageSize,
+    });
+    setCurrentPage(1);
+    setIsSearching(true);
+  }, [
+    targetUserType,
+    currentOpportunityId,
+    pageSize,
+    isEnrolled,
+    isEnrollmentReady,
+  ]);
 
   const hasSearchFilters = useMemo(() => {
     if (!searchParams) return false;

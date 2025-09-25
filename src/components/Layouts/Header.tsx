@@ -251,32 +251,19 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const renderDiscoverMenu = (isMobile = false) => {
     const opps = accessibleOpps || [];
 
-    const handleDisabledClick = (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      toast.info("No opportunities yet.");
-      if (isMobile) setIsMobileMenuOpen(false);
-      // Do not navigate - just show the toast
-    };
-
     if (!opps || opps.length === 0) {
       // Disabled state
       return (
-        <Box
-          key="DISCOVER"
-          py={isMobile ? 4 : 0}
-          opacity={0.6}
-          cursor="not-allowed"
-          onClick={handleDisabledClick}
-        >
+        <Link href={`/discover/`} key="DISCOVER" onClick={handleMenuItemClick}>
           <Text
+            py={isMobile ? 4 : 0}
             fontSize={isMobile ? "16px" : "18px"}
             fontWeight={isMobile ? "600" : "700"}
             color={isProtected ? "white" : "black"}
           >
             DISCOVER
           </Text>
-        </Box>
+        </Link>
       );
     }
 
