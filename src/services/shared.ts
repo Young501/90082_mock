@@ -1,12 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import { useAuthStore } from "@/store/authStore";
-import {
-  Opportunity,
-  OpportunitiesResponse,
-  CategorizedOpportunities,
-  ParticipantRecord,
-} from "@/types/opportunities";
 
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
@@ -385,114 +379,9 @@ export function useCoordinatorViewUserProfile(
     },
   });
 }
-
-// Helper function to categorize opportunities
-export function categorizeOpportunities(
-  opportunities: Opportunity[]
-): CategorizedOpportunities {
-  const enrolled: Opportunity[] = [];
-  const closed: Opportunity[] = [];
-
-  opportunities.forEach((opportunity) => {
-    console.log(
-      "🔍 Categorizing opportunity:",
-      opportunity.id,
-      "is_enrolled:",
-      opportunity.is_enrolled
-    );
-
-    // Check if user is enrolled based on the updated logic
-    const isEnrolled =
-      opportunity.is_enrolled === true ||
-      opportunity.participant_record?.status === "active" ||
-      opportunity.participant_record?.accepted === true;
-
-    if (isEnrolled) {
-      enrolled.push(opportunity);
-      console.log("🔍 Added to enrolled:", opportunity.id);
-    } else {
-      closed.push(opportunity);
-      console.log("🔍 Added to closed:", opportunity.id);
-    }
-  });
-
-  console.log(
-    "🔍 Final categorization - Enrolled:",
-    enrolled.length,
-    "Closed:",
-    closed.length
-  );
-  return { enrolled, closed };
-}
-
-// UC-326: Get participant record for a specific opportunity
-export function useOpportunityParticipant(opportunityId: string | number) {
-  const { user } = useAuthStore();
-
-  return useQuery<ParticipantRecord>({
-    queryKey: ["opportunity-participant", opportunityId],
-    queryFn: async () => {
-      try {
-        const response = await apiRequest<ParticipantRecord>({
-          endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(
-            opportunityId.toString()
-          ),
-        });
-        return response;
-      } catch (error: any) {
-        console.error("Failed to fetch participant record:", error);
-        throw error;
-      }
-    },
-    enabled: !!user && !!opportunityId,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 404) {
-        // Participant record not found - this is expected for non-enrolled opportunities
-        return false;
-      }
-      if (error?.response?.status === 401 || error?.response?.status === 403) {
         return false;
       }
       return failureCount < 2;
-    },
-  });
-}
-export function useOpportunityEnrollment() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      opportunityId,
-      email,
-      userType,
-      questionnaireAnswers,
-    }: {
-      opportunityId: string;
-      email: string;
-      userType: string;
-      questionnaireAnswers: Record<string, any>;
-    }) => {
-      return apiRequest({
-        endpoint: API_ENDPOINTS.OPPORTUNITY_ENROLLMENT(opportunityId),
-        body: {
-          email,
-          user_type: userType,
-          questionnaire_answers: questionnaireAnswers,
-        },
-      });
-    },
-    onSuccess: (data, variables) => {
-      // Invalidate relevant queries after successful enrollment
-      queryClient.invalidateQueries({
-        queryKey: ["opportunity-participant", variables.opportunityId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["accessible-opportunities"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["opportunity-detail", variables.opportunityId],
-      });
     },
   });
 }
