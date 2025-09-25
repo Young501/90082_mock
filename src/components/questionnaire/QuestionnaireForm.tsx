@@ -118,7 +118,7 @@ export const QuestionnaireForm = forwardRef<
 
   const handleFieldUnregistered = (fieldName: string) => {
     const currentValues = getValues();
-    const { [fieldName]: removedField, ...restValues } = currentValues;
+    const { [fieldName]: _, ...restValues } = currentValues;
     onAnswersChange(restValues);
   };
 
