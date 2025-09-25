@@ -379,9 +379,41 @@ export function useCoordinatorViewUserProfile(
     },
   });
 }
+
+export function useOpportunityDetail(opportunityId: string) {
+  return useQuery({
+    queryKey: ["opportunity-detail", opportunityId],
+    queryFn: () =>
+      apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITY_DETAIL(opportunityId) }),
+    enabled: !!opportunityId,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) {
         return false;
       }
       return failureCount < 2;
+    },
+  });
+}
+
+export function useEnrollInOpportunity() {
+  return useMutation({
+    mutationFn: async (data: {
+      opportunityId: string;
+      data: {
+        email: string;
+        user_type: string;
+        questionnaire_answers: Record<string, any>;
+      };
+    }) => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.OPPORTUNITY_ENROLLMENT(data.opportunityId),
+        body: {
+          email: data.data.email,
+          user_type: data.data.user_type,
+          questionnaire_answers: data.data.questionnaire_answers,
+        },
+      });
     },
   });
 }

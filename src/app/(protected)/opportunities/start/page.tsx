@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { Calendar, Building } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useOpportunityDetail } from "@/hooks/useOpportunity";
+import { useOpportunityDetail } from "@/services/shared";
 import { useAuthStore } from "@/store";
 import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 import { toast } from "react-toastify";

@@ -16,7 +16,7 @@ import {
 import { CheckCircle, Loader } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import ProgressTrack from "@/components/ProgressTrack";
-import { useOpportunityDetail } from "@/hooks/useOpportunity";
+import { useOpportunityDetail } from "@/services/shared";
 import { useAuthStore } from "@/store";
 import { Question } from "@/types/onboarding";
 import { useQuestionnaireAnswers } from "@/hooks/useQuestionnaireAnswers";
