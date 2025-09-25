@@ -115,10 +115,6 @@ export default function OpportunityStartPage() {
   const userType = user?.user_types?.[0];
   const hasQuestionnaire = userType && opportunity.questionnaire?.[userType];
 
-  const handleBegin = () => {
-    router.push(`/opportunities/fill?id=${opportunityId}`);
-  };
-
   const handleBack = () => {
     router.push(`/discover?id=${opportunityId}`);
   };
