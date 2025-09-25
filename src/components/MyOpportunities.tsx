@@ -106,18 +106,10 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     return questions;
   }, [opportunity.questionnaire]);
 
-  // Check if questionnaire answers are empty
-  const hasQuestionnaireAnswers = useMemo(() => {
-    if (!participantRecord?.data?.questionnaire_answers) return false;
-
-    const answers = participantRecord.data.questionnaire_answers;
-    return Object.values(answers).some(value =>
-      value !== undefined &&
-      value !== null &&
-      value !== "" &&
-      !(Array.isArray(value) && value.length === 0)
-    );
-  }, [participantRecord?.data?.questionnaire_answers]);
+  // Check if questionnaire itself is empty
+  const hasQuestionnaire = useMemo(() => {
+    return questionnaire.length > 0;
+  }, [questionnaire]);
 
   // Form setup for editing
   const schema = useMemo(
@@ -428,8 +420,8 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                 </Box>
               )}
 
-              {/* Questionnaire - only show if there are actual answers */}
-              {questionnaire.length > 0 && hasQuestionnaireAnswers && (
+              {/* Questionnaire - only show if questionnaire exists and user is not organization */}
+              {hasQuestionnaire && userType !== "organisation" && (
                 <Box>
                   <Text fontSize="16px" fontWeight="600" color="#1F2937" mb={3}>
                     Questionnaire Answers
