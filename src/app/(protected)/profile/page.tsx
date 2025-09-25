@@ -516,11 +516,14 @@ const Profile = () => {
         maxW="1512px"
         mx="auto"
         mt={{ base: "80px", lg: "126px" }}
+        w="100%"
+        overflow="hidden"
       >
         <Flex
           w="100%"
           direction={{ base: "column", md: "row" }}
           gap={{ base: 4, lg: 20 }}
+          overflow="hidden"
         >
           <Box
             bg="white"
@@ -662,7 +665,7 @@ const Profile = () => {
             </Box>
           </Box>
 
-          <Box maxW={{ base: "100%" }} w="100%" bg="white" p={6} flex={1}>
+          <Box maxW={{ base: "100%" }} w="100%" bg="white" p={6} flex={1} overflow="hidden">
             <Text fontSize="25px" fontWeight="bold" mb={6} color="#000000">
               {tabs[activeTab]?.title || "Tab Details"}
             </Text>

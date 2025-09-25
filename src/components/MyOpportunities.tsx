@@ -74,13 +74,14 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   const [originalAnswers, setOriginalAnswers] = useState<Record<string, any>>(
     {}
   );
+  const [isCancelled, setIsCancelled] = useState(false);
 
-  // Fetch participant record when expanded (only for enrolled opportunities)
+  // Fetch participant record when expanded (only for enrolled opportunities and not cancelled)
   const {
     data: participantRecord,
     isLoading: isParticipantLoading,
     error: participantError,
-  } = useOpportunityParticipant(opportunity.id, type === "enrolled");
+  } = useOpportunityParticipant(opportunity.id, type === "enrolled" && !isCancelled);
 
   // Update mutation
   const updateParticipantMutation = useUpdateOpportunityParticipant();
@@ -217,6 +218,9 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
       toast.success("Successfully cancelled enrollment!");
 
+      // Mark as cancelled to stop fetching participant record
+      setIsCancelled(true);
+
       // Close expanded view after successful cancellation
       setIsExpanded(false);
       setIsEditMode(false);
@@ -286,6 +290,8 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
       border="1px solid #E2E8F0"
       boxShadow="0 1px 3px rgba(0,0,0,0.1)"
       overflow="hidden"
+      w="100%"
+      maxW="100%"
     >
       {/* Main card content */}
       <Box
@@ -296,15 +302,15 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
         }}
         transition="all 0.2s ease"
       >
-        <Flex justify="space-between" align="start">
-          <Box flex={1}>
-            <Text fontSize="18px" fontWeight="600" color="#1F2937" mb={2}>
+        <Flex justify="space-between" align="start" gap={4}>
+          <Box flex={1} minW={0}>
+            <Text fontSize="18px" fontWeight="600" color="#1F2937" mb={2} wordBreak="break-word">
               {opportunity.title}
             </Text>
-            <Text fontSize="14px" color="#6B7280" mb={3}>
+            <Text fontSize="14px" color="#6B7280" mb={3} wordBreak="break-word">
               {opportunity.description}
             </Text>
-            <HStack gap={4} fontSize="12px" color="#9CA3AF">
+            <HStack gap={4} fontSize="12px" color="#9CA3AF" flexWrap="wrap">
               <Text>
                 Start: {new Date(opportunity.start_date).toLocaleDateString()}
               </Text>
@@ -313,12 +319,13 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
               </Text>
             </HStack>
           </Box>
-          <Box>
+          <Box flexShrink={0}>
             <Button
               size="sm"
               variant="outline"
               colorScheme={userType === "student" ? "red" : "green"}
               onClick={handleExpand}
+              minW="fit-content"
             >
               {isExpanded
                 ? "Collapse"
@@ -553,9 +560,9 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
   ];
 
   return (
-    <Box w="100%">
+    <Box w="100%" overflow="hidden">
       {/* Sub-tab navigation */}
-      <Flex gap={0} mb={6} borderBottom="2px solid #E2E8F0" w="fit-content">
+      <Flex gap={0} mb={6} borderBottom="2px solid #E2E8F0" w="100%" overflow="auto">
         {opportunityTabs.map((tab, index) => (
           <Button
             key={index}
@@ -575,8 +582,10 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
                 : "#666666"
             }
             fontWeight="600"
-            px={6}
+            px={{ base: 4, md: 6 }}
             py={3}
+            minW="fit-content"
+            flexShrink={0}
             _hover={{
               color: userType === "student" ? "#DC2626" : "#089C3F",
             }}
