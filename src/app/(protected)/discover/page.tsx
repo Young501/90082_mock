@@ -52,6 +52,9 @@ export default function DiscoveryPage() {
   const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } =
     useAccessibleOpportunities();
 
+  const isEnrollmentReady =
+    !!accessibleOpportunities && !isOpportunitiesLoading;
+
   // Check if user is enrolled in this opportunity
   const isEnrolled = useMemo(() => {
     console.log("🔍 Checking enrollment status:");
@@ -109,8 +112,7 @@ export default function DiscoveryPage() {
     totalPages,
     handlePageChange,
     handlePageSizeChange,
-    opportunityId: currentOpportunityId,
-  } = useDiscovery(opportunityId);
+  } = useDiscovery(opportunityId, { isEnrolled, isEnrollmentReady });
 
   const { control, watch, getValues } = form;
   const watchedValues = watch();
@@ -274,7 +276,7 @@ export default function DiscoveryPage() {
                     pageSize={pageSize}
                     onPageChange={handlePageChange}
                     onPageSizeChange={handlePageSizeChange}
-                    opportunityId={currentOpportunityId}
+                    opportunityId={opportunityId}
                   />
                 </Box>
               ) : (
