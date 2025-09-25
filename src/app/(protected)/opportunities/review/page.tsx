@@ -16,7 +16,7 @@ import {
 } from "@chakra-ui/react";
 import ProgressTrack from "@/components/ProgressTrack";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useOpportunityDetail, useEnrollInOpportunity } from "@/hooks/useOpportunity";
+import { useOpportunityDetail, useEnrollInOpportunity } from "@/services/shared";
 import { useAuthStore } from "@/store";
 import { PageTitle } from "@/components/PageTitle";
 import Footer from "@/components/Layouts/Footer";

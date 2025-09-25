@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import ProgressTrack from "@/components/ProgressTrack";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useOpportunityDetail } from "@/hooks/useOpportunity";
+import { useOpportunityDetail } from "@/services/shared";
 import { useAuthStore } from "@/store";
 import { QuestionnaireForm, QuestionnaireFormRef } from "@/components/questionnaire/QuestionnaireForm";
 import { Button } from "@/components/ui/Button";
