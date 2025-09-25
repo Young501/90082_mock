@@ -11,6 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Discover dropdown navigation**
+
+  - Discover dropdown feature with responsive design, enrollment-status badges, and new useAccessibleOpportunities hook using the /api/v2/opportunities/all/ endpoint.
+
+
+### Changed
+
+- Auth hook: now invalidates `["accessible-opportunities"]` cache key on login success to refresh Discover menu.
+- useDiscovery hook: enhanced to support overriding current opportunity ID via parameter.
+- Header component: restructured to consume `useAccessibleOpportunities` and handle responsive dropdown rendering.
+
 ---
 
 ## [1.0.4]

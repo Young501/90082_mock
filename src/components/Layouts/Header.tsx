@@ -7,7 +7,7 @@ import {
   useBreakpointValue,
   Button,
 } from "@chakra-ui/react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { UserRound, Menu, X, HelpCircle } from "lucide-react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
@@ -15,6 +15,8 @@ import Image from "next/image";
 import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useAccessibleOpportunities } from "@/services/shared";
+import { toast } from "react-toastify";
 
 interface MenuItem {
   label: string;
@@ -31,6 +33,8 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const { handleLogout } = useAuth();
   const { logout, getUserType } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDiscoverDropdownOpen, setIsDiscoverDropdownOpen] = useState(false);
+  const discoverDropdownRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
@@ -38,11 +42,32 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isCoordinator = userType === "coordinator";
   const isOrganisation = userType === "organisation";
   const isStudent = userType === "student";
+  const { data: accessibleOpps } = useAccessibleOpportunities();
 
   const isOnInviteOrOnboardingPage =
     pathname?.includes("/invite") ||
     pathname?.includes("/onboarding") ||
     pathname?.includes("/verify-email");
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        discoverDropdownRef.current &&
+        !discoverDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDiscoverDropdownOpen(false);
+      }
+    };
+
+    if (isDiscoverDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDiscoverDropdownOpen]);
 
   const getSignupLink = () => {
     const inviteToken = searchParams.get("invite_token");
@@ -148,6 +173,9 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   };
 
   const renderMenuItem = (item: MenuItem, isMobile = false) => {
+    if (item.label === "DISCOVER") {
+      return renderDiscoverMenu(isMobile);
+    }
     if (item.label === "LOGOUT") {
       return (
         <Button
@@ -220,6 +248,214 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     );
   };
 
+  const renderDiscoverMenu = (isMobile = false) => {
+    const opps = accessibleOpps || [];
+
+    if (!opps || opps.length === 0) {
+      // Disabled state
+      return (
+        <Link href={`/discover/`} key="DISCOVER" onClick={handleMenuItemClick}>
+          <Text
+            py={isMobile ? 4 : 0}
+            fontSize={isMobile ? "16px" : "18px"}
+            fontWeight={isMobile ? "600" : "700"}
+            color={isProtected ? "white" : "black"}
+          >
+            DISCOVER
+          </Text>
+        </Link>
+      );
+    }
+
+    if (opps.length === 1) {
+      const only = opps[0];
+      return (
+        <Link
+          href={`/discover/?id=${only.id}`}
+          key="DISCOVER"
+          onClick={handleMenuItemClick}
+        >
+          <Text
+            py={isMobile ? 4 : 0}
+            fontSize={isMobile ? "16px" : "18px"}
+            fontWeight={isMobile ? "600" : "700"}
+            color={isProtected ? "white" : "black"}
+          >
+            DISCOVER
+          </Text>
+        </Link>
+      );
+    }
+
+    // dropdown/list
+    if (isMobile) {
+      return (
+        <Box key="DISCOVER">
+          <Box
+            py={4}
+            fontSize="16px"
+            fontWeight="600"
+            color={isProtected ? "white" : "black"}
+            cursor="pointer"
+            onClick={() => setIsDiscoverDropdownOpen(!isDiscoverDropdownOpen)}
+          >
+            <HStack justify="center">
+              <Text>DISCOVER</Text>
+              <Box
+                as="span"
+                ml={1}
+                mt={isDiscoverDropdownOpen ? "3px" : "-6px"}
+                display="inline-block"
+                width="10px"
+                height="10px"
+                borderRight="1.5px solid"
+                borderBottom="1.5px solid"
+                borderColor={isProtected ? "white" : "black"}
+                transform={
+                  isDiscoverDropdownOpen ? "rotate(225deg)" : "rotate(45deg)"
+                }
+                transformOrigin="center"
+                transition="transform 0.2s, margin-top 0.2s"
+              />
+            </HStack>
+          </Box>
+          {isDiscoverDropdownOpen && (
+            <VStack align="stretch" gap={2}>
+              {opps.map((o) => (
+                <Box
+                  key={o.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleMobileOpportunityClick(o.id);
+                  }}
+                  onMouseUp={(e) => {
+                    e.stopPropagation();
+                    handleMobileOpportunityClick(o.id);
+                  }}
+                  onTouchEnd={(e) => {
+                    e.stopPropagation();
+                    handleMobileOpportunityClick(o.id);
+                  }}
+                  cursor="pointer"
+                  position="relative"
+                  zIndex={1003}
+                >
+                  <VStack align="center" gap={1}>
+                    <Box
+                      as="span"
+                      fontSize="8px"
+                      px={1.0}
+                      py={0.5}
+                      borderRadius="md"
+                      bg={o.status === "Enrolled" ? "green.300" : "yellow.200"}
+                      color="black"
+                      fontWeight="bold"
+                      minW="80px"
+                      textAlign="center"
+                    >
+                      {o.status}
+                    </Box>
+                    <Text
+                      color={isProtected ? "white" : "black"}
+                      fontWeight="bold"
+                      fontSize="15px"
+                      textAlign="center"
+                    >
+                      {o.title || `Opportunity ${o.id}`}
+                    </Text>
+                  </VStack>
+                </Box>
+              ))}
+            </VStack>
+          )}
+        </Box>
+      );
+    }
+
+    // Desktop dropdown (simple custom popover)
+    return (
+      <Box key="DISCOVER" position="relative" ref={discoverDropdownRef}>
+        <HStack
+          py={0}
+          fontSize="18px"
+          fontWeight="700"
+          color={isProtected ? "white" : "black"}
+          cursor="pointer"
+          onClick={() => setIsDiscoverDropdownOpen(!isDiscoverDropdownOpen)}
+        >
+          <Text>DISCOVER</Text>
+          <Box
+            as="span"
+            ml={1}
+            mt={isDiscoverDropdownOpen ? "3px" : "-6px"}
+            display="inline-block"
+            width="10px"
+            height="10px"
+            borderRight="1.5px solid white"
+            borderBottom="1.5px solid white"
+            transform={
+              isDiscoverDropdownOpen ? "rotate(225deg)" : "rotate(45deg)"
+            }
+            transformOrigin="center"
+            transition="transform 0.2s, margin-top 0.2s"
+          />
+        </HStack>
+        {isDiscoverDropdownOpen && (
+          <Box
+            position="absolute"
+            top="calc(100% + 8px)"
+            left={0}
+            minW="280px"
+            bg={isProtected ? "white" : "white"}
+            color="black"
+            borderRadius="md"
+            boxShadow="lg"
+            zIndex={10000}
+            p={2}
+          >
+            <VStack align="stretch" gap={1}>
+              {opps.map((o) => (
+                // Navigate to opportunity details page
+                <Link
+                  href={`/discover/?id=${o.id}`}
+                  key={o.id}
+                  onClick={handleMenuItemClick}
+                >
+                  <VStack
+                    _hover={{ bg: "gray.100" }}
+                    borderRadius="md"
+                    px={3}
+                    py={2}
+                    align="stretch"
+                    gap={1}
+                  >
+                    <Box
+                      as="span"
+                      fontSize="10px"
+                      px={1.5}
+                      py={0.5}
+                      borderRadius="md"
+                      bg={o.status === "Enrolled" ? "green.300" : "yellow.200"}
+                      color={o.status === "Enrolled" ? "black" : "black"}
+                      fontWeight="bold"
+                      alignSelf="flex-start"
+                      minW="80px"
+                      textAlign="center"
+                    >
+                      {o.status}
+                    </Box>
+                    <Text truncate fontWeight="bold" fontSize="16px">
+                      {o.title || `Opportunity ${o.id}`}
+                    </Text>
+                  </VStack>
+                </Link>
+              ))}
+            </VStack>
+          </Box>
+        )}
+      </Box>
+    );
+  };
   const handleUserLogout = async () => {
     await handleLogout();
     logout();
@@ -233,6 +469,13 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
 
   const handleMenuItemClick = () => {
     setIsMobileMenuOpen(false);
+    setIsDiscoverDropdownOpen(false);
+  };
+
+  const handleMobileOpportunityClick = (opportunityId: number) => {
+    setIsMobileMenuOpen(false);
+    setIsDiscoverDropdownOpen(false);
+    router.push(`/discover/?id=${opportunityId}`);
   };
 
   const Overlay = () => (
@@ -247,7 +490,12 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       opacity={isMobileMenuOpen ? 1 : 0}
       visibility={isMobileMenuOpen ? "visible" : "hidden"}
       transition="all 0.3s ease"
-      onClick={() => setIsMobileMenuOpen(false)}
+      onClick={(e) => {
+        // Only close menu if clicking directly on overlay, not on child elements
+        if (e.target === e.currentTarget) {
+          setIsMobileMenuOpen(false);
+        }
+      }}
     />
   );
 

@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -16,11 +10,7 @@ import {
   UserSearchParams,
 } from "@/types/discovery";
 import { useUserSearch } from "@/services/user";
-import {
-  useOnboardingPages,
-  useAcceptedOpportunities,
-  useQuestionnaireFilters,
-} from "@/services/shared";
+import { useOnboardingPages, useQuestionnaireFilters } from "@/services/shared";
 import { toast } from "react-toastify";
 import { UserProfile } from "@/types/shared";
 
@@ -94,10 +84,19 @@ const extractFilterOptions = (
   );
 };
 
+type UseDiscoveryOpts = {
+  isEnrolled?: boolean; // tri-state: undefined while unknown
+  isEnrollmentReady?: boolean; // when you've finished computing isEnrolled
+};
+
 // ===== Main Hook =====
-export const useDiscovery = () => {
+export const useDiscovery = (
+  opportunityIdOverride?: string,
+  opts: UseDiscoveryOpts = {}
+) => {
+  const { isEnrolled, isEnrollmentReady } = opts;
+
   const { user } = useAuthStore();
-  const hasShownWarningRef = useRef(false);
   const [filterableFields, setFilterableFields] = useState<ProcessedField[]>(
     []
   );
@@ -117,9 +116,7 @@ export const useDiscovery = () => {
     return userType === "student" ? "organisation" : "student";
   }, [userType]);
 
-  const { data: acceptedOpportunities, isLoading: isOpportunitiesLoading } =
-    useAcceptedOpportunities();
-  const currentOpportunityId = acceptedOpportunities?.[0]?.id;
+  const currentOpportunityId = opportunityIdOverride;
 
   const { data, isLoading: isOnboardingLoading } = useOnboardingPages(
     targetUserType || ""
@@ -195,50 +192,13 @@ export const useDiscovery = () => {
     }
   }, [filterableFields, form]);
 
+  // Reset form when opportunity changes
   useEffect(() => {
-    if (
-      targetUserType &&
-      !searchParams &&
-      !isOpportunitiesLoading &&
-      currentOpportunityId
-    ) {
-      setSearchParams({
-        user_type: targetUserType,
-        opportunity_id: currentOpportunityId,
-        page: currentPage,
-        page_size: pageSize,
-      });
-      setIsSearching(true);
+    if (currentOpportunityId && filterableFields.length > 0) {
+      const defaultValues = getDefaultValues(filterableFields);
+      form.reset(defaultValues);
     }
-  }, [
-    targetUserType,
-    searchParams,
-    currentPage,
-    pageSize,
-    currentOpportunityId,
-    isOpportunitiesLoading,
-  ]);
-
-  useEffect(() => {
-    const shouldShowWarning =
-      !isOpportunitiesLoading &&
-      acceptedOpportunities !== undefined &&
-      !currentOpportunityId &&
-      !hasShownWarningRef.current;
-
-    if (shouldShowWarning) {
-      hasShownWarningRef.current = true;
-      setTimeout(() => {
-        toast.warning(
-          "You haven't joined any opportunities yet. Please accept an opportunity invitation to search for users."
-        );
-      }, 100);
-    }
-
-    if (currentOpportunityId && hasShownWarningRef.current) {
-      hasShownWarningRef.current = false;
-    }
-  }, [isOpportunitiesLoading, acceptedOpportunities, currentOpportunityId]);
+  }, [currentOpportunityId, filterableFields, form]);
 
   const processFollowupQuestions = useCallback(
     (
@@ -427,12 +387,32 @@ export const useDiscovery = () => {
   ]);
 
   useEffect(() => {
-    if (!targetUserType || !currentOpportunityId) {
+    // Wait until we know enrollment (avoid flicker/extra calls)
+    if (!isEnrollmentReady) return;
+
+    if (!targetUserType || !currentOpportunityId || isEnrolled !== true) {
       setSearchParams(null);
       setIsSearching(false);
       setCurrentPage(1);
+      return;
     }
-  }, [targetUserType, currentOpportunityId]);
+
+    // Enrolled: prime the initial search
+    setSearchParams({
+      user_type: targetUserType,
+      opportunity_id: currentOpportunityId,
+      page: 1,
+      page_size: pageSize,
+    });
+    setCurrentPage(1);
+    setIsSearching(true);
+  }, [
+    targetUserType,
+    currentOpportunityId,
+    pageSize,
+    isEnrolled,
+    isEnrollmentReady,
+  ]);
 
   const hasSearchFilters = useMemo(() => {
     if (!searchParams) return false;
