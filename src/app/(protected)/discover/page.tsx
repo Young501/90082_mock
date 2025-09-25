@@ -1,14 +1,34 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { Box, VStack, Heading, Text, Separator, Flex, Spinner, Alert, Button, Image } from "@chakra-ui/react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
+import {
+  Box,
+  VStack,
+  Heading,
+  Text,
+  Separator,
+  Flex,
+  Spinner,
+  Alert,
+  Button,
+  Image,
+} from "@chakra-ui/react";
 import { useDiscovery } from "@/hooks/useDiscovery";
 import { DiscoveryFilterBox } from "./DiscoveryFilterBox";
 import { DiscoveryResultBox } from "./DiscoveryResultBox";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useOpportunityDetail, useAccessibleOpportunities } from "@/services/shared";
+import {
+  useOpportunityDetail,
+  useAccessibleOpportunities,
+} from "@/services/shared";
 import { Opportunity } from "@/types/invite";
 import { useAuthStore } from "@/store";
 
@@ -17,27 +37,33 @@ export default function DiscoveryPage() {
   const router = useRouter();
   const opportunityId = sp.get("id") || undefined;
   const { user } = useAuthStore();
-  const [questionnaireAnswers, setQuestionnaireAnswers] = useState<Record<string, any>>({});
+  const [questionnaireAnswers, setQuestionnaireAnswers] = useState<
+    Record<string, any>
+  >({});
 
   // Fetch opportunity details if id is provided
   const {
     data: opportunity,
     isLoading: isOpportunityLoading,
-    error: opportunityError
+    error: opportunityError,
   } = useOpportunityDetail(opportunityId || "");
 
   // Get user's accessible opportunities to check enrollment status
-  const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } = useAccessibleOpportunities();
+  const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } =
+    useAccessibleOpportunities();
+
+  const isEnrollmentReady =
+    !!accessibleOpportunities && !isOpportunitiesLoading;
 
   // Check if user is enrolled in this opportunity
   const isEnrolled = useMemo(() => {
     if (!opportunityId || !accessibleOpportunities) {
       return false;
     }
-
-    const currentOpportunity = accessibleOpportunities.find(opp => opp.id.toString() === opportunityId);
+    const currentOpportunity = accessibleOpportunities.find(
+      (opp) => opp.id.toString() === opportunityId
+    );
     const enrolled = currentOpportunity?.status === "Enrolled";
-
     return enrolled;
   }, [opportunityId, accessibleOpportunities]);
 
@@ -74,8 +100,7 @@ export default function DiscoveryPage() {
     totalPages,
     handlePageChange,
     handlePageSizeChange,
-    opportunityId: currentOpportunityId,
-  } = useDiscovery(opportunityId);
+  } = useDiscovery(opportunityId, { isEnrolled, isEnrollmentReady });
 
   const { control, watch, getValues } = form;
   const watchedValues = watch();
@@ -93,32 +118,36 @@ export default function DiscoveryPage() {
   // Update questionnaire answers state when questions change
   useEffect(() => {
     if (questions.length > 0) {
-      const defaultAnswers = questions.reduce((acc: Record<string, any>, question: any) => {
-        switch (question.type) {
-          case "multi-select":
-          case "tag-select":
-            acc[question.field] = [];
-            break;
-          case "checkbox-group":
-            acc[question.field] = question.max_selection === 1 ? "" : [];
-            break;
-          case "card-select":
-            acc[question.field] = question.max_selection === 1 ? "" : [];
-            break;
-          case "boolean-checkbox":
-            acc[question.field] = undefined;
-            break;
-          case "range":
-            acc[question.field] = question.min !== undefined ? question.min : 0;
-            break;
-          case "number":
-            acc[question.field] = undefined;
-            break;
-          default:
-            acc[question.field] = "";
-        }
-        return acc;
-      }, {} as Record<string, any>);
+      const defaultAnswers = questions.reduce(
+        (acc: Record<string, any>, question: any) => {
+          switch (question.type) {
+            case "multi-select":
+            case "tag-select":
+              acc[question.field] = [];
+              break;
+            case "checkbox-group":
+              acc[question.field] = question.max_selection === 1 ? "" : [];
+              break;
+            case "card-select":
+              acc[question.field] = question.max_selection === 1 ? "" : [];
+              break;
+            case "boolean-checkbox":
+              acc[question.field] = undefined;
+              break;
+            case "range":
+              acc[question.field] =
+                question.min !== undefined ? question.min : 0;
+              break;
+            case "number":
+              acc[question.field] = undefined;
+              break;
+            default:
+              acc[question.field] = "";
+          }
+          return acc;
+        },
+        {} as Record<string, any>
+      );
       setQuestionnaireAnswers(defaultAnswers);
     }
   }, [questions]);
@@ -126,9 +155,13 @@ export default function DiscoveryPage() {
   // If opportunity id parameter is provided, show opportunity-specific content
   if (opportunityId) {
     return (
-      <Box display="flex" flexDirection="column" minH="100vh" position="relative" overflow="hidden">
+      <Box
+        display="flex"
+        flexDirection="column"
+        position="relative"
+        overflow="hidden"
+      >
         <PageTitle title={PAGE_TITLES.DISCOVER} />
-
 
         {/* Main content */}
         <Box
@@ -154,7 +187,9 @@ export default function DiscoveryPage() {
           {opportunityError && (
             <Alert.Root status="error" mb={8}>
               <Alert.Indicator />
-              <Alert.Title>Unable to load opportunity details. Please try again later.</Alert.Title>
+              <Alert.Title>
+                Unable to load opportunity details. Please try again later.
+              </Alert.Title>
             </Alert.Root>
           )}
 
@@ -167,10 +202,10 @@ export default function DiscoveryPage() {
                 fontSize={{ base: "2xl", md: "4xl" }}
                 textAlign="center"
                 mt={{ base: 8, md: 12 }}
-                mb={{ base: 8, md: 20 }}
+                mb={{ base: 8, md: 12 }}
                 lineHeight="1.3"
               >
-                You&apos;ve discovered the{" "}
+                You are exploring the{" "}
                 <Box
                   as="span"
                   bg="blue.600"
@@ -191,12 +226,13 @@ export default function DiscoveryPage() {
                 <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
                   <VStack align="stretch" mb={8}>
                     <Heading size="lg" color="#282F68">
-                      Discover {targetUserType === "student" ? "Students" : "Partners"}
+                      Discover{" "}
+                      {targetUserType === "student" ? "Students" : "Partners"}
                     </Heading>
                     <Text color="gray.600">
                       Search and filter{" "}
-                      {targetUserType === "student" ? "students" : "partners"} based on
-                      your criteria
+                      {targetUserType === "student" ? "students" : "partners"}{" "}
+                      based on your criteria
                     </Text>
                   </VStack>
 
@@ -228,12 +264,12 @@ export default function DiscoveryPage() {
                     pageSize={pageSize}
                     onPageChange={handlePageChange}
                     onPageSizeChange={handlePageSizeChange}
-                    opportunityId={currentOpportunityId}
+                    opportunityId={opportunityId}
                   />
                 </Box>
               ) : (
                 // Not enrolled user - show enrollment interface
-                <Box maxW="600px" mx="auto" w="100%" overflow="hidden">
+                <Box maxW="800px" mx="auto" w="100%" overflow="hidden">
                   <Flex
                     direction={{ base: "column", md: "row" }}
                     align="center"
@@ -247,17 +283,16 @@ export default function DiscoveryPage() {
                         alt="Discover"
                         width={400}
                         height={300}
-                        style={{ height: "auto", width: "100%", maxWidth: "200px" }}
+                        style={{
+                          height: "auto",
+                          width: "100%",
+                          maxWidth: "300px",
+                        }}
                       />
                     </Box>
 
                     {/* Text and button */}
-                    <VStack
-                      align="flex-start"
-                      gap={6}
-                      maxW="560px"
-                      w="100%"
-                    >
+                    <VStack align="flex-start" gap={6} maxW="500px" w="100%">
                       {/* Opportunity description */}
                       {opportunity.description && (
                         <Text fontSize="lg" color="gray.600">
@@ -268,9 +303,10 @@ export default function DiscoveryPage() {
                       {/* Default description (if no opportunity description) */}
                       {!opportunity.description && (
                         <Text fontSize="lg" color="gray.600">
-                          Ready to connect with industry partners seeking university talent?
-                          Join the Opportunity to access part-time, casual, and
-                          graduate roles within your university community.
+                          Ready to connect with industry partners seeking
+                          university talent? Join the Opportunity to access
+                          part-time, casual, and graduate roles within your
+                          university community.
                         </Text>
                       )}
 
@@ -278,12 +314,18 @@ export default function DiscoveryPage() {
                       <VStack align="flex-start" gap={2} w="100%">
                         {opportunity.start_date && (
                           <Text fontSize="sm" color="gray.500">
-                            <strong>Start Date:</strong> {new Date(opportunity.start_date).toLocaleDateString()}
+                            <strong>Start Date:</strong>{" "}
+                            {new Date(
+                              opportunity.start_date
+                            ).toLocaleDateString()}
                           </Text>
                         )}
                         {opportunity.end_date && (
                           <Text fontSize="sm" color="gray.500">
-                            <strong>End Date:</strong> {new Date(opportunity.end_date).toLocaleDateString()}
+                            <strong>End Date:</strong>{" "}
+                            {new Date(
+                              opportunity.end_date
+                            ).toLocaleDateString()}
                           </Text>
                         )}
                       </VStack>
@@ -298,8 +340,7 @@ export default function DiscoveryPage() {
                         borderRadius="xl"
                         h="36px"
                         w={{ base: "full", md: "120px" }}
-                        onClick={() => {
-                        }}
+                        onClick={() => {}}
                       >
                         Enroll
                       </Button>
@@ -318,7 +359,14 @@ export default function DiscoveryPage() {
   return (
     <>
       <PageTitle title={PAGE_TITLES.DISCOVER} />
-      <Box p={{ base: 4, md: 6 }} maxW="1280px" mx="auto" mt={{ base: "80px", lg: "126px" }} w="100%" overflow="hidden">
+      <Box
+        p={{ base: 4, md: 6 }}
+        maxW="1280px"
+        mx="auto"
+        mt={{ base: "80px", lg: "126px" }}
+        w="100%"
+        overflow="hidden"
+      >
         {/* Loading state while checking opportunities */}
         {isOpportunitiesLoading ? (
           <Flex justify="center" align="center" minH="400px">
@@ -343,7 +391,9 @@ export default function DiscoveryPage() {
                   You haven&apos;t added any opportunities yet.
                 </Heading>
                 <Text color="gray.600" fontSize="lg" maxW="500px">
-                  Please accept an opportunity invitation first, and then you&apos;ll be able to start discovering and connecting with other users.
+                  Please accept an opportunity invitation first, and then
+                  you&apos;ll be able to start discovering and connecting with
+                  other users.
                 </Text>
               </VStack>
             </VStack>
