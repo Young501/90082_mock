@@ -213,77 +213,52 @@ const Profile = () => {
   }, [profileData, reset, activeTab, userType]);
 
   const tabs: Tab[] = useMemo(() => {
-    // For users who have completed onboarding but have no pages, show basic tabs
-    if (!pages.length && !isCoordinator) {
-      const basicTabs: Tab[] = [];
-      if (userProfile || fetchedUserProfile) {
-        basicTabs.push({
-          title: "Profile Preview",
-          icon: "fa-solid fa-eye",
-        });
-      }
-      // Only add My Opportunities for non-coordinator users
-      if (!isCoordinator) {
-        basicTabs.push({
-          title: "My Opportunities",
-          icon: "fa-solid fa-folder-closed",
-        });
-      }
-      basicTabs.push({
-        title: "Change Password",
-        icon: "fa-solid fa-key",
-      });
-      return basicTabs;
-    }
+    const allTabs: Tab[] = [];
 
-    const onboardingTabs: Tab[] = [];
-    let myOpportunitiesInserted = false;
+    // Debug logging for pages
+    console.log(pages);
 
-    // Add onboarding pages and insert My Opportunities after "My degree" or similar education-related page
+    // Add onboarding pages and insert My Opportunities after education-related pages
     pages.forEach((page: OnboardingPage) => {
-      onboardingTabs.push({
+      allTabs.push({
         title: page.short_title || page.title,
         icon: page.title_icon,
       });
 
       // Insert My Opportunities after education/degree related pages (only for non-coordinators)
-      if (!myOpportunitiesInserted && !isCoordinator && (
-        page.title?.toLowerCase().includes('degree') ||
-        page.title?.toLowerCase().includes('education') ||
-        page.title?.toLowerCase().includes('academic') ||
-        page.short_title?.toLowerCase().includes('degree') ||
-        page.short_title?.toLowerCase().includes('education') ||
-        page.short_title?.toLowerCase().includes('academic')
-      )) {
-        onboardingTabs.push({
+      // Use match() method for more robust checking
+      if (!isCoordinator && page.short_title?.toLowerCase().match("degree information")) {
+        allTabs.push({
           title: "My Opportunities",
           icon: "fa-solid fa-folder-closed",
         });
-        myOpportunitiesInserted = true;
       }
     });
 
-    // If My Opportunities wasn't inserted after any specific page, insert it after all onboarding pages (only for non-coordinators)
-    if (!myOpportunitiesInserted && !isCoordinator) {
-      onboardingTabs.push({
+    // Add My Opportunities after all onboarding pages if not already inserted (only for non-coordinators)
+    if (!isCoordinator) {
+      allTabs.push({
         title: "My Opportunities",
         icon: "fa-solid fa-folder-closed",
       });
     }
 
+    // Add Profile Preview for non-coordinators
     if (!isCoordinator) {
-      onboardingTabs.push({
+      allTabs.push({
         title: "Profile Preview",
         icon: "fa-solid fa-eye",
       });
     }
-    onboardingTabs.push({
+
+    // Add Change Password for all users
+    allTabs.push({
       title: "Change Password",
       icon: "fa-solid fa-key",
     });
 
-    return onboardingTabs;
-  }, [pages, isCoordinator, userProfile, fetchedUserProfile]);
+    return allTabs;
+  }, [pages, isCoordinator]);
 
   const calculateProfileCompletion = (): number => {
     if (!userProfile) return 0;
