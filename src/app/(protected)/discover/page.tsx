@@ -29,10 +29,9 @@ import {
   useOpportunityDetail,
   useAccessibleOpportunities,
 } from "@/services/shared";
-import { Opportunity } from "@/types/invite";
+import { Opportunity } from "@/types/opportunities";
 import { useAuthStore } from "@/store";
-import Footer from "@/components/Layouts/Footer";
-import { toast } from "react-toastify";
+import { toaster } from "@/components/ui/toaster";
 import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 
 export default function DiscoveryPage() {
@@ -170,7 +169,12 @@ export default function DiscoveryPage() {
       );
       
       if (!isEligible) {
-        toast.warn("This opportunity is not available for your university.");
+        toaster.create({
+          title: "This opportunity is not available for your university.",
+          type: "warning",
+          duration: 6000,
+          meta: { closable: true },
+        });
         return;
       }
     }
@@ -179,8 +183,8 @@ export default function DiscoveryPage() {
     if (opportunityId) {
       router.push(`/opportunities/start?id=${opportunityId}`);
     }
-}, [userType, user?.email, opportunity?.allowed_student_email_domains, opportunityId, router]);
-    
+  }, [userType, user?.email, opportunity?.allowed_student_email_domains, opportunityId, router]);
+
   // If opportunity id parameter is provided, show opportunity-specific content
   if (opportunityId) {
     return (

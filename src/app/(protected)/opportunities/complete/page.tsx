@@ -44,7 +44,7 @@ export default function OpportunityCompletePage() {
     error,
   } = useOpportunityDetail(opportunityId);
 
-  // Clear saved answers and invalidate cache when component mounts (application completed)
+  // Clear saved answers and invalidate cache when component mounts (enrollment completed)
   useEffect(() => {
     clearAnswers();
     
@@ -55,9 +55,9 @@ export default function OpportunityCompletePage() {
     
     // Invalidate accessible opportunities to update enrollment status
     queryClient.invalidateQueries({
-      queryKey: ["accessible-opportunities"],
+      queryKey: ["accessible-opportunities", user?.id],
     });
-  }, [clearAnswers, queryClient, opportunityId]);
+  }, [clearAnswers, queryClient, opportunityId, user?.id]);
 
   const handleBackToOpportunity = () => {
     router.push(`/discover?id=${opportunityId}`);
@@ -196,7 +196,7 @@ export default function OpportunityCompletePage() {
             </Heading>
             <Text fontSize="sm" color="blue.800">
               While you wait for a response, consider updating your profile with more skills, 
-              experiences, or certifications to improve your chances in future applications.
+              experiences, or certifications to improve your chances in future opportunities.
             </Text>
           </VStack>
         </Box>

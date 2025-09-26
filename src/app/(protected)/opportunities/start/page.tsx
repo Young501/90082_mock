@@ -133,7 +133,7 @@ export default function OpportunityStartPage() {
             color="gray.900"
             mb={4}
           >
-            Employment Opportunity Application
+            Employment Opportunity Enrollment
           </Heading>
           <Text
             fontSize={{ base: "md", md: "lg" }}
@@ -141,7 +141,7 @@ export default function OpportunityStartPage() {
             maxW="600px"
             mx="auto"
           >
-            Complete the questionnaire below to apply for this employment opportunity. 
+            Complete the questionnaire below to enroll in this employment opportunity. 
             Your responses will help us match you with the most suitable roles.
           </Text>
         </Box>

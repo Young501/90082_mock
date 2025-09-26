@@ -20,7 +20,7 @@ import {
 } from "@/services/shared";
 import {
   useUpdateOpportunityParticipant,
-  useReEnrollOpportunity,
+  useEnrollInOpportunity,
   useCancelOpportunityEnrollment,
 } from "@/services/updateParticipant";
 import { useQueryClient } from "@tanstack/react-query";
@@ -96,7 +96,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   const updateParticipantMutation = useUpdateOpportunityParticipant();
 
   // Re-enroll mutation
-  const reEnrollMutation = useReEnrollOpportunity();
+  const reEnrollMutation = useEnrollInOpportunity();
 
   // Cancel enrollment mutation
   const cancelEnrollmentMutation = useCancelOpportunityEnrollment();

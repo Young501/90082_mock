@@ -160,7 +160,7 @@ export default function OpportunityFillPage() {
             color="gray.900"
             mb={2}
           >
-            Employment Application
+            Employment Enrollment
           </Heading>
           <Text
             fontSize="md"

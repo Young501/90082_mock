@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import { useAuthStore } from "@/store";
 
@@ -25,9 +25,10 @@ export function useUpdateOpportunityParticipant() {
   });
 }
 
-// UC-310: Re-enroll in an opportunity
-export function useReEnrollOpportunity() {
+// UC-310: Enroll in an opportunity (renamed from useReEnrollOpportunity)
+export function useEnrollInOpportunity() {
   const { user } = useAuthStore();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({
@@ -46,6 +47,12 @@ export function useReEnrollOpportunity() {
         }
       });
       return response;
+    },
+    onSuccess: () => {
+      // Invalidate accessible opportunities query to refresh MyOpportunities
+      queryClient.invalidateQueries({ queryKey: ["accessible-opportunities", user?.id] });
+      // Also invalidate opportunity participant query
+      queryClient.invalidateQueries({ queryKey: ["opportunity-participant"] });
     }
   });
 }

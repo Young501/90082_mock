@@ -394,17 +394,7 @@ export function useCoordinatorViewUserProfile(
 }
 
 export function useOpportunityDetail(opportunityId: string) {
-  return useQuery({
-    queryKey: ["opportunity-detail", opportunityId],
-    queryFn: () =>
-      apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITY_DETAIL(opportunityId) }),
-    enabled: !!opportunityId,
-    staleTime: 5 * 60 * 1000,
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 404) {
-
-export function useOpportunityDetail(opportunityId: string) {
-  return useQuery({
+  return useQuery<Opportunity>({
     queryKey: ["opportunity-detail", opportunityId],
     queryFn: () =>
       apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITY_DETAIL(opportunityId) }),
@@ -419,24 +409,44 @@ export function useOpportunityDetail(opportunityId: string) {
   });
 }
 
-export function useEnrollInOpportunity() {
-  return useMutation({
-    mutationFn: async (data: {
-      opportunityId: string;
-      data: {
-        email: string;
-        user_type: string;
-        questionnaire_answers: Record<string, any>;
-      };
-    }) => {
-      return apiRequest({
-        endpoint: API_ENDPOINTS.OPPORTUNITY_ENROLLMENT(data.opportunityId),
-        body: {
-          email: data.data.email,
-          user_type: data.data.user_type,
-          questionnaire_answers: data.data.questionnaire_answers,
-        },
-      });
-    },
+// Get participant record for a specific opportunity
+export function useOpportunityParticipant(opportunityId: string | number, enabled?: boolean) {
+  return useQuery({
+    queryKey: ["opportunity-participant", opportunityId],
+    queryFn: () =>
+      apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(Number(opportunityId)) }),
+    enabled: enabled !== undefined ? enabled && !!opportunityId : !!opportunityId,
+    staleTime: 5 * 60 * 1000,
   });
+}
+
+// Utility function to categorize opportunities
+export function categorizeOpportunities(opportunities: (Opportunity | AccessibleOpportunity)[]) {
+  const enrolled: (Opportunity | AccessibleOpportunity)[] = [];
+  const closed: (Opportunity | AccessibleOpportunity)[] = [];
+
+  opportunities.forEach((opportunity) => {
+    let isEnrolled = false;
+    
+    // Check if it's an AccessibleOpportunity with status field
+    if ('status' in opportunity) {
+      isEnrolled = opportunity.status === "Enrolled";
+    }
+    // Check if it's an Opportunity with participant_record
+    else if ('participant_record' in opportunity && opportunity.participant_record) {
+      isEnrolled = opportunity.participant_record.status === "Enrolled";
+    }
+    // Fallback to is_enrolled field
+    else if (opportunity.is_enrolled === true) {
+      isEnrolled = true;
+    }
+    
+    if (isEnrolled) {
+      enrolled.push(opportunity);
+    } else {
+      closed.push(opportunity);
+    }
+  });
+
+  return { enrolled, closed };
 }

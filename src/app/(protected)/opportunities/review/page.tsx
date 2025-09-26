@@ -16,7 +16,8 @@ import {
 } from "@chakra-ui/react";
 import ProgressTrack from "@/components/ProgressTrack";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useOpportunityDetail, useEnrollInOpportunity } from "@/services/shared";
+import { useOpportunityDetail } from "@/services/shared";
+import { useEnrollInOpportunity } from "@/services/updateParticipant";
 
 import { useAuthStore } from "@/store";
 import { PageTitle } from "@/components/PageTitle";
@@ -76,11 +77,7 @@ export default function OpportunityReviewPage() {
     try {
       await enrollMutation.mutateAsync({
         opportunityId,
-        data: {
-          email: user.email,
-          user_type: userType,
-          questionnaire_answers: answers,
-        },
+        questionnaireAnswers: answers,
       });
 
       // Navigate to success page (complete page will handle clearing answers)
@@ -225,7 +222,7 @@ export default function OpportunityReviewPage() {
             color="gray.900"
             mb={2}
           >
-            Review Your Application
+            Review Your Enrollment
           </Heading>
           <Text
             fontSize="md"
@@ -333,13 +330,13 @@ export default function OpportunityReviewPage() {
             loading={enrollMutation.isPending}
             disabled={enrollMutation.isPending}
           >
-            Submit Application
+            Complete Enrollment
           </Button>
         </HStack>
 
         {/* Instructions */}
         <Text fontSize="xs" color="gray.500" textAlign="center">
-          By submitting this application, you agree to share your information with the opportunity coordinator.
+          By completing enrollment, you agree to share your information with the opportunity coordinator.
         </Text>
       </VStack>
     </Box>

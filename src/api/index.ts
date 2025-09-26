@@ -255,11 +255,6 @@ export const API_ENDPOINTS = {
     method: "DELETE",
     url: `/api/v2/opportunities/${opportunity_id}/participant/`,
   }),
-  // UC-XXX: Enroll in opportunity
-  OPPORTUNITY_ENROLLMENT: (opportunityId: string): ApiEndpoint => ({
-    method: "POST",
-    url: `/api/v2/opportunities/${opportunityId}/participant/`,
-  }),
   CONTACT_USER: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/contact/`,
