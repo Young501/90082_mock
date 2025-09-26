@@ -11,6 +11,7 @@ import {
   Alert,
   Skeleton,
   SkeletonText,
+  Dialog,
 } from "@chakra-ui/react";
 import {
   useAccessibleOpportunities,
@@ -77,6 +78,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     {}
   );
   const [isCancelled, setIsCancelled] = useState(false);
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
@@ -210,14 +212,12 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     }
   };
 
-  const handleCancelEnrollment = async () => {
-    // Show confirmation dialog before canceling enrollment
-    const confirmed = window.confirm("Please confirm your cancellation.");
+  const handleCancelEnrollment = () => {
+    // Open confirmation dialog
+    setIsCancelDialogOpen(true);
+  };
 
-    if (!confirmed) {
-      return; // User cancelled the action
-    }
-
+  const confirmCancelEnrollment = async () => {
     try {
       await cancelEnrollmentMutation.mutateAsync({
         opportunityId: opportunity.id,
@@ -231,6 +231,9 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
       // Close expanded view after successful cancellation
       setIsExpanded(false);
       setIsEditMode(false);
+
+      // Close dialog
+      setIsCancelDialogOpen(false);
 
       // Invalidate caches to trigger UI updates
       queryClient.invalidateQueries({
@@ -303,253 +306,310 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   };
 
   return (
-    <Box
-      borderRadius="12px"
-      bg="white"
-      border="1px solid #E2E8F0"
-      boxShadow="0 1px 3px rgba(0,0,0,0.1)"
-      overflow="hidden"
-      w="100%"
-      maxW="100%"
-    >
-      {/* Main card content */}
+    <>
       <Box
-        p={4}
-        _hover={{
-          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-          transform: "translateY(-2px)",
-        }}
-        transition="all 0.2s ease"
+        borderRadius="12px"
+        bg="white"
+        border="1px solid #E2E8F0"
+        boxShadow="0 1px 3px rgba(0,0,0,0.1)"
+        overflow="hidden"
+        w="100%"
+        maxW="100%"
       >
-        <Flex justify="space-between" align="start" gap={4}>
-          <Box flex={1} minW={0}>
-            <Text
-              fontSize="18px"
-              fontWeight="600"
-              color="#1F2937"
-              mb={2}
-              wordBreak="break-word"
-            >
-              {opportunity.title}
-            </Text>
-            <Text fontSize="14px" color="#6B7280" mb={3} wordBreak="break-word">
-              {opportunity.description}
-            </Text>
-            <HStack gap={4} fontSize="12px" color="#9CA3AF" flexWrap="wrap">
-              <Text>
-                Start: {new Date(opportunity.start_date).toLocaleDateString()}
+        {/* Main card content */}
+        <Box
+          p={4}
+          _hover={{
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            transform: "translateY(-2px)",
+          }}
+          transition="all 0.2s ease"
+        >
+          <Flex justify="space-between" align="start" gap={4}>
+            <Box flex={1} minW={0}>
+              <Text
+                fontSize="18px"
+                fontWeight="600"
+                color="#1F2937"
+                mb={2}
+                wordBreak="break-word"
+              >
+                {opportunity.title}
               </Text>
-              <Text>
-                End: {new Date(opportunity.end_date).toLocaleDateString()}
+              <Text
+                fontSize="14px"
+                color="#6B7280"
+                mb={3}
+                wordBreak="break-word"
+              >
+                {opportunity.description}
               </Text>
-            </HStack>
-          </Box>
-          <Box flexShrink={0}>
-            <Button
-              size="sm"
-              variant="outline"
-              colorScheme={userType === "student" ? "red" : "green"}
-              onClick={handleExpand}
-              minW="fit-content"
-            >
-              {isExpanded
-                ? "Collapse"
-                : type === "enrolled"
-                  ? "View Details"
-                  : "View Details"}
-            </Button>
-          </Box>
-        </Flex>
-      </Box>
+              <HStack gap={4} fontSize="12px" color="#9CA3AF" flexWrap="wrap">
+                <Text>
+                  Start: {new Date(opportunity.start_date).toLocaleDateString()}
+                </Text>
+                <Text>
+                  End: {new Date(opportunity.end_date).toLocaleDateString()}
+                </Text>
+              </HStack>
+            </Box>
+            <Box flexShrink={0}>
+              <Button
+                size="sm"
+                variant="outline"
+                colorScheme={userType === "student" ? "red" : "green"}
+                onClick={handleExpand}
+                minW="fit-content"
+              >
+                {isExpanded
+                  ? "Collapse"
+                  : type === "enrolled"
+                    ? "View Details"
+                    : "View Details"}
+              </Button>
+            </Box>
+          </Flex>
+        </Box>
 
-      {/* Expanded content */}
-      {isExpanded && (
-        <Box borderTop="1px solid #E2E8F0" bg="#F8F9FA" p={4}>
-          {type === "closed" ? (
-            // For cancelled opportunities, show re-enroll option directly
-            <VStack gap={4} align="stretch">
-              <Alert.Root status="info" mb={4}>
-                <Alert.Indicator />
-                <Alert.Title>
-                  You are not currently enrolled in this opportunity
-                </Alert.Title>
-              </Alert.Root>
-
-              {/* Re-enroll button - no questionnaire required */}
-              <Box>
-                <Button
-                  size="md"
-                  colorScheme={userType === "student" ? "red" : "green"}
-                  onClick={handleReEnroll}
-                  loading={reEnrollMutation.isPending}
-                  w="full"
-                >
-                  Re-enroll in Opportunity
-                </Button>
-              </Box>
-            </VStack>
-          ) : isParticipantLoading ? (
-            <VStack gap={4}>
-              <Spinner
-                size="md"
-                color={userType === "student" ? "#DC2626" : "#089C3F"}
-              />
-              <Text fontSize="14px" color="#6B7280">
-                Loading participant details...
-              </Text>
-            </VStack>
-          ) : participantError ? (
-            <VStack gap={4} align="stretch">
-              {/* Show error message for enrolled opportunities */}
-              {type === "enrolled" && (
-                <Alert.Root status="warning">
+        {/* Expanded content */}
+        {isExpanded && (
+          <Box borderTop="1px solid #E2E8F0" bg="#F8F9FA" p={4}>
+            {type === "closed" ? (
+              // For cancelled opportunities, show re-enroll option directly
+              <VStack gap={4} align="stretch">
+                <Alert.Root status="info" mb={4}>
                   <Alert.Indicator />
-                  <Alert.Title>Unable to load participant details</Alert.Title>
+                  <Alert.Title>
+                    You are not currently enrolled in this opportunity
+                  </Alert.Title>
                 </Alert.Root>
-              )}
-            </VStack>
-          ) : (
-            <VStack gap={4} align="stretch">
-              {/* Participant info */}
-              {participantRecord && (
-                <Box>
-                  <HStack justify="space-between" mb={3}>
-                    <Text fontSize="16px" fontWeight="600" color="#1F2937">
-                      Participant Information
-                    </Text>
-                    {type === "enrolled" && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        colorScheme={userType === "student" ? "red" : "green"}
-                        onClick={handleEdit}
-                      >
-                        {isEditMode ? "Cancel" : "Edit"}
-                      </Button>
-                    )}
-                  </HStack>
 
-                  <HStack gap={4} fontSize="14px" color="#6B7280" mb={4}>
-                    <Text>
-                      Status:{" "}
-                      <Text as="span" fontWeight="600" color="#1F2937">
-                        {participantRecord.accepted ? "Accepted" : "Pending"}
-                      </Text>
-                    </Text>
-                    <Text>
-                      Type:{" "}
-                      <Text as="span" fontWeight="600" color="#1F2937">
-                        {participantRecord.type || "Unknown"}
-                      </Text>
-                    </Text>
-                    <Text>
-                      Email:{" "}
-                      <Text as="span" fontWeight="600" color="#1F2937">
-                        {participantRecord.email || "Unknown"}
-                      </Text>
-                    </Text>
-                  </HStack>
-                </Box>
-              )}
-
-              {/* Questionnaire - only show if questionnaire exists and user is not organization */}
-              {hasQuestionnaire && userType !== "organisation" && (
-                <Box>
-                  <Text fontSize="16px" fontWeight="600" color="#1F2937" mb={3}>
-                    Questionnaire Answers
-                  </Text>
-
-                  {isEditMode ? (
-                    <form onSubmit={handleSubmit(handleSave)}>
-                      <VStack gap={4} align="stretch">
-                        {questionnaire.map((question: Question) => (
-                          <FieldRenderer
-                            key={question.field}
-                            question={question}
-                            register={register}
-                            control={control}
-                            errors={errors}
-                          />
-                        ))}
-                        <HStack gap={2} justify="flex-end">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setIsEditMode(false)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            size="sm"
-                            type="submit"
-                            colorScheme={
-                              userType === "student" ? "red" : "green"
-                            }
-                            loading={updateParticipantMutation.isPending}
-                          >
-                            Save Changes
-                          </Button>
-                        </HStack>
-                      </VStack>
-                    </form>
-                  ) : (
-                    <VStack gap={3} align="stretch">
-                      {questionnaire.map((question: Question) => {
-                        const answer =
-                          participantRecord?.data?.questionnaire_answers?.[
-                            question.field
-                          ];
-                        return (
-                          <Box
-                            key={question.field}
-                            p={3}
-                            bg="white"
-                            borderRadius="8px"
-                            border="1px solid #E2E8F0"
-                          >
-                            <Text
-                              fontSize="14px"
-                              fontWeight="600"
-                              color="#374151"
-                              mb={1}
-                            >
-                              {question.label}
-                            </Text>
-                            <Text fontSize="14px" color="#6B7280">
-                              {answer !== undefined && answer !== null
-                                ? Array.isArray(answer)
-                                  ? answer.join(", ")
-                                  : String(answer)
-                                : "No answer provided"}
-                            </Text>
-                          </Box>
-                        );
-                      })}
-                    </VStack>
-                  )}
-                </Box>
-              )}
-
-              {/* Cancel enrollment button for enrolled opportunities */}
-              {type === "enrolled" && (
+                {/* Re-enroll button - no questionnaire required */}
                 <Box>
                   <Button
                     size="md"
-                    variant="outline"
-                    colorScheme="red"
-                    onClick={handleCancelEnrollment}
-                    loading={cancelEnrollmentMutation.isPending}
+                    colorScheme={userType === "student" ? "red" : "green"}
+                    onClick={handleReEnroll}
+                    loading={reEnrollMutation.isPending}
                     w="full"
                   >
-                    Cancel Enrollment
+                    Re-enroll in Opportunity
                   </Button>
                 </Box>
-              )}
-            </VStack>
-          )}
-        </Box>
-      )}
-    </Box>
+              </VStack>
+            ) : isParticipantLoading ? (
+              <VStack gap={4}>
+                <Spinner
+                  size="md"
+                  color={userType === "student" ? "#DC2626" : "#089C3F"}
+                />
+                <Text fontSize="14px" color="#6B7280">
+                  Loading participant details...
+                </Text>
+              </VStack>
+            ) : participantError ? (
+              <VStack gap={4} align="stretch">
+                {/* Show error message for enrolled opportunities */}
+                {type === "enrolled" && (
+                  <Alert.Root status="warning">
+                    <Alert.Indicator />
+                    <Alert.Title>
+                      Unable to load participant details
+                    </Alert.Title>
+                  </Alert.Root>
+                )}
+              </VStack>
+            ) : (
+              <VStack gap={4} align="stretch">
+                {/* Participant info */}
+                {participantRecord && (
+                  <Box>
+                    <HStack justify="space-between" mb={3}>
+                      <Text fontSize="16px" fontWeight="600" color="#1F2937">
+                        Participant Information
+                      </Text>
+                      {type === "enrolled" && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          colorScheme={userType === "student" ? "red" : "green"}
+                          onClick={handleEdit}
+                        >
+                          {isEditMode ? "Cancel" : "Edit"}
+                        </Button>
+                      )}
+                    </HStack>
+
+                    <HStack gap={4} fontSize="14px" color="#6B7280" mb={4}>
+                      <Text>
+                        Status:{" "}
+                        <Text as="span" fontWeight="600" color="#1F2937">
+                          {participantRecord.accepted ? "Accepted" : "Pending"}
+                        </Text>
+                      </Text>
+                      <Text>
+                        Type:{" "}
+                        <Text as="span" fontWeight="600" color="#1F2937">
+                          {participantRecord.type || "Unknown"}
+                        </Text>
+                      </Text>
+                      <Text>
+                        Email:{" "}
+                        <Text as="span" fontWeight="600" color="#1F2937">
+                          {participantRecord.email || "Unknown"}
+                        </Text>
+                      </Text>
+                    </HStack>
+                  </Box>
+                )}
+
+                {/* Questionnaire - only show if questionnaire exists and user is not organization */}
+                {hasQuestionnaire && userType !== "organisation" && (
+                  <Box>
+                    <Text
+                      fontSize="16px"
+                      fontWeight="600"
+                      color="#1F2937"
+                      mb={3}
+                    >
+                      Questionnaire Answers
+                    </Text>
+
+                    {isEditMode ? (
+                      <form onSubmit={handleSubmit(handleSave)}>
+                        <VStack gap={4} align="stretch">
+                          {questionnaire.map((question: Question) => (
+                            <FieldRenderer
+                              key={question.field}
+                              question={question}
+                              register={register}
+                              control={control}
+                              errors={errors}
+                            />
+                          ))}
+                          <HStack gap={2} justify="flex-end">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setIsEditMode(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              size="sm"
+                              type="submit"
+                              colorScheme={
+                                userType === "student" ? "red" : "green"
+                              }
+                              loading={updateParticipantMutation.isPending}
+                            >
+                              Save Changes
+                            </Button>
+                          </HStack>
+                        </VStack>
+                      </form>
+                    ) : (
+                      <VStack gap={3} align="stretch">
+                        {questionnaire.map((question: Question) => {
+                          const answer =
+                            participantRecord?.data?.questionnaire_answers?.[
+                              question.field
+                            ];
+                          return (
+                            <Box
+                              key={question.field}
+                              p={3}
+                              bg="white"
+                              borderRadius="8px"
+                              border="1px solid #E2E8F0"
+                            >
+                              <Text
+                                fontSize="14px"
+                                fontWeight="600"
+                                color="#374151"
+                                mb={1}
+                              >
+                                {question.label}
+                              </Text>
+                              <Text fontSize="14px" color="#6B7280">
+                                {answer !== undefined && answer !== null
+                                  ? Array.isArray(answer)
+                                    ? answer.join(", ")
+                                    : String(answer)
+                                  : "No answer provided"}
+                              </Text>
+                            </Box>
+                          );
+                        })}
+                      </VStack>
+                    )}
+                  </Box>
+                )}
+
+                {/* Cancel enrollment button for enrolled opportunities */}
+                {type === "enrolled" && (
+                  <Box>
+                    <Button
+                      size="md"
+                      variant="outline"
+                      colorScheme="red"
+                      onClick={handleCancelEnrollment}
+                      loading={cancelEnrollmentMutation.isPending}
+                      w="full"
+                    >
+                      Cancel Enrollment
+                    </Button>
+                  </Box>
+                )}
+              </VStack>
+            )}
+          </Box>
+        )}
+      </Box>
+
+      {/* Cancel Enrollment Confirmation Dialog */}
+      <Dialog.Root
+        open={isCancelDialogOpen}
+        onOpenChange={(details) => setIsCancelDialogOpen(details.open)}
+      >
+        <Dialog.Positioner zIndex={9999}>
+          <Dialog.Content maxW="400px" zIndex={10000}>
+            <Dialog.Header>
+              <Dialog.Title fontSize="lg" fontWeight="bold">
+                Cancel Enrolment
+              </Dialog.Title>
+            </Dialog.Header>
+            <Dialog.Body>
+              <Text fontSize="md">
+                Do you really want to cancel your enrolment?
+              </Text>
+            </Dialog.Body>
+            <Dialog.Footer>
+              <HStack gap={3} w="full">
+                <Button
+                  bg="red.500"
+                  color="white"
+                  _hover={{ bg: "red.600" }}
+                  onClick={confirmCancelEnrollment}
+                  loading={cancelEnrollmentMutation.isPending}
+                  flex={1}
+                >
+                  Confirm
+                </Button>
+                <Button
+                  variant="outline"
+                  colorScheme="gray"
+                  onClick={() => setIsCancelDialogOpen(false)}
+                  flex={1}
+                >
+                  Go Back
+                </Button>
+              </HStack>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Dialog.Root>
+    </>
   );
 };
 
