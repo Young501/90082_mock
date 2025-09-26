@@ -23,6 +23,7 @@ export default function OpportunityFillPage() {
   const sp = useSearchParams();
   const router = useRouter();
   const opportunityId = sp.get("id");
+  const editField = sp.get("edit");
   const { user } = useAuthStore();
 
   const [hasValidationError, setHasValidationError] = useState(false);
@@ -53,6 +54,26 @@ export default function OpportunityFillPage() {
       setHasValidationError(false);
     }
   }, [updateAnswers, hasValidationError]);
+
+  // Handle scrolling to specific field when edit parameter is present
+  useEffect(() => {
+    if (editField && questions.length > 0) {
+      // Small delay to ensure the form is rendered
+      setTimeout(() => {
+        const fieldElement = document.querySelector(`[name="${editField}"]`);
+        if (fieldElement) {
+          fieldElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+          // Focus the field if it's focusable
+          if (fieldElement instanceof HTMLElement && fieldElement.focus) {
+            fieldElement.focus();
+          }
+        }
+      }, 100);
+    }
+  }, [editField, questions]);
 
   const handleBack = () => {
     router.push(`/opportunities/start?id=${opportunityId}`);
