@@ -11,10 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- When enroled is pressed, we check user domain and see if it fits within the allowed domain of the opporutnity. If it doesn't then we display a warning popup and we do not allow the user to enrol.
+
 - **Discover dropdown navigation**
 
   - Discover dropdown feature with responsive design, enrollment-status badges, and new useAccessibleOpportunities hook using the /api/v2/opportunities/all/ endpoint.
-
 
 ### Changed
 
