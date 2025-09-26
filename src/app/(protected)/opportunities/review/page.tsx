@@ -17,6 +17,7 @@ import {
 import ProgressTrack from "@/components/ProgressTrack";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useOpportunityDetail, useEnrollInOpportunity } from "@/services/shared";
+
 import { useAuthStore } from "@/store";
 import { PageTitle } from "@/components/PageTitle";
 import Footer from "@/components/Layouts/Footer";
@@ -26,6 +27,7 @@ import { toast } from "react-toastify";
 import { Question } from "@/types/onboarding";
 import { useQuestionnaireAnswers } from "@/hooks/useQuestionnaireAnswers";
 import { getErrorStatus, getEnrollmentErrorMessage } from "@/utils/apiErrorHandling";
+import { parseQuestionnaireOptions } from "@/utils/questionnaireParser";
 
 export default function OpportunityReviewPage() {
   const sp = useSearchParams();
@@ -98,13 +100,46 @@ export default function OpportunityReviewPage() {
     }
   };
 
-  const formatAnswerValue = (value: any): string => {
+  const formatAnswerValue = (value: any, question: Question): string => {
     if (Array.isArray(value)) {
-      return value.join(", ");
+      // For multi-select values, convert each slug to its label
+      if (question.options || question.option) {
+        const rawOptions = question.options || question.option || [];
+        const processedOptions = parseQuestionnaireOptions(rawOptions).map(
+          (opt) => ({
+            label: opt.label || opt.value,
+            value: opt.value,
+          })
+        );
+        
+        return value.map((val: string) => {
+          const option = processedOptions.find(opt => opt.value === val);
+          return option ? option.label : val;
+        }).join(", ");
+      } else {
+        return value.join(", ");
+      }
     }
     if (typeof value === "boolean") {
       return value ? "Yes" : "No";
     }
+    
+    // For single-select values, convert slug to label
+    if (question.options || question.option) {
+      const rawOptions = question.options || question.option || [];
+      const processedOptions = parseQuestionnaireOptions(rawOptions).map(
+        (opt) => ({
+          label: opt.label || opt.value,
+          value: opt.value,
+        })
+      );
+      
+      const option = processedOptions.find(opt => opt.value === value);
+      if (option) {
+        return option.label;
+      }
+    }
+    
     return String(value || "Not specified");
   };
 
@@ -262,7 +297,7 @@ export default function OpportunityReviewPage() {
                         color={hasAnswer ? "gray.700" : "gray.500"}
                         fontStyle={hasAnswer ? "normal" : "italic"}
                       >
-                        {hasAnswer ? formatAnswerValue(answer) : "Not answered"}
+                        {hasAnswer ? formatAnswerValue(answer, question) : "Not answered"}
                       </Text>
                     </Box>
                     <Button

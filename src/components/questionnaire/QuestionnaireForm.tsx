@@ -79,6 +79,7 @@ export const QuestionnaireForm = forwardRef<
     getValues,
     clearErrors,
     unregister,
+    reset,
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues,
@@ -88,6 +89,13 @@ export const QuestionnaireForm = forwardRef<
   const watchedValues = watch();
   const previousValuesRef = useRef<string>("");
   const isInitialRender = useRef(true);
+
+  // Reset form when initialValues change (e.g., when navigating back from review with saved answers)
+  useEffect(() => {
+    if (Object.keys(initialValues).length > 0) {
+      reset(defaultValues);
+    }
+  }, [initialValues, defaultValues, reset]);
 
   useEffect(() => {
     const currentValuesString = JSON.stringify(watchedValues);
