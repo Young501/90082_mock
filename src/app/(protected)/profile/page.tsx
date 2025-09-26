@@ -214,6 +214,7 @@ const Profile = () => {
 
   const tabs: Tab[] = useMemo(() => {
     const allTabs: Tab[] = [];
+    let myOpportunitiesInserted = false;
 
     // Debug logging for pages
     console.log(pages);
@@ -227,16 +228,17 @@ const Profile = () => {
 
       // Insert My Opportunities after education/degree related pages (only for non-coordinators)
       // Use match() method for more robust checking
-      if (!isCoordinator && page.short_title?.toLowerCase().match("degree information")) {
+      if (!isCoordinator && !myOpportunitiesInserted && page.short_title?.toLowerCase().match("degree information")) {
         allTabs.push({
           title: "My Opportunities",
           icon: "fa-solid fa-folder-closed",
         });
+        myOpportunitiesInserted = true;
       }
     });
 
     // Add My Opportunities after all onboarding pages if not already inserted (only for non-coordinators)
-    if (!isCoordinator) {
+    if (!isCoordinator && !myOpportunitiesInserted) {
       allTabs.push({
         title: "My Opportunities",
         icon: "fa-solid fa-folder-closed",

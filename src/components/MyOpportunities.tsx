@@ -80,19 +80,27 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
+  // Fetch participant record when expanded (only for enrolled opportunities and not cancelled)
   const {
     data: participantRecord,
     isLoading: isParticipantLoading,
     error: participantError,
   } = useOpportunityParticipant(opportunity.id, type === "enrolled" && !isCancelled);
 
+  // Update mutation
   const updateParticipantMutation = useUpdateOpportunityParticipant();
+
+  // Re-enroll mutation
   const reEnrollMutation = useReEnrollOpportunity();
+
+  // Cancel enrollment mutation
   const cancelEnrollmentMutation = useCancelOpportunityEnrollment();
 
+  // Parse questionnaire from opportunity
   const questionnaire = useMemo(() => {
     if (!opportunity.questionnaire) return [];
 
+    // Convert questionnaire object to array of questions
     const questions: Question[] = [];
     Object.values(opportunity.questionnaire).forEach((pageQuestions: any) => {
       if (Array.isArray(pageQuestions)) {
@@ -102,9 +110,12 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     return questions;
   }, [opportunity.questionnaire]);
 
+  // Check if questionnaire itself is empty
   const hasQuestionnaire = useMemo(() => {
     return questionnaire.length > 0;
   }, [questionnaire]);
+
+  // Form setup for editing
   const schema = useMemo(
     () => createPageSchema(questionnaire, true),
     [questionnaire]
@@ -120,6 +131,8 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     resolver: yupResolver(schema),
     mode: "onChange",
   });
+
+  // Reset form when participant record loads
   useEffect(() => {
     if (participantRecord?.data?.questionnaire_answers) {
       const answers = participantRecord.data.questionnaire_answers;
@@ -128,10 +141,12 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     }
   }, [participantRecord, reset]);
 
+  // Update originalAnswers when participant record changes (e.g., after successful save)
   useEffect(() => {
     if (participantRecord?.data?.questionnaire_answers && !isEditMode) {
       const answers = participantRecord.data.questionnaire_answers;
       setOriginalAnswers(answers);
+      // Also reset the form to match the latest data
       reset(answers);
     }
   }, [participantRecord?.data?.questionnaire_answers, isEditMode, reset]);
@@ -145,11 +160,14 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
   const handleEdit = () => {
     if (!isEditMode) {
+      // When entering edit mode, reset form to current participant answers
+      // This ensures we start with the latest data, not stale originalAnswers
       if (participantRecord?.data?.questionnaire_answers) {
         reset(participantRecord.data.questionnaire_answers);
         setOriginalAnswers(participantRecord.data.questionnaire_answers);
       }
     } else {
+      // When canceling edit mode, reset form back to original answers
       reset(originalAnswers);
     }
     setIsEditMode(!isEditMode);
@@ -157,19 +175,24 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
   const handleReEnroll = async (data?: any) => {
     try {
+      // Re-enrollment no longer requires questionnaire answers
       await reEnrollMutation.mutateAsync({
         opportunityId: opportunity.id,
+        // No questionnaire answers needed for re-enrollment
       });
 
       toast.success("Successfully re-enrolled in opportunity!");
 
+      // Close expanded view after successful re-enrollment
       setIsExpanded(false);
       setIsEditMode(false);
 
+      // Invalidate caches to trigger UI updates
       queryClient.invalidateQueries({
         queryKey: ["accessible-opportunities", user?.id]
       });
 
+      // Invalidate all opportunities to update enrollment status
       queryClient.invalidateQueries({
         queryKey: ["all-opportunities", user?.id]
       });
@@ -185,12 +208,13 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   };
 
   const handleCancelEnrollment = async () => {
+    // Show confirmation dialog before canceling enrollment
     const confirmed = window.confirm(
       "Please confirm your cancellation."
     );
 
     if (!confirmed) {
-      return;
+      return; // User cancelled the action
     }
 
     try {
@@ -200,14 +224,19 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
       toast.success("Successfully cancelled enrollment!");
 
+      // Mark as cancelled to stop fetching participant record
       setIsCancelled(true);
+
+      // Close expanded view after successful cancellation
       setIsExpanded(false);
       setIsEditMode(false);
 
+      // Invalidate caches to trigger UI updates
       queryClient.invalidateQueries({
         queryKey: ["accessible-opportunities", user?.id]
       });
 
+      // Remove participant record cache for this opportunity
       queryClient.removeQueries({
         queryKey: ["opportunity-participant", opportunity.id, user?.id]
       });
@@ -229,6 +258,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     }
 
     try {
+      // Check if there are any changes
       let hasChanges = false;
       Object.keys(data).forEach((key) => {
         const originalValue = originalAnswers[key];
@@ -244,13 +274,17 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
         return;
       }
 
+      // Send the complete questionnaire_answers object to preserve all existing data
+      // The backend needs the full object to avoid losing other fields
       await updateParticipantMutation.mutateAsync({
         opportunityId: opportunity.id,
-        questionnaireAnswers: data,
+        questionnaireAnswers: data, // Send complete form data, not just changed fields
       });
 
+      // Update original answers with the complete form data
       setOriginalAnswers(data);
 
+      // Invalidate participant record cache to trigger UI updates
       queryClient.invalidateQueries({
         queryKey: ["opportunity-participant", opportunity.id, user?.id]
       });
@@ -277,6 +311,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
       w="100%"
       maxW="100%"
     >
+      {/* Main card content */}
       <Box
         p={4}
         _hover={{
@@ -320,9 +355,11 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
         </Flex>
       </Box>
 
+      {/* Expanded content */}
       {isExpanded && (
         <Box borderTop="1px solid #E2E8F0" bg="#F8F9FA" p={4}>
           {type === "closed" ? (
+            // For cancelled opportunities, show re-enroll option directly
             <VStack gap={4} align="stretch">
               <Alert.Root status="info" mb={4}>
                 <Alert.Indicator />
@@ -331,6 +368,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                 </Alert.Title>
               </Alert.Root>
 
+              {/* Re-enroll button - no questionnaire required */}
               <Box>
                 <Button
                   size="md"
@@ -355,6 +393,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
             </VStack>
           ) : participantError ? (
             <VStack gap={4} align="stretch">
+              {/* Show error message for enrolled opportunities */}
               {type === "enrolled" && (
                 <Alert.Root status="warning">
                   <Alert.Indicator />
@@ -365,6 +404,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
             </VStack>
           ) : (
             <VStack gap={4} align="stretch">
+              {/* Participant info */}
               {participantRecord && (
                 <Box>
                   <HStack justify="space-between" mb={3}>
@@ -406,6 +446,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                 </Box>
               )}
 
+              {/* Questionnaire - only show if questionnaire exists and user is not organization */}
               {hasQuestionnaire && userType !== "organisation" && (
                 <Box>
                   <Text fontSize="16px" fontWeight="600" color="#1F2937" mb={3}>
@@ -483,6 +524,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                 </Box>
               )}
 
+              {/* Cancel enrollment button for enrolled opportunities */}
               {type === "enrolled" && (
                 <Box>
                   <Button
@@ -514,7 +556,10 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
+  // Fetch all opportunities
   const { data: opportunities, isLoading, error } = useAccessibleOpportunities();
+
+  // Categorize opportunities
   const categorizedOpportunities = useMemo(() => {
     if (!opportunities) return { enrolled: [], closed: [] };
     // AccessibleOpportunity now has all the necessary fields
