@@ -59,16 +59,8 @@ export default function OpportunityCompletePage() {
     });
   }, [clearAnswers, queryClient, opportunityId]);
 
-  const handleViewProfile = () => {
-    router.push("/profile");
-  };
-
   const handleBackToOpportunity = () => {
     router.push(`/discover?id=${opportunityId}`);
-  };
-
-  const handleBackToDashboard = () => {
-    router.push("/dashboard");
   };
 
   if (isLoading) {
@@ -136,7 +128,7 @@ export default function OpportunityCompletePage() {
             fontWeight="700"
             color="gray.900"
           >
-            Application Submitted Successfully!
+            Successfully Enrolled!
           </Heading>
           <Text
             fontSize={{ base: "md", md: "lg" }}
@@ -145,11 +137,11 @@ export default function OpportunityCompletePage() {
             mx="auto"
             lineHeight="1.6"
           >
-            Thank you for applying to{" "}
+            Congratulations! You are now enrolled in{" "}
             <Text as="span" fontWeight="600" color="gray.900">
               {opportunity.title}
             </Text>
-            . Your application has been submitted and you will be notified of any updates.
+            . You can explore the opportunity details and get started right away.
           </Text>
         </VStack>
 
@@ -167,20 +159,20 @@ export default function OpportunityCompletePage() {
               fontWeight="600"
               color="green.900"
             >
-              What happens next?
+              You&apos;re all set!
             </Heading>
             <VStack gap={3} align="start" pl={4}>
               <Text fontSize="sm" color="green.800">
-                • The opportunity coordinator will review your application
+                • You are now officially enrolled in this opportunity
               </Text>
               <Text fontSize="sm" color="green.800">
-                • You&apos;ll receive an email notification if you&apos;re selected for the next step
+                • The opportunity coordinator will be in touch with next steps
               </Text>
               <Text fontSize="sm" color="green.800">
-                • Check your dashboard regularly for updates on your application status
+                • You can explore the opportunity details anytime
               </Text>
               <Text fontSize="sm" color="green.800">
-                • Feel free to apply to other opportunities while you wait
+                • Feel free to enroll in other opportunities as well
               </Text>
             </VStack>
           </VStack>
@@ -209,42 +201,23 @@ export default function OpportunityCompletePage() {
           </VStack>
         </Box>
 
-        {/* Action Buttons */}
-        <VStack gap={4} pt={4}>
-          <HStack gap={4} justify="center" flexWrap="wrap">
-            <Button
-              onClick={handleViewProfile}
-              bg="blue.500"
-              color="white"
-              _hover={{ bg: "blue.600" }}
-              size="lg"
-              px={6}
-            >
-              View My Profile
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={handleBackToDashboard}
-              size="lg"
-              px={6}
-            >
-              Go to Dashboard
-            </Button>
-          </HStack>
-
+        {/* Action Button */}
+        <Box textAlign="center" pt={4}>
           <Button
-            variant="ghost"
             onClick={handleBackToOpportunity}
-            size="sm"
-            color="gray.600"
+            bg="blue.500"
+            color="white"
+            _hover={{ bg: "blue.600" }}
+            size="lg"
+            px={8}
           >
-            ← Back to Opportunity Details
+            Explore the Opportunity
           </Button>
-        </VStack>
+        </Box>
 
         {/* Footer Note */}
         <Text fontSize="xs" color="gray.500" pt={4} textAlign="center">
-          Application submitted on {new Date().toLocaleDateString("en-US", {
+          Enrolled on {new Date().toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",
             day: "numeric",
