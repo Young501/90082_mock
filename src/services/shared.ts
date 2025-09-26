@@ -1,13 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import { useAuthStore } from "@/store/authStore";
-import {
-  Opportunity,
-  OpportunitiesResponse,
-  CategorizedOpportunities,
-  ParticipantRecord,
-} from "@/types/opportunities";
-
 
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
