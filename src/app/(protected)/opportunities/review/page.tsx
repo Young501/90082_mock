@@ -330,7 +330,7 @@ export default function OpportunityReviewPage() {
             loading={enrollMutation.isPending}
             disabled={enrollMutation.isPending}
           >
-            Complete Enrollment
+            Submit
           </Button>
         </HStack>
 
