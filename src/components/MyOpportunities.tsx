@@ -85,7 +85,10 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     data: participantRecord,
     isLoading: isParticipantLoading,
     error: participantError,
-  } = useOpportunityParticipant(opportunity.id, type === "enrolled" && !isCancelled);
+  } = useOpportunityParticipant(
+    opportunity.id,
+    type === "enrolled" && !isCancelled
+  );
 
   // Update mutation
   const updateParticipantMutation = useUpdateOpportunityParticipant();
@@ -189,12 +192,12 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
       // Invalidate caches to trigger UI updates
       queryClient.invalidateQueries({
-        queryKey: ["accessible-opportunities", user?.id]
+        queryKey: ["accessible-opportunities", user?.id],
       });
 
       // Invalidate all opportunities to update enrollment status
       queryClient.invalidateQueries({
-        queryKey: ["all-opportunities", user?.id]
+        queryKey: ["all-opportunities", user?.id],
       });
     } catch (error: any) {
       console.error("Re-enroll failed:", error);
@@ -209,9 +212,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
   const handleCancelEnrollment = async () => {
     // Show confirmation dialog before canceling enrollment
-    const confirmed = window.confirm(
-      "Please confirm your cancellation."
-    );
+    const confirmed = window.confirm("Please confirm your cancellation.");
 
     if (!confirmed) {
       return; // User cancelled the action
@@ -233,12 +234,12 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
       // Invalidate caches to trigger UI updates
       queryClient.invalidateQueries({
-        queryKey: ["accessible-opportunities", user?.id]
+        queryKey: ["accessible-opportunities", user?.id],
       });
 
       // Remove participant record cache for this opportunity
       queryClient.removeQueries({
-        queryKey: ["opportunity-participant", opportunity.id, user?.id]
+        queryKey: ["opportunity-participant", opportunity.id, user?.id],
       });
     } catch (error: any) {
       console.error("Cancel enrollment failed:", error);
@@ -286,7 +287,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
       // Invalidate participant record cache to trigger UI updates
       queryClient.invalidateQueries({
-        queryKey: ["opportunity-participant", opportunity.id, user?.id]
+        queryKey: ["opportunity-participant", opportunity.id, user?.id],
       });
 
       toast.success("All changes have been saved!");
@@ -322,7 +323,13 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
       >
         <Flex justify="space-between" align="start" gap={4}>
           <Box flex={1} minW={0}>
-            <Text fontSize="18px" fontWeight="600" color="#1F2937" mb={2} wordBreak="break-word">
+            <Text
+              fontSize="18px"
+              fontWeight="600"
+              color="#1F2937"
+              mb={2}
+              wordBreak="break-word"
+            >
               {opportunity.title}
             </Text>
             <Text fontSize="14px" color="#6B7280" mb={3} wordBreak="break-word">
@@ -400,7 +407,6 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                   <Alert.Title>Unable to load participant details</Alert.Title>
                 </Alert.Root>
               )}
-
             </VStack>
           ) : (
             <VStack gap={4} align="stretch">
@@ -491,7 +497,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                       {questionnaire.map((question: Question) => {
                         const answer =
                           participantRecord?.data?.questionnaire_answers?.[
-                          question.field
+                            question.field
                           ];
                         return (
                           <Box
@@ -557,7 +563,11 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
   const { user } = useAuthStore();
 
   // Fetch all opportunities
-  const { data: opportunities, isLoading, error } = useAccessibleOpportunities();
+  const {
+    data: opportunities,
+    isLoading,
+    error,
+  } = useAccessibleOpportunities();
 
   // Categorize opportunities
   const categorizedOpportunities = useMemo(() => {
@@ -582,7 +592,13 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
   return (
     <Box w="100%" overflow="hidden">
       {/* Sub-tab navigation */}
-      <Flex gap={0} mb={6} borderBottom="2px solid #E2E8F0" w="100%" overflow="auto">
+      <Flex
+        gap={0}
+        mb={6}
+        borderBottom="2px solid #E2E8F0"
+        w="100%"
+        overflow="auto"
+      >
         {opportunityTabs.map((tab, index) => (
           <Button
             key={index}
@@ -591,24 +607,15 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
             borderRadius="0"
             borderBottom={
               activeSubTab === index
-                ? `3px solid ${userType === "student" ? "#DC2626" : "#089C3F"}`
+                ? `3px solid ${index === 0 ? "#089C3F" : "#DC2626"}`
                 : "3px solid transparent"
             }
-            color={
-              activeSubTab === index
-                ? userType === "student"
-                  ? "#DC2626"
-                  : "#089C3F"
-                : "#666666"
-            }
+            color={index === 0 ? "#089C3F" : "#DC2626"}
             fontWeight="600"
             px={{ base: 4, md: 6 }}
             py={3}
             minW="fit-content"
             flexShrink={0}
-            _hover={{
-              color: userType === "student" ? "#DC2626" : "#089C3F",
-            }}
           >
             <HStack gap={2}>
               <i
@@ -620,7 +627,7 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
               <Text>{tab.title}</Text>
               {tab.count !== undefined && (
                 <Box
-                  bg={tab.title === "Enrolled Opportunities" ? "#089C3F" : "#DC2626"}
+                  bg={index === 0 ? "#089C3F" : "#DC2626"}
                   color="white"
                   borderRadius="50%"
                   width="20px"
