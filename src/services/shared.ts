@@ -409,7 +409,6 @@ export function useOpportunityDetail(opportunityId: string) {
   });
 }
 
-
 // Helper function to categorize opportunities
 export function categorizeOpportunities(
   opportunities: Opportunity[]
