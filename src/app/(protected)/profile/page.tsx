@@ -214,10 +214,7 @@ const Profile = () => {
 
   const tabs: Tab[] = useMemo(() => {
     const allTabs: Tab[] = [];
-    let myOpportunitiesInserted = false;
-
-    // Debug logging for pages
-    console.log(pages);
+    // let myOpportunitiesInserted = false;
 
     // Add onboarding pages and insert My Opportunities after education-related pages
     pages.forEach((page: OnboardingPage) => {
@@ -226,19 +223,24 @@ const Profile = () => {
         icon: page.title_icon,
       });
 
+      // ********************** this implementation affects the ordering of the pages index in array hence disabled TBR ***************//
+
       // Insert My Opportunities after education/degree related pages (only for non-coordinators)
       // Use match() method for more robust checking
-      if (!isCoordinator && !myOpportunitiesInserted && page.short_title?.toLowerCase().match("degree information")) {
-        allTabs.push({
-          title: "My Opportunities",
-          icon: "fa-solid fa-folder-closed",
-        });
-        myOpportunitiesInserted = true;
-      }
+      // if (
+      //   !isCoordinator &&
+      //   page.short_title?.toLowerCase().match("degree information")
+      // ) {
+      //   allTabs.push({
+      //     title: "My Opportunities",
+      //     icon: "fa-solid fa-folder-closed",
+      //   });
+      //   // myOpportunitiesInserted = true;
+      // }
     });
 
     // Add My Opportunities after all onboarding pages if not already inserted (only for non-coordinators)
-    if (!isCoordinator && !myOpportunitiesInserted) {
+    if (!isCoordinator) {
       allTabs.push({
         title: "My Opportunities",
         icon: "fa-solid fa-folder-closed",
@@ -329,7 +331,7 @@ const Profile = () => {
           const orgField = field;
           value =
             userProfile.organisation?.[
-            orgField as keyof typeof userProfile.organisation
+              orgField as keyof typeof userProfile.organisation
             ];
         }
       } else {
@@ -347,13 +349,14 @@ const Profile = () => {
     return Math.round((filledFields.length / allFields.length) * 100);
   };
 
-
   // For organisation users who have completed onboarding, show profile even if no pages
-  const shouldShowLoading = (isOnboardingLoading || isProfileLoading) && !isCoordinator;
+  const shouldShowLoading =
+    (isOnboardingLoading || isProfileLoading) && !isCoordinator;
   const hasNoPages = !pages.length && !isCoordinator;
 
   // If user has profile data but no onboarding pages, they've completed onboarding
-  const hasCompletedOnboarding = (userProfile || fetchedUserProfile) && hasNoPages;
+  const hasCompletedOnboarding =
+    (userProfile || fetchedUserProfile) && hasNoPages;
 
   if (shouldShowLoading && !hasCompletedOnboarding) {
     return (
@@ -532,16 +535,16 @@ const Profile = () => {
                     (userType === "student"
                       ? getUserProfilePictureUrl()
                       : getLogoUrl())) && (
-                      <Avatar.Image
-                        src={
-                          updatedProfilePicture ||
-                          (userType === "student"
-                            ? getUserProfilePictureUrl()
-                            : getLogoUrl()) ||
-                          undefined
-                        }
-                      />
-                    )}
+                    <Avatar.Image
+                      src={
+                        updatedProfilePicture ||
+                        (userType === "student"
+                          ? getUserProfilePictureUrl()
+                          : getLogoUrl()) ||
+                        undefined
+                      }
+                    />
+                  )}
                   <Avatar.Fallback
                     name={
                       userType === "organisation" && userProfile?.name
@@ -617,7 +620,7 @@ const Profile = () => {
                       activeTab === index && userType === "student"
                         ? "4px solid #DC2626"
                         : activeTab === index &&
-                          (userType === "organisation" || isCoordinator)
+                            (userType === "organisation" || isCoordinator)
                           ? "4px solid #089C3F"
                           : ""
                     }
@@ -642,7 +645,14 @@ const Profile = () => {
             </Box>
           </Box>
 
-          <Box maxW={{ base: "100%" }} w="100%" bg="white" p={6} flex={1} overflow="hidden">
+          <Box
+            maxW={{ base: "100%" }}
+            w="100%"
+            bg="white"
+            p={6}
+            flex={1}
+            overflow="hidden"
+          >
             <Text fontSize="25px" fontWeight="bold" mb={6} color="#000000">
               {tabs[activeTab]?.title || "Tab Details"}
             </Text>
