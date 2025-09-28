@@ -24,7 +24,7 @@ import {
   useAccessibleOpportunities,
 } from "@/services/shared";
 import { useAuthStore } from "@/store";
-import { toaster } from "@/components/ui/toaster";
+import { toast } from "react-toastify";
 import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 
 export default function DiscoveryPage() {
@@ -135,12 +135,7 @@ export default function DiscoveryPage() {
   const handleEnroll = useCallback(() => {
     // Check eligibility from global state (already computed)
     if (isEligible === false) {
-      toaster.create({
-        title: "This opportunity is not available for your university.",
-        type: "warning",
-        duration: 6000,
-        meta: { closable: true },
-      });
+      toast.warning("This opportunity is not available for your university.");
       return;
     }
 
