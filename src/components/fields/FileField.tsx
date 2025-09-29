@@ -12,6 +12,7 @@ import { Control, Controller } from "react-hook-form";
 import Image from "next/image";
 import { useAuthStore } from "@/store";
 import { FileText, Upload, Download, Edit, X } from "lucide-react";
+import { toast } from "react-toastify";
 
 export type FileFieldType = "image" | "resume";
 
@@ -87,7 +88,7 @@ export const FileField = ({
   const handleFileChange = (file: File, onChange: (value: any) => void) => {
     const error = validateFile(file);
     if (error) {
-      alert(error);
+      toast.error(error);
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
