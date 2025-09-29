@@ -72,14 +72,16 @@ export default function DiscoveryPage() {
 
   // Compute and cache enrollment status
   useEffect(() => {
-    if (!opportunityId || !accessibleOpportunities || isEnrolled !== null)
-      return;
+    if (!opportunityId || !accessibleOpportunities) return;
 
     const currentOpportunity = accessibleOpportunities.find(
       (opp) => opp.id.toString() === opportunityId
     );
     const enrolled = currentOpportunity?.status === "Enrolled";
-    setEnrollmentStatus(enrolled);
+
+    if (isEnrolled !== enrolled) {
+      setEnrollmentStatus(enrolled);
+    }
   }, [opportunityId, accessibleOpportunities, isEnrolled, setEnrollmentStatus]);
 
   // Compute and cache eligibility status

@@ -47,16 +47,6 @@ export default function OpportunityCompletePage() {
   // Clear saved answers and invalidate cache when component mounts (enrollment completed)
   useEffect(() => {
     clearAnswers();
-    
-    // Invalidate opportunity cache to ensure fresh data when navigating back
-    queryClient.invalidateQueries({
-      queryKey: ["opportunity", opportunityId],
-    });
-    
-    // Invalidate accessible opportunities to update enrollment status
-    queryClient.invalidateQueries({
-      queryKey: ["accessible-opportunities", user?.id],
-    });
   }, [clearAnswers, queryClient, opportunityId, user?.id]);
 
   const handleBackToOpportunity = () => {

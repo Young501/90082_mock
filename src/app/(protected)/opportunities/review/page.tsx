@@ -16,8 +16,12 @@ import {
 } from "@chakra-ui/react";
 import ProgressTrack from "@/components/ProgressTrack";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useOpportunityDetail } from "@/services/shared";
+import {
+  useOpportunityDetail,
+  useAccessibleOpportunities,
+} from "@/services/shared";
 import { useEnrollInOpportunity } from "@/services/updateParticipant";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { useAuthStore } from "@/store";
 import { PageTitle } from "@/components/PageTitle";
@@ -27,21 +31,24 @@ import { ChevronLeftIcon, EditIcon, Loader } from "lucide-react";
 import { toast } from "react-toastify";
 import { Question } from "@/types/onboarding";
 import { useQuestionnaireAnswers } from "@/hooks/useQuestionnaireAnswers";
-import { getErrorStatus, getEnrollmentErrorMessage } from "@/utils/apiErrorHandling";
+import {
+  getErrorStatus,
+  getEnrollmentErrorMessage,
+} from "@/utils/apiErrorHandling";
 import { parseQuestionnaireOptions } from "@/utils/questionnaireParser";
 
 export default function OpportunityReviewPage() {
   const sp = useSearchParams();
   const router = useRouter();
   const opportunityId = sp.get("id") || "";
-  const { user } = useAuthStore();
+  const { user, setEnrollmentStatus, setCurrentOpportunityId } = useAuthStore();
+  const queryClient = useQueryClient();
 
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const {
-    questionnaireAnswers: answers,
-  } = useQuestionnaireAnswers(opportunityId);
-  
+  const { questionnaireAnswers: answers } =
+    useQuestionnaireAnswers(opportunityId);
+
   const enrollMutation = useEnrollInOpportunity();
 
   const {
@@ -80,19 +87,36 @@ export default function OpportunityReviewPage() {
         questionnaireAnswers: answers,
       });
 
-      // Navigate to success page (complete page will handle clearing answers)
+      await queryClient.refetchQueries({
+        queryKey: ["accessible-opportunities", user?.id],
+      });
+
+      const accessibleOpportunities = queryClient.getQueryData([
+        "accessible-opportunities",
+        user?.id,
+      ]) as any[];
+
+      if (accessibleOpportunities) {
+        const currentOpportunity = accessibleOpportunities.find(
+          (opp) => opp.id.toString() === opportunityId
+        );
+
+        if (currentOpportunity?.status === "Enrolled") {
+          setCurrentOpportunityId(opportunityId);
+          setEnrollmentStatus(true);
+        }
+      }
+
       router.push(`/opportunities/complete?id=${opportunityId}`);
     } catch (error: unknown) {
       console.error("Enrollment error:", error);
-      
-      // Handle authentication redirect
+
       const status = getErrorStatus(error);
       if (status === 401) {
         router.push("/login");
         return;
       }
-      
-      // Set appropriate error message
+
       setSubmitError(getEnrollmentErrorMessage(error));
     }
   };
@@ -108,11 +132,13 @@ export default function OpportunityReviewPage() {
             value: opt.value,
           })
         );
-        
-        return value.map((val: string) => {
-          const option = processedOptions.find(opt => opt.value === val);
-          return option ? option.label : val;
-        }).join(", ");
+
+        return value
+          .map((val: string) => {
+            const option = processedOptions.find((opt) => opt.value === val);
+            return option ? option.label : val;
+          })
+          .join(", ");
       } else {
         return value.join(", ");
       }
@@ -120,7 +146,7 @@ export default function OpportunityReviewPage() {
     if (typeof value === "boolean") {
       return value ? "Yes" : "No";
     }
-    
+
     // For single-select values, convert slug to label
     if (question.options || question.option) {
       const rawOptions = question.options || question.option || [];
@@ -130,22 +156,22 @@ export default function OpportunityReviewPage() {
           value: opt.value,
         })
       );
-      
-      const option = processedOptions.find(opt => opt.value === value);
+
+      const option = processedOptions.find((opt) => opt.value === value);
       if (option) {
         return option.label;
       }
     }
-    
+
     return String(value || "Not specified");
   };
 
   // Calculate progress based on answered required questions
   const progressPercentage = useMemo(() => {
-    const requiredQuestions = questions.filter(q => q.required);
+    const requiredQuestions = questions.filter((q) => q.required);
     if (requiredQuestions.length === 0) return 100;
 
-    const answeredRequired = requiredQuestions.filter(q => {
+    const answeredRequired = requiredQuestions.filter((q) => {
       const answer = answers[q.field];
       if (Array.isArray(answer)) {
         return answer.length > 0;
@@ -153,7 +179,9 @@ export default function OpportunityReviewPage() {
       return answer !== undefined && answer !== null && answer !== "";
     });
 
-    return Math.round((answeredRequired.length / requiredQuestions.length) * 100);
+    return Math.round(
+      (answeredRequired.length / requiredQuestions.length) * 100
+    );
   }, [questions, answers]);
 
   if (isLoading) {
@@ -190,7 +218,8 @@ export default function OpportunityReviewPage() {
           <Alert.Indicator />
           <Alert.Title>Opportunity not found</Alert.Title>
           <Alert.Description>
-            The opportunity you&apos;re looking for doesn&apos;t exist or has been removed.
+            The opportunity you&apos;re looking for doesn&apos;t exist or has
+            been removed.
           </Alert.Description>
         </Alert.Root>
       </Box>
@@ -202,16 +231,11 @@ export default function OpportunityReviewPage() {
       <VStack gap={6} align="stretch">
         {/* Progress Tracker */}
         <ProgressTrack progressPercent={75} totalSteps={4} />
-        
+
         {/* Header */}
         <Box>
           <HStack gap={3} mb={4}>
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              size="sm"
-              p={2}
-            >
+            <Button variant="ghost" onClick={handleBack} size="sm" p={2}>
               ← Back
             </Button>
           </HStack>
@@ -224,12 +248,11 @@ export default function OpportunityReviewPage() {
           >
             Review Your Enrollment
           </Heading>
-          <Text
-            fontSize="md"
-            color="gray.600"
-            mb={4}
-          >
-            Please review your answers for: <Text as="span" fontWeight="600">{opportunity.title}</Text>
+          <Text fontSize="md" color="gray.600" mb={4}>
+            Please review your answers for:{" "}
+            <Text as="span" fontWeight="600">
+              {opportunity.title}
+            </Text>
           </Text>
         </Box>
 
@@ -252,19 +275,15 @@ export default function OpportunityReviewPage() {
           shadow="sm"
         >
           <VStack gap={6} align="stretch">
-            <Heading
-              fontSize="lg"
-              fontWeight="600"
-              color="gray.900"
-              mb={2}
-            >
+            <Heading fontSize="lg" fontWeight="600" color="gray.900" mb={2}>
               Your Answers
             </Heading>
 
             {questions.map((question) => {
               const answer = answers[question.field];
-              const hasAnswer = answer !== undefined && answer !== null && answer !== "";
-              
+              const hasAnswer =
+                answer !== undefined && answer !== null && answer !== "";
+
               return (
                 <Box
                   key={question.field}
@@ -294,7 +313,9 @@ export default function OpportunityReviewPage() {
                         color={hasAnswer ? "gray.700" : "gray.500"}
                         fontStyle={hasAnswer ? "normal" : "italic"}
                       >
-                        {hasAnswer ? formatAnswerValue(answer, question) : "Not answered"}
+                        {hasAnswer
+                          ? formatAnswerValue(answer, question)
+                          : "Not answered"}
                       </Text>
                     </Box>
                     <Button
@@ -315,10 +336,7 @@ export default function OpportunityReviewPage() {
 
         {/* Navigation Buttons */}
         <HStack gap={4} justify="space-between" pt={6}>
-          <Button
-            variant="secondary"
-            onClick={handleBack}
-          >
+          <Button variant="secondary" onClick={handleBack}>
             ← Back to Edit
           </Button>
 
@@ -336,7 +354,8 @@ export default function OpportunityReviewPage() {
 
         {/* Instructions */}
         <Text fontSize="xs" color="gray.500" textAlign="center">
-          By completing enrollment, you agree to share your information with the opportunity coordinator.
+          By completing enrollment, you agree to share your information with the
+          opportunity coordinator.
         </Text>
       </VStack>
     </Box>
