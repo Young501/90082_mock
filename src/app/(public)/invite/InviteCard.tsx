@@ -15,7 +15,6 @@ import { InviteAcceptResponse } from "@/types/invite";
 import { useAuthStore } from "@/store";
 import { QuestionnaireForm, QuestionnaireFormRef } from "@/components/questionnaire/QuestionnaireForm";
 import { useState, useCallback, useMemo, useRef } from "react";
-import { toast } from "react-toastify";
 
 interface InviteCardProps {
   opportunity: Opportunity | undefined;
@@ -69,8 +68,6 @@ export const InviteCard = ({
   );
 
   const handleAccept = useCallback(async () => {
-    // Skip domain eligibility check for invited users - they should be able to accept invites regardless of domain restrictions
-    
     if (questions.length > 0 && questionnaireRef.current) {
       const isValid = await questionnaireRef.current.validate();
 

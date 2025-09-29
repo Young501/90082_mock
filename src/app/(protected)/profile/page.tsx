@@ -214,7 +214,6 @@ const Profile = () => {
 
   const tabs: Tab[] = useMemo(() => {
     const allTabs: Tab[] = [];
-    // let myOpportunitiesInserted = false;
 
     // Add onboarding pages and insert My Opportunities after education-related pages
     pages.forEach((page: OnboardingPage) => {
@@ -222,21 +221,6 @@ const Profile = () => {
         title: page.short_title || page.title,
         icon: page.title_icon,
       });
-
-      // ********************** this implementation affects the ordering of the pages index in array hence disabled TBR ***************//
-
-      // Insert My Opportunities after education/degree related pages (only for non-coordinators)
-      // Use match() method for more robust checking
-      // if (
-      //   !isCoordinator &&
-      //   page.short_title?.toLowerCase().match("degree information")
-      // ) {
-      //   allTabs.push({
-      //     title: "My Opportunities",
-      //     icon: "fa-solid fa-folder-closed",
-      //   });
-      //   // myOpportunitiesInserted = true;
-      // }
     });
 
     // Add My Opportunities after all onboarding pages if not already inserted (only for non-coordinators)
