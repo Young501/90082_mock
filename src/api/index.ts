@@ -57,7 +57,6 @@ apiClient.interceptors.request.use(
       const safeHeaders = headersObj?.Authorization
         ? { ...headersObj, Authorization: "[HIDDEN]" }
         : headersObj;
-
     }
 
     return config;
@@ -235,27 +234,22 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: "/api/v2/opportunities/all/",
   },
-  // UC-310: Get current user's participant record for an opportunity
   OPPORTUNITY_PARTICIPANT: (opportunity_id: number): ApiEndpoint => ({
     method: "GET",
     url: `/api/v2/opportunities/${opportunity_id}/participant/`,
   }),
-  // UC-310: Update current user's participant record for an opportunity
   UPDATE_OPPORTUNITY_PARTICIPANT: (opportunity_id: number): ApiEndpoint => ({
     method: "PATCH",
     url: `/api/v2/opportunities/${opportunity_id}/participant/`,
   }),
-  // UC-310: Re-enroll in an opportunity
   RE_ENROLL_OPPORTUNITY: (opportunity_id: number): ApiEndpoint => ({
     method: "POST",
     url: `/api/v2/opportunities/${opportunity_id}/participant/`,
   }),
-  // UC-310: Cancel enrollment in an opportunity
   CANCEL_OPPORTUNITY_ENROLLMENT: (opportunity_id: number): ApiEndpoint => ({
     method: "DELETE",
     url: `/api/v2/opportunities/${opportunity_id}/participant/`,
   }),
-  // UC-XXX: Enroll in opportunity
   OPPORTUNITY_ENROLLMENT: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v2/opportunities/${opportunityId}/participant/`,

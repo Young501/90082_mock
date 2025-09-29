@@ -7,21 +7,21 @@ export function useUpdateOpportunityParticipant() {
   return useMutation({
     mutationFn: async ({
       opportunityId,
-      questionnaireAnswers
+      questionnaireAnswers,
     }: {
       opportunityId: string | number;
-      questionnaireAnswers: Record<string, any>
+      questionnaireAnswers: Record<string, any>;
     }) => {
       const response = await apiRequest({
         endpoint: API_ENDPOINTS.UPDATE_OPPORTUNITY_PARTICIPANT(
           Number(opportunityId)
         ),
         body: {
-          questionnaire_answers: questionnaireAnswers
-        }
+          questionnaire_answers: questionnaireAnswers,
+        },
       });
       return response;
-    }
+    },
   });
 }
 
@@ -33,27 +33,33 @@ export function useEnrollInOpportunity() {
   return useMutation({
     mutationFn: async ({
       opportunityId,
-      questionnaireAnswers
+      questionnaireAnswers,
     }: {
       opportunityId: string | number;
-      questionnaireAnswers?: Record<string, any>
+      questionnaireAnswers?: Record<string, any>;
     }) => {
       const userType = user?.user_types?.[0] || "student";
       const response = await apiRequest({
-        endpoint: API_ENDPOINTS.RE_ENROLL_OPPORTUNITY(Number(opportunityId)),
+        endpoint: API_ENDPOINTS.OPPORTUNITY_ENROLLMENT(
+          opportunityId.toString()
+        ),
         body: {
           user_type: userType,
-          ...(questionnaireAnswers && { questionnaire_answers: questionnaireAnswers })
-        }
+          ...(questionnaireAnswers && {
+            questionnaire_answers: questionnaireAnswers,
+          }),
+        },
       });
       return response;
     },
     onSuccess: () => {
       // Invalidate accessible opportunities query to refresh MyOpportunities
-      queryClient.invalidateQueries({ queryKey: ["accessible-opportunities", user?.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["accessible-opportunities", user?.id],
+      });
       // Also invalidate opportunity participant query
       queryClient.invalidateQueries({ queryKey: ["opportunity-participant"] });
-    }
+    },
   });
 }
 
@@ -61,14 +67,16 @@ export function useEnrollInOpportunity() {
 export function useCancelOpportunityEnrollment() {
   return useMutation({
     mutationFn: async ({
-      opportunityId
+      opportunityId,
     }: {
       opportunityId: string | number;
     }) => {
       const response = await apiRequest({
-        endpoint: API_ENDPOINTS.CANCEL_OPPORTUNITY_ENROLLMENT(Number(opportunityId))
+        endpoint: API_ENDPOINTS.CANCEL_OPPORTUNITY_ENROLLMENT(
+          Number(opportunityId)
+        ),
       });
       return response;
-    }
+    },
   });
 }
