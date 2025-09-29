@@ -24,7 +24,6 @@ export const useDashboard = (opportunityId?: string) => {
 
       try {
         const response = await getDashboardStats(selectedOpportunityId);
-        console.log(response, "response");
         return {
           students: {
             invited: response.students.invited || 0,

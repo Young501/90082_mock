@@ -7,7 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [unreleased]
+## [unreleased - UC-310]
+
+### Added
+
+- **My Opportunities tab on Profile page**
+
+  - My Opportunities tab on the Profile page, including enrolled/closed sub-tabs, dynamic badges, expandable opportunity cards, questionnaire editing, enrollment management (re-enroll, cancel, save changes), and responsive UX with loading states and toast notifications.
+
+---
+
+## [unreleased - UC-326]
 
 ### Added
 

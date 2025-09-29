@@ -60,25 +60,13 @@ export default function DiscoveryPage() {
 
   // Check if user is enrolled in this opportunity
   const isEnrolled = useMemo(() => {
-    console.log("🔍 Checking enrollment status:");
-    console.log("🔍 opportunityId:", opportunityId);
-    console.log("🔍 accessibleOpportunities:", accessibleOpportunities);
-
     if (!opportunityId || !accessibleOpportunities) {
-      console.log(
-        "🔍 No opportunityId or accessibleOpportunities, returning false"
-      );
       return false;
     }
-
     const currentOpportunity = accessibleOpportunities.find(
       (opp) => opp.id.toString() === opportunityId
     );
-    console.log("🔍 Found current opportunity:", currentOpportunity);
-
     const enrolled = currentOpportunity?.status === "Enrolled";
-    console.log("🔍 Is enrolled:", enrolled);
-
     return enrolled;
   }, [opportunityId, accessibleOpportunities]);
 
@@ -171,7 +159,7 @@ export default function DiscoveryPage() {
   const handleEnroll = useCallback(() => {
     // Check domain eligibility for students first
     if (
-      userType === 'student' &&
+      userType === "student" &&
       user?.email &&
       Array.isArray(opportunity?.allowed_student_email_domains) &&
       opportunity.allowed_student_email_domains.length > 0
@@ -180,7 +168,7 @@ export default function DiscoveryPage() {
         user.email,
         opportunity.allowed_student_email_domains
       );
-      
+
       if (!isEligible) {
         toast.warn("This opportunity is not available for your university.");
         return;
@@ -188,9 +176,17 @@ export default function DiscoveryPage() {
     }
 
     // Save questionnaire state for other team to use
-    console.log("Enroll clicked - questionnaire state saved:", questionnaireAnswers);
+    console.log(
+      "Enroll clicked - questionnaire state saved:",
+      questionnaireAnswers
+    );
     // No modal or routing - handled by other team
-  }, [userType, user?.email, opportunity?.allowed_student_email_domains, questionnaireAnswers]);
+  }, [
+    userType,
+    user?.email,
+    opportunity?.allowed_student_email_domains,
+    questionnaireAnswers,
+  ]);
 
   // If opportunity id parameter is provided, show opportunity-specific content
   if (opportunityId) {

@@ -435,14 +435,9 @@ export const useDiscovery = (
     isLoading: isOnboardingLoading || isSearchLoading || isQuestionnaireLoading,
     isSearching,
     form,
-    handleSearch: form.handleSubmit(
-      (data) => {
-        handleSearch(data);
-      },
-      (errors) => {
-        console.log(errors);
-      }
-    ),
+    handleSearch: form.handleSubmit((data) => {
+      handleSearch(data);
+    }),
     handleReset,
     checkDependencies,
     resultsCount: searchData?.count || 0,

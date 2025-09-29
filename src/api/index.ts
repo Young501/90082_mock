@@ -58,19 +58,6 @@ apiClient.interceptors.request.use(
         ? { ...headersObj, Authorization: "[HIDDEN]" }
         : headersObj;
 
-      // Build a readable URL with query string
-      const qs =
-        config.params &&
-        new URLSearchParams(config.params as Record<string, string>).toString();
-      const fullUrl = `${config.baseURL ?? ""}${config.url}${
-        qs ? `?${qs}` : ""
-      }`;
-
-      console.log(`🚀 ${config.method?.toUpperCase()} ${fullUrl}`, {
-        params: config.params,
-        data: config.data,
-        headers: safeHeaders,
-      });
     }
 
     return config;
@@ -92,15 +79,6 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
-    if (process.env.NODE_ENV === "development") {
-      console.log(
-        `✅ ${response.config.method?.toUpperCase()} ${response.config.url}`,
-        {
-          status: response.status,
-          data: response.data,
-        }
-      );
-    }
     return response;
   },
   (error: AxiosError) => {
@@ -257,10 +235,25 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: "/api/v2/opportunities/all/",
   },
-  // UC-326: Get current user's participant record for an opportunity
-  OPPORTUNITY_PARTICIPANT: (opportunityId: string): ApiEndpoint => ({
+  // UC-310: Get current user's participant record for an opportunity
+  OPPORTUNITY_PARTICIPANT: (opportunity_id: number): ApiEndpoint => ({
     method: "GET",
-    url: `/api/v2/opportunities/${opportunityId}/participant/`,
+    url: `/api/v2/opportunities/${opportunity_id}/participant/`,
+  }),
+  // UC-310: Update current user's participant record for an opportunity
+  UPDATE_OPPORTUNITY_PARTICIPANT: (opportunity_id: number): ApiEndpoint => ({
+    method: "PATCH",
+    url: `/api/v2/opportunities/${opportunity_id}/participant/`,
+  }),
+  // UC-310: Re-enroll in an opportunity
+  RE_ENROLL_OPPORTUNITY: (opportunity_id: number): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v2/opportunities/${opportunity_id}/participant/`,
+  }),
+  // UC-310: Cancel enrollment in an opportunity
+  CANCEL_OPPORTUNITY_ENROLLMENT: (opportunity_id: number): ApiEndpoint => ({
+    method: "DELETE",
+    url: `/api/v2/opportunities/${opportunity_id}/participant/`,
   }),
   CONTACT_USER: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
