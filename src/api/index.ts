@@ -242,10 +242,6 @@ export const API_ENDPOINTS = {
     method: "PATCH",
     url: `/api/v2/opportunities/${opportunity_id}/participant/`,
   }),
-  RE_ENROLL_OPPORTUNITY: (opportunity_id: number): ApiEndpoint => ({
-    method: "POST",
-    url: `/api/v2/opportunities/${opportunity_id}/participant/`,
-  }),
   CANCEL_OPPORTUNITY_ENROLLMENT: (opportunity_id: number): ApiEndpoint => ({
     method: "DELETE",
     url: `/api/v2/opportunities/${opportunity_id}/participant/`,
