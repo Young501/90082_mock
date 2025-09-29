@@ -112,7 +112,6 @@ const SignupPage = () => {
         },
       });
     } catch (error: any) {
-      console.log("error", error);
     } finally {
       setIsLoading(false);
     }

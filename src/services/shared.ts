@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import { useAuthStore } from "@/store/authStore";
+import {
+  Opportunity,
+  OpportunitiesResponse,
+  CategorizedOpportunities,
+  ParticipantRecord,
+} from "@/types/opportunities";
 
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
@@ -206,20 +212,26 @@ export interface AccessibleOpportunity {
   id: number;
   title: string;
   status: "Enrolled" | "Not Enrolled" | string;
+  description: string;
+  start_date: string;
+  end_date: string;
+  created_by: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  questionnaire: Record<string, any>;
+  is_enrolled: boolean;
 }
 
 export function useAccessibleOpportunities() {
   const { user } = useAuthStore();
   return useQuery<AccessibleOpportunity[]>({
-    queryKey: ["accessible-opportunities"],
+    queryKey: ["accessible-opportunities", user?.id],
     queryFn: async () => {
       try {
         const response = await apiRequest({
           endpoint: API_ENDPOINTS.ALL_OPPORTUNITIES,
         });
-        console.log("🔍 V2 API Response:", response);
-        console.log("🔍 Response type:", typeof response);
-        console.log("🔍 Is array:", Array.isArray(response));
 
         let opportunities: any[] = [];
 
@@ -236,12 +248,8 @@ export function useAccessibleOpportunities() {
           return [];
         }
 
-        console.log("🔍 Processing opportunities:", opportunities.length);
-
         // Map opportunities using enrollment_status from API response
         const opportunitiesWithStatus = opportunities.map((o: any) => {
-          console.log("🔍 Processing opportunity:", o);
-          console.log("🔍 Available fields in opportunity:", Object.keys(o));
 
           // Use enrollment_status from API response if available
           let enrollmentStatus = "Not Enrolled";
@@ -267,15 +275,19 @@ export function useAccessibleOpportunities() {
             id: o.id,
             title: o.title || o.name,
             status: enrollmentStatus,
+            description: o.description || "",
+            start_date: o.start_date || "",
+            end_date: o.end_date || "",
+            created_by: o.created_by || 0,
+            is_active: o.is_active !== undefined ? o.is_active : true,
+            created_at: o.created_at || "",
+            updated_at: o.updated_at || "",
+            questionnaire: o.questionnaire || {},
+            is_enrolled: enrollmentStatus === "Enrolled",
           };
-          console.log("🔍 Mapped opportunity:", mappedOpp);
           return mappedOpp;
         });
 
-        console.log(
-          "🔍 Final mapped opportunities with status:",
-          opportunitiesWithStatus
-        );
         return opportunitiesWithStatus;
       } catch (error: any) {
         console.error("❌ V2 API failed:", error);
@@ -292,6 +304,7 @@ export function useAccessibleOpportunities() {
     },
   });
 }
+
 export function useContactUser() {
   return useMutation({
     mutationFn: async (data: {
@@ -389,6 +402,62 @@ export function useOpportunityDetail(opportunityId: string) {
     staleTime: 5 * 60 * 1000,
     retry: (failureCount, error: any) => {
       if (error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+}
+
+// Helper function to categorize opportunities
+export function categorizeOpportunities(
+  opportunities: Opportunity[]
+): CategorizedOpportunities {
+  const enrolled: Opportunity[] = [];
+  const closed: Opportunity[] = [];
+
+  opportunities.forEach((opportunity) => {
+
+    // Check if user is enrolled based on the is_enrolled field
+    const isEnrolled = opportunity.is_enrolled === true;
+
+    if (isEnrolled) {
+      enrolled.push(opportunity);
+    } else {
+      closed.push(opportunity);
+    }
+  });
+
+  return { enrolled, closed };
+}
+
+// UC-310: Get participant record for a specific opportunity
+export function useOpportunityParticipant(opportunityId: string | number, enabled: boolean = true) {
+  const { user } = useAuthStore();
+
+  return useQuery<ParticipantRecord>({
+    queryKey: ["opportunity-participant", opportunityId, user?.id],
+    queryFn: async () => {
+      try {
+        const response = await apiRequest<ParticipantRecord>({
+          endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(
+            Number(opportunityId)
+          ),
+        });
+        return response;
+      } catch (error: any) {
+        console.error("Failed to fetch participant record:", error);
+        throw error;
+      }
+    },
+    enabled: !!user && !!opportunityId && enabled,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) {
+        // Participant record not found - this is expected for non-enrolled opportunities
+        return false;
+      }
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
         return false;
       }
       return failureCount < 2;

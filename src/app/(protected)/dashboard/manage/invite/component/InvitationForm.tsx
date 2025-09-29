@@ -173,7 +173,6 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
             pauseOnHover: true,
           }
         );
-        console.log(failedInvitationsList);
       } else if (invitationsSent === 0 && failedInvitations > 0) {
         toast.error(
           `All invitations failed. ${failedInvitations} ${userType === "student" ? "student(s)" : "organisation(s)"}, Already Invited`
@@ -186,7 +185,6 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
           }
         );
         toast.error(`Failed invitations:\n${failedInvitationsList.join("\n")}`);
-        console.log(failedInvitationsList);
       } else {
         toast.success(
           response.detail ||

@@ -42,6 +42,7 @@ import Loader from "@/components/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { OrganisationProfile } from "@/types/discovery";
+import MyOpportunities from "@/components/MyOpportunities";
 
 const Profile = () => {
   const {
@@ -54,6 +55,7 @@ const Profile = () => {
   } = useAuthStore();
   const userProfile: UserProfile | null = getUserProfile();
   const [activeTab, setActiveTab] = useState<number>(0);
+  const [activeOpportunityTab, setActiveOpportunityTab] = useState<number>(0);
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
   const [updatedProfilePicture, setUpdatedProfilePicture] = useState<
     string | null
@@ -211,28 +213,46 @@ const Profile = () => {
   }, [profileData, reset, activeTab, userType]);
 
   const tabs: Tab[] = useMemo(() => {
-    if (!pages.length && !isCoordinator) return [];
+    const allTabs: Tab[] = [];
 
-    const onboardingTabs: Tab[] = pages.map((page: OnboardingPage) => ({
-      title: page.short_title || page.title,
-      icon: page.title_icon,
-    }));
+    // Add onboarding pages and insert My Opportunities after education-related pages
+    pages.forEach((page: OnboardingPage) => {
+      allTabs.push({
+        title: page.short_title || page.title,
+        icon: page.title_icon,
+      });
+    });
+
+    // Add My Opportunities after all onboarding pages if not already inserted (only for non-coordinators)
     if (!isCoordinator) {
-      onboardingTabs.push({
+      allTabs.push({
+        title: "My Opportunities",
+        icon: "fa-solid fa-folder-closed",
+      });
+    }
+
+    // Add Profile Preview for non-coordinators
+    if (!isCoordinator) {
+      allTabs.push({
         title: "Profile Preview",
         icon: "fa-solid fa-eye",
       });
     }
-    onboardingTabs.push({
+
+    // Add Change Password for all users
+    allTabs.push({
       title: "Change Password",
       icon: "fa-solid fa-key",
     });
 
-    return onboardingTabs;
+    return allTabs;
   }, [pages, isCoordinator]);
 
   const calculateProfileCompletion = (): number => {
-    if (!userProfile || !pages.length) return 0;
+    if (!userProfile) return 0;
+
+    // For users who have completed onboarding (no pages), return 100%
+    if (!pages.length) return 100;
 
     const getAllFieldsFromPages = (
       pages: OnboardingPage[],
@@ -313,7 +333,16 @@ const Profile = () => {
     return Math.round((filledFields.length / allFields.length) * 100);
   };
 
-  if ((isOnboardingLoading || !pages.length) && !isCoordinator) {
+  // For organisation users who have completed onboarding, show profile even if no pages
+  const shouldShowLoading =
+    (isOnboardingLoading || isProfileLoading) && !isCoordinator;
+  const hasNoPages = !pages.length && !isCoordinator;
+
+  // If user has profile data but no onboarding pages, they've completed onboarding
+  const hasCompletedOnboarding =
+    (userProfile || fetchedUserProfile) && hasNoPages;
+
+  if (shouldShowLoading && !hasCompletedOnboarding) {
     return (
       <Box p={6} maxW="1280px" mx="auto" mt={{ base: "80px", lg: "126px" }}>
         <Loader size="lg" />
@@ -451,11 +480,14 @@ const Profile = () => {
         maxW="1512px"
         mx="auto"
         mt={{ base: "80px", lg: "126px" }}
+        w="100%"
+        overflow="hidden"
       >
         <Flex
           w="100%"
           direction={{ base: "column", md: "row" }}
           gap={{ base: 4, lg: 20 }}
+          overflow="hidden"
         >
           <Box
             bg="white"
@@ -597,12 +629,19 @@ const Profile = () => {
             </Box>
           </Box>
 
-          <Box maxW={{ base: "100%" }} w="100%" bg="white" p={6} flex={1}>
+          <Box
+            maxW={{ base: "100%" }}
+            w="100%"
+            bg="white"
+            p={6}
+            flex={1}
+            overflow="hidden"
+          >
             <Text fontSize="25px" fontWeight="bold" mb={6} color="#000000">
               {tabs[activeTab]?.title || "Tab Details"}
             </Text>
 
-            {activeTab === tabs.length - 2 ? (
+            {tabs[activeTab]?.title === "Profile Preview" ? (
               <Box>
                 {userProfile &&
                   (userType === "student" ? (
@@ -644,7 +683,9 @@ const Profile = () => {
                     </VStack>
                   ) : null)}
               </Box>
-            ) : activeTab === tabs.length - 1 ? (
+            ) : tabs[activeTab]?.title === "My Opportunities" ? (
+              <MyOpportunities userType={userType} />
+            ) : tabs[activeTab]?.title === "Change Password" ? (
               <Box
                 maxW="500px"
                 mx="auto"
