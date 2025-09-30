@@ -57,8 +57,18 @@ apiClient.interceptors.request.use(
       const safeHeaders = headersObj?.Authorization
         ? { ...headersObj, Authorization: "[HIDDEN]" }
         : headersObj;
-    }
 
+      const qs =
+        config.params &&
+        new URLSearchParams(config.params as Record<string, string>).toString();
+      const fullUrl = `${config.baseURL ?? ""}${config.url}${qs ? `?${qs}` : ""}`;
+
+      console.log(`🚀 ${config.method?.toUpperCase()} ${fullUrl}`, {
+        params: config.params,
+        data: config.data,
+        headers: safeHeaders,
+      });
+    }
     return config;
   },
   (error: AxiosError) => {
@@ -68,7 +78,7 @@ apiClient.interceptors.request.use(
 
     if (error.status === 401 && !isInvitePage) {
       useAuthStore.getState().setAuthData("", {} as User);
-      window.location.href = "/login/";
+      // window.location.href = "/login/";
     }
     if (process.env.NODE_ENV === "development") {
       console.error("❌ Request interceptor error:", error);
@@ -79,6 +89,15 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        `✅ ${response.config.method?.toUpperCase()} ${response.config.url}`,
+        {
+          status: response.status,
+          data: response.data,
+        }
+      );
+    }
     return response;
   },
   (error: AxiosError) => {
@@ -88,7 +107,7 @@ apiClient.interceptors.response.use(
 
     if (error.status === 401 && !isInvitePage) {
       useAuthStore.getState().setAuthData("", {} as User);
-      window.location.href = "/login/";
+      // window.location.href = "/login/";
     }
     if (process.env.NODE_ENV === "development") {
       console.error(

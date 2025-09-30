@@ -154,20 +154,26 @@ export function DiscoveryFilterBox({
                     p={2}
                   >
                     {isExpanded ? (
-                      <Image
-                        src="/assets/ArrowDownIcon.svg"
-                        width={16}
-                        height={16}
-                        style={{ transform: "rotate(180deg)" }}
-                        alt="arrowUp"
-                      />
+                      <Box pos="relative" w="16px" h="16px">
+                        <Image
+                          src="/assets/ArrowDownIcon.svg"
+                          alt="arrowUp"
+                          fill
+                          style={{
+                            objectFit: "contain",
+                            transform: "rotate(180deg)",
+                          }}
+                        />
+                      </Box>
                     ) : (
-                      <Image
-                        src="/assets/ArrowDownIcon.svg"
-                        width={16}
-                        height={16}
-                        alt="arrowDown"
-                      />
+                      <Box pos="relative" w="16px" h="16px">
+                        <Image
+                          src="/assets/ArrowDownIcon.svg"
+                          alt="arrowDown"
+                          fill
+                          style={{ objectFit: "contain" }}
+                        />
+                      </Box>
                     )}
                   </Button>
                 )}
@@ -260,20 +266,26 @@ export function DiscoveryFilterBox({
                   p={2}
                 >
                   {isExpanded ? (
-                    <Image
-                      src="/assets/ArrowDownIcon.svg"
-                      width={16}
-                      height={16}
-                      style={{ transform: "rotate(180deg)" }}
-                      alt="arrowUp"
-                    />
+                    <Box pos="relative" w="16px" h="16px">
+                      <Image
+                        src="/assets/ArrowDownIcon.svg"
+                        alt="arrowUp"
+                        fill
+                        style={{
+                          objectFit: "contain",
+                          transform: "rotate(180deg)",
+                        }}
+                      />
+                    </Box>
                   ) : (
-                    <Image
-                      src="/assets/ArrowDownIcon.svg"
-                      width={16}
-                      height={16}
-                      alt="arrowDown"
-                    />
+                    <Box pos="relative" w="16px" h="16px">
+                      <Image
+                        src="/assets/ArrowDownIcon.svg"
+                        alt="arrowDown"
+                        fill
+                        style={{ objectFit: "contain" }}
+                      />
+                    </Box>
                   )}
                 </Button>
               )}

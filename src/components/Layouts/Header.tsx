@@ -208,12 +208,17 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     if (item.label === "FOLDERS") {
       return (
         <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>
-          <Box py={isMobile ? 4 : 0}>
+          <Box
+            py={isMobile ? 4 : 0}
+            pos="relative"
+            w={isMobile ? "24px" : "30px"}
+            h={isMobile ? "24px" : "30px"}
+          >
             <Image
               src="/assets/folder.svg"
               alt="folder"
-              width={isMobile ? 24 : 30}
-              height={isMobile ? 24 : 30}
+              fill
+              style={{ objectFit: "contain" }}
             />
           </Box>
         </Link>
@@ -538,31 +543,21 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             size="sm"
             onClick={handleMenuToggle}
           >
-            <Image
-              src={
-                isProtected ? "/assets/cancelwhite.svg" : "/assets/cancel.svg"
-              }
-              alt="close"
-              width={20}
-              height={20}
-            />
+            <Box pos="relative" w="20px" h="20px">
+              <Image
+                src={
+                  isProtected ? "/assets/cancelwhite.svg" : "/assets/cancel.svg"
+                }
+                alt="close"
+                fill
+                style={{ objectFit: "contain" }}
+              />
+            </Box>
           </Button>
         </Box>
         <Box p={0}>
           {isProtected ? (
             <VStack gap={0} p={6} align="stretch">
-              <Link href="/" onClick={handleMenuItemClick}>
-                <Box
-                  display="flex"
-                  pb={6}
-                  justifyContent="center"
-                  alignItems="center"
-                  borderBottom="1px solid rgba(255, 255, 255, 0.26)"
-                  transition="background 0.2s"
-                >
-                  <Image src="/uni.png" alt="logo" width={164} height={34} />
-                </Box>
-              </Link>
               <Box
                 display="flex"
                 flexDirection="column"
@@ -646,9 +641,24 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
           >
             <Link href="/" onClick={handleMenuItemClick}>
               {isMobile ? (
-                <Image alt="logo" src="/uni.png" width={164} height={34} />
+                <Box pos="relative" w="164px" h="34px">
+                  <Image
+                    alt="logo"
+                    src="/uni.png"
+                    fill
+                    style={{ objectFit: "contain" }}
+                  />
+                </Box>
               ) : (
-                <Image alt="logo" src="/uni.png" width={300} height={80} />
+                <Box pos="relative" w="300px" h="80px">
+                  <Image
+                    alt="logo"
+                    src="/uni.png"
+                    fill
+                    style={{ objectFit: "contain" }}
+                    priority
+                  />
+                </Box>
               )}
             </Link>
 
@@ -670,12 +680,14 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                   height={20}
                 />
               ) : (
-                <Image
-                  src="/assets/hamburger.svg"
-                  alt="menu"
-                  width={20}
-                  height={20}
-                />
+                <Box pos="relative" w="20px" h="20px">
+                  <Image
+                    src="/assets/hamburger.svg"
+                    alt="menu"
+                    fill
+                    style={{ objectFit: "contain" }}
+                  />
+                </Box>
               )}
             </Button>
           </Box>
