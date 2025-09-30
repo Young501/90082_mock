@@ -51,7 +51,7 @@ const getDefaultValues = (fields: ProcessedField[]): FilterFormData => {
 const extractFilterOptions = (
   results: UserProfile[],
   fields: ProcessedField[]
-): Record<string, string[]> => {
+): Record<string, Array<string | { label: string; value: string }>> => {
   const options: Record<string, Set<string>> = {};
 
   results.forEach((user) => {
@@ -80,7 +80,33 @@ const extractFilterOptions = (
   });
 
   return Object.fromEntries(
-    Object.entries(options).map(([key, set]) => [key, Array.from(set).sort()])
+    Object.entries(options).map(([fieldName, valueSet]) => {
+
+      //******** retaining both types of field options, options can be an array of strings or an array of objects with label and value *********//
+      const field = fields.find((f) => f.field === fieldName);
+      const extractedValues = Array.from(valueSet).sort();
+      
+      if (field?.options && Array.isArray(field.options) && field.options.length > 0) {
+        const firstOption = field.options[0];
+        if (typeof firstOption === "object" && "value" in firstOption) {
+          const optionMap = new Map(
+            (field.options as Array<{ label: string; value: string }>).map((opt) => [
+              opt.value,
+              opt,
+            ])
+          );
+          
+          return [
+            fieldName,
+            extractedValues
+              .map((val) => optionMap.get(val))
+              .filter((opt): opt is { label: string; value: string } => opt !== undefined),
+          ];
+        }
+      }
+      
+      return [fieldName, extractedValues];
+    })
   );
 };
 
@@ -105,9 +131,9 @@ export const useDiscovery = (
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [filterOptions, setFilterOptions] = useState<Record<string, string[]>>(
-    {}
-  );
+  const [filterOptions, setFilterOptions] = useState<
+    Record<string, Array<string | { label: string; value: string }>>
+  >({});
   const [isSearching, setIsSearching] = useState(false);
 
   const userType = user?.user_types?.[0];

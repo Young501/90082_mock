@@ -153,6 +153,7 @@ export default function DiscoveryPage() {
     isEnrollmentReady,
   });
 
+
   const { control, watch } = form;
   const watchedValues = watch();
 
