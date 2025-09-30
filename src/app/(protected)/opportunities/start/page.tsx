@@ -1,27 +1,27 @@
 "use client";
 
 import React, { useEffect } from "react";
-import {
-  Box,
-  VStack,
-  HStack,
-  Heading,
-  Text,
-} from "@chakra-ui/react";
+import { Box, VStack, HStack, Heading, Text } from "@chakra-ui/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import ProgressTrack from "@/components/ProgressTrack";
+import { useOpportunityDetail } from "@/services/shared";
 
 export default function OpportunityStartPage() {
   const sp = useSearchParams();
   const router = useRouter();
   const opportunityId = sp.get("id");
 
+  const {
+    data: opportunity,
+    isLoading,
+    error,
+  } = useOpportunityDetail(opportunityId || "");
+
   const handleStartQuestionnaire = () => {
     // Proceed directly to questionnaire (domain check handled in discover page)
     router.push(`/opportunities/fill?id=${opportunityId}`);
   };
-
 
   useEffect(() => {
     if (!opportunityId) {
@@ -38,7 +38,7 @@ export default function OpportunityStartPage() {
       <VStack gap={8} align="stretch">
         {/* Progress Tracker */}
         <ProgressTrack progressPercent={25} totalSteps={4} />
-        
+
         {/* Header */}
         <Box textAlign="center">
           <Heading
@@ -47,7 +47,7 @@ export default function OpportunityStartPage() {
             color="gray.900"
             mb={4}
           >
-            Employment Opportunity Enrollment
+            {opportunity?.title} Enrollment
           </Heading>
           <Text
             fontSize={{ base: "md", md: "lg" }}
@@ -55,8 +55,8 @@ export default function OpportunityStartPage() {
             maxW="600px"
             mx="auto"
           >
-            Complete the questionnaire below to enroll in this employment opportunity. 
-            Your responses will help us match you with the most suitable roles.
+            Complete the questionnaire below to enroll in this opportunity. Your
+            responses will help us find your most suitable matches.
           </Text>
         </Box>
 
@@ -69,16 +69,12 @@ export default function OpportunityStartPage() {
           borderColor="blue.200"
         >
           <VStack gap={4} align="start">
-            <Heading
-              fontSize="lg"
-              fontWeight="600"
-              color="blue.900"
-            >
+            <Heading fontSize="lg" fontWeight="600" color="blue.900">
               What to expect:
             </Heading>
             <VStack gap={3} align="start" pl={4}>
               <Text fontSize="sm" color="blue.800">
-                • Answer questions about your employment preferences and skills
+                • Answer questions about your preferences and skills
               </Text>
               <Text fontSize="sm" color="blue.800">
                 • Your responses will be saved automatically as you progress
@@ -94,24 +90,30 @@ export default function OpportunityStartPage() {
         </Box>
 
         {/* Action Buttons */}
-        <HStack gap={4} justify="center" pt={4}>
+        <HStack gap={20} justify="center" pt={0} pb={4}>
           <Button
             variant="secondary"
-            onClick={() => router.back()}
+            onClick={() => router.push("/discover/?id=" + opportunityId)}
             size="lg"
-            px={8}
+            borderRadius="xl"
+            h="50px"
+            w={{ base: "full", md: "150px" }}
+            fontSize={"md"}
           >
-            Go Back
+            Cancel
           </Button>
           <Button
             onClick={handleStartQuestionnaire}
             size="lg"
-            px={8}
             bg="blue.500"
             color="white"
+            borderRadius="xl"
+            h="50px"
+            w={{ base: "full", md: "150px" }}
+            fontSize={"md"}
             _hover={{ bg: "blue.600" }}
           >
-            Start Questionnaire
+            Start
           </Button>
         </HStack>
       </VStack>

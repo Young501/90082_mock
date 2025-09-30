@@ -253,7 +253,7 @@ export default function DiscoveryPage() {
               color="white"
               px={4}
               py={2}
-              borderRadius="full"
+              borderRadius="2xl"
               display="inline-block"
             >
               {opportunity.title}

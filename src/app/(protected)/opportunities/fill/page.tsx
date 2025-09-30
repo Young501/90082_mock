@@ -1,19 +1,21 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import {
-  Box,
-  VStack,
-  Heading,
-  Text,
-  Alert,
-  HStack,
-} from "@chakra-ui/react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
+import { Box, VStack, Heading, Text, Alert, HStack } from "@chakra-ui/react";
 import ProgressTrack from "@/components/ProgressTrack";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useOpportunityDetail } from "@/services/shared";
 import { useAuthStore } from "@/store";
-import { QuestionnaireForm, QuestionnaireFormRef } from "@/components/questionnaire/QuestionnaireForm";
+import {
+  QuestionnaireForm,
+  QuestionnaireFormRef,
+} from "@/components/questionnaire/QuestionnaireForm";
 import { Button } from "@/components/ui/Button";
 import { Loader } from "lucide-react";
 import { useQuestionnaireAnswers } from "@/hooks/useQuestionnaireAnswers";
@@ -48,12 +50,15 @@ export default function OpportunityFillPage() {
     return opportunity.questionnaire[userType] || [];
   }, [userType, opportunity?.questionnaire]);
 
-  const handleAnswersChange = useCallback((newAnswers: Record<string, any>) => {
-    updateAnswers(newAnswers);
-    if (hasValidationError) {
-      setHasValidationError(false);
-    }
-  }, [updateAnswers, hasValidationError]);
+  const handleAnswersChange = useCallback(
+    (newAnswers: Record<string, any>) => {
+      updateAnswers(newAnswers);
+      if (hasValidationError) {
+        setHasValidationError(false);
+      }
+    },
+    [updateAnswers, hasValidationError]
+  );
 
   // Handle scrolling to specific field when edit parameter is present
   useEffect(() => {
@@ -62,9 +67,9 @@ export default function OpportunityFillPage() {
       setTimeout(() => {
         const fieldElement = document.querySelector(`[name="${editField}"]`);
         if (fieldElement) {
-          fieldElement.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center' 
+          fieldElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
           });
           // Focus the field if it's focusable
           if (fieldElement instanceof HTMLElement && fieldElement.focus) {
@@ -128,7 +133,8 @@ export default function OpportunityFillPage() {
           <Alert.Indicator />
           <Alert.Title>Opportunity not found</Alert.Title>
           <Alert.Description>
-            The opportunity you&apos;re looking for doesn&apos;t exist or has been removed.
+            The opportunity you&apos;re looking for doesn&apos;t exist or has
+            been removed.
           </Alert.Description>
         </Alert.Root>
       </Box>
@@ -140,16 +146,11 @@ export default function OpportunityFillPage() {
       <VStack gap={6} align="stretch">
         {/* Progress Tracker */}
         <ProgressTrack progressPercent={50} totalSteps={4} />
-        
+
         {/* Header */}
         <Box>
           <HStack gap={3} mb={4}>
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              size="sm"
-              p={2}
-            >
+            <Button variant="ghost" onClick={handleBack} size="sm" p={2}>
               ← Back
             </Button>
           </HStack>
@@ -160,23 +161,22 @@ export default function OpportunityFillPage() {
             color="gray.900"
             mb={2}
           >
-            Employment Enrollment
+            Opportunity Enrollment
           </Heading>
-          <Text
-            fontSize="md"
-            color="gray.600"
-            mb={4}
-          >
-            Fill out the questionnaire for: <Text as="span" fontWeight="600">{opportunity.title}</Text>
+          <Text fontSize="md" color="gray.600" mb={4}>
+            Fill out the questionnaire for:{" "}
+            <Text as="span" fontWeight="600">
+              {opportunity.title}
+            </Text>
           </Text>
         </Box>
 
-          <Text fontSize="sm" color="gray.600" mb={4}>
-            Required fields are marked with{" "}
-            <Text as="span" color="red.500">
-              *
-            </Text>
+        <Text fontSize="sm" color="gray.600" mb={4}>
+          Required fields are marked with{" "}
+          <Text as="span" color="red.500">
+            *
           </Text>
+        </Text>
 
         {/* Validation Error */}
         {hasValidationError && (
@@ -184,7 +184,8 @@ export default function OpportunityFillPage() {
             <Alert.Indicator />
             <Alert.Title>Please complete all required fields</Alert.Title>
             <Alert.Description>
-              Some required fields are missing or incomplete. Please review and fill in all required information.
+              Some required fields are missing or incomplete. Please review and
+              fill in all required information.
             </Alert.Description>
           </Alert.Root>
         )}
@@ -202,7 +203,8 @@ export default function OpportunityFillPage() {
             <Alert.Indicator />
             <Alert.Title>No questionnaire available</Alert.Title>
             <Alert.Description>
-              There are currently no questionnaire questions for this opportunity.
+              There are currently no questionnaire questions for this
+              opportunity.
             </Alert.Description>
           </Alert.Root>
         )}
@@ -211,6 +213,10 @@ export default function OpportunityFillPage() {
         <HStack gap={4} justify="space-between" pt={6}>
           <Button
             variant="secondary"
+            borderRadius="xl"
+            h="50px"
+            fontSize={"md"}
+            w={{ base: "full", md: "150px" }}
             onClick={handleBack}
           >
             ← Back
@@ -220,6 +226,10 @@ export default function OpportunityFillPage() {
             onClick={handleNext}
             bg="blue.500"
             color="white"
+            borderRadius="xl"
+            h="50px"
+            fontSize={"md"}
+            w={{ base: "full", md: "200px" }}
             _hover={{ bg: "blue.600" }}
             disabled={questions.length === 0}
           >

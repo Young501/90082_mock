@@ -150,6 +150,7 @@ export default function LoginPage() {
                   isLoading={isLoading}
                   w="100%"
                   mt={4}
+                  // borderRadius="xl"
                 >
                   LOGIN
                 </Button>

@@ -334,29 +334,22 @@ export default function OpportunityReviewPage() {
           </VStack>
         </Box>
 
-        {/* Navigation Buttons */}
-        <HStack gap={4} justify="space-between" pt={6}>
-          <Button variant="secondary" onClick={handleBack}>
-            ← Back to Edit
-          </Button>
-
+        <Flex justify="center" pb={8} pt={2}>
           <Button
             onClick={handleSubmit}
             bg="green.500"
             color="white"
+            borderRadius="xl"
+            h="50px"
+            fontSize="lg"
+            w={{ base: "full", md: "200px" }}
             _hover={{ bg: "green.600" }}
             loading={enrollMutation.isPending}
             disabled={enrollMutation.isPending}
           >
             Submit
           </Button>
-        </HStack>
-
-        {/* Instructions */}
-        <Text fontSize="xs" color="gray.500" textAlign="center">
-          By completing enrollment, you agree to share your information with the
-          opportunity coordinator.
-        </Text>
+        </Flex>
       </VStack>
     </Box>
   );

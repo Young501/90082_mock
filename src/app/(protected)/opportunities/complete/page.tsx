@@ -32,7 +32,7 @@ export default function OpportunityCompletePage() {
   const queryClient = useQueryClient();
 
   if (!opportunityId) {
-    router.push('/opportunities');
+    router.push("/opportunities");
     return null;
   }
 
@@ -87,7 +87,8 @@ export default function OpportunityCompletePage() {
           <Alert.Indicator />
           <Alert.Title>Opportunity not found</Alert.Title>
           <Alert.Description>
-            The opportunity you&apos;re looking for doesn&apos;t exist or has been removed.
+            The opportunity you&apos;re looking for doesn&apos;t exist or has
+            been removed.
           </Alert.Description>
         </Alert.Root>
       </Box>
@@ -99,7 +100,7 @@ export default function OpportunityCompletePage() {
       <VStack gap={8} align="stretch">
         {/* Progress Tracker */}
         <ProgressTrack progressPercent={100} totalSteps={4} />
-        
+
         {/* Success Icon */}
         <Box textAlign="center">
           <Icon
@@ -131,43 +132,10 @@ export default function OpportunityCompletePage() {
             <Text as="span" fontWeight="600" color="gray.900">
               {opportunity.title}
             </Text>
-            . You can explore the opportunity details and get started right away.
+            . You can discover other opportunity members and filter your search.
+            Start connecting and collaborating!
           </Text>
         </VStack>
-
-        {/* Success Details Card */}
-        <Box
-          bg="green.50"
-          borderRadius="16px"
-          p={{ base: 6, md: 8 }}
-          border="1px solid"
-          borderColor="green.200"
-        >
-          <VStack gap={4} align="start" textAlign="left">
-            <Heading
-              fontSize="lg"
-              fontWeight="600"
-              color="green.900"
-            >
-              You&apos;re all set!
-            </Heading>
-            <VStack gap={3} align="start" pl={4}>
-              <Text fontSize="sm" color="green.800">
-                • You are now officially enrolled in this opportunity
-              </Text>
-              <Text fontSize="sm" color="green.800">
-                • The opportunity coordinator will be in touch with next steps
-              </Text>
-              <Text fontSize="sm" color="green.800">
-                • You can explore the opportunity details anytime
-              </Text>
-              <Text fontSize="sm" color="green.800">
-                • Feel free to enroll in other opportunities as well
-              </Text>
-            </VStack>
-          </VStack>
-        </Box>
-
         {/* Information Card */}
         <Box
           bg="blue.50"
@@ -177,20 +145,15 @@ export default function OpportunityCompletePage() {
           borderColor="blue.200"
         >
           <VStack gap={4} align="start" textAlign="left">
-            <Heading
-              fontSize="lg"
-              fontWeight="600"
-              color="blue.900"
-            >
-              Keep improving your profile
+            <Heading fontSize="lg" fontWeight="600" color="blue.900">
+              Boost your profile
             </Heading>
             <Text fontSize="sm" color="blue.800">
-              While you wait for a response, consider updating your profile with more skills, 
-              experiences, or certifications to improve your chances in future opportunities.
+              Add new skills, experiences, and certifications to stand out and
+              increase your chances for future opportunities.
             </Text>
           </VStack>
         </Box>
-
         {/* Action Button */}
         <Box textAlign="center" pt={4}>
           <Button
@@ -198,8 +161,12 @@ export default function OpportunityCompletePage() {
             bg="blue.500"
             color="white"
             _hover={{ bg: "blue.600" }}
-            size="lg"
-            px={8}
+            // size="lg"
+            // px={8}
+            borderRadius="xl"
+            h="50px"
+            fontSize={"lg"}
+            w={{ base: "full", md: "300px" }}
           >
             Explore the Opportunity
           </Button>
@@ -207,7 +174,8 @@ export default function OpportunityCompletePage() {
 
         {/* Footer Note */}
         <Text fontSize="xs" color="gray.500" pt={4} textAlign="center">
-          Enrolled on {new Date().toLocaleDateString("en-US", {
+          Enrolled on{" "}
+          {new Date().toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",
             day: "numeric",
