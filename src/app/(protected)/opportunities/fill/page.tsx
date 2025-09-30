@@ -190,11 +190,13 @@ export default function OpportunityFillPage() {
         {hasValidationError && (
           <Alert.Root status="error">
             <Alert.Indicator />
-            <Alert.Title>Please complete all required fields</Alert.Title>
-            <Alert.Description>
-              Some required fields are missing or incomplete. Please review and
-              fill in all required information.
-            </Alert.Description>
+            <Alert.Content>
+              <Alert.Title>Please complete all required fields</Alert.Title>
+              <Alert.Description>
+                Some required fields are missing or incomplete. Please review
+                and fill in all required information.
+              </Alert.Description>
+            </Alert.Content>
           </Alert.Root>
         )}
 
