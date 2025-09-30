@@ -140,13 +140,14 @@ export function StudentCard({
                   style={{ color: "#DC2626", fontSize: "20px" }}
                 />
               ) : (
-                <Image
-                  width={20}
-                  height={20}
-                  src="/assets/addicon.svg"
-                  alt="add"
-                  objectFit="contain"
-                />
+                <Box pos="relative" w="20px" h="20px">
+                  <Image
+                    src="/assets/addicon.svg"
+                    alt="add"
+                    fill
+                    style={{ objectFit: "contain" }}
+                  />
+                </Box>
               )}
             </Box>
           </Box>
@@ -222,20 +223,20 @@ export function StudentCard({
                     {student.course_name && (
                       <HStack gap={2} align="start">
                         <Box
-                          w="16px"
-                          h="16px"
+                          w="12px"
+                          h="12px"
                           display="flex"
                           alignItems="center"
                           justifyContent="center"
                           flexShrink={0}
-                          mt="2px"
+                          mt="5px"
+                          pos="relative"
                         >
                           <Image
-                            width={12}
-                            height={12}
                             src="/assets/educationIcon.svg"
                             alt="course"
-                            objectFit="contain"
+                            fill
+                            style={{ objectFit: "contain" }}
                           />
                         </Box>
                         <Text
@@ -266,7 +267,7 @@ export function StudentCard({
                             height={12}
                             src="/assets/locationIcon.svg"
                             alt="location"
-                            objectFit="contain"
+                            style={{ objectFit: "contain" }}
                           />
                         </Box>
                         <Text
@@ -296,7 +297,7 @@ export function StudentCard({
                             height={12}
                             src="/assets/certificationIcon.svg"
                             alt="specialization"
-                            objectFit="contain"
+                            style={{ objectFit: "contain" }}
                           />
                         </Box>
                         <Text
@@ -312,23 +313,23 @@ export function StudentCard({
 
                     <HStack gap={2} align="start">
                       <Box
-                        w="16px"
-                        h="16px"
+                        w="12px"
+                        h="12px"
                         display="flex"
                         alignItems="center"
                         justifyContent="center"
                         flexShrink={0}
-                        mt="2px"
+                        mt="5px"
+                        pos="relative"
                       >
                         {isMatched ? (
-                          <Ban size={16} color="#DC2626" />
+                          <Ban size={12} color="#DC2626" />
                         ) : (
                           <Image
-                            width={12}
-                            height={12}
                             src="/assets/calenderIcon.svg"
                             alt="progress"
-                            objectFit="contain"
+                            fill
+                            style={{ objectFit: "contain" }}
                           />
                         )}
                       </Box>

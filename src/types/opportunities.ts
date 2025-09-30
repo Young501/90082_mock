@@ -1,3 +1,5 @@
+import { Question } from "./onboarding";
+
 export interface Opportunity {
   id: number;
   title: string;
@@ -8,62 +10,33 @@ export interface Opportunity {
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  questionnaire?: Record<string, any>;
-  // Enrollment status from API
+  questionnaire: Record<string, Question[]>;
+  allowed_student_email_domains?: string[];
   is_enrolled?: boolean;
-  participant_record?: ParticipantRecord;
+  participant_record?: ParticipantRecord | null;
 }
 
 export interface ParticipantRecord {
-  user_type_key: string;
-  participant_id: number;
-  email: string;
-  accepted: boolean;
-  type: string;
-  data: {
-    // User profile data
-    id: number;
-    first_name: string;
-    last_name: string;
-    email?: string;
-    location?: string;
-    profile_picture_url?: string;
-    course_name?: string;
-    course_stream?: string;
-    course_progression?: string;
-    specialization?: string[];
-    skills?: string[];
-    credentials?: string[];
-    preferred_location?: string[];
-    availability?: string;
-    discovery_pools?: string;
-    position_type?: string;
-    within_distance_km?: string;
-    homepage?: string;
-    linkedin?: string;
-    instagram?: string;
-    bluesky?: string;
-    status?: string;
-    faculty?: string;
-    resume_url?: string;
-    questionnaire_answers?: Record<string, any>;
-    matched?: boolean;
-    user?: number;
-  };
+  id?: number;
+  status?: string;
+  accepted?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: any;
 }
 
 export interface OpportunitiesResponse {
-  opportunities: Opportunity[];
-  total_count: number;
+  results: Opportunity[];
+  count: number;
+  next: string | null;
+  previous: string | null;
 }
 
 export interface OpportunitiesMap {
-  [opportunityId: number]: Opportunity;
+  [key: number]: Opportunity;
 }
 
 export interface CategorizedOpportunities {
   enrolled: Opportunity[];
   closed: Opportunity[];
 }
-
-export type OpportunityStatus = "enrolled" | "closed";

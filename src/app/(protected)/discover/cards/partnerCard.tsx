@@ -103,13 +103,14 @@ export function PartnerCard({
                 style={{ color: "#DC2626", fontSize: "20px" }}
               />
             ) : (
-              <Image
-                width={20}
-                height={20}
-                src="/assets/addicon.svg"
-                alt="add"
-                objectFit="contain"
-              />
+              <Box pos="relative" w="20px" h="20px">
+                <Image
+                  src="/assets/addicon.svg"
+                  alt="add"
+                  fill
+                  style={{ objectFit: "contain" }}
+                />
+              </Box>
             )}
           </Box>
         </Box>
@@ -200,7 +201,7 @@ export function PartnerCard({
                           height={12}
                           src="/assets/locationIcon.svg"
                           alt="location"
-                          objectFit="contain"
+                          style={{ objectFit: "contain" }}
                         />
                       </Box>
                       <Text

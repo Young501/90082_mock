@@ -20,6 +20,10 @@ export interface AuthState {
   tempOrganisationUser: tempOrganisationUser | null;
   tempOrganisation: Organisation | null;
   isOrganisationMemberOnboarding: boolean;
+  // Opportunity enrollment state
+  currentOpportunityId: string | null;
+  isEnrolled: boolean | null; // null = unknown, true/false = computed
+  isEligible: boolean | null; // null = unknown, true/false = computed
   setAuthData: (token: string, user: User) => void;
   logout: () => void;
   setUserType: (userType: string) => void;
@@ -53,6 +57,14 @@ export interface AuthState {
   clearTempOrganisationUser: () => void;
   setIsOrganisationMemberOnboarding: (isMember: boolean) => void;
   getIsOrganisationMemberOnboarding: () => boolean;
+  // Opportunity enrollment methods
+  setCurrentOpportunityId: (id: string | null) => void;
+  getCurrentOpportunityId: () => string | null;
+  setEnrollmentStatus: (isEnrolled: boolean | null) => void;
+  getEnrollmentStatus: () => boolean | null;
+  setEligibilityStatus: (isEligible: boolean | null) => void;
+  getEligibilityStatus: () => boolean | null;
+  resetOpportunityState: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -71,6 +83,10 @@ export const useAuthStore = create<AuthState>()(
       tempOrganisation: null,
       tempOrganisationUser: null,
       isOrganisationMemberOnboarding: false,
+      // Opportunity enrollment state
+      currentOpportunityId: null,
+      isEnrolled: null,
+      isEligible: null,
       setAuthData: (token: string, user: User) => {
         set({
           user,
@@ -94,6 +110,10 @@ export const useAuthStore = create<AuthState>()(
           tempOrganisation: null,
           tempOrganisationUser: null,
           isOrganisationMemberOnboarding: false,
+          // Reset opportunity state
+          currentOpportunityId: null,
+          isEnrolled: null,
+          isEligible: null,
         });
 
         // if (typeof window !== "undefined") {
@@ -221,6 +241,33 @@ export const useAuthStore = create<AuthState>()(
       },
       getIsOrganisationMemberOnboarding: () => {
         return get().isOrganisationMemberOnboarding;
+      },
+
+      // Opportunity enrollment methods
+      setCurrentOpportunityId: (id: string | null) => {
+        set({ currentOpportunityId: id });
+      },
+      getCurrentOpportunityId: () => {
+        return get().currentOpportunityId;
+      },
+      setEnrollmentStatus: (isEnrolled: boolean | null) => {
+        set({ isEnrolled });
+      },
+      getEnrollmentStatus: () => {
+        return get().isEnrolled;
+      },
+      setEligibilityStatus: (isEligible: boolean | null) => {
+        set({ isEligible });
+      },
+      getEligibilityStatus: () => {
+        return get().isEligible;
+      },
+      resetOpportunityState: () => {
+        set({
+          currentOpportunityId: null,
+          isEnrolled: null,
+          isEligible: null,
+        });
       },
     }),
     {

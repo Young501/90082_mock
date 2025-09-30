@@ -58,8 +58,17 @@ apiClient.interceptors.request.use(
         ? { ...headersObj, Authorization: "[HIDDEN]" }
         : headersObj;
 
-    }
+      const qs =
+        config.params &&
+        new URLSearchParams(config.params as Record<string, string>).toString();
+      const fullUrl = `${config.baseURL ?? ""}${config.url}${qs ? `?${qs}` : ""}`;
 
+      console.log(`🚀 ${config.method?.toUpperCase()} ${fullUrl}`, {
+        params: config.params,
+        data: config.data,
+        headers: safeHeaders,
+      });
+    }
     return config;
   },
   (error: AxiosError) => {
@@ -68,7 +77,8 @@ apiClient.interceptors.request.use(
     const isInvitePage = matchesInvitePattern(currentUrl);
 
     if (error.status === 401 && !isInvitePage) {
-      window.location.href = "/login/";
+      useAuthStore.getState().setAuthData("", {} as User);
+      // window.location.href = "/login/";
     }
     if (process.env.NODE_ENV === "development") {
       console.error("❌ Request interceptor error:", error);
@@ -79,6 +89,15 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        `✅ ${response.config.method?.toUpperCase()} ${response.config.url}`,
+        {
+          status: response.status,
+          data: response.data,
+        }
+      );
+    }
     return response;
   },
   (error: AxiosError) => {
@@ -88,7 +107,7 @@ apiClient.interceptors.response.use(
 
     if (error.status === 401 && !isInvitePage) {
       useAuthStore.getState().setAuthData("", {} as User);
-      window.location.href = "/login/";
+      // window.location.href = "/login/";
     }
     if (process.env.NODE_ENV === "development") {
       console.error(
@@ -235,25 +254,21 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: "/api/v2/opportunities/all/",
   },
-  // UC-310: Get current user's participant record for an opportunity
   OPPORTUNITY_PARTICIPANT: (opportunity_id: number): ApiEndpoint => ({
     method: "GET",
     url: `/api/v2/opportunities/${opportunity_id}/participant/`,
   }),
-  // UC-310: Update current user's participant record for an opportunity
   UPDATE_OPPORTUNITY_PARTICIPANT: (opportunity_id: number): ApiEndpoint => ({
     method: "PATCH",
     url: `/api/v2/opportunities/${opportunity_id}/participant/`,
   }),
-  // UC-310: Re-enroll in an opportunity
-  RE_ENROLL_OPPORTUNITY: (opportunity_id: number): ApiEndpoint => ({
-    method: "POST",
-    url: `/api/v2/opportunities/${opportunity_id}/participant/`,
-  }),
-  // UC-310: Cancel enrollment in an opportunity
   CANCEL_OPPORTUNITY_ENROLLMENT: (opportunity_id: number): ApiEndpoint => ({
     method: "DELETE",
     url: `/api/v2/opportunities/${opportunity_id}/participant/`,
+  }),
+  OPPORTUNITY_ENROLLMENT: (opportunityId: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v2/opportunities/${opportunityId}/participant/`,
   }),
   CONTACT_USER: (opportunityId: string): ApiEndpoint => ({
     method: "POST",

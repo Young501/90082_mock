@@ -250,7 +250,6 @@ export function useAccessibleOpportunities() {
 
         // Map opportunities using enrollment_status from API response
         const opportunitiesWithStatus = opportunities.map((o: any) => {
-
           // Use enrollment_status from API response if available
           let enrollmentStatus = "Not Enrolled";
           if (o.enrollment_status) {
@@ -394,7 +393,7 @@ export function useCoordinatorViewUserProfile(
 }
 
 export function useOpportunityDetail(opportunityId: string) {
-  return useQuery({
+  return useQuery<Opportunity>({
     queryKey: ["opportunity-detail", opportunityId],
     queryFn: () =>
       apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITY_DETAIL(opportunityId) }),
@@ -409,17 +408,48 @@ export function useOpportunityDetail(opportunityId: string) {
   });
 }
 
-// Helper function to categorize opportunities
+// Get participant record for a specific opportunity
+export function useOpportunityParticipant(
+  opportunityId: string | number,
+  enabled?: boolean
+) {
+  return useQuery({
+    queryKey: ["opportunity-participant", opportunityId],
+    queryFn: () =>
+      apiRequest({
+        endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(Number(opportunityId)),
+      }),
+    enabled:
+      enabled !== undefined ? enabled && !!opportunityId : !!opportunityId,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+// Utility function to categorize opportunities
 export function categorizeOpportunities(
-  opportunities: Opportunity[]
-): CategorizedOpportunities {
-  const enrolled: Opportunity[] = [];
-  const closed: Opportunity[] = [];
+  opportunities: (Opportunity | AccessibleOpportunity)[]
+) {
+  const enrolled: (Opportunity | AccessibleOpportunity)[] = [];
+  const closed: (Opportunity | AccessibleOpportunity)[] = [];
 
   opportunities.forEach((opportunity) => {
+    let isEnrolled = false;
 
-    // Check if user is enrolled based on the is_enrolled field
-    const isEnrolled = opportunity.is_enrolled === true;
+    // Check if it's an AccessibleOpportunity with status field
+    if ("status" in opportunity) {
+      isEnrolled = opportunity.status === "Enrolled";
+    }
+    // Check if it's an Opportunity with participant_record
+    else if (
+      "participant_record" in opportunity &&
+      opportunity.participant_record
+    ) {
+      isEnrolled = opportunity.participant_record.status === "Enrolled";
+    }
+    // Fallback to is_enrolled field
+    else if (opportunity.is_enrolled === true) {
+      isEnrolled = true;
+    }
 
     if (isEnrolled) {
       enrolled.push(opportunity);
@@ -429,38 +459,4 @@ export function categorizeOpportunities(
   });
 
   return { enrolled, closed };
-}
-
-// UC-310: Get participant record for a specific opportunity
-export function useOpportunityParticipant(opportunityId: string | number, enabled: boolean = true) {
-  const { user } = useAuthStore();
-
-  return useQuery<ParticipantRecord>({
-    queryKey: ["opportunity-participant", opportunityId, user?.id],
-    queryFn: async () => {
-      try {
-        const response = await apiRequest<ParticipantRecord>({
-          endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(
-            Number(opportunityId)
-          ),
-        });
-        return response;
-      } catch (error: any) {
-        console.error("Failed to fetch participant record:", error);
-        throw error;
-      }
-    },
-    enabled: !!user && !!opportunityId && enabled,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 404) {
-        // Participant record not found - this is expected for non-enrolled opportunities
-        return false;
-      }
-      if (error?.response?.status === 401 || error?.response?.status === 403) {
-        return false;
-      }
-      return failureCount < 2;
-    },
-  });
 }

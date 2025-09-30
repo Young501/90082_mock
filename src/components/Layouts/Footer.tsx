@@ -36,11 +36,32 @@ const Footer = () => {
           </Text>
         </VStack>
 
-        <Box display={{ base: "block", md: "none" }}>
-          <Image alt="logo" src="/uni.png" width={100} height={22} />
+        <Box
+          display={{ base: "block", md: "none" }}
+          pos="relative"
+          w="100px"
+          h="22px"
+        >
+          <Image
+            alt="logo"
+            src="/uni.png"
+            fill
+            style={{ objectFit: "contain" }}
+          />
         </Box>
-        <Box display={{ base: "none", md: "block" }}>
-          <Image alt="logo" src="/uni.png" width={300} height={80} />
+
+        <Box
+          display={{ base: "none", md: "block" }}
+          pos="relative"
+          w="300px"
+          h="80px"
+        >
+          <Image
+            alt="logo"
+            src="/uni.png"
+            fill
+            style={{ objectFit: "contain" }}
+          />
         </Box>
       </Box>
     </div>
