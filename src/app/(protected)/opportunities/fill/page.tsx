@@ -7,7 +7,15 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { Box, VStack, Heading, Text, Alert, HStack } from "@chakra-ui/react";
+import {
+  Box,
+  VStack,
+  Heading,
+  Text,
+  Alert,
+  HStack,
+  Stack,
+} from "@chakra-ui/react";
 import ProgressTrack from "@/components/ProgressTrack";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useOpportunityDetail } from "@/services/shared";
@@ -210,13 +218,21 @@ export default function OpportunityFillPage() {
         )}
 
         {/* Navigation Buttons */}
-        <HStack gap={4} justify="space-between" pt={6}>
+        <Stack
+          direction={{ base: "column", md: "row" }}
+          justify={{ base: "stretch", md: "space-between" }}
+          align="stretch"
+          w="100%"
+          pt={6}
+          pb={4}
+        >
           <Button
             variant="secondary"
             borderRadius="xl"
             h="50px"
             fontSize={"md"}
-            w={{ base: "full", md: "150px" }}
+            maxW={{ base: "100%", md: "350px" }}
+            w="100%"
             onClick={handleBack}
           >
             ← Back
@@ -229,13 +245,14 @@ export default function OpportunityFillPage() {
             borderRadius="xl"
             h="50px"
             fontSize={"md"}
-            w={{ base: "full", md: "200px" }}
+            w="100%"
+            maxW={{ base: "100%", md: "350px" }}
             _hover={{ bg: "blue.600" }}
             disabled={questions.length === 0}
           >
             Review Answers →
           </Button>
-        </HStack>
+        </Stack>
 
         {/* Auto-save indicator */}
         <Text fontSize="xs" color="gray.500" textAlign="center">
