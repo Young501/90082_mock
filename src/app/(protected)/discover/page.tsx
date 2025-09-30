@@ -26,6 +26,7 @@ import {
 import { useAuthStore } from "@/store";
 import { toast } from "react-toastify";
 import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
+import { useHandleEnroll } from "@/hooks/useHandleEnroll";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
@@ -155,18 +156,12 @@ export default function DiscoveryPage() {
   const { control, watch } = form;
   const watchedValues = watch();
 
-  // Handle enrollment - simplified using global eligibility state
-  const handleEnroll = useCallback(() => {
-    // Check eligibility from global state (already computed)
-    if (isEligible === false) {
-      toast.warning("This opportunity is not available for your university.");
-      return;
-    }
-
-    // Redirect to questionnaire
-    router.push(`/opportunities/start?id=${opportunityId}`);
-  }, [isEligible, opportunityId, router]);
-
+  const { handleEnroll, isSubmitting } = useHandleEnroll({
+    isEligible,
+    opportunityId: opportunityId || "",
+    opportunity,
+    toast,
+  });
   // Opportunity-specific content
   if (opportunityId) {
     // Loading state
@@ -262,7 +257,7 @@ export default function DiscoveryPage() {
           </Heading>
 
           {/* Enrolled user - show discovery interface */}
-          {isEnrolled ? (
+          {isEnrolled && !isSubmitting ? (
             <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
               <VStack align="stretch" mb={8}>
                 <Heading size="lg" color="#282F68">
@@ -365,6 +360,8 @@ export default function DiscoveryPage() {
                     h="36px"
                     w={{ base: "full", md: "120px" }}
                     onClick={handleEnroll}
+                    loading={isSubmitting}
+                    disabled={isSubmitting}
                   >
                     Enroll
                   </Button>
