@@ -47,7 +47,7 @@ export function formatValidationErrors(errorData: unknown): string {
 // Handle enrollment-specific errors
 export function getEnrollmentErrorMessage(error: unknown): string {
   const status = getErrorStatus(error);
-  
+
   switch (status) {
     case 409:
       return "You have already enrolled in this opportunity.";

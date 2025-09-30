@@ -99,14 +99,14 @@ export const QuestionnaireForm = forwardRef<
 
   useEffect(() => {
     const currentValuesString = JSON.stringify(watchedValues);
-    
+
     // Skip the first render to avoid triggering with initial values
     if (isInitialRender.current) {
       isInitialRender.current = false;
       previousValuesRef.current = currentValuesString;
       return;
     }
-    
+
     // Only call onAnswersChange if values actually changed
     if (currentValuesString !== previousValuesRef.current) {
       previousValuesRef.current = currentValuesString;

@@ -115,12 +115,18 @@ export const SelectField = ({
                 <Select.ValueText>
                   {field.value
                     ? multiple
-                      ? field.value.map((val: string) => {
-                          const option = optionItems.find(opt => opt.value === val);
-                          return option ? option.label : val;
-                        }).join(", ")
+                      ? field.value
+                          .map((val: string) => {
+                            const option = optionItems.find(
+                              (opt) => opt.value === val
+                            );
+                            return option ? option.label : val;
+                          })
+                          .join(", ")
                       : (() => {
-                          const option = optionItems.find(opt => opt.value === field.value);
+                          const option = optionItems.find(
+                            (opt) => opt.value === field.value
+                          );
                           return option ? option.label : field.value;
                         })()
                     : placeholder || defaultPlaceholder}

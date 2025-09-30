@@ -16,7 +16,6 @@ body {
 
 /* Mobile-specific styles */
 @media (max-width: 768px) {
-
   html,
   body {
     overflow-x: hidden !important;

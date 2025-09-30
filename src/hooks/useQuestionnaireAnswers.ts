@@ -3,7 +3,9 @@ import { useState, useEffect, useCallback } from "react";
 const QUESTIONNAIRE_STORAGE_KEY = "questionnaire_answers_";
 
 export function useQuestionnaireAnswers(opportunityId: string | null) {
-  const [questionnaireAnswers, setQuestionnaireAnswers] = useState<Record<string, any>>({});
+  const [questionnaireAnswers, setQuestionnaireAnswers] = useState<
+    Record<string, any>
+  >({});
 
   // Load answers from sessionStorage on mount or when opportunityId changes
   useEffect(() => {
@@ -16,7 +18,12 @@ export function useQuestionnaireAnswers(opportunityId: string | null) {
           setQuestionnaireAnswers(parsedAnswers);
         } catch (e) {
           // Failed to parse stored data, log error and reset to empty state
-          console.error("Failed to parse questionnaire answers from sessionStorage:", e, "Stored value:", stored);
+          console.error(
+            "Failed to parse questionnaire answers from sessionStorage:",
+            e,
+            "Stored value:",
+            stored
+          );
           setQuestionnaireAnswers({});
         }
       } else {

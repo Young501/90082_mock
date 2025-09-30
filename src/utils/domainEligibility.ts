@@ -2,7 +2,7 @@
  * Utility functions for checking student email domain eligibility
  */
 
-import * as yup from 'yup';
+import * as yup from "yup";
 
 /**
  * Extracts the domain from an email address
@@ -11,16 +11,16 @@ import * as yup from 'yup';
  */
 export const extractEmailDomain = (email: string): string | null => {
   const normalizedEmail = email.toLowerCase().trim();
-  
+
   // Use Yup to validate email format
   try {
     yup.string().email().validateSync(normalizedEmail);
   } catch {
     return null;
   }
-  
+
   // Extract domain part after the last '@'
-  const atIndex = normalizedEmail.lastIndexOf('@');
+  const atIndex = normalizedEmail.lastIndexOf("@");
   if (atIndex === -1) {
     return null;
   }
@@ -48,14 +48,14 @@ export const isStudentEligibleForOpportunity = (
   }
 
   // Check for exact or subdomain matches (case-insensitive)
-  return allowedDomains.some(allowedDomain => {
+  return allowedDomains.some((allowedDomain) => {
     const normalizedAllowedDomain = allowedDomain.toLowerCase().trim();
-    
+
     // Exact match
     if (userDomain === normalizedAllowedDomain) {
       return true;
     }
-    
+
     // Subdomain match: userDomain must end with .allowedDomain and have at least one label before the dot
     if (
       userDomain.length > normalizedAllowedDomain.length + 1 && // at least one label before the dot
@@ -63,7 +63,7 @@ export const isStudentEligibleForOpportunity = (
     ) {
       return true;
     }
-    
+
     return false;
   });
 };

@@ -250,7 +250,6 @@ export function useAccessibleOpportunities() {
 
         // Map opportunities using enrollment_status from API response
         const opportunitiesWithStatus = opportunities.map((o: any) => {
-
           // Use enrollment_status from API response if available
           let enrollmentStatus = "Not Enrolled";
           if (o.enrollment_status) {
@@ -410,37 +409,48 @@ export function useOpportunityDetail(opportunityId: string) {
 }
 
 // Get participant record for a specific opportunity
-export function useOpportunityParticipant(opportunityId: string | number, enabled?: boolean) {
+export function useOpportunityParticipant(
+  opportunityId: string | number,
+  enabled?: boolean
+) {
   return useQuery({
     queryKey: ["opportunity-participant", opportunityId],
     queryFn: () =>
-      apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(Number(opportunityId)) }),
-    enabled: enabled !== undefined ? enabled && !!opportunityId : !!opportunityId,
+      apiRequest({
+        endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(Number(opportunityId)),
+      }),
+    enabled:
+      enabled !== undefined ? enabled && !!opportunityId : !!opportunityId,
     staleTime: 5 * 60 * 1000,
   });
 }
 
 // Utility function to categorize opportunities
-export function categorizeOpportunities(opportunities: (Opportunity | AccessibleOpportunity)[]) {
+export function categorizeOpportunities(
+  opportunities: (Opportunity | AccessibleOpportunity)[]
+) {
   const enrolled: (Opportunity | AccessibleOpportunity)[] = [];
   const closed: (Opportunity | AccessibleOpportunity)[] = [];
 
   opportunities.forEach((opportunity) => {
     let isEnrolled = false;
-    
+
     // Check if it's an AccessibleOpportunity with status field
-    if ('status' in opportunity) {
+    if ("status" in opportunity) {
       isEnrolled = opportunity.status === "Enrolled";
     }
     // Check if it's an Opportunity with participant_record
-    else if ('participant_record' in opportunity && opportunity.participant_record) {
+    else if (
+      "participant_record" in opportunity &&
+      opportunity.participant_record
+    ) {
       isEnrolled = opportunity.participant_record.status === "Enrolled";
     }
     // Fallback to is_enrolled field
     else if (opportunity.is_enrolled === true) {
       isEnrolled = true;
     }
-    
+
     if (isEnrolled) {
       enrolled.push(opportunity);
     } else {

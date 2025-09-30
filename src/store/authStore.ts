@@ -263,10 +263,10 @@ export const useAuthStore = create<AuthState>()(
         return get().isEligible;
       },
       resetOpportunityState: () => {
-        set({ 
-          currentOpportunityId: null, 
-          isEnrolled: null, 
-          isEligible: null 
+        set({
+          currentOpportunityId: null,
+          isEnrolled: null,
+          isEligible: null,
         });
       },
     }),
