@@ -67,6 +67,7 @@ apiClient.interceptors.request.use(
     const isInvitePage = matchesInvitePattern(currentUrl);
 
     if (error.status === 401 && !isInvitePage) {
+      useAuthStore.getState().setAuthData("", {} as User);
       window.location.href = "/login/";
     }
     if (process.env.NODE_ENV === "development") {

@@ -13,7 +13,10 @@ import { Opportunity } from "@/types/opportunities";
 import { Question } from "@/types/onboarding";
 import { InviteAcceptResponse } from "@/types/invite";
 import { useAuthStore } from "@/store";
-import { QuestionnaireForm, QuestionnaireFormRef } from "@/components/questionnaire/QuestionnaireForm";
+import {
+  QuestionnaireForm,
+  QuestionnaireFormRef,
+} from "@/components/questionnaire/QuestionnaireForm";
 import { useState, useCallback, useMemo, useRef } from "react";
 
 interface InviteCardProps {
@@ -176,21 +179,13 @@ export const InviteCard = ({
           </VStack>
         </Box>
 
-        {questions.length > 0 && (
-          <QuestionnaireForm
-            ref={questionnaireRef}
-            questions={questions}
-            onAnswersChange={handleQuestionnaireChange}
-          />
-        )}
-
         <Box
           w="100%"
-          bg={acceptError ? "red.50" : "blue.50"}
+          bg={acceptError ? "red.50" : "green.50"}
           borderRadius="16px"
           p={{ base: 6, md: 8 }}
           border="1px solid"
-          borderColor={acceptError ? "red.200" : "blue.200"}
+          borderColor={acceptError ? "red.200" : "green.50"}
         >
           <VStack gap={{ base: 3, md: 4 }}>
             <Text
@@ -201,8 +196,17 @@ export const InviteCard = ({
             >
               {acceptError
                 ? "Error!"
-                : "You've been invited to join this opportunity!"}
+                : "You have been invited to join this opportunity!"}
             </Text>
+            {questions.length > 0 && (
+              <Box w="100%" textAlign="left">
+                <QuestionnaireForm
+                  ref={questionnaireRef}
+                  questions={questions}
+                  onAnswersChange={handleQuestionnaireChange}
+                />
+              </Box>
+            )}
             <Text
               fontSize={{ base: "14px", md: "16px", lg: "18px" }}
               color={acceptError ? "red.600" : "gray.600"}
