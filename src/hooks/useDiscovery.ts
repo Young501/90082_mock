@@ -13,6 +13,7 @@ import { useUserSearch } from "@/services/user";
 import { useOnboardingPages, useQuestionnaireFilters } from "@/services/shared";
 import { toast } from "react-toastify";
 import { UserProfile } from "@/types/shared";
+import { parseQuestionnaireOptions } from "@/utils/questionnaireParser";
 
 const createValidationSchema = (fields: ProcessedField[]) => {
   const shape: Record<string, any> = {};
@@ -82,26 +83,24 @@ const extractFilterOptions = (
   return Object.fromEntries(
     Object.entries(options).map(([fieldName, valueSet]) => {
 
-      //******** retaining both types of field options, options can be an array of strings or an array of objects with label and value *********//
+      //******** returning both types of field options, is required here i.e [string | { label: string; value: string }] *********//
       const field = fields.find((f) => f.field === fieldName);
       const extractedValues = Array.from(valueSet).sort();
       
-      if (field?.options && Array.isArray(field.options) && field.options.length > 0) {
-        const firstOption = field.options[0];
-        if (typeof firstOption === "object" && "value" in firstOption) {
-          const optionMap = new Map(
-            (field.options as Array<{ label: string; value: string }>).map((opt) => [
-              opt.value,
-              opt,
-            ])
-          );
-          
-          return [
-            fieldName,
-            extractedValues
-              .map((val) => optionMap.get(val))
-              .filter((opt): opt is { label: string; value: string } => opt !== undefined),
-          ];
+      if (field?.options) {
+        // ************ reverted to use the utils function to parse the options now filter options arent an array of strings but array of objects with label and value this is consistent ************//
+        const parsedOptions = parseQuestionnaireOptions(field.options);
+        
+        const optionMap = new Map(
+          parsedOptions.map((opt) => [opt.value, opt])
+        );
+        
+        const mappedOptions = extractedValues
+          .map((val) => optionMap.get(val))
+          .filter((opt): opt is { label: string; value: string } => opt !== undefined);
+        
+        if (mappedOptions.length > 0) {
+          return [fieldName, mappedOptions];
         }
       }
       
@@ -203,7 +202,9 @@ export const useDiscovery = (
             );
 
             if (isFieldVisible) {
-              form.setValue(fieldName, options[0]);
+              const optionValue =
+                typeof options[0] === "string" ? options[0] : options[0].value;
+              form.setValue(fieldName, optionValue);
             }
           }
         });
