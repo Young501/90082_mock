@@ -3,9 +3,7 @@ import { apiRequest, API_ENDPOINTS } from "@/api";
 import { useAuthStore } from "@/store/authStore";
 import {
   Opportunity,
-  OpportunitiesResponse,
-  CategorizedOpportunities,
-  ParticipantRecord,
+  AccessibleOpportunity,
 } from "@/types/opportunities";
 
 export function useOnboardingSubmission(userType: string) {
@@ -208,24 +206,10 @@ export function useAcceptedOpportunities() {
 }
 
 // UC-314: All accessible opportunities for current user
-export interface AccessibleOpportunity {
-  id: number;
-  title: string;
-  status: "Enrolled" | "Not Enrolled" | string;
-  description: string;
-  start_date: string;
-  end_date: string;
-  created_by: number;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-  questionnaire: Record<string, any>;
-  is_enrolled: boolean;
-}
 
 export function useAccessibleOpportunities() {
   const { user } = useAuthStore();
-  return useQuery<AccessibleOpportunity[]>({
+  return useQuery({
     queryKey: ["accessible-opportunities", user?.id],
     queryFn: async () => {
       try {
@@ -233,7 +217,7 @@ export function useAccessibleOpportunities() {
           endpoint: API_ENDPOINTS.ALL_OPPORTUNITIES,
         });
 
-        let opportunities: any[] = [];
+        let opportunities: AccessibleOpportunity[] = [];
 
         // Handle different response structures
         if (Array.isArray(response)) {
@@ -249,21 +233,19 @@ export function useAccessibleOpportunities() {
         }
 
         // Map opportunities using enrollment_status from API response
-        const opportunitiesWithStatus = opportunities.map((o: any) => {
+        const opportunitiesWithStatus = opportunities.map((o: AccessibleOpportunity) => {
           // Use enrollment_status from API response if available
-          let enrollmentStatus = "Not Enrolled";
+          let enrollmentStatus = "not_enrolled";
           if (o.enrollment_status) {
             // Map API enrollment_status to our expected format
             if (
-              o.enrollment_status === "enrolled" ||
-              o.enrollment_status === "Enrolled"
+              o.enrollment_status === "enrolled" 
             ) {
-              enrollmentStatus = "Enrolled";
+              enrollmentStatus = "enrolled";
             } else if (
-              o.enrollment_status === "not_enrolled" ||
-              o.enrollment_status === "Not Enrolled"
+              o.enrollment_status === "not_enrolled" 
             ) {
-              enrollmentStatus = "Not Enrolled";
+              enrollmentStatus = "not_enrolled";
             } else {
               // Handle other possible values
               enrollmentStatus = o.enrollment_status;
@@ -272,8 +254,8 @@ export function useAccessibleOpportunities() {
 
           const mappedOpp = {
             id: o.id,
-            title: o.title || o.name,
-            status: enrollmentStatus,
+            title: o.title,
+            enrollment_status: enrollmentStatus,
             description: o.description || "",
             start_date: o.start_date || "",
             end_date: o.end_date || "",
@@ -282,7 +264,7 @@ export function useAccessibleOpportunities() {
             created_at: o.created_at || "",
             updated_at: o.updated_at || "",
             questionnaire: o.questionnaire || {},
-            is_enrolled: enrollmentStatus === "Enrolled",
+            is_enrolled: enrollmentStatus === "enrolled",
           };
           return mappedOpp;
         });
