@@ -18,11 +18,11 @@ const getCurrentToken = (): string | null => {
 const matchesInvitePattern = (url: string): boolean => {
   try {
     const urlObj = new URL(url, window.location.origin);
-    
-    if (urlObj.pathname !== '/invite/') return false;
-    
+
+    if (urlObj.pathname !== "/invite/") return false;
+
     const params = urlObj.searchParams;
-    return params.has('token') && params.has('opportunity');
+    return params.has("token") && params.has("opportunity");
   } catch {
     return false;
   }
@@ -49,23 +49,36 @@ apiClient.interceptors.request.use(
     }
 
     if (process.env.NODE_ENV === "development") {
-      console.log(`🚀 ${config.method?.toUpperCase()} ${config.url}`, {
+      const headersObj =
+        typeof (config.headers as any)?.toJSON === "function"
+          ? (config.headers as any).toJSON()
+          : (config.headers as any);
+
+      const safeHeaders = headersObj?.Authorization
+        ? { ...headersObj, Authorization: "[HIDDEN]" }
+        : headersObj;
+
+      const qs =
+        config.params &&
+        new URLSearchParams(config.params as Record<string, string>).toString();
+      const fullUrl = `${config.baseURL ?? ""}${config.url}${qs ? `?${qs}` : ""}`;
+
+      console.log(`🚀 ${config.method?.toUpperCase()} ${fullUrl}`, {
+        params: config.params,
         data: config.data,
-        headers: config.headers?.Authorization
-          ? { ...config.headers, Authorization: "[HIDDEN]" }
-          : config.headers,
+        headers: safeHeaders,
       });
     }
-
     return config;
   },
   (error: AxiosError) => {
     // [BJ] Breaks opportunity invite if user is not logged in
     const currentUrl = window.location.href;
     const isInvitePage = matchesInvitePattern(currentUrl);
-    
+
     if (error.status === 401 && !isInvitePage) {
-      window.location.href = "/login/";
+      useAuthStore.getState().setAuthData("", {} as User);
+      // window.location.href = "/login/";
     }
     if (process.env.NODE_ENV === "development") {
       console.error("❌ Request interceptor error:", error);
@@ -91,10 +104,10 @@ apiClient.interceptors.response.use(
     // [BJ] Breaks opportunity invite if user is not logged in
     const currentUrl = window.location.href;
     const isInvitePage = matchesInvitePattern(currentUrl);
-    
+
     if (error.status === 401 && !isInvitePage) {
       useAuthStore.getState().setAuthData("", {} as User);
-      window.location.href = "/login/";
+      // window.location.href = "/login/";
     }
     if (process.env.NODE_ENV === "development") {
       console.error(
@@ -146,7 +159,7 @@ export const API_ENDPOINTS = {
   },
   USERS_SEARCH: {
     method: "GET",
-    url: "/api/v1/users/search",
+    url: "/api/v1/users/search/",
     auth: true,
   },
   PROFILE_PICTURE_UPLOAD: {
@@ -241,6 +254,22 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: "/api/v2/opportunities/all/",
   },
+  OPPORTUNITY_PARTICIPANT: (opportunity_id: number): ApiEndpoint => ({
+    method: "GET",
+    url: `/api/v2/opportunities/${opportunity_id}/participant/`,
+  }),
+  UPDATE_OPPORTUNITY_PARTICIPANT: (opportunity_id: number): ApiEndpoint => ({
+    method: "PATCH",
+    url: `/api/v2/opportunities/${opportunity_id}/participant/`,
+  }),
+  CANCEL_OPPORTUNITY_ENROLLMENT: (opportunity_id: number): ApiEndpoint => ({
+    method: "DELETE",
+    url: `/api/v2/opportunities/${opportunity_id}/participant/`,
+  }),
+  OPPORTUNITY_ENROLLMENT: (opportunityId: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v2/opportunities/${opportunityId}/participant/`,
+  }),
   CONTACT_USER: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/contact/`,
@@ -284,7 +313,10 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v1/organisation/${id}/`,
   }),
-  COORDINATOR_VIEW_USER_PROFILE: (participantId: string, opportunityId: string): ApiEndpoint => ({
+  COORDINATOR_VIEW_USER_PROFILE: (
+    participantId: string,
+    opportunityId: string
+  ): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/opportunities/${opportunityId}/participant/${participantId}/`,
   }),

@@ -1,14 +1,15 @@
 ---
 name: Staging QC Checklist – UniConnected
-about: Use this checklist to verify staging before promoting a release to production.
+about:
+  Use this checklist to verify staging before promoting a release to production.
   Tick off each item as it’s tested and passes.
-title: ''
-labels: ''
-assignees: ''
-
+title: ""
+labels: ""
+assignees: ""
 ---
 
 ## 🔑 Authentication & Account Access
+
 - [ ] Sign up works (all user types)
 - [ ] Email verification flow completes
 - [ ] Forgot password flow works (reset email, reset link)
@@ -19,6 +20,7 @@ assignees: ''
 ---
 
 ## 🧑‍🎓 Student Onboarding & Usage
+
 - [ ] Student onboarding flow completes (questionnaire saved)
 - [ ] Student Discover page loads organisations
 - [ ] Student Discover filters work (incl. opportunity questionnaire filters)
@@ -29,6 +31,7 @@ assignees: ''
 ---
 
 ## 🏢 Organisation Onboarding & Usage
+
 - [ ] Organisation member onboarding – join **existing** organisation
 - [ ] Organisation member onboarding – create **new** organisation (domain + org-specific questions)
 - [ ] Organisation Discover page loads students
@@ -41,6 +44,7 @@ assignees: ''
 ---
 
 ## 📋 Opportunities & Invitations
+
 - [ ] Coordinator can create opportunity (MTSI, employment, etc.)
 - [ ] Invite **student** who already exists → student receives invite & accepts
 - [ ] Invite **student** who does not exist → invitation email, signup flow works
@@ -52,6 +56,7 @@ assignees: ''
 ---
 
 ## 👩‍💼 Coordinator Dashboard
+
 - [ ] Tabs show correctly: “About You” / “About Your Organisation”
 - [ ] Can invite students and organisations
 - [ ] Questionnaire answers display properly
@@ -60,6 +65,7 @@ assignees: ''
 ---
 
 ## 📱 UI / UX & Responsiveness
+
 - [ ] All key flows tested on **mobile** (onboarding, discover, profiles, invitations)
 - [ ] All key flows tested on **tablet**
 - [ ] Layouts responsive (no overlaps, icons aligned, text wraps correctly)
@@ -69,9 +75,10 @@ assignees: ''
 ---
 
 ## ⚙️ System & Security
-- [ ] Role-based redirects:  
-  - Student → `/discover`  
-  - Coordinator → `/dashboard`  
+
+- [ ] Role-based redirects:
+  - Student → `/discover`
+  - Coordinator → `/dashboard`
   - Organisation → `/organisation`
 - [ ] Permissions enforced (students cannot access org/coordinator dashboards, etc.)
 - [ ] Error messages display cleanly (invalid login, invalid invite, etc.)
@@ -80,6 +87,7 @@ assignees: ''
 ---
 
 ## 🚀 Smoke Tests (end-to-end)
+
 - [ ] Homepage loads in < 3 seconds
 - [ ] Student signs up → completes onboarding → joins opportunity
 - [ ] Coordinator creates opportunity → invites organisation → organisation accepts
@@ -89,6 +97,7 @@ assignees: ''
 ---
 
 ## ✅ Sign-off
+
 - [ ] QA approved
 - [ ] PM / Coordinator approved
 - [ ] Tech Lead approved

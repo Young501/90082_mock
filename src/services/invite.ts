@@ -1,9 +1,6 @@
 import { apiRequest, API_ENDPOINTS } from "@/api";
-import {
-  Opportunity,
-  InviteAcceptRequest,
-  InviteAcceptResponse,
-} from "@/types/invite";
+import { Opportunity } from "@/types/opportunities";
+import { InviteAcceptRequest, InviteAcceptResponse } from "@/types/invite";
 
 export const getOpportunityDetail = async (
   opportunityId: string

@@ -393,7 +393,7 @@ const RenderStudentDetails = ({
                 alt="Instagram"
                 width={20}
                 height={20}
-                objectFit="contain"
+                style={{ objectFit: "contain" }}
               />
               <Link href={student.instagram} target="_blank">
                 <Text textDecoration="underline">Instagram</Text>
@@ -462,19 +462,20 @@ const RenderStudentDetails = ({
           {student.course_name && (
             <HStack gap={2} align="start">
               <Box
-                w="20px"
-                h="20px"
+                w="12px"
+                h="12px"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
                 flexShrink={0}
+                pos="relative"
+                mt={"5px"}
               >
                 <Image
-                  width={12}
-                  height={12}
                   src="/assets/educationIcon.svg"
                   alt="course"
-                  objectFit="contain"
+                  fill
+                  style={{ objectFit: "contain" }}
                 />
               </Box>
               <Text fontSize="sm" color="gray.600">
@@ -499,7 +500,7 @@ const RenderStudentDetails = ({
                   height={12}
                   src="/assets/locationIcon.svg"
                   alt="location"
-                  objectFit="contain"
+                  style={{ objectFit: "contain" }}
                 />
               </Box>
               <Text fontSize="sm" color="gray.600">
@@ -523,7 +524,7 @@ const RenderStudentDetails = ({
                   height={12}
                   src="/assets/certificationIcon.svg"
                   alt="specialization"
-                  objectFit="contain"
+                  style={{ objectFit: "contain" }}
                 />
               </Box>
               <Text fontSize="sm" color="gray.600">
@@ -534,19 +535,20 @@ const RenderStudentDetails = ({
 
           <HStack gap={2} align="start">
             <Box
-              w="20px"
-              h="20px"
+              w="12px"
+              h="12px"
               display="flex"
               alignItems="center"
               justifyContent="center"
               flexShrink={0}
+              pos="relative"
+              mt={"5px"}
             >
               <Image
-                width={12}
-                height={12}
                 src="/assets/calenderIcon.svg"
                 alt="progress"
-                objectFit="contain"
+                fill
+                style={{ objectFit: "contain" }}
               />
             </Box>
             <Text fontSize="sm" color="gray.600">
@@ -821,19 +823,19 @@ const RenderPartnerDetails = ({
 
           <HStack gap={2} align="center">
             <Box
-              w="20px"
-              h="20px"
+              w="12px"
+              h="12px"
               display="flex"
               alignItems="center"
               justifyContent="center"
               flexShrink={0}
+              pos={"relative"}
             >
               <Image
-                width={12}
-                height={12}
                 src="/assets/calenderIcon.svg"
                 alt="progress"
-                objectFit="contain"
+                fill
+                style={{ objectFit: "contain" }}
               />
             </Box>
             <Text fontSize="14px" color="black">

@@ -20,7 +20,7 @@ export default function Logo({
         alt="UniConnected Logo"
         width={width}
         height={height}
-        objectFit="contain"
+        style={{ objectFit: "contain" }}
       />
     </Box>
   );

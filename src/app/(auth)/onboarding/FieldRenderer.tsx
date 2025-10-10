@@ -51,6 +51,7 @@ export const FieldRenderer = ({
   fileUploadKey,
 }: FieldRendererProps) => {
   const error = errors[question.field]?.message as string | undefined;
+  // const fieldOptions = question.options || question.option || [];
   const rawFieldOptions = question.options || question.option || [];
   const fieldOptions = parseQuestionnaireOptions(rawFieldOptions).map(
     (opt) => ({

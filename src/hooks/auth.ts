@@ -125,6 +125,7 @@ export const useAuth = () => {
       setAuthData(response.token, response.user);
       queryClient.invalidateQueries({ queryKey: ["user"] });
       queryClient.invalidateQueries({ queryKey: ["accepted-opportunities"] });
+      queryClient.invalidateQueries({ queryKey: ["accessible-opportunities"] });
       checkOnboardingStatus({
         user: response.user,
         setUserProfile: setUserProfile,
