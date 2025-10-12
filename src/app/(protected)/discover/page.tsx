@@ -22,11 +22,14 @@ import { useSearchParams, useRouter } from "next/navigation";
 import {
   useOpportunityDetail,
   useAccessibleOpportunities,
+  useOpportunityParticipant,
 } from "@/services/shared";
 import { useAuthStore } from "@/store";
 import { toast } from "react-toastify";
 import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 import { useHandleEnroll } from "@/hooks/useHandleEnroll";
+import { useProductPricing, useSubscriptionStatus } from "@/services/billing";
+import { SubscriptionGate } from "@/components/billing/SubscriptionGate";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
@@ -54,6 +57,9 @@ export default function DiscoveryPage() {
   // Get user's accessible opportunities to check enrollment status
   const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } =
     useAccessibleOpportunities();
+
+  // Get user type
+  const userType = user?.user_types?.[0];
 
   // Update global state when opportunity changes
   useEffect(() => {
@@ -162,6 +168,33 @@ export default function DiscoveryPage() {
     opportunity,
     toast,
   });
+
+  // Get participant record to check subscription (only when enrolled)
+  const { data: participantRecord, isLoading: isLoadingParticipant } =
+    useOpportunityParticipant(
+      opportunityId ? Number(opportunityId) : 0,
+      !!opportunityId && isEnrolled === true
+    );
+
+  // Get subscription status if enrolled
+  // If returns null/404 → free opportunity, if returns data → requires subscription
+  const { data: subscriptionStatus, isLoading: isLoadingSubscription } =
+    useSubscriptionStatus(
+      isEnrolled && participantRecord?.participant_id
+        ? participantRecord.participant_id
+        : null
+    );
+
+  // Determine if subscription is required based on status API response
+  const requiresSubscription = useMemo(() => {
+    // If not enrolled, no subscription check needed
+    if (!isEnrolled) return false;
+
+    // If subscription status exists (not null), subscription is required
+    // If null (404 from API), it's a free opportunity
+    return subscriptionStatus !== null && subscriptionStatus !== undefined;
+  }, [isEnrolled, subscriptionStatus]);
+
   // Opportunity-specific content
   if (opportunityId) {
     // Loading state
@@ -258,50 +291,60 @@ export default function DiscoveryPage() {
 
           {/* Enrolled user - show discovery interface */}
           {isEnrolled && !isSubmitting ? (
-            <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
-              <VStack align="stretch" mb={8}>
-                <Heading size="lg" color="#282F68">
-                  Discover{" "}
-                  {targetUserType === "student" ? "Students" : "Partners"}
-                </Heading>
-                <Text color="gray.600">
-                  Search and filter{" "}
-                  {targetUserType === "student" ? "students" : "partners"} based
-                  on your criteria
-                </Text>
-              </VStack>
+            <SubscriptionGate
+              subscriptionStatus={subscriptionStatus}
+              isLoadingStatus={isLoadingSubscription}
+              requiresSubscription={requiresSubscription}
+              opportunityId={opportunityId}
+              showAccessBanner={true}
+            >
+              <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
+                <VStack align="stretch" mb={8}>
+                  <Heading size="lg" color="#282F68">
+                    Discover{" "}
+                    {targetUserType === "student" ? "Students" : "Partners"}
+                  </Heading>
+                  <Text color="gray.600">
+                    Search and filter{" "}
+                    {targetUserType === "student" ? "students" : "partners"}{" "}
+                    based on your criteria
+                  </Text>
+                </VStack>
 
-              <Box borderRadius="md" mb={8} w="100%">
-                <DiscoveryFilterBox
-                  fields={filterableFields}
-                  control={control}
-                  watchedValues={watchedValues}
-                  checkDependencies={checkDependencies}
+                <Box borderRadius="md" mb={8} w="100%">
+                  <DiscoveryFilterBox
+                    fields={filterableFields}
+                    control={control}
+                    watchedValues={watchedValues}
+                    checkDependencies={checkDependencies}
+                    hasSearched={hasSearched}
+                    isSearching={isSearching}
+                    onSubmit={handleSearch}
+                    onReset={handleReset}
+                    filterOptions={filterOptions}
+                  />
+                </Box>
+
+                <Separator my={6} />
+
+                <DiscoveryResultBox
+                  results={searchResults}
+                  count={resultsCount}
+                  isLoading={isSearching}
                   hasSearched={hasSearched}
-                  isSearching={isSearching}
-                  onSubmit={handleSearch}
-                  onReset={handleReset}
-                  filterOptions={filterOptions}
+                  show={showResults}
+                  userType={targetUserType!}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  pageSize={pageSize}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                  opportunityId={opportunityId}
+                  subscriptionStatus={subscriptionStatus}
+                  requiresSubscription={requiresSubscription}
                 />
               </Box>
-
-              <Separator my={6} />
-
-              <DiscoveryResultBox
-                results={searchResults}
-                count={resultsCount}
-                isLoading={isSearching}
-                hasSearched={hasSearched}
-                show={showResults}
-                userType={targetUserType!}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                pageSize={pageSize}
-                onPageChange={handlePageChange}
-                onPageSizeChange={handlePageSizeChange}
-                opportunityId={opportunityId}
-              />
-            </Box>
+            </SubscriptionGate>
           ) : (
             /* Not enrolled user - show enrollment interface */
             <Box maxW="800px" mx="auto" w="100%" overflow="hidden">

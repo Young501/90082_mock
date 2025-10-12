@@ -11,6 +11,7 @@ import { UserProfile } from "@/types/shared";
 import { StudentCard, PartnerCard } from "./cards";
 import { PaginationControls } from "@/components/ui/PaginationControls";
 import Loader from "@/components/Loader";
+import { SubscriptionStatusResponse } from "@/types/subscription";
 
 interface DiscoveryResultBoxProps {
   results: UserProfile[];
@@ -25,6 +26,8 @@ interface DiscoveryResultBoxProps {
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
   opportunityId?: string;
+  subscriptionStatus?: SubscriptionStatusResponse | null;
+  requiresSubscription?: boolean;
 }
 
 export function DiscoveryResultBox({
@@ -40,8 +43,29 @@ export function DiscoveryResultBox({
   onPageChange,
   onPageSizeChange,
   opportunityId,
+  subscriptionStatus,
+  requiresSubscription = false,
 }: DiscoveryResultBoxProps) {
   if (!show) return null;
+
+  // Determine if full profile viewing is allowed
+  const canViewFullProfile = React.useMemo(() => {
+    if (!requiresSubscription) return true;
+
+    const status = subscriptionStatus?.status;
+    if (status === "active") return true;
+
+    // Canceled but still within valid period
+    if (
+      status === "canceled" &&
+      subscriptionStatus?.current_period_end &&
+      new Date(subscriptionStatus.current_period_end) > new Date()
+    ) {
+      return true;
+    }
+
+    return false;
+  }, [requiresSubscription, subscriptionStatus]);
 
   return (
     <VStack align="stretch" gap={6}>
@@ -66,9 +90,14 @@ export function DiscoveryResultBox({
                   userType={userType}
                   profilePictureUrl={user.profile_picture_url || null}
                   opportunityId={opportunityId}
+                  disableViewFullProfile={!canViewFullProfile}
                 />
               ) : (
-                <PartnerCard key={key} organisation={user} />
+                <PartnerCard
+                  key={key}
+                  organisation={user}
+                  disableViewFullProfile={!canViewFullProfile}
+                />
               );
             })}
           </SimpleGrid>

@@ -320,6 +320,19 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v1/opportunities/${opportunityId}/participant/${participantId}/`,
   }),
+  // Subscription/Billing endpoints
+  PRODUCT_PRICING: {
+    method: "GET",
+    url: "/subscription/api/v1/product-pricing/",
+  },
+  CHECKOUT_SESSION: {
+    method: "POST",
+    url: "/subscription/api/v1/checkout-session/",
+  },
+  SUBSCRIPTION_STATUS: {
+    method: "GET",
+    url: "/subscription/api/v1/status/",
+  },
 };
 
 /*********

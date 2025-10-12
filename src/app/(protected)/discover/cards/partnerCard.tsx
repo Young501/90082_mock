@@ -14,6 +14,7 @@ import { FullProfileCard } from "./FullProfileCard";
 import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
 import { DeleteModal } from "../../folders/modals/DeleteModal";
 import { Button } from "@/components/ui/Button";
+import { Tooltip } from "@/components/ui/tooltip";
 import { Globe } from "lucide-react";
 
 interface PartnerCardProps {
@@ -243,16 +244,23 @@ export function PartnerCard({
             </Box>
           </Box>
 
-          <Button
-            variant="partner"
-            w="full"
-            py={6}
-            mt={4}
-            onClick={handleViewFullProfile}
-            disabled={!organisation.id || disableViewFullProfile}
+          <Tooltip
+            disabled={!disableViewFullProfile}
+            showArrow
+            positioning={{ placement: "top", offset: { mainAxis: 8 } }}
+            content="Full profiles not available during trial. Please upgrade subscription to unlock this feature."
           >
-            View Full Profile
-          </Button>
+            <Button
+              variant="partner"
+              w="full"
+              py={6}
+              mt={4}
+              onClick={handleViewFullProfile}
+              disabled={!organisation.id || disableViewFullProfile}
+            >
+              View Full Profile
+            </Button>
+          </Tooltip>
         </Box>
       </Box>
 
