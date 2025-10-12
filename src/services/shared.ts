@@ -1,10 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import { useAuthStore } from "@/store/authStore";
-import {
-  Opportunity,
-  AccessibleOpportunity,
-} from "@/types/opportunities";
+import { Opportunity, AccessibleOpportunity } from "@/types/opportunities";
 
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
@@ -233,41 +230,39 @@ export function useAccessibleOpportunities() {
         }
 
         // Map opportunities using enrollment_status from API response
-        const opportunitiesWithStatus = opportunities.map((o: AccessibleOpportunity) => {
-          // Use enrollment_status from API response if available
-          let enrollmentStatus = "not_enrolled";
-          if (o.enrollment_status) {
-            // Map API enrollment_status to our expected format
-            if (
-              o.enrollment_status === "enrolled" 
-            ) {
-              enrollmentStatus = "enrolled";
-            } else if (
-              o.enrollment_status === "not_enrolled" 
-            ) {
-              enrollmentStatus = "not_enrolled";
-            } else {
-              // Handle other possible values
-              enrollmentStatus = o.enrollment_status;
+        const opportunitiesWithStatus = opportunities.map(
+          (o: AccessibleOpportunity) => {
+            // Use enrollment_status from API response if available
+            let enrollmentStatus = "not_enrolled";
+            if (o.enrollment_status) {
+              // Map API enrollment_status to our expected format
+              if (o.enrollment_status === "enrolled") {
+                enrollmentStatus = "enrolled";
+              } else if (o.enrollment_status === "not_enrolled") {
+                enrollmentStatus = "not_enrolled";
+              } else {
+                // Handle other possible values
+                enrollmentStatus = o.enrollment_status;
+              }
             }
-          }
 
-          const mappedOpp = {
-            id: o.id,
-            title: o.title,
-            enrollment_status: enrollmentStatus,
-            description: o.description || "",
-            start_date: o.start_date || "",
-            end_date: o.end_date || "",
-            created_by: o.created_by || 0,
-            is_active: o.is_active !== undefined ? o.is_active : true,
-            created_at: o.created_at || "",
-            updated_at: o.updated_at || "",
-            questionnaire: o.questionnaire || {},
-            is_enrolled: enrollmentStatus === "enrolled",
-          };
-          return mappedOpp;
-        });
+            const mappedOpp = {
+              id: o.id,
+              title: o.title,
+              enrollment_status: enrollmentStatus,
+              description: o.description || "",
+              start_date: o.start_date || "",
+              end_date: o.end_date || "",
+              created_by: o.created_by || 0,
+              is_active: o.is_active !== undefined ? o.is_active : true,
+              created_at: o.created_at || "",
+              updated_at: o.updated_at || "",
+              questionnaire: o.questionnaire || {},
+              is_enrolled: enrollmentStatus === "enrolled",
+            };
+            return mappedOpp;
+          }
+        );
 
         return opportunitiesWithStatus;
       } catch (error: any) {
@@ -418,8 +413,8 @@ export function categorizeOpportunities(
     let isEnrolled = false;
 
     // Check if it's an AccessibleOpportunity with status field
-    if ("status" in opportunity) {
-      isEnrolled = opportunity.status === "Enrolled";
+    if ("enrollment_status" in opportunity) {
+      isEnrolled = opportunity.enrollment_status === "enrolled";
     }
     // Check if it's an Opportunity with participant_record
     else if (

@@ -101,7 +101,7 @@ export default function OpportunityReviewPage() {
           (opp) => opp.id.toString() === opportunityId
         );
 
-        if (currentOpportunity?.status === "Enrolled") {
+        if (currentOpportunity?.enrollment_status === "enrolled") {
           setCurrentOpportunityId(opportunityId);
           setEnrollmentStatus(true);
         }
