@@ -78,7 +78,7 @@ export default function DiscoveryPage() {
     const currentOpportunity = accessibleOpportunities.find(
       (opp) => opp.id.toString() === opportunityId
     );
-    const enrolled = currentOpportunity?.status === "Enrolled";
+    const enrolled = currentOpportunity?.enrollment_status === "enrolled";
 
     if (isEnrolled !== enrolled) {
       setEnrollmentStatus(enrolled);

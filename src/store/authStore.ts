@@ -285,6 +285,9 @@ export const useAuthStore = create<AuthState>()(
         tempOrganisation: state.tempOrganisation,
         tempOrganisationUser: state.tempOrganisationUser,
         isOrganisationMemberOnboarding: state.isOrganisationMemberOnboarding,
+        isEnrolled: state.isEnrolled,
+        isEligible: state.isEligible,
+        currentOpportunityId: state.currentOpportunityId,
       }),
     }
   )

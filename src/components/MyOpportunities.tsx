@@ -12,6 +12,7 @@ import {
   Skeleton,
   SkeletonText,
   Dialog,
+  Portal,
 } from "@chakra-ui/react";
 import {
   useAccessibleOpportunities,
@@ -656,43 +657,50 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
       <Dialog.Root
         open={isCancelDialogOpen}
         onOpenChange={(details) => setIsCancelDialogOpen(details.open)}
+        placement="top"
+        trapFocus={true}
       >
-        <Dialog.Positioner zIndex={9999}>
-          <Dialog.Content maxW="400px" zIndex={10000}>
-            <Dialog.Header>
-              <Dialog.Title fontSize="lg" fontWeight="bold">
-                Cancel Enrolment
-              </Dialog.Title>
-            </Dialog.Header>
-            <Dialog.Body>
-              <Text fontSize="md">
-                Do you really want to cancel your enrolment?
-              </Text>
-            </Dialog.Body>
-            <Dialog.Footer>
-              <HStack gap={3} w="full">
-                <Button
-                  bg="red.500"
-                  color="white"
-                  _hover={{ bg: "red.600" }}
-                  onClick={confirmCancelEnrollment}
-                  loading={cancelEnrollmentMutation.isPending}
-                  flex={1}
-                >
-                  Confirm
-                </Button>
-                <Button
-                  variant="outline"
-                  colorScheme="gray"
-                  onClick={() => setIsCancelDialogOpen(false)}
-                  flex={1}
-                >
-                  Go Back
-                </Button>
-              </HStack>
-            </Dialog.Footer>
-          </Dialog.Content>
-        </Dialog.Positioner>
+        <Portal>
+          <Dialog.Positioner
+            zIndex={9999}
+            style={{ backdropFilter: "blur(4px)" }}
+          >
+            <Dialog.Content maxW="400px" zIndex={10000}>
+              <Dialog.Header>
+                <Dialog.Title fontSize="lg" fontWeight="bold">
+                  Cancel Enrolment
+                </Dialog.Title>
+              </Dialog.Header>
+              <Dialog.Body>
+                <Text fontSize="md">
+                  Do you really want to cancel your enrolment?
+                </Text>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <HStack gap={3} w="full">
+                  <Button
+                    bg="red.500"
+                    color="white"
+                    _hover={{ bg: "red.600" }}
+                    onClick={confirmCancelEnrollment}
+                    loading={cancelEnrollmentMutation.isPending}
+                    flex={1}
+                  >
+                    Confirm
+                  </Button>
+                  <Button
+                    variant="outline"
+                    colorScheme="gray"
+                    onClick={() => setIsCancelDialogOpen(false)}
+                    flex={1}
+                  >
+                    Go Back
+                  </Button>
+                </HStack>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
       </Dialog.Root>
     </>
   );

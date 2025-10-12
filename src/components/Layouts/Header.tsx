@@ -352,13 +352,19 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                       px={1.0}
                       py={0.5}
                       borderRadius="md"
-                      bg={o.status === "Enrolled" ? "green.300" : "yellow.200"}
+                      bg={
+                        o.enrollment_status === "enrolled"
+                          ? "green.300"
+                          : "yellow.200"
+                      }
                       color="black"
                       fontWeight="bold"
                       minW="80px"
                       textAlign="center"
                     >
-                      {o.status}
+                      {o.enrollment_status === "enrolled"
+                        ? "Enrolled"
+                        : "Not Enrolled"}
                     </Box>
                     <Text
                       color={isProtected ? "white" : "black"}
@@ -440,14 +446,22 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                       px={1.5}
                       py={0.5}
                       borderRadius="md"
-                      bg={o.status === "Enrolled" ? "green.300" : "yellow.200"}
-                      color={o.status === "Enrolled" ? "black" : "black"}
+                      bg={
+                        o.enrollment_status === "enrolled"
+                          ? "green.300"
+                          : "yellow.200"
+                      }
+                      color={
+                        o.enrollment_status === "enrolled" ? "black" : "black"
+                      }
                       fontWeight="bold"
                       alignSelf="flex-start"
                       minW="80px"
                       textAlign="center"
                     >
-                      {o.status}
+                      {o.enrollment_status === "enrolled"
+                        ? "Enrolled"
+                        : "Not Enrolled"}
                     </Box>
                     <Text truncate fontWeight="bold" fontSize="16px">
                       {o.title || `Opportunity ${o.id}`}
