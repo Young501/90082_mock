@@ -7,7 +7,7 @@ import {
   Toast,
   createToaster,
 } from "@chakra-ui/react";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 
 export const toaster = createToaster({
   placement: "bottom-end",

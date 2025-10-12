@@ -10,7 +10,7 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { useEmailVerification } from "@/services/emailVerification";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 

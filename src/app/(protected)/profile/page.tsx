@@ -38,7 +38,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { FullProfileCard } from "../discover/cards/FullProfileCard";
 import { useAuth } from "@/hooks/auth";
 import { InputField } from "@/components/ui";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { OrganisationProfile } from "@/types/discovery";

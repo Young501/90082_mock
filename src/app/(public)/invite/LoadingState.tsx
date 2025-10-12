@@ -5,7 +5,7 @@ import {
   VStack,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 
 export const LoadingState = () => {
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
