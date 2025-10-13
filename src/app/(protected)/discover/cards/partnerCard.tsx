@@ -24,6 +24,7 @@ interface PartnerCardProps {
   onRemoveFromFolder?: () => void;
   disableViewFullProfile?: boolean;
   disableAddToFolder?: boolean;
+  opportunityId?: string;
 }
 
 export function PartnerCard({
@@ -34,6 +35,7 @@ export function PartnerCard({
   onRemoveFromFolder,
   disableViewFullProfile = false,
   disableAddToFolder = false,
+  opportunityId,
 }: PartnerCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
@@ -260,6 +262,7 @@ export function PartnerCard({
         <FullProfileCard
           profileId={organisation.id.toString()}
           profileType="organisation"
+          opportunityId={opportunityId || ""}
           onClose={() => setShowFullProfile(false)}
         />
       )}
