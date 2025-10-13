@@ -1,0 +1,298 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Box,
+  Field,
+  Input,
+  Spinner,
+  Text,
+  chakra,
+} from "@chakra-ui/react";
+import { Control, UseFormSetError, useController } from "react-hook-form";
+import { useAbnValidation } from "@/services/shared";
+import { useDebounce } from "@/hooks/useDebounce";
+import { AbnValidationStatus } from "@/types/onboarding";
+
+interface AbnLookupFieldProps {
+  name: string;
+  label: string;
+  control: Control<any>;
+  required?: boolean;
+  error?: string;
+  organisationName?: string;
+  setError: UseFormSetError<any>;
+  clearErrors?: (name: string) => void;
+  onStatusChange?: (status: AbnValidationStatus) => void;
+}
+
+const formatAbn = (value: string): string => {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  const parts: string[] = [];
+  if (digits.length <= 2) {
+    return digits;
+  }
+  parts.push(digits.slice(0, 2));
+  if (digits.length <= 5) {
+    parts.push(digits.slice(2));
+    return parts.join(" ");
+  }
+  parts.push(digits.slice(2, 5));
+  if (digits.length <= 8) {
+    parts.push(digits.slice(5));
+    return parts.join(" ");
+  }
+  parts.push(digits.slice(5, 8));
+  if (digits.length > 8) {
+    parts.push(digits.slice(8));
+  }
+  return parts.join(" ").trim();
+};
+
+const INVALID_ABN_MESSAGE =
+  "ABN did not match the registered organisation name. Please check both fields.";
+const VALIDATION_ERROR_MESSAGE =
+  "Unable to validate the ABN right now. Please try again.";
+
+export const AbnLookupField = ({
+  name,
+  label,
+  control,
+  required,
+  error,
+  organisationName,
+  setError,
+  clearErrors,
+  onStatusChange,
+}: AbnLookupFieldProps) => {
+  const { field } = useController({ name, control });
+  const [inputValue, setInputValue] = useState<string>(
+    formatAbn((field.value as string) || "")
+  );
+  const [status, setStatus] = useState<AbnValidationStatus>("idle");
+  const [matchedName, setMatchedName] = useState<string | null>(null);
+
+  const abnDigits = inputValue.replace(/\D/g, "");
+  const trimmedOrgName = (organisationName || "").trim();
+
+  const debouncedAbn = useDebounce(abnDigits, 600);
+  const debouncedOrgName = useDebounce(trimmedOrgName, 600);
+
+  const { mutateAsync: validateAbn, reset: resetValidation } =
+    useAbnValidation();
+  const lastValidatedRef = useRef<{
+    abn: string;
+    organisation: string;
+    valid?: boolean;
+    matchedName?: string | null;
+  }>({ abn: "", organisation: "" });
+
+  const emitStatusChange = (nextStatus: AbnValidationStatus) => {
+    setStatus(nextStatus);
+    if (onStatusChange) {
+      onStatusChange(nextStatus);
+    }
+  };
+
+  useEffect(() => {
+    const formatted = formatAbn((field.value as string) || "");
+    if (formatted !== inputValue) {
+      setInputValue(formatted);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [field.value]);
+
+  useEffect(() => {
+    let isActive = true;
+    const abn = debouncedAbn;
+    const organisation = debouncedOrgName;
+
+    if (!abn) {
+      lastValidatedRef.current = { abn: "", organisation: "" };
+      setMatchedName(null);
+      emitStatusChange("idle");
+      if (clearErrors) clearErrors(name);
+      return () => {
+        isActive = false;
+      };
+    }
+
+    if (abn.length < 11) {
+      lastValidatedRef.current = { abn: "", organisation: "" };
+      setMatchedName(null);
+      emitStatusChange("idle");
+      if (clearErrors) clearErrors(name);
+      return () => {
+        isActive = false;
+      };
+    }
+
+    if (!organisation) {
+      emitStatusChange("idle");
+      setMatchedName(null);
+      if (clearErrors) clearErrors(name);
+      return () => {
+        isActive = false;
+      };
+    }
+
+    const cachedResult = lastValidatedRef.current;
+    if (
+      cachedResult.abn === abn &&
+      cachedResult.organisation === organisation &&
+      cachedResult.valid !== undefined
+    ) {
+      if (cachedResult.valid) {
+        setMatchedName(cachedResult.matchedName || null);
+        emitStatusChange("valid");
+        if (clearErrors) clearErrors(name);
+      } else {
+        setMatchedName(cachedResult.matchedName || null);
+        emitStatusChange("invalid");
+        setError(name, { type: "manual", message: INVALID_ABN_MESSAGE });
+      }
+      return () => {
+        isActive = false;
+      };
+    }
+
+    emitStatusChange("pending");
+    setMatchedName(null);
+
+    validateAbn({ abn, organisationName: organisation })
+      .then((response) => {
+        if (!isActive) return;
+        lastValidatedRef.current = {
+          abn,
+          organisation,
+          valid: response.valid,
+          matchedName: response.matchedName ?? null,
+        };
+
+        if (response.valid) {
+          setMatchedName(response.matchedName ?? null);
+          emitStatusChange("valid");
+          if (clearErrors) clearErrors(name);
+        } else {
+          setMatchedName(response.matchedName ?? null);
+          emitStatusChange("invalid");
+          setError(name, { type: "manual", message: INVALID_ABN_MESSAGE });
+        }
+      })
+      .catch(() => {
+        if (!isActive) return;
+        lastValidatedRef.current = { abn, organisation, valid: undefined };
+        emitStatusChange("error");
+        setMatchedName(null);
+        setError(name, { type: "manual", message: VALIDATION_ERROR_MESSAGE });
+      });
+
+    return () => {
+      isActive = false;
+      resetValidation();
+    };
+  }, [
+    debouncedAbn,
+    debouncedOrgName,
+    validateAbn,
+    resetValidation,
+    clearErrors,
+    name,
+    setError,
+  ]);
+
+  const helperText = useMemo(() => {
+    if (status === "pending") {
+      return (
+        <Text mt={2} fontSize="sm" color="gray.600" display="flex" gap={2}>
+          <Spinner size="sm" />
+          Validating ABN with ABR…
+        </Text>
+      );
+    }
+    if (status === "valid") {
+      return (
+        <Text mt={2} fontSize="sm" color="green.600">
+          ABN verified
+          {matchedName ? `: ${matchedName}` : ""}.
+        </Text>
+      );
+    }
+    if (status === "invalid" && matchedName) {
+      return (
+        <Text mt={2} fontSize="sm" color="red.600">
+          Closest registered name: {matchedName}
+        </Text>
+      );
+    }
+    if (status === "error" && !error) {
+      return (
+        <Text mt={2} fontSize="sm" color="red.600">
+          {VALIDATION_ERROR_MESSAGE}
+        </Text>
+      );
+    }
+    return null;
+  }, [error, matchedName, status]);
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const digitsOnly = event.target.value.replace(/\D/g, "");
+    const formatted = formatAbn(digitsOnly);
+    setInputValue(formatted);
+    field.onChange(digitsOnly);
+    setMatchedName(null);
+    lastValidatedRef.current = { abn: "", organisation: "" };
+    emitStatusChange("idle");
+    if (clearErrors) clearErrors(name);
+  };
+
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    const digitsOnly = event.target.value.replace(/\D/g, "");
+    field.onBlur();
+    setInputValue(formatAbn(digitsOnly));
+  };
+
+  return (
+    <Field.Root invalid={!!error}>
+      <Box mb={2}>
+        <Field.Label fontSize="20px" fontWeight="400" color="#282F68" mb={4}>
+          {label}
+          {required && (
+            <chakra.span color="red.500" ml={1}>
+              *
+            </chakra.span>
+          )}
+        </Field.Label>
+      </Box>
+      <Input
+        value={inputValue}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        placeholder={label}
+        h="60px"
+        bg="white"
+        fontSize="16px"
+        px={6}
+        border="1px solid #A2DDF0"
+        borderRadius="8px"
+        _focus={{
+          borderColor: "#A2DDF0",
+          boxShadow: "0 0 0 1px #A2DDF0",
+        }}
+        _hover={{
+          borderColor: "#A2DDF0",
+        }}
+        inputMode="numeric"
+        autoComplete="off"
+        name={field.name}
+        ref={field.ref}
+      />
+      {error && (
+        <Field.ErrorText mt={2} fontSize="sm">
+          {error}
+        </Field.ErrorText>
+      )}
+      {!error && helperText}
+    </Field.Root>
+  );
+};
+
+AbnLookupField.displayName = "AbnLookupField";

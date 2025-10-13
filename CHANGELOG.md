@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2] - 2025-10-18
+
+### Added
+
+- Organisation onboarding ABN lookup field with inline status messaging tied to the new backend validator.
+- Automatic ABN verification callouts that block the Continue/Submit buttons until a valid ABN/name pair is confirmed.
+- Profile editor guard rails so organisations must re-validate their ABN before saving changes.
+
+---
+
 ## [1.1]
 
 ### Added

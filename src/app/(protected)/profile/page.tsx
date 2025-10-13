@@ -27,7 +27,7 @@ import {
   changePasswordSchema,
 } from "@/utils/validationSchemas";
 import { FieldRenderer } from "../../(auth)/onboarding/FieldRenderer";
-import { Question } from "@/types/onboarding";
+import { AbnValidationStatus, Question } from "@/types/onboarding";
 import Image from "next/image";
 import { OnboardingPage, OnboardingData, Tab } from "@/types/profile";
 
@@ -62,6 +62,8 @@ const Profile = () => {
   >(null);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [showValidationError, setShowValidationError] = useState(false);
+  const [abnStatus, setAbnStatus] =
+    useState<AbnValidationStatus>("idle");
   const [fileUploadKey, setFileUploadKey] = useState(0);
   const { handleChangePassword, changePasswordMutation } = useAuth();
   const [changePasswordSuccess, setChangePasswordSuccess] = useState(false);
@@ -149,10 +151,25 @@ const Profile = () => {
     clearErrors,
     unregister,
     getValues,
+    setError,
+    watch,
   } = useForm({
     resolver: yupResolver(schema),
     // mode: "onChange",
   });
+  const organisationNameValue = watch("name");
+  const hasAbnLookupField = activePage?.questions?.some(
+    (question) => question.type === "abn_lookup"
+  );
+  const isAbnBlocking =
+    hasAbnLookupField &&
+    (abnStatus === "pending" ||
+      abnStatus === "invalid" ||
+      abnStatus === "error");
+
+  useEffect(() => {
+    setAbnStatus("idle");
+  }, [activePage?.id]);
 
   useEffect(() => {
     if (fetchedUserProfile) {
@@ -386,6 +403,11 @@ const Profile = () => {
         delete submissionData[key];
       }
     });
+
+    if (isAbnBlocking) {
+      toast.error("Please verify your ABN before saving changes.");
+      return;
+    }
 
     if (Object.keys(errors).length > 0) {
       setShowValidationError(true);
@@ -792,11 +814,22 @@ const Profile = () => {
                     register={register}
                     control={control}
                     errors={errors}
+                    setError={setError}
                     clearErrors={clearErrors}
                     unregister={unregister}
                     fileUploadKey={fileUploadKey}
+                    organisationName={organisationNameValue}
+                    onAbnValidationChange={setAbnStatus}
                   />
                 ))}
+                {isAbnBlocking && (
+                  <Alert.Root status="error" mb={4}>
+                    <Alert.Indicator />
+                    <Alert.Title>
+                      Please verify your ABN before saving changes.
+                    </Alert.Title>
+                  </Alert.Root>
+                )}
                 <Button
                   type="submit"
                   mt={10}
@@ -809,6 +842,9 @@ const Profile = () => {
                   px={6}
                   bg="#CFF3FF"
                   loading={profileUpdateMutation.isPending}
+                  isDisabled={
+                    profileUpdateMutation.isPending || isAbnBlocking
+                  }
                 >
                   <Image
                     src="/assets/saveicon.svg"

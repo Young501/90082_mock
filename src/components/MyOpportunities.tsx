@@ -221,10 +221,15 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     formState: { errors },
     reset,
     getValues,
+    clearErrors,
+    setError,
+    watch,
+    unregister,
   } = useForm({
     resolver: yupResolver(schema),
     mode: "onChange",
   });
+  const organisationNameValue = watch("name");
 
   // Reset form when participant record loads
   useEffect(() => {
@@ -568,14 +573,18 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                       <form onSubmit={handleSubmit(handleSave)}>
                         <VStack gap={4} align="stretch">
                           {questionnaire.map((question: Question) => (
-                            <FieldRenderer
-                              key={question.field}
-                              question={question}
-                              register={register}
-                              control={control}
-                              errors={errors}
-                            />
-                          ))}
+                          <FieldRenderer
+                            key={question.field}
+                            question={question}
+                            register={register}
+                            control={control}
+                            errors={errors}
+                            setError={setError}
+                            clearErrors={clearErrors}
+                            unregister={unregister}
+                            organisationName={organisationNameValue}
+                          />
+                        ))}
                           <HStack gap={2} justify="flex-end">
                             <Button
                               size="sm"

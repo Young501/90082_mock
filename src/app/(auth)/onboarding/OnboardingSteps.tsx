@@ -16,7 +16,7 @@ import { useOnboardingLogic } from "@/hooks/useOnboardingLogic";
 import { createPageSchema } from "@/utils/validationSchemas";
 import { FieldRenderer } from "./FieldRenderer";
 import { Button } from "@/components/ui/Button";
-import { Question } from "@/types/onboarding";
+import { AbnValidationStatus, Question } from "@/types/onboarding";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import ProgressTrack from "@/components/ProgressTrack";
@@ -55,6 +55,10 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   }, [isLoading, pages, router]);
 
+  useEffect(() => {
+    setAbnStatus("idle");
+  }, [currentPage?.id]);
+
   const [submitError, setSubmitError] = useState<string>("");
   const [showValidationError, setShowValidationError] =
     useState<boolean>(false);
@@ -65,6 +69,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const [showCreateOrganisationPrompt, setShowCreateOrganisationPrompt] =
     useState<boolean>(false);
   const [userPhaseData, setUserPhaseData] = useState<Record<string, any>>({});
+  const [abnStatus, setAbnStatus] =
+    useState<AbnValidationStatus>("idle");
   const submissionMutation = useOnboardingSubmission(userType);
   const profileUpdateMutation = useProfileUpdate(userType);
   const profilePictureUpload = useProfilePictureUpload();
@@ -73,6 +79,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const schema = createPageSchema(currentPage?.questions || []);
   const [isLoadingOrganisationPrompt, setIsLoadingOrganisationPrompt] =
     useState<boolean>(false);
+  const ABN_BLOCK_MESSAGE = "Please verify your ABN before continuing.";
 
   const {
     register,
@@ -82,6 +89,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     trigger,
     setValue,
     getValues,
+    setError,
     clearErrors,
     unregister,
     reset,
@@ -268,6 +276,14 @@ export const OnboardingSteps = ({ userType }: Props) => {
       setShowValidationError(hasErrors);
     }
   }, [errors, hasAttemptedSubmit]);
+
+  useEffect(() => {
+    if (abnStatus === "valid" || abnStatus === "idle") {
+      setSubmitError((prev) =>
+        prev === ABN_BLOCK_MESSAGE ? "" : prev
+      );
+    }
+  }, [abnStatus, ABN_BLOCK_MESSAGE]);
 
   useEffect(() => {
     if (currentPage) {
@@ -475,8 +491,22 @@ export const OnboardingSteps = ({ userType }: Props) => {
 
     try {
       const isValid = await performValidationWithoutGhosts();
+      const hasAbnLookup = currentPage?.questions.some(
+        (question) => question.type === "abn_lookup"
+      );
+      const abnBlocked =
+        !!hasAbnLookup &&
+        (abnStatus === "pending" ||
+          abnStatus === "invalid" ||
+          abnStatus === "error");
 
       if (isValid) {
+        if (abnBlocked) {
+          setSubmitError(ABN_BLOCK_MESSAGE);
+          setShowValidationError(true);
+          return;
+        }
+
         setShowValidationError(false);
         setSubmitError("");
         goToNextPage();
@@ -495,6 +525,21 @@ export const OnboardingSteps = ({ userType }: Props) => {
       const isValid = await performValidationWithoutGhosts();
 
       if (!isValid) {
+        setShowValidationError(true);
+        return;
+      }
+
+      const hasAbnLookup = currentPage?.questions.some(
+        (question) => question.type === "abn_lookup"
+      );
+      const abnBlocked =
+        !!hasAbnLookup &&
+        (abnStatus === "pending" ||
+          abnStatus === "invalid" ||
+          abnStatus === "error");
+
+      if (abnBlocked) {
+        setSubmitError(ABN_BLOCK_MESSAGE);
         setShowValidationError(true);
         return;
       }
@@ -700,6 +745,16 @@ export const OnboardingSteps = ({ userType }: Props) => {
     return pages.length;
   };
 
+  const hasAbnLookupField = currentPage.questions.some(
+    (question) => question.type === "abn_lookup"
+  );
+  const isAbnBlocking =
+    hasAbnLookupField &&
+    (abnStatus === "pending" ||
+      abnStatus === "invalid" ||
+      abnStatus === "error");
+  const organisationName = watch("name");
+
   return (
     <Box
       p={6}
@@ -736,10 +791,17 @@ export const OnboardingSteps = ({ userType }: Props) => {
             register={register}
             control={control}
             errors={errors}
+            setError={setError}
             clearErrors={clearErrors}
             unregister={unregister}
             onFieldUnregistered={handleFieldUnregistered}
             onParentValueChange={handleParentValueChange}
+            organisationName={organisationName}
+            onAbnValidationChange={(status) => {
+              if (question.type === "abn_lookup") {
+                setAbnStatus(status);
+              }
+            }}
           />
         ))}
 
@@ -781,6 +843,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
                   variant="primary"
                   w={{ base: "calc(50% - 8px)", md: "271px" }}
                   style={{ borderRadius: "0px" }}
+                  isDisabled={loadingStates}
                 >
                   Previous
                 </Button>
@@ -797,6 +860,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
                   }}
                   style={{ borderRadius: "0px" }}
                   isLoading={loadingStates}
+                  isDisabled={loadingStates || isAbnBlocking}
                 >
                   Submit
                 </Button>
@@ -809,6 +873,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
                     md: "271px",
                   }}
                   style={{ borderRadius: "0px" }}
+                  isLoading={loadingStates}
+                  isDisabled={loadingStates || isAbnBlocking}
                 >
                   Next
                 </Button>

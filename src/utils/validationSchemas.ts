@@ -50,7 +50,18 @@ export const createPageSchema = (
         fieldSchema = yup.string();
       } else if (question.type === "text") {
         fieldSchema = yup.string();
-      } else if (question.type === "email") {
+      } else if (question.type === "abn_lookup") {
+        fieldSchema = yup
+          .string()
+          .transform((value: any) => {
+            if (!value) {
+              return undefined;
+            }
+            const digits = String(value).replace(/\D/g, "");
+            return digits || undefined;
+          })
+          .matches(/^\d{11}$/, "ABN must contain 11 digits");
+      }else if (question.type === "email") {
         fieldSchema = yup
           .string()
           .email("Please enter a valid email address")
