@@ -68,7 +68,11 @@ export function DiscoveryResultBox({
                   opportunityId={opportunityId}
                 />
               ) : (
-                <PartnerCard key={key} organisation={user} />
+                <PartnerCard
+                  key={key}
+                  organisation={user}
+                  opportunityId={opportunityId}
+                />
               );
             })}
           </SimpleGrid>
