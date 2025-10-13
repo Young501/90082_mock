@@ -9,8 +9,6 @@ import {
   HStack,
   Spinner,
   Alert,
-  Skeleton,
-  SkeletonText,
   Dialog,
   Portal,
 } from "@chakra-ui/react";
@@ -33,122 +31,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { createPageSchema } from "@/utils/validationSchemas";
 import { Question } from "@/types/onboarding";
 import { toast } from "react-toastify";
-import { parseQuestionnaireOptions } from "@/utils/questionnaireParser";
-
-// Build a map of option value -> option label for a question
-function buildOptionLabelMap(question: Question): Map<string, string> {
-  const rawOptions = question.options || question.option || [];
-  const parsed = parseQuestionnaireOptions(rawOptions);
-  const pairs = parsed.map((opt: any) => {
-    const label = opt.label || opt.value; // same shape you used in FieldRenderer
-    return [String(opt.value), String(label)] as [string, string];
-  });
-  return new Map(pairs);
-}
-
-// Turn any stored answer into a display string
-function formatAnswerForDisplay(question: Question, answer: any): string {
-  if (answer === null || answer === undefined || answer === "") {
-    return "No answer provided";
-  }
-
-  // Options-based questions → map values to labels
-  const isOptionsType = [
-    "select",
-    "multi-select",
-    "tag-select",
-    "checkbox-group",
-    "card-select",
-  ].includes(question.type);
-
-  if (isOptionsType) {
-    const map = buildOptionLabelMap(question);
-
-    const toLabel = (val: any) => {
-      const key = typeof val === "boolean" ? String(val) : String(val);
-      return map.get(key) ?? String(val);
-    };
-
-    if (Array.isArray(answer)) {
-      return answer.map(toLabel).join(", ");
-    }
-    return toLabel(answer);
-  }
-
-  // Boolean
-  if (question.type === "boolean-checkbox") {
-    // If you someday add custom yes/no labels on the question, prefer them here.
-    return answer ? "Yes" : "No";
-  }
-
-  // Numbers / ranges (append unit if provided)
-  if (
-    question.type === "number" ||
-    question.type === "range" ||
-    typeof answer === "number"
-  ) {
-    const unit = question.unit ? ` ${question.unit}` : "";
-    return `${answer}${unit}`;
-  }
-
-  // File fields — show a friendly filename if it looks like a URL
-  if (question.type === "file") {
-    try {
-      const url = new URL(String(answer));
-      const fileName = decodeURIComponent(url.pathname.split("/").pop() || "");
-      return fileName || "Uploaded file";
-    } catch {
-      // not a URL, just show the raw value
-      return String(answer);
-    }
-  }
-
-  // Location/geocode answers may be an object (depends on your component wiring)
-  if (question.type === "location_geocode_lookup") {
-    if (typeof answer === "object" && answer) {
-      return (
-        (answer.label as string) ||
-        (answer.formatted_address as string) ||
-        (answer.description as string) ||
-        JSON.stringify(answer)
-      );
-    }
-    return String(answer);
-  }
-
-  // Text, email, url, textarea, etc.
-  if (Array.isArray(answer)) {
-    return answer.join(", ");
-  }
-  return String(answer);
-}
-
-// Skeleton component for opportunity cards
-const OpportunityCardSkeleton: React.FC = () => (
-  <Box
-    borderRadius="12px"
-    bg="white"
-    border="1px solid #E2E8F0"
-    boxShadow="0 1px 3px rgba(0,0,0,0.1)"
-    overflow="hidden"
-  >
-    <Box p={4}>
-      <Flex justify="space-between" align="start">
-        <Box flex={1}>
-          <Skeleton height="20px" width="70%" mb={2} />
-          <SkeletonText noOfLines={2} mb={3} />
-          <HStack gap={4}>
-            <Skeleton height="16px" width="120px" />
-            <Skeleton height="16px" width="120px" />
-          </HStack>
-        </Box>
-        <Box>
-          <Skeleton height="32px" width="100px" />
-        </Box>
-      </Flex>
-    </Box>
-  </Box>
-);
+import { formatAnswerForDisplay } from "@/utils/formatAnswer";
+import OpportunityCardSkeleton from "./ui/OpportunityCardSkeleton";
 
 // Simple Opportunity Card Component
 interface OpportunityCardProps {
@@ -236,16 +120,6 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     }
   }, [participantRecord, reset]);
 
-  // Update originalAnswers when participant record changes (e.g., after successful save)
-  useEffect(() => {
-    if (participantRecord?.data?.questionnaire_answers && !isEditMode) {
-      const answers = participantRecord.data.questionnaire_answers;
-      setOriginalAnswers(answers);
-      // Also reset the form to match the latest data
-      reset(answers);
-    }
-  }, [participantRecord?.data?.questionnaire_answers, isEditMode, reset]);
-
   const handleExpand = () => {
     setIsExpanded(!isExpanded);
     if (!isExpanded) {
@@ -254,13 +128,12 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   };
 
   const handleEdit = () => {
-    if (!isEditMode) {
+    const participantAnswers = participantRecord?.data?.questionnaire_answers;
+    if (!isEditMode && participantAnswers) {
       // When entering edit mode, reset form to current participant answers
       // This ensures we start with the latest data, not stale originalAnswers
-      if (participantRecord?.data?.questionnaire_answers) {
-        reset(participantRecord.data.questionnaire_answers);
-        setOriginalAnswers(participantRecord.data.questionnaire_answers);
-      }
+      reset(participantAnswers);
+      setOriginalAnswers(participantAnswers);
     } else {
       // When canceling edit mode, reset form back to original answers
       reset(originalAnswers);
@@ -318,14 +191,11 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
       // Mark as cancelled to stop fetching participant record
       setIsCancelled(true);
 
-      // Close expanded view after successful cancellation
       setIsExpanded(false);
       setIsEditMode(false);
 
-      // Close dialog
       setIsCancelDialogOpen(false);
 
-      // Invalidate caches to trigger UI updates
       queryClient.invalidateQueries({
         queryKey: ["accessible-opportunities", user?.id],
       });
@@ -368,20 +238,19 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
         return;
       }
 
-      // Send the complete questionnaire_answers object to preserve all existing data
-      // The backend needs the full object to avoid losing other fields
-      await updateParticipantMutation.mutateAsync({
+      const updatedParticipant = await updateParticipantMutation.mutateAsync({
         opportunityId: opportunity.id,
-        questionnaireAnswers: data, // Send complete form data, not just changed fields
+        questionnaireAnswers: data,
       });
 
-      // Update original answers with the complete form data
-      setOriginalAnswers(data);
+      queryClient.setQueryData(
+        ["opportunity-participant", opportunity.id],
+        updatedParticipant
+      );
 
-      // Invalidate participant record cache to trigger UI updates
-      queryClient.invalidateQueries({
-        queryKey: ["opportunity-participant", opportunity.id, user?.id],
-      });
+      setOriginalAnswers(
+        updatedParticipant?.data?.questionnaire_answers || data
+      );
 
       toast.success("All changes have been saved!");
       setIsEditMode(false);
@@ -451,11 +320,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                 onClick={handleExpand}
                 minW="fit-content"
               >
-                {isExpanded
-                  ? "Collapse"
-                  : type === "enrolled"
-                    ? "View Details"
-                    : "View Details"}
+                {isExpanded ? "Collapse" : "View Details"}
               </Button>
             </Box>
           </Flex>
@@ -725,8 +590,7 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
   // Categorize opportunities
   const categorizedOpportunities = useMemo(() => {
     if (!opportunities) return { enrolled: [], closed: [] };
-    // AccessibleOpportunity now has all the necessary fields
-    return categorizeOpportunities(opportunities as any);
+    return categorizeOpportunities(opportunities);
   }, [opportunities]);
 
   const opportunityTabs = [
