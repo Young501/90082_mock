@@ -96,6 +96,7 @@ export const CardSelectField = ({
         templateColumns="repeat(auto-fit, minmax(180px, 1fr))"
         gap={4}
         maxW="600px"
+        mx="auto"
       >
         {options.map((option) => (
           <Box
