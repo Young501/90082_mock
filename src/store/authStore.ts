@@ -57,6 +57,8 @@ export interface AuthState {
   clearTempOrganisationUser: () => void;
   setIsOrganisationMemberOnboarding: (isMember: boolean) => void;
   getIsOrganisationMemberOnboarding: () => boolean;
+  setIsAuthenticated: (isAuthenticated: boolean) => void;
+  getIsAuthenticated: () => boolean;  
   // Opportunity enrollment methods
   setCurrentOpportunityId: (id: string | null) => void;
   getCurrentOpportunityId: () => string | null;
@@ -87,11 +89,15 @@ export const useAuthStore = create<AuthState>()(
       currentOpportunityId: null,
       isEnrolled: null,
       isEligible: null,
+      setIsAuthenticated: (isAuthenticated: boolean) => {
+        set({ isAuthenticated });
+      },
+      getIsAuthenticated: () => get().isAuthenticated,
       setAuthData: (token: string, user: User) => {
         set({
           user,
           token,
-          isAuthenticated: true,
+          isAuthenticated: get().isAuthenticated,
           userProfilePictureUrl: user?.profile_picture_url || null,
         });
       },

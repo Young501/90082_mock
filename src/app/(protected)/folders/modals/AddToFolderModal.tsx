@@ -6,7 +6,7 @@ import { SelectField } from "@/components/fields/SelectField";
 import { useFolders, useAddMemberToFolder } from "@/services/folder";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/Button";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 
 interface AddToFolderModalProps {
   isOpen: boolean;

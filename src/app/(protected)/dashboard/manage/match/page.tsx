@@ -18,7 +18,7 @@ import { MatchConfirmationModal } from "@/components/ui";
 import { Participant } from "@/types/dashboard";
 import ManageFilter from "@/app/(protected)/dashboard/components/ManageFilter";
 import { toast } from "react-toastify";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 

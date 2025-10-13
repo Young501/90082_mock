@@ -38,7 +38,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { FullProfileCard } from "../discover/cards/FullProfileCard";
 import { useAuth } from "@/hooks/auth";
 import { InputField } from "@/components/ui";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { OrganisationProfile } from "@/types/discovery";
@@ -265,11 +265,13 @@ const Profile = () => {
         userProfile: UserProfile
       ): string[] => {
         const questionFields = [question.field];
-        let userAnswer;
+        let userAnswer: unknown;
+
         if (userType === "organisation") {
-          const orgField = question.field;
-          userAnswer =
-            userProfile[orgField as keyof typeof userProfile.organisation];
+          const orgField = question.field as keyof NonNullable<
+            UserProfile["organisation"]
+          >;
+          userAnswer = userProfile.organisation?.[orgField]; // fixed indexing
         } else {
           userAnswer = (userProfile as any)[question.field];
         }
@@ -277,9 +279,14 @@ const Profile = () => {
         if (
           question.followup_question &&
           userAnswer &&
-          question.followup_question[userAnswer]
+          question.followup_question[
+            userAnswer as keyof typeof question.followup_question
+          ]
         ) {
-          const followup = question.followup_question[userAnswer];
+          const followup =
+            question.followup_question[
+              userAnswer as keyof typeof question.followup_question
+            ];
           questionFields.push(
             ...extractFieldsFromQuestion(followup, userProfile)
           );
@@ -304,33 +311,48 @@ const Profile = () => {
         ? ["first_name", "last_name", "role", "profile_picture_url"]
         : [];
 
-    const allFields = [...allOnboardingFields, ...coreMemberFields];
+    // Exclude socials for student
+    const EXCLUDED_FOR_STUDENT = new Set([
+      "instagram",
+      "bluesky",
+      "linkedin",
+      "homepage",
+    ]);
 
-    const filledFields = allFields.filter((field) => {
-      let value;
+    const allFields = [
+      ...new Set([...allOnboardingFields, ...coreMemberFields]),
+    ];
+    const requiredFields =
+      userType === "student"
+        ? allFields.filter((f) => !EXCLUDED_FOR_STUDENT.has(f))
+        : allFields;
+
+    // If nothing is required after filtering, consider completion 100%
+    if (requiredFields.length === 0) return 100;
+
+    const filledFields = requiredFields.filter((field) => {
+      let value: unknown;
+
       if (userType === "organisation") {
         if (coreMemberFields.includes(field)) {
-          value = userProfile[field as keyof UserProfile];
+          value = (userProfile as any)[field];
         } else {
-          const orgField = field;
-          value =
-            userProfile.organisation?.[
-              orgField as keyof typeof userProfile.organisation
-            ];
+          const orgField = field as keyof NonNullable<
+            UserProfile["organisation"]
+          >;
+          value = userProfile.organisation?.[orgField];
         }
       } else {
-        value = userProfile[field as keyof UserProfile];
+        value = (userProfile as any)[field];
       }
-      return (
-        value !== undefined &&
-        value !== null &&
-        (Array.isArray(value)
-          ? value.length > 0
-          : value.toString().trim() !== "")
-      );
+
+      if (value === undefined || value === null) return false;
+      return Array.isArray(value)
+        ? value.length > 0
+        : value.toString().trim() !== "";
     });
 
-    return Math.round((filledFields.length / allFields.length) * 100);
+    return Math.round((filledFields.length / requiredFields.length) * 100);
   };
 
   // For organisation users who have completed onboarding, show profile even if no pages
