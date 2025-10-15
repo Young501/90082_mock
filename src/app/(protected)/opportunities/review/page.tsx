@@ -87,9 +87,9 @@ export default function OpportunityReviewPage() {
         questionnaireAnswers: answers,
       });
 
-      await queryClient.refetchQueries({
-        queryKey: ["accessible-opportunities", user?.id],
-      });
+      // await queryClient.refetchQueries({
+      //   queryKey: ["accessible-opportunities", user?.id],
+      // });
 
       const accessibleOpportunities = queryClient.getQueryData([
         "accessible-opportunities",
