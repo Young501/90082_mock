@@ -77,8 +77,8 @@ apiClient.interceptors.request.use(
     const isInvitePage = matchesInvitePattern(currentUrl);
 
     if (error.status === 401 && !isInvitePage) {
-      useAuthStore.getState().setAuthData("", {} as User);
-      // window.location.href = "/login/";
+      useAuthStore.getState().logout();
+      window.location.href = "/login/";
     }
     if (process.env.NODE_ENV === "development") {
       console.error("❌ Request interceptor error:", error);
@@ -110,7 +110,7 @@ apiClient.interceptors.response.use(
       console.log("error.status", currentUrl);
 
     if (error.status === 401 && !isInvitePage) {
-      useAuthStore.getState().setAuthData("", {} as User);
+      useAuthStore.getState().logout();
       // window.location.href = "/login/";
     }
     if (process.env.NODE_ENV === "development") {
