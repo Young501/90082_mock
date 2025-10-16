@@ -15,7 +15,6 @@ import Image from "next/image";
 import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useAccessibleOpportunities } from "@/services/shared";
 import { toast } from "react-toastify";
 
 interface MenuItem {
@@ -31,7 +30,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
   const router = useRouter();
   const { handleLogout } = useAuth();
-  const { logout, getUserType } = useAuthStore();
+  const { logout, getUserType, getAccessibleOpportunities } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDiscoverDropdownOpen, setIsDiscoverDropdownOpen] = useState(false);
   const discoverDropdownRef = useRef<HTMLDivElement>(null);
@@ -42,7 +41,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isCoordinator = userType === "coordinator";
   const isOrganisation = userType === "organisation";
   const isStudent = userType === "student";
-  const { data: accessibleOpps } = useAccessibleOpportunities();
+  const accessibleOpps = getAccessibleOpportunities();
 
   const isOnInviteOrOnboardingPage =
     pathname?.includes("/invite") ||
