@@ -45,3 +45,22 @@ export interface AccessibleOpportunity extends Opportunity {
   enrollment_status: "enrolled" | "not_enrolled" | string;
   visibility_display: string;
 }
+
+// Subscription status types
+export type SubscriptionStatus =
+  | "active"
+  | "trialing"
+  | "canceled"
+  | "past_due"
+  | "expired";
+
+export interface SubscriptionInfo {
+  status: SubscriptionStatus;
+  current_period_end: string; // ISO date string
+  cancel_at_period_end: boolean;
+  opportunity_participant_id: number;
+}
+
+export interface SubscriptionStatusResponse {
+  subscription: SubscriptionInfo | null;
+}

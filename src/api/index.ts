@@ -105,9 +105,9 @@ apiClient.interceptors.response.use(
     const currentUrl = window.location.href;
     const isInvitePage = matchesInvitePattern(currentUrl);
 
-      // TODO: clean up after testing on staging
-      console.log("isInvitePage", isInvitePage);
-      console.log("error.status", currentUrl);
+    // TODO: clean up after testing on staging
+    console.log("isInvitePage", isInvitePage);
+    console.log("error.status", currentUrl);
 
     if (error.status === 401 && !isInvitePage) {
       useAuthStore.getState().logout();
@@ -324,6 +324,15 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v1/opportunities/${opportunityId}/participant/${participantId}/`,
   }),
+  // Subscription endpoints
+  SUBSCRIPTION_STATUS: {
+    method: "GET",
+    url: "/subscription/api/v1/status/",
+  },
+  SUBSCRIPTION_CANCEL: {
+    method: "POST",
+    url: "/subscription/api/v1/cancel/",
+  },
 };
 
 /*********

@@ -33,6 +33,8 @@ import { Question } from "@/types/onboarding";
 import { toast } from "react-toastify";
 import { formatAnswerForDisplay } from "@/utils/formatAnswer";
 import OpportunityCardSkeleton from "./ui/OpportunityCardSkeleton";
+import SubscriptionStatusComponent from "./SubscriptionStatus";
+import { useSubscriptionStatus } from "@/services/subscription";
 
 // Simple Opportunity Card Component
 interface OpportunityCardProps {
@@ -64,6 +66,16 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   } = useOpportunityParticipant(
     opportunity.id,
     type === "enrolled" && !isCancelled
+  );
+
+  // Fetch subscription status for enrolled opportunities
+  const {
+    data: subscriptionData,
+    isLoading: isSubscriptionLoading,
+    error: subscriptionError,
+  } = useSubscriptionStatus(
+    participantRecord?.participant_id || 0,
+    type === "enrolled" && !!participantRecord?.participant_id && !isCancelled
   );
 
   // Update mutation
@@ -175,7 +187,22 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     }
   };
 
+  // Check if user has active subscription
+  const hasActiveSubscription = () => {
+    if (!subscriptionData?.subscription) return false;
+    const status = subscriptionData.subscription.status;
+    return status === "active" || status === "trialing";
+  };
+
   const handleCancelEnrollment = () => {
+    // Check if user has active subscription
+    if (hasActiveSubscription()) {
+      toast.error(
+        "You have an active subscription. Please cancel your subscription first."
+      );
+      return;
+    }
+
     // Open confirmation dialog
     setIsCancelDialogOpen(true);
   };
@@ -418,6 +445,52 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                   </Box>
                 )}
 
+                {/* Subscription Status */}
+                {type === "enrolled" && participantRecord?.participant_id && (
+                  <Box>
+                    <Text
+                      fontSize="16px"
+                      fontWeight="600"
+                      color="#1F2937"
+                      mb={3}
+                    >
+                      Subscription Status
+                    </Text>
+                    {isSubscriptionLoading ? (
+                      <HStack gap={2}>
+                        <Spinner size="sm" />
+                        <Text fontSize="14px" color="#6B7280">
+                          Loading subscription status...
+                        </Text>
+                      </HStack>
+                    ) : subscriptionError ? (
+                      <Text fontSize="14px" color="#6B7280">
+                        No subscription found
+                      </Text>
+                    ) : subscriptionData?.subscription ? (
+                      <SubscriptionStatusComponent
+                        subscription={subscriptionData.subscription}
+                        opportunityParticipantId={
+                          participantRecord.participant_id
+                        }
+                        onStatusUpdate={() => {
+                          // Refresh subscription status
+                          queryClient.invalidateQueries({
+                            queryKey: [
+                              "subscription-status",
+                              participantRecord.participant_id,
+                            ],
+                          });
+                        }}
+                      />
+                    ) : (
+                      <Text fontSize="14px" color="#6B7280">
+                        No active subscription
+                      </Text>
+                    )}
+                  </Box>
+                )}
+
                 {/* Questionnaire - only show if questionnaire exists and user is not organization */}
                 {hasQuestionnaire && userType !== "organisation" && (
                   <Box>
@@ -507,9 +580,26 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                       onClick={handleCancelEnrollment}
                       loading={cancelEnrollmentMutation.isPending}
                       w="full"
+                      disabled={hasActiveSubscription()}
+                      title={
+                        hasActiveSubscription()
+                          ? "You have an active subscription. Please cancel your subscription first."
+                          : ""
+                      }
                     >
                       Cancel Enrollment
                     </Button>
+                    {hasActiveSubscription() && (
+                      <Text
+                        fontSize="12px"
+                        color="orange.500"
+                        mt={1}
+                        textAlign="center"
+                      >
+                        You have an active subscription. Please cancel your
+                        subscription first.
+                      </Text>
+                    )}
                   </Box>
                 )}
               </VStack>

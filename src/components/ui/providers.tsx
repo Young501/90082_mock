@@ -2,11 +2,12 @@
 
 import { ChakraProvider } from "@chakra-ui/react";
 import { ThemeProvider as NextThemeProvider } from "next-themes";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { system } from "@/theme/theme";
 import "@fortawesome/fontawesome-free/css/all.css";
+import { enableMocking } from "@/mocks";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,6 +27,33 @@ const queryClient = new QueryClient({
 });
 
 export default function Providers({ children }: { children: ReactNode }) {
+  const [isMockingEnabled, setIsMockingEnabled] = useState(false);
+
+  useEffect(() => {
+    // Enable MSW in development
+    enableMocking().then(() => {
+      setIsMockingEnabled(true);
+    });
+  }, []);
+
+  // Don't render children until MSW is ready (in development)
+  if (process.env.NODE_ENV === "development" && !isMockingEnabled) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          fontSize: "18px",
+          color: "#666",
+        }}
+      >
+        Starting MSW...
+      </div>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <ChakraProvider value={system}>
