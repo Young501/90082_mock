@@ -10,7 +10,10 @@ import {
   useCreateCheckoutSession,
 } from "@/services/billing";
 import { useAuthStore } from "@/store";
-import { useOpportunityDetail } from "@/services/shared";
+import {
+  useOpportunityDetail,
+  useOpportunityParticipant,
+} from "@/services/shared";
 import { toaster } from "@/components/ui/toaster";
 import { PageTitle } from "@/components/PageTitle";
 
@@ -38,6 +41,16 @@ export default function OpportunityPricingPage() {
     error: pricingError,
   } = useProductPricing(opportunityId, userType || null);
 
+  // Fetch participant record to get participant_id
+  const {
+    data: participantRecord,
+    isLoading: isLoadingParticipant,
+    error: participantError,
+  } = useOpportunityParticipant(
+    opportunityId ? Number(opportunityId) : 0,
+    !!opportunityId
+  );
+
   // Checkout mutation
   const checkoutMutation = useCreateCheckoutSession();
 
@@ -62,10 +75,6 @@ export default function OpportunityPricingPage() {
   }, [isLoadingPricing, pricingData, nextStep, opportunityId, router]);
 
   const handleSelectPlan = async (interval: "month" | "year") => {
-    console.log("🎯 [Pricing] User selected plan:", interval);
-    console.log("🎯 [Pricing] Opportunity ID:", opportunityId);
-    console.log("🎯 [Pricing] User Type:", userType);
-
     if (!opportunityId || !userType) {
       toaster.create({
         title: "Missing required information",
@@ -78,14 +87,21 @@ export default function OpportunityPricingPage() {
     setIsProcessing(true);
 
     try {
-      console.log("💳 [Pricing] Creating checkout session...");
-      const response = await checkoutMutation.mutateAsync({
+      // For not enrolled users, don't pass opportunity_participant_id
+      // For enrolled users, pass the participant_id
+      const checkoutData: any = {
         opportunity_id: Number(opportunityId),
         user_type: userType,
         interval: interval,
-      });
+      };
 
-      console.log("✅ [Pricing] Checkout session response:", response);
+      // Only add participant_id if user is enrolled
+      if (participantRecord?.participant_id) {
+        checkoutData.opportunity_participant_id =
+          participantRecord.participant_id;
+      }
+
+      const response = await checkoutMutation.mutateAsync(checkoutData);
 
       if (response.url) {
         // Store the return context
@@ -108,7 +124,6 @@ export default function OpportunityPricingPage() {
         }
 
         // Redirect to Stripe Checkout
-        console.log("🔗 [Pricing] Redirecting to:", response.url);
         window.location.href = response.url;
       } else {
         throw new Error("No checkout URL received");

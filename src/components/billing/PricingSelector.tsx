@@ -150,22 +150,6 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
                     <Text color="gray.600">{tier.description}</Text>
                   )}
 
-                  {/* Trial info */}
-                  {tier.trial_days && tier.trial_days > 0 && (
-                    <HStack
-                      p={3}
-                      bg="blue.50"
-                      borderRadius="md"
-                      borderWidth={1}
-                      borderColor="blue.200"
-                    >
-                      <CheckCircle size={20} color="#3182CE" />
-                      <Text fontSize="sm" color="blue.700" fontWeight="medium">
-                        Includes {tier.trial_days} day free trial
-                      </Text>
-                    </HStack>
-                  )}
-
                   {/* Features list */}
                   <VStack gap={2} align="stretch" pt={2}>
                     <HStack>
@@ -201,8 +185,6 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
                         <Loader className="animate-spin mr-2" size={18} />
                         Processing...
                       </>
-                    ) : tier.trial_days && tier.trial_days > 0 ? (
-                      "Start Free Trial"
                     ) : (
                       "Subscribe Now"
                     )}

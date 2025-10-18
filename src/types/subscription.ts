@@ -6,7 +6,6 @@ export interface PricingTier {
   currency: string;
   interval: "month" | "year";
   description?: string;
-  trial_days?: number;
 }
 
 export interface ProductPricingResponse {
@@ -20,7 +19,6 @@ export interface CheckoutSessionRequest {
   opportunity_participant_id?: number;
   user_type: string;
   interval: "month" | "year";
-  trial_days?: number;
 }
 
 export interface CheckoutSessionResponse {
@@ -41,7 +39,6 @@ export interface SubscriptionStatusResponse {
   opportunity_participant_id: number;
   status: SubscriptionStatus;
   current_period_end?: string;
-  trial_end?: string;
   cancel_at_period_end?: boolean;
 }
 

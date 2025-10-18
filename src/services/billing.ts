@@ -129,9 +129,8 @@ export function getSubscriptionAccess(
     case "trialing":
       return {
         hasAccess: true,
-        canViewFullProfile: false,
-        message:
-          "You can browse during trial, but viewing full profiles requires subscription upgrade",
+        canViewFullProfile: true,
+        message: "Subscription active - full access granted",
         showUpgradePrompt: false,
       };
 

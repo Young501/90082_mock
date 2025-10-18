@@ -62,25 +62,16 @@ export const SubscriptionGate: React.FC<SubscriptionGateProps> = ({
     );
   }
 
-  // Trial period - partial access (restrictions applied in child components)
+  // Trial period - treat as full access (no restrictions)
   if (status === "trialing") {
     return (
       <>
-        {showAccessBanner && subscriptionStatus?.trial_end && (
-          <Alert.Root status="info" mb={4}>
+        {showAccessBanner && (
+          <Alert.Root status="success" mb={4}>
             <Alert.Indicator />
-            <VStack align="stretch" gap={2}>
-              <Text fontWeight="medium">
-                Free Trial Period - Some Features Limited
-              </Text>
-              <Text fontSize="sm">
-                Trial ends on{" "}
-                {new Date(subscriptionStatus.trial_end).toLocaleDateString(
-                  "en-US"
-                )}
-                . Upgrade to unlock all features.
-              </Text>
-            </VStack>
+            <Alert.Description>
+              Subscription active - full access granted
+            </Alert.Description>
           </Alert.Root>
         )}
         {children}
@@ -208,13 +199,9 @@ export function canViewFullProfile(
     return { canView: true };
   }
 
-  // Trial period cannot view full profiles
+  // Trial period can view full profiles (no restrictions)
   if (status === "trialing") {
-    return {
-      canView: false,
-      reason:
-        "Full profiles not available during trial. Please upgrade subscription.",
-    };
+    return { canView: true };
   }
 
   // All other statuses cannot view

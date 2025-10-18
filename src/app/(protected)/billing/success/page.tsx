@@ -32,35 +32,22 @@ export default function BillingSuccessPage() {
 
   // Load return context from sessionStorage
   useEffect(() => {
-    console.log("🔍 [Success] Checking billing context...");
     const storedContext = sessionStorage.getItem("billing_return_context");
     const mockCheckout = sessionStorage.getItem("mock_checkout_session");
-
-    console.log("📦 [Success] Stored context:", storedContext);
-    console.log("💳 [Success] Mock checkout:", mockCheckout);
 
     if (storedContext) {
       try {
         const parsed = JSON.parse(storedContext);
         setContext(parsed);
-        console.log("✅ [Success] Context loaded:", parsed);
 
         // Try to get participant ID from localStorage or another source
         const oppParticipantId = sessionStorage.getItem(
           `opportunity_participant_${parsed.opportunityId}`
         );
 
-        console.log(
-          "🎯 [Success] Looking for participant ID:",
-          `opportunity_participant_${parsed.opportunityId}`
-        );
-        console.log("🎯 [Success] Found participant ID:", oppParticipantId);
-
         // For testing: use a default participant ID if not found
         const finalParticipantId = oppParticipantId || "1"; // Default to ID "1" (active subscription)
         setParticipantId(finalParticipantId);
-
-        console.log("✨ [Success] Using participant ID:", finalParticipantId);
       } catch (e) {
         console.error("❌ [Success] Failed to parse return context:", e);
       }
@@ -201,24 +188,9 @@ export default function BillingSuccessPage() {
                       Subscription Successful!
                     </Heading>
                     <Text color="gray.600" fontSize="lg">
-                      {subscriptionStatus?.status === "trialing"
-                        ? "Your free trial has started"
-                        : "Welcome aboard!"}
+                      Welcome aboard! Your subscription is now active.
                     </Text>
                   </VStack>
-
-                  {subscriptionStatus?.status === "trialing" &&
-                    subscriptionStatus?.trial_end && (
-                      <Alert.Root status="info">
-                        <Alert.Indicator />
-                        <Alert.Description>
-                          Trial period ends on{" "}
-                          {new Date(
-                            subscriptionStatus.trial_end
-                          ).toLocaleDateString("en-US")}
-                        </Alert.Description>
-                      </Alert.Root>
-                    )}
 
                   <VStack gap={3} w="100%" mt={4}>
                     <Text fontSize="sm" color="gray.600">

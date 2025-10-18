@@ -20,8 +20,8 @@ export const handlers = [
         `[MSW] 📊 Product Pricing Request → Opportunity: ${opportunityId}, User Type: ${userType}`
       );
 
-      // Opportunity ID "5" returns 404 (free opportunity)
-      if (opportunityId === "5") {
+      // Opportunity ID "8" returns 404 (free opportunity)
+      if (opportunityId === "8") {
         console.log("[MSW] ✅ Returning 404 - Free opportunity");
         return HttpResponse.json(
           { detail: "No pricing found for this opportunity" },
@@ -71,9 +71,19 @@ export const handlers = [
       // Simulate delay for realistic behavior
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Generate a mock participant ID based on opportunity_id
-      // This simulates what the backend would do when creating an enrollment
-      const participantId = `${body.opportunity_id}01`; // e.g., opportunity 6 -> participant 601
+      // Use participant_id from request body
+      // For enrolled users: frontend provides participant_id
+      // For not enrolled users: frontend doesn't provide participant_id
+      // In real scenario, participant_id is created after questionnaire completion
+      const participantId = body.opportunity_participant_id;
+
+      if (!participantId) {
+        // For not enrolled users, don't create participant_id here
+        // It will be created after questionnaire completion
+        console.log(
+          `[MSW] 🔄 Not enrolled user - participant_id will be created after questionnaire`
+        );
+      }
 
       // Store checkout data in sessionStorage for later retrieval
       const sessionId = `cs_test_${Date.now()}`;
@@ -90,23 +100,36 @@ export const handlers = [
         JSON.stringify(checkoutData)
       );
 
-      // Also store the participant ID for the opportunity
-      sessionStorage.setItem(
-        `opportunity_participant_${body.opportunity_id}`,
-        participantId
-      );
+      // For enrolled users: Update subscription status to active
+      // For not enrolled users: Status will be created after questionnaire completion
+      if (participantId) {
+        const newSubscriptionStatus = {
+          opportunity_participant_id: participantId,
+          status: "active", // Update from canceled/expired to active
+          current_period_end: new Date(
+            Date.now() + 30 * 24 * 60 * 60 * 1000
+          ).toISOString(), // 30 days from now
+          cancel_at_period_end: false,
+        };
+
+        // Store the updated subscription status
+        sessionStorage.setItem(
+          `subscription_status_${participantId}`,
+          JSON.stringify(newSubscriptionStatus)
+        );
+
+        console.log(
+          `[MSW] 🔄 Updated subscription status for enrolled user: ${participantId}`
+        );
+      } else {
+        console.log(
+          `[MSW] 🔄 Not enrolled user - subscription status will be created after questionnaire`
+        );
+      }
 
       // In real scenario, this would redirect to Stripe
-      // For testing, we'll redirect to a local success page
+      // For testing, only redirect to a local success page
       const successUrl = `${window.location.origin}/billing/success?session_id=${sessionId}`;
-
-      console.log("[MSW] ✅ Checkout session created:", sessionId);
-      console.log("[MSW] 🎯 Generated participant ID:", participantId);
-      console.log(
-        "[MSW] 💾 Stored participant ID for opportunity:",
-        body.opportunity_id
-      );
-      console.log("[MSW] 🔗 Redirect URL:", successUrl);
 
       return HttpResponse.json({
         url: successUrl,
@@ -127,6 +150,15 @@ export const handlers = [
       `[MSW] 📈 Subscription Status Request → Participant: ${participantId}`
     );
 
+    // Debug: List all subscription status keys in sessionStorage
+    const allKeys = Object.keys(sessionStorage).filter((key) =>
+      key.startsWith("subscription_status_")
+    );
+    console.log(
+      `[MSW] 🔍 All subscription status keys in sessionStorage:`,
+      allKeys
+    );
+
     // No participant ID - return 404
     if (!participantId) {
       console.log("[MSW] ❌ No participant ID provided");
@@ -136,17 +168,18 @@ export const handlers = [
       );
     }
 
-    // Participant ID ending in "99" (from opportunity 999) - return 404 (free opportunity)
-    if (participantId.endsWith("99")) {
-      console.log("[MSW] ✅ Free opportunity - returning 404");
-      return HttpResponse.json(
-        { detail: "No subscription required" },
-        { status: 404 }
-      );
+    // Check if there's an updated subscription status from checkout
+    const statusKey = `subscription_status_${participantId}`;
+    const updatedStatus = sessionStorage.getItem(statusKey);
+
+    if (updatedStatus) {
+      return HttpResponse.json(JSON.parse(updatedStatus));
+    } else {
+      console.log("[MSW] ❌ No updated status found, using statusMap");
     }
 
     // Use participant ID to determine status (for predictable testing)
-    // This allows you to test different scenarios by using different participant IDs
+    // Test different scenarios by using different participant IDs
     const statusMap: Record<string, any> = {
       // Participant ID "1" - Active subscription
       "1": {
@@ -157,19 +190,18 @@ export const handlers = [
         ).toISOString(), // 30 days from now
         cancel_at_period_end: false,
       },
-      // Participant ID "2" - Trialing
+      // Participant ID "2" - Trialing (treated as active)
       "2": {
         opportunity_participant_id: 2,
         status: "trialing",
-        trial_end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
         current_period_end: new Date(
-          Date.now() + 37 * 24 * 60 * 60 * 1000
-        ).toISOString(),
+          Date.now() + 30 * 24 * 60 * 60 * 1000
+        ).toISOString(), // 30 days from now
         cancel_at_period_end: false,
       },
       // Participant ID "3" - Canceled but still valid
-      "3": {
-        opportunity_participant_id: 3,
+      "92": {
+        opportunity_participant_id: 92,
         status: "canceled",
         current_period_end: new Date(
           Date.now() + 5 * 24 * 60 * 60 * 1000
@@ -177,8 +209,8 @@ export const handlers = [
         cancel_at_period_end: true,
       },
       // Participant ID "4" - Expired
-      "4": {
-        opportunity_participant_id: 4,
+      "93": {
+        opportunity_participant_id: 93,
         status: "expired",
         current_period_end: new Date(
           Date.now() - 10 * 24 * 60 * 60 * 1000
@@ -191,16 +223,6 @@ export const handlers = [
         status: "past_due",
         current_period_end: new Date(
           Date.now() + 5 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-        cancel_at_period_end: false,
-      },
-      // Custom: Opportunity 83
-      "83": {
-        opportunity_participant_id: 83,
-        status: "trialing",
-        trial_end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        current_period_end: new Date(
-          Date.now() + 37 * 24 * 60 * 60 * 1000
         ).toISOString(),
         cancel_at_period_end: false,
       },
@@ -226,12 +248,6 @@ export const handlers = [
       cancel_at_period_end: false,
     };
 
-    console.log(
-      "[MSW] ✅ Subscription status for participant",
-      participantId,
-      ":",
-      response
-    );
     return HttpResponse.json(response);
   }),
 ];

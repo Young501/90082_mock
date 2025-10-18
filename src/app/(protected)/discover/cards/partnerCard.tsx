@@ -248,7 +248,7 @@ export function PartnerCard({
             disabled={!disableViewFullProfile}
             showArrow
             positioning={{ placement: "top", offset: { mainAxis: 8 } }}
-            content="Full profiles not available during trial. Please upgrade subscription to unlock this feature."
+            content="Subscription required to view full profiles."
           >
             <Button
               variant="partner"
