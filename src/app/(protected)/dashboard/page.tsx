@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/Button";
 import { useDashboard } from "@/hooks/useDashboard";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 

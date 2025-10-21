@@ -19,9 +19,9 @@ import {
 } from "@/services/shared";
 import Image from "next/image";
 import BadgeSection from "@/components/BadgeSection";
-import { ContactPage } from "@/components/ui/ContactPage";
+import { ContactPage } from "@/components/ContactPage";
 import { Globe } from "lucide-react";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/Button";
 import { Tooltip } from "@/components/ui/tooltip";

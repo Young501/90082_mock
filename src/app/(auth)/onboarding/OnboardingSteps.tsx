@@ -22,7 +22,7 @@ import { useRouter } from "next/navigation";
 import ProgressTrack from "@/components/ProgressTrack";
 import { useAuthStore } from "@/store/authStore";
 import { CreateOrganisationPrompt } from "./CreateOrganisationPrompt";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 
 interface Props {
   userType: string;

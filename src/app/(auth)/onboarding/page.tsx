@@ -4,7 +4,7 @@ import { Box, Text, useBreakpointValue } from "@chakra-ui/react";
 import { OnboardingSteps } from "@/app/(auth)/onboarding/OnboardingSteps";
 import { useAuthStore } from "@/store";
 import Image from "next/image";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 
 export default function OnboardingPage() {
   const { user, token } = useAuthStore();

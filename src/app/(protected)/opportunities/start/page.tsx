@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { Box, VStack, HStack, Heading, Text } from "@chakra-ui/react";
+import { Box, VStack, HStack, Stack, Heading, Text } from "@chakra-ui/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import ProgressTrack from "@/components/ProgressTrack";
@@ -35,7 +35,7 @@ export default function OpportunityStartPage() {
 
   return (
     <Box maxW="800px" mx="auto" p={6} pt={{ base: "90px", lg: "140px" }}>
-      <VStack gap={8} align="stretch">
+      <VStack gap={8} w="100%" align="stretch">
         {/* Progress Tracker */}
         <ProgressTrack progressPercent={25} totalSteps={4} />
 
@@ -90,15 +90,23 @@ export default function OpportunityStartPage() {
         </Box>
 
         {/* Action Buttons */}
-        <HStack gap={20} justify="center" pt={0} pb={4}>
+        <Stack
+          direction={{ base: "column", md: "row" }}
+          justify={{ base: "stretch", md: "space-between" }}
+          align="stretch"
+          w="100%"
+          pt={0}
+          pb={4}
+        >
           <Button
             variant="secondary"
             onClick={() => router.push("/discover/?id=" + opportunityId)}
             size="lg"
             borderRadius="xl"
             h="50px"
-            w={{ base: "full", md: "150px" }}
-            fontSize={"md"}
+            w="100%"
+            maxW={{ base: "100%", md: "350px" }}
+            fontSize="md"
           >
             Cancel
           </Button>
@@ -109,13 +117,14 @@ export default function OpportunityStartPage() {
             color="white"
             borderRadius="xl"
             h="50px"
-            w={{ base: "full", md: "150px" }}
-            fontSize={"md"}
+            w="100%"
+            maxW={{ base: "100%", md: "350px" }}
+            fontSize="md"
             _hover={{ bg: "blue.600" }}
           >
             Start
           </Button>
-        </HStack>
+        </Stack>
       </VStack>
     </Box>
   );

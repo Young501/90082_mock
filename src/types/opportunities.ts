@@ -40,3 +40,8 @@ export interface CategorizedOpportunities {
   enrolled: Opportunity[];
   closed: Opportunity[];
 }
+
+export interface AccessibleOpportunity extends Opportunity {
+  enrollment_status: "enrolled" | "not_enrolled" | string;
+  visibility_display: string;
+}
