@@ -75,7 +75,7 @@ export function useHandleEnroll({
         try {
           // Manually fetch pricing
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/subscription/api/v1/product-pricing/?opportunity_id=${opportunityId}&user_type=${userType}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/api/v1/subscriptions/product-pricing/?opportunity_id=${opportunityId}&user_type=${userType}`,
             {
               headers: {
                 Authorization: `Token ${useAuthStore.getState().getCurrentToken()}`,

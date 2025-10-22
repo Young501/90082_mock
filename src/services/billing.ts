@@ -23,7 +23,7 @@ export function useProductPricing(
         const response = await apiRequest<ProductPricingResponse>({
           endpoint: API_ENDPOINTS.PRODUCT_PRICING,
           params: {
-            opportunity_id: opportunityId,
+            opportunity_id: Number(opportunityId),
             user_type: userType,
           },
         });

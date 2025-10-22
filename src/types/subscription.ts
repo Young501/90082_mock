@@ -1,16 +1,21 @@
 // Subscription-related type definitions
 
-export interface PricingTier {
+export interface Product {
   id: string;
-  price: number;
-  currency: string;
+  name: string;
+  description: string;
+}
+
+export interface PricingTier {
   interval: "month" | "year";
-  description?: string;
+  interval_count: number;
+  price_id: string;
+  unit_amount: number;
+  currency: string;
 }
 
 export interface ProductPricingResponse {
-  opportunity_id: number;
-  user_type: string;
+  product: Product;
   prices: PricingTier[];
 }
 

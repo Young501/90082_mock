@@ -33,7 +33,6 @@ export default function BillingSuccessPage() {
   // Load return context from sessionStorage
   useEffect(() => {
     const storedContext = sessionStorage.getItem("billing_return_context");
-    const mockCheckout = sessionStorage.getItem("mock_checkout_session");
 
     if (storedContext) {
       try {
@@ -45,17 +44,12 @@ export default function BillingSuccessPage() {
           `opportunity_participant_${parsed.opportunityId}`
         );
 
-        // For testing: use a default participant ID if not found
-        const finalParticipantId = oppParticipantId || "1"; // Default to ID "1" (active subscription)
-        setParticipantId(finalParticipantId);
+        if (oppParticipantId) {
+          setParticipantId(oppParticipantId);
+        }
       } catch (e) {
         console.error("❌ [Success] Failed to parse return context:", e);
       }
-    } else {
-      console.warn(
-        "⚠️ [Success] No billing context found - using default participant ID for testing"
-      );
-      setParticipantId("1"); // Default for testing
     }
   }, []);
 

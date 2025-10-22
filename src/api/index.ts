@@ -323,15 +323,15 @@ export const API_ENDPOINTS = {
   // Subscription/Billing endpoints
   PRODUCT_PRICING: {
     method: "GET",
-    url: "/subscription/api/v1/product-pricing/",
+    url: "/api/v1/subscriptions/product-pricing/",
   },
   CHECKOUT_SESSION: {
     method: "POST",
-    url: "/subscription/api/v1/checkout-session/",
+    url: "/api/v1/subscription/checkout-session/",
   },
   SUBSCRIPTION_STATUS: {
     method: "GET",
-    url: "/subscription/api/v1/status/",
+    url: "/api/v1/subscription/status/",
   },
 };
 

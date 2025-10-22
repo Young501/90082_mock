@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import Providers from "@/components/ui/providers";
-import { MSWProvider } from "@/components/MSWProvider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleAnalytics } from "@next/third-parties/google";
@@ -31,25 +30,23 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <meta name="description" content="Uniconnected" />
       </head>
       <body>
-        <MSWProvider>
-          <Providers>
-            <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="light"
-              style={{ zIndex: 10000 }}
-              limit={3}
-            />
-            {children}
-          </Providers>
-        </MSWProvider>
+        <Providers>
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+            style={{ zIndex: 10000 }}
+            limit={3}
+          />
+          {children}
+        </Providers>
       </body>
       <GoogleAnalytics
         gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ""}
