@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback } from "react";
 import { Box, Text, VStack } from "@chakra-ui/react";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 
 interface InfiniteScrollProps {
   onLoadMore: () => void;

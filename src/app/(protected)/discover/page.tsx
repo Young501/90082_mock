@@ -45,21 +45,26 @@ export default function DiscoveryPage() {
     setEnrollmentStatus,
     setEligibilityStatus,
     resetOpportunityState,
+    setAccessibleOpportunities,
   } = useAuthStore();
 
-  // Fetch opportunity details only if id is provided
   const {
     data: opportunity,
     isLoading: isOpportunityLoading,
     error: opportunityError,
   } = useOpportunityDetail(opportunityId || "");
 
-  // Get user's accessible opportunities to check enrollment status
   const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } =
     useAccessibleOpportunities();
 
   // Get user type
   const userType = user?.user_types?.[0];
+
+  useEffect(() => {
+    if (accessibleOpportunities) {
+      setAccessibleOpportunities(accessibleOpportunities);
+    }
+  }, [accessibleOpportunities, setAccessibleOpportunities]);
 
   // Update global state when opportunity changes
   useEffect(() => {
@@ -84,7 +89,7 @@ export default function DiscoveryPage() {
     const currentOpportunity = accessibleOpportunities.find(
       (opp) => opp.id.toString() === opportunityId
     );
-    const enrolled = currentOpportunity?.status === "Enrolled";
+    const enrolled = currentOpportunity?.enrollment_status === "enrolled";
 
     if (isEnrolled !== enrolled) {
       setEnrollmentStatus(enrolled);

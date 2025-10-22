@@ -87,9 +87,9 @@ export default function OpportunityReviewPage() {
         questionnaireAnswers: answers,
       });
 
-      await queryClient.refetchQueries({
-        queryKey: ["accessible-opportunities", user?.id],
-      });
+      // await queryClient.refetchQueries({
+      //   queryKey: ["accessible-opportunities", user?.id],
+      // });
 
       const accessibleOpportunities = queryClient.getQueryData([
         "accessible-opportunities",
@@ -101,7 +101,7 @@ export default function OpportunityReviewPage() {
           (opp) => opp.id.toString() === opportunityId
         );
 
-        if (currentOpportunity?.status === "Enrolled") {
+        if (currentOpportunity?.enrollment_status === "enrolled") {
           setCurrentOpportunityId(opportunityId);
           setEnrollmentStatus(true);
         }

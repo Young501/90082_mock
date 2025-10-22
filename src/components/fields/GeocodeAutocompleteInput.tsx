@@ -6,7 +6,7 @@ import { useGeocode } from "@/services/shared";
 import { useDebounce } from "@/hooks/useDebounce";
 import { GeocodeResult } from "@/types/shared";
 import { UseFormRegisterReturn, Control, useController } from "react-hook-form";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 
 interface GeocodeAutocompleteInputProps {
   value: string;

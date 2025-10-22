@@ -6,6 +6,7 @@ import {
   Organisation,
   tempOrganisationUser,
 } from "@/types/shared";
+import { AccessibleOpportunity } from "@/types/opportunities";
 
 export interface AuthState {
   user: User | null;
@@ -20,10 +21,10 @@ export interface AuthState {
   tempOrganisationUser: tempOrganisationUser | null;
   tempOrganisation: Organisation | null;
   isOrganisationMemberOnboarding: boolean;
-  // Opportunity enrollment state
+  accessibleOpportunities: AccessibleOpportunity[] | null;
   currentOpportunityId: string | null;
-  isEnrolled: boolean | null; // null = unknown, true/false = computed
-  isEligible: boolean | null; // null = unknown, true/false = computed
+  isEnrolled: boolean | null;
+  isEligible: boolean | null;
   setAuthData: (token: string, user: User) => void;
   logout: () => void;
   setUserType: (userType: string) => void;
@@ -57,7 +58,10 @@ export interface AuthState {
   clearTempOrganisationUser: () => void;
   setIsOrganisationMemberOnboarding: (isMember: boolean) => void;
   getIsOrganisationMemberOnboarding: () => boolean;
-  // Opportunity enrollment methods
+  setIsAuthenticated: (isAuthenticated: boolean) => void;
+  getIsAuthenticated: () => boolean;
+  setAccessibleOpportunities: (opportunities: AccessibleOpportunity[]) => void;
+  getAccessibleOpportunities: () => AccessibleOpportunity[] | null;
   setCurrentOpportunityId: (id: string | null) => void;
   getCurrentOpportunityId: () => string | null;
   setEnrollmentStatus: (isEnrolled: boolean | null) => void;
@@ -83,15 +87,19 @@ export const useAuthStore = create<AuthState>()(
       tempOrganisation: null,
       tempOrganisationUser: null,
       isOrganisationMemberOnboarding: false,
-      // Opportunity enrollment state
+      accessibleOpportunities: null,
       currentOpportunityId: null,
       isEnrolled: null,
       isEligible: null,
+      setIsAuthenticated: (isAuthenticated: boolean) => {
+        set({ isAuthenticated });
+      },
+      getIsAuthenticated: () => get().isAuthenticated,
       setAuthData: (token: string, user: User) => {
         set({
           user,
           token,
-          isAuthenticated: true,
+          isAuthenticated: get().isAuthenticated,
           userProfilePictureUrl: user?.profile_picture_url || null,
         });
       },
@@ -110,15 +118,11 @@ export const useAuthStore = create<AuthState>()(
           tempOrganisation: null,
           tempOrganisationUser: null,
           isOrganisationMemberOnboarding: false,
-          // Reset opportunity state
+          accessibleOpportunities: null,
           currentOpportunityId: null,
           isEnrolled: null,
           isEligible: null,
         });
-
-        // if (typeof window !== "undefined") {
-        //   window.location.href = "/login/";
-        // }
       },
 
       setUserType: (userType: string) => {
@@ -243,7 +247,14 @@ export const useAuthStore = create<AuthState>()(
         return get().isOrganisationMemberOnboarding;
       },
 
-      // Opportunity enrollment methods
+      setAccessibleOpportunities: (opportunities: AccessibleOpportunity[]) => {
+        set({ accessibleOpportunities: opportunities });
+      },
+
+      getAccessibleOpportunities: () => {
+        return get().accessibleOpportunities;
+      },
+
       setCurrentOpportunityId: (id: string | null) => {
         set({ currentOpportunityId: id });
       },
@@ -285,6 +296,10 @@ export const useAuthStore = create<AuthState>()(
         tempOrganisation: state.tempOrganisation,
         tempOrganisationUser: state.tempOrganisationUser,
         isOrganisationMemberOnboarding: state.isOrganisationMemberOnboarding,
+        accessibleOpportunities: state.accessibleOpportunities,
+        isEnrolled: state.isEnrolled,
+        isEligible: state.isEligible,
+        currentOpportunityId: state.currentOpportunityId,
       }),
     }
   )
