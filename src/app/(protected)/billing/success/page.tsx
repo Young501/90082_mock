@@ -68,12 +68,7 @@ export default function BillingSuccessPage() {
   // Auto-refetch status every 2 seconds for up to maxAttempts times
   useEffect(() => {
     if (participantId && checkAttempts < maxAttempts) {
-      console.log(
-        `🔄 [Success] Polling subscription status (attempt ${checkAttempts + 1}/${maxAttempts}) for participant:`,
-        participantId
-      );
       const interval = setInterval(() => {
-        console.log(`🔄 [Success] Refetching status...`);
         refetch();
         setCheckAttempts((prev) => prev + 1);
       }, 2000);
@@ -85,11 +80,6 @@ export default function BillingSuccessPage() {
   // Log subscription status when it updates
   useEffect(() => {
     if (subscriptionStatus) {
-      console.log(
-        "📊 [Success] Subscription status updated:",
-        subscriptionStatus
-      );
-      console.log("✨ [Success] Is ready:", isSubscriptionReady);
     }
   }, [subscriptionStatus, isSubscriptionReady]);
 
