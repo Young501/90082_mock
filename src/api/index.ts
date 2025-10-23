@@ -327,11 +327,11 @@ export const API_ENDPOINTS = {
   },
   CHECKOUT_SESSION: {
     method: "POST",
-    url: "/api/v1/subscription/checkout-session/",
+    url: "/subscription/api/v1/checkout-session/",
   },
   SUBSCRIPTION_STATUS: {
     method: "GET",
-    url: "/api/v1/subscription/status/",
+    url: "/subscription/api/v1/status/",
   },
 };
 
