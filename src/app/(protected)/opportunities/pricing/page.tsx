@@ -87,6 +87,11 @@ export default function OpportunityPricingPage() {
     setIsProcessing(true);
 
     try {
+      // Find the selected pricing tier to get trial_days
+      const selectedTier = pricingData?.prices?.find(
+        (tier) => tier.interval === interval
+      );
+
       // For not enrolled users, don't pass opportunity_participant_id
       // For enrolled users, pass the participant_id
       const checkoutData: any = {
@@ -94,6 +99,11 @@ export default function OpportunityPricingPage() {
         user_type: userType,
         interval: interval,
       };
+
+      // Add trial_days if available
+      if (selectedTier?.trial_days && selectedTier.trial_days > 0) {
+        checkoutData.trial_days = selectedTier.trial_days;
+      }
 
       // Only add participant_id if user is enrolled
       if (participantRecord?.participant_id) {

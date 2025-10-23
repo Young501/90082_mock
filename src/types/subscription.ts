@@ -12,6 +12,12 @@ export interface PricingTier {
   price_id: string;
   unit_amount: number;
   currency: string;
+  // Optional fields for backward compatibility and UI
+  price?: number;
+  id?: string;
+  description?: string;
+  // Free trial support
+  trial_days?: number;
 }
 
 export interface ProductPricingResponse {
@@ -24,6 +30,7 @@ export interface CheckoutSessionRequest {
   opportunity_participant_id?: number;
   user_type: string;
   interval: "month" | "year";
+  trial_days?: number;
 }
 
 export interface CheckoutSessionResponse {

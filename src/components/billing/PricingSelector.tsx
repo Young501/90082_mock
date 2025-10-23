@@ -35,9 +35,12 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
   >(null);
 
   const formatPrice = (price: number, currency: string = "USD") => {
+    // Convert currency to uppercase for proper formatting
+    const normalizedCurrency = currency.toUpperCase();
+
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: currency,
+      currency: normalizedCurrency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }).format(price / 100); // Assuming price is in cents
@@ -90,7 +93,7 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
 
           return (
             <Card.Root
-              key={tier.id}
+              key={tier.price_id}
               p={6}
               borderWidth={2}
               borderColor={isYearly ? "green.500" : "gray.200"}
@@ -132,7 +135,10 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
                     </Text>
                     <HStack align="baseline" gap={2}>
                       <Text fontSize="4xl" fontWeight="bold">
-                        {formatPrice(tier.price, tier.currency)}
+                        {formatPrice(
+                          tier.unit_amount || tier.price || 0,
+                          tier.currency
+                        )}
                       </Text>
                       <Text color="gray.500">
                         / {tier.interval === "month" ? "month" : "year"}
@@ -141,6 +147,11 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
                     {isYearly && savingsPercentage > 0 && (
                       <Badge colorScheme="green" variant="subtle">
                         Save {savingsPercentage}%
+                      </Badge>
+                    )}
+                    {tier.trial_days && tier.trial_days > 0 && (
+                      <Badge colorScheme="blue" variant="subtle">
+                        Includes {tier.trial_days}-day free trial
                       </Badge>
                     )}
                   </VStack>
