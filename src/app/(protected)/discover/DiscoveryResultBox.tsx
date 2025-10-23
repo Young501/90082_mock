@@ -10,7 +10,7 @@ import {
 import { UserProfile } from "@/types/shared";
 import { StudentCard, PartnerCard } from "./cards";
 import { PaginationControls } from "@/components/ui/PaginationControls";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 
 interface DiscoveryResultBoxProps {
   results: UserProfile[];
@@ -68,7 +68,11 @@ export function DiscoveryResultBox({
                   opportunityId={opportunityId}
                 />
               ) : (
-                <PartnerCard key={key} organisation={user} />
+                <PartnerCard
+                  key={key}
+                  organisation={user}
+                  opportunityId={opportunityId}
+                />
               );
             })}
           </SimpleGrid>

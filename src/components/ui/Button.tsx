@@ -2,7 +2,7 @@
 
 import { Button as ChakraButton, ButtonProps } from "@chakra-ui/react";
 import { ReactNode } from "react";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 
 interface CustomButtonProps extends Omit<ButtonProps, "variant"> {
   variant?: "primary" | "secondary" | "ghost" | "student" | "partner";

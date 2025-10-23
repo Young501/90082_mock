@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/authStore";
 import { OrganisationMatchPage } from "../OrganisationMatchPage";
 import { Organisation } from "@/types/shared";
 import { Box, Text, Spinner } from "@chakra-ui/react";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 
 export default function OrganisationMatchPageRoute() {
   const router = useRouter();

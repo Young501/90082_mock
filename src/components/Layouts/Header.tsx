@@ -15,7 +15,6 @@ import Image from "next/image";
 import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useAccessibleOpportunities } from "@/services/shared";
 import { toast } from "react-toastify";
 
 interface MenuItem {
@@ -31,7 +30,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
   const router = useRouter();
   const { handleLogout } = useAuth();
-  const { logout, getUserType } = useAuthStore();
+  const { logout, getUserType, getAccessibleOpportunities } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDiscoverDropdownOpen, setIsDiscoverDropdownOpen] = useState(false);
   const discoverDropdownRef = useRef<HTMLDivElement>(null);
@@ -42,7 +41,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isCoordinator = userType === "coordinator";
   const isOrganisation = userType === "organisation";
   const isStudent = userType === "student";
-  const { data: accessibleOpps } = useAccessibleOpportunities();
+  const accessibleOpps = getAccessibleOpportunities();
 
   const isOnInviteOrOnboardingPage =
     pathname?.includes("/invite") ||
@@ -352,13 +351,19 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                       px={1.0}
                       py={0.5}
                       borderRadius="md"
-                      bg={o.status === "Enrolled" ? "green.300" : "yellow.200"}
+                      bg={
+                        o.enrollment_status === "enrolled"
+                          ? "green.300"
+                          : "yellow.200"
+                      }
                       color="black"
                       fontWeight="bold"
                       minW="80px"
                       textAlign="center"
                     >
-                      {o.status}
+                      {o.enrollment_status === "enrolled"
+                        ? "Enrolled"
+                        : "Not Enrolled"}
                     </Box>
                     <Text
                       color={isProtected ? "white" : "black"}
@@ -440,14 +445,22 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                       px={1.5}
                       py={0.5}
                       borderRadius="md"
-                      bg={o.status === "Enrolled" ? "green.300" : "yellow.200"}
-                      color={o.status === "Enrolled" ? "black" : "black"}
+                      bg={
+                        o.enrollment_status === "enrolled"
+                          ? "green.300"
+                          : "yellow.200"
+                      }
+                      color={
+                        o.enrollment_status === "enrolled" ? "black" : "black"
+                      }
                       fontWeight="bold"
                       alignSelf="flex-start"
                       minW="80px"
                       textAlign="center"
                     >
-                      {o.status}
+                      {o.enrollment_status === "enrolled"
+                        ? "Enrolled"
+                        : "Not Enrolled"}
                     </Box>
                     <Text truncate fontWeight="bold" fontSize="16px">
                       {o.title || `Opportunity ${o.id}`}

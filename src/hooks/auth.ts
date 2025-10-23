@@ -107,7 +107,7 @@ const fetchCoordinatorOpportunities = async () => {
 
 export const useAuth = () => {
   const router = useRouter();
-  const { setAuthData, user, setUserProfile } = useAuthStore();
+  const { setAuthData, user, setUserProfile, setIsAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -123,6 +123,7 @@ export const useAuth = () => {
     },
     onSuccess: (response) => {
       setAuthData(response.token, response.user);
+      setIsAuthenticated(true);
       queryClient.invalidateQueries({ queryKey: ["user"] });
       queryClient.invalidateQueries({ queryKey: ["accepted-opportunities"] });
       queryClient.invalidateQueries({ queryKey: ["accessible-opportunities"] });
