@@ -48,11 +48,15 @@ export interface AccessibleOpportunity extends Opportunity {
 
 // Subscription status types
 export type SubscriptionStatus =
-  | "active"
+  | "incomplete"
+  | "incomplete_expired"
   | "trialing"
-  | "canceled"
+  | "active"
   | "past_due"
-  | "expired";
+  | "canceled"
+  | "unpaid"
+  | "paused"
+  | "no_subscription";
 
 export interface SubscriptionInfo {
   status: SubscriptionStatus;
@@ -62,5 +66,10 @@ export interface SubscriptionInfo {
 }
 
 export interface SubscriptionStatusResponse {
-  subscription: SubscriptionInfo | null;
+  has_access: boolean;
+  status: SubscriptionStatus;
+  current_period_end: string;
+  cancel_at_period_end: boolean;
+  trial_end: string | null;
+  active_override: any | null;
 }

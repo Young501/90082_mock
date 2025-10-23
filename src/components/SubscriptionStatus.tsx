@@ -16,12 +16,16 @@ import {
   DialogBody,
   DialogFooter,
 } from "@chakra-ui/react";
-import { SubscriptionInfo, SubscriptionStatus } from "@/types/opportunities";
+import {
+  SubscriptionInfo,
+  SubscriptionStatus,
+  SubscriptionStatusResponse,
+} from "@/types/opportunities";
 import { useCancelSubscription } from "@/services/subscription";
 import { formatDate } from "@/utils/formatDate";
 
 interface SubscriptionStatusProps {
-  subscription: SubscriptionInfo;
+  subscription: SubscriptionStatusResponse;
   opportunityParticipantId: number;
   onStatusUpdate?: () => void;
 }
@@ -37,11 +41,17 @@ const SubscriptionStatusComponent: React.FC<SubscriptionStatusProps> = ({
 
   const getStatusDisplay = (status: SubscriptionStatus) => {
     switch (status) {
-      case "active":
+      case "incomplete":
         return {
-          color: "green",
-          icon: "🟢",
-          text: "Active",
+          color: "orange",
+          icon: "🟠",
+          text: "Incomplete",
+        };
+      case "incomplete_expired":
+        return {
+          color: "red",
+          icon: "🔴",
+          text: "Incomplete Expired",
         };
       case "trialing":
         return {
@@ -49,11 +59,11 @@ const SubscriptionStatusComponent: React.FC<SubscriptionStatusProps> = ({
           icon: "🟡",
           text: "Trial",
         };
-      case "canceled":
+      case "active":
         return {
-          color: "red",
-          icon: "🔴",
-          text: "Canceled",
+          color: "green",
+          icon: "🟢",
+          text: "Active",
         };
       case "past_due":
         return {
@@ -61,11 +71,29 @@ const SubscriptionStatusComponent: React.FC<SubscriptionStatusProps> = ({
           icon: "🟠",
           text: "Past Due",
         };
-      case "expired":
+      case "canceled":
+        return {
+          color: "red",
+          icon: "🔴",
+          text: "Canceled",
+        };
+      case "unpaid":
+        return {
+          color: "red",
+          icon: "🔴",
+          text: "Unpaid",
+        };
+      case "paused":
         return {
           color: "gray",
           icon: "⚫",
-          text: "Expired",
+          text: "Paused",
+        };
+      case "no_subscription":
+        return {
+          color: "gray",
+          icon: "⚫",
+          text: "No Subscription",
         };
       default:
         return {
@@ -76,30 +104,47 @@ const SubscriptionStatusComponent: React.FC<SubscriptionStatusProps> = ({
     }
   };
 
-  const getStatusMessage = (subscription: SubscriptionInfo) => {
+  const getStatusMessage = (subscription: SubscriptionStatusResponse) => {
     const { status, current_period_end, cancel_at_period_end } = subscription;
     const endDate = formatDate(current_period_end);
 
+    // Handle cancellation case first
+    if (
+      cancel_at_period_end &&
+      (status === "active" || status === "trialing")
+    ) {
+      return `Canceled — access until ${endDate}`;
+    }
+
     switch (status) {
-      case "active":
-        if (cancel_at_period_end) {
-          return `Canceled — access until ${endDate}`;
-        }
-        return `Active — renews on ${endDate}`;
+      case "incomplete":
+        return `Incomplete — please complete payment`;
+      case "incomplete_expired":
+        return `Incomplete expired — please resubscribe`;
       case "trialing":
         return `Trial ends on ${endDate}`;
+      case "active":
+        return `Active — renews on ${endDate}`;
+      case "past_due":
+        return `Past due — please update payment method`;
       case "canceled":
         return `Canceled — access until ${endDate}`;
-      case "past_due":
-        return `Past due — expires on ${endDate}`;
-      case "expired":
-        return `Expired on ${endDate}`;
+      case "unpaid":
+        return `Unpaid — please update payment method`;
+      case "paused":
+        return `Paused — subscription is paused`;
+      case "no_subscription":
+        return `No active subscription`;
       default:
         return `Status: ${status}`;
     }
   };
 
   const canCancel = (status: SubscriptionStatus) => {
+    // Don't show cancel button if already set to cancel at period end
+    if (subscription.cancel_at_period_end) {
+      return false;
+    }
     return status === "active" || status === "trialing";
   };
 
@@ -133,7 +178,14 @@ const SubscriptionStatusComponent: React.FC<SubscriptionStatusProps> = ({
     }
   };
 
-  const statusDisplay = getStatusDisplay(subscription.status);
+  // Override status display if subscription is set to cancel
+  const effectiveStatus =
+    subscription.cancel_at_period_end &&
+    (subscription.status === "active" || subscription.status === "trialing")
+      ? "canceled"
+      : subscription.status;
+
+  const statusDisplay = getStatusDisplay(effectiveStatus);
   const statusMessage = getStatusMessage(subscription);
 
   return (
@@ -147,7 +199,7 @@ const SubscriptionStatusComponent: React.FC<SubscriptionStatusProps> = ({
         </Badge>
       </Box>
 
-      {canCancel(subscription.status) && (
+      {canCancel(effectiveStatus) && (
         <Button
           size="sm"
           variant="outline"

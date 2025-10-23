@@ -323,11 +323,11 @@ export const API_ENDPOINTS = {
   // Subscription endpoints
   SUBSCRIPTION_STATUS: {
     method: "GET",
-    url: "/subscription/api/v1/status/",
+    url: "/api/v1/subscriptions/status/",
   },
   SUBSCRIPTION_CANCEL: {
     method: "POST",
-    url: "/subscription/api/v1/cancel/",
+    url: "/api/v1/subscriptions/cancel/",
   },
 };
 

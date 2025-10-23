@@ -189,8 +189,13 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
   // Check if user has active subscription
   const hasActiveSubscription = () => {
-    if (!subscriptionData?.subscription) return false;
-    const status = subscriptionData.subscription.status;
+    if (!subscriptionData) return false;
+    const status = subscriptionData.status;
+    const cancelAtPeriodEnd = subscriptionData.cancel_at_period_end;
+
+    // If subscription is set to cancel at period end, it's not considered active for enrollment purposes
+    if (cancelAtPeriodEnd) return false;
+
     return status === "active" || status === "trialing";
   };
 
@@ -467,9 +472,9 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                       <Text fontSize="14px" color="#6B7280">
                         No subscription found
                       </Text>
-                    ) : subscriptionData?.subscription ? (
+                    ) : subscriptionData ? (
                       <SubscriptionStatusComponent
-                        subscription={subscriptionData.subscription}
+                        subscription={subscriptionData}
                         opportunityParticipantId={
                           participantRecord.participant_id
                         }
