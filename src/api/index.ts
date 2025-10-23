@@ -105,10 +105,6 @@ apiClient.interceptors.response.use(
     const currentUrl = window.location.href;
     const isInvitePage = matchesInvitePattern(currentUrl);
 
-    // TODO: clean up after testing on staging
-    console.log("isInvitePage", isInvitePage);
-    console.log("error.status", currentUrl);
-
     if (error.status === 401 && !isInvitePage) {
       useAuthStore.getState().logout();
       // window.location.href = "/login/";
