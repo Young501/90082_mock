@@ -52,6 +52,51 @@ const INVALID_ABN_MESSAGE =
 const VALIDATION_ERROR_MESSAGE =
   "Unable to validate the ABN right now. Please try again.";
 
+const extractBackendMessage = (error: any): string | null => {
+  const data = error?.response?.data ?? error?.data ?? error;
+
+  const resolve = (value: any): string | null => {
+    if (value === null || value === undefined) return null;
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (!trimmed.length) {
+        return null;
+      }
+      const lower = trimmed.toLowerCase();
+      if (lower.startsWith("<!doctype html") || lower.includes("<html")) {
+        return null;
+      }
+      return trimmed;
+    }
+    if (typeof value === "number" || typeof value === "boolean") {
+      return String(value);
+    }
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        const msg = resolve(item);
+        if (msg) return msg;
+      }
+      return null;
+    }
+    if (typeof value === "object") {
+      const preferredKeys = ["detail", "error", "message"];
+      for (const key of preferredKeys) {
+        if (key in value) {
+          const msg = resolve(value[key]);
+          if (msg) return msg;
+        }
+      }
+      for (const key of Object.keys(value)) {
+        const msg = resolve(value[key]);
+        if (msg) return msg;
+      }
+    }
+    return null;
+  };
+
+  return resolve(data);
+};
+
 export const AbnLookupField = ({
   name,
   label,
@@ -83,7 +128,8 @@ export const AbnLookupField = ({
     organisation: string;
     valid?: boolean;
     matchedName?: string | null;
-  }>({ abn: "", organisation: "" });
+    errorMessage?: string | null;
+  }>({ abn: "", organisation: "", errorMessage: null });
 
   const emitStatusChange = (nextStatus: AbnValidationStatus) => {
     setStatus(nextStatus);
@@ -147,7 +193,10 @@ export const AbnLookupField = ({
       } else {
         setMatchedName(cachedResult.matchedName || null);
         emitStatusChange("invalid");
-        setError(name, { type: "manual", message: INVALID_ABN_MESSAGE });
+        setError(name, {
+          type: "manual",
+          message: cachedResult.errorMessage || INVALID_ABN_MESSAGE,
+        });
       }
       return () => {
         isActive = false;
@@ -165,6 +214,7 @@ export const AbnLookupField = ({
           organisation,
           valid: response.valid,
           matchedName: response.matchedName ?? null,
+          errorMessage: response.valid ? null : INVALID_ABN_MESSAGE,
         };
 
         if (response.valid) {
@@ -174,15 +224,45 @@ export const AbnLookupField = ({
         } else {
           setMatchedName(response.matchedName ?? null);
           emitStatusChange("invalid");
-          setError(name, { type: "manual", message: INVALID_ABN_MESSAGE });
+          setError(name, {
+            type: "manual",
+            message: INVALID_ABN_MESSAGE,
+          });
         }
       })
-      .catch(() => {
+      .catch((error: any) => {
         if (!isActive) return;
-        lastValidatedRef.current = { abn, organisation, valid: undefined };
+        const statusCode: number | undefined = error?.response?.status;
+        const backendMessage = extractBackendMessage(error);
+        const isInputError =
+          statusCode === 400 || statusCode === 404 || statusCode === 422;
+
+        if (isInputError) {
+          const message = backendMessage || INVALID_ABN_MESSAGE;
+          lastValidatedRef.current = {
+            abn,
+            organisation,
+            valid: false,
+            matchedName: null,
+            errorMessage: message,
+          };
+          emitStatusChange("invalid");
+          setMatchedName(null);
+          setError(name, { type: "manual", message });
+          return;
+        }
+
+        const message = backendMessage || VALIDATION_ERROR_MESSAGE;
+        lastValidatedRef.current = {
+          abn,
+          organisation,
+          valid: undefined,
+          matchedName: null,
+          errorMessage: message,
+        };
         emitStatusChange("error");
         setMatchedName(null);
-        setError(name, { type: "manual", message: VALIDATION_ERROR_MESSAGE });
+        setError(name, { type: "manual", message });
       });
 
     return () => {
