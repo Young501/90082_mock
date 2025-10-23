@@ -307,7 +307,7 @@ export const API_ENDPOINTS = {
   },
   ABN_VALIDATE: {
     method: "POST" as const,
-    url: "/api/v1/abn/validate",
+    url: "/api/v1/organisation/validate-abn",
   },
   INVITE_PARTICIPANTS: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
