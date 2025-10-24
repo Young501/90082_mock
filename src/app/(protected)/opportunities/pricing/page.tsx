@@ -41,15 +41,7 @@ export default function OpportunityPricingPage() {
     error: pricingError,
   } = useProductPricing(opportunityId, userType || null);
 
-  // Fetch participant record to get participant_id
-  const {
-    data: participantRecord,
-    isLoading: isLoadingParticipant,
-    error: participantError,
-  } = useOpportunityParticipant(
-    opportunityId ? Number(opportunityId) : 0,
-    !!opportunityId
-  );
+  // Note: No longer need to fetch participant record since new API doesn't require participant_id
 
   // Checkout mutation
   const checkoutMutation = useCreateCheckoutSession();
@@ -74,8 +66,11 @@ export default function OpportunityPricingPage() {
     }
   }, [isLoadingPricing, pricingData, nextStep, opportunityId, router]);
 
-  const handleSelectPlan = async (interval: "month" | "year") => {
-    if (!opportunityId || !userType) {
+  const handleSelectPlan = async (
+    priceId: string,
+    interval: "month" | "year"
+  ) => {
+    if (!userType) {
       toaster.create({
         title: "Missing required information",
         description: "Unable to create subscription session",
@@ -89,26 +84,18 @@ export default function OpportunityPricingPage() {
     try {
       // Find the selected pricing tier to get trial_days
       const selectedTier = pricingData?.prices?.find(
-        (tier) => tier.interval === interval
+        (tier) => tier.price_id === priceId
       );
 
-      // For not enrolled users, don't pass opportunity_participant_id
-      // For enrolled users, pass the participant_id
+      // Create checkout data with new API format
       const checkoutData: any = {
-        opportunity_id: Number(opportunityId),
+        price_id: priceId,
         user_type: userType,
-        interval: interval,
       };
 
       // Add trial_days if available
       if (selectedTier?.trial_days && selectedTier.trial_days > 0) {
         checkoutData.trial_days = selectedTier.trial_days;
-      }
-
-      // Only add participant_id if user is enrolled
-      if (participantRecord?.participant_id) {
-        checkoutData.opportunity_participant_id =
-          participantRecord.participant_id;
       }
 
       const response = await checkoutMutation.mutateAsync(checkoutData);

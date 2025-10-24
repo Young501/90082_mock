@@ -45,3 +45,13 @@ export interface AccessibleOpportunity extends Opportunity {
   enrollment_status: "enrolled" | "not_enrolled" | string;
   visibility_display: string;
 }
+
+export interface OpportunityParticipantResponse {
+  user_type_key: string;
+  participant_id: number;
+  email: string;
+  accepted: boolean;
+  type: string;
+  data: string;
+  access?: boolean;
+}

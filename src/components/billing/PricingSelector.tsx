@@ -18,7 +18,7 @@ import { CheckCircle, Loader } from "lucide-react";
 interface PricingSelectorProps {
   opportunityTitle?: string;
   pricingTiers: PricingTier[];
-  onSelectPlan: (interval: "month" | "year") => void;
+  onSelectPlan: (priceId: string, interval: "month" | "year") => void;
   onCancel?: () => void;
   isLoading?: boolean;
 }
@@ -50,9 +50,9 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
     return interval === "month" ? "Monthly" : "Yearly";
   };
 
-  const handleContinue = (interval: "month" | "year") => {
-    setSelectedInterval(interval);
-    onSelectPlan(interval);
+  const handleContinue = (tier: PricingTier) => {
+    setSelectedInterval(tier.interval);
+    onSelectPlan(tier.price_id, tier.interval);
   };
 
   if (pricingTiers.length === 0) {
@@ -187,7 +187,7 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
                     colorScheme={isYearly ? "green" : "blue"}
                     w="100%"
                     mt={4}
-                    onClick={() => handleContinue(tier.interval)}
+                    onClick={() => handleContinue(tier)}
                     loading={isLoading && selectedInterval === tier.interval}
                     disabled={isLoading}
                   >

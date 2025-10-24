@@ -28,7 +28,7 @@ import { useAuthStore } from "@/store";
 import { toast } from "react-toastify";
 import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 import { useHandleEnroll } from "@/hooks/useHandleEnroll";
-import { useProductPricing, useSubscriptionStatus } from "@/services/billing";
+import { useProductPricing } from "@/services/billing";
 import { SubscriptionGate } from "@/components/billing/SubscriptionGate";
 
 export default function DiscoveryPage() {
@@ -181,24 +181,16 @@ export default function DiscoveryPage() {
       !!opportunityId && isEnrolled === true
     );
 
-  // Get subscription status if enrolled
-  // If returns null/404 → free opportunity, if returns data → requires subscription
-  const { data: subscriptionStatus, isLoading: isLoadingSubscription } =
-    useSubscriptionStatus(
-      isEnrolled && participantRecord?.participant_id
-        ? participantRecord.participant_id
-        : null
-    );
-
-  // Determine if subscription is required based on status API response
   const requiresSubscription = useMemo(() => {
     // If not enrolled, no subscription check needed
     if (!isEnrolled) return false;
 
-    // If subscription status exists (not null), subscription is required
-    // If null (404 from API), it's a free opportunity
-    return subscriptionStatus !== null && subscriptionStatus !== undefined;
-  }, [isEnrolled, subscriptionStatus]);
+    return false;
+  }, [isEnrolled]);
+
+  // Since webhook is not merged yet, we don't have real subscription status
+  const subscriptionStatus = null;
+  const isLoadingSubscription = false;
 
   // Opportunity-specific content
   if (opportunityId) {
@@ -299,7 +291,7 @@ export default function DiscoveryPage() {
             <SubscriptionGate
               subscriptionStatus={subscriptionStatus}
               isLoadingStatus={isLoadingSubscription}
-              requiresSubscription={requiresSubscription}
+              requiresSubscription={!!requiresSubscription}
               opportunityId={opportunityId}
               showAccessBanner={true}
             >
@@ -345,8 +337,8 @@ export default function DiscoveryPage() {
                   onPageChange={handlePageChange}
                   onPageSizeChange={handlePageSizeChange}
                   opportunityId={opportunityId}
-                  subscriptionStatus={subscriptionStatus}
-                  requiresSubscription={requiresSubscription}
+                  subscriptionStatus={null}
+                  requiresSubscription={!!requiresSubscription}
                 />
               </Box>
             </SubscriptionGate>

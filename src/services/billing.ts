@@ -57,33 +57,24 @@ export function useCreateCheckoutSession() {
 }
 
 /**
- * Hook to fetch subscription status
+ * Hook to fetch subscription status - now uses opportunities API
+ * This function is deprecated and should be replaced with useOpportunityParticipant
  */
 export function useSubscriptionStatus(
   opportunityParticipantId: string | number | null
 ) {
-  return useQuery<SubscriptionStatusResponse | null>({
-    queryKey: ["subscription-status", opportunityParticipantId],
-    queryFn: async () => {
-      if (!opportunityParticipantId) return null;
+  // This function is deprecated - use useOpportunityParticipant instead
+  console.warn(
+    "useSubscriptionStatus is deprecated. Use useOpportunityParticipant instead."
+  );
 
-      try {
-        const response = await apiRequest<SubscriptionStatusResponse>({
-          endpoint: API_ENDPOINTS.SUBSCRIPTION_STATUS,
-          params: {
-            opportunity_participant_id: opportunityParticipantId,
-          },
-        });
-        return response;
-      } catch (error: any) {
-        // If no subscription record found, return null
-        if (error?.response?.status === 404) {
-          return null;
-        }
-        throw error;
-      }
+  return useQuery<SubscriptionStatusResponse | null>({
+    queryKey: ["subscription-status-deprecated", opportunityParticipantId],
+    queryFn: async () => {
+      // Return null to indicate no subscription status (free access)
+      return null;
     },
-    enabled: !!opportunityParticipantId,
+    enabled: false, // Disabled to prevent API calls
     retry: false,
   });
 }
