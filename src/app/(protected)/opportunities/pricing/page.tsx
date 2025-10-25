@@ -41,8 +41,6 @@ export default function OpportunityPricingPage() {
     error: pricingError,
   } = useProductPricing(opportunityId, userType || null);
 
-  // Note: No longer need to fetch participant record since new API doesn't require participant_id
-
   // Checkout mutation
   const checkoutMutation = useCreateCheckoutSession();
 

@@ -329,7 +329,6 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: "/api/v1/subscriptions/checkout-session/",
   },
-  // SUBSCRIPTION_STATUS API has been removed - functionality moved to opportunities APIs
 };
 
 /*********

@@ -56,14 +56,9 @@ export function useCreateCheckoutSession() {
   });
 }
 
-/**
- * Hook to fetch subscription status - now uses opportunities API
- * This function is deprecated and should be replaced with useOpportunityParticipant
- */
 export function useSubscriptionStatus(
   opportunityParticipantId: string | number | null
 ) {
-  // This function is deprecated - use useOpportunityParticipant instead
   console.warn(
     "useSubscriptionStatus is deprecated. Use useOpportunityParticipant instead."
   );
