@@ -185,12 +185,27 @@ export default function DiscoveryPage() {
     // If not enrolled, no subscription check needed
     if (!isEnrolled) return false;
 
-    return false;
-  }, [isEnrolled]);
+    // Check if user has access - if not, subscription is required
+    return participantRecord?.access
+      ? !participantRecord.access.has_access
+      : false;
+  }, [isEnrolled, participantRecord?.access]);
 
-  // Since webhook is not merged yet, we don't have real subscription status
-  const subscriptionStatus = null;
-  const isLoadingSubscription = false;
+  // Get subscription status from participant record access field
+  const subscriptionStatus = useMemo(() => {
+    if (!participantRecord?.access) return null;
+
+    return {
+      status: participantRecord.access.status,
+      current_period_end: participantRecord.access.current_period_end,
+      cancel_at_period_end: participantRecord.access.cancel_at_period_end,
+      trial_end: participantRecord.access.trial_end,
+      has_access: participantRecord.access.has_access,
+      opportunity_participant_id: participantRecord.participant_id,
+    };
+  }, [participantRecord?.access, participantRecord?.participant_id]);
+
+  const isLoadingSubscription = isLoadingParticipant;
 
   // Opportunity-specific content
   if (opportunityId) {

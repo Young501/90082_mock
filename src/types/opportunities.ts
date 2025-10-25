@@ -44,6 +44,21 @@ export interface CategorizedOpportunities {
 export interface AccessibleOpportunity extends Opportunity {
   enrollment_status: "enrolled" | "not_enrolled" | string;
   visibility_display: string;
+  access: AccessInfo;
+}
+
+export interface AccessInfo {
+  has_access: boolean;
+  status: string;
+  current_period_end: string;
+  cancel_at_period_end: boolean;
+  trial_end: string;
+  active_override: {
+    id: number;
+    reason: string;
+    end: string;
+  };
+  access_source: string;
 }
 
 export interface OpportunityParticipantResponse {
@@ -53,5 +68,5 @@ export interface OpportunityParticipantResponse {
   accepted: boolean;
   type: string;
   data: string;
-  access?: boolean;
+  access: AccessInfo;
 }
