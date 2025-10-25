@@ -3,31 +3,7 @@ import { apiRequest, API_ENDPOINTS } from "@/api";
 import { useAuthStore } from "@/store";
 import { SubscriptionStatusResponse } from "@/types/opportunities";
 
-// Get subscription status for a specific opportunity participant
-export function useSubscriptionStatus(
-  opportunityParticipantId: number,
-  enabled: boolean = true
-) {
-  return useQuery({
-    queryKey: ["subscription-status", opportunityParticipantId],
-    queryFn: () =>
-      apiRequest<SubscriptionStatusResponse>({
-        endpoint: API_ENDPOINTS.SUBSCRIPTION_STATUS,
-        params: {
-          opportunity_participant_id: opportunityParticipantId,
-        },
-      }),
-    enabled: enabled && !!opportunityParticipantId,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    retry: (failureCount, error: any) => {
-      // Don't retry on 404 (no subscription found)
-      if (error?.response?.status === 404) {
-        return false;
-      }
-      return failureCount < 2;
-    },
-  });
-}
+// useSubscriptionStatus has been removed - use participant record access field instead
 
 // Cancel subscription for a specific opportunity participant
 export function useCancelSubscription() {
@@ -35,23 +11,24 @@ export function useCancelSubscription() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (opportunityParticipantId: number) => {
+    mutationFn: async (opportunityId: number) => {
       return apiRequest({
         endpoint: API_ENDPOINTS.SUBSCRIPTION_CANCEL,
         body: {
-          opportunity_participant_id: opportunityParticipantId,
+          opportunity_id: opportunityId,
         },
       });
     },
-    onSuccess: (_, opportunityParticipantId) => {
-      // Invalidate subscription status for this participant
-      queryClient.invalidateQueries({
-        queryKey: ["subscription-status", opportunityParticipantId],
-      });
-
-      // Also invalidate accessible opportunities to refresh the UI
+    onSuccess: (_, opportunityId) => {
+      // Invalidate accessible opportunities to refresh the UI
+      // This will also refresh the access field in participant records
       queryClient.invalidateQueries({
         queryKey: ["accessible-opportunities", user?.id],
+      });
+
+      // Invalidate opportunity participant records to refresh access field
+      queryClient.invalidateQueries({
+        queryKey: ["opportunity-participant"],
       });
     },
   });

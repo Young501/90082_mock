@@ -26,13 +26,13 @@ import { formatDate } from "@/utils/formatDate";
 
 interface SubscriptionStatusProps {
   subscription: SubscriptionStatusResponse;
-  opportunityParticipantId: number;
+  opportunityId: number;
   onStatusUpdate?: () => void;
 }
 
 const SubscriptionStatusComponent: React.FC<SubscriptionStatusProps> = ({
   subscription,
-  opportunityParticipantId,
+  opportunityId,
   onStatusUpdate,
 }) => {
   const { open, onOpen, onClose } = useDisclosure();
@@ -150,7 +150,7 @@ const SubscriptionStatusComponent: React.FC<SubscriptionStatusProps> = ({
 
   const handleCancelSubscription = async () => {
     try {
-      await cancelSubscriptionMutation.mutateAsync(opportunityParticipantId);
+      await cancelSubscriptionMutation.mutateAsync(opportunityId);
 
       toaster.create({
         title: "Subscription canceled",

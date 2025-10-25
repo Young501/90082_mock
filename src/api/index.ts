@@ -321,10 +321,6 @@ export const API_ENDPOINTS = {
     url: `/api/v1/opportunities/${opportunityId}/participant/${participantId}/`,
   }),
   // Subscription endpoints
-  SUBSCRIPTION_STATUS: {
-    method: "GET",
-    url: "/api/v1/subscriptions/status/",
-  },
   SUBSCRIPTION_CANCEL: {
     method: "POST",
     url: "/api/v1/subscriptions/cancel/",

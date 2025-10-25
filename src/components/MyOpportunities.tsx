@@ -34,7 +34,6 @@ import { toast } from "react-toastify";
 import { formatAnswerForDisplay } from "@/utils/formatAnswer";
 import OpportunityCardSkeleton from "./ui/OpportunityCardSkeleton";
 import SubscriptionStatusComponent from "./SubscriptionStatus";
-import { useSubscriptionStatus } from "@/services/subscription";
 
 // Simple Opportunity Card Component
 interface OpportunityCardProps {
@@ -68,15 +67,23 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     type === "enrolled" && !isCancelled
   );
 
-  // Fetch subscription status for enrolled opportunities
-  const {
-    data: subscriptionData,
-    isLoading: isSubscriptionLoading,
-    error: subscriptionError,
-  } = useSubscriptionStatus(
-    participantRecord?.participant_id || 0,
-    type === "enrolled" && !!participantRecord?.participant_id && !isCancelled
-  );
+  // Get subscription status from participant record access field
+  const subscriptionData = useMemo(() => {
+    if (!participantRecord?.access) return null;
+
+    return {
+      status: participantRecord.access.status,
+      current_period_end: participantRecord.access.current_period_end,
+      cancel_at_period_end: participantRecord.access.cancel_at_period_end,
+      trial_end: participantRecord.access.trial_end,
+      has_access: participantRecord.access.has_access,
+      opportunity_participant_id: participantRecord.participant_id,
+      active_override: participantRecord.access.active_override,
+    };
+  }, [participantRecord?.access, participantRecord?.participant_id]);
+
+  const isSubscriptionLoading = false; // No loading since we get data from participant record
+  const subscriptionError = null; // No error since we get data from participant record
 
   // Update mutation
   const updateParticipantMutation = useUpdateOpportunityParticipant();
@@ -475,16 +482,14 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                     ) : subscriptionData ? (
                       <SubscriptionStatusComponent
                         subscription={subscriptionData}
-                        opportunityParticipantId={
-                          participantRecord.participant_id
-                        }
+                        opportunityId={opportunity.id}
                         onStatusUpdate={() => {
-                          // Refresh subscription status
+                          // Refresh accessible opportunities and participant records
                           queryClient.invalidateQueries({
-                            queryKey: [
-                              "subscription-status",
-                              participantRecord.participant_id,
-                            ],
+                            queryKey: ["accessible-opportunities", user?.id],
+                          });
+                          queryClient.invalidateQueries({
+                            queryKey: ["opportunity-participant"],
                           });
                         }}
                       />
