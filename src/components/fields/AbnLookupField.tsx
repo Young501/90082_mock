@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Box, Field, Input, Spinner, Text, chakra } from "@chakra-ui/react";
+import { Box, Field, Input, Spinner, Text } from "@chakra-ui/react";
 import { Control, UseFormSetError, useController } from "react-hook-form";
+import { isAxiosError } from "axios";
 import { useAbnValidation } from "@/services/shared";
 import { useDebounce } from "@/hooks/useDebounce";
 import { AbnValidationStatus } from "@/types/onboarding";
@@ -45,51 +46,6 @@ const INVALID_ABN_MESSAGE =
   "ABN did not match the registered organisation name. Please check both fields.";
 const VALIDATION_ERROR_MESSAGE =
   "Unable to validate the ABN right now. Please try again.";
-
-const extractBackendMessage = (error: any): string | null => {
-  const data = error?.response?.data ?? error?.data ?? error;
-
-  const resolve = (value: any): string | null => {
-    if (value === null || value === undefined) return null;
-    if (typeof value === "string") {
-      const trimmed = value.trim();
-      if (!trimmed.length) {
-        return null;
-      }
-      const lower = trimmed.toLowerCase();
-      if (lower.startsWith("<!doctype html") || lower.includes("<html")) {
-        return null;
-      }
-      return trimmed;
-    }
-    if (typeof value === "number" || typeof value === "boolean") {
-      return String(value);
-    }
-    if (Array.isArray(value)) {
-      for (const item of value) {
-        const msg = resolve(item);
-        if (msg) return msg;
-      }
-      return null;
-    }
-    if (typeof value === "object") {
-      const preferredKeys = ["detail", "error", "message"];
-      for (const key of preferredKeys) {
-        if (key in value) {
-          const msg = resolve(value[key]);
-          if (msg) return msg;
-        }
-      }
-      for (const key of Object.keys(value)) {
-        const msg = resolve(value[key]);
-        if (msg) return msg;
-      }
-    }
-    return null;
-  };
-
-  return resolve(data);
-};
 
 export const AbnLookupField = ({
   name,
@@ -224,10 +180,17 @@ export const AbnLookupField = ({
           });
         }
       })
-      .catch((error: any) => {
+      .catch((error: unknown) => {
         if (!isActive) return;
-        const statusCode: number | undefined = error?.response?.status;
-        const backendMessage = extractBackendMessage(error);
+        const axiosError = isAxiosError(error) ? error : null;
+        const statusCode = axiosError?.response?.status;
+        const responseData = axiosError?.response?.data as
+          | { detail?: unknown }
+          | undefined;
+        const backendMessage =
+          typeof responseData?.detail === "string"
+            ? responseData.detail.trim()
+            : null;
         const isInputError =
           statusCode === 400 || statusCode === 404 || statusCode === 422;
 
