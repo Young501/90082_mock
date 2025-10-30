@@ -24,7 +24,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
   onReset,
   searchOnly = false,
 }) => {
-  const [searchText, setSearchText] = useState(filters.text || "");
+  const [searchText, setSearchText] = useState(filters.text);
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleSearch = () => {
@@ -43,6 +43,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
   };
 
   const hasSearched = filters.text || filters.accepted_status;
+  const hasSearchTextChange = filters.text !== searchText;
 
   if (searchOnly) {
     return (
@@ -52,7 +53,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
             placeholder="Search organisation name"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+            // onKeyPress={(e) => e.key === "Enter" && handleSearch()}
             maxW="100%"
             bg="white"
             borderRadius="24px"
@@ -67,6 +68,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
               flex={hasSearched ? "1" : "2"}
               borderRadius="24px"
               w={{ base: "100%", lg: "212px" }}
+              disabled={!hasSearchTextChange}
             >
               <Image
                 src="/assets/SearchIcon.svg"
@@ -121,7 +123,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
                 bg="white"
                 borderRadius="24px"
                 size="md"
-                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                // onKeyPress={(e) => e.key === "Enter" && handleSearch()}
               />
             </Box>
 
@@ -157,6 +159,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
                 h="40px"
                 flex={hasSearched ? "1" : "2"}
                 borderRadius="24px"
+                disabled={!hasSearchTextChange}
               >
                 <Image
                   src="/assets/SearchIcon.svg"
