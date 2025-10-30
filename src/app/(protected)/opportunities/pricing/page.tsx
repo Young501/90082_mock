@@ -16,6 +16,7 @@ import {
 } from "@/services/shared";
 import { toaster } from "@/components/ui/toaster";
 import { PageTitle } from "@/components/PageTitle";
+import { PricingTier } from "@/types/subscription";
 
 export default function OpportunityPricingPage() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function OpportunityPricingPage() {
 
   // Fetch pricing
   const {
-    data: pricingData,
+    data: productsData,
     isLoading: isLoadingPricing,
     error: pricingError,
   } = useProductPricing(opportunityId, userType || null);
@@ -48,8 +49,8 @@ export default function OpportunityPricingPage() {
   useEffect(() => {
     if (
       !isLoadingPricing &&
-      pricingData &&
-      (!pricingData.prices || pricingData.prices.length === 0)
+      productsData &&
+      (!productsData.products || productsData.products.length === 0)
     ) {
       toaster.create({
         title: "This opportunity does not require a paid subscription",
@@ -62,12 +63,9 @@ export default function OpportunityPricingPage() {
         router.push(`/discover?id=${opportunityId}`);
       }
     }
-  }, [isLoadingPricing, pricingData, nextStep, opportunityId, router]);
+  }, [isLoadingPricing, productsData, nextStep, opportunityId, router]);
 
-  const handleSelectPlan = async (
-    priceId: string,
-    interval: "month" | "year"
-  ) => {
+  const handleSelectPlan = async (selectedTier: PricingTier) => {
     if (!userType) {
       toaster.create({
         title: "Missing required information",
@@ -76,28 +74,18 @@ export default function OpportunityPricingPage() {
       });
       return;
     }
-
     setIsProcessing(true);
-
     try {
-      // Find the selected pricing tier to get trial_days
-      const selectedTier = pricingData?.prices?.find(
-        (tier) => tier.price_id === priceId
-      );
-
       // Create checkout data with new API format
       const checkoutData: any = {
-        price_id: priceId,
+        price_id: selectedTier.price_id,
         user_type: userType,
       };
-
       // Add trial_days if available
       if (selectedTier?.trial_days && selectedTier.trial_days > 0) {
         checkoutData.trial_days = selectedTier.trial_days;
       }
-
       const response = await checkoutMutation.mutateAsync(checkoutData);
-
       if (response.url) {
         // Store the return context
         if (nextStep === "questionnaire") {
@@ -117,7 +105,6 @@ export default function OpportunityPricingPage() {
             })
           );
         }
-
         // Redirect to Stripe Checkout
         window.location.href = response.url;
       } else {
@@ -181,7 +168,11 @@ export default function OpportunityPricingPage() {
     );
   }
 
-  if (!pricingData || !pricingData.prices || pricingData.prices.length === 0) {
+  if (
+    !productsData ||
+    !productsData.products ||
+    productsData.products.length === 0
+  ) {
     // This will be handled by useEffect redirect
     return (
       <>
@@ -205,8 +196,8 @@ export default function OpportunityPricingPage() {
       <Container maxW="container.xl" py={10} mt={{ base: "80px", lg: "100px" }}>
         <PricingSelector
           opportunityTitle={opportunity?.title}
-          pricingTiers={pricingData.prices}
-          onSelectPlan={handleSelectPlan}
+          products={productsData.products}
+          onSubscribeClick={handleSelectPlan}
           onCancel={handleCancel}
           isLoading={isProcessing}
         />

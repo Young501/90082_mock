@@ -1,26 +1,33 @@
 // Subscription-related type definitions
 
+export type BillingInterval = "day" | "week" | "month" | "year" | null;
+
+export interface PricingTier {
+  price_id: string;
+  nickname: string;
+  unit_amount: number; // in cents
+  currency: string; // e.g. 'aud'
+  interval: BillingInterval; // nullable from API
+  interval_count: number | null;
+  // optional extras if you add them later
+  price?: number;
+  id?: string;
+  description?: string;
+  trial_days?: number | null;
+}
+
 export interface Product {
   id: string;
   name: string;
   description: string;
-}
-
-export interface PricingTier {
-  interval: "month" | "year";
-  interval_count: number;
-  price_id: string;
-  unit_amount: number;
-  currency: string;
-  price?: number;
-  id?: string;
-  description?: string;
-  trial_days?: number;
-}
-
-export interface ProductPricingResponse {
-  product: Product;
+  default_price_id: string | null;
   prices: PricingTier[];
+  metadata?: Record<string, string>;
+  marketing_features?: string[];
+}
+
+export interface ProductsPricingResponse {
+  products: Product[];
 }
 
 export interface CheckoutSessionRequest {

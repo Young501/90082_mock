@@ -40,10 +40,11 @@ export function useHandleEnroll({
   );
   const shouldShowQuestionnaire = hasContent(qForType);
 
-  // Fetch pricing data (but don't auto-fetch until needed)
-  const { data: pricingData, refetch: checkPricing } = useProductPricing(
-    null, // Initially null to prevent auto-fetching
-    null
+  // Keep params, but do not auto-fetch
+  const { refetch: refetchPricing } = useProductPricing(
+    opportunityId,
+    userType || null,
+    { enabled: false }
   );
 
   const handleEnroll = useCallback(async () => {
@@ -64,57 +65,31 @@ export function useHandleEnroll({
         return;
       }
 
-      // Check if feature flag to bypass paywall (dev only)
-      const urlParams = new URLSearchParams(window.location.search);
-      const bypassPaywall = urlParams.get("paywall") === "off";
+      // Step 1: Check for pricing
+      setIsCheckingPricing(true);
+      let hasPaidPricing = false;
+      try {
+        const res = await refetchPricing();
+        const pricing = (res as any)?.data ?? res;
+        hasPaidPricing = Boolean(
+          pricing?.products?.some(
+            (p: any) => Array.isArray(p.prices) && p.prices.length > 0
+          )
+        );
+      } catch (e: any) {
+        console.error("Pricing check error:", e);
+        toast.warning(
+          "Unable to verify pricing information, continuing with free enrollment."
+        );
+      } finally {
+        setIsCheckingPricing(false);
+      }
 
-      // Step 1: Check for pricing (unless bypassed)
-      if (!bypassPaywall) {
-        setIsCheckingPricing(true);
-
-        try {
-          // Manually fetch pricing
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/v1/subscriptions/product-pricing/?opportunity_id=${opportunityId}&user_type=${userType}`,
-            {
-              headers: {
-                Authorization: `Token ${useAuthStore.getState().getCurrentToken()}`,
-              },
-            }
-          );
-
-          if (response.ok) {
-            const pricing = await response.json();
-
-            // If pricing exists and has prices, redirect to pricing selector
-            if (pricing?.prices && pricing.prices.length > 0) {
-              const nextParam = shouldShowQuestionnaire
-                ? "&next=questionnaire"
-                : "";
-              router.push(
-                `/opportunities/pricing?id=${opportunityId}${nextParam}`
-              );
-              return;
-            }
-          } else if (response.status !== 404) {
-            // Handle non-404 errors
-            throw new Error("Failed to fetch pricing information");
-          }
-          // 404 or empty prices = free access, continue
-        } catch (pricingError: any) {
-          console.error("Pricing check error:", pricingError);
-          // If pricing check fails, we'll continue with free enrollment
-          // but show a warning
-          if (pricingError?.message !== "Failed to fetch pricing information") {
-            toast.warning(
-              "Unable to verify pricing information, continuing with free enrollment."
-            );
-          } else {
-            throw pricingError;
-          }
-        } finally {
-          setIsCheckingPricing(false);
-        }
+      // If paid, send user to pricing selector
+      if (hasPaidPricing) {
+        const nextParam = shouldShowQuestionnaire ? "&next=questionnaire" : "";
+        router.push(`/opportunities/pricing?id=${opportunityId}${nextParam}`);
+        return;
       }
 
       // Step 2: If no pricing or free access, proceed to questionnaire or direct enrollment
@@ -141,6 +116,7 @@ export function useHandleEnroll({
     router,
     enrollMutation,
     toast,
+    refetchPricing,
   ]);
 
   return {

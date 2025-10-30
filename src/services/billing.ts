@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import {
-  ProductPricingResponse,
+  ProductsPricingResponse,
   CheckoutSessionRequest,
   CheckoutSessionResponse,
   SubscriptionStatusResponse,
@@ -12,15 +12,16 @@ import {
  */
 export function useProductPricing(
   opportunityId: string | number | null,
-  userType: string | null
+  userType: string | null,
+  options?: { enabled?: boolean }
 ) {
-  return useQuery<ProductPricingResponse | null>({
-    queryKey: ["product-pricing", opportunityId, userType],
+  return useQuery<ProductsPricingResponse | null>({
+    queryKey: ["products-pricing", opportunityId, userType],
     queryFn: async () => {
       if (!opportunityId || !userType) return null;
 
       try {
-        const response = await apiRequest<ProductPricingResponse>({
+        const response = await apiRequest<ProductsPricingResponse>({
           endpoint: API_ENDPOINTS.PRODUCT_PRICING,
           params: {
             opportunity_id: Number(opportunityId),
@@ -29,15 +30,19 @@ export function useProductPricing(
         });
         return response;
       } catch (error: any) {
-        // If 404 or no pricing, return null to indicate free access
-        if (error?.response?.status === 404) {
-          return null;
-        }
+        if (error?.response?.status === 404) return null;
         throw error;
       }
     },
-    enabled: !!opportunityId && !!userType,
+    // by default auto-fetches when both params exist
+    enabled: options?.enabled ?? (!!opportunityId && !!userType),
     retry: false,
+    staleTime: 5 * 60 * 1000,
+    select: (data) => {
+      if (!data) return null;
+      // ensure empty list means free access
+      return data.products?.length ? data : null;
+    },
   });
 }
 

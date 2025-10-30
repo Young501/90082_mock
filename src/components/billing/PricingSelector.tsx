@@ -12,50 +12,82 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import { Button } from "@/components/ui/Button";
-import { PricingTier } from "@/types/subscription";
-import { CheckCircle, Loader } from "lucide-react";
+import { PricingTier, Product } from "@/types/subscription";
+import { CheckCircle, Loader, XCircle } from "lucide-react";
 
 interface PricingSelectorProps {
   opportunityTitle?: string;
-  pricingTiers: PricingTier[];
-  onSelectPlan: (priceId: string, interval: "month" | "year") => void;
+  products: Product[];
+  onSubscribeClick: (selectedTier: PricingTier) => void;
   onCancel?: () => void;
   isLoading?: boolean;
 }
 
+interface FeatureItem {
+  label: string;
+  supported: boolean;
+}
+
+interface FeatureListProps {
+  features: string[];
+}
+
+export function FeatureList({ features }: FeatureListProps) {
+  // parse the strings into FeatureItem
+  const parsedFeatures = features.map((featStr, i) => {
+    try {
+      // Replace single quotes with double quotes to make it JSON‐parsable
+      const jsonString = featStr
+        .replace(/'/g, '"')
+        .replace(/True/g, "true")
+        .replace(/False/g, "false");
+      const obj = JSON.parse(jsonString);
+      return {
+        label: obj.label,
+        supported: Boolean(obj.supported),
+      } as FeatureItem;
+    } catch {
+      // fallback if parsing fails
+      return { label: featStr, supported: true };
+    }
+  });
+
+  return (
+    <VStack gap={4} align="stretch" pt={2}>
+      {parsedFeatures.map((feat, i) => (
+        <HStack key={i}>
+          {feat.supported ? (
+            <CheckCircle size={18} color="#48BB78" />
+          ) : (
+            <XCircle size={18} color="#E53E3E" />
+          )}
+          <Text fontSize="sm" color={feat.supported ? "inherit" : "gray.500"}>
+            {feat.label}
+          </Text>
+        </HStack>
+      ))}
+    </VStack>
+  );
+}
+
 export const PricingSelector: React.FC<PricingSelectorProps> = ({
   opportunityTitle,
-  pricingTiers,
-  onSelectPlan,
+  products,
+  onSubscribeClick,
   onCancel,
   isLoading = false,
 }) => {
-  const [selectedInterval, setSelectedInterval] = useState<
-    "month" | "year" | null
-  >(null);
-
   const formatPrice = (price: number, currency: string = "USD") => {
-    // Convert currency to uppercase for proper formatting
     const normalizedCurrency = currency.toUpperCase();
-
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: normalizedCurrency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
-    }).format(price / 100); // Assuming price is in cents
+    }).format(price / 100);
   };
 
-  const getIntervalLabel = (interval: "month" | "year") => {
-    return interval === "month" ? "Monthly" : "Yearly";
-  };
-
-  const handleContinue = (tier: PricingTier) => {
-    setSelectedInterval(tier.interval);
-    onSelectPlan(tier.price_id, tier.interval);
-  };
-
-  if (pricingTiers.length === 0) {
+  if (!products || products.length === 0) {
     return (
       <Box p={6} textAlign="center">
         <Text color="gray.500">No pricing plans available</Text>
@@ -67,6 +99,16 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
       </Box>
     );
   }
+
+  const sortedProducts = products.slice().sort((a, b) => {
+    const ao = a.metadata?.display_order
+      ? Number(a.metadata.display_order)
+      : Infinity;
+    const bo = b.metadata?.display_order
+      ? Number(b.metadata.display_order)
+      : Infinity;
+    return ao - bo;
+  });
 
   return (
     <VStack gap={6} w="100%" maxW="900px" mx="auto" p={6}>
@@ -83,30 +125,38 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
       </VStack>
 
       <SimpleGrid
-        columns={{ base: 1, md: pricingTiers.length === 1 ? 1 : 2 }}
+        columns={{ base: 1, md: sortedProducts.length === 1 ? 1 : 2 }}
         gap={6}
         w="100%"
       >
-        {pricingTiers.map((tier) => {
-          const isYearly = tier.interval === "year";
-          const savingsPercentage = isYearly ? 17 : 0; // Example: yearly saves 17%
+        {sortedProducts.map((product) => {
+          const isRecommended = product.metadata?.recommended === "true";
+
+          const defaultPrice = product.prices.find(
+            (p) => p.price_id === product.default_price_id
+          );
+          const displayPrice = defaultPrice ?? product.prices[0];
+
+          const trialDays = 7; // or get from product.metadata
 
           return (
             <Card.Root
-              key={tier.price_id}
+              key={product.id}
               p={6}
               borderWidth={2}
-              borderColor={isYearly ? "green.500" : "gray.200"}
+              borderColor={isRecommended ? "green.500" : "gray.200"}
               position="relative"
-              overflow="visible"
               _hover={{
-                borderColor: isYearly ? "green.600" : "gray.300",
+                borderColor: isRecommended ? "green.600" : "gray.300",
                 transform: "translateY(-4px)",
                 shadow: "lg",
               }}
               transition="all 0.2s"
+              // ensure card is flex container & full height
+              display="flex"
+              flexDirection="column"
             >
-              {isYearly && (
+              {isRecommended && (
                 <Badge
                   colorScheme="green"
                   position="absolute"
@@ -121,93 +171,74 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
                 </Badge>
               )}
 
-              <Card.Body>
-                <VStack gap={4} align="stretch">
-                  {/* Plan header */}
-                  <VStack gap={1} align="flex-start">
-                    <Text
-                      fontSize="lg"
-                      fontWeight="bold"
-                      textTransform="uppercase"
-                      color="gray.600"
-                    >
-                      {getIntervalLabel(tier.interval)}
-                    </Text>
-                    <HStack align="baseline" gap={2}>
-                      <Text fontSize="4xl" fontWeight="bold">
-                        {formatPrice(
-                          tier.unit_amount || tier.price || 0,
-                          tier.currency
-                        )}
-                      </Text>
-                      <Text color="gray.500">
-                        / {tier.interval === "month" ? "month" : "year"}
-                      </Text>
-                    </HStack>
-                    {isYearly && savingsPercentage > 0 && (
-                      <Badge colorScheme="green" variant="subtle">
-                        Save {savingsPercentage}%
-                      </Badge>
-                    )}
-                    {tier.trial_days && tier.trial_days > 0 && (
-                      <Badge colorScheme="blue" variant="subtle">
-                        Includes {tier.trial_days}-day free trial
-                      </Badge>
-                    )}
-                  </VStack>
-
-                  {/* Description */}
-                  {tier.description && (
-                    <Text color="gray.600">{tier.description}</Text>
-                  )}
-
-                  {/* Features list */}
-                  <VStack gap={2} align="stretch" pt={2}>
-                    <HStack>
-                      <CheckCircle size={18} color="#48BB78" />
-                      <Text fontSize="sm">Full access to all features</Text>
-                    </HStack>
-                    <HStack>
-                      <CheckCircle size={18} color="#48BB78" />
-                      <Text fontSize="sm">View complete user profiles</Text>
-                    </HStack>
-                    <HStack>
-                      <CheckCircle size={18} color="#48BB78" />
-                      <Text fontSize="sm">Unlimited opportunity browsing</Text>
-                    </HStack>
-                    <HStack>
-                      <CheckCircle size={18} color="#48BB78" />
-                      <Text fontSize="sm">Cancel anytime</Text>
-                    </HStack>
-                  </VStack>
-
-                  {/* CTA Button */}
-                  <Button
-                    size="lg"
-                    colorScheme={isYearly ? "green" : "blue"}
-                    w="100%"
-                    mt={4}
-                    onClick={() => handleContinue(tier)}
-                    loading={isLoading && selectedInterval === tier.interval}
-                    disabled={isLoading}
+              <VStack align="stretch" gap={8} flexGrow={1}>
+                {/* Header */}
+                <VStack align="flex-start" gap={1}>
+                  <Text
+                    fontSize="lg"
+                    fontWeight="bold"
+                    textTransform="uppercase"
+                    color="gray.600"
                   >
-                    {isLoading && selectedInterval === tier.interval ? (
-                      <>
-                        <Loader className="animate-spin mr-2" size={18} />
-                        Processing...
-                      </>
-                    ) : (
-                      "Subscribe Now"
-                    )}
-                  </Button>
+                    {product.name}
+                  </Text>
+                  <HStack align="baseline" gap={2}>
+                    <Text fontSize="4xl" fontWeight="bold">
+                      {formatPrice(
+                        displayPrice.unit_amount,
+                        displayPrice.currency
+                      )}
+                    </Text>
+                    <Text color="gray.500">/ {displayPrice.interval}</Text>
+                  </HStack>
+                  {trialDays > 0 && (
+                    <Badge colorScheme="blue" variant="subtle">
+                      Includes {trialDays}-day free trial
+                    </Badge>
+                  )}
                 </VStack>
-              </Card.Body>
+
+                {/* Description */}
+                <Box minH="100px">
+                  {" "}
+                  {/* adjust height to approximate 3-4 lines at your font size */}
+                  {product.description && (
+                    <Text color="gray.600">{product.description}</Text>
+                  )}
+                </Box>
+
+                {/* Features list */}
+                {product.marketing_features &&
+                  product.marketing_features.length > 0 && (
+                    <FeatureList features={product.marketing_features} />
+                  )}
+              </VStack>
+
+              {/* Call to action */}
+              <Box mt={20}>
+                <Button
+                  size="lg"
+                  colorScheme={isRecommended ? "green" : "blue"}
+                  w="100%"
+                  onClick={() => onSubscribeClick(displayPrice)}
+                  isLoading={isLoading}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader className="animate-spin mr-2" size={18} />
+                      Processing...
+                    </>
+                  ) : (
+                    "Subscribe Now"
+                  )}
+                </Button>
+              </Box>
             </Card.Root>
           );
         })}
       </SimpleGrid>
 
-      {/* Cancel button */}
       {onCancel && (
         <Button
           variant="ghost"
@@ -219,7 +250,6 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
         </Button>
       )}
 
-      {/* Terms */}
       <Text fontSize="xs" color="gray.500" textAlign="center" maxW="600px">
         By subscribing, you agree to our Terms of Service and Privacy Policy.
         You can cancel your subscription at any time in account settings.
