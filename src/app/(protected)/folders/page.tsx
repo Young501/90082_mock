@@ -38,7 +38,7 @@ const Folder = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const folderId = searchParams.get("id");
-  const { user } = useAuthStore();
+  const { user, currentOpportunityId } = useAuthStore();
   const { folders, isLoadingFolders, folderModal } = useFolderManagement();
   const deleteFolder = useDeleteFolder();
   const removeMemberFromFolder = useRemoveMemberFromFolder();
@@ -282,6 +282,7 @@ const Folder = () => {
                             userType={userType}
                             profilePictureUrl={userData?.profile_picture_url}
                             isInFolder={true}
+                            opportunityId={currentOpportunityId || undefined}
                             onRemoveFromFolder={() =>
                               handleRemoveFromFolder(userId.toString())
                             }
