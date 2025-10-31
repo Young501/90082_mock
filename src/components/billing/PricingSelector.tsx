@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { PricingTier, Product } from "@/types/subscription";
 import { CheckCircle, Loader, XCircle } from "lucide-react";
+import { FREE_TRIAL_DAYS } from "@/utils/constants";
 
 interface PricingSelectorProps {
   opportunityTitle?: string;
@@ -77,6 +78,7 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
   onCancel,
   isLoading = false,
 }) => {
+  const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
   const formatPrice = (price: number, currency: string = "USD") => {
     const normalizedCurrency = currency.toUpperCase();
     return new Intl.NumberFormat("en-US", {
@@ -137,8 +139,6 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
           );
           const displayPrice = defaultPrice ?? product.prices[0];
 
-          const trialDays = 7; // or get from product.metadata
-
           return (
             <Card.Root
               key={product.id}
@@ -175,7 +175,7 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
                 {/* Header */}
                 <VStack align="flex-start" gap={1}>
                   <Text
-                    fontSize="lg"
+                    fontSize="xl"
                     fontWeight="bold"
                     textTransform="uppercase"
                     color="gray.600"
@@ -191,9 +191,9 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
                     </Text>
                     <Text color="gray.500">/ {displayPrice.interval}</Text>
                   </HStack>
-                  {trialDays > 0 && (
+                  {FREE_TRIAL_DAYS > 0 && (
                     <Badge colorScheme="blue" variant="subtle">
-                      Includes {trialDays}-day free trial
+                      Includes {FREE_TRIAL_DAYS}-day free trial
                     </Badge>
                   )}
                 </VStack>
@@ -220,15 +220,17 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
                   size="lg"
                   colorScheme={isRecommended ? "green" : "blue"}
                   w="100%"
-                  onClick={() => onSubscribeClick(displayPrice)}
-                  isLoading={isLoading}
+                  onClick={() => {
+                    setLoadingPriceId(displayPrice.price_id);
+                    onSubscribeClick(displayPrice);
+                  }}
+                  isLoading={
+                    isLoading && loadingPriceId === displayPrice.price_id
+                  }
                   disabled={isLoading}
                 >
-                  {isLoading ? (
-                    <>
-                      <Loader className="animate-spin mr-2" size={18} />
-                      Processing...
-                    </>
+                  {isLoading && loadingPriceId === displayPrice.price_id ? (
+                    <Loader className="animate-spin mr-2" size={18} />
                   ) : (
                     "Subscribe Now"
                   )}

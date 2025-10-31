@@ -386,23 +386,16 @@ export function StudentCard({
               )}
             </Box>
 
-            <Tooltip
-              disabled={!disableViewFullProfile && !isMatched}
-              showArrow
-              positioning={{ placement: "top", offset: { mainAxis: 8 } }}
-              content="Subscription required to view full profiles."
+            <Button
+              variant="student"
+              w="full"
+              py={6}
+              mt={4}
+              onClick={handleViewFullProfile}
+              disabled={!student.id || disableViewFullProfile || isMatched}
             >
-              <Button
-                variant="student"
-                w="full"
-                py={6}
-                mt={4}
-                onClick={handleViewFullProfile}
-                disabled={!student.id || disableViewFullProfile || isMatched}
-              >
-                View Full Profile
-              </Button>
-            </Tooltip>
+              View Full Profile
+            </Button>
           </Box>
         </Box>
       </Tooltip>

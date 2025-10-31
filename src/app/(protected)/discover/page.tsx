@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useCallback } from "react";
+import React, { useEffect, useMemo, useCallback, useState } from "react";
 import {
   Box,
   VStack,
@@ -29,7 +29,7 @@ import { toast } from "react-toastify";
 import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 import { useHandleEnroll } from "@/hooks/useHandleEnroll";
 import { useProductPricing } from "@/services/billing";
-import { SubscriptionGate } from "@/components/billing/SubscriptionGate";
+import { set } from "react-hook-form";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
@@ -59,6 +59,7 @@ export default function DiscoveryPage() {
 
   // Get user type
   const userType = user?.user_types?.[0];
+  const [hasAccess, setHasAccess] = useState(false);
 
   useEffect(() => {
     if (accessibleOpportunities) {
@@ -90,11 +91,19 @@ export default function DiscoveryPage() {
       (opp) => opp.id.toString() === opportunityId
     );
     const enrolled = currentOpportunity?.enrollment_status === "enrolled";
+    const hasAccess = currentOpportunity?.access?.has_access || false;
+    setHasAccess(hasAccess);
 
     if (isEnrolled !== enrolled) {
       setEnrollmentStatus(enrolled);
     }
-  }, [opportunityId, accessibleOpportunities, isEnrolled, setEnrollmentStatus]);
+  }, [
+    opportunityId,
+    accessibleOpportunities,
+    isEnrolled,
+    setEnrollmentStatus,
+    setHasAccess,
+  ]);
 
   // Compute and cache eligibility status
   useEffect(() => {
@@ -164,7 +173,6 @@ export default function DiscoveryPage() {
     isEnrollmentReady,
   });
 
-
   const { control, watch } = form;
   const watchedValues = watch();
 
@@ -175,38 +183,38 @@ export default function DiscoveryPage() {
     toast,
   });
 
-  // Get participant record to check subscription (only when enrolled)
-  const { data: participantRecord, isLoading: isLoadingParticipant } =
-    useOpportunityParticipant(
-      opportunityId ? Number(opportunityId) : 0,
-      !!opportunityId && isEnrolled === true
-    );
+  // // Get participant record to check subscription (only when enrolled)
+  // const { data: participantRecord, isLoading: isLoadingParticipant } =
+  //   useOpportunityParticipant(
+  //     opportunityId ? Number(opportunityId) : 0,
+  //     !!opportunityId && isEnrolled === true
+  //   );
 
-  const requiresSubscription = useMemo(() => {
-    // If not enrolled, no subscription check needed
-    if (!isEnrolled) return false;
+  // const requiresSubscription = useMemo(() => {
+  //   // If not enrolled, no subscription check needed
+  //   if (!isEnrolled) return false;
 
-    // Check if user has access - if not, subscription is required
-    return participantRecord?.access
-      ? !participantRecord.access.has_access
-      : false;
-  }, [isEnrolled, participantRecord?.access]);
+  //   // Check if user has access - if not, subscription is required
+  //   return participantRecord?.access
+  //     ? !participantRecord.access.has_access
+  //     : false;
+  // }, [isEnrolled, participantRecord?.access]);
 
-  // Get subscription status from participant record access field
-  const subscriptionStatus = useMemo(() => {
-    if (!participantRecord?.access) return null;
+  // // Get subscription status from participant record access field
+  // const subscriptionStatus = useMemo(() => {
+  //   if (!participantRecord?.access) return null;
 
-    return {
-      status: participantRecord.access.status,
-      current_period_end: participantRecord.access.current_period_end,
-      cancel_at_period_end: participantRecord.access.cancel_at_period_end,
-      trial_end: participantRecord.access.trial_end,
-      has_access: participantRecord.access.has_access,
-      opportunity_participant_id: participantRecord.participant_id,
-    };
-  }, [participantRecord?.access, participantRecord?.participant_id]);
+  //   return {
+  //     status: participantRecord.access.status,
+  //     current_period_end: participantRecord.access.current_period_end,
+  //     cancel_at_period_end: participantRecord.access.cancel_at_period_end,
+  //     trial_end: participantRecord.access.trial_end,
+  //     has_access: participantRecord.access.has_access,
+  //     opportunity_participant_id: participantRecord.participant_id,
+  //   };
+  // }, [participantRecord?.access, participantRecord?.participant_id]);
 
-  const isLoadingSubscription = isLoadingParticipant;
+  // const isLoadingSubscription = isLoadingParticipant;
 
   // Opportunity-specific content
   if (opportunityId) {
@@ -303,61 +311,51 @@ export default function DiscoveryPage() {
           </Heading>
 
           {/* Enrolled user - show discovery interface */}
-          {isEnrolled && !isSubmitting ? (
-            <SubscriptionGate
-              subscriptionStatus={subscriptionStatus}
-              isLoadingStatus={isLoadingSubscription}
-              requiresSubscription={!!requiresSubscription}
-              opportunityId={opportunityId}
-              showAccessBanner={true}
-            >
-              <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
-                <VStack align="stretch" mb={8}>
-                  <Heading size="lg" color="#282F68">
-                    Discover{" "}
-                    {targetUserType === "student" ? "Students" : "Partners"}
-                  </Heading>
-                  <Text color="gray.600">
-                    Search and filter{" "}
-                    {targetUserType === "student" ? "students" : "partners"}{" "}
-                    based on your criteria
-                  </Text>
-                </VStack>
+          {isEnrolled && hasAccess && !isSubmitting ? (
+            <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
+              <VStack align="stretch" mb={8}>
+                <Heading size="lg" color="#282F68">
+                  Discover{" "}
+                  {targetUserType === "student" ? "Students" : "Partners"}
+                </Heading>
+                <Text color="gray.600">
+                  Search and filter{" "}
+                  {targetUserType === "student" ? "students" : "partners"} based
+                  on your criteria
+                </Text>
+              </VStack>
 
-                <Box borderRadius="md" mb={8} w="100%">
-                  <DiscoveryFilterBox
-                    fields={filterableFields}
-                    control={control}
-                    watchedValues={watchedValues}
-                    checkDependencies={checkDependencies}
-                    hasSearched={hasSearched}
-                    isSearching={isSearching}
-                    onSubmit={handleSearch}
-                    onReset={handleReset}
-                    filterOptions={filterOptions}
-                  />
-                </Box>
-
-                <Separator my={6} />
-
-                <DiscoveryResultBox
-                  results={searchResults}
-                  count={resultsCount}
-                  isLoading={isSearching}
+              <Box borderRadius="md" mb={8} w="100%">
+                <DiscoveryFilterBox
+                  fields={filterableFields}
+                  control={control}
+                  watchedValues={watchedValues}
+                  checkDependencies={checkDependencies}
                   hasSearched={hasSearched}
-                  show={showResults}
-                  userType={targetUserType!}
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  pageSize={pageSize}
-                  onPageChange={handlePageChange}
-                  onPageSizeChange={handlePageSizeChange}
-                  opportunityId={opportunityId}
-                  subscriptionStatus={null}
-                  requiresSubscription={!!requiresSubscription}
+                  isSearching={isSearching}
+                  onSubmit={handleSearch}
+                  onReset={handleReset}
+                  filterOptions={filterOptions}
                 />
               </Box>
-            </SubscriptionGate>
+
+              <Separator my={6} />
+
+              <DiscoveryResultBox
+                results={searchResults}
+                count={resultsCount}
+                isLoading={isSearching}
+                hasSearched={hasSearched}
+                show={showResults}
+                userType={targetUserType!}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange}
+                opportunityId={opportunityId}
+              />
+            </Box>
           ) : (
             /* Not enrolled user - show enrollment interface */
             <Box maxW="800px" mx="auto" w="100%" overflow="hidden">

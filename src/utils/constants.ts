@@ -1,5 +1,7 @@
 import { UserTypeData } from "@/types/auth";
 
+export const FREE_TRIAL_DAYS = 7;
+
 export const DISALLOWED_DOMAINS = [
   "gmail.com",
   "yahoo.com",

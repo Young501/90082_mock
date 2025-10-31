@@ -17,6 +17,7 @@ import {
 import { toaster } from "@/components/ui/toaster";
 import { PageTitle } from "@/components/PageTitle";
 import { PricingTier } from "@/types/subscription";
+import { FREE_TRIAL_DAYS } from "@/utils/constants";
 
 export default function OpportunityPricingPage() {
   const router = useRouter();
@@ -80,6 +81,8 @@ export default function OpportunityPricingPage() {
       const checkoutData: any = {
         price_id: selectedTier.price_id,
         user_type: userType,
+        opportunity_id: Number(opportunityId),
+        trial_days: FREE_TRIAL_DAYS,
       };
       // Add trial_days if available
       if (selectedTier?.trial_days && selectedTier.trial_days > 0) {

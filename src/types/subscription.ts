@@ -33,6 +33,7 @@ export interface ProductsPricingResponse {
 export interface CheckoutSessionRequest {
   price_id: string;
   user_type: string;
+  opportunity_id: number;
   trial_days?: number;
 }
 
@@ -51,10 +52,13 @@ export type SubscriptionStatus =
   | null;
 
 export interface SubscriptionStatusResponse {
-  opportunity_participant_id: number;
+  has_access: boolean;
   status: SubscriptionStatus;
   current_period_end?: string;
   cancel_at_period_end?: boolean;
+  trial_end?: string;
+  active_override?: string;
+  access_source?: string;
 }
 
 export interface SubscriptionAccessGate {
