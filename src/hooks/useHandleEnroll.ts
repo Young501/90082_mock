@@ -3,6 +3,7 @@ import { useEnrollInOpportunity } from "@/services/updateParticipant";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useProductPricing } from "@/services/billing";
+import { AccessInfo } from "@/types/opportunities";
 
 const hasContent = (val: unknown) => {
   if (!val) return false;
@@ -11,21 +12,25 @@ const hasContent = (val: unknown) => {
   return true;
 };
 
-export function useHandleEnroll({
-  isEligible,
-  opportunityId,
-  opportunity,
-  toast,
-}: {
+type Props = {
   isEligible: boolean | null | undefined;
   opportunityId: string;
   opportunity: { questionnaire?: Record<string, unknown> } | null | undefined;
+  accessInfo: AccessInfo | null | undefined;
   toast: {
     success: (m: string) => void;
     warning: (m: string) => void;
     error: (m: string) => void;
   };
-}) {
+};
+
+export function useHandleEnroll({
+  isEligible,
+  opportunityId,
+  opportunity,
+  accessInfo,
+  toast,
+}: Props) {
   const { user } = useAuthStore();
   const router = useRouter();
   const enrollMutation = useEnrollInOpportunity();
@@ -65,31 +70,35 @@ export function useHandleEnroll({
         return;
       }
 
-      // Step 1: Check for pricing
-      setIsCheckingPricing(true);
-      let hasPaidPricing = false;
-      try {
-        const res = await refetchPricing();
-        const pricing = (res as any)?.data ?? res;
-        hasPaidPricing = Boolean(
-          pricing?.products?.some(
-            (p: any) => Array.isArray(p.prices) && p.prices.length > 0
-          )
-        );
-      } catch (e: any) {
-        console.error("Pricing check error:", e);
-        toast.warning(
-          "Unable to verify pricing information, continuing with free enrollment."
-        );
-      } finally {
-        setIsCheckingPricing(false);
-      }
+      if (accessInfo?.next_action === "subscribe") {
+        // Step 1: Check for pricing
+        setIsCheckingPricing(true);
+        let hasPaidPricing = false;
+        try {
+          const res = await refetchPricing();
+          const pricing = (res as any)?.data ?? res;
+          hasPaidPricing = Boolean(
+            pricing?.products?.some(
+              (p: any) => Array.isArray(p.prices) && p.prices.length > 0
+            )
+          );
+        } catch (e: any) {
+          console.error("Pricing check error:", e);
+          toast.warning(
+            "Unable to verify pricing information, continuing with free enrollment."
+          );
+        } finally {
+          setIsCheckingPricing(false);
+        }
 
-      // If paid, send user to pricing selector
-      if (hasPaidPricing) {
-        const nextParam = shouldShowQuestionnaire ? "&next=questionnaire" : "";
-        router.push(`/opportunities/pricing?id=${opportunityId}${nextParam}`);
-        return;
+        // If paid, send user to pricing selector
+        if (hasPaidPricing) {
+          const nextParam = shouldShowQuestionnaire
+            ? "&next=questionnaire"
+            : "";
+          router.push(`/opportunities/pricing?id=${opportunityId}${nextParam}`);
+          return;
+        }
       }
 
       // Step 2: If no pricing or free access, proceed to questionnaire or direct enrollment
@@ -117,6 +126,7 @@ export function useHandleEnroll({
     enrollMutation,
     toast,
     refetchPricing,
+    accessInfo,
   ]);
 
   return {

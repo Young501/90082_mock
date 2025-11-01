@@ -14,13 +14,13 @@ import {
 import { Button } from "@/components/ui/Button";
 import { PricingTier, Product } from "@/types/subscription";
 import { CheckCircle, Loader, XCircle } from "lucide-react";
-import { FREE_TRIAL_DAYS } from "@/utils/constants";
 
 interface PricingSelectorProps {
   opportunityTitle?: string;
   products: Product[];
   onSubscribeClick: (selectedTier: PricingTier) => void;
   onCancel?: () => void;
+  trialDays?: number;
   isLoading?: boolean;
 }
 
@@ -76,6 +76,7 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
   products,
   onSubscribeClick,
   onCancel,
+  trialDays = 0,
   isLoading = false,
 }) => {
   const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
@@ -191,9 +192,9 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
                     </Text>
                     <Text color="gray.500">/ {displayPrice.interval}</Text>
                   </HStack>
-                  {FREE_TRIAL_DAYS > 0 && (
+                  {trialDays > 0 && (
                     <Badge colorScheme="blue" variant="subtle">
-                      Includes {FREE_TRIAL_DAYS}-day free trial
+                      Includes {trialDays}-day free trial
                     </Badge>
                   )}
                 </VStack>

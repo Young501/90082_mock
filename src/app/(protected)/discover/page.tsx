@@ -22,14 +22,12 @@ import { useSearchParams, useRouter } from "next/navigation";
 import {
   useOpportunityDetail,
   useAccessibleOpportunities,
-  useOpportunityParticipant,
 } from "@/services/shared";
 import { useAuthStore } from "@/store";
 import { toast } from "react-toastify";
 import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 import { useHandleEnroll } from "@/hooks/useHandleEnroll";
-import { useProductPricing } from "@/services/billing";
-import { set } from "react-hook-form";
+import { AccessInfo } from "@/types/opportunities";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
@@ -59,7 +57,7 @@ export default function DiscoveryPage() {
 
   // Get user type
   const userType = user?.user_types?.[0];
-  const [hasAccess, setHasAccess] = useState(false);
+  const [accessInfo, setAccessInfo] = useState<AccessInfo | null>(null);
 
   useEffect(() => {
     if (accessibleOpportunities) {
@@ -91,8 +89,7 @@ export default function DiscoveryPage() {
       (opp) => opp.id.toString() === opportunityId
     );
     const enrolled = currentOpportunity?.enrollment_status === "enrolled";
-    const hasAccess = currentOpportunity?.access?.has_access || false;
-    setHasAccess(hasAccess);
+    setAccessInfo(currentOpportunity?.access || null);
 
     if (isEnrolled !== enrolled) {
       setEnrollmentStatus(enrolled);
@@ -102,7 +99,7 @@ export default function DiscoveryPage() {
     accessibleOpportunities,
     isEnrolled,
     setEnrollmentStatus,
-    setHasAccess,
+    setAccessInfo,
   ]);
 
   // Compute and cache eligibility status
@@ -180,41 +177,9 @@ export default function DiscoveryPage() {
     isEligible,
     opportunityId: opportunityId || "",
     opportunity,
+    accessInfo,
     toast,
   });
-
-  // // Get participant record to check subscription (only when enrolled)
-  // const { data: participantRecord, isLoading: isLoadingParticipant } =
-  //   useOpportunityParticipant(
-  //     opportunityId ? Number(opportunityId) : 0,
-  //     !!opportunityId && isEnrolled === true
-  //   );
-
-  // const requiresSubscription = useMemo(() => {
-  //   // If not enrolled, no subscription check needed
-  //   if (!isEnrolled) return false;
-
-  //   // Check if user has access - if not, subscription is required
-  //   return participantRecord?.access
-  //     ? !participantRecord.access.has_access
-  //     : false;
-  // }, [isEnrolled, participantRecord?.access]);
-
-  // // Get subscription status from participant record access field
-  // const subscriptionStatus = useMemo(() => {
-  //   if (!participantRecord?.access) return null;
-
-  //   return {
-  //     status: participantRecord.access.status,
-  //     current_period_end: participantRecord.access.current_period_end,
-  //     cancel_at_period_end: participantRecord.access.cancel_at_period_end,
-  //     trial_end: participantRecord.access.trial_end,
-  //     has_access: participantRecord.access.has_access,
-  //     opportunity_participant_id: participantRecord.participant_id,
-  //   };
-  // }, [participantRecord?.access, participantRecord?.participant_id]);
-
-  // const isLoadingSubscription = isLoadingParticipant;
 
   // Opportunity-specific content
   if (opportunityId) {
@@ -309,9 +274,8 @@ export default function DiscoveryPage() {
             </Box>{" "}
             opportunity
           </Heading>
-
           {/* Enrolled user - show discovery interface */}
-          {isEnrolled && hasAccess && !isSubmitting ? (
+          {isEnrolled && accessInfo?.has_access && !isSubmitting ? (
             <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
               <VStack align="stretch" mb={8}>
                 <Heading size="lg" color="#282F68">

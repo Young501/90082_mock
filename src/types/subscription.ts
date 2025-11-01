@@ -60,11 +60,3 @@ export interface SubscriptionStatusResponse {
   active_override?: string;
   access_source?: string;
 }
-
-export interface SubscriptionAccessGate {
-  hasAccess: boolean;
-  status: SubscriptionStatus;
-  message?: string;
-  showUpgradePrompt?: boolean;
-  expirationDate?: string;
-}

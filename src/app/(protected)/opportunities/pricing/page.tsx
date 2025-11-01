@@ -17,18 +17,24 @@ import {
 import { toaster } from "@/components/ui/toaster";
 import { PageTitle } from "@/components/PageTitle";
 import { PricingTier } from "@/types/subscription";
-import { FREE_TRIAL_DAYS } from "@/utils/constants";
 
 export default function OpportunityPricingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const opportunityId = searchParams.get("id");
   const nextStep = searchParams.get("next");
-  const { user } = useAuthStore();
+  const { user, accessibleOpportunities } = useAuthStore();
   const userType = user?.user_types?.[0];
 
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const currentOpportunity = accessibleOpportunities?.find(
+    (opp) => opp.id.toString() === opportunityId
+  );
+  const trialEligibility = currentOpportunity?.access.trial_eligibility;
+  const trialDays = trialEligibility?.eligible
+    ? trialEligibility?.days_total
+    : 0;
   // Fetch opportunity details
   const {
     data: opportunity,
@@ -82,7 +88,7 @@ export default function OpportunityPricingPage() {
         price_id: selectedTier.price_id,
         user_type: userType,
         opportunity_id: Number(opportunityId),
-        trial_days: FREE_TRIAL_DAYS,
+        trial_days: trialDays,
       };
       // Add trial_days if available
       if (selectedTier?.trial_days && selectedTier.trial_days > 0) {
@@ -202,6 +208,7 @@ export default function OpportunityPricingPage() {
           products={productsData.products}
           onSubscribeClick={handleSelectPlan}
           onCancel={handleCancel}
+          trialDays={trialDays}
           isLoading={isProcessing}
         />
       </Container>
