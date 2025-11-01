@@ -24,7 +24,6 @@ import {
 } from "@/services/updateParticipant";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store";
-import { useRouter } from "next/navigation";
 import { Opportunity, ParticipantRecord } from "@/types/opportunities";
 import { FieldRenderer } from "@/app/(auth)/onboarding/FieldRenderer";
 import { useForm } from "react-hook-form";
@@ -56,7 +55,6 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
-  const router = useRouter();
 
   // Fetch participant record when expanded (only for enrolled opportunities and not cancelled)
   const {
@@ -73,9 +71,6 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
   // Re-enroll mutation
   const reEnrollMutation = useEnrollInOpportunity();
-
-  // Cancel enrollment mutation
-  const cancelEnrollmentMutation = useCancelOpportunityEnrollment();
 
   // Parse questionnaire from opportunity
   const questionnaire = useMemo(() => {
@@ -145,44 +140,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
   const handleReEnroll = async (data?: any) => {
     try {
-      // Check for pricing before re-enrollment
-      try {
-        // Manually fetch pricing
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/subscriptions/product-pricing/?opportunity_id=${opportunity.id}&user_type=${userType}`,
-          {
-            headers: {
-              Authorization: `Token ${useAuthStore.getState().getCurrentToken()}`,
-            },
-          }
-        );
-
-        if (response.ok) {
-          const pricing = await response.json();
-
-          // If pricing exists and has prices, redirect to pricing selector
-          if (pricing?.prices && pricing.prices.length > 0) {
-            // For re-enroll, don't include questionnaire parameter
-            router.push(`/opportunities/pricing?id=${opportunity.id}`);
-            return;
-          }
-        } else if (response.status !== 404) {
-          // Handle non-404 errors
-          throw new Error("Failed to fetch pricing information");
-        }
-        // 404 or empty prices = free access, continue
-      } catch (pricingError: any) {
-        console.error("Pricing check error:", pricingError);
-        // If pricing check fails, we'll continue with free re-enrollment
-        // but show a warning
-        if (pricingError?.message !== "Failed to fetch pricing information") {
-          toast.warning(
-            "Unable to verify pricing. Proceeding with re-enrollment..."
-          );
-        }
-      }
-
-      // Proceed with re-enrollment (no pricing required or free)
+      // Re-enrollment no longer requires questionnaire answers
       await reEnrollMutation.mutateAsync({
         opportunityId: opportunity.id,
         // No questionnaire answers needed for re-enrollment
@@ -221,8 +179,9 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
   const confirmCancelEnrollment = async () => {
     try {
-      await cancelEnrollmentMutation.mutateAsync({
+      await updateParticipantMutation.mutateAsync({
         opportunityId: opportunity.id,
+        accepted: false,
       });
 
       toast.success("Successfully cancelled enrollment!");
@@ -544,7 +503,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                       variant="outline"
                       colorScheme="red"
                       onClick={handleCancelEnrollment}
-                      loading={cancelEnrollmentMutation.isPending}
+                      loading={updateParticipantMutation.isPending}
                       w="full"
                     >
                       Cancel Enrollment
@@ -587,7 +546,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                     color="white"
                     _hover={{ bg: "red.600" }}
                     onClick={confirmCancelEnrollment}
-                    loading={cancelEnrollmentMutation.isPending}
+                    loading={updateParticipantMutation.isPending}
                     flex={1}
                   >
                     Confirm
