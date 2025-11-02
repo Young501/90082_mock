@@ -325,6 +325,14 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: "/api/v1/subscriptions/cancel/",
   },
+  PRODUCT_PRICING: {
+    method: "GET",
+    url: "/api/v1/subscriptions/product-pricing/",
+  },
+  CHECKOUT_SESSION: {
+    method: "POST",
+    url: "/api/v1/subscriptions/checkout-session/",
+  },
 };
 
 /*********

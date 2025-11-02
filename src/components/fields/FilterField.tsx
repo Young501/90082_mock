@@ -20,7 +20,7 @@ interface FilterFieldProps {
   field: ProcessedField;
   control: Control<any>;
   isVisible: boolean;
-  availableOptions?: string[];
+  availableOptions?: Array<string | { label: string; value: string }>;
 }
 
 type SelectOption = {
@@ -28,17 +28,29 @@ type SelectOption = {
   label: string;
 };
 
-const createFieldCollection = (availableOptions?: string[]) => {
+const createFieldCollection = (
+  availableOptions?: Array<string | { label: string; value: string }>
+) => {
   const options = availableOptions || [];
   if (options.length === 0) {
     return createListCollection<SelectOption>({
       items: [],
     });
   }
-  const items: SelectOption[] = options.map((option) => ({
-    value: option,
-    label: option,
-  }));
+
+  const items: SelectOption[] = options.map((option) => {
+    if (typeof option === "string") {
+      return {
+        value: option,
+        label: option,
+      };
+    } else {
+      return {
+        value: option.value,
+        label: option.label,
+      };
+    }
+  });
   return createListCollection<SelectOption>({ items });
 };
 
@@ -59,10 +71,15 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   const filteredOptions = useMemo(() => {
     if (!filter) return availableOptions || [];
     const lower = filter.toLowerCase();
-    return (availableOptions || []).filter((opt) =>
-      opt.toLowerCase().includes(lower)
-    );
+    return (availableOptions || []).filter((opt) => {
+      if (typeof opt === "string") {
+        return opt.toLowerCase().includes(lower);
+      } else {
+        return opt.label.toLowerCase().includes(lower);
+      }
+    });
   }, [availableOptions, filter]);
+
   const renderInputField = () => (
     <Controller
       name={field.field}
@@ -91,6 +108,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
       }}
     />
   );
+
   const renderSingleSelectField = () => {
     const selectCollection = createFieldCollection(filteredOptions);
     return (
