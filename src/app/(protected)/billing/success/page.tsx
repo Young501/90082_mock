@@ -104,7 +104,7 @@ export default function BillingSuccessPage() {
                 <Button size="lg" w="100%" onClick={handleContinue}>
                   {context?.next === "questionnaire"
                     ? "Continue to Questionnaire"
-                    : "Start Exploring"}
+                    : "Explore Opportunity"}
                 </Button>
               </VStack>
 

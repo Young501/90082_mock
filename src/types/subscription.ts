@@ -49,6 +49,9 @@ export type SubscriptionStatus =
   | "past_due"
   | "expired"
   | "incomplete"
+  | "incomplete_expired"
+  | "unpaid"
+  | "paused"
   | null;
 
 export interface SubscriptionStatusResponse {

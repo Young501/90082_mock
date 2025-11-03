@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Box, Container, VStack, Alert, Text } from "@chakra-ui/react";
-import { Loader } from "lucide-react";
+import Loader from "@/components/ui/Loader";
 import PricingSelector from "@/components/billing/PricingSelector";
 import {
   useProductPricing,
@@ -12,7 +12,6 @@ import {
 import { useAuthStore } from "@/store";
 import {
   useOpportunityDetail,
-  useOpportunityParticipant,
 } from "@/services/shared";
 import { toaster } from "@/components/ui/toaster";
 import { PageTitle } from "@/components/PageTitle";
@@ -89,6 +88,7 @@ export default function OpportunityPricingPage() {
         user_type: userType,
         opportunity_id: Number(opportunityId),
         trial_days: trialDays,
+       
       };
       // Add trial_days if available
       if (selectedTier?.trial_days && selectedTier.trial_days > 0) {
@@ -146,7 +146,7 @@ export default function OpportunityPricingPage() {
           mt={{ base: "80px", lg: "100px" }}
         >
           <VStack gap={4}>
-            <Loader className="animate-spin" size={40} />
+            <Loader type="component" size="xl" />
             <Text color="gray.500">Loading pricing information...</Text>
           </VStack>
         </Box>
@@ -193,7 +193,7 @@ export default function OpportunityPricingPage() {
           minH="60vh"
           mt={{ base: "80px", lg: "100px" }}
         >
-          <Loader className="animate-spin" size={40} />
+          <Loader type="page" size="xl" />
         </Box>
       </>
     );

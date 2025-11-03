@@ -10,10 +10,13 @@ import {
   Card,
   SimpleGrid,
   Badge,
+  Link,
 } from "@chakra-ui/react";
 import { Button } from "@/components/ui/Button";
 import { PricingTier, Product } from "@/types/subscription";
 import { CheckCircle, Loader, XCircle } from "lucide-react";
+import { formatPrice } from "@/utils/formatPrice";
+import { useAuthStore } from "@/store";
 
 interface PricingSelectorProps {
   opportunityTitle?: string;
@@ -80,16 +83,8 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
   isLoading = false,
 }) => {
   const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
-  const formatPrice = (price: number, currency: string = "USD") => {
-    const normalizedCurrency = currency.toUpperCase();
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: normalizedCurrency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    }).format(price / 100);
-  };
-
+  const { user } = useAuthStore();
+  const userType = user?.user_types?.[0];
   if (!products || products.length === 0) {
     return (
       <Box p={6} textAlign="center">
@@ -113,8 +108,43 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
     return ao - bo;
   });
 
+  const pricingOptions: Array<{
+    product: Product;
+    price: PricingTier;
+    isRecommended: boolean;
+  }> = [];
+
+  sortedProducts.forEach((product) => {
+    const isRecommended = product.metadata?.recommended === "true";
+    // Sort prices by billing interval in order
+    const sortedPrices = product.prices.slice().sort((a, b) => {
+      const intervalOrder: Record<string, number> = {
+        year: 1,
+        month: 2,
+        week: 3,
+        day: 4,
+      };
+
+      const aInterval = a.interval || "month";
+      const bInterval = b.interval || "month";
+
+      // should interval be unknown then default to 999
+      return (
+        (intervalOrder[aInterval] || 999) - (intervalOrder[bInterval] || 999)
+      );
+    });
+
+    sortedPrices.forEach((price) => {
+      pricingOptions.push({
+        product,
+        price,
+        isRecommended,
+      });
+    });
+  });
+
   return (
-    <VStack gap={6} w="100%" maxW="900px" mx="auto" p={6}>
+    <VStack gap={6} w="100%" mx="auto" p={6}>
       <VStack gap={2} textAlign="center">
         <Heading size="xl">Choose Your Plan</Heading>
         {opportunityTitle && (
@@ -128,38 +158,51 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
       </VStack>
 
       <SimpleGrid
-        columns={{ base: 1, md: sortedProducts.length === 1 ? 1 : 2 }}
+        columns={{
+          base: 1,
+          md: 2,
+          lg: pricingOptions.length === 3 ? 3 : 2,
+          xl: pricingOptions.length === 3 ? 3 : 4,
+        }}
         gap={6}
         w="100%"
+        justifyContent="center"
+        alignItems="center"
       >
-        {sortedProducts.map((product) => {
-          const isRecommended = product.metadata?.recommended === "true";
+        {pricingOptions.map(({ product, price, isRecommended }) => {
+          const isDefaultPrice = price.price_id === product.default_price_id;
+          const showRecommendedBadge = isRecommended && isDefaultPrice;
 
-          const defaultPrice = product.prices.find(
-            (p) => p.price_id === product.default_price_id
-          );
-          const displayPrice = defaultPrice ?? product.prices[0];
+          const getIntervalLabel = (
+            interval: string,
+            intervalCount: number
+          ) => {
+            if (intervalCount === 1) {
+              return interval === "year" ? "year" : interval;
+            }
+            return `${intervalCount} ${interval}${intervalCount > 1 ? "s" : ""}`;
+          };
 
           return (
             <Card.Root
-              key={product.id}
+              key={`${product.id}-${price.price_id}`}
               p={6}
               borderWidth={2}
-              borderColor={isRecommended ? "green.500" : "gray.200"}
+              borderColor={showRecommendedBadge ? "green.500" : "gray.200"}
               position="relative"
               _hover={{
-                borderColor: isRecommended ? "green.600" : "gray.300",
+                borderColor: showRecommendedBadge ? "green.600" : "gray.300",
                 transform: "translateY(-4px)",
                 shadow: "lg",
               }}
               transition="all 0.2s"
-              // ensure card is flex container & full height
               display="flex"
               flexDirection="column"
             >
-              {isRecommended && (
+              {showRecommendedBadge && (
                 <Badge
-                  colorScheme="green"
+                  bg="green.600"
+                  color="white"
                   position="absolute"
                   top="-12px"
                   right="20px"
@@ -172,8 +215,7 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
                 </Badge>
               )}
 
-              <VStack align="stretch" gap={8} flexGrow={1}>
-                {/* Header */}
+              <VStack align="stretch" gap={6} flexGrow={1}>
                 <VStack align="flex-start" gap={1}>
                   <Text
                     fontSize="xl"
@@ -183,58 +225,62 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
                   >
                     {product.name}
                   </Text>
+                  {price.nickname && (
+                    <Text fontSize="md" color="gray.500" fontWeight="medium">
+                      {price.nickname}
+                    </Text>
+                  )}
                   <HStack align="baseline" gap={2}>
                     <Text fontSize="4xl" fontWeight="bold">
-                      {formatPrice(
-                        displayPrice.unit_amount,
-                        displayPrice.currency
+                      {formatPrice(price.unit_amount, price.currency)}
+                    </Text>
+                    <Text color="gray.500">
+                      /{" "}
+                      {getIntervalLabel(
+                        price.interval || "month",
+                        price.interval_count || 1
                       )}
                     </Text>
-                    <Text color="gray.500">/ {displayPrice.interval}</Text>
                   </HStack>
                   {trialDays > 0 && (
-                    <Badge colorScheme="blue" variant="subtle">
+                    <Badge
+                      borderRadius="full"
+                      border="1px solid #000000"
+                      px={2}
+                      py={1}
+                      boxShadow="0 0 10px 0 rgba(0, 0, 0, 0.1)"
+                    >
                       Includes {trialDays}-day free trial
                     </Badge>
                   )}
                 </VStack>
 
-                {/* Description */}
-                <Box minH="100px">
-                  {" "}
-                  {/* adjust height to approximate 3-4 lines at your font size */}
+                <Box h="100px">
                   {product.description && (
-                    <Text color="gray.600">{product.description}</Text>
+                    <Text color="gray.600" fontSize="sm">
+                      {product.description}
+                    </Text>
                   )}
                 </Box>
 
-                {/* Features list */}
                 {product.marketing_features &&
                   product.marketing_features.length > 0 && (
                     <FeatureList features={product.marketing_features} />
                   )}
               </VStack>
 
-              {/* Call to action */}
-              <Box mt={20}>
+              <Box mt={8}>
                 <Button
                   size="lg"
-                  colorScheme={isRecommended ? "green" : "blue"}
                   w="100%"
                   onClick={() => {
-                    setLoadingPriceId(displayPrice.price_id);
-                    onSubscribeClick(displayPrice);
+                    setLoadingPriceId(price.price_id);
+                    onSubscribeClick(price);
                   }}
-                  isLoading={
-                    isLoading && loadingPriceId === displayPrice.price_id
-                  }
+                  isLoading={isLoading && loadingPriceId === price.price_id}
                   disabled={isLoading}
                 >
-                  {isLoading && loadingPriceId === displayPrice.price_id ? (
-                    <Loader className="animate-spin mr-2" size={18} />
-                  ) : (
-                    "Subscribe Now"
-                  )}
+                  Subscribe Now
                 </Button>
               </Box>
             </Card.Root>
@@ -254,8 +300,15 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
       )}
 
       <Text fontSize="xs" color="gray.500" textAlign="center" maxW="600px">
-        By subscribing, you agree to our Terms of Service and Privacy Policy.
-        You can cancel your subscription at any time in account settings.
+        By subscribing, you agree to our{" "}
+        <Link target="_blank" href={`/legal/terms-${userType}`}>
+          Terms of Service
+        </Link>{" "}
+        and{" "}
+        <Link target="_blank" href="/legal/privacy">
+          Privacy Policy
+        </Link>
+        . You can cancel your subscription at any time in account settings.
       </Text>
     </VStack>
   );
