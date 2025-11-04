@@ -1,9 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import { useAuthStore } from "@/store";
-import { SubscriptionStatusResponse } from "@/types/opportunities";
-
-// useSubscriptionStatus has been removed - use participant record access field instead
 
 // Cancel subscription for a specific opportunity participant
 export function useCancelSubscription() {

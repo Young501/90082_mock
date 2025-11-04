@@ -68,19 +68,10 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   );
 
   // Get subscription status from participant record access field
-  const subscriptionData = useMemo(() => {
+  const accessInfo = useMemo(() => {
     if (!participantRecord?.access) return null;
-
-    return {
-      status: participantRecord.access.status,
-      current_period_end: participantRecord.access.current_period_end,
-      cancel_at_period_end: participantRecord.access.cancel_at_period_end,
-      trial_end: participantRecord.access.trial_end,
-      has_access: participantRecord.access.has_access,
-      opportunity_participant_id: participantRecord.participant_id,
-      active_override: participantRecord.access.active_override,
-    };
-  }, [participantRecord?.access, participantRecord?.participant_id]);
+    return participantRecord.access;
+  }, [participantRecord?.access]);
 
   const isSubscriptionLoading = false; // No loading since we get data from participant record
   const subscriptionError = null; // No error since we get data from participant record
@@ -192,25 +183,25 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   };
 
   // Check if user has active subscription
-  const hasActiveSubscription = () => {
-    if (!subscriptionData) return false;
-    const status = subscriptionData.status;
-    const cancelAtPeriodEnd = subscriptionData.cancel_at_period_end;
+  // const hasActiveSubscription = () => {
+  //   if (!accessInfo) return false;
+  //   const status = subscriptionData.status;
+  //   const cancelAtPeriodEnd = subscriptionData.cancel_at_period_end;
 
-    // If subscription is set to cancel at period end, it's not considered active for enrollment purposes
-    if (cancelAtPeriodEnd) return false;
+  //   // If subscription is set to cancel at period end, it's not considered active for enrollment purposes
+  //   if (cancelAtPeriodEnd) return false;
 
-    return status === "active" || status === "trialing";
-  };
+  //   return status === "active" || status === "trialing";
+  // };
 
   const handleCancelEnrollment = () => {
     // Check if user has active subscription
-    if (hasActiveSubscription()) {
-      toast.error(
-        "You have an active subscription. Please cancel your subscription first."
-      );
-      return;
-    }
+    // if (hasActiveSubscription()) {
+    //   toast.error(
+    //     "You have an active subscription. Please cancel your subscription first."
+    //   );
+    //   return;
+    // }
 
     // Open confirmation dialog
     setIsCancelDialogOpen(true);
@@ -456,13 +447,13 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                 )}
 
                 {/* Subscription Status */}
-                {type === "enrolled" && participantRecord?.participant_id && (
-                  <Box>
+                {participantRecord?.participant_id && (
+                  <Box mb={5}>
                     <Text
                       fontSize="16px"
                       fontWeight="600"
                       color="#1F2937"
-                      mb={3}
+                      mb={1}
                     >
                       Subscription Status
                     </Text>
@@ -477,9 +468,9 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                       <Text fontSize="14px" color="#6B7280">
                         No subscription found
                       </Text>
-                    ) : subscriptionData ? (
+                    ) : accessInfo ? (
                       <SubscriptionStatusComponent
-                        subscription={subscriptionData}
+                        accessInfo={accessInfo}
                         opportunityId={opportunity.id}
                         onStatusUpdate={() => {
                           // Refresh accessible opportunities and participant records
@@ -588,16 +579,16 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                       onClick={handleCancelEnrollment}
                       loading={updateParticipantMutation.isPending}
                       w="full"
-                      disabled={hasActiveSubscription()}
-                      title={
-                        hasActiveSubscription()
-                          ? "You have an active subscription. Please cancel your subscription first."
-                          : ""
-                      }
+                      // disabled={hasActiveSubscription()}
+                      // title={
+                      //   hasActiveSubscription()
+                      //     ? "You have an active subscription. Please cancel your subscription first."
+                      //     : ""
+                      // }
                     >
                       Cancel Enrollment
                     </Button>
-                    {hasActiveSubscription() && (
+                    {/* {hasActiveSubscription() && (
                       <Text
                         fontSize="12px"
                         color="orange.500"
@@ -607,7 +598,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                         You have an active subscription. Please cancel your
                         subscription first.
                       </Text>
-                    )}
+                    )} */}
                   </Box>
                 )}
               </VStack>
