@@ -11,6 +11,7 @@ import {
   SimpleGrid,
   Badge,
   Link,
+  Tabs,
 } from "@chakra-ui/react";
 import { Button } from "@/components/ui/Button";
 import { PricingTier, Product } from "@/types/subscription";
@@ -83,8 +84,11 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
   isLoading = false,
 }) => {
   const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
+  const [selectedPriceIndexByProduct, setSelectedPriceIndexByProduct] =
+    useState<Record<string, number>>({});
   const { user } = useAuthStore();
   const userType = user?.user_types?.[0];
+
   if (!products || products.length === 0) {
     return (
       <Box p={6} textAlign="center">
@@ -108,43 +112,65 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
     return ao - bo;
   });
 
-  const pricingOptions: Array<{
-    product: Product;
-    price: PricingTier;
-    isRecommended: boolean;
-  }> = [];
+  const calculateSavings = (
+    yearlyPrice: PricingTier,
+    monthlyPrice: PricingTier
+  ) => {
+    const yearlyAmount = yearlyPrice.unit_amount;
+    const monthlyAmount = monthlyPrice.unit_amount;
+    const monthlyIntervalCount = monthlyPrice.interval_count || 1;
 
-  sortedProducts.forEach((product) => {
-    const isRecommended = product.metadata?.recommended === "true";
-    // Sort prices by billing interval in order
-    const sortedPrices = product.prices.slice().sort((a, b) => {
-      const intervalOrder: Record<string, number> = {
-        year: 1,
-        month: 2,
-        week: 3,
-        day: 4,
-      };
+    const annualizedMonthlyAmount = monthlyAmount * (12 / monthlyIntervalCount);
 
-      const aInterval = a.interval || "month";
-      const bInterval = b.interval || "month";
+    if (annualizedMonthlyAmount <= 0) return 0;
 
-      // should interval be unknown then default to 999
-      return (
-        (intervalOrder[aInterval] || 999) - (intervalOrder[bInterval] || 999)
-      );
-    });
+    const savings =
+      ((annualizedMonthlyAmount - yearlyAmount) / annualizedMonthlyAmount) *
+      100;
+    return Math.round(savings);
+  };
 
-    sortedPrices.forEach((price) => {
-      pricingOptions.push({
-        product,
-        price,
-        isRecommended,
-      });
-    });
-  });
+  const getTabLabel = (price: PricingTier, allPrices: PricingTier[]) => {
+    const isYearly = price.interval === "year";
+    const baseLabel = price.nickname || "Plan";
+
+    if (isYearly && allPrices.length > 1) {
+      const monthlyPrice = allPrices.find((p) => p.interval === "month");
+      if (monthlyPrice) {
+        const savingsPercent = calculateSavings(price, monthlyPrice);
+        if (savingsPercent > 0) {
+          return (
+            <HStack align="center" style={{ width: "100%" }}>
+              <Text fontSize="sm" fontWeight="medium" w="100%">
+                {baseLabel}{" "}
+                <span style={{ color: "#48BB78" }}>
+                  (Save {savingsPercent}%)
+                </span>
+              </Text>
+            </HStack>
+          );
+        }
+      }
+    }
+
+    return (
+      <Text fontSize="sm" fontWeight="medium" w="100%">
+        {baseLabel}
+      </Text>
+    );
+  };
 
   return (
-    <VStack gap={6} w="100%" mx="auto" p={6}>
+    <VStack
+      gap={6}
+      w="100%"
+      maxW={{
+        base: "100%",
+        lg: sortedProducts.length >= 3 ? "1200px" : "1080px",
+      }}
+      mx="auto"
+      p={{ base: 0, md: 8, lg: 12 }}
+    >
       <VStack gap={2} textAlign="center">
         <Heading size="xl">Choose Your Plan</Heading>
         {opportunityTitle && (
@@ -161,17 +187,35 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
         columns={{
           base: 1,
           md: 2,
-          lg: pricingOptions.length === 3 ? 3 : 2,
-          xl: pricingOptions.length === 3 ? 3 : 4,
+          lg: sortedProducts.length >= 3 ? 3 : 2,
         }}
         gap={6}
         w="100%"
         justifyContent="center"
         alignItems="center"
       >
-        {pricingOptions.map(({ product, price, isRecommended }) => {
-          const isDefaultPrice = price.price_id === product.default_price_id;
-          const showRecommendedBadge = isRecommended && isDefaultPrice;
+        {sortedProducts.map((product) => {
+          const isRecommended = product.metadata?.recommended === "true";
+          const sortedPrices = product.prices.slice().sort((a, b) => {
+            const intervalOrder: Record<string, number> = {
+              year: 1,
+              month: 2,
+              week: 3,
+              day: 4,
+            };
+
+            const aInterval = a.interval || "month";
+            const bInterval = b.interval || "month";
+
+            return (
+              (intervalOrder[aInterval] || 999) -
+              (intervalOrder[bInterval] || 999)
+            );
+          });
+
+          const selectedPriceIndex =
+            selectedPriceIndexByProduct[product.id] ?? 0;
+          const selectedPrice = sortedPrices[selectedPriceIndex];
 
           const getIntervalLabel = (
             interval: string,
@@ -185,13 +229,13 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
 
           return (
             <Card.Root
-              key={`${product.id}-${price.price_id}`}
+              key={product.id}
               p={6}
               borderWidth={2}
-              borderColor={showRecommendedBadge ? "green.500" : "gray.200"}
+              borderColor={isRecommended ? "green.500" : "gray.200"}
               position="relative"
               _hover={{
-                borderColor: showRecommendedBadge ? "green.600" : "gray.300",
+                borderColor: isRecommended ? "green.600" : "gray.300",
                 transform: "translateY(-4px)",
                 shadow: "lg",
               }}
@@ -199,7 +243,7 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
               display="flex"
               flexDirection="column"
             >
-              {showRecommendedBadge && (
+              {isRecommended && (
                 <Badge
                   bg="green.600"
                   color="white"
@@ -216,7 +260,7 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
               )}
 
               <VStack align="stretch" gap={6} flexGrow={1}>
-                <VStack align="flex-start" gap={1}>
+                <VStack align="flex-start" gap={2}>
                   <Text
                     fontSize="xl"
                     fontWeight="bold"
@@ -225,20 +269,45 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
                   >
                     {product.name}
                   </Text>
-                  {price.nickname && (
-                    <Text fontSize="md" color="gray.500" fontWeight="medium">
-                      {price.nickname}
-                    </Text>
+
+                  {sortedPrices.length > 1 && (
+                    <Tabs.Root
+                      value={selectedPriceIndex.toString()}
+                      onValueChange={(details) => {
+                        setSelectedPriceIndexByProduct((prev) => ({
+                          ...prev,
+                          [product.id]: parseInt(details.value),
+                        }));
+                      }}
+                      variant="enclosed"
+                      size="sm"
+                      w="100%"
+                    >
+                      <Tabs.List>
+                        {sortedPrices.map((price, index) => (
+                          <Tabs.Trigger
+                            key={price.price_id}
+                            value={index.toString()}
+                          >
+                            {getTabLabel(price, sortedPrices)}
+                          </Tabs.Trigger>
+                        ))}
+                      </Tabs.List>
+                    </Tabs.Root>
                   )}
-                  <HStack align="baseline" gap={2}>
+
+                  <HStack align="baseline" gap={2} pt={2}>
                     <Text fontSize="4xl" fontWeight="bold">
-                      {formatPrice(price.unit_amount, price.currency)}
+                      {formatPrice(
+                        selectedPrice.unit_amount,
+                        selectedPrice.currency
+                      )}
                     </Text>
                     <Text color="gray.500">
                       /{" "}
                       {getIntervalLabel(
-                        price.interval || "month",
-                        price.interval_count || 1
+                        selectedPrice.interval || "month",
+                        selectedPrice.interval_count || 1
                       )}
                     </Text>
                   </HStack>
@@ -275,10 +344,12 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
                   w="100%"
                   borderRadius="xl"
                   onClick={() => {
-                    setLoadingPriceId(price.price_id);
-                    onSubscribeClick(price);
+                    setLoadingPriceId(selectedPrice.price_id);
+                    onSubscribeClick(selectedPrice);
                   }}
-                  isLoading={isLoading && loadingPriceId === price.price_id}
+                  isLoading={
+                    isLoading && loadingPriceId === selectedPrice.price_id
+                  }
                   disabled={isLoading}
                 >
                   Subscribe Now
