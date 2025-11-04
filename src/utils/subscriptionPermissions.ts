@@ -1,5 +1,6 @@
 
 import { useAuthStore } from "@/store/authStore";
+import { formatDate } from "@/utils/formatDate";
 
 export const isInTrialPeriod = (): boolean => {
   const subscriptionStatus = useAuthStore.getState().subscriptionStatus;
@@ -70,4 +71,66 @@ export const getSubscriptionTrialInfo = (): {
     isInTrial: status === "trialing",
     trialEnd: trial_end,
   };
+};
+
+export const getSubscriptionStatusDisplay = (
+  status: string | undefined,
+  cancelAtPeriodEnd: boolean | undefined,
+  currentPeriodEnd: string | null | undefined,
+  trialEnd: string | null | undefined
+) => {
+  if (!status) return null;
+
+  const getActiveDate = () => {
+    if (trialEnd && status === "trialing") {
+      return formatDate(trialEnd);
+    }
+    return formatDate(currentPeriodEnd || "");
+  };
+
+  switch (status) {
+    case "active":  
+      return {
+        icon: "🟢",
+        label: cancelAtPeriodEnd
+          ? `Active — access until ${getActiveDate()}`
+          : `Active — renews on ${getActiveDate()}`,
+        colorScheme: cancelAtPeriodEnd ? "orange" : "green",
+      };
+    case "trialing":
+      return {
+        icon: "🟡",
+        label: `Trial ends on ${getActiveDate()}`,
+        colorScheme: "yellow",
+      };
+    case "canceled":
+      return {
+        icon: "🔴",
+        label: currentPeriodEnd
+          ? `Canceled — access until ${formatDate(currentPeriodEnd)}`
+          : "Canceled",
+        colorScheme: "red",
+      };
+    case "past_due":
+      return {
+        icon: "🟠",
+        label: "Past Due — update payment",
+        colorScheme: "orange",
+      };
+    case "incomplete":
+    case "incomplete_expired":
+      return {
+        icon: "⚪",
+        label: "Incomplete",
+        colorScheme: "gray",
+      };
+    case "unpaid":
+      return {
+        icon: "🔴",
+        label: "Unpaid",
+        colorScheme: "red",
+      };
+    default:
+      return null;
+  }
 };
