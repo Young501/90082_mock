@@ -292,6 +292,7 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
                             {getTabLabel(price, sortedPrices)}
                           </Tabs.Trigger>
                         ))}
+                        <Tabs.Indicator rounded="12px" />
                       </Tabs.List>
                     </Tabs.Root>
                   )}
