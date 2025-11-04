@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useCallback } from "react";
+import React, { useEffect, useMemo, useCallback, useState } from "react";
 import {
   Box,
   VStack,
@@ -12,7 +12,9 @@ import {
   Alert,
   Button,
   Image,
+  Icon,
 } from "@chakra-ui/react";
+import { LockIcon } from "lucide-react";
 import { useDiscovery } from "@/hooks/useDiscovery";
 import { DiscoveryFilterBox } from "./DiscoveryFilterBox";
 import { DiscoveryResultBox } from "./DiscoveryResultBox";
@@ -27,6 +29,7 @@ import { useAuthStore } from "@/store";
 import { toast } from "react-toastify";
 import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 import { useHandleEnroll } from "@/hooks/useHandleEnroll";
+import { AccessInfo } from "@/types/opportunities";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
@@ -53,6 +56,10 @@ export default function DiscoveryPage() {
 
   const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } =
     useAccessibleOpportunities();
+
+  // Get user type
+  const userType = user?.user_types?.[0];
+  const [accessInfo, setAccessInfo] = useState<AccessInfo | null>(null);
 
   useEffect(() => {
     if (accessibleOpportunities) {
@@ -84,11 +91,18 @@ export default function DiscoveryPage() {
       (opp) => opp.id.toString() === opportunityId
     );
     const enrolled = currentOpportunity?.enrollment_status === "enrolled";
+    setAccessInfo(currentOpportunity?.access || null);
 
     if (isEnrolled !== enrolled) {
       setEnrollmentStatus(enrolled);
     }
-  }, [opportunityId, accessibleOpportunities, isEnrolled, setEnrollmentStatus]);
+  }, [
+    opportunityId,
+    accessibleOpportunities,
+    isEnrolled,
+    setEnrollmentStatus,
+    setAccessInfo,
+  ]);
 
   // Compute and cache eligibility status
   useEffect(() => {
@@ -158,7 +172,6 @@ export default function DiscoveryPage() {
     isEnrollmentReady,
   });
 
-
   const { control, watch } = form;
   const watchedValues = watch();
 
@@ -166,8 +179,10 @@ export default function DiscoveryPage() {
     isEligible,
     opportunityId: opportunityId || "",
     opportunity,
+    accessInfo,
     toast,
   });
+
   // Opportunity-specific content
   if (opportunityId) {
     // Loading state
@@ -261,12 +276,11 @@ export default function DiscoveryPage() {
             </Box>{" "}
             opportunity
           </Heading>
-
           {/* Enrolled user - show discovery interface */}
-          {isEnrolled && !isSubmitting ? (
+          {isEnrolled && accessInfo?.has_access && !isSubmitting ? (
             <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
               <VStack align="stretch" mb={8}>
-                <Heading size="lg" color="#282F68">
+                <Heading size="lg" color="#313238ff">
                   Discover{" "}
                   {targetUserType === "student" ? "Students" : "Partners"}
                 </Heading>
@@ -363,13 +377,18 @@ export default function DiscoveryPage() {
                     _hover={{ bg: "green.700" }}
                     size="lg"
                     borderRadius="xl"
-                    h="36px"
-                    w={{ base: "full", md: "120px" }}
+                    h="50px"
+                    w={{ base: "full", md: "160px" }}
                     onClick={handleEnroll}
                     loading={isSubmitting}
                     disabled={isSubmitting}
                   >
-                    Enroll
+                    {accessInfo?.next_action === "subscribe" && (
+                      <Icon as={LockIcon} />
+                    )}
+                    {accessInfo?.next_action === "subscribe"
+                      ? "Subscribe"
+                      : "Enroll"}
                   </Button>
                 </VStack>
               </Flex>

@@ -72,9 +72,6 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   // Re-enroll mutation
   const reEnrollMutation = useEnrollInOpportunity();
 
-  // Cancel enrollment mutation
-  const cancelEnrollmentMutation = useCancelOpportunityEnrollment();
-
   // Parse questionnaire from opportunity
   const questionnaire = useMemo(() => {
     if (!opportunity.questionnaire) return [];
@@ -182,8 +179,9 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
   const confirmCancelEnrollment = async () => {
     try {
-      await cancelEnrollmentMutation.mutateAsync({
+      await updateParticipantMutation.mutateAsync({
         opportunityId: opportunity.id,
+        accepted: false,
       });
 
       toast.success("Successfully cancelled enrollment!");
@@ -505,7 +503,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                       variant="outline"
                       colorScheme="red"
                       onClick={handleCancelEnrollment}
-                      loading={cancelEnrollmentMutation.isPending}
+                      loading={updateParticipantMutation.isPending}
                       w="full"
                     >
                       Cancel Enrollment
@@ -548,7 +546,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                     color="white"
                     _hover={{ bg: "red.600" }}
                     onClick={confirmCancelEnrollment}
-                    loading={cancelEnrollmentMutation.isPending}
+                    loading={updateParticipantMutation.isPending}
                     flex={1}
                   >
                     Confirm

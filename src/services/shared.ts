@@ -260,6 +260,7 @@ export function useAccessibleOpportunities() {
               questionnaire: o.questionnaire || {},
               is_enrolled: enrollmentStatus === "enrolled",
               visibility_display: o.visibility_display || "",
+              access: o.access || null,
             };
             return mappedOpp;
           }

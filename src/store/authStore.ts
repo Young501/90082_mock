@@ -7,6 +7,7 @@ import {
   tempOrganisationUser,
 } from "@/types/shared";
 import { AccessibleOpportunity } from "@/types/opportunities";
+import { SubscriptionStatus } from "@/types/subscription";
 
 export interface AuthState {
   user: User | null;
@@ -69,6 +70,9 @@ export interface AuthState {
   setEligibilityStatus: (isEligible: boolean | null) => void;
   getEligibilityStatus: () => boolean | null;
   resetOpportunityState: () => void;
+  subscriptionStatus: SubscriptionStatus | null;
+  // getSubscriptionStatus: () => SubscriptionStatus | null;
+
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -91,6 +95,7 @@ export const useAuthStore = create<AuthState>()(
       currentOpportunityId: null,
       isEnrolled: null,
       isEligible: null,
+      subscriptionStatus: null,
       setIsAuthenticated: (isAuthenticated: boolean) => {
         set({ isAuthenticated });
       },
@@ -103,6 +108,7 @@ export const useAuthStore = create<AuthState>()(
           userProfilePictureUrl: user?.profile_picture_url || null,
         });
       },
+      // getSubscriptionStatus: () => get().subscriptionStatus,
 
       logout: () => {
         set({
@@ -122,6 +128,7 @@ export const useAuthStore = create<AuthState>()(
           currentOpportunityId: null,
           isEnrolled: null,
           isEligible: null,
+          subscriptionStatus: null,
         });
       },
 
@@ -248,7 +255,18 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setAccessibleOpportunities: (opportunities: AccessibleOpportunity[]) => {
-        set({ accessibleOpportunities: opportunities });
+        const currentOpportunityId = get().currentOpportunityId;
+        let subscriptionStatus: SubscriptionStatus | null = null;
+        
+        if (currentOpportunityId && opportunities) {
+          const currentOpportunity = opportunities.find(
+            opp => opp.id === Number(currentOpportunityId)
+          );
+          if (currentOpportunity && currentOpportunity.access?.has_access) {
+            subscriptionStatus = currentOpportunity?.access?.subscription?.status || null;
+          }
+        }
+        set({ accessibleOpportunities: opportunities, subscriptionStatus });
       },
 
       getAccessibleOpportunities: () => {
@@ -256,7 +274,20 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setCurrentOpportunityId: (id: string | null) => {
-        set({ currentOpportunityId: id });
+        const accessibleOpportunities = get().accessibleOpportunities;
+        let subscriptionStatus: SubscriptionStatus | null = null;
+        
+        if (id && accessibleOpportunities) {
+          const currentOpportunity = accessibleOpportunities.find(
+            opp => opp.id === Number(id)
+          ); 
+
+          if (currentOpportunity && currentOpportunity.access?.has_access) {
+            subscriptionStatus = currentOpportunity?.access?.subscription?.status || null;
+          }
+        }
+        
+        set({ currentOpportunityId: id, subscriptionStatus });
       },
       getCurrentOpportunityId: () => {
         return get().currentOpportunityId;
@@ -278,6 +309,7 @@ export const useAuthStore = create<AuthState>()(
           currentOpportunityId: null,
           isEnrolled: null,
           isEligible: null,
+          subscriptionStatus: null,
         });
       },
     }),
@@ -300,6 +332,7 @@ export const useAuthStore = create<AuthState>()(
         isEnrolled: state.isEnrolled,
         isEligible: state.isEligible,
         currentOpportunityId: state.currentOpportunityId,
+        subscriptionStatus: state.subscriptionStatus,
       }),
     }
   )
