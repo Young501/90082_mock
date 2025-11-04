@@ -70,7 +70,12 @@ export default function BillingSuccessPage() {
   return (
     <>
       <PageTitle title="Subscription Successful" />
-      <Container maxW="container.md" py={20} mt={{ base: "80px", lg: "100px" }}>
+      <Container
+        maxW="container.lg"
+        py={20}
+        mt={{ base: "50px", lg: "100px" }}
+        w="fit-content"
+      >
         <Card.Root p={8}>
           <Card.Body>
             <VStack gap={6} textAlign="center">
@@ -91,22 +96,25 @@ export default function BillingSuccessPage() {
                 <Heading size="xl" color="green.600">
                   Payment Successful!
                 </Heading>
-                <Text color="gray.600" fontSize="lg">
-                  Your payment has been processed successfully.
+                <Text color="gray.600" fontSize="lg" maxW="400px">
+                  Your payment has been processed successfully, You now have
+                  access to all features of this opportunity.
                 </Text>
               </VStack>
 
-              <VStack gap={3} w="100%" mt={4}>
-                <Text fontSize="sm" color="gray.600">
-                  You now have access to all features of this opportunity
-                </Text>
-
-                <Button size="lg" w="100%" onClick={handleContinue}>
-                  {context?.next === "questionnaire"
-                    ? "Continue to Questionnaire"
-                    : "Explore Opportunity"}
-                </Button>
-              </VStack>
+              <Button
+                size="lg"
+                w={{ base: "full", md: "300px" }}
+                borderRadius="xl"
+                _hover={{ bg: "green.700" }}
+                onClick={handleContinue}
+                mt="30px"
+                fontSize="lg"
+              >
+                {context?.next === "questionnaire"
+                  ? "Continue to Questionnaire"
+                  : "Explore Opportunity"}
+              </Button>
 
               {sessionId && (
                 <Text fontSize="xs" color="gray.400" mt={6}>

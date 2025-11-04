@@ -273,6 +273,7 @@ export const PricingSelector: React.FC<PricingSelectorProps> = ({
                 <Button
                   size="lg"
                   w="100%"
+                  borderRadius="xl"
                   onClick={() => {
                     setLoadingPriceId(price.price_id);
                     onSubscribeClick(price);
