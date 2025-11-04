@@ -235,13 +235,6 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
       setIsCancelSubscriptionDialogOpen(false);
 
-      queryClient.invalidateQueries({
-        queryKey: ["accessible-opportunities", user?.id],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["opportunity-participant", opportunity.id, user?.id],
-      });
-
       getSubscriptionInfo();
     } catch (error: any) {
       console.error("Cancel subscription failed:", error);
