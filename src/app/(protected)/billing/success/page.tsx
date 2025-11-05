@@ -15,6 +15,8 @@ import {
 import { CheckCircle, Loader, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { PageTitle } from "@/components/PageTitle";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "@/store/authStore";
 
 export default function BillingSuccessPage() {
   const router = useRouter();
@@ -42,6 +44,16 @@ export default function BillingSuccessPage() {
       console.warn("⚠️ [Success] No stored context found");
     }
   }, []);
+
+  const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+  useEffect(() => {
+    if (user?.id) {
+      queryClient.invalidateQueries({
+        queryKey: ["accessible-opportunities", user.id],
+      });
+    }
+  }, [queryClient, user?.id]);
 
   const handleContinue = () => {
     if (!context) {
