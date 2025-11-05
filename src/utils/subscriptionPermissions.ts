@@ -22,11 +22,6 @@ export const isSubscriptionPastDue = (): boolean => {
   return subscriptionStatus === "past_due";
 };
 
-export const isSubscriptionExpired = (): boolean => {
-  const subscriptionStatus = useAuthStore.getState().subscriptionStatus;
-  return subscriptionStatus === "expired";
-};
-
 export const isSubscriptionIncomplete = (): boolean => {
   const subscriptionStatus = useAuthStore.getState().subscriptionStatus;
   return subscriptionStatus === "incomplete";
