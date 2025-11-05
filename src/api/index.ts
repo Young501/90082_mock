@@ -320,6 +320,11 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v1/opportunities/${opportunityId}/participant/${participantId}/`,
   }),
+  // Subscription endpoints
+  SUBSCRIPTION_CANCEL: {
+    method: "POST",
+    url: "/api/v1/subscriptions/cancel/",
+  },
   PRODUCT_PRICING: {
     method: "GET",
     url: "/api/v1/subscriptions/product-pricing/",

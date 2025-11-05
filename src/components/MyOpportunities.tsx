@@ -11,6 +11,7 @@ import {
   Alert,
   Dialog,
   Portal,
+  Badge,
 } from "@chakra-ui/react";
 import {
   useAccessibleOpportunities,
@@ -20,11 +21,15 @@ import {
 import {
   useUpdateOpportunityParticipant,
   useEnrollInOpportunity,
-  useCancelOpportunityEnrollment,
 } from "@/services/updateParticipant";
+import { useCancelSubscription } from "@/services/subscription";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store";
-import { Opportunity, ParticipantRecord } from "@/types/opportunities";
+import {
+  Opportunity,
+  AccessibleOpportunity,
+  AccessInfo,
+} from "@/types/opportunities";
 import { FieldRenderer } from "@/app/(auth)/onboarding/FieldRenderer";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -33,10 +38,11 @@ import { Question } from "@/types/onboarding";
 import { toast } from "react-toastify";
 import { formatAnswerForDisplay } from "@/utils/formatAnswer";
 import OpportunityCardSkeleton from "./ui/OpportunityCardSkeleton";
+import { getSubscriptionStatusDisplay } from "@/utils/subscriptionPermissions";
+import { formatDate } from "@/utils/formatDate";
 
-// Simple Opportunity Card Component
 interface OpportunityCardProps {
-  opportunity: Opportunity;
+  opportunity: Opportunity | AccessibleOpportunity;
   userType: string;
   type: "enrolled" | "closed";
 }
@@ -46,6 +52,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   userType,
   type,
 }) => {
+  const accessibleOpportunity = opportunity as AccessibleOpportunity;
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [originalAnswers, setOriginalAnswers] = useState<Record<string, any>>(
@@ -53,10 +60,21 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   );
   const [isCancelled, setIsCancelled] = useState(false);
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [isCancelSubscriptionDialogOpen, setIsCancelSubscriptionDialogOpen] =
+    useState(false);
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
-  // Fetch participant record when expanded (only for enrolled opportunities and not cancelled)
+  const getAccessInfo = (): AccessInfo | null => {
+    if (participantRecord?.access) {
+      return participantRecord.access;
+    }
+    if (accessibleOpportunity?.access) {
+      return accessibleOpportunity.access;
+    }
+    return null;
+  };
+
   const {
     data: participantRecord,
     isLoading: isParticipantLoading,
@@ -72,7 +90,8 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   // Re-enroll mutation
   const reEnrollMutation = useEnrollInOpportunity();
 
-  // Parse questionnaire from opportunity
+  const cancelSubscriptionMutation = useCancelSubscription();
+
   const questionnaire = useMemo(() => {
     if (!opportunity.questionnaire) return [];
 
@@ -175,6 +194,34 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   const handleCancelEnrollment = () => {
     // Open confirmation dialog
     setIsCancelDialogOpen(true);
+  };
+
+  const handleCancelSubscription = () => {
+    setIsCancelSubscriptionDialogOpen(true);
+  };
+
+  const confirmCancelSubscription = async () => {
+    try {
+      await cancelSubscriptionMutation.mutateAsync(opportunity.id);
+
+      const accessInfo = getAccessInfo();
+      const expiryDate = accessInfo?.subscription?.current_period_end;
+      const formattedDate = formatDate(expiryDate || "");
+
+      toast.success(
+        `Subscription canceled — access until ${formattedDate || "end of period"}`
+      );
+
+      setIsCancelSubscriptionDialogOpen(false);
+    } catch (error: any) {
+      console.error("Cancel subscription failed:", error);
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.response?.data?.detail ||
+        error?.response?.data?.message ||
+        "Failed to cancel subscription";
+      toast.error(errorMessage);
+    }
   };
 
   const confirmCancelEnrollment = async () => {
@@ -309,6 +356,59 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                   End: {new Date(opportunity.end_date).toLocaleDateString()}
                 </Text>
               </HStack>
+              {(() => {
+                const accessInfo = getAccessInfo();
+                if (!accessInfo) return null;
+
+                const subStatus = getSubscriptionStatusDisplay(
+                  accessInfo?.has_access,
+                  accessInfo?.subscription?.status,
+                  accessInfo?.subscription?.cancel_at_period_end,
+                  accessInfo?.subscription?.current_period_end,
+                  accessInfo?.subscription?.trial_end
+                );
+
+                const canCancel =
+                  (accessInfo.subscription?.status === "active" ||
+                    accessInfo.subscription?.status === "trialing") &&
+                  !accessInfo.subscription?.cancel_at_period_end;
+
+                if (!subStatus) return null;
+
+                return (
+                  <Box
+                    mt={3}
+                    mb={2}
+                    display="inline-flex"
+                    flexDirection="column"
+                    alignItems="center"
+                  >
+                    <Badge
+                      colorScheme={subStatus.colorScheme}
+                      fontSize="12px"
+                      px={2}
+                      py={1}
+                      textAlign="center"
+                    >
+                      {subStatus.icon} {subStatus.label}
+                    </Badge>
+                    {type === "enrolled" && canCancel && (
+                      <Button
+                        fontSize="12px"
+                        mt={2}
+                        bg="red.500"
+                        size="xs"
+                        px={2}
+                        onClick={handleCancelSubscription}
+                        loading={cancelSubscriptionMutation.isPending}
+                        alignSelf="stretch"
+                      >
+                        Cancel Subscription
+                      </Button>
+                    )}
+                  </Box>
+                );
+              })()}
             </Box>
             <Box flexShrink={0}>
               <Button
@@ -416,7 +516,6 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                   </Box>
                 )}
 
-                {/* Questionnaire - only show if questionnaire exists and user is not organization */}
                 {hasQuestionnaire && userType !== "organisation" && (
                   <Box>
                     <Text
@@ -495,7 +594,6 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                   </Box>
                 )}
 
-                {/* Cancel enrollment button for enrolled opportunities */}
                 {type === "enrolled" && (
                   <Box>
                     <Button
@@ -516,7 +614,6 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
         )}
       </Box>
 
-      {/* Cancel Enrollment Confirmation Dialog */}
       <Dialog.Root
         open={isCancelDialogOpen}
         onOpenChange={(details) => setIsCancelDialogOpen(details.open)}
@@ -565,6 +662,73 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
           </Dialog.Positioner>
         </Portal>
       </Dialog.Root>
+
+      <Dialog.Root
+        open={isCancelSubscriptionDialogOpen}
+        onOpenChange={(details) =>
+          setIsCancelSubscriptionDialogOpen(details.open)
+        }
+        placement="top"
+        trapFocus={true}
+      >
+        <Portal>
+          <Dialog.Positioner
+            zIndex={9999}
+            style={{ backdropFilter: "blur(4px)" }}
+          >
+            <Dialog.Content maxW="500px" zIndex={10000}>
+              <Dialog.Header>
+                <Dialog.Title fontSize="lg" fontWeight="bold">
+                  Cancel Subscription
+                </Dialog.Title>
+              </Dialog.Header>
+              <Dialog.Body>
+                <Text fontSize="md">
+                  Your access to the opportunity will continue until{" "}
+                  <Text as="span" fontWeight="bold">
+                    {(() => {
+                      const accessInfo = getAccessInfo();
+                      if (accessInfo?.subscription?.current_period_end) {
+                        return new Date(
+                          accessInfo.subscription.current_period_end
+                        ).toLocaleDateString("en-US", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        });
+                      }
+                      return "the end of your billing period";
+                    })()}
+                  </Text>
+                  .
+                </Text>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <HStack gap={3} w="full">
+                  <Button
+                    bg="red.500"
+                    color="white"
+                    _hover={{ bg: "red.600" }}
+                    onClick={confirmCancelSubscription}
+                    loading={cancelSubscriptionMutation.isPending}
+                    flex={1}
+                  >
+                    Confirm Cancellation
+                  </Button>
+                  <Button
+                    variant="outline"
+                    colorScheme="gray"
+                    onClick={() => setIsCancelSubscriptionDialogOpen(false)}
+                    flex={1}
+                  >
+                    Go Back
+                  </Button>
+                </HStack>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
     </>
   );
 };
@@ -578,14 +742,12 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
-  // Fetch all opportunities
   const {
     data: opportunities,
     isLoading,
     error,
   } = useAccessibleOpportunities();
 
-  // Categorize opportunities
   const categorizedOpportunities = useMemo(() => {
     if (!opportunities) return { enrolled: [], closed: [] };
     return categorizeOpportunities(opportunities);
@@ -606,7 +768,6 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
 
   return (
     <Box w="100%" overflow="hidden">
-      {/* Sub-tab navigation */}
       <Flex
         gap={0}
         mb={6}
