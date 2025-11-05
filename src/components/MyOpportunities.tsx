@@ -21,15 +21,14 @@ import {
 import {
   useUpdateOpportunityParticipant,
   useEnrollInOpportunity,
-  useCancelOpportunityEnrollment,
 } from "@/services/updateParticipant";
 import { useCancelSubscription } from "@/services/subscription";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store";
 import {
   Opportunity,
-  ParticipantRecord,
   AccessibleOpportunity,
+  AccessInfo,
 } from "@/types/opportunities";
 import { FieldRenderer } from "@/app/(auth)/onboarding/FieldRenderer";
 import { useForm } from "react-hook-form";
@@ -66,12 +65,12 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
-  const getSubscriptionInfo = () => {
-    if (participantRecord?.access?.subscription) {
-      return participantRecord.access.subscription;
+  const getAccessInfo = (): AccessInfo | null => {
+    if (participantRecord?.access) {
+      return participantRecord.access;
     }
-    if (accessibleOpportunity?.access?.subscription) {
-      return accessibleOpportunity.access.subscription;
+    if (accessibleOpportunity?.access) {
+      return accessibleOpportunity.access;
     }
     return null;
   };
@@ -192,27 +191,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     }
   };
 
-  // Check if user has active subscription
-  // const hasActiveSubscription = () => {
-  //   if (!accessInfo) return false;
-  //   const status = subscriptionData.status;
-  //   const cancelAtPeriodEnd = subscriptionData.cancel_at_period_end;
-
-  //   // If subscription is set to cancel at period end, it's not considered active for enrollment purposes
-  //   if (cancelAtPeriodEnd) return false;
-
-  //   return status === "active" || status === "trialing";
-  // };
-
   const handleCancelEnrollment = () => {
-    // Check if user has active subscription
-    // if (hasActiveSubscription()) {
-    //   toast.error(
-    //     "You have an active subscription. Please cancel your subscription first."
-    //   );
-    //   return;
-    // }
-
     // Open confirmation dialog
     setIsCancelDialogOpen(true);
   };
@@ -225,8 +204,8 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     try {
       await cancelSubscriptionMutation.mutateAsync(opportunity.id);
 
-      const subscription = getSubscriptionInfo();
-      const expiryDate = subscription?.current_period_end;
+      const accessInfo = getAccessInfo();
+      const expiryDate = accessInfo?.subscription?.current_period_end;
       const formattedDate = formatDate(expiryDate || "");
 
       toast.success(
@@ -234,8 +213,6 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
       );
 
       setIsCancelSubscriptionDialogOpen(false);
-
-      getSubscriptionInfo();
     } catch (error: any) {
       console.error("Cancel subscription failed:", error);
       const errorMessage =
@@ -379,31 +356,59 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                   End: {new Date(opportunity.end_date).toLocaleDateString()}
                 </Text>
               </HStack>
-              {type === "enrolled" &&
-                (() => {
-                  const subscription = getSubscriptionInfo();
-                  if (subscription) {
-                    const subStatus = getSubscriptionStatusDisplay(
-                      subscription.status,
-                      subscription.cancel_at_period_end,
-                      subscription.current_period_end,
-                      subscription.trial_end
-                    );
-                    if (subStatus) {
-                      return (
-                        <Box mt={2}>
-                          <Badge
-                            colorScheme={subStatus.colorScheme}
-                            fontSize="12px"
-                          >
-                            {subStatus.icon} {subStatus.label}
-                          </Badge>
-                        </Box>
-                      );
-                    }
-                  }
-                  return null;
-                })()}
+              {(() => {
+                const accessInfo = getAccessInfo();
+                if (!accessInfo) return null;
+
+                const subStatus = getSubscriptionStatusDisplay(
+                  accessInfo?.has_access,
+                  accessInfo?.subscription?.status,
+                  accessInfo?.subscription?.cancel_at_period_end,
+                  accessInfo?.subscription?.current_period_end,
+                  accessInfo?.subscription?.trial_end
+                );
+
+                const canCancel =
+                  (accessInfo.subscription?.status === "active" ||
+                    accessInfo.subscription?.status === "trialing") &&
+                  !accessInfo.subscription?.cancel_at_period_end;
+
+                if (!subStatus) return null;
+
+                return (
+                  <Box
+                    mt={3}
+                    mb={2}
+                    display="inline-flex"
+                    flexDirection="column"
+                    alignItems="center"
+                  >
+                    <Badge
+                      colorScheme={subStatus.colorScheme}
+                      fontSize="12px"
+                      px={2}
+                      py={1}
+                      textAlign="center"
+                    >
+                      {subStatus.icon} {subStatus.label}
+                    </Badge>
+                    {type === "enrolled" && canCancel && (
+                      <Button
+                        fontSize="12px"
+                        mt={2}
+                        bg="red.500"
+                        size="xs"
+                        px={2}
+                        onClick={handleCancelSubscription}
+                        loading={cancelSubscriptionMutation.isPending}
+                        alignSelf="stretch"
+                      >
+                        Cancel Subscription
+                      </Button>
+                    )}
+                  </Box>
+                );
+              })()}
             </Box>
             <Box flexShrink={0}>
               <Button
@@ -589,33 +594,6 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                   </Box>
                 )}
 
-                {type === "enrolled" &&
-                  (() => {
-                    const subscription = getSubscriptionInfo();
-                    if (
-                      subscription &&
-                      (subscription.status === "active" ||
-                        subscription.status === "trialing") &&
-                      !subscription.cancel_at_period_end
-                    ) {
-                      return (
-                        <Box>
-                          <Button
-                            size="md"
-                            variant="outline"
-                            colorScheme="orange"
-                            onClick={handleCancelSubscription}
-                            loading={cancelSubscriptionMutation.isPending}
-                            w="full"
-                          >
-                            Cancel Subscription
-                          </Button>
-                        </Box>
-                      );
-                    }
-                    return null;
-                  })()}
-
                 {type === "enrolled" && (
                   <Box>
                     <Button
@@ -625,26 +603,9 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                       onClick={handleCancelEnrollment}
                       loading={updateParticipantMutation.isPending}
                       w="full"
-                      // disabled={hasActiveSubscription()}
-                      // title={
-                      //   hasActiveSubscription()
-                      //     ? "You have an active subscription. Please cancel your subscription first."
-                      //     : ""
-                      // }
                     >
                       Cancel Enrollment
                     </Button>
-                    {/* {hasActiveSubscription() && (
-                      <Text
-                        fontSize="12px"
-                        color="orange.500"
-                        mt={1}
-                        textAlign="center"
-                      >
-                        You have an active subscription. Please cancel your
-                        subscription first.
-                      </Text>
-                    )} */}
                   </Box>
                 )}
               </VStack>
@@ -723,13 +684,13 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
               </Dialog.Header>
               <Dialog.Body>
                 <Text fontSize="md">
-                  Your access will continue until{" "}
+                  Your access to the opportunity will continue until{" "}
                   <Text as="span" fontWeight="bold">
                     {(() => {
-                      const subscription = getSubscriptionInfo();
-                      if (subscription?.current_period_end) {
+                      const accessInfo = getAccessInfo();
+                      if (accessInfo?.subscription?.current_period_end) {
                         return new Date(
-                          subscription.current_period_end
+                          accessInfo.subscription.current_period_end
                         ).toLocaleDateString("en-US", {
                           day: "numeric",
                           month: "short",
@@ -739,15 +700,15 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
                       return "the end of your billing period";
                     })()}
                   </Text>
-                  . After that, you&apos;ll be unenrolled automatically.
+                  .
                 </Text>
               </Dialog.Body>
               <Dialog.Footer>
                 <HStack gap={3} w="full">
                   <Button
-                    bg="orange.500"
+                    bg="red.500"
                     color="white"
-                    _hover={{ bg: "orange.600" }}
+                    _hover={{ bg: "red.600" }}
                     onClick={confirmCancelSubscription}
                     loading={cancelSubscriptionMutation.isPending}
                     flex={1}

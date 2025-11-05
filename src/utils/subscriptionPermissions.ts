@@ -1,4 +1,3 @@
-
 import { useAuthStore } from "@/store/authStore";
 import { formatDate } from "@/utils/formatDate";
 
@@ -46,8 +45,9 @@ export const getSubscriptionTrialInfo = (): {
   isInTrial: boolean;
   trialEnd: string | null;
 } => {
-  const { currentOpportunityId, accessibleOpportunities } = useAuthStore.getState();
-  
+  const { currentOpportunityId, accessibleOpportunities } =
+    useAuthStore.getState();
+
   if (!currentOpportunityId || !accessibleOpportunities) {
     return { isInTrial: false, trialEnd: null };
   }
@@ -61,7 +61,7 @@ export const getSubscriptionTrialInfo = (): {
   }
 
   const { status, trial_end } = currentOpportunity.access.subscription;
-  
+
   return {
     isInTrial: status === "trialing",
     trialEnd: trial_end,
@@ -69,32 +69,50 @@ export const getSubscriptionTrialInfo = (): {
 };
 
 export const getSubscriptionStatusDisplay = (
-  status: string | undefined,
+  has_access: boolean | false,
+  subStatus: string | undefined,
   cancelAtPeriodEnd: boolean | undefined,
   currentPeriodEnd: string | null | undefined,
   trialEnd: string | null | undefined
 ) => {
-  if (!status) return null;
-
   const getActiveDate = () => {
-    if (trialEnd && status === "trialing") {
+    if (trialEnd && subStatus === "trialing") {
       return formatDate(trialEnd);
     }
     return formatDate(currentPeriodEnd || "");
   };
 
-  switch (status) {
-    case "active":  
+  if (!subStatus) {
+    if (!has_access) {
+      return {
+        icon: "🔴",
+        label: `Requires Subscription`,
+        colorScheme: "red",
+      };
+    } else return null;
+  }
+  if (
+    (subStatus === "active" || subStatus === "trialing") &&
+    cancelAtPeriodEnd
+  ) {
+    return {
+      icon: "🟠",
+      label: `Canceled — access until ${getActiveDate()}`,
+      colorScheme: "orange",
+    };
+  }
+
+  switch (subStatus) {
+    case "active":
       return {
         icon: "🟢",
-        label: cancelAtPeriodEnd
-          ? `Active — access until ${getActiveDate()}`
-          : `Active — renews on ${getActiveDate()}`,
-        colorScheme: cancelAtPeriodEnd ? "orange" : "green",
+        label: `Active — renews on ${getActiveDate()}`,
+        colorScheme: "green",
       };
+
     case "trialing":
       return {
-        icon: "🟡",
+        icon: "🟢",
         label: `Trial ends on ${getActiveDate()}`,
         colorScheme: "yellow",
       };
