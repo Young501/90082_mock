@@ -197,6 +197,7 @@ export const FieldRenderer = ({
           setError={setError}
           clearErrors={clearErrors}
           onStatusChange={onAbnValidationChange}
+          icon={question.icon}
         />
       );
     }

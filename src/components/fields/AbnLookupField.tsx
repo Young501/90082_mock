@@ -1,26 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Box,
-  Field,
-  Input,
-  Spinner,
-  Text,
-  chakra,
-} from "@chakra-ui/react";
+import { Box, Field, Input, Spinner, Text } from "@chakra-ui/react";
 import { Control, UseFormSetError, useController } from "react-hook-form";
+import { isAxiosError } from "axios";
 import { useAbnValidation } from "@/services/shared";
 import { useDebounce } from "@/hooks/useDebounce";
 import { AbnValidationStatus } from "@/types/onboarding";
 
 interface AbnLookupFieldProps {
   name: string;
-  label: string;
+  label?: string;
   control: Control<any>;
   required?: boolean;
   error?: string;
   organisationName?: string;
   setError: UseFormSetError<any>;
   clearErrors?: (name: string) => void;
+  icon?: string;
   onStatusChange?: (status: AbnValidationStatus) => void;
 }
 
@@ -62,6 +57,7 @@ export const AbnLookupField = ({
   setError,
   clearErrors,
   onStatusChange,
+  icon,
 }: AbnLookupFieldProps) => {
   const { field } = useController({ name, control });
   const [inputValue, setInputValue] = useState<string>(
@@ -83,7 +79,8 @@ export const AbnLookupField = ({
     organisation: string;
     valid?: boolean;
     matchedName?: string | null;
-  }>({ abn: "", organisation: "" });
+    errorMessage?: string | null;
+  }>({ abn: "", organisation: "", errorMessage: null });
 
   const emitStatusChange = (nextStatus: AbnValidationStatus) => {
     setStatus(nextStatus);
@@ -97,7 +94,6 @@ export const AbnLookupField = ({
     if (formatted !== inputValue) {
       setInputValue(formatted);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [field.value]);
 
   useEffect(() => {
@@ -147,7 +143,10 @@ export const AbnLookupField = ({
       } else {
         setMatchedName(cachedResult.matchedName || null);
         emitStatusChange("invalid");
-        setError(name, { type: "manual", message: INVALID_ABN_MESSAGE });
+        setError(name, {
+          type: "manual",
+          message: cachedResult.errorMessage || INVALID_ABN_MESSAGE,
+        });
       }
       return () => {
         isActive = false;
@@ -165,6 +164,7 @@ export const AbnLookupField = ({
           organisation,
           valid: response.valid,
           matchedName: response.matchedName ?? null,
+          errorMessage: response.valid ? null : INVALID_ABN_MESSAGE,
         };
 
         if (response.valid) {
@@ -174,15 +174,52 @@ export const AbnLookupField = ({
         } else {
           setMatchedName(response.matchedName ?? null);
           emitStatusChange("invalid");
-          setError(name, { type: "manual", message: INVALID_ABN_MESSAGE });
+          setError(name, {
+            type: "manual",
+            message: INVALID_ABN_MESSAGE,
+          });
         }
       })
-      .catch(() => {
+      .catch((error: unknown) => {
         if (!isActive) return;
-        lastValidatedRef.current = { abn, organisation, valid: undefined };
+        const axiosError = isAxiosError(error) ? error : null;
+        const statusCode = axiosError?.response?.status;
+        const responseData = axiosError?.response?.data as
+          | { detail?: unknown }
+          | undefined;
+        const backendMessage =
+          typeof responseData?.detail === "string"
+            ? responseData.detail.trim()
+            : null;
+        const isInputError =
+          statusCode === 400 || statusCode === 404 || statusCode === 422;
+
+        if (isInputError) {
+          const message = backendMessage || INVALID_ABN_MESSAGE;
+          lastValidatedRef.current = {
+            abn,
+            organisation,
+            valid: false,
+            matchedName: null,
+            errorMessage: message,
+          };
+          emitStatusChange("invalid");
+          setMatchedName(null);
+          setError(name, { type: "manual", message });
+          return;
+        }
+
+        const message = backendMessage || VALIDATION_ERROR_MESSAGE;
+        lastValidatedRef.current = {
+          abn,
+          organisation,
+          valid: undefined,
+          matchedName: null,
+          errorMessage: message,
+        };
         emitStatusChange("error");
         setMatchedName(null);
-        setError(name, { type: "manual", message: VALIDATION_ERROR_MESSAGE });
+        setError(name, { type: "manual", message });
       });
 
     return () => {
@@ -252,39 +289,67 @@ export const AbnLookupField = ({
 
   return (
     <Field.Root invalid={!!error}>
-      <Box mb={2}>
-        <Field.Label fontSize="20px" fontWeight="400" color="#282F68" mb={4}>
-          {label}
-          {required && (
-            <chakra.span color="red.500" ml={1}>
-              *
-            </chakra.span>
+      <Box
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "4px",
+          width: "100%",
+          ...(required && { marginLeft: "-11px" }),
+        }}
+      >
+        {required && (
+          <Box>
+            {required && (
+              <span style={{ color: "red", marginLeft: "4px" }}>*</span>
+            )}
+          </Box>
+        )}
+
+        <Box position="relative" width="100%">
+          {icon && (
+            <Box
+              position="absolute"
+              left="16px"
+              top="50%"
+              transform="translateY(-50%)"
+              zIndex={2}
+              pointerEvents="none"
+            >
+              <i
+                className={icon}
+                style={{
+                  color: "#C3C3C3",
+                  fontSize: "18px",
+                }}
+              />
+            </Box>
           )}
-        </Field.Label>
+          <Input
+            value={inputValue}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            placeholder={label}
+            h="60px"
+            bg="white"
+            fontSize="16px"
+            pl={icon ? "48px" : "24px"}
+            border="1px solid #A2DDF0"
+            borderRadius="8px"
+            _focus={{
+              borderColor: "#A2DDF0",
+              boxShadow: "0 0 0 1px #A2DDF0",
+            }}
+            _hover={{
+              borderColor: "#A2DDF0",
+            }}
+            inputMode="numeric"
+            autoComplete="off"
+            name={field.name}
+            ref={field.ref}
+          />
+        </Box>
       </Box>
-      <Input
-        value={inputValue}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        placeholder={label}
-        h="60px"
-        bg="white"
-        fontSize="16px"
-        px={6}
-        border="1px solid #A2DDF0"
-        borderRadius="8px"
-        _focus={{
-          borderColor: "#A2DDF0",
-          boxShadow: "0 0 0 1px #A2DDF0",
-        }}
-        _hover={{
-          borderColor: "#A2DDF0",
-        }}
-        inputMode="numeric"
-        autoComplete="off"
-        name={field.name}
-        ref={field.ref}
-      />
       {error && (
         <Field.ErrorText mt={2} fontSize="sm">
           {error}
