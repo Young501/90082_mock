@@ -244,7 +244,7 @@ export const AbnLookupField = ({
     clearErrors,
     name,
     setError,
-    emitStatusChange,
+    // emitStatusChange,
   ]);
 
   const helperText = useMemo(() => {
