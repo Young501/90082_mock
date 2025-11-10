@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Box, Field, Input, Spinner, Text } from "@chakra-ui/react";
 import { Control, UseFormSetError, useController } from "react-hook-form";
 import { isAxiosError } from "axios";
@@ -82,18 +82,22 @@ export const AbnLookupField = ({
     errorMessage?: string | null;
   }>({ abn: "", organisation: "", errorMessage: null });
 
-  const emitStatusChange = (nextStatus: AbnValidationStatus) => {
-    setStatus(nextStatus);
-    if (onStatusChange) {
-      onStatusChange(nextStatus);
-    }
-  };
+  const emitStatusChange = useCallback(
+    (nextStatus: AbnValidationStatus) => {
+      setStatus(nextStatus);
+      if (onStatusChange) {
+        onStatusChange(nextStatus);
+      }
+    },
+    [onStatusChange]
+  );
 
   useEffect(() => {
     const formatted = formatAbn((field.value as string) || "");
     if (formatted !== inputValue) {
       setInputValue(formatted);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [field.value]);
 
   useEffect(() => {
@@ -112,16 +116,22 @@ export const AbnLookupField = ({
     }
 
     if (abn.length < 11) {
-      lastValidatedRef.current = { abn: "", organisation: "" };
-      setMatchedName(null);
-      emitStatusChange("idle");
-      if (clearErrors) clearErrors(name);
+      if (
+        lastValidatedRef.current.abn !== "" ||
+        lastValidatedRef.current.organisation !== ""
+      ) {
+        lastValidatedRef.current = { abn: "", organisation: "" };
+        setMatchedName(null);
+        emitStatusChange("idle");
+        if (clearErrors) clearErrors(name);
+      }
       return () => {
         isActive = false;
       };
     }
 
     if (!organisation) {
+      lastValidatedRef.current = { abn: "", organisation: "" };
       emitStatusChange("idle");
       setMatchedName(null);
       if (clearErrors) clearErrors(name);
@@ -234,6 +244,7 @@ export const AbnLookupField = ({
     clearErrors,
     name,
     setError,
+    emitStatusChange,
   ]);
 
   const helperText = useMemo(() => {

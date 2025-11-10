@@ -843,7 +843,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
                   variant="primary"
                   w={{ base: "calc(50% - 8px)", md: "271px" }}
                   style={{ borderRadius: "0px" }}
-                  isDisabled={loadingStates}
+                  disabled={loadingStates}
                 >
                   Previous
                 </Button>
@@ -860,7 +860,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
                   }}
                   style={{ borderRadius: "0px" }}
                   isLoading={loadingStates}
-                  isDisabled={loadingStates || isAbnBlocking}
+                  disabled={loadingStates || isAbnBlocking || hasFormErrors}
                 >
                   Submit
                 </Button>
@@ -874,7 +874,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
                   }}
                   style={{ borderRadius: "0px" }}
                   isLoading={loadingStates}
-                  isDisabled={loadingStates || isAbnBlocking}
+                  disabled={loadingStates || isAbnBlocking || hasFormErrors}
                 >
                   Next
                 </Button>
