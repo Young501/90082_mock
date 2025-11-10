@@ -25,7 +25,10 @@ interface DiscoveryFilterBoxProps {
   isSearching: boolean;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onReset: () => void;
-  filterOptions: Record<string, string[]>;
+  filterOptions: Record<
+    string,
+    Array<string | { label: string; value: string }>
+  >;
 }
 
 export function DiscoveryFilterBox({
@@ -46,7 +49,6 @@ export function DiscoveryFilterBox({
   );
   const primaryFields = visibleFields.slice(0, 3);
   const additionalFields = visibleFields.slice(3);
-
   const hasAdditionalFields = additionalFields.length > 0;
 
   return (

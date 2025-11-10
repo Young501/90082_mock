@@ -46,8 +46,8 @@ export interface Question {
   required?: boolean;
   icon?: string;
   description?: string;
-  options?: string[];
-  option?: string[];
+  options?: string[] | Array<{ label: string; value: string }>;
+  option?: string[] | Array<{ label: string; value: string }>;
   max_selection?: number;
   max_selections?: number;
   "max-selection"?: number;

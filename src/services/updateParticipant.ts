@@ -8,18 +8,28 @@ export function useUpdateOpportunityParticipant() {
     mutationFn: async ({
       opportunityId,
       questionnaireAnswers,
+      accepted,
     }: {
       opportunityId: string | number;
-      questionnaireAnswers: Record<string, any>;
+      questionnaireAnswers?: Record<string, any>;
+      accepted?: boolean;
     }) => {
+      const body: Record<string, any> = {};
+
+      if (questionnaireAnswers !== undefined) {
+        body.questionnaire_answers = questionnaireAnswers;
+      }
+      if (accepted !== undefined) {
+        body.accepted = accepted;
+      }
+
       const response = await apiRequest({
         endpoint: API_ENDPOINTS.UPDATE_OPPORTUNITY_PARTICIPANT(
           Number(opportunityId)
         ),
-        body: {
-          questionnaire_answers: questionnaireAnswers,
-        },
+        body,
       });
+
       return response;
     },
   });

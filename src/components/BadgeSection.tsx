@@ -59,11 +59,12 @@ const BadgeSection = ({
   if (itemsArray.length === 0) return null;
 
   const renderItem = (item: string) => {
-    return (
-      item +
-      " " +
-      (withinDistance && item === "Within" ? `${withinDistance} km` : "")
-    );
+    return item.includes("_")
+      ? // replace all underscores with spaces and capitalize the first letter of each word
+        item.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
+      : item.toLowerCase().replace(/\b\w/g, (l) => l.toUpperCase()) +
+          " " +
+          (withinDistance && item === "Within" ? `${withinDistance} km` : "");
   };
 
   return (
