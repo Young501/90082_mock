@@ -97,7 +97,6 @@ export const AbnLookupField = ({
     if (formatted !== inputValue) {
       setInputValue(formatted);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [field.value]);
 
   useEffect(() => {
