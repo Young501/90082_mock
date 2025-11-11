@@ -28,7 +28,6 @@ export default function OnboardingSuccessPage() {
     getUserFirstName,
     getUserLastName,
     getUserProfilePictureUrl,
-    getInviteData,
   } = useAuthStore();
   const [userType, setUserType] = useState<string | undefined>("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -44,13 +43,7 @@ export default function OnboardingSuccessPage() {
   }, [getUserType, getUserProfilePictureUrl, getLogoUrl]);
 
   const handleRouting = () => {
-    const { token: inviteToken, opportunityId } = getInviteData();
-
-    if (inviteToken && opportunityId) {
-      router.push(`/invite/?token=${inviteToken}&opportunity=${opportunityId}`);
-    } else {
-      router.push("/discover/");
-    }
+    router.push("/discover/");
   };
 
   return (
@@ -155,13 +148,7 @@ export default function OnboardingSuccessPage() {
                   bg="#282F68"
                   color="white"
                 >
-                  {(() => {
-                    const { token: inviteToken, opportunityId } =
-                      getInviteData();
-                    return inviteToken && opportunityId
-                      ? "Discover Opportunities"
-                      : "Go to Home";
-                  })()}
+                  Go to Home
                 </Button>
               </Box>
             </Box>
