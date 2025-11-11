@@ -54,22 +54,6 @@ const SignupPage = () => {
         ? studentAuthValidationSchema
         : baseAuthSchema; // coordinator & others
 
-  // useEffect(() => {
-  //   if (!signupSelectedUserType) {
-  //     const inviteToken = searchParams.get("invite_token");
-  //     const opportunityId = searchParams.get("opportunity_id");
-
-  //     if (inviteToken && opportunityId) {
-  //       router.push(
-  //         `/user-type?signup=true&invite_token=${inviteToken}&opportunity_id=${opportunityId}`
-  //       );
-  //     } else {
-  //       router.push("/user-type?signup=true/");
-  //     }
-  //   }
-  // }, [signupSelectedUserType, router, searchParams]);
-
-
   const {
     register,
     handleSubmit,
