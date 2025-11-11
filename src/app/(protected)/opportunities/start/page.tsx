@@ -6,11 +6,17 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import ProgressTrack from "@/components/ProgressTrack";
 import { useOpportunityDetail } from "@/services/shared";
+import { useAuthStore } from "@/store";
 
 export default function OpportunityStartPage() {
   const sp = useSearchParams();
   const router = useRouter();
   const opportunityId = sp.get("id");
+  const { accessibleOpportunities } = useAuthStore();
+
+  const currentOpportunity = accessibleOpportunities?.find(
+    (opp) => opp.id.toString() === opportunityId
+  );
 
   const {
     data: opportunity,
@@ -100,7 +106,13 @@ export default function OpportunityStartPage() {
         >
           <Button
             variant="secondary"
-            onClick={() => router.push("/discover/?id=" + opportunityId)}
+            onClick={() =>
+              router.push(
+                currentOpportunity?.slug
+                  ? `/discover/?opp=${currentOpportunity.slug}`
+                  : "/discover"
+              )
+            }
             size="lg"
             borderRadius="xl"
             h="50px"

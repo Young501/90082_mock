@@ -273,6 +273,7 @@ export function useAccessibleOpportunities() {
               is_enrolled: enrollmentStatus === "enrolled",
               visibility_display: o.visibility_display || "",
               access: o.access || null,
+              slug: o.slug || "",
             };
             return mappedOpp;
           }

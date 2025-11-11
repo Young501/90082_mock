@@ -14,9 +14,11 @@ import {
 import { XCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { PageTitle } from "@/components/PageTitle";
+import { useAuthStore } from "@/store/authStore";
 
 export default function BillingCancelPage() {
   const router = useRouter();
+  const { accessibleOpportunities } = useAuthStore();
   const [context, setContext] = useState<{
     opportunityId: string;
     next: string;
@@ -48,7 +50,14 @@ export default function BillingCancelPage() {
     sessionStorage.removeItem("billing_return_context");
 
     if (context?.opportunityId) {
-      router.push(`/discover?id=${context.opportunityId}`);
+      const currentOpportunity = accessibleOpportunities?.find(
+        (opp) => opp.id.toString() === context.opportunityId
+      );
+      router.push(
+        currentOpportunity?.slug
+          ? `/discover?opp=${currentOpportunity.slug}`
+          : "/discover"
+      );
     } else {
       router.push("/dashboard");
     }

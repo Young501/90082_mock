@@ -22,6 +22,7 @@ export default function BillingSuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
+  const { accessibleOpportunities } = useAuthStore();
 
   const [context, setContext] = useState<{
     opportunityId: string;
@@ -64,20 +65,21 @@ export default function BillingSuccessPage() {
     // Clear the stored context
     sessionStorage.removeItem("billing_return_context");
 
+    const currentOpportunity = accessibleOpportunities?.find(
+      (opp) => opp.id.toString() === context.opportunityId
+    );
+
     if (context.next === "questionnaire") {
       router.push(`/opportunities/start?id=${context.opportunityId}`);
     } else {
-      router.push(`/discover?id=${context.opportunityId}`);
+      router.push(
+        currentOpportunity?.slug
+          ? `/discover?opp=${currentOpportunity.slug}`
+          : "/discover"
+      );
     }
   };
 
-  const handleRetry = () => {
-    if (context?.opportunityId) {
-      router.push(`/opportunities/pricing?id=${context.opportunityId}`);
-    } else {
-      router.push("/dashboard");
-    }
-  };
 
   return (
     <>

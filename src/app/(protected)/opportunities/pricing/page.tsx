@@ -10,9 +10,7 @@ import {
   useCreateCheckoutSession,
 } from "@/services/billing";
 import { useAuthStore } from "@/store";
-import {
-  useOpportunityDetail,
-} from "@/services/shared";
+import { useOpportunityDetail } from "@/services/shared";
 import { toaster } from "@/components/ui/toaster";
 import { PageTitle } from "@/components/PageTitle";
 import { PricingTier } from "@/types/subscription";
@@ -66,10 +64,21 @@ export default function OpportunityPricingPage() {
       if (nextStep === "questionnaire") {
         router.push(`/opportunities/start?id=${opportunityId}`);
       } else {
-        router.push(`/discover?id=${opportunityId}`);
+        router.push(
+          currentOpportunity?.slug
+            ? `/discover?opp=${currentOpportunity.slug}`
+            : "/discover"
+        );
       }
     }
-  }, [isLoadingPricing, productsData, nextStep, opportunityId, router]);
+  }, [
+    isLoadingPricing,
+    productsData,
+    nextStep,
+    opportunityId,
+    router,
+    currentOpportunity?.slug,
+  ]);
 
   const handleSelectPlan = async (selectedTier: PricingTier) => {
     if (!userType) {
@@ -88,7 +97,6 @@ export default function OpportunityPricingPage() {
         user_type: userType,
         opportunity_id: Number(opportunityId),
         trial_days: trialDays,
-       
       };
       // Add trial_days if available
       if (selectedTier?.trial_days && selectedTier.trial_days > 0) {

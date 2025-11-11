@@ -28,7 +28,7 @@ export default function OpportunityCompletePage() {
   const sp = useSearchParams();
   const router = useRouter();
   const opportunityId = sp.get("id");
-  const { user } = useAuthStore();
+  const { user, accessibleOpportunities } = useAuthStore();
   const queryClient = useQueryClient();
 
   if (!opportunityId) {
@@ -37,6 +37,10 @@ export default function OpportunityCompletePage() {
   }
 
   const { clearAnswers } = useQuestionnaireAnswers(opportunityId);
+
+  const currentOpportunity = accessibleOpportunities?.find(
+    (opp) => opp.id.toString() === opportunityId
+  );
 
   const {
     data: opportunity,
@@ -50,7 +54,11 @@ export default function OpportunityCompletePage() {
   }, [clearAnswers, queryClient, opportunityId, user?.id]);
 
   const handleBackToOpportunity = () => {
-    router.push(`/discover?id=${opportunityId}`);
+    router.push(
+      currentOpportunity?.slug
+        ? `/discover?opp=${currentOpportunity.slug}`
+        : "/discover"
+    );
   };
 
   if (isLoading) {
