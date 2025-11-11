@@ -21,16 +21,7 @@ export default function UserTypePage() {
   const searchParams = useSearchParams();
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const { setSignupSelectedUserType, setInviteData } = useAuthStore();
-
-  useEffect(() => {
-    const inviteToken = searchParams.get("invite_token");
-    const opportunityId = searchParams.get("opportunity_id");
-
-    if (inviteToken && opportunityId) {
-      setInviteData(inviteToken, opportunityId);
-    }
-  }, [searchParams, setInviteData]);
+  const { setSignupSelectedUserType } = useAuthStore();
 
   const handleSelect = async (typeKey: string) => {
     if (isAnimating) return;

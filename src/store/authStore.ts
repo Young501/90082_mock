@@ -17,8 +17,6 @@ export interface AuthState {
   userProfile: UserProfile | null;
   userProfilePictureUrl: string | null;
   coordinatorOpportunities: string[];
-  inviteToken: string | null;
-  inviteOpportunityId: string | null;
   tempOrganisationUser: tempOrganisationUser | null;
   tempOrganisation: Organisation | null;
   isOrganisationMemberOnboarding: boolean;
@@ -48,9 +46,6 @@ export interface AuthState {
   setUserProfilePictureUrl: (url: string) => void;
   setCoordinatorOpportunities: (opportunities: string[]) => void;
   getCoordinatorOpportunities: () => string[];
-  setInviteData: (token: string, opportunityId: string) => void;
-  getInviteData: () => { token: string | null; opportunityId: string | null };
-  clearInviteData: () => void;
   setTempOrganisation: (organisation: Organisation) => void;
   getTempOrganisation: () => Organisation | null;
   clearTempOrganisation: () => void;
@@ -86,8 +81,6 @@ export const useAuthStore = create<AuthState>()(
       userProfile: null,
       userProfilePictureUrl: null,
       coordinatorOpportunities: [],
-      inviteToken: null,
-      inviteOpportunityId: null,
       tempOrganisation: null,
       tempOrganisationUser: null,
       isOrganisationMemberOnboarding: false,
@@ -119,8 +112,6 @@ export const useAuthStore = create<AuthState>()(
           userProfile: null,
           userProfilePictureUrl: null,
           coordinatorOpportunities: [],
-          inviteToken: null,
-          inviteOpportunityId: null,
           tempOrganisation: null,
           tempOrganisationUser: null,
           isOrganisationMemberOnboarding: false,
@@ -217,18 +208,6 @@ export const useAuthStore = create<AuthState>()(
         return get().coordinatorOpportunities;
       },
 
-      setInviteData: (token: string, opportunityId: string) => {
-        set({ inviteToken: token, inviteOpportunityId: opportunityId });
-      },
-
-      getInviteData: () => {
-        const { inviteToken, inviteOpportunityId } = get();
-        return { token: inviteToken, opportunityId: inviteOpportunityId };
-      },
-
-      clearInviteData: () => {
-        set({ inviteToken: null, inviteOpportunityId: null });
-      },
       setTempOrganisation: (organisation: Organisation) => {
         set({ tempOrganisation: organisation });
       },
@@ -323,8 +302,6 @@ export const useAuthStore = create<AuthState>()(
         userProfile: state.userProfile,
         userProfilePictureUrl: state.userProfilePictureUrl,
         coordinatorOpportunities: state.coordinatorOpportunities,
-        inviteToken: state.inviteToken,
-        inviteOpportunityId: state.inviteOpportunityId,
         tempOrganisation: state.tempOrganisation,
         tempOrganisationUser: state.tempOrganisationUser,
         isOrganisationMemberOnboarding: state.isOrganisationMemberOnboarding,
