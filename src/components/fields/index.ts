@@ -8,5 +8,6 @@ export { SliderField } from "./SliderField";
 export { CardSelectField } from "./CardSelectField";
 export { TextAreaField } from "./TextAreaField";
 export { GeocodeAutocompleteInput } from "./GeocodeAutocompleteInput";
+export { AbnLookupField } from "./AbnLookupField";
 
 export type { FileFieldType, FileFieldConfig } from "./FileField";

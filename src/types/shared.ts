@@ -59,3 +59,8 @@ export interface GeocodeResult {
   administrative_area_level_1?: string;
   country?: string;
 }
+
+export interface AbnValidationResponse {
+  valid: boolean;
+  matchedName?: string | null;
+}

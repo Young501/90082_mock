@@ -301,6 +301,10 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: "/api/v1/geocode/",
   },
+  ABN_VALIDATE: {
+    method: "POST",
+    url: "/api/v1/organisation/validate-abn/",
+  },
   INVITE_PARTICIPANTS: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/invite/`,

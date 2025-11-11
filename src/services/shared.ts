@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import { useAuthStore } from "@/store/authStore";
 import { Opportunity, AccessibleOpportunity } from "@/types/opportunities";
+import { AbnValidationResponse } from "@/types/shared";
 
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
@@ -129,6 +130,17 @@ export function useGeocode() {
         body: { address, target },
       });
       return result;
+    },
+  });
+}
+
+export function useAbnValidation() {
+  return useMutation({
+    mutationFn: async (payload: { abn: string; organisationName: string }) => {
+      return apiRequest<AbnValidationResponse>({
+        endpoint: API_ENDPOINTS.ABN_VALIDATE,
+        body: payload,
+      });
     },
   });
 }

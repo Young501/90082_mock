@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added ABN validation for organisations: The onboarding and profile editor now include an ABN lookup field with inline status messages. The system automatically verifies the ABN and organisation name before allowing users to continue or save changes, ensuring all organisations have a confirmed and valid ABN.
+
 ---
 
 ## [1.1]
