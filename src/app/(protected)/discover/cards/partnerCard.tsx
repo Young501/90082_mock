@@ -189,7 +189,7 @@ export function PartnerCard({
 
                 <Box display="flex" flexDirection="column" gap={2}>
                   {organisation.location && (
-                    <HStack gap={2} align="center">
+                    <HStack align="flex-start" gap={2}>
                       <Box
                         w="16px"
                         h="16px"
@@ -197,6 +197,7 @@ export function PartnerCard({
                         alignItems="center"
                         justifyContent="center"
                         flexShrink={0}
+                        mt="3px"
                       >
                         <Image
                           width={12}
@@ -206,14 +207,33 @@ export function PartnerCard({
                           style={{ objectFit: "contain" }}
                         />
                       </Box>
-                      <Text
-                        fontSize="sm"
-                        color="gray.600"
-                        whiteSpace="normal"
-                        wordBreak="break-word"
-                      >
-                        {organisation.location || ""}
-                      </Text>
+
+                      <Box>
+                        <Text
+                          fontSize="sm"
+                          color="gray.600"
+                          whiteSpace="normal"
+                          wordBreak="break-word"
+                        >
+                          {organisation.location}
+                        </Text>
+
+                        {organisation.distance_km !== undefined &&
+                          organisation.distance_km !== null && (
+                            <Text
+                              fontSize="sm"
+                              color="gray.600"
+                              whiteSpace="normal"
+                              wordBreak="break-word"
+                            >
+                              (
+                              <Text as="span" fontWeight="semibold">
+                                {organisation.distance_km} km
+                              </Text>
+                              )
+                            </Text>
+                          )}
+                      </Box>
                     </HStack>
                   )}
 

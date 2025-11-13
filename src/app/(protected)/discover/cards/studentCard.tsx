@@ -199,7 +199,7 @@ export function StudentCard({
                     <Heading
                       fontSize={{ base: "16px", md: "20px" }}
                       textTransform="capitalize"
-                      mb={2}
+                      mb={1}
                       fontWeight="bold"
                       color="#000000"
                       whiteSpace="normal"
@@ -220,6 +220,54 @@ export function StudentCard({
                   </Box>
 
                   <Box display="flex" flexDirection="column" gap={2} mb={4}>
+                    {student.location && (
+                      <HStack align="flex-start" gap={2}>
+                        <Box
+                          w="16px"
+                          h="16px"
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          flexShrink={0}
+                          mt="3px"
+                        >
+                          <Image
+                            width={12}
+                            height={12}
+                            src="/assets/locationIcon.svg"
+                            alt="location"
+                            style={{ objectFit: "contain" }}
+                          />
+                        </Box>
+
+                        <Box>
+                          <Text
+                            fontSize="sm"
+                            color="gray.600"
+                            whiteSpace="normal"
+                            wordBreak="break-word"
+                          >
+                            {student.location}
+                          </Text>
+
+                          {student.distance_km !== undefined &&
+                            student.distance_km !== null && (
+                              <Text
+                                fontSize="sm"
+                                color="gray.600"
+                                whiteSpace="normal"
+                                wordBreak="break-word"
+                              >
+                                (
+                                <Text as="span" fontWeight="semibold">
+                                  {student.distance_km} km
+                                </Text>
+                                )
+                              </Text>
+                            )}
+                        </Box>
+                      </HStack>
+                    )}
                     {student.course_name && (
                       <HStack gap={2} align="start">
                         <Box
@@ -247,36 +295,6 @@ export function StudentCard({
                         >
                           {student.course_name} <br />
                           {student.course_progression}
-                        </Text>
-                      </HStack>
-                    )}
-
-                    {student.location && (
-                      <HStack gap={2} align="center">
-                        <Box
-                          w="16px"
-                          h="16px"
-                          display="flex"
-                          alignItems="center"
-                          justifyContent="center"
-                          flexShrink={0}
-                          mt="2px"
-                        >
-                          <Image
-                            width={12}
-                            height={12}
-                            src="/assets/locationIcon.svg"
-                            alt="location"
-                            style={{ objectFit: "contain" }}
-                          />
-                        </Box>
-                        <Text
-                          fontSize="sm"
-                          color="gray.600"
-                          whiteSpace="normal"
-                          wordBreak="break-word"
-                        >
-                          {student.location}
                         </Text>
                       </HStack>
                     )}
@@ -311,37 +329,31 @@ export function StudentCard({
                       </HStack>
                     )}
 
-                    <HStack gap={2} align="start">
-                      <Box
-                        w="12px"
-                        h="12px"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        flexShrink={0}
-                        mt="5px"
-                        pos="relative"
-                      >
-                        {isMatched ? (
+                    {isMatched && (
+                      <HStack gap={2} align="start">
+                        <Box
+                          w="12px"
+                          h="12px"
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          flexShrink={0}
+                          mt="5px"
+                          pos="relative"
+                        >
                           <Ban size={12} color="#DC2626" />
-                        ) : (
-                          <Image
-                            src="/assets/calenderIcon.svg"
-                            alt="progress"
-                            fill
-                            style={{ objectFit: "contain" }}
-                          />
-                        )}
-                      </Box>
-                      <Text
-                        fontSize="sm"
-                        color="gray.600"
-                        whiteSpace="normal"
-                        wordBreak="break-word"
-                      >
-                        {isMatched ? "Not available" : "Available Immediately"}
-                      </Text>
-                    </HStack>
+                        </Box>
+
+                        <Text
+                          fontSize="sm"
+                          color="gray.600"
+                          whiteSpace="normal"
+                          wordBreak="break-word"
+                        >
+                          Not available
+                        </Text>
+                      </HStack>
+                    )}
                   </Box>
                 </Box>
               </Box>
