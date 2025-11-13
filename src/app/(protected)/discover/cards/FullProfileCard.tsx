@@ -486,14 +486,15 @@ const RenderStudentDetails = ({
           )}
 
           {student.location && (
-            <HStack gap={2} align="start">
+            <HStack align="flex-start" gap={2}>
               <Box
-                w="20px"
-                h="20px"
+                w="16px"
+                h="16px"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
                 flexShrink={0}
+                mt="2px"
               >
                 <Image
                   width={12}
@@ -503,9 +504,33 @@ const RenderStudentDetails = ({
                   style={{ objectFit: "contain" }}
                 />
               </Box>
-              <Text fontSize="sm" color="gray.600">
-                {student.location}
-              </Text>
+
+              <Box>
+                <Text
+                  fontSize="sm"
+                  color="gray.600"
+                  whiteSpace="normal"
+                  wordBreak="break-word"
+                >
+                  {student.location}
+                </Text>
+
+                {student.distance_km != undefined &&
+                  student.distance_km != null && (
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      whiteSpace="normal"
+                      wordBreak="break-word"
+                    >
+                      (
+                      <Text as="span" fontWeight="semibold">
+                        {student.distance_km} km
+                      </Text>
+                      )
+                    </Text>
+                  )}
+              </Box>
             </HStack>
           )}
 
@@ -532,29 +557,6 @@ const RenderStudentDetails = ({
               </Text>
             </HStack>
           )}
-
-          <HStack gap={2} align="start">
-            <Box
-              w="12px"
-              h="12px"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              flexShrink={0}
-              pos="relative"
-              mt={"5px"}
-            >
-              <Image
-                src="/assets/calenderIcon.svg"
-                alt="progress"
-                fill
-                style={{ objectFit: "contain" }}
-              />
-            </Box>
-            <Text fontSize="sm" color="gray.600">
-              Available Immediately
-            </Text>
-          </HStack>
         </Grid>
 
         <VStack gap={4} w="full" align="start">
@@ -802,6 +804,17 @@ const RenderPartnerDetails = ({
               />
               <Text fontSize="14px" color="black">
                 {organisation.location}
+                {organisation.distance_km != undefined &&
+                  organisation.distance_km != null && (
+                    <>
+                      {" "}
+                      (
+                      <Text as="span" fontWeight="semibold">
+                        {organisation.distance_km} km
+                      </Text>
+                      )
+                    </>
+                  )}
               </Text>
             </HStack>
           )}
