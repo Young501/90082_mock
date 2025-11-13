@@ -515,20 +515,21 @@ const RenderStudentDetails = ({
                   {student.location}
                 </Text>
 
-                {student.distance_km && (
-                  <Text
-                    fontSize="sm"
-                    color="gray.600"
-                    whiteSpace="normal"
-                    wordBreak="break-word"
-                  >
-                    (
-                    <Text as="span" fontWeight="semibold">
-                      {student.distance_km} km
+                {student.distance_km != undefined &&
+                  student.distance_km != null && (
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      whiteSpace="normal"
+                      wordBreak="break-word"
+                    >
+                      (
+                      <Text as="span" fontWeight="semibold">
+                        {student.distance_km} km
+                      </Text>
+                      )
                     </Text>
-                    )
-                  </Text>
-                )}
+                  )}
               </Box>
             </HStack>
           )}
@@ -803,6 +804,17 @@ const RenderPartnerDetails = ({
               />
               <Text fontSize="14px" color="black">
                 {organisation.location}
+                {organisation.distance_km != undefined &&
+                  organisation.distance_km != null && (
+                    <>
+                      {" "}
+                      (
+                      <Text as="span" fontWeight="semibold">
+                        {organisation.distance_km} km
+                      </Text>
+                      )
+                    </>
+                  )}
               </Text>
             </HStack>
           )}

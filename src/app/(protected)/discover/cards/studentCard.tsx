@@ -250,20 +250,21 @@ export function StudentCard({
                             {student.location}
                           </Text>
 
-                          {student.distance_km && (
-                            <Text
-                              fontSize="sm"
-                              color="gray.600"
-                              whiteSpace="normal"
-                              wordBreak="break-word"
-                            >
-                              (
-                              <Text as="span" fontWeight="semibold">
-                                {student.distance_km} km
+                          {student.distance_km !== undefined &&
+                            student.distance_km !== null && (
+                              <Text
+                                fontSize="sm"
+                                color="gray.600"
+                                whiteSpace="normal"
+                                wordBreak="break-word"
+                              >
+                                (
+                                <Text as="span" fontWeight="semibold">
+                                  {student.distance_km} km
+                                </Text>
+                                )
                               </Text>
-                              )
-                            </Text>
-                          )}
+                            )}
                         </Box>
                       </HStack>
                     )}
