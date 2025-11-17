@@ -161,12 +161,12 @@ export function useUserProfile(userType: string) {
   });
 }
 
-export function useStudentProfile(id: string, opportunityId: string) {
+export function useStudentProfile(id: string) {
   return useQuery({
-    queryKey: ["student-profile", id, opportunityId],
+    queryKey: ["student-profile", id],
     queryFn: () =>
       apiRequest({
-        endpoint: API_ENDPOINTS.STUDENT_PROFILE(id, opportunityId),
+        endpoint: API_ENDPOINTS.STUDENT_PROFILE(id),
       }),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
@@ -179,12 +179,12 @@ export function useStudentProfile(id: string, opportunityId: string) {
   });
 }
 
-export function usePartnerProfile(id: string, opportunityId: string) {
+export function usePartnerProfile(id: string) {
   return useQuery({
-    queryKey: ["partner-profile", id, opportunityId],
+    queryKey: ["partner-profile", id],
     queryFn: () =>
       apiRequest({
-        endpoint: API_ENDPOINTS.PARTNER_PROFILE(id, opportunityId),
+        endpoint: API_ENDPOINTS.PARTNER_PROFILE(id),
       }),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
@@ -286,7 +286,7 @@ export function useAccessibleOpportunities() {
       }
     },
     enabled: !!user,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 2 * 60 * 1000,
     retry: (failureCount, error: any) => {
       if (error?.response?.status === 404) {
         return false;

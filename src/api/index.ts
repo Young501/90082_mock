@@ -190,13 +190,13 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v1/${userType}/upload-logo`,
   }),
-  STUDENT_PROFILE: (id: string, opportunityId: string): ApiEndpoint => ({
+  STUDENT_PROFILE: (id: string): ApiEndpoint => ({
     method: "GET",
-    url: `/api/v1/student/${id}?opportunity_id=${opportunityId}`,
+    url: `/api/v1/student/${id}`,
   }),
-  PARTNER_PROFILE: (id: string, opportunityId: string): ApiEndpoint => ({
+  PARTNER_PROFILE: (id: string): ApiEndpoint => ({
     method: "GET",
-    url: `/api/v1/organisation/${id}?opportunity_id=${opportunityId}`,
+    url: `/api/v1/organisation/${id}`,
   }),
   OPPORTUNITY_DETAIL: (opportunityId: string): ApiEndpoint => ({
     method: "GET",

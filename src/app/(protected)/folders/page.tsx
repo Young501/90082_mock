@@ -282,7 +282,6 @@ const Folder = () => {
                             userType={userType}
                             profilePictureUrl={userData?.profile_picture_url}
                             isInFolder={true}
-                            opportunityId={currentOpportunityId || undefined}
                             onRemoveFromFolder={() =>
                               handleRemoveFromFolder(userId.toString())
                             }

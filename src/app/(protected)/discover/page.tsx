@@ -38,9 +38,7 @@ export default function DiscoveryPage() {
 
   const { user, setAccessibleOpportunities } = useAuthStore();
   const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
-  const [isStudentEligible, setIsStudentEligible] = useState<boolean | null>(
-    null
-  );
+  const [isUserEligible, setIsUserEligible] = useState<boolean | null>(null);
 
   const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } =
     useAccessibleOpportunities();
@@ -81,17 +79,22 @@ export default function DiscoveryPage() {
       setIsEnrolled(enrolled);
     }
     setAccessInfo(currentOpportunity?.access || null);
-  }, [opportunityId, accessibleOpportunities]);
+  }, [opportunityId, accessibleOpportunities, isEnrolled]);
+
+  // useEffect(() => {
+  //   setIsUserEligible(null);
+  //   setIsEnrolled(null);
+  // }, [opportunityId]);
 
   useEffect(() => {
-    if (!opportunity || !user?.email || isEligible !== null) return;
+    if (!opportunity || !user?.email || isUserEligible !== null) return;
 
     const userType = user?.user_types?.[0];
     if (
       userType !== "student" ||
       !opportunity.allowed_student_email_domains?.length
     ) {
-      // setIsEligible(true);
+      setIsUserEligible(true);
       return;
     }
 
@@ -99,16 +102,8 @@ export default function DiscoveryPage() {
       user.email,
       opportunity.allowed_student_email_domains
     );
-    // if (eligible !== isEligible) {
-    setIsStudentEligible(eligible);
-    // }
-    // setIsEligible(eligible);
-  }, [
-    opportunity,
-    user?.email,
-    user?.user_types,
-    // isEligible
-  ]);
+    setIsUserEligible(eligible);
+  }, [opportunity, user?.email, user?.user_types, isUserEligible]);
 
   // Auto-redirect logic when no id is provided
   useEffect(() => {
@@ -133,13 +128,11 @@ export default function DiscoveryPage() {
   // Discovery hook - only initialize if enrolled
   const isEnrollmentReady =
     !!accessibleOpportunities && !isOpportunitiesLoading;
-  const isEligible =
-    (accessInfo?.has_access || false) &&
-    (userType === "student" ? isStudentEligible === true : true);
+  const isEligible = isUserEligible ?? false;
 
   console.log("isEligible", isEligible);
-  console.log("isStudentEligible", isStudentEligible);
   console.log("isEnrolled", isEnrolled);
+  console.log("accessInfo has access", accessInfo?.has_access);
 
   const {
     searchResults,
@@ -269,8 +262,8 @@ export default function DiscoveryPage() {
             </Box>{" "}
             opportunity
           </Heading>
-          {/* Enrolled user - show discovery interface */}
-          {isEnrolled && isEligible && !isSubmitting ? (
+          {/* Enrolled user and eligible - show discovery interface */}
+          {isEnrolled && accessInfo?.has_access && !isSubmitting ? (
             <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
               <VStack align="stretch" mb={8}>
                 <Heading size="lg" color="#313238ff">
