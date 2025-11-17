@@ -41,7 +41,10 @@ export default function OpportunityReviewPage() {
   const sp = useSearchParams();
   const router = useRouter();
   const opportunityId = sp.get("id") || "";
-  const { user, setEnrollmentStatus, setCurrentOpportunityId } = useAuthStore();
+  const { user,
+    //  setEnrollmentStatus,
+     // setCurrentOpportunityId
+      } = useAuthStore();
   const queryClient = useQueryClient();
 
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -101,10 +104,10 @@ export default function OpportunityReviewPage() {
           (opp) => opp.id.toString() === opportunityId
         );
 
-        if (currentOpportunity?.enrollment_status === "enrolled") {
-          setCurrentOpportunityId(opportunityId);
-          setEnrollmentStatus(true);
-        }
+        // if (currentOpportunity?.enrollment_status === "enrolled") {
+        //   setCurrentOpportunityId(opportunityId);
+        //   setEnrollmentStatus(true);
+        // }
       }
 
       router.push(`/opportunities/complete?id=${opportunityId}`);

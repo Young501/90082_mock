@@ -36,17 +36,11 @@ export default function DiscoveryPage() {
   const router = useRouter();
   const opportunitySlug = sp.get("opp") || undefined;
 
-  const {
-    user,
-    currentOpportunityId,
-    isEnrolled,
-    isEligible,
-    setCurrentOpportunityId,
-    setEnrollmentStatus,
-    setEligibilityStatus,
-    resetOpportunityState,
-    setAccessibleOpportunities,
-  } = useAuthStore();
+  const { user, setAccessibleOpportunities } = useAuthStore();
+  const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
+  const [isStudentEligible, setIsStudentEligible] = useState<boolean | null>(
+    null
+  );
 
   const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } =
     useAccessibleOpportunities();
@@ -74,22 +68,6 @@ export default function DiscoveryPage() {
     }
   }, [accessibleOpportunities, setAccessibleOpportunities]);
 
-  // Update global state when opportunity changes
-  useEffect(() => {
-    if (opportunityId !== currentOpportunityId) {
-      setCurrentOpportunityId(opportunityId || null);
-      // Reset enrollment/eligibility when opportunity changes
-      setEnrollmentStatus(null);
-      setEligibilityStatus(null);
-    }
-  }, [
-    opportunityId,
-    currentOpportunityId,
-    setCurrentOpportunityId,
-    setEnrollmentStatus,
-    setEligibilityStatus,
-  ]);
-
   // Compute and cache enrollment status
   useEffect(() => {
     if (!opportunityId || !accessibleOpportunities) return;
@@ -98,20 +76,13 @@ export default function DiscoveryPage() {
       (opp) => opp.id.toString() === opportunityId
     );
     const enrolled = currentOpportunity?.enrollment_status === "enrolled";
-    setAccessInfo(currentOpportunity?.access || null);
 
-    if (isEnrolled !== enrolled) {
-      setEnrollmentStatus(enrolled);
+    if (enrolled !== isEnrolled) {
+      setIsEnrolled(enrolled);
     }
-  }, [
-    opportunityId,
-    accessibleOpportunities,
-    isEnrolled,
-    setEnrollmentStatus,
-    setAccessInfo,
-  ]);
+    setAccessInfo(currentOpportunity?.access || null);
+  }, [opportunityId, accessibleOpportunities]);
 
-  // Compute and cache eligibility status
   useEffect(() => {
     if (!opportunity || !user?.email || isEligible !== null) return;
 
@@ -120,7 +91,7 @@ export default function DiscoveryPage() {
       userType !== "student" ||
       !opportunity.allowed_student_email_domains?.length
     ) {
-      setEligibilityStatus(true); // No restrictions or not a student
+      // setIsEligible(true);
       return;
     }
 
@@ -128,13 +99,15 @@ export default function DiscoveryPage() {
       user.email,
       opportunity.allowed_student_email_domains
     );
-    setEligibilityStatus(eligible);
+    // if (eligible !== isEligible) {
+    setIsStudentEligible(eligible);
+    // }
+    // setIsEligible(eligible);
   }, [
     opportunity,
     user?.email,
     user?.user_types,
-    isEligible,
-    setEligibilityStatus,
+    // isEligible
   ]);
 
   // Auto-redirect logic when no id is provided
@@ -160,6 +133,14 @@ export default function DiscoveryPage() {
   // Discovery hook - only initialize if enrolled
   const isEnrollmentReady =
     !!accessibleOpportunities && !isOpportunitiesLoading;
+  const isEligible =
+    (accessInfo?.has_access || false) &&
+    (userType === "student" ? isStudentEligible === true : true);
+
+  console.log("isEligible", isEligible);
+  console.log("isStudentEligible", isStudentEligible);
+  console.log("isEnrolled", isEnrolled);
+
   const {
     searchResults,
     hasSearched,
@@ -289,7 +270,7 @@ export default function DiscoveryPage() {
             opportunity
           </Heading>
           {/* Enrolled user - show discovery interface */}
-          {isEnrolled && accessInfo?.has_access && !isSubmitting ? (
+          {isEnrolled && isEligible && !isSubmitting ? (
             <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
               <VStack align="stretch" mb={8}>
                 <Heading size="lg" color="#313238ff">

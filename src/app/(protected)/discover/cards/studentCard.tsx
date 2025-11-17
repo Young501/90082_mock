@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/Button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Ban } from "lucide-react";
 import { isInTrialPeriod } from "@/utils/subscriptionPermissions";
+import { useSearchParams } from "next/navigation";
 
 interface StudentCardProps {
   student: StudentProfile;
@@ -45,6 +46,8 @@ export function StudentCard({
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
   const [clickBackground, setClickBackground] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
+  const searchParams = useSearchParams();
+  const opportunitySlug = searchParams.get("opp");
   const getDisplayName = () => {
     const firstName = student.first_name || "";
     const lastName = student.last_name || "";
@@ -141,14 +144,22 @@ export function StudentCard({
                   style={{ color: "#DC2626", fontSize: "20px" }}
                 />
               ) : (
-                <Box pos="relative" w="20px" h="20px">
+                <Button
+                  pos="relative"
+                  w="20px"
+                  h="20px"
+                  bg="transparent"
+                  _hover={{ bg: "transparent" }}
+                  _disabled={{ bg: "transparent" }}
+                  disabled={isInTrialPeriod(opportunitySlug || "")}
+                >
                   <Image
                     src="/assets/addicon.svg"
                     alt="add"
                     fill
                     style={{ objectFit: "contain" }}
                   />
-                </Box>
+                </Button>
               )}
             </Box>
           </Box>
@@ -387,7 +398,7 @@ export function StudentCard({
               )}
             </Box>
             <Tooltip
-              disabled={!isInTrialPeriod()}
+              disabled={isInTrialPeriod(opportunitySlug || "")}
               positioning={{ placement: "top", offset: { mainAxis: 8 } }}
               content="Subscribe to view full profiles during your trial period."
             >
@@ -401,7 +412,7 @@ export function StudentCard({
                   !student.id ||
                   disableViewFullProfile ||
                   isMatched ||
-                  isInTrialPeriod()
+                  isInTrialPeriod(opportunitySlug || "")
                 }
               >
                 View Full Profile
