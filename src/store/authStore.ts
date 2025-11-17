@@ -30,9 +30,6 @@ export interface AuthState {
   getCurrentUser: () => User | null;
   getCurrentToken: () => string | null;
   getUserType: () => string | undefined;
-  signupSelectedUserType: string | null;
-  setSignupSelectedUserType: (userType: string | null) => void;
-  getSignupSelectedUserType: () => string | null;
   setUserProfile: (profile: UserProfile) => void;
   getUserProfile: () => UserProfile | null;
   setLogoUrl: (url: string) => void;
@@ -76,7 +73,6 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       isAuthenticated: false,
-      signupSelectedUserType: null,
       logoUrl: null,
       userProfile: null,
       userProfilePictureUrl: null,
@@ -138,11 +134,6 @@ export const useAuthStore = create<AuthState>()(
       getCurrentUser: () => get().user,
       getCurrentToken: () => get().token,
       getUserType: () => get().user?.user_types?.[0],
-
-      setSignupSelectedUserType: (userType: string | null) => {
-        set({ signupSelectedUserType: userType });
-      },
-      getSignupSelectedUserType: () => get().signupSelectedUserType,
 
       setLogoUrl: (url: string) => {
         set({ logoUrl: url });
