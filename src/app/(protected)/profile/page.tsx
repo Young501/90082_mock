@@ -159,7 +159,7 @@ const Profile = () => {
   });
   const organisationNameValue = watch("name");
   const hasAbnLookupField = activePage?.questions?.some(
-    (question) => question.type === "abn_lookup"
+    (question: Question) => question.type === "abn_lookup"
   );
   const isAbnBlocking =
     hasAbnLookupField &&
@@ -864,7 +864,7 @@ const Profile = () => {
                   px={6}
                   bg="#CFF3FF"
                   loading={profileUpdateMutation.isPending}
-                  isDisabled={
+                  disabled={
                     profileUpdateMutation.isPending || isAbnBlocking
                   }
                 >

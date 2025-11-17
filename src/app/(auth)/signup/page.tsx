@@ -46,7 +46,6 @@ const SignupPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { handleSignup } = useAuth();
-  const { setInviteData } = useAuthStore();
 
   const validationSchema =
     signupSelectedUserType === "organisation"
@@ -54,30 +53,6 @@ const SignupPage = () => {
       : signupSelectedUserType === "student"
         ? studentAuthValidationSchema
         : baseAuthSchema; // coordinator & others
-
-  useEffect(() => {
-    if (!signupSelectedUserType) {
-      const inviteToken = searchParams.get("invite_token");
-      const opportunityId = searchParams.get("opportunity_id");
-
-      if (inviteToken && opportunityId) {
-        router.push(
-          `/user-type?signup=true&invite_token=${inviteToken}&opportunity_id=${opportunityId}`
-        );
-      } else {
-        router.push("/user-type?signup=true/");
-      }
-    }
-  }, [signupSelectedUserType, router, searchParams]);
-
-  useEffect(() => {
-    const inviteToken = searchParams.get("invite_token");
-    const opportunityId = searchParams.get("opportunity_id");
-
-    if (inviteToken && opportunityId) {
-      setInviteData(inviteToken, opportunityId);
-    }
-  }, [searchParams, setInviteData]);
 
   const {
     register,
