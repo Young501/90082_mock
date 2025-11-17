@@ -537,7 +537,6 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     const trialInfo = opportunitySlug
       ? getSubscriptionTrialInfo(opportunitySlug)
       : { isInTrial: false, trialEnd: null };
-    console.log(trialInfo);
 
     if (!trialInfo.isInTrial || !trialInfo.trialEnd) {
       return null;

@@ -130,9 +130,6 @@ export default function DiscoveryPage() {
     !!accessibleOpportunities && !isOpportunitiesLoading;
   const isEligible = isUserEligible ?? false;
 
-  console.log("isEligible", isEligible);
-  console.log("isEnrolled", isEnrolled);
-  console.log("accessInfo has access", accessInfo?.has_access);
 
   const {
     searchResults,
