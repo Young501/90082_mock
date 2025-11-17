@@ -38,6 +38,7 @@ interface FormData {
 const VALID_USER_TYPES = [
   "student",
   "organisation",
+  "coordinator",
   // TODO: Add coordinator, alumni and academic user types when flow is ready
 ];
 
