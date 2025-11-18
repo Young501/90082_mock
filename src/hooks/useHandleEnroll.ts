@@ -22,6 +22,7 @@ type Props = {
     warning: (m: string) => void;
     error: (m: string) => void;
   };
+  opportunitySlug?: string;
 };
 
 export function useHandleEnroll({
@@ -30,6 +31,7 @@ export function useHandleEnroll({
   opportunity,
   accessInfo,
   toast,
+  opportunitySlug,
 }: Props) {
   const { user } = useAuthStore();
   const router = useRouter();
@@ -96,14 +98,14 @@ export function useHandleEnroll({
           const nextParam = shouldShowQuestionnaire
             ? "&next=questionnaire"
             : "";
-          router.push(`/opportunities/pricing?id=${opportunityId}${nextParam}`);
+          router.push(`/opportunities/pricing?opp=${opportunitySlug}${nextParam}`);
           return;
         }
       }
 
       // Step 2: If no pricing or free access, proceed to questionnaire or direct enrollment
       if (shouldShowQuestionnaire) {
-        router.push(`/opportunities/start?id=${opportunityId}`);
+        router.push(`/opportunities/start?opp=${opportunitySlug}`);
         return;
       }
 

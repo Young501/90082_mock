@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/Button";
 import { PageTitle } from "@/components/PageTitle";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/authStore";
+import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
 
 export default function BillingSuccessPage() {
   const router = useRouter();
@@ -25,7 +26,8 @@ export default function BillingSuccessPage() {
   const { accessibleOpportunities } = useAuthStore();
 
   const [context, setContext] = useState<{
-    opportunityId: string;
+    // opportunityId?: string;
+    opportunitySlug: string;
     next: string;
   } | null>(null);
 
@@ -62,15 +64,16 @@ export default function BillingSuccessPage() {
       return;
     }
 
-    // Clear the stored context
     sessionStorage.removeItem("billing_return_context");
 
-    const currentOpportunity = accessibleOpportunities?.find(
-      (opp) => opp.id.toString() === context.opportunityId
+    // const identifier = context.opportunitySlug;
+    const currentOpportunity = findOpportunityByIdOrSlug(
+      accessibleOpportunities,
+      context.opportunitySlug
     );
 
     if (context.next === "questionnaire") {
-      router.push(`/opportunities/start?id=${context.opportunityId}`);
+      router.push(`/opportunities/start?opp=${context.opportunitySlug}`);
     } else {
       router.push(
         currentOpportunity?.slug
@@ -79,7 +82,6 @@ export default function BillingSuccessPage() {
       );
     }
   };
-
 
   return (
     <>

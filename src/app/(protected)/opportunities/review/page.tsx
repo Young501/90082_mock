@@ -36,18 +36,28 @@ import {
   getEnrollmentErrorMessage,
 } from "@/utils/apiErrorHandling";
 import { parseQuestionnaireOptions } from "@/utils/questionnaireParser";
+import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
 
 export default function OpportunityReviewPage() {
   const sp = useSearchParams();
   const router = useRouter();
-  const opportunityId = sp.get("id") || "";
+  const opportunitySlug = sp.get("opp") || "";
+  const { accessibleOpportunities } = useAuthStore();
+
+  const currentOpportunity = findOpportunityByIdOrSlug(
+    accessibleOpportunities,
+    opportunitySlug
+  );
+
+  const opportunityId = currentOpportunity?.id;
+
   const { user, setEnrollmentStatus, setCurrentOpportunityId } = useAuthStore();
   const queryClient = useQueryClient();
 
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const { questionnaireAnswers: answers } =
-    useQuestionnaireAnswers(opportunityId);
+    useQuestionnaireAnswers(opportunityId?.toString() || "");
 
   const enrollMutation = useEnrollInOpportunity();
 
@@ -55,7 +65,7 @@ export default function OpportunityReviewPage() {
     data: opportunity,
     isLoading,
     error,
-  } = useOpportunityDetail(opportunityId);
+  } = useOpportunityDetail(opportunityId?.toString() || "");
 
   const userType = user?.user_types?.[0] || "student";
 
@@ -65,12 +75,12 @@ export default function OpportunityReviewPage() {
   }, [userType, opportunity?.questionnaire]);
 
   const handleBack = () => {
-    router.push(`/opportunities/fill?id=${opportunityId}`);
+    router.push(`/opportunities/fill?opp=${opportunitySlug}`);
   };
 
   const handleEdit = (fieldName: string) => {
     // Navigate back to fill page and scroll to the specific field
-    router.push(`/opportunities/fill?id=${opportunityId}&edit=${fieldName}`);
+    router.push(`/opportunities/fill?opp=${opportunitySlug}&edit=${fieldName}`);
   };
 
   const handleSubmit = async () => {
@@ -83,7 +93,7 @@ export default function OpportunityReviewPage() {
 
     try {
       await enrollMutation.mutateAsync({
-        opportunityId,
+        opportunityId: opportunityId?.toString() || "",
         questionnaireAnswers: answers,
       });
 
@@ -97,17 +107,18 @@ export default function OpportunityReviewPage() {
       ]) as any[];
 
       if (accessibleOpportunities) {
-        const currentOpportunity = accessibleOpportunities.find(
-          (opp) => opp.id.toString() === opportunityId
+        const currentOpportunity = findOpportunityByIdOrSlug(
+          accessibleOpportunities,
+          opportunityId?.toString() || "",
         );
 
         if (currentOpportunity?.enrollment_status === "enrolled") {
-          setCurrentOpportunityId(opportunityId);
+          setCurrentOpportunityId(opportunityId?.toString() || "");
           setEnrollmentStatus(true);
         }
       }
 
-      router.push(`/opportunities/complete?id=${opportunityId}`);
+      router.push(`/opportunities/complete?opp=${opportunitySlug}`);
     } catch (error: unknown) {
       console.error("Enrollment error:", error);
 
