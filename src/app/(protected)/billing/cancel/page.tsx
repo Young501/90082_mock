@@ -15,12 +15,14 @@ import { XCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { PageTitle } from "@/components/PageTitle";
 import { useAuthStore } from "@/store/authStore";
+import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
 
 export default function BillingCancelPage() {
   const router = useRouter();
   const { accessibleOpportunities } = useAuthStore();
   const [context, setContext] = useState<{
-    opportunityId: string;
+    // opportunityId?: string;
+    opportunitySlug: string;
     next: string;
   } | null>(null);
 
@@ -38,20 +40,22 @@ export default function BillingCancelPage() {
   }, []);
 
   const handleRetry = () => {
-    if (context?.opportunityId) {
-      router.push(`/opportunities/pricing?id=${context.opportunityId}`);
+    if (context?.opportunitySlug) {
+      router.push(
+        `/opportunities/pricing?opp=${context?.opportunitySlug}`
+      );
     } else {
       router.push("/dashboard");
     }
   };
 
   const handleBackToOpportunity = () => {
-    // Clear the stored context
     sessionStorage.removeItem("billing_return_context");
 
-    if (context?.opportunityId) {
-      const currentOpportunity = accessibleOpportunities?.find(
-        (opp) => opp.id.toString() === context.opportunityId
+    if (context?.opportunitySlug) {
+      const currentOpportunity = findOpportunityByIdOrSlug(
+        accessibleOpportunities,
+        context.opportunitySlug
       );
       router.push(
         currentOpportunity?.slug
@@ -100,7 +104,7 @@ export default function BillingCancelPage() {
                   subscription process.
                 </Text>
 
-                {context?.opportunityId && (
+                {context?.opportunitySlug && (
                   <Text color="gray.500" fontSize="sm">
                     You can still browse this opportunity, but some features may
                     require a subscription to access.
@@ -125,7 +129,7 @@ export default function BillingCancelPage() {
                   variant="ghost"
                   onClick={handleBackToOpportunity}
                 >
-                  {context?.opportunityId
+                  {context?.opportunitySlug
                     ? "Return to Opportunity"
                     : "Return to Dashboard"}
                 </Button>

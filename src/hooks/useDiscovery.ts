@@ -329,6 +329,7 @@ export const useDiscovery = (
       opportunity_id: currentOpportunityId,
       page: 1,
       page_size: pageSize,
+      sort_by: "distance",
       ...Object.fromEntries(filteredEntries),
     };
 
@@ -345,6 +346,7 @@ export const useDiscovery = (
       setSearchParams({
         user_type: targetUserType,
         opportunity_id: currentOpportunityId,
+        sort_by: "distance",
         page: 1,
         page_size: pageSize,
       });
@@ -428,6 +430,7 @@ export const useDiscovery = (
     setSearchParams({
       user_type: targetUserType,
       opportunity_id: currentOpportunityId,
+      sort_by: "distance",
       page: 1,
       page_size: pageSize,
     });

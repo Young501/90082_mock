@@ -30,6 +30,7 @@ import { toast } from "react-toastify";
 import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 import { useHandleEnroll } from "@/hooks/useHandleEnroll";
 import { AccessInfo } from "@/types/opportunities";
+import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
@@ -70,8 +71,9 @@ export default function DiscoveryPage() {
   useEffect(() => {
     if (!opportunityId || !accessibleOpportunities) return;
 
-    const currentOpportunity = accessibleOpportunities.find(
-      (opp) => opp.id.toString() === opportunityId
+    const currentOpportunity = findOpportunityByIdOrSlug(
+      accessibleOpportunities,
+      opportunitySlug
     );
     const enrolled = currentOpportunity?.enrollment_status === "enrolled";
 
@@ -164,6 +166,7 @@ export default function DiscoveryPage() {
     opportunity,
     accessInfo,
     toast,
+    opportunitySlug,
   });
 
   // Opportunity-specific content

@@ -14,20 +14,23 @@ import { useOpportunityDetail } from "@/services/shared";
 import { toaster } from "@/components/ui/toaster";
 import { PageTitle } from "@/components/PageTitle";
 import { PricingTier } from "@/types/subscription";
+import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
 
 export default function OpportunityPricingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const opportunityId = searchParams.get("id");
+  const opportunitySlug = searchParams.get("opp");
   const nextStep = searchParams.get("next");
   const { user, accessibleOpportunities } = useAuthStore();
   const userType = user?.user_types?.[0];
 
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const currentOpportunity = accessibleOpportunities?.find(
-    (opp) => opp.id.toString() === opportunityId
+  const currentOpportunity = findOpportunityByIdOrSlug(
+    accessibleOpportunities,
+    opportunitySlug
   );
+  const opportunityId = currentOpportunity?.id;
   const trialEligibility = currentOpportunity?.access.trial_eligibility;
   const trialDays = trialEligibility?.eligible
     ? trialEligibility?.days_total
@@ -37,14 +40,14 @@ export default function OpportunityPricingPage() {
     data: opportunity,
     isLoading: isLoadingOpportunity,
     error: opportunityError,
-  } = useOpportunityDetail(opportunityId || "");
+  } = useOpportunityDetail(opportunityId?.toString() || "");
 
   // Fetch pricing
   const {
     data: productsData,
     isLoading: isLoadingPricing,
     error: pricingError,
-  } = useProductPricing(opportunityId, userType || null);
+  } = useProductPricing(opportunityId || null, userType || null);
 
   // Checkout mutation
   const checkoutMutation = useCreateCheckoutSession();
@@ -62,7 +65,7 @@ export default function OpportunityPricingPage() {
       });
 
       if (nextStep === "questionnaire") {
-        router.push(`/opportunities/start?id=${opportunityId}`);
+        router.push(`/opportunities/start?opp=${opportunitySlug}`);
       } else {
         router.push(
           currentOpportunity?.slug
@@ -75,7 +78,7 @@ export default function OpportunityPricingPage() {
     isLoadingPricing,
     productsData,
     nextStep,
-    opportunityId,
+    opportunitySlug,
     router,
     currentOpportunity?.slug,
   ]);
@@ -91,7 +94,6 @@ export default function OpportunityPricingPage() {
     }
     setIsProcessing(true);
     try {
-      // Create checkout data with new API format
       const checkoutData: any = {
         price_id: selectedTier.price_id,
         user_type: userType,
@@ -105,23 +107,17 @@ export default function OpportunityPricingPage() {
       const response = await checkoutMutation.mutateAsync(checkoutData);
       if (response.url) {
         // Store the return context
-        if (nextStep === "questionnaire") {
-          sessionStorage.setItem(
-            "billing_return_context",
-            JSON.stringify({
-              opportunityId,
-              next: "questionnaire",
-            })
-          );
-        } else {
-          sessionStorage.setItem(
-            "billing_return_context",
-            JSON.stringify({
-              opportunityId,
-              next: "discover",
-            })
-          );
+        const contextData: any = {
+          next: nextStep === "questionnaire" ? "questionnaire" : "discover",
+        };
+        if (opportunitySlug) {
+          contextData.opportunitySlug = opportunitySlug;
         }
+
+        sessionStorage.setItem(
+          "billing_return_context",
+          JSON.stringify(contextData)
+        );
         // Redirect to Stripe Checkout
         window.location.href = response.url;
       } else {
@@ -206,6 +202,12 @@ export default function OpportunityPricingPage() {
       </>
     );
   }
+
+  console.log("productsData", productsData);
+
+  console.log("opportunity", opportunity);
+
+  console.log("opportunityId", opportunityId);
 
   return (
     <>

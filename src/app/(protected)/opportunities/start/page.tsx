@@ -7,35 +7,38 @@ import { Button } from "@/components/ui/Button";
 import ProgressTrack from "@/components/ProgressTrack";
 import { useOpportunityDetail } from "@/services/shared";
 import { useAuthStore } from "@/store";
+import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
 
 export default function OpportunityStartPage() {
   const sp = useSearchParams();
   const router = useRouter();
-  const opportunityId = sp.get("id");
+  const opportunitySlug = sp.get("opp") || "";
   const { accessibleOpportunities } = useAuthStore();
 
-  const currentOpportunity = accessibleOpportunities?.find(
-    (opp) => opp.id.toString() === opportunityId
+  const currentOpportunity = findOpportunityByIdOrSlug(
+    accessibleOpportunities,
+    opportunitySlug
   );
+
+  const opportunityId = currentOpportunity?.id;
 
   const {
     data: opportunity,
     isLoading,
     error,
-  } = useOpportunityDetail(opportunityId || "");
+  } = useOpportunityDetail(opportunityId?.toString() || "");
 
   const handleStartQuestionnaire = () => {
-    // Proceed directly to questionnaire (domain check handled in discover page)
-    router.push(`/opportunities/fill?id=${opportunityId}`);
+    router.push(`/opportunities/fill?opp=${opportunitySlug}`);
   };
 
   useEffect(() => {
-    if (!opportunityId) {
+    if (!opportunitySlug) {
       router.push("/discover");
     }
-  }, [opportunityId, router]);
+  }, [opportunitySlug, router]);
 
-  if (!opportunityId) {
+  if (!opportunitySlug) {
     return null;
   }
 
