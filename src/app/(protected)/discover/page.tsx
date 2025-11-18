@@ -44,19 +44,18 @@ export default function DiscoveryPage() {
   const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } =
     useAccessibleOpportunities();
 
-  const opportunityId = useMemo(() => {
-    if (!opportunitySlug || !accessibleOpportunities) return undefined;
-    const found = accessibleOpportunities.find(
-      (opp) => opp.slug === opportunitySlug
-    );
-    return found ? found.id.toString() : undefined;
-  }, [opportunitySlug, accessibleOpportunities]);
+  const currentOpportunity = findOpportunityByIdOrSlug(
+    accessibleOpportunities,
+    opportunitySlug
+  );
+
+  const opportunityId = currentOpportunity?.id;
 
   const {
     data: opportunity,
     isLoading: isOpportunityLoading,
     error: opportunityError,
-  } = useOpportunityDetail(opportunityId || "");
+  } = useOpportunityDetail(opportunityId?.toString() || "");
 
   const userType = user?.user_types?.[0];
   const [accessInfo, setAccessInfo] = useState<AccessInfo | null>(null);
@@ -132,7 +131,6 @@ export default function DiscoveryPage() {
     !!accessibleOpportunities && !isOpportunitiesLoading;
   const isEligible = isUserEligible ?? false;
 
-
   const {
     searchResults,
     hasSearched,
@@ -152,7 +150,7 @@ export default function DiscoveryPage() {
     totalPages,
     handlePageChange,
     handlePageSizeChange,
-  } = useDiscovery(opportunityId, {
+  } = useDiscovery(opportunityId?.toString() || "", {
     isEnrolled: isEnrolled === null ? undefined : isEnrolled,
     isEnrollmentReady,
   });
@@ -162,7 +160,7 @@ export default function DiscoveryPage() {
 
   const { handleEnroll, isSubmitting } = useHandleEnroll({
     isEligible,
-    opportunityId: opportunityId || "",
+    opportunityId: opportunityId?.toString() || "",
     opportunity,
     accessInfo,
     toast,
@@ -305,7 +303,7 @@ export default function DiscoveryPage() {
                 pageSize={pageSize}
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange}
-                opportunityId={opportunityId}
+                opportunityId={opportunityId?.toString() || ""}
               />
             </Box>
           ) : (

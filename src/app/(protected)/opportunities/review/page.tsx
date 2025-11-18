@@ -51,7 +51,7 @@ export default function OpportunityReviewPage() {
 
   const opportunityId = currentOpportunity?.id;
 
-  const { user, setEnrollmentStatus, setCurrentOpportunityId } = useAuthStore();
+  const { user } = useAuthStore();
   const queryClient = useQueryClient();
 
   const [submitError, setSubmitError] = useState<string | null>(null);
