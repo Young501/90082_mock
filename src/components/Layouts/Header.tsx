@@ -288,7 +288,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       const only = opps[0];
       return (
         <Link
-          href={`/discover/?id=${only.id}`}
+          href={`/discover/?opp=${only.slug}`}
           key="DISCOVER"
           onClick={handleMenuItemClick}
         >
@@ -343,15 +343,15 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                   key={o.id}
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleMobileOpportunityClick(o.id);
+                    handleMobileOpportunityClick(o.slug);
                   }}
                   onMouseUp={(e) => {
                     e.stopPropagation();
-                    handleMobileOpportunityClick(o.id);
+                    handleMobileOpportunityClick(o.slug);
                   }}
                   onTouchEnd={(e) => {
                     e.stopPropagation();
-                    handleMobileOpportunityClick(o.id);
+                    handleMobileOpportunityClick(o.slug);
                   }}
                   cursor="pointer"
                   position="relative"
@@ -440,7 +440,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               {opps.map((o) => (
                 // Navigate to opportunity details page
                 <Link
-                  href={`/discover/?id=${o.id}`}
+                  href={`/discover/?opp=${o.slug}`}
                   key={o.id}
                   onClick={handleMenuItemClick}
                 >
@@ -503,10 +503,10 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     setIsDiscoverDropdownOpen(false);
   };
 
-  const handleMobileOpportunityClick = (opportunityId: number) => {
+  const handleMobileOpportunityClick = (opportunitySlug: string) => {
     setIsMobileMenuOpen(false);
     setIsDiscoverDropdownOpen(false);
-    router.push(`/discover/?id=${opportunityId}`);
+    router.push(`/discover/?opp=${opportunitySlug}`);
   };
 
   const Overlay = () => (

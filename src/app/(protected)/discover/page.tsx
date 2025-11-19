@@ -30,11 +30,12 @@ import { toast } from "react-toastify";
 import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 import { useHandleEnroll } from "@/hooks/useHandleEnroll";
 import { AccessInfo } from "@/types/opportunities";
+import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
   const router = useRouter();
-  const opportunityId = sp.get("id") || undefined;
+  const opportunitySlug = sp.get("opp") || undefined;
 
   const {
     user,
@@ -48,16 +49,23 @@ export default function DiscoveryPage() {
     setAccessibleOpportunities,
   } = useAuthStore();
 
+  const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } =
+    useAccessibleOpportunities();
+
+  const opportunityId = useMemo(() => {
+    if (!opportunitySlug || !accessibleOpportunities) return undefined;
+    const found = accessibleOpportunities.find(
+      (opp) => opp.slug === opportunitySlug
+    );
+    return found ? found.id.toString() : undefined;
+  }, [opportunitySlug, accessibleOpportunities]);
+
   const {
     data: opportunity,
     isLoading: isOpportunityLoading,
     error: opportunityError,
   } = useOpportunityDetail(opportunityId || "");
 
-  const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } =
-    useAccessibleOpportunities();
-
-  // Get user type
   const userType = user?.user_types?.[0];
   const [accessInfo, setAccessInfo] = useState<AccessInfo | null>(null);
 
@@ -87,8 +95,9 @@ export default function DiscoveryPage() {
   useEffect(() => {
     if (!opportunityId || !accessibleOpportunities) return;
 
-    const currentOpportunity = accessibleOpportunities.find(
-      (opp) => opp.id.toString() === opportunityId
+    const currentOpportunity = findOpportunityByIdOrSlug(
+      accessibleOpportunities,
+      opportunitySlug
     );
     const enrolled = currentOpportunity?.enrollment_status === "enrolled";
     setAccessInfo(currentOpportunity?.access || null);
@@ -102,6 +111,7 @@ export default function DiscoveryPage() {
     isEnrolled,
     setEnrollmentStatus,
     setAccessInfo,
+    opportunitySlug,
   ]);
 
   // Compute and cache eligibility status
@@ -133,7 +143,7 @@ export default function DiscoveryPage() {
   // Auto-redirect logic when no id is provided
   useEffect(() => {
     if (
-      !opportunityId &&
+      !opportunitySlug &&
       !isOpportunitiesLoading &&
       accessibleOpportunities &&
       accessibleOpportunities.length > 0
@@ -141,9 +151,14 @@ export default function DiscoveryPage() {
       const minOpportunity = accessibleOpportunities.reduce((min, current) =>
         current.id < min.id ? current : min
       );
-      router.replace(`/discover?id=${minOpportunity.id}`);
+      router.replace(`/discover?opp=${minOpportunity.slug}`);
     }
-  }, [opportunityId, isOpportunitiesLoading, accessibleOpportunities, router]);
+  }, [
+    opportunitySlug,
+    isOpportunitiesLoading,
+    accessibleOpportunities,
+    router,
+  ]);
 
   // Discovery hook - only initialize if enrolled
   const isEnrollmentReady =
@@ -181,6 +196,7 @@ export default function DiscoveryPage() {
     opportunity,
     accessInfo,
     toast,
+    opportunitySlug,
   });
 
   // Opportunity-specific content

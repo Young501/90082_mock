@@ -45,6 +45,7 @@ export interface AccessibleOpportunity extends Opportunity {
   enrollment_status: "enrolled" | "not_enrolled" | string;
   visibility_display: string;
   access: AccessInfo;
+  slug: string;
 }
 
 export type AccessSource = "none" | "rule" | "override" | "subscription";
