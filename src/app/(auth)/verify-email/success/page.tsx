@@ -19,34 +19,9 @@ import { PAGE_TITLES } from "@/utils/pageTitles";
 export default function EmailVerifySuccessPage() {
   const router = useRouter();
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
-  const { getInviteData } = useAuthStore();
-
-  useEffect(() => {
-    const { token: inviteToken, opportunityId } = getInviteData();
-
-    if (inviteToken && opportunityId) {
-      router.push(
-        "/login/?invite_token=" +
-          inviteToken +
-          "&opportunity_id=" +
-          opportunityId
-      );
-    }
-  }, [getInviteData, router]);
 
   const handleLoginClick = () => {
-    const { token: inviteToken, opportunityId } = getInviteData();
-
-    if (inviteToken && opportunityId) {
-      router.push(
-        "/login/?invite_token=" +
-          inviteToken +
-          "&opportunity_id=" +
-          opportunityId
-      );
-    } else {
-      router.push("/login/");
-    }
+    router.push("/login/");
   };
 
   return (

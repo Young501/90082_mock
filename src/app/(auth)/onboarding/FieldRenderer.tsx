@@ -4,6 +4,7 @@ import {
   Control,
   FieldErrors,
   useWatch,
+  UseFormSetError,
 } from "react-hook-form";
 import {
   InputField,
@@ -16,8 +17,9 @@ import {
   CardSelectField,
   TextAreaField,
   GeocodeAutocompleteInput,
+  AbnLookupField,
 } from "@/components/fields";
-import { Question } from "@/types/onboarding";
+import { AbnValidationStatus, Question } from "@/types/onboarding";
 import { useMemo, useEffect, useRef, useCallback } from "react";
 import { parseQuestionnaireOptions } from "@/utils/questionnaireParser";
 
@@ -26,11 +28,14 @@ interface FieldRendererProps {
   register: UseFormRegister<any>;
   control: Control<any>;
   errors: FieldErrors<any>;
+  setError: UseFormSetError<any>;
   clearErrors?: (name: string) => void;
   unregister?: (name: string) => void;
   onFieldUnregistered?: (fieldName: string) => void;
   onParentValueChange?: (fieldName: string, newValue: any) => void;
   fileUploadKey?: number;
+  organisationName?: string;
+  onAbnValidationChange?: (status: AbnValidationStatus) => void;
 }
 
 const FILE_FIELD_TYPES = {
@@ -44,11 +49,14 @@ export const FieldRenderer = ({
   register,
   control,
   errors,
+  setError,
   clearErrors,
   unregister,
   onFieldUnregistered,
   onParentValueChange,
   fileUploadKey,
+  organisationName,
+  onAbnValidationChange,
 }: FieldRendererProps) => {
   const error = errors[question.field]?.message as string | undefined;
   // const fieldOptions = question.options || question.option || [];
@@ -173,6 +181,23 @@ export const FieldRenderer = ({
             fontSize: "16px",
             px: 6,
           }}
+        />
+      );
+    }
+
+    if (question.type === "abn_lookup") {
+      return (
+        <AbnLookupField
+          name={question.field}
+          label={question.label}
+          control={control}
+          required={question.required}
+          error={error}
+          organisationName={organisationName}
+          setError={setError}
+          clearErrors={clearErrors}
+          onStatusChange={onAbnValidationChange}
+          icon={question.icon}
         />
       );
     }
@@ -354,11 +379,14 @@ export const FieldRenderer = ({
             register={register}
             control={control}
             errors={errors}
+            setError={setError}
             clearErrors={clearErrors}
             unregister={unregister}
             onFieldUnregistered={onFieldUnregistered}
             onParentValueChange={onParentValueChange}
             fileUploadKey={fileUploadKey}
+            organisationName={organisationName}
+            onAbnValidationChange={onAbnValidationChange}
           />
         </Box>
       ))}

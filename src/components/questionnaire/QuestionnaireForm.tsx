@@ -80,6 +80,7 @@ export const QuestionnaireForm = forwardRef<
     clearErrors,
     unregister,
     reset,
+    setError,
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues,
@@ -140,9 +141,11 @@ export const QuestionnaireForm = forwardRef<
               register={register}
               control={control}
               errors={errors}
+              setError={setError}
               clearErrors={clearErrors}
               unregister={unregister}
               onFieldUnregistered={handleFieldUnregistered}
+              organisationName={watchedValues?.name}
             />
           </Box>
         ))}

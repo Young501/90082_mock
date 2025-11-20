@@ -105,10 +105,6 @@ apiClient.interceptors.response.use(
     const currentUrl = window.location.href;
     const isInvitePage = matchesInvitePattern(currentUrl);
 
-      // TODO: clean up after testing on staging
-      console.log("isInvitePage", isInvitePage);
-      console.log("error.status", currentUrl);
-
     if (error.status === 401 && !isInvitePage) {
       useAuthStore.getState().logout();
       // window.location.href = "/login/";
@@ -305,6 +301,10 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: "/api/v1/geocode/",
   },
+  ABN_VALIDATE: {
+    method: "POST",
+    url: "/api/v1/organisation/validate-abn/",
+  },
   INVITE_PARTICIPANTS: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/invite/`,
@@ -324,6 +324,19 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v1/opportunities/${opportunityId}/participant/${participantId}/`,
   }),
+  // Subscription endpoints
+  SUBSCRIPTION_CANCEL: {
+    method: "POST",
+    url: "/api/v1/subscriptions/cancel/",
+  },
+  PRODUCT_PRICING: {
+    method: "GET",
+    url: "/api/v1/subscriptions/product-pricing/",
+  },
+  CHECKOUT_SESSION: {
+    method: "POST",
+    url: "/api/v1/subscriptions/checkout-session/",
+  },
 };
 
 /*********

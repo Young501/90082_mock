@@ -16,6 +16,7 @@ import { DeleteModal } from "../../folders/modals/DeleteModal";
 import { Button } from "@/components/ui/Button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Ban } from "lucide-react";
+import { isInTrialPeriod } from "@/utils/subscriptionPermissions";
 
 interface StudentCardProps {
   student: StudentProfile;
@@ -397,17 +398,27 @@ export function StudentCard({
                 </Box>
               )}
             </Box>
-
-            <Button
-              variant="student"
-              w="full"
-              py={6}
-              mt={4}
-              onClick={handleViewFullProfile}
-              disabled={!student.id || disableViewFullProfile || isMatched}
+            <Tooltip
+              disabled={!isInTrialPeriod()}
+              positioning={{ placement: "top", offset: { mainAxis: 8 } }}
+              content="Subscribe to view full profiles during your trial period."
             >
-              View Full Profile
-            </Button>
+              <Button
+                variant="student"
+                w="full"
+                py={6}
+                mt={4}
+                onClick={handleViewFullProfile}
+                disabled={
+                  !student.id ||
+                  disableViewFullProfile ||
+                  isMatched ||
+                  isInTrialPeriod()
+                }
+              >
+                View Full Profile
+              </Button>
+            </Tooltip>
           </Box>
         </Box>
       </Tooltip>

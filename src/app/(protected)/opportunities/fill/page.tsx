@@ -28,11 +28,21 @@ import { Button } from "@/components/ui/Button";
 import { Loader } from "lucide-react";
 import { useQuestionnaireAnswers } from "@/hooks/useQuestionnaireAnswers";
 import { Question } from "@/types/onboarding";
+import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
 
 export default function OpportunityFillPage() {
   const sp = useSearchParams();
   const router = useRouter();
-  const opportunityId = sp.get("id");
+  const opportunitySlug = sp.get("opp") || "";
+  const { accessibleOpportunities } = useAuthStore();
+
+  const currentOpportunity = findOpportunityByIdOrSlug(
+    accessibleOpportunities,
+    opportunitySlug
+  );
+
+  const opportunityId = currentOpportunity?.id;
+
   const editField = sp.get("edit");
   const { user } = useAuthStore();
 
@@ -43,13 +53,13 @@ export default function OpportunityFillPage() {
     questionnaireAnswers: answers,
     updateAnswers,
     clearAnswers,
-  } = useQuestionnaireAnswers(opportunityId);
+  } = useQuestionnaireAnswers(opportunityId?.toString() || "");
 
   const {
     data: opportunity,
     isLoading,
     error,
-  } = useOpportunityDetail(opportunityId || "");
+  } = useOpportunityDetail(opportunityId?.toString() || "");
 
   const userType = user?.user_types?.[0] || "student";
 
@@ -89,14 +99,14 @@ export default function OpportunityFillPage() {
   }, [editField, questions]);
 
   const handleBack = () => {
-    router.push(`/opportunities/start?id=${opportunityId}`);
+    router.push(`/opportunities/start?opp=${opportunitySlug}`);
   };
 
   const handleNext = async () => {
     if (questionnaireRef.current) {
       const isValid = await questionnaireRef.current.validate();
       if (isValid) {
-        router.push(`/opportunities/review?id=${opportunityId}`);
+        router.push(`/opportunities/review?opp=${opportunitySlug}`);
       } else {
         setHasValidationError(true);
       }

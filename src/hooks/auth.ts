@@ -46,16 +46,7 @@ export const checkOnboardingStatus = async ({
     });
     setUserProfile(response);
     if (redirectOnSuccess) {
-      const { getInviteData } = useAuthStore.getState();
-      const { token: inviteToken, opportunityId } = getInviteData();
-
-      if (inviteToken && opportunityId) {
-        router.push(
-          `/invite/?token=${inviteToken}&opportunity=${opportunityId}`
-        );
-      } else {
-        router.push("/discover/");
-      }
+      router.push("/discover/");
     }
   } catch (error: any) {
     if (error?.response?.status === 404 && userType === "organisation") {

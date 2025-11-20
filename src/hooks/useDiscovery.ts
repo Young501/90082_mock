@@ -13,6 +13,7 @@ import { useUserSearch } from "@/services/user";
 import { useOnboardingPages, useQuestionnaireFilters } from "@/services/shared";
 import { toast } from "react-toastify";
 import { UserProfile } from "@/types/shared";
+import { parseQuestionnaireOptions } from "@/utils/questionnaireParser";
 
 const createValidationSchema = (fields: ProcessedField[]) => {
   const shape: Record<string, any> = {};
@@ -51,7 +52,7 @@ const getDefaultValues = (fields: ProcessedField[]): FilterFormData => {
 const extractFilterOptions = (
   results: UserProfile[],
   fields: ProcessedField[]
-): Record<string, string[]> => {
+): Record<string, Array<string | { label: string; value: string }>> => {
   const options: Record<string, Set<string>> = {};
 
   results.forEach((user) => {
@@ -80,7 +81,31 @@ const extractFilterOptions = (
   });
 
   return Object.fromEntries(
-    Object.entries(options).map(([key, set]) => [key, Array.from(set).sort()])
+    Object.entries(options).map(([fieldName, valueSet]) => {
+
+      //******** returning both types of field options, is required here i.e [string | { label: string; value: string }] *********//
+      const field = fields.find((f) => f.field === fieldName);
+      const extractedValues = Array.from(valueSet).sort();
+      
+      if (field?.options) {
+        // ************ reverted to use the utils function to parse the options now filter options arent an array of strings but array of objects with label and value this is consistent ************//
+        const parsedOptions = parseQuestionnaireOptions(field.options);
+        
+        const optionMap = new Map(
+          parsedOptions.map((opt) => [opt.value, opt])
+        );
+        
+        const mappedOptions = extractedValues
+          .map((val) => optionMap.get(val))
+          .filter((opt): opt is { label: string; value: string } => opt !== undefined);
+        
+        if (mappedOptions.length > 0) {
+          return [fieldName, mappedOptions];
+        }
+      }
+      
+      return [fieldName, extractedValues];
+    })
   );
 };
 
@@ -105,9 +130,9 @@ export const useDiscovery = (
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [filterOptions, setFilterOptions] = useState<Record<string, string[]>>(
-    {}
-  );
+  const [filterOptions, setFilterOptions] = useState<
+    Record<string, Array<string | { label: string; value: string }>>
+  >({});
   const [isSearching, setIsSearching] = useState(false);
 
   const userType = user?.user_types?.[0];
@@ -177,7 +202,9 @@ export const useDiscovery = (
             );
 
             if (isFieldVisible) {
-              form.setValue(fieldName, options[0]);
+              const optionValue =
+                typeof options[0] === "string" ? options[0] : options[0].value;
+              form.setValue(fieldName, optionValue);
             }
           }
         });

@@ -1,5 +1,7 @@
 export type AnswerValue = string | number | string[] | File | undefined;
 
+export type AbnValidationStatus = "idle" | "pending" | "valid" | "invalid" | "error";
+
 export interface AnswerMap {
   [field: string]: AnswerValue;
 }
@@ -38,13 +40,14 @@ export interface Question {
     | "boolean-checkbox"
     | "card-select"
     | "location_geocode_lookup"
+    | "abn_lookup"
     | "email";
 
   required?: boolean;
   icon?: string;
   description?: string;
-  options?: string[];
-  option?: string[];
+  options?: string[] | Array<{ label: string; value: string }>;
+  option?: string[] | Array<{ label: string; value: string }>;
   max_selection?: number;
   max_selections?: number;
   "max-selection"?: number;

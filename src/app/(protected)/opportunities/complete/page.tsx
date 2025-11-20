@@ -23,26 +23,35 @@ import { useQuestionnaireAnswers } from "@/hooks/useQuestionnaireAnswers";
 
 import { PageTitle } from "@/components/PageTitle";
 import Footer from "@/components/Layouts/Footer";
+import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
 
 export default function OpportunityCompletePage() {
   const sp = useSearchParams();
   const router = useRouter();
-  const opportunityId = sp.get("id");
-  const { user } = useAuthStore();
+  const opportunitySlug = sp.get("opp");
+  const { user, accessibleOpportunities } = useAuthStore();
   const queryClient = useQueryClient();
 
-  if (!opportunityId) {
+  if (!opportunitySlug) {
     router.push("/opportunities");
     return null;
   }
 
-  const { clearAnswers } = useQuestionnaireAnswers(opportunityId);
+  const currentOpportunity = findOpportunityByIdOrSlug(
+    accessibleOpportunities,
+    opportunitySlug
+  );
+
+  const opportunityId = currentOpportunity?.id;
+  
+  const { clearAnswers } = useQuestionnaireAnswers(opportunityId?.toString() || "");
+
 
   const {
     data: opportunity,
     isLoading,
     error,
-  } = useOpportunityDetail(opportunityId);
+  } = useOpportunityDetail(opportunityId?.toString() || "");
 
   // Clear saved answers and invalidate cache when component mounts (enrollment completed)
   useEffect(() => {
@@ -50,7 +59,11 @@ export default function OpportunityCompletePage() {
   }, [clearAnswers, queryClient, opportunityId, user?.id]);
 
   const handleBackToOpportunity = () => {
-    router.push(`/discover?id=${opportunityId}`);
+    router.push(
+      currentOpportunity?.slug
+        ? `/discover?opp=${currentOpportunity.slug}`
+        : "/discover"
+    );
   };
 
   if (isLoading) {

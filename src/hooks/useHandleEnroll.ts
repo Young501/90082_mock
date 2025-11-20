@@ -2,6 +2,8 @@ import { useAuthStore } from "@/store";
 import { useEnrollInOpportunity } from "@/services/updateParticipant";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useProductPricing } from "@/services/billing";
+import { AccessInfo } from "@/types/opportunities";
 
 const hasContent = (val: unknown) => {
   if (!val) return false;
@@ -10,25 +12,32 @@ const hasContent = (val: unknown) => {
   return true;
 };
 
-export function useHandleEnroll({
-  isEligible,
-  opportunityId,
-  opportunity,
-  toast,
-}: {
+type Props = {
   isEligible: boolean | null | undefined;
   opportunityId: string;
   opportunity: { questionnaire?: Record<string, unknown> } | null | undefined;
+  accessInfo: AccessInfo | null | undefined;
   toast: {
     success: (m: string) => void;
     warning: (m: string) => void;
     error: (m: string) => void;
   };
-}) {
+  opportunitySlug?: string;
+};
+
+export function useHandleEnroll({
+  isEligible,
+  opportunityId,
+  opportunity,
+  accessInfo,
+  toast,
+  opportunitySlug,
+}: Props) {
   const { user } = useAuthStore();
   const router = useRouter();
   const enrollMutation = useEnrollInOpportunity();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckingPricing, setIsCheckingPricing] = useState(false);
   const clickedRef = useRef(false);
 
   const userType = user?.user_types?.[0];
@@ -37,6 +46,13 @@ export function useHandleEnroll({
     [opportunity?.questionnaire, userType]
   );
   const shouldShowQuestionnaire = hasContent(qForType);
+
+  // Keep params, but do not auto-fetch
+  const { refetch: refetchPricing } = useProductPricing(
+    opportunityId,
+    userType || null,
+    { enabled: false }
+  );
 
   const handleEnroll = useCallback(async () => {
     if (clickedRef.current) return;
@@ -56,8 +72,40 @@ export function useHandleEnroll({
         return;
       }
 
+      if (accessInfo?.next_action === "subscribe") {
+        // Step 1: Check for pricing
+        setIsCheckingPricing(true);
+        let hasPaidPricing = false;
+        try {
+          const res = await refetchPricing();
+          const pricing = (res as any)?.data ?? res;
+          hasPaidPricing = Boolean(
+            pricing?.products?.some(
+              (p: any) => Array.isArray(p.prices) && p.prices.length > 0
+            )
+          );
+        } catch (e: any) {
+          console.error("Pricing check error:", e);
+          toast.warning(
+            "Unable to verify pricing information, continuing with free enrollment."
+          );
+        } finally {
+          setIsCheckingPricing(false);
+        }
+
+        // If paid, send user to pricing selector
+        if (hasPaidPricing) {
+          const nextParam = shouldShowQuestionnaire
+            ? "&next=questionnaire"
+            : "";
+          router.push(`/opportunities/pricing?opp=${opportunitySlug}${nextParam}`);
+          return;
+        }
+      }
+
+      // Step 2: If no pricing or free access, proceed to questionnaire or direct enrollment
       if (shouldShowQuestionnaire) {
-        router.push(`/opportunities/start?id=${opportunityId}`);
+        router.push(`/opportunities/start?opp=${opportunitySlug}`);
         return;
       }
 
@@ -69,6 +117,7 @@ export function useHandleEnroll({
       clickedRef.current = false; // allow retry on error
     } finally {
       setIsSubmitting(false);
+      setIsCheckingPricing(false);
     }
   }, [
     isEligible,
@@ -78,7 +127,12 @@ export function useHandleEnroll({
     router,
     enrollMutation,
     toast,
+    refetchPricing,
+    accessInfo,
   ]);
 
-  return { handleEnroll, isSubmitting };
+  return {
+    handleEnroll,
+    isSubmitting: isSubmitting || isCheckingPricing,
+  };
 }

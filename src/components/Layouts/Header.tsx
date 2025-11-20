@@ -16,6 +16,19 @@ import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
+import {
+  getSubscriptionTrialInfo,
+  isInTrialPeriod,
+} from "@/utils/subscriptionPermissions";
+import { formatDate } from "@/utils/formatDate";
+
+const lessThan3Days = (date: string) => {
+  const trialEndDate = new Date(date);
+  const currentDate = new Date();
+  const diffTime = Math.abs(trialEndDate.getTime() - currentDate.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays < 3;
+};
 
 interface MenuItem {
   label: string;
@@ -275,7 +288,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       const only = opps[0];
       return (
         <Link
-          href={`/discover/?id=${only.id}`}
+          href={`/discover/?opp=${only.slug}`}
           key="DISCOVER"
           onClick={handleMenuItemClick}
         >
@@ -330,15 +343,15 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                   key={o.id}
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleMobileOpportunityClick(o.id);
+                    handleMobileOpportunityClick(o.slug);
                   }}
                   onMouseUp={(e) => {
                     e.stopPropagation();
-                    handleMobileOpportunityClick(o.id);
+                    handleMobileOpportunityClick(o.slug);
                   }}
                   onTouchEnd={(e) => {
                     e.stopPropagation();
-                    handleMobileOpportunityClick(o.id);
+                    handleMobileOpportunityClick(o.slug);
                   }}
                   cursor="pointer"
                   position="relative"
@@ -427,7 +440,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               {opps.map((o) => (
                 // Navigate to opportunity details page
                 <Link
-                  href={`/discover/?id=${o.id}`}
+                  href={`/discover/?opp=${o.slug}`}
                   key={o.id}
                   onClick={handleMenuItemClick}
                 >
@@ -490,10 +503,10 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     setIsDiscoverDropdownOpen(false);
   };
 
-  const handleMobileOpportunityClick = (opportunityId: number) => {
+  const handleMobileOpportunityClick = (opportunitySlug: string) => {
     setIsMobileMenuOpen(false);
     setIsDiscoverDropdownOpen(false);
-    router.push(`/discover/?id=${opportunityId}`);
+    router.push(`/discover/?opp=${opportunitySlug}`);
   };
 
   const Overlay = () => (
@@ -516,6 +529,41 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       }}
     />
   );
+
+  const SubscriptionBanner: React.FC<{
+    isInMobileMenu?: boolean;
+  }> = ({ isInMobileMenu = false }) => {
+    const trialInfo = getSubscriptionTrialInfo();
+
+    if (!trialInfo.isInTrial || !trialInfo.trialEnd) {
+      return null;
+    }
+
+    return (
+      <Box
+        position="fixed"
+        top={isMobile ? "80px" : "126px"}
+        left={0}
+        right={0}
+        bg={lessThan3Days(trialInfo.trialEnd) ? "#FF0000" : "#FFA500"}
+        color="white"
+        py={2}
+        display={isInMobileMenu ? "none" : "block"}
+        px={{ base: 4, lg: 16 }}
+        zIndex={isInMobileMenu ? "auto" : 9998}
+        boxShadow="0px 2px 4px rgba(0, 0, 0, 0.1)"
+      >
+        <Text
+          fontSize={{ base: "12px", md: "14px" }}
+          fontWeight="600"
+          textAlign="center"
+        >
+          Your trial period ends on {formatDate(trialInfo.trialEnd)}.{" "}
+          {lessThan3Days(trialInfo.trialEnd) ? "Less than 3 days left" : ""}
+        </Text>
+      </Box>
+    );
+  };
 
   const MobileMenu = () => (
     <>
@@ -704,6 +752,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               )}
             </Button>
           </Box>
+          <SubscriptionBanner isInMobileMenu={isMobileMenuOpen} />
           {isMobile && <MobileMenu />}
         </>
       ) : (
