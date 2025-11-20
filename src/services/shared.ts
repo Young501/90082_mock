@@ -161,12 +161,12 @@ export function useUserProfile(userType: string) {
   });
 }
 
-export function useStudentProfile(id: string) {
+export function useStudentProfile(id: string, opportunityId: string) {
   return useQuery({
-    queryKey: ["student-profile", id],
+    queryKey: ["student-profile", id, opportunityId],
     queryFn: () =>
       apiRequest({
-        endpoint: API_ENDPOINTS.STUDENT_PROFILE(id),
+        endpoint: API_ENDPOINTS.STUDENT_PROFILE(id, opportunityId),
       }),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
@@ -179,12 +179,12 @@ export function useStudentProfile(id: string) {
   });
 }
 
-export function usePartnerProfile(id: string) {
+export function usePartnerProfile(id: string, opportunityId: string) {
   return useQuery({
-    queryKey: ["partner-profile", id],
+    queryKey: ["partner-profile", id, opportunityId],
     queryFn: () =>
       apiRequest({
-        endpoint: API_ENDPOINTS.PARTNER_PROFILE(id),
+        endpoint: API_ENDPOINTS.PARTNER_PROFILE(id, opportunityId),
       }),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,

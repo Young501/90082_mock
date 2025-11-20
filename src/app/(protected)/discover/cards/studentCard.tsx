@@ -17,7 +17,6 @@ import { Button } from "@/components/ui/Button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Ban } from "lucide-react";
 import { isInTrialPeriod } from "@/utils/subscriptionPermissions";
-import { useSearchParams } from "next/navigation";
 
 interface StudentCardProps {
   student: StudentProfile;
@@ -29,6 +28,7 @@ interface StudentCardProps {
   disableViewFullProfile?: boolean;
   disableAddToFolder?: boolean;
   opportunityId?: string;
+  opportunitySlug?: string;
 }
 
 export function StudentCard({
@@ -41,13 +41,12 @@ export function StudentCard({
   disableViewFullProfile = false,
   disableAddToFolder = false,
   opportunityId,
+  opportunitySlug,
 }: StudentCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
   const [clickBackground, setClickBackground] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
-  const searchParams = useSearchParams();
-  const opportunitySlug = searchParams.get("opp");
   const getDisplayName = () => {
     const firstName = student.first_name || "";
     const lastName = student.last_name || "";
@@ -73,6 +72,8 @@ export function StudentCard({
 
     return student?.skills;
   };
+
+  
 
   const handleViewFullProfile = () => {
     if (student.id && !disableViewFullProfile && !isMatched) {

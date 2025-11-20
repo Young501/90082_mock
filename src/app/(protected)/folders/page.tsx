@@ -33,6 +33,7 @@ import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { PaginationControls } from "@/components/ui/PaginationControls";
+import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
 
 const Folder = () => {
   const router = useRouter();
@@ -45,6 +46,12 @@ const Folder = () => {
 
   const { data: folderDetail, isLoading: isLoadingFolderDetail } =
     useFolderDetail(folderId || "");
+
+  const currentOpportunity = findOpportunityByIdOrSlug(
+    accessibleOpportunities,
+    "mtsi-career-connect-demo"
+  );
+  const currentOpportunityId = currentOpportunity?.id;
 
   const {
     members: membersArray,
@@ -285,6 +292,7 @@ const Folder = () => {
                             onRemoveFromFolder={() =>
                               handleRemoveFromFolder(userId.toString())
                             }
+                            opportunityId={currentOpportunityId?.toString()}
                           />
                         );
                       } else if (userType === "organisation") {
@@ -300,6 +308,7 @@ const Folder = () => {
                             onRemoveFromFolder={() =>
                               handleRemoveFromFolder(userId.toString())
                             }
+                            opportunityId={currentOpportunityId?.toString()}
                           />
                         );
                       }

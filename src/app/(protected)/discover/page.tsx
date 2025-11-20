@@ -304,6 +304,7 @@ export default function DiscoveryPage() {
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange}
                 opportunityId={opportunityId?.toString() || ""}
+                opportunitySlug={opportunitySlug}
               />
             </Box>
           ) : (
