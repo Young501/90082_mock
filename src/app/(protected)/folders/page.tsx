@@ -49,7 +49,7 @@ const Folder = () => {
 
   const currentOpportunity = findOpportunityByIdOrSlug(
     accessibleOpportunities,
-    "mtsi-career-connect-demo"
+    "mtsi"
   );
   const currentOpportunityId = currentOpportunity?.id;
 
