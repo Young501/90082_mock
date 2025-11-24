@@ -64,19 +64,13 @@ export function FullProfileCard({
     data: studentData,
     isLoading: isStudentLoading,
     error: studentError,
-  } = useStudentProfile(
-    shouldFetchStudent ? profileId : "",
-    opportunityId || ""
-  );
+  } = useStudentProfile(shouldFetchStudent ? profileId : "", opportunityId || "");
 
   const {
     data: partnerData,
     isLoading: isPartnerLoading,
     error: partnerError,
-  } = usePartnerProfile(
-    shouldFetchPartner ? profileId : "",
-    opportunityId || ""
-  );
+  } = usePartnerProfile(shouldFetchPartner ? profileId : "", opportunityId || "");
 
   const {
     data: coordinatorData,

@@ -21,9 +21,6 @@ export interface AuthState {
   tempOrganisation: Organisation | null;
   isOrganisationMemberOnboarding: boolean;
   accessibleOpportunities: AccessibleOpportunity[] | null;
-  currentOpportunityId: string | null;
-  isEnrolled: boolean | null;
-  isEligible: boolean | null;
   setAuthData: (token: string, user: User) => void;
   logout: () => void;
   setUserType: (userType: string) => void;
@@ -54,17 +51,6 @@ export interface AuthState {
   setIsAuthenticated: (isAuthenticated: boolean) => void;
   getIsAuthenticated: () => boolean;
   setAccessibleOpportunities: (opportunities: AccessibleOpportunity[]) => void;
-  getAccessibleOpportunities: () => AccessibleOpportunity[] | null;
-  setCurrentOpportunityId: (id: string | null) => void;
-  getCurrentOpportunityId: () => string | null;
-  setEnrollmentStatus: (isEnrolled: boolean | null) => void;
-  getEnrollmentStatus: () => boolean | null;
-  setEligibilityStatus: (isEligible: boolean | null) => void;
-  getEligibilityStatus: () => boolean | null;
-  resetOpportunityState: () => void;
-  subscriptionStatus: SubscriptionStatus | null;
-  // getSubscriptionStatus: () => SubscriptionStatus | null;
-
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -81,10 +67,6 @@ export const useAuthStore = create<AuthState>()(
       tempOrganisationUser: null,
       isOrganisationMemberOnboarding: false,
       accessibleOpportunities: null,
-      currentOpportunityId: null,
-      isEnrolled: null,
-      isEligible: null,
-      subscriptionStatus: null,
       setIsAuthenticated: (isAuthenticated: boolean) => {
         set({ isAuthenticated });
       },
@@ -97,7 +79,6 @@ export const useAuthStore = create<AuthState>()(
           userProfilePictureUrl: user?.profile_picture_url || null,
         });
       },
-      // getSubscriptionStatus: () => get().subscriptionStatus,
 
       logout: () => {
         set({
@@ -112,10 +93,6 @@ export const useAuthStore = create<AuthState>()(
           tempOrganisationUser: null,
           isOrganisationMemberOnboarding: false,
           accessibleOpportunities: null,
-          currentOpportunityId: null,
-          isEnrolled: null,
-          isEligible: null,
-          subscriptionStatus: null,
         });
       },
 
@@ -225,62 +202,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setAccessibleOpportunities: (opportunities: AccessibleOpportunity[]) => {
-        const currentOpportunityId = get().currentOpportunityId;
-        let subscriptionStatus: SubscriptionStatus | null = null;
-        
-        if (currentOpportunityId && opportunities) {
-          const currentOpportunity = opportunities.find(
-            opp => opp.id === Number(currentOpportunityId)
-          );
-          if (currentOpportunity && currentOpportunity.access?.has_access) {
-            subscriptionStatus = currentOpportunity?.access?.subscription?.status || null;
-          }
-        }
-        set({ accessibleOpportunities: opportunities, subscriptionStatus });
-      },
-
-      getAccessibleOpportunities: () => {
-        return get().accessibleOpportunities;
-      },
-
-      setCurrentOpportunityId: (id: string | null) => {
-        const accessibleOpportunities = get().accessibleOpportunities;
-        let subscriptionStatus: SubscriptionStatus | null = null;
-        
-        if (id && accessibleOpportunities) {
-          const currentOpportunity = accessibleOpportunities.find(
-            opp => opp.id === Number(id)
-          ); 
-
-          if (currentOpportunity && currentOpportunity.access?.has_access) {
-            subscriptionStatus = currentOpportunity?.access?.subscription?.status || null;
-          }
-        }
-        
-        set({ currentOpportunityId: id, subscriptionStatus });
-      },
-      getCurrentOpportunityId: () => {
-        return get().currentOpportunityId;
-      },
-      setEnrollmentStatus: (isEnrolled: boolean | null) => {
-        set({ isEnrolled });
-      },
-      getEnrollmentStatus: () => {
-        return get().isEnrolled;
-      },
-      setEligibilityStatus: (isEligible: boolean | null) => {
-        set({ isEligible });
-      },
-      getEligibilityStatus: () => {
-        return get().isEligible;
-      },
-      resetOpportunityState: () => {
-        set({
-          currentOpportunityId: null,
-          isEnrolled: null,
-          isEligible: null,
-          subscriptionStatus: null,
-        });
+        set({ accessibleOpportunities: opportunities });
       },
     }),
     {
@@ -297,10 +219,6 @@ export const useAuthStore = create<AuthState>()(
         tempOrganisationUser: state.tempOrganisationUser,
         isOrganisationMemberOnboarding: state.isOrganisationMemberOnboarding,
         accessibleOpportunities: state.accessibleOpportunities,
-        isEnrolled: state.isEnrolled,
-        isEligible: state.isEligible,
-        currentOpportunityId: state.currentOpportunityId,
-        subscriptionStatus: state.subscriptionStatus,
       }),
     }
   )
