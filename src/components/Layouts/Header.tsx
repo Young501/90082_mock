@@ -18,7 +18,6 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import {
   getSubscriptionTrialInfo,
-  isInTrialPeriod,
 } from "@/utils/subscriptionPermissions";
 import { formatDate } from "@/utils/formatDate";
 
@@ -43,7 +42,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
   const router = useRouter();
   const { handleLogout } = useAuth();
-  const { logout, getUserType, getAccessibleOpportunities } = useAuthStore();
+  const { logout, getUserType, accessibleOpportunities } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDiscoverDropdownOpen, setIsDiscoverDropdownOpen] = useState(false);
   const discoverDropdownRef = useRef<HTMLDivElement>(null);
@@ -54,7 +53,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isCoordinator = userType === "coordinator";
   const isOrganisation = userType === "organisation";
   const isStudent = userType === "student";
-  const accessibleOpps = getAccessibleOpportunities();
+  const accessibleOpps = accessibleOpportunities;
 
   const isOnInviteOrOnboardingPage =
     pathname?.includes("/invite") ||
@@ -533,7 +532,11 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const SubscriptionBanner: React.FC<{
     isInMobileMenu?: boolean;
   }> = ({ isInMobileMenu = false }) => {
-    const trialInfo = getSubscriptionTrialInfo();
+    const searchParams = useSearchParams();
+    const opportunitySlug = searchParams.get("opp");
+    const trialInfo = opportunitySlug
+      ? getSubscriptionTrialInfo(opportunitySlug)
+      : { isInTrial: false, trialEnd: null };
 
     if (!trialInfo.isInTrial || !trialInfo.trialEnd) {
       return null;
