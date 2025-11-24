@@ -5,8 +5,10 @@ import {
   useOnboardingPages,
   useProfileUpdate,
   useProfilePictureUpload,
+  useProfilePictureDelete,
   useResumeUpload,
   useLogoUpload,
+  useLogoDelete,
 } from "@/services/shared";
 import {
   Box,
@@ -97,8 +99,10 @@ const Profile = () => {
     useOnboardingPages(userType);
   const profileUpdateMutation = useProfileUpdate(userType);
   const profilePictureUpload = useProfilePictureUpload();
+  const profilePictureDelete = useProfilePictureDelete();
   const resumeUpload = useResumeUpload(userType);
   const logoUpload = useLogoUpload(userType);
+  const logoDelete = useLogoDelete(userType);
 
   const pages = useMemo(() => {
     if (!onboardingData?.onboarding_pages) return [];
@@ -267,14 +271,34 @@ const Profile = () => {
     return allTabs;
   }, [pages, isCoordinator]);
 
-  const handleFileRemoval = (fieldName: string) => {
+  const handleFileRemoval = async (fieldName: string) => {
     setRemovedFiles((prev) => new Set(prev).add(fieldName));
-    if (fieldName === "profile_picture_url") {
-      setUpdatedProfilePicture(null);
-      setUserProfilePictureUrl("");
-    } else if (userType === "organisation" && fieldName === "logo_url") {
-      setUpdatedProfilePicture(null);
-      setLogoUrl("");
+    
+    // check if the file exists in the backend (i.e., userProfile has a url string) and not just local File object
+    const hasBackendFile = 
+      (fieldName === "profile_picture_url" && userProfile?.profile_picture_url && typeof userProfile.profile_picture_url === "string") ||
+      (fieldName === "logo_url" && userProfile?.organisation?.logo_url && typeof userProfile.organisation.logo_url === "string");
+    
+    try {
+      if (fieldName === "profile_picture_url") {
+        // only call backend API if file exists in backend
+        if (hasBackendFile) {
+          await profilePictureDelete.mutateAsync();
+        }
+        setUpdatedProfilePicture(null);
+        setUserProfilePictureUrl("");
+      } else if (userType === "organisation" && fieldName === "logo_url") {
+        if (hasBackendFile) {
+          await logoDelete.mutateAsync();
+        }
+        setUpdatedProfilePicture(null);
+        setLogoUrl("");
+      }
+    } catch (error: any) {
+      // 404 is already deleted
+      if (error?.response?.status !== 404) {
+        toast.error("Failed to remove file");
+      }
     }
   };
 

@@ -38,6 +38,21 @@ export function useProfilePictureUpload() {
   });
 }
 
+export function useProfilePictureDelete() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.PROFILE_PICTURE_DELETE,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+  });
+}
+
 export function useResumeUpload(userType: string) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -90,6 +105,20 @@ export function useLogoUpload(userType: string) {
       return apiRequest({
         endpoint: API_ENDPOINTS.LOGO_UPLOAD(userType),
         body: formData,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
+    },
+  });
+}
+
+export function useLogoDelete(userType: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.LOGO_DELETE(userType),
       });
     },
     onSuccess: () => {
