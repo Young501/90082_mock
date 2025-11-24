@@ -141,33 +141,9 @@ export const FileField = ({
             }
           }, [field.value]);
 
-          const generatePlaceholderBlob = async (): Promise<File | null> => {
-            try {
-              const response = await fetch("/assets/imgplaceholder.png");
-              const blob = await response.blob();
-              return new File([blob], "imgplaceholder.png", {
-                type: "image/png",
-              });
-            } catch (error) {
-              console.error("Failed to generate placeholder blob:", error);
-              return null;
-            }
-          };
-
-          const isPlaceholderBlob = (value: any): boolean => {
-            return value instanceof File && value.name === "imgplaceholder.png";
-          };
-
-          const handleRemoveFile = async () => {
+          const handleRemoveFile = () => {
             cleanupPreviewUrl();
-
-            if (fileType === "image") {
-              const placeholderBlob = await generatePlaceholderBlob();
-              field.onChange(placeholderBlob);
-            } else {
-              field.onChange(null);
-            }
-
+            field.onChange(null);
             if (fileInputRef.current) fileInputRef.current.value = "";
           };
 
@@ -257,15 +233,13 @@ export const FileField = ({
                       <Box display="flex" justifyContent="center">
                         <Image
                           src={
-                            isPlaceholderBlob(field.value)
-                              ? "/assets/imgplaceholder.png"
-                              : previewUrl ||
-                                (description === "logo_url"
-                                  ? getLogoUrl()
-                                  : getUserProfilePictureUrl()) ||
-                                (typeof field.value === "string"
-                                  ? field.value
-                                  : "/assets/imgplaceholder.png")
+                            previewUrl ||
+                            (description === "logo_url"
+                              ? getLogoUrl()
+                              : getUserProfilePictureUrl()) ||
+                            (typeof field.value === "string"
+                              ? field.value
+                              : "/assets/imgplaceholder.png")
                           }
                           alt="Preview"
                           width={200}
@@ -292,9 +266,9 @@ export const FileField = ({
                             width="32px"
                             height="32px"
                             backgroundColor="white"
-                            onClick={async (e) => {
+                            onClick={(e) => {
                               e.stopPropagation();
-                              await handleRemoveFile();
+                              handleRemoveFile();
                               onRemove();
                             }}
                           >
