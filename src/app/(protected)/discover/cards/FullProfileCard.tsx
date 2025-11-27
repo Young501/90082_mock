@@ -12,12 +12,16 @@ import {
   Alert,
 } from "@chakra-ui/react";
 import { StudentProfile, OrganisationProfile } from "@/types/discovery";
-import { useStudentProfile, usePartnerProfile } from "@/services/shared";
+import {
+  useStudentProfile,
+  usePartnerProfile,
+  useCoordinatorViewUserProfile,
+} from "@/services/shared";
 import Image from "next/image";
 import BadgeSection from "@/components/BadgeSection";
-import { ContactPage } from "@/components/ui/ContactPage";
+import { ContactPage } from "@/components/ContactPage";
 import { Globe } from "lucide-react";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/Button";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -35,6 +39,7 @@ interface FullProfileCardProps {
   organisationProfile?: OrganisationProfile;
   disableBtns?: boolean;
   opportunityId?: string;
+  isCoordinator?: boolean;
 }
 
 export function FullProfileCard({
@@ -46,11 +51,14 @@ export function FullProfileCard({
   organisationProfile,
   disableBtns = false,
   opportunityId,
+  isCoordinator = false,
 }: FullProfileCardProps) {
-  const shouldFetchStudent = profileType === "student" && !studentProfile;
+  const shouldFetchStudent =
+    profileType === "student" && !studentProfile && !isCoordinator;
   const shouldFetchPartner =
-    profileType === "organisation" && !organisationProfile;
-  const { userProfile } = useAuthStore();
+    profileType === "organisation" && !organisationProfile && !isCoordinator;
+  const { userProfile, getUserType } = useAuthStore();
+  const userType = getUserType();
 
   const {
     data: studentData,
@@ -70,10 +78,22 @@ export function FullProfileCard({
     opportunityId || ""
   );
 
-  const isLoading = isStudentLoading || isPartnerLoading;
-  const error = studentError || partnerError;
-  const profile =
-    profileType === "student"
+  const {
+    data: coordinatorData,
+    isLoading: isCoordinatorLoading,
+    error: coordinatorError,
+  } = useCoordinatorViewUserProfile(
+    isCoordinator ? profileId : "",
+    isCoordinator ? opportunityId || "" : ""
+  );
+
+  const isLoading = isCoordinator
+    ? isCoordinatorLoading
+    : isStudentLoading || isPartnerLoading;
+  const error = isCoordinator ? coordinatorError : studentError || partnerError;
+  const profile = isCoordinator
+    ? coordinatorData?.data
+    : profileType === "student"
       ? studentProfile || studentData
       : organisationProfile || partnerData;
 
@@ -175,11 +195,15 @@ export function FullProfileCard({
             student={profile as StudentProfile}
             disableBtns={disableBtns}
             userProfile={userProfile as OrganisationProfile}
+            opportunityId={opportunityId}
+            userType={userType}
           />
         ) : (
           <RenderPartnerDetails
             organisation={profile as OrganisationProfile}
             disableBtns={disableBtns}
+            opportunityId={opportunityId}
+            userType={userType}
           />
         )}
       </VStack>
@@ -277,10 +301,14 @@ const RenderStudentDetails = ({
   student,
   disableBtns,
   userProfile,
+  opportunityId,
+  userType,
 }: {
   student: StudentProfile;
   disableBtns: boolean;
   userProfile: OrganisationProfile;
+  opportunityId?: string;
+  userType?: string;
 }) => {
   const [showContactModal, setShowContactModal] = useState(false);
   return (
@@ -365,7 +393,7 @@ const RenderStudentDetails = ({
                 alt="Instagram"
                 width={20}
                 height={20}
-                objectFit="contain"
+                style={{ objectFit: "contain" }}
               />
               <Link href={student.instagram} target="_blank">
                 <Text textDecoration="underline">Instagram</Text>
@@ -416,7 +444,7 @@ const RenderStudentDetails = ({
             w="100%"
             boxShadow="0px 3.34px 3.34px 0px #00000040"
             onClick={() => setShowContactModal(true)}
-            disabled={disableBtns}
+            disabled={disableBtns || userType === "coordinator"}
           >
             Contact
           </Button>
@@ -434,19 +462,20 @@ const RenderStudentDetails = ({
           {student.course_name && (
             <HStack gap={2} align="start">
               <Box
-                w="20px"
-                h="20px"
+                w="12px"
+                h="12px"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
                 flexShrink={0}
+                pos="relative"
+                mt={"5px"}
               >
                 <Image
-                  width={12}
-                  height={12}
                   src="/assets/educationIcon.svg"
                   alt="course"
-                  objectFit="contain"
+                  fill
+                  style={{ objectFit: "contain" }}
                 />
               </Box>
               <Text fontSize="sm" color="gray.600">
@@ -457,26 +486,51 @@ const RenderStudentDetails = ({
           )}
 
           {student.location && (
-            <HStack gap={2} align="start">
+            <HStack align="flex-start" gap={2}>
               <Box
-                w="20px"
-                h="20px"
+                w="16px"
+                h="16px"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
                 flexShrink={0}
+                mt="2px"
               >
                 <Image
                   width={12}
                   height={12}
                   src="/assets/locationIcon.svg"
                   alt="location"
-                  objectFit="contain"
+                  style={{ objectFit: "contain" }}
                 />
               </Box>
-              <Text fontSize="sm" color="gray.600">
-                {student.location}
-              </Text>
+
+              <Box>
+                <Text
+                  fontSize="sm"
+                  color="gray.600"
+                  whiteSpace="normal"
+                  wordBreak="break-word"
+                >
+                  {student.location}
+                </Text>
+
+                {student.distance_km != undefined &&
+                  student.distance_km != null && (
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      whiteSpace="normal"
+                      wordBreak="break-word"
+                    >
+                      (
+                      <Text as="span" fontWeight="semibold">
+                        {student.distance_km} km
+                      </Text>
+                      )
+                    </Text>
+                  )}
+              </Box>
             </HStack>
           )}
 
@@ -495,7 +549,7 @@ const RenderStudentDetails = ({
                   height={12}
                   src="/assets/certificationIcon.svg"
                   alt="specialization"
-                  objectFit="contain"
+                  style={{ objectFit: "contain" }}
                 />
               </Box>
               <Text fontSize="sm" color="gray.600">
@@ -503,41 +557,21 @@ const RenderStudentDetails = ({
               </Text>
             </HStack>
           )}
-
-          <HStack gap={2} align="start">
-            <Box
-              w="20px"
-              h="20px"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              flexShrink={0}
-            >
-              <Image
-                width={12}
-                height={12}
-                src="/assets/calenderIcon.svg"
-                alt="progress"
-                objectFit="contain"
-              />
-            </Box>
-            <Text fontSize="sm" color="gray.600">
-              Available Immediately
-            </Text>
-          </HStack>
         </Grid>
 
         <VStack gap={4} w="full" align="start">
+          <BadgeSection
+            title="Open to Work Locations"
+            items={student.preferred_location}
+            withinDistance={student.within_distance_km}
+            showFallback={true}
+            fallbackText={student.location || "Not specified"}
+          />
+
           <BadgeSection title="Specialization" items={student.specialization} />
 
           <BadgeSection title="Skills" items={student.skills} />
 
-          <BadgeSection
-            title="Open to Work Locations"
-            items={student.preferred_location}
-            showFallback={true}
-            fallbackText={student.location || "Not specified"}
-          />
           <BadgeSection title="Available For" items={student.position_type} />
 
           {student.questionnaire_answers &&
@@ -591,6 +625,7 @@ const RenderStudentDetails = ({
           organisationName={userProfile?.organisation?.name || ""}
           organisationContact={userProfile?.organisation?.contact_email || ""}
           onBack={() => setShowContactModal(false)}
+          acceptedOpportunityId={opportunityId}
         />
       )}
     </Box>
@@ -600,9 +635,13 @@ const RenderStudentDetails = ({
 const RenderPartnerDetails = ({
   organisation,
   disableBtns,
+  opportunityId,
+  userType,
 }: {
   organisation: OrganisationProfile;
   disableBtns: boolean;
+  opportunityId?: string;
+  userType?: string;
 }) => {
   const [showContactModal, setShowContactModal] = useState(false);
   const getCompanyLogo = () => {
@@ -765,6 +804,17 @@ const RenderPartnerDetails = ({
               />
               <Text fontSize="14px" color="black">
                 {organisation.location}
+                {organisation.distance_km != undefined &&
+                  organisation.distance_km != null && (
+                    <>
+                      {" "}
+                      (
+                      <Text as="span" fontWeight="semibold">
+                        {organisation.distance_km} km
+                      </Text>
+                      )
+                    </>
+                  )}
               </Text>
             </HStack>
           )}
@@ -786,19 +836,19 @@ const RenderPartnerDetails = ({
 
           <HStack gap={2} align="center">
             <Box
-              w="20px"
-              h="20px"
+              w="12px"
+              h="12px"
               display="flex"
               alignItems="center"
               justifyContent="center"
               flexShrink={0}
+              pos={"relative"}
             >
               <Image
-                width={12}
-                height={12}
                 src="/assets/calenderIcon.svg"
                 alt="progress"
-                objectFit="contain"
+                fill
+                style={{ objectFit: "contain" }}
               />
             </Box>
             <Text fontSize="14px" color="black">
@@ -915,7 +965,8 @@ const RenderPartnerDetails = ({
                 <Box
                   cursor="pointer"
                   onClick={() => {
-                    if (!disableBtns) setShowContactModal(true);
+                    if (!disableBtns && userType != "coordinator")
+                      setShowContactModal(true);
                   }}
                 >
                   <Image
@@ -939,7 +990,7 @@ const RenderPartnerDetails = ({
                 display="flex"
                 justifyContent="center"
                 maxW="200px"
-                disabled={disableBtns}
+                disabled={disableBtns || userType === "coordinator"}
                 onClick={() => setShowContactModal(true)}
               >
                 Contact
@@ -953,6 +1004,7 @@ const RenderPartnerDetails = ({
         <ContactPage
           recipientId={organisation.id}
           organisationId={organisation.id.toString()}
+          acceptedOpportunityId={opportunityId}
           recipientName={
             organisation.name ||
             `${organisation.first_name} ${organisation.last_name}`

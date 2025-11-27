@@ -5,8 +5,10 @@ import {
   useOnboardingPages,
   useProfileUpdate,
   useProfilePictureUpload,
+  useProfilePictureDelete,
   useResumeUpload,
   useLogoUpload,
+  useLogoDelete,
 } from "@/services/shared";
 import {
   Box,
@@ -27,7 +29,7 @@ import {
   changePasswordSchema,
 } from "@/utils/validationSchemas";
 import { FieldRenderer } from "../../(auth)/onboarding/FieldRenderer";
-import { Question } from "@/types/onboarding";
+import { AbnValidationStatus, Question } from "@/types/onboarding";
 import Image from "next/image";
 import { OnboardingPage, OnboardingData, Tab } from "@/types/profile";
 
@@ -38,10 +40,11 @@ import { useProfile } from "@/hooks/useProfile";
 import { FullProfileCard } from "../discover/cards/FullProfileCard";
 import { useAuth } from "@/hooks/auth";
 import { InputField } from "@/components/ui";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { OrganisationProfile } from "@/types/discovery";
+import MyOpportunities from "@/components/MyOpportunities";
 
 const Profile = () => {
   const {
@@ -55,12 +58,15 @@ const Profile = () => {
   } = useAuthStore();
   const userProfile: UserProfile | null = getUserProfile();
   const [activeTab, setActiveTab] = useState<number>(0);
+  const [activeOpportunityTab, setActiveOpportunityTab] = useState<number>(0);
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
   const [updatedProfilePicture, setUpdatedProfilePicture] = useState<
     string | null
   >(null);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [showValidationError, setShowValidationError] = useState(false);
+  const [abnStatus, setAbnStatus] =
+    useState<AbnValidationStatus>("idle");
   const [fileUploadKey, setFileUploadKey] = useState(0);
   const { handleChangePassword, changePasswordMutation } = useAuth();
   const [changePasswordSuccess, setChangePasswordSuccess] = useState(false);
@@ -93,8 +99,10 @@ const Profile = () => {
     useOnboardingPages(userType);
   const profileUpdateMutation = useProfileUpdate(userType);
   const profilePictureUpload = useProfilePictureUpload();
+  const profilePictureDelete = useProfilePictureDelete();
   const resumeUpload = useResumeUpload(userType);
   const logoUpload = useLogoUpload(userType);
+  const logoDelete = useLogoDelete(userType);
 
   const pages = useMemo(() => {
     if (!onboardingData?.onboarding_pages) return [];
@@ -140,6 +148,27 @@ const Profile = () => {
     [activePage]
   );
 
+  // custom resolver that skips validation for removed files
+  const customResolver = async (values: any, context: any, options: any) => {
+    const result = await yupResolver(schema)(values, context, options);
+    
+    if (result.errors && Object.keys(result.errors).length > 0) {
+      const filteredErrors: Record<string, any> = {};
+      Object.keys(result.errors).forEach((key) => {
+        // skip validation error if field is in removedFiles and value is null/empty
+        const shouldSkipError = removedFiles.has(key) && 
+          (values[key] === null || values[key] === undefined || values[key] === '');
+        
+        if (!shouldSkipError) {
+          filteredErrors[key] = (result.errors as Record<string, any>)[key];
+        }
+      });
+      result.errors = filteredErrors;
+    }
+    
+    return result;
+  };
+
   const {
     register,
     control,
@@ -149,10 +178,48 @@ const Profile = () => {
     clearErrors,
     unregister,
     getValues,
+    setError,
+    watch,
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: customResolver,
     // mode: "onChange",
   });
+  const organisationNameValue = watch("name");
+  const profilePictureValue = watch("profile_picture_url");
+  const logoValue = watch("logo_url");
+  const hasAbnLookupField = activePage?.questions?.some(
+    (question: Question) => question.type === "abn_lookup"
+  );
+  const isAbnBlocking =
+    hasAbnLookupField &&
+    (abnStatus === "pending" ||
+      abnStatus === "invalid" ||
+      abnStatus === "error");
+
+  // remove field from removedFiles if user uploads a new file
+  useEffect(() => {
+    if (profilePictureValue instanceof File) {
+      setRemovedFiles((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete("profile_picture_url");
+        return newSet;
+      });
+    }
+  }, [profilePictureValue]);
+
+  useEffect(() => {
+    if (logoValue instanceof File) {
+      setRemovedFiles((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete("logo_url");
+        return newSet;
+      });
+    }
+  }, [logoValue]);
+
+  useEffect(() => {
+    setAbnStatus("idle");
+  }, [activePage?.id]);
 
   useEffect(() => {
     if (fetchedUserProfile) {
@@ -213,39 +280,52 @@ const Profile = () => {
   }, [profileData, reset, activeTab, userType]);
 
   const tabs: Tab[] = useMemo(() => {
-    if (!pages.length && !isCoordinator) return [];
+    const allTabs: Tab[] = [];
 
-    const onboardingTabs: Tab[] = pages.map((page: OnboardingPage) => ({
-      title: page.short_title || page.title,
-      icon: page.title_icon,
-    }));
+    // Add onboarding pages and insert My Opportunities after education-related pages
+    pages.forEach((page: OnboardingPage) => {
+      allTabs.push({
+        title: page.short_title || page.title,
+        icon: page.title_icon,
+      });
+    });
+
+    // Add My Opportunities after all onboarding pages if not already inserted (only for non-coordinators)
     if (!isCoordinator) {
-      onboardingTabs.push({
+      allTabs.push({
+        title: "My Opportunities",
+        icon: "fa-solid fa-folder-closed",
+      });
+    }
+
+    // Add Profile Preview for non-coordinators
+    if (!isCoordinator) {
+      allTabs.push({
         title: "Profile Preview",
         icon: "fa-solid fa-eye",
       });
     }
-    onboardingTabs.push({
+
+    // Add Change Password for all users
+    allTabs.push({
       title: "Change Password",
       icon: "fa-solid fa-key",
     });
 
-    return onboardingTabs;
+    return allTabs;
   }, [pages, isCoordinator]);
 
   const handleFileRemoval = (fieldName: string) => {
+    // track which files were removed so can delete them on save
     setRemovedFiles((prev) => new Set(prev).add(fieldName));
-    if (fieldName === "profile_picture_url") {
-      setUpdatedProfilePicture(null);
-      setUserProfilePictureUrl("");
-    } else if (userType === "organisation" && fieldName === "logo_url") {
-      setUpdatedProfilePicture(null);
-      setLogoUrl("");
-    }
+    
   };
 
   const calculateProfileCompletion = (): number => {
-    if (!userProfile || !pages.length) return 0;
+    if (!userProfile) return 0;
+
+    // For users who have completed onboarding (no pages), return 100%
+    if (!pages.length) return 100;
 
     const getAllFieldsFromPages = (
       pages: OnboardingPage[],
@@ -258,11 +338,13 @@ const Profile = () => {
         userProfile: UserProfile
       ): string[] => {
         const questionFields = [question.field];
-        let userAnswer;
+        let userAnswer: unknown;
+
         if (userType === "organisation") {
-          const orgField = question.field;
-          userAnswer =
-            userProfile[orgField as keyof typeof userProfile.organisation];
+          const orgField = question.field as keyof NonNullable<
+            UserProfile["organisation"]
+          >;
+          userAnswer = userProfile.organisation?.[orgField]; // fixed indexing
         } else {
           userAnswer = (userProfile as any)[question.field];
         }
@@ -270,9 +352,14 @@ const Profile = () => {
         if (
           question.followup_question &&
           userAnswer &&
-          question.followup_question[userAnswer]
+          question.followup_question[
+            userAnswer as keyof typeof question.followup_question
+          ]
         ) {
-          const followup = question.followup_question[userAnswer];
+          const followup =
+            question.followup_question[
+              userAnswer as keyof typeof question.followup_question
+            ];
           questionFields.push(
             ...extractFieldsFromQuestion(followup, userProfile)
           );
@@ -297,36 +384,60 @@ const Profile = () => {
         ? ["first_name", "last_name", "role", "profile_picture_url"]
         : [];
 
-    const allFields = [...allOnboardingFields, ...coreMemberFields];
+    // Exclude socials for student
+    const EXCLUDED_FOR_STUDENT = new Set([
+      "instagram",
+      "bluesky",
+      "linkedin",
+      "homepage",
+    ]);
 
-    const filledFields = allFields.filter((field) => {
-      let value;
+    const allFields = [
+      ...new Set([...allOnboardingFields, ...coreMemberFields]),
+    ];
+    const requiredFields =
+      userType === "student"
+        ? allFields.filter((f) => !EXCLUDED_FOR_STUDENT.has(f))
+        : allFields;
+
+    // If nothing is required after filtering, consider completion 100%
+    if (requiredFields.length === 0) return 100;
+
+    const filledFields = requiredFields.filter((field) => {
+      let value: unknown;
+
       if (userType === "organisation") {
         if (coreMemberFields.includes(field)) {
-          value = userProfile[field as keyof UserProfile];
+          value = (userProfile as any)[field];
         } else {
-          const orgField = field;
-          value =
-            userProfile.organisation?.[
-              orgField as keyof typeof userProfile.organisation
-            ];
+          const orgField = field as keyof NonNullable<
+            UserProfile["organisation"]
+          >;
+          value = userProfile.organisation?.[orgField];
         }
       } else {
-        value = userProfile[field as keyof UserProfile];
+        value = (userProfile as any)[field];
       }
-      return (
-        value !== undefined &&
-        value !== null &&
-        (Array.isArray(value)
-          ? value.length > 0
-          : value.toString().trim() !== "")
-      );
+
+      if (value === undefined || value === null) return false;
+      return Array.isArray(value)
+        ? value.length > 0
+        : value.toString().trim() !== "";
     });
 
-    return Math.round((filledFields.length / allFields.length) * 100);
+    return Math.round((filledFields.length / requiredFields.length) * 100);
   };
 
-  if ((isOnboardingLoading || !pages.length) && !isCoordinator) {
+  // For organisation users who have completed onboarding, show profile even if no pages
+  const shouldShowLoading =
+    (isOnboardingLoading || isProfileLoading) && !isCoordinator;
+  const hasNoPages = !pages.length && !isCoordinator;
+
+  // If user has profile data but no onboarding pages, they've completed onboarding
+  const hasCompletedOnboarding =
+    (userProfile || fetchedUserProfile) && hasNoPages;
+
+  if (shouldShowLoading && !hasCompletedOnboarding) {
     return (
       <Box p={6} maxW="1280px" mx="auto" mt={{ base: "80px", lg: "126px" }}>
         <Loader size="lg" />
@@ -360,12 +471,6 @@ const Profile = () => {
     delete submissionData.members;
     delete submissionData.email_domain;
 
-    Object.keys(submissionData).forEach((key) => {
-      const value = submissionData[key];
-      if (value instanceof File && value.name === "imgplaceholder.png") {
-        submissionData[key] = null;
-      }
-    });
     if (
       submissionData.organisation &&
       submissionData.organisation.organisation
@@ -377,6 +482,11 @@ const Profile = () => {
         delete submissionData[key];
       }
     });
+
+    if (isAbnBlocking) {
+      toast.error("Please verify your ABN before saving changes.");
+      return;
+    }
 
     if (Object.keys(errors).length > 0) {
       setShowValidationError(true);
@@ -423,6 +533,28 @@ const Profile = () => {
         await profileUpdateMutation.mutateAsync(finalSubmissionData);
       toast.success("Profile updated successfully!");
       setUserProfile(profileUpdateResponse);
+      
+      // delete files that were removed and not fresh upload
+      if (removedFiles.has("profile_picture_url") && userProfile?.profile_picture_url && typeof userProfile.profile_picture_url === "string") {
+        try {
+          await profilePictureDelete.mutateAsync();
+          setUpdatedProfilePicture(null);
+          setUserProfilePictureUrl("");
+        } catch (error: any) {
+            // console.error("Failed to delete profile picture:", error);
+        }
+      }
+      
+      if (removedFiles.has("logo_url") && userProfile?.organisation?.logo_url && typeof userProfile.organisation.logo_url === "string") {
+        try {
+          await logoDelete.mutateAsync();
+          setUpdatedProfilePicture(null);
+          setLogoUrl("");
+        } catch (error: any) {
+            // console.error("Failed to delete logo:", error);
+        }
+      }
+      
       setRemovedFiles(new Set());
       const uploadTasks = [];
       if (allData.profile_picture_url instanceof File) {
@@ -472,11 +604,14 @@ const Profile = () => {
         maxW="1512px"
         mx="auto"
         mt={{ base: "80px", lg: "126px" }}
+        w="100%"
+        overflow="hidden"
       >
         <Flex
           w="100%"
           direction={{ base: "column", md: "row" }}
           gap={{ base: 4, lg: 20 }}
+          overflow="hidden"
         >
           <Box
             bg="white"
@@ -619,12 +754,19 @@ const Profile = () => {
             </Box>
           </Box>
 
-          <Box maxW={{ base: "100%" }} w="100%" bg="white" p={6} flex={1}>
+          <Box
+            maxW={{ base: "100%" }}
+            w="100%"
+            bg="white"
+            p={6}
+            flex={1}
+            overflow="hidden"
+          >
             <Text fontSize="25px" fontWeight="bold" mb={6} color="#000000">
               {tabs[activeTab]?.title || "Tab Details"}
             </Text>
 
-            {activeTab === tabs.length - 2 ? (
+            {tabs[activeTab]?.title === "Profile Preview" ? (
               <Box>
                 {userProfile &&
                   (userType === "student" ? (
@@ -666,7 +808,9 @@ const Profile = () => {
                     </VStack>
                   ) : null)}
               </Box>
-            ) : activeTab === tabs.length - 1 ? (
+            ) : tabs[activeTab]?.title === "My Opportunities" ? (
+              <MyOpportunities userType={userType} />
+            ) : tabs[activeTab]?.title === "Change Password" ? (
               <Box
                 maxW="500px"
                 mx="auto"
@@ -773,13 +917,24 @@ const Profile = () => {
                     register={register}
                     control={control}
                     errors={errors}
+                    setError={setError}
                     clearErrors={clearErrors}
                     unregister={unregister}
                     fileUploadKey={fileUploadKey}
+                    organisationName={organisationNameValue}
+                    onAbnValidationChange={setAbnStatus}
                     onFileRemove={handleFileRemoval}
                     removedFiles={removedFiles}
                   />
                 ))}
+                {isAbnBlocking && (
+                  <Alert.Root status="error" mb={4}>
+                    <Alert.Indicator />
+                    <Alert.Title>
+                      Please verify your ABN before saving changes.
+                    </Alert.Title>
+                  </Alert.Root>
+                )}
                 <Button
                   type="submit"
                   mt={10}
@@ -792,6 +947,9 @@ const Profile = () => {
                   px={6}
                   bg="#CFF3FF"
                   loading={profileUpdateMutation.isPending}
+                  disabled={
+                    profileUpdateMutation.isPending || isAbnBlocking
+                  }
                 >
                   <Image
                     src="/assets/saveicon.svg"

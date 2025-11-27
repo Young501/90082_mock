@@ -16,17 +16,16 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Image from "next/image";
 import { useAuth } from "@/hooks/auth";
-import { useAuthStore } from "@/store/authStore";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  authValidationSchema,
+  baseAuthSchema,
+  studentAuthValidationSchema,
   organisationAuthValidationSchema,
 } from "@/utils/validationSchemas";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { toast } from "react-toastify";
-import { Underline } from "lucide-react";
 
 interface FormData {
   email: string;
@@ -36,45 +35,38 @@ interface FormData {
   privacy_policy: boolean;
 }
 
+const VALID_USER_TYPES = [
+  "student",
+  "organisation",
+  "coordinator",
+  // TODO: Add coordinator, alumni and academic user types when flow is ready
+];
+
 const SignupPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const signupSelectedUserType = useAuthStore(
-    (state) => state.signupSelectedUserType
-  );
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [userType, setUserType] = useState<string | null>(null);
   const { handleSignup } = useAuth();
-  const { setInviteData } = useAuthStore();
+
+  useEffect(() => {
+    const userTypeParam = searchParams.get("user-type");
+
+    if (!userTypeParam || !VALID_USER_TYPES.includes(userTypeParam)) {
+      router.replace("/user-type/");
+      return;
+    }
+
+    setUserType(userTypeParam);
+  }, [searchParams, router]);
 
   const validationSchema =
-    signupSelectedUserType === "organisation"
+    userType === "organisation"
       ? organisationAuthValidationSchema
-      : authValidationSchema;
-
-  useEffect(() => {
-    if (!signupSelectedUserType) {
-      const inviteToken = searchParams.get("invite_token");
-      const opportunityId = searchParams.get("opportunity_id");
-
-      if (inviteToken && opportunityId) {
-        router.push(
-          `/user-type?signup=true&invite_token=${inviteToken}&opportunity_id=${opportunityId}`
-        );
-      } else {
-        router.push("/user-type?signup=true/");
-      }
-    }
-  }, [signupSelectedUserType, router, searchParams]);
-
-  useEffect(() => {
-    const inviteToken = searchParams.get("invite_token");
-    const opportunityId = searchParams.get("opportunity_id");
-
-    if (inviteToken && opportunityId) {
-      setInviteData(inviteToken, opportunityId);
-    }
-  }, [searchParams, setInviteData]);
+      : userType === "student"
+        ? studentAuthValidationSchema
+        : baseAuthSchema; // coordinator & others
 
   const {
     register,
@@ -96,12 +88,14 @@ const SignupPage = () => {
   const emailValue = watch("email");
   const passwordValue = watch("password");
   const onSubmit = async (data: any) => {
+    if (!userType) return;
+
     try {
       setIsLoading(true);
       await handleSignup({
         email: data.email,
         password: data.password,
-        user_types: signupSelectedUserType ? [signupSelectedUserType] : [],
+        user_types: [userType],
         callback: () => {
           router.push(
             `/verify-email/sent/?email=${encodeURIComponent(data.email)}`
@@ -109,7 +103,6 @@ const SignupPage = () => {
         },
       });
     } catch (error: any) {
-      console.log("error", error);
     } finally {
       setIsLoading(false);
     }
@@ -180,13 +173,11 @@ const SignupPage = () => {
               >
                 Register an account
               </Heading>
-              {signupSelectedUserType && (
+              {userType && (
                 <Text fontSize="16px" mb={2} color="#282F68" textAlign="center">
                   You are signing up as{" "}
-                  {signupSelectedUserType.toLowerCase() === "student"
-                    ? "a"
-                    : "an"}{" "}
-                  <strong>{signupSelectedUserType}</strong>
+                  {userType.toLowerCase() === "student" ? "a" : "an"}{" "}
+                  <strong>{userType}</strong>
                 </Text>
               )}
 
@@ -213,7 +204,7 @@ const SignupPage = () => {
                 value={passwordValue || ""}
               />
 
-              {signupSelectedUserType === "student" && (
+              {userType === "student" && (
                 <VStack align="stretch" gap={1} mt={4}>
                   <Checkbox.Root
                     colorPalette="blue"
@@ -248,7 +239,7 @@ const SignupPage = () => {
                 </VStack>
               )}
 
-              {signupSelectedUserType === "organisation" && (
+              {userType === "organisation" && (
                 <VStack align="stretch" gap={1}>
                   <Checkbox.Root
                     colorPalette="blue"

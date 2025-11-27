@@ -8,7 +8,8 @@ export interface ProcessedField {
   field: string;
   type: string;
   label: string;
-  options?: string[];
+  filter_label?: string;
+  options?: string[] | Array<{ label: string; value: string }>;
   uniqueKey: string;
   dependencyChain: DependencyCondition[];
   displayHint?: string;
@@ -26,6 +27,7 @@ export interface StudentProfile {
   first_name?: string;
   last_name?: string;
   location?: string;
+  distance_km?: number;
   profile_picture_url?: string | null;
   course_name?: string;
   course_stream?: string;
@@ -55,6 +57,7 @@ export interface OrganisationProfile {
   last_name?: string;
   organisation?: Organisation;
   location?: string;
+  distance_km?: number;
   profile_picture_url?: string | null;
   name?: string;
   sector?: string;
@@ -93,6 +96,7 @@ export interface OrganisationProfile {
 export interface UserSearchParams {
   user_type: string;
   opportunity_id: string;
+  sort_by?: string;
   page?: number;
   page_size?: number;
   [key: string]: any;

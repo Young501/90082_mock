@@ -16,6 +16,7 @@ import { DeleteModal } from "../../folders/modals/DeleteModal";
 import { Button } from "@/components/ui/Button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Ban } from "lucide-react";
+import { isInTrialPeriod } from "@/utils/subscriptionPermissions";
 
 interface StudentCardProps {
   student: StudentProfile;
@@ -140,13 +141,14 @@ export function StudentCard({
                   style={{ color: "#DC2626", fontSize: "20px" }}
                 />
               ) : (
-                <Image
-                  width={20}
-                  height={20}
-                  src="/assets/addicon.svg"
-                  alt="add"
-                  objectFit="contain"
-                />
+                <Box pos="relative" w="20px" h="20px">
+                  <Image
+                    src="/assets/addicon.svg"
+                    alt="add"
+                    fill
+                    style={{ objectFit: "contain" }}
+                  />
+                </Box>
               )}
             </Box>
           </Box>
@@ -198,7 +200,7 @@ export function StudentCard({
                     <Heading
                       fontSize={{ base: "16px", md: "20px" }}
                       textTransform="capitalize"
-                      mb={2}
+                      mb={1}
                       fontWeight="bold"
                       color="#000000"
                       whiteSpace="normal"
@@ -219,8 +221,8 @@ export function StudentCard({
                   </Box>
 
                   <Box display="flex" flexDirection="column" gap={2} mb={4}>
-                    {student.course_name && (
-                      <HStack gap={2} align="start">
+                    {student.location && (
+                      <HStack align="flex-start" gap={2}>
                         <Box
                           w="16px"
                           h="16px"
@@ -228,14 +230,62 @@ export function StudentCard({
                           alignItems="center"
                           justifyContent="center"
                           flexShrink={0}
-                          mt="2px"
+                          mt="3px"
                         >
                           <Image
                             width={12}
                             height={12}
+                            src="/assets/locationIcon.svg"
+                            alt="location"
+                            style={{ objectFit: "contain" }}
+                          />
+                        </Box>
+
+                        <Box>
+                          <Text
+                            fontSize="sm"
+                            color="gray.600"
+                            whiteSpace="normal"
+                            wordBreak="break-word"
+                          >
+                            {student.location}
+                          </Text>
+
+                          {student.distance_km !== undefined &&
+                            student.distance_km !== null && (
+                              <Text
+                                fontSize="sm"
+                                color="gray.600"
+                                whiteSpace="normal"
+                                wordBreak="break-word"
+                              >
+                                (
+                                <Text as="span" fontWeight="semibold">
+                                  {student.distance_km} km
+                                </Text>
+                                )
+                              </Text>
+                            )}
+                        </Box>
+                      </HStack>
+                    )}
+                    {student.course_name && (
+                      <HStack gap={2} align="start">
+                        <Box
+                          w="12px"
+                          h="12px"
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          flexShrink={0}
+                          mt="5px"
+                          pos="relative"
+                        >
+                          <Image
                             src="/assets/educationIcon.svg"
                             alt="course"
-                            objectFit="contain"
+                            fill
+                            style={{ objectFit: "contain" }}
                           />
                         </Box>
                         <Text
@@ -246,36 +296,6 @@ export function StudentCard({
                         >
                           {student.course_name} <br />
                           {student.course_progression}
-                        </Text>
-                      </HStack>
-                    )}
-
-                    {student.location && (
-                      <HStack gap={2} align="center">
-                        <Box
-                          w="16px"
-                          h="16px"
-                          display="flex"
-                          alignItems="center"
-                          justifyContent="center"
-                          flexShrink={0}
-                          mt="2px"
-                        >
-                          <Image
-                            width={12}
-                            height={12}
-                            src="/assets/locationIcon.svg"
-                            alt="location"
-                            objectFit="contain"
-                          />
-                        </Box>
-                        <Text
-                          fontSize="sm"
-                          color="gray.600"
-                          whiteSpace="normal"
-                          wordBreak="break-word"
-                        >
-                          {student.location}
                         </Text>
                       </HStack>
                     )}
@@ -296,7 +316,7 @@ export function StudentCard({
                             height={12}
                             src="/assets/certificationIcon.svg"
                             alt="specialization"
-                            objectFit="contain"
+                            style={{ objectFit: "contain" }}
                           />
                         </Box>
                         <Text
@@ -310,37 +330,31 @@ export function StudentCard({
                       </HStack>
                     )}
 
-                    <HStack gap={2} align="start">
-                      <Box
-                        w="16px"
-                        h="16px"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        flexShrink={0}
-                        mt="2px"
-                      >
-                        {isMatched ? (
-                          <Ban size={16} color="#DC2626" />
-                        ) : (
-                          <Image
-                            width={12}
-                            height={12}
-                            src="/assets/calenderIcon.svg"
-                            alt="progress"
-                            objectFit="contain"
-                          />
-                        )}
-                      </Box>
-                      <Text
-                        fontSize="sm"
-                        color="gray.600"
-                        whiteSpace="normal"
-                        wordBreak="break-word"
-                      >
-                        {isMatched ? "Not available" : "Available Immediately"}
-                      </Text>
-                    </HStack>
+                    {isMatched && (
+                      <HStack gap={2} align="start">
+                        <Box
+                          w="12px"
+                          h="12px"
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          flexShrink={0}
+                          mt="5px"
+                          pos="relative"
+                        >
+                          <Ban size={12} color="#DC2626" />
+                        </Box>
+
+                        <Text
+                          fontSize="sm"
+                          color="gray.600"
+                          whiteSpace="normal"
+                          wordBreak="break-word"
+                        >
+                          Not available
+                        </Text>
+                      </HStack>
+                    )}
                   </Box>
                 </Box>
               </Box>
@@ -384,17 +398,27 @@ export function StudentCard({
                 </Box>
               )}
             </Box>
-
-            <Button
-              variant="student"
-              w="full"
-              py={6}
-              mt={4}
-              onClick={handleViewFullProfile}
-              disabled={!student.id || disableViewFullProfile || isMatched}
+            <Tooltip
+              disabled={!isInTrialPeriod()}
+              positioning={{ placement: "top", offset: { mainAxis: 8 } }}
+              content="Subscribe to view full profiles during your trial period."
             >
-              View Full Profile
-            </Button>
+              <Button
+                variant="student"
+                w="full"
+                py={6}
+                mt={4}
+                onClick={handleViewFullProfile}
+                disabled={
+                  !student.id ||
+                  disableViewFullProfile ||
+                  isMatched ||
+                  isInTrialPeriod()
+                }
+              >
+                View Full Profile
+              </Button>
+            </Tooltip>
           </Box>
         </Box>
       </Tooltip>

@@ -50,7 +50,18 @@ export const createPageSchema = (
         fieldSchema = yup.string();
       } else if (question.type === "text") {
         fieldSchema = yup.string();
-      } else if (question.type === "email") {
+      } else if (question.type === "abn_lookup") {
+        fieldSchema = yup
+          .string()
+          .transform((value: any) => {
+            if (!value) {
+              return undefined;
+            }
+            const digits = String(value).replace(/\D/g, "");
+            return digits || undefined;
+          })
+          .matches(/^\d{11}$/, "ABN must contain 11 digits");
+      }else if (question.type === "email") {
         fieldSchema = yup
           .string()
           .email("Please enter a valid email address")
@@ -265,64 +276,53 @@ export const createPageSchema = (
   return yup.object().shape(shape);
 };
 
+// Shared bits
+const emailSchema = yup
+  .string()
+  .required("Email is required")
+  .email("Invalid email format")
+  .matches(/^[^@]+@[^@]+\.[^@]+$/, "Invalid email format");
+
+const passwordSchema = yup
+  .string()
+  .required("Password is required")
+  .min(8, "Password must be at least 8 characters");
+
 export const loginValidationSchema = yup.object({
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("Invalid email format")
-    .matches(/^[^@]+@[^@]+\.[^@]+$/, "Invalid email format"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters"),
+  email: emailSchema,
+  password: passwordSchema,
 });
 
-export const authValidationSchema = yup.object({
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("Invalid email format")
-    .matches(/^[^@]+@[^@]+\.[^@]+$/, "Invalid email format"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters"),
-  student_terms_and_conditions: yup
+const boolChecked = (msg: string) =>
+  yup
     .boolean()
-    .transform((value) => value === "on" || value === true)
-    .oneOf([true], "Terms and conditions are required"),
-  privacy_policy: yup
-    .boolean()
-    .transform((value) => value === "on" || value === true)
-    .oneOf([true], "Privacy policy is required"),
+    .transform((v) => v === "on" || v === true)
+    .oneOf([true], msg);
+
+// Base for everyone (coordinator, etc.)
+export const baseAuthSchema = yup.object({
+  email: emailSchema,
+  password: passwordSchema,
+  privacy_policy: boolChecked("Privacy policy is required"),
 });
 
-export const organisationAuthValidationSchema = yup.object({
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("Invalid email format")
-    .matches(/^[^@]+@[^@]+\.[^@]+$/, "Invalid email format")
-    .test(
-      "disallowed-domain",
-      "Please use a unique work email domain to sign up as an organisation.",
-      (value) => {
-        if (!value) return true;
-        return !isDisallowedDomain(value);
-      }
-    ),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters"),
-  organisation_terms_and_conditions: yup
-    .boolean()
-    .transform((value) => value === "on" || value === true)
-    .oneOf([true], "Terms and conditions are required"),
-  privacy_policy: yup
-    .boolean()
-    .transform((value) => value === "on" || value === true)
-    .oneOf([true], "Privacy policy is required"),
+// Student = base + student T&C
+export const studentAuthValidationSchema = baseAuthSchema.shape({
+  student_terms_and_conditions: boolChecked(
+    "Terms and conditions are required"
+  ),
+});
+
+// Organisation = base + org T&C + domain rule
+export const organisationAuthValidationSchema = baseAuthSchema.shape({
+  email: emailSchema.test(
+    "disallowed-domain",
+    "Please use a unique work email domain to sign up as an organisation.",
+    (value) => !value || !isDisallowedDomain(value)
+  ),
+  organisation_terms_and_conditions: boolChecked(
+    "Terms and conditions are required"
+  ),
 });
 
 export const resetPasswordValidationSchema = yup.object({

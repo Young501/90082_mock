@@ -4,6 +4,8 @@ import { ReactNode } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Container } from "@chakra-ui/react";
 import Header from "@/components/Layouts/Header";
+import Footer from "@/components/Layouts/Footer";
+import { isInTrialPeriod } from "@/utils/subscriptionPermissions";
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
   return (
@@ -18,9 +20,15 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
         }}
       >
         <Header isProtected={true} />
-        <Container maxW="1512px" px={0} style={{ flex: 1 }}>
+        <Container
+          maxW="1512px"
+          px={0}
+          style={{ flex: 1 }}
+          mt={{ base: "20px", lg: isInTrialPeriod() ? "40px" : "0px" }}
+        >
           {children}
         </Container>
+        <Footer />
       </div>
     </ProtectedRoute>
   );

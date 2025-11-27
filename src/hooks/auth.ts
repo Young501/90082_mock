@@ -46,16 +46,7 @@ export const checkOnboardingStatus = async ({
     });
     setUserProfile(response);
     if (redirectOnSuccess) {
-      const { getInviteData } = useAuthStore.getState();
-      const { token: inviteToken, opportunityId } = getInviteData();
-
-      if (inviteToken && opportunityId) {
-        router.push(
-          `/invite/?token=${inviteToken}&opportunity=${opportunityId}`
-        );
-      } else {
-        router.push("/discover/");
-      }
+      router.push("/discover/");
     }
   } catch (error: any) {
     if (error?.response?.status === 404 && userType === "organisation") {
@@ -107,7 +98,7 @@ const fetchCoordinatorOpportunities = async () => {
 
 export const useAuth = () => {
   const router = useRouter();
-  const { setAuthData, user, setUserProfile } = useAuthStore();
+  const { setAuthData, user, setUserProfile, setIsAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -123,8 +114,10 @@ export const useAuth = () => {
     },
     onSuccess: (response) => {
       setAuthData(response.token, response.user);
+      setIsAuthenticated(true);
       queryClient.invalidateQueries({ queryKey: ["user"] });
       queryClient.invalidateQueries({ queryKey: ["accepted-opportunities"] });
+      queryClient.invalidateQueries({ queryKey: ["accessible-opportunities"] });
       checkOnboardingStatus({
         user: response.user,
         setUserProfile: setUserProfile,

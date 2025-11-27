@@ -24,6 +24,7 @@ interface PartnerCardProps {
   onRemoveFromFolder?: () => void;
   disableViewFullProfile?: boolean;
   disableAddToFolder?: boolean;
+  opportunityId?: string;
 }
 
 export function PartnerCard({
@@ -34,6 +35,7 @@ export function PartnerCard({
   onRemoveFromFolder,
   disableViewFullProfile = false,
   disableAddToFolder = false,
+  opportunityId,
 }: PartnerCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
@@ -103,13 +105,14 @@ export function PartnerCard({
                 style={{ color: "#DC2626", fontSize: "20px" }}
               />
             ) : (
-              <Image
-                width={20}
-                height={20}
-                src="/assets/addicon.svg"
-                alt="add"
-                objectFit="contain"
-              />
+              <Box pos="relative" w="20px" h="20px">
+                <Image
+                  src="/assets/addicon.svg"
+                  alt="add"
+                  fill
+                  style={{ objectFit: "contain" }}
+                />
+              </Box>
             )}
           </Box>
         </Box>
@@ -186,7 +189,7 @@ export function PartnerCard({
 
                 <Box display="flex" flexDirection="column" gap={2}>
                   {organisation.location && (
-                    <HStack gap={2} align="center">
+                    <HStack align="flex-start" gap={2}>
                       <Box
                         w="16px"
                         h="16px"
@@ -194,23 +197,43 @@ export function PartnerCard({
                         alignItems="center"
                         justifyContent="center"
                         flexShrink={0}
+                        mt="3px"
                       >
                         <Image
                           width={12}
                           height={12}
                           src="/assets/locationIcon.svg"
                           alt="location"
-                          objectFit="contain"
+                          style={{ objectFit: "contain" }}
                         />
                       </Box>
-                      <Text
-                        fontSize="sm"
-                        color="gray.600"
-                        whiteSpace="normal"
-                        wordBreak="break-word"
-                      >
-                        {organisation.location || ""}
-                      </Text>
+
+                      <Box>
+                        <Text
+                          fontSize="sm"
+                          color="gray.600"
+                          whiteSpace="normal"
+                          wordBreak="break-word"
+                        >
+                          {organisation.location}
+                        </Text>
+
+                        {organisation.distance_km !== undefined &&
+                          organisation.distance_km !== null && (
+                            <Text
+                              fontSize="sm"
+                              color="gray.600"
+                              whiteSpace="normal"
+                              wordBreak="break-word"
+                            >
+                              (
+                              <Text as="span" fontWeight="semibold">
+                                {organisation.distance_km} km
+                              </Text>
+                              )
+                            </Text>
+                          )}
+                      </Box>
                     </HStack>
                   )}
 
@@ -259,6 +282,7 @@ export function PartnerCard({
         <FullProfileCard
           profileId={organisation.id.toString()}
           profileType="organisation"
+          opportunityId={opportunityId || ""}
           onClose={() => setShowFullProfile(false)}
         />
       )}

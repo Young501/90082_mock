@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import { useAuthStore } from "@/store/authStore";
+import { Opportunity, AccessibleOpportunity } from "@/types/opportunities";
+import { AbnValidationResponse } from "@/types/shared";
 
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
@@ -27,6 +29,21 @@ export function useProfilePictureUpload() {
       return apiRequest({
         endpoint: API_ENDPOINTS.PROFILE_PICTURE_UPLOAD,
         body: formData,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+  });
+}
+
+export function useProfilePictureDelete() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.PROFILE_PICTURE_DELETE,
       });
     },
     onSuccess: () => {
@@ -96,6 +113,20 @@ export function useLogoUpload(userType: string) {
   });
 }
 
+export function useLogoDelete(userType: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.LOGO_DELETE(userType),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
+    },
+  });
+}
+
 export function useOrganisationDomainCheck() {
   return useQuery({
     queryKey: ["organisation-domain-check"],
@@ -128,6 +159,17 @@ export function useGeocode() {
         body: { address, target },
       });
       return result;
+    },
+  });
+}
+
+export function useAbnValidation() {
+  return useMutation({
+    mutationFn: async (payload: { abn: string; organisationName: string }) => {
+      return apiRequest<AbnValidationResponse>({
+        endpoint: API_ENDPOINTS.ABN_VALIDATE,
+        body: payload,
+      });
     },
   });
 }
@@ -201,6 +243,88 @@ export function useAcceptedOpportunities() {
   });
 }
 
+// UC-314: All accessible opportunities for current user
+
+export function useAccessibleOpportunities() {
+  const { user } = useAuthStore();
+  return useQuery({
+    queryKey: ["accessible-opportunities", user?.id],
+    queryFn: async () => {
+      try {
+        const response = await apiRequest({
+          endpoint: API_ENDPOINTS.ALL_OPPORTUNITIES,
+        });
+
+        let opportunities: AccessibleOpportunity[] = [];
+
+        // Handle different response structures
+        if (Array.isArray(response)) {
+          opportunities = response;
+        } else if (
+          response.opportunities &&
+          Array.isArray(response.opportunities)
+        ) {
+          opportunities = response.opportunities;
+        } else {
+          console.warn("⚠️ Unexpected V2 API response structure:", response);
+          return [];
+        }
+
+        // Map opportunities using enrollment_status from API response
+        const opportunitiesWithStatus = opportunities.map(
+          (o: AccessibleOpportunity) => {
+            // Use enrollment_status from API response if available
+            let enrollmentStatus = "not_enrolled";
+            if (o.enrollment_status) {
+              // Map API enrollment_status to our expected format
+              if (o.enrollment_status === "enrolled") {
+                enrollmentStatus = "enrolled";
+              } else if (o.enrollment_status === "not_enrolled") {
+                enrollmentStatus = "not_enrolled";
+              } else {
+                // Handle other possible values
+                enrollmentStatus = o.enrollment_status;
+              }
+            }
+
+            const mappedOpp = {
+              id: o.id,
+              title: o.title,
+              enrollment_status: enrollmentStatus,
+              description: o.description || "",
+              start_date: o.start_date || "",
+              end_date: o.end_date || "",
+              created_by: o.created_by || 0,
+              is_active: o.is_active !== undefined ? o.is_active : true,
+              created_at: o.created_at || "",
+              updated_at: o.updated_at || "",
+              questionnaire: o.questionnaire || {},
+              is_enrolled: enrollmentStatus === "enrolled",
+              visibility_display: o.visibility_display || "",
+              access: o.access || null,
+              slug: o.slug || "",
+            };
+            return mappedOpp;
+          }
+        );
+
+        return opportunitiesWithStatus;
+      } catch (error: any) {
+        console.error("❌ V2 API failed:", error);
+        throw error;
+      }
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+}
+
 export function useContactUser() {
   return useMutation({
     mutationFn: async (data: {
@@ -263,4 +387,97 @@ export function useInviteParticipants() {
       });
     },
   });
+}
+
+export function useCoordinatorViewUserProfile(
+  participantId: string,
+  opportunityId: string
+) {
+  return useQuery({
+    queryKey: ["coordinator-view-user-profile", participantId, opportunityId],
+    queryFn: () =>
+      apiRequest({
+        endpoint: API_ENDPOINTS.COORDINATOR_VIEW_USER_PROFILE(
+          participantId,
+          opportunityId
+        ),
+      }),
+    enabled: !!participantId && !!opportunityId,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+}
+
+export function useOpportunityDetail(opportunityId: string) {
+  return useQuery<Opportunity>({
+    queryKey: ["opportunity-detail", opportunityId],
+    queryFn: () =>
+      apiRequest({ endpoint: API_ENDPOINTS.OPPORTUNITY_DETAIL(opportunityId) }),
+    enabled: !!opportunityId,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+}
+
+// Get participant record for a specific opportunity
+export function useOpportunityParticipant(
+  opportunityId: string | number,
+  enabled?: boolean
+) {
+  return useQuery({
+    queryKey: ["opportunity-participant", opportunityId],
+    queryFn: () =>
+      apiRequest({
+        endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANT(Number(opportunityId)),
+      }),
+    enabled:
+      enabled !== undefined ? enabled && !!opportunityId : !!opportunityId,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+// Utility function to categorize opportunities
+export function categorizeOpportunities(
+  opportunities: (Opportunity | AccessibleOpportunity)[]
+) {
+  const enrolled: (Opportunity | AccessibleOpportunity)[] = [];
+  const closed: (Opportunity | AccessibleOpportunity)[] = [];
+
+  opportunities.forEach((opportunity) => {
+    let isEnrolled = false;
+
+    // Check if it's an AccessibleOpportunity with status field
+    if ("enrollment_status" in opportunity) {
+      isEnrolled = opportunity.enrollment_status === "enrolled";
+    }
+    // Check if it's an Opportunity with participant_record
+    else if (
+      "participant_record" in opportunity &&
+      opportunity.participant_record
+    ) {
+      isEnrolled = opportunity.participant_record.status === "Enrolled";
+    }
+    // Fallback to is_enrolled field
+    else if (opportunity.is_enrolled === true) {
+      isEnrolled = true;
+    }
+
+    if (isEnrolled) {
+      enrolled.push(opportunity);
+    } else {
+      closed.push(opportunity);
+    }
+  });
+
+  return { enrolled, closed };
 }

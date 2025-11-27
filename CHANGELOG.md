@@ -5,11 +5,46 @@ All notable changes to UniConnected will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),  
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
----
-
-## [Unreleased]
+## [unreleased]
 
 ### Added
+
+---
+
+## [v1.2]
+
+### Added
+
+- Added ABN validation for organisations: The onboarding and profile editor now include an ABN lookup field with inline status messages. The system automatically verifies the ABN and organisation name before allowing users to continue or save changes, ensuring all organisations have a confirmed and valid ABN.
+- Deprecated the opportunity invite flow. Now users can enrol in the invited opporutnity through the discover page.
+
+---
+
+## [1.1]
+
+### Added
+
+- Discover dropdown feature with responsive design, enrollment-status badges, and new useAccessibleOpportunities hook using the /api/v2/opportunities/all/ endpoint.
+- Now Discover page's Enroll button takes users to a 4-page application flow with Start, Fill, Review, and Complete.
+- When enroled is pressed, we check user domain and see if it fits within the allowed domain of the opporutnity. If it doesn't then we display a warning popup and we do not allow the user to enrol.
+- My Opportunities tab on the Profile page, including enrolled/closed sub-tabs, dynamic badges, expandable opportunity cards, questionnaire editing, enrollment management (re-enroll, cancel, save changes), and responsive UX with loading states and toast notifications.
+
+---
+
+## [1.0.4]
+
+### Added
+
+- Now we show Within x km in the student profile
+
+---
+
+## [1.0.3]
+
+### Added
+
+- Cleaned up the auth sign up validation schema
+- Now coordinator can view full profiles of students and organisations.
 
 ---
 

@@ -458,6 +458,7 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
           profileType={userType}
           onClose={() => setShowFullProfile(false)}
           opportunityId={opportunityId}
+          isCoordinator={true}
         />
       )}
 

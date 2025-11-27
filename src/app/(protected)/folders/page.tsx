@@ -29,7 +29,7 @@ import { PartnerCard } from "@/app/(protected)/discover/cards/partnerCard";
 import { toast } from "react-toastify";
 import { Folder as FolderType } from "@/types/folder";
 import { useAuthStore } from "@/store";
-import Loader from "@/components/Loader";
+import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { PaginationControls } from "@/components/ui/PaginationControls";
@@ -38,7 +38,7 @@ const Folder = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const folderId = searchParams.get("id");
-  const { user } = useAuthStore();
+  const { user, currentOpportunityId } = useAuthStore();
   const { folders, isLoadingFolders, folderModal } = useFolderManagement();
   const deleteFolder = useDeleteFolder();
   const removeMemberFromFolder = useRemoveMemberFromFolder();
@@ -282,6 +282,7 @@ const Folder = () => {
                             userType={userType}
                             profilePictureUrl={userData?.profile_picture_url}
                             isInFolder={true}
+                            opportunityId={currentOpportunityId || undefined}
                             onRemoveFromFolder={() =>
                               handleRemoveFromFolder(userId.toString())
                             }

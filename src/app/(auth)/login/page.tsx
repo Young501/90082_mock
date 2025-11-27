@@ -25,7 +25,6 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { setInviteData } = useAuthStore();
 
   const {
     handleLogin,
@@ -53,14 +52,6 @@ export default function LoginPage() {
   const emailValue = watch("email");
   const passwordValue = watch("password");
 
-  useEffect(() => {
-    const inviteToken = searchParams.get("invite_token");
-    const opportunityId = searchParams.get("opportunity_id");
-
-    if (inviteToken && opportunityId) {
-      setInviteData(inviteToken, opportunityId);
-    }
-  }, [searchParams, setInviteData]);
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -150,6 +141,7 @@ export default function LoginPage() {
                   isLoading={isLoading}
                   w="100%"
                   mt={4}
+                  // borderRadius="xl"
                 >
                   LOGIN
                 </Button>

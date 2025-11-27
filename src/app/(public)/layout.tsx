@@ -43,8 +43,7 @@ export default function Layout({ children }: AuthLayoutProps) {
             {children}
           </Container>
         </Box>
-        {/* TO DO: Mobile footer missing */}
-        {!isMobile && <Footer />}
+        <Footer />
       </div>
     </Suspense>
   );

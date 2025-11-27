@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -16,13 +10,10 @@ import {
   UserSearchParams,
 } from "@/types/discovery";
 import { useUserSearch } from "@/services/user";
-import {
-  useOnboardingPages,
-  useAcceptedOpportunities,
-  useQuestionnaireFilters,
-} from "@/services/shared";
+import { useOnboardingPages, useQuestionnaireFilters } from "@/services/shared";
 import { toast } from "react-toastify";
 import { UserProfile } from "@/types/shared";
+import { parseQuestionnaireOptions } from "@/utils/questionnaireParser";
 
 const createValidationSchema = (fields: ProcessedField[]) => {
   const shape: Record<string, any> = {};
@@ -61,7 +52,7 @@ const getDefaultValues = (fields: ProcessedField[]): FilterFormData => {
 const extractFilterOptions = (
   results: UserProfile[],
   fields: ProcessedField[]
-): Record<string, string[]> => {
+): Record<string, Array<string | { label: string; value: string }>> => {
   const options: Record<string, Set<string>> = {};
 
   results.forEach((user) => {
@@ -90,14 +81,47 @@ const extractFilterOptions = (
   });
 
   return Object.fromEntries(
-    Object.entries(options).map(([key, set]) => [key, Array.from(set).sort()])
+    Object.entries(options).map(([fieldName, valueSet]) => {
+
+      //******** returning both types of field options, is required here i.e [string | { label: string; value: string }] *********//
+      const field = fields.find((f) => f.field === fieldName);
+      const extractedValues = Array.from(valueSet).sort();
+      
+      if (field?.options) {
+        // ************ reverted to use the utils function to parse the options now filter options arent an array of strings but array of objects with label and value this is consistent ************//
+        const parsedOptions = parseQuestionnaireOptions(field.options);
+        
+        const optionMap = new Map(
+          parsedOptions.map((opt) => [opt.value, opt])
+        );
+        
+        const mappedOptions = extractedValues
+          .map((val) => optionMap.get(val))
+          .filter((opt): opt is { label: string; value: string } => opt !== undefined);
+        
+        if (mappedOptions.length > 0) {
+          return [fieldName, mappedOptions];
+        }
+      }
+      
+      return [fieldName, extractedValues];
+    })
   );
 };
 
+type UseDiscoveryOpts = {
+  isEnrolled?: boolean; // tri-state: undefined while unknown
+  isEnrollmentReady?: boolean; // when you've finished computing isEnrolled
+};
+
 // ===== Main Hook =====
-export const useDiscovery = () => {
+export const useDiscovery = (
+  opportunityIdOverride?: string,
+  opts: UseDiscoveryOpts = {}
+) => {
+  const { isEnrolled, isEnrollmentReady } = opts;
+
   const { user } = useAuthStore();
-  const hasShownWarningRef = useRef(false);
   const [filterableFields, setFilterableFields] = useState<ProcessedField[]>(
     []
   );
@@ -106,9 +130,9 @@ export const useDiscovery = () => {
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [filterOptions, setFilterOptions] = useState<Record<string, string[]>>(
-    {}
-  );
+  const [filterOptions, setFilterOptions] = useState<
+    Record<string, Array<string | { label: string; value: string }>>
+  >({});
   const [isSearching, setIsSearching] = useState(false);
 
   const userType = user?.user_types?.[0];
@@ -117,9 +141,7 @@ export const useDiscovery = () => {
     return userType === "student" ? "organisation" : "student";
   }, [userType]);
 
-  const { data: acceptedOpportunities, isLoading: isOpportunitiesLoading } =
-    useAcceptedOpportunities();
-  const currentOpportunityId = acceptedOpportunities?.[0]?.id;
+  const currentOpportunityId = opportunityIdOverride;
 
   const { data, isLoading: isOnboardingLoading } = useOnboardingPages(
     targetUserType || ""
@@ -180,7 +202,9 @@ export const useDiscovery = () => {
             );
 
             if (isFieldVisible) {
-              form.setValue(fieldName, options[0]);
+              const optionValue =
+                typeof options[0] === "string" ? options[0] : options[0].value;
+              form.setValue(fieldName, optionValue);
             }
           }
         });
@@ -195,50 +219,13 @@ export const useDiscovery = () => {
     }
   }, [filterableFields, form]);
 
+  // Reset form when opportunity changes
   useEffect(() => {
-    if (
-      targetUserType &&
-      !searchParams &&
-      !isOpportunitiesLoading &&
-      currentOpportunityId
-    ) {
-      setSearchParams({
-        user_type: targetUserType,
-        opportunity_id: currentOpportunityId,
-        page: currentPage,
-        page_size: pageSize,
-      });
-      setIsSearching(true);
+    if (currentOpportunityId && filterableFields.length > 0) {
+      const defaultValues = getDefaultValues(filterableFields);
+      form.reset(defaultValues);
     }
-  }, [
-    targetUserType,
-    searchParams,
-    currentPage,
-    pageSize,
-    currentOpportunityId,
-    isOpportunitiesLoading,
-  ]);
-
-  useEffect(() => {
-    const shouldShowWarning =
-      !isOpportunitiesLoading &&
-      acceptedOpportunities !== undefined &&
-      !currentOpportunityId &&
-      !hasShownWarningRef.current;
-
-    if (shouldShowWarning) {
-      hasShownWarningRef.current = true;
-      setTimeout(() => {
-        toast.warning(
-          "You haven't joined any opportunities yet. Please accept an opportunity invitation to search for users."
-        );
-      }, 100);
-    }
-
-    if (currentOpportunityId && hasShownWarningRef.current) {
-      hasShownWarningRef.current = false;
-    }
-  }, [isOpportunitiesLoading, acceptedOpportunities, currentOpportunityId]);
+  }, [currentOpportunityId, filterableFields, form]);
 
   const processFollowupQuestions = useCallback(
     (
@@ -342,6 +329,7 @@ export const useDiscovery = () => {
       opportunity_id: currentOpportunityId,
       page: 1,
       page_size: pageSize,
+      sort_by: "distance",
       ...Object.fromEntries(filteredEntries),
     };
 
@@ -358,6 +346,7 @@ export const useDiscovery = () => {
       setSearchParams({
         user_type: targetUserType,
         opportunity_id: currentOpportunityId,
+        sort_by: "distance",
         page: 1,
         page_size: pageSize,
       });
@@ -427,12 +416,33 @@ export const useDiscovery = () => {
   ]);
 
   useEffect(() => {
-    if (!targetUserType || !currentOpportunityId) {
+    // Wait until we know enrollment (avoid flicker/extra calls)
+    if (!isEnrollmentReady) return;
+
+    if (!targetUserType || !currentOpportunityId || isEnrolled !== true) {
       setSearchParams(null);
       setIsSearching(false);
       setCurrentPage(1);
+      return;
     }
-  }, [targetUserType, currentOpportunityId]);
+
+    // Enrolled: prime the initial search
+    setSearchParams({
+      user_type: targetUserType,
+      opportunity_id: currentOpportunityId,
+      sort_by: "distance",
+      page: 1,
+      page_size: pageSize,
+    });
+    setCurrentPage(1);
+    setIsSearching(true);
+  }, [
+    targetUserType,
+    currentOpportunityId,
+    pageSize,
+    isEnrolled,
+    isEnrollmentReady,
+  ]);
 
   const hasSearchFilters = useMemo(() => {
     if (!searchParams) return false;
@@ -455,14 +465,9 @@ export const useDiscovery = () => {
     isLoading: isOnboardingLoading || isSearchLoading || isQuestionnaireLoading,
     isSearching,
     form,
-    handleSearch: form.handleSubmit(
-      (data) => {
-        handleSearch(data);
-      },
-      (errors) => {
-        console.log(errors);
-      }
-    ),
+    handleSearch: form.handleSubmit((data) => {
+      handleSearch(data);
+    }),
     handleReset,
     checkDependencies,
     resultsCount: searchData?.count || 0,

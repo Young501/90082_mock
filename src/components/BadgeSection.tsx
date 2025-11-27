@@ -11,6 +11,7 @@ interface BadgeSectionProps {
     mb?: number;
     ml?: number;
   };
+  withinDistance?: string;
   showFallback?: boolean;
   fallbackText?: string;
   badgeProps?: {
@@ -25,6 +26,7 @@ interface BadgeSectionProps {
 const BadgeSection = ({
   title,
   items,
+  withinDistance,
   titleProps = {
     fontSize: "14px",
     fontWeight: "600",
@@ -56,13 +58,22 @@ const BadgeSection = ({
 
   if (itemsArray.length === 0) return null;
 
+  const renderItem = (item: string) => {
+    return item.includes("_")
+      ? // replace all underscores with spaces and capitalize the first letter of each word
+        item.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
+      : item.toLowerCase().replace(/\b\w/g, (l) => l.toUpperCase()) +
+          " " +
+          (withinDistance && item === "Within" ? `${withinDistance} km` : "");
+  };
+
   return (
     <Box w="full">
       <Text {...titleProps}>{title}</Text>
       <Flex gap={2} flexWrap="wrap" ml={4}>
         {itemsArray.map((item, index) => (
           <Badge key={index} {...badgeProps} px={4} py={1} borderRadius="20px">
-            {item}
+            {renderItem(item)}
           </Badge>
         ))}
       </Flex>
