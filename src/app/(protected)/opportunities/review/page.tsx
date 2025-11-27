@@ -51,7 +51,7 @@ export default function OpportunityReviewPage() {
 
   const opportunityId = currentOpportunity?.id;
 
-  const { user, setEnrollmentStatus, setCurrentOpportunityId } = useAuthStore();
+  const { user } = useAuthStore();
   const queryClient = useQueryClient();
 
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -112,10 +112,10 @@ export default function OpportunityReviewPage() {
           opportunityId?.toString() || "",
         );
 
-        if (currentOpportunity?.enrollment_status === "enrolled") {
-          setCurrentOpportunityId(opportunityId?.toString() || "");
-          setEnrollmentStatus(true);
-        }
+        // if (currentOpportunity?.enrollment_status === "enrolled") {
+        //   setCurrentOpportunityId(opportunityId);
+        //   setEnrollmentStatus(true);
+        // }
       }
 
       router.push(`/opportunities/complete?opp=${opportunitySlug}`);

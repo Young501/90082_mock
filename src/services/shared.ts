@@ -315,7 +315,7 @@ export function useAccessibleOpportunities() {
       }
     },
     enabled: !!user,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 2 * 60 * 1000,
     retry: (failureCount, error: any) => {
       if (error?.response?.status === 404) {
         return false;

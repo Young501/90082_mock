@@ -7,6 +7,8 @@ import { Organisation } from "@/types/shared";
 import { getInitials } from "@/utils/getInitials";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
+import { Tooltip } from "@/components/ui/tooltip";
+import { useRef } from "react";
 
 interface Props {
   organisation: Organisation;
@@ -14,6 +16,24 @@ interface Props {
 }
 
 export const OrganisationMatchPage = ({ organisation, onConfirm }: Props) => {
+  const DescriptionText = (
+    <Text
+      maxW="600px"
+      fontSize={{ base: "16px", md: "20px" }}
+      textAlign={{ base: "center", lg: "start" }}
+      style={{
+        display: "-webkit-box",
+        WebkitLineClamp: 4,
+        WebkitBoxOrient: "vertical",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        wordBreak: "break-word",
+      }}
+    >
+      {organisation.description}
+    </Text>
+  );
+
   return (
     <>
       <PageTitle title={PAGE_TITLES.ORGANISATION_MATCH} />
@@ -23,7 +43,7 @@ export const OrganisationMatchPage = ({ organisation, onConfirm }: Props) => {
         alignItems="center"
         textAlign="center"
         h="100%"
-        pt={8}
+        py={8}
       >
         <Text
           fontSize={{ base: "24px", md: "32px" }}
@@ -88,13 +108,27 @@ export const OrganisationMatchPage = ({ organisation, onConfirm }: Props) => {
             </Text>
 
             {organisation.description && (
-              <Text
-                maxW="600px"
-                fontSize={{ base: "16px", md: "20px" }}
-                textAlign={{ base: "center", lg: "start" }}
+              <Tooltip
+                contentContainerStyles={{
+                  backgroundColor: "white",
+                  borderRadius: "10px",
+                  padding: "10px",
+                  boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.1)",
+                  border: "1px solid #0000001A",
+                }}
+                minWidth={{ base: "300px", md: "500px" }}
+                TextStyles={{
+                  fontSize: "14px",
+                  color: "black",
+                  fontWeight: "500",
+                  lineHeight: "1.5",
+                }}
+                showArrow
+                positioning={{ placement: "top", offset: { mainAxis: 8 } }}
+                content={organisation.description}
               >
-                {organisation.description}
-              </Text>
+                {DescriptionText}
+              </Tooltip>
             )}
 
             <VStack align={{ base: "center", lg: "start" }} gap={2}>

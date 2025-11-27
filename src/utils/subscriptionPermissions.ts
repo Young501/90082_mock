@@ -1,70 +1,33 @@
 import { useAuthStore } from "@/store/authStore";
 import { formatDate } from "@/utils/formatDate";
 
-export const isInTrialPeriod = (): boolean => {
-  const subscriptionStatus = useAuthStore.getState().subscriptionStatus;
-  return subscriptionStatus === "trialing";
+export const isInTrialPeriod = (opportunitySlug: string): boolean => {
+  const trialInfo = getSubscriptionTrialInfo(opportunitySlug);
+  return trialInfo.isInTrial;
 };
 
-export const isSubscriptionActive = (): boolean => {
-  const subscriptionStatus = useAuthStore.getState().subscriptionStatus;
-  return subscriptionStatus === "active";
-};
-
-export const isSubscriptionCanceled = (): boolean => {
-  const subscriptionStatus = useAuthStore.getState().subscriptionStatus;
-  return subscriptionStatus === "canceled";
-};
-
-export const isSubscriptionPastDue = (): boolean => {
-  const subscriptionStatus = useAuthStore.getState().subscriptionStatus;
-  return subscriptionStatus === "past_due";
-};
-
-export const isSubscriptionIncomplete = (): boolean => {
-  const subscriptionStatus = useAuthStore.getState().subscriptionStatus;
-  return subscriptionStatus === "incomplete";
-};
-
-export const isSubscriptionIncompleteExpired = (): boolean => {
-  const subscriptionStatus = useAuthStore.getState().subscriptionStatus;
-  return subscriptionStatus === "incomplete_expired";
-};
-
-export const isSubscriptionUnpaid = (): boolean => {
-  const subscriptionStatus = useAuthStore.getState().subscriptionStatus;
-  return subscriptionStatus === "unpaid";
-};
-
-export const isSubscriptionPaused = (): boolean => {
-  const subscriptionStatus = useAuthStore.getState().subscriptionStatus;
-  return subscriptionStatus === "paused";
-};
-
-export const getSubscriptionTrialInfo = (): {
+export const getSubscriptionTrialInfo = (opportunitySlug: string): {
   isInTrial: boolean;
   trialEnd: string | null;
 } => {
-  const { currentOpportunityId, accessibleOpportunities } =
+  const { accessibleOpportunities } =
     useAuthStore.getState();
 
-  if (!currentOpportunityId || !accessibleOpportunities) {
+  if (!opportunitySlug || !accessibleOpportunities) {
     return { isInTrial: false, trialEnd: null };
   }
 
-  const currentOpportunity = accessibleOpportunities.find(
-    (opp) => opp.id === Number(currentOpportunityId)
-  );
+  const currentOpportunitySubscriptionInfo = accessibleOpportunities.find(
+    (opp) => opp.slug === opportunitySlug
+  )?.access?.subscription;
 
-  if (!currentOpportunity?.access?.subscription) {
+  if (!currentOpportunitySubscriptionInfo) {
     return { isInTrial: false, trialEnd: null };
   }
-
-  const { status, trial_end } = currentOpportunity.access.subscription;
 
   return {
-    isInTrial: status === "trialing",
-    trialEnd: trial_end,
+    isInTrial: currentOpportunitySubscriptionInfo.status === "trialing",
+    trialEnd: currentOpportunitySubscriptionInfo.trial_end,
   };
 };
 
