@@ -175,7 +175,7 @@ const Folder = () => {
                   </Text>
                   <Text fontSize="16px" color="#666">
                     Add members from the{" "}
-                    <Link href="/discover" passHref>
+                    <Link href={`/discover${opportunitySlug ? `?opp=${opportunitySlug}` : ""}`} passHref>
                       <Text
                         as="span"
                         color="blue.500"
