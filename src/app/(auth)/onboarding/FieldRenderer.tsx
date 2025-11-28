@@ -36,7 +36,7 @@ interface FieldRendererProps {
   fileUploadKey?: number;
   organisationName?: string;
   onAbnValidationChange?: (status: AbnValidationStatus) => void;
-  onFileRemove?: (fieldName: string) => void;
+  onFileRemove?: () => void;
   removedFiles?: Set<string>;
 }
 
@@ -353,9 +353,8 @@ export const FieldRenderer = ({
               : undefined
           }
           onRemove={
-            onFileRemove ? () => onFileRemove(question.field) : undefined
+            onFileRemove ? onFileRemove : undefined
           }
-          isRemoved={removedFiles?.has(question.field) || false}
         />
       );
     }

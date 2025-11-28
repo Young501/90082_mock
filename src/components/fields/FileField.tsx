@@ -36,7 +36,6 @@ interface FileFieldProps {
   labelPosition?: "top" | "bottom";
   description?: string;
   onRemove?: () => void;
-  isRemoved?: boolean;
 }
 
 // Default configurations for different file types
@@ -70,7 +69,6 @@ export const FileField = ({
   labelPosition = "top",
   description,
   onRemove,
-  isRemoved = false,
 }: FileFieldProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const config = { ...DEFAULT_CONFIGS[fileType], ...customConfig };
@@ -141,35 +139,35 @@ export const FileField = ({
             }
           }, [field.value]);
 
-          const generatePlaceholderBlob = async (): Promise<File | null> => {
-            try {
-              const response = await fetch("/assets/imgplaceholder.png");
-              const blob = await response.blob();
-              return new File([blob], "imgplaceholder.png", {
-                type: "image/png",
-              });
-            } catch (error) {
-              console.error("Failed to generate placeholder blob:", error);
-              return null;
-            }
-          };
+          // const generatePlaceholderBlob = async (): Promise<File | null> => {
+          //   try {
+          //     const response = await fetch("/assets/imgplaceholder.png");
+          //     const blob = await response.blob();
+          //     return new File([blob], "imgplaceholder.png", {
+          //       type: "image/png",
+          //     });
+          //   } catch (error) {
+          //     console.error("Failed to generate placeholder blob:", error);
+          //     return null;
+          //   }
+          // };
 
           const isPlaceholderBlob = (value: any): boolean => {
             return value instanceof File && value.name === "imgplaceholder.png";
           };
 
-          const handleRemoveFile = async () => {
-            cleanupPreviewUrl();
+          // const handleRemoveFile = async () => {
+          //   cleanupPreviewUrl();
 
-            if (fileType === "image") {
-              const placeholderBlob = await generatePlaceholderBlob();
-              field.onChange(placeholderBlob);
-            } else {
-              field.onChange(null);
-            }
+          //   if (fileType === "image") {
+          //     const placeholderBlob = await generatePlaceholderBlob();
+          //     field.onChange(placeholderBlob);
+          //   } else {
+          //     field.onChange(null);
+          //   }
 
-            if (fileInputRef.current) fileInputRef.current.value = "";
-          };
+          //   if (fileInputRef.current) fileInputRef.current.value = "";
+          // };
 
           return (
             <>
@@ -217,7 +215,7 @@ export const FileField = ({
                         size="sm"
                         variant="ghost"
                         colorScheme="red"
-                        onClick={handleRemoveFile}
+                        // onClick={handleRemoveFile}
                       />
                     </Flex>
 
@@ -279,7 +277,7 @@ export const FileField = ({
                           }}
                           onClick={() => fileInputRef.current?.click()}
                         />
-                        {onRemove && field.value && (
+                        {field.value && (
                           <IconButton
                             aria-label="Remove image"
                             size="sm"
@@ -294,8 +292,10 @@ export const FileField = ({
                             backgroundColor="white"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleRemoveFile();
-                              onRemove();
+                              // handleRemoveFile();
+                              if (onRemove) {
+                                onRemove();
+                              }
                             }}
                           >
                             <Trash2 size={16} color="red" />

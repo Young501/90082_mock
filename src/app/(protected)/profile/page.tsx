@@ -217,6 +217,35 @@ const Profile = () => {
     }
   }, [logoValue]);
 
+  const handleFileRemoval = async() => {
+
+  // delete files that were removed and not fresh upload
+  if (removedFiles.has("profile_picture_url") && profilePictureValue && typeof profilePictureValue === "string") {
+    try {
+      await profilePictureDelete.mutateAsync();
+      setUpdatedProfilePicture(null);
+      setUserProfilePictureUrl("");
+    } catch (error: any) {
+        // console.error("Failed to delete profile picture:", error);
+    }
+  }
+  
+  if (removedFiles.has("logo_url") && logoValue && typeof logoValue === "string") {
+    try {
+      await logoDelete.mutateAsync();
+      setUpdatedProfilePicture(null);
+      setLogoUrl("");
+    } catch (error: any) {
+        // console.error("Failed to delete logo:", error);
+    }
+  }
+
+
+    // track which files were removed so can delete them on save
+    // setRemovedFiles((prev) => new Set(prev).add(fieldName));
+    
+  };
+
   useEffect(() => {
     setAbnStatus("idle");
   }, [activePage?.id]);
@@ -315,11 +344,6 @@ const Profile = () => {
     return allTabs;
   }, [pages, isCoordinator]);
 
-  const handleFileRemoval = (fieldName: string) => {
-    // track which files were removed so can delete them on save
-    setRemovedFiles((prev) => new Set(prev).add(fieldName));
-    
-  };
 
   const calculateProfileCompletion = (): number => {
     if (!userProfile) return 0;
@@ -534,28 +558,28 @@ const Profile = () => {
       toast.success("Profile updated successfully!");
       setUserProfile(profileUpdateResponse);
       
-      // delete files that were removed and not fresh upload
-      if (removedFiles.has("profile_picture_url") && userProfile?.profile_picture_url && typeof userProfile.profile_picture_url === "string") {
-        try {
-          await profilePictureDelete.mutateAsync();
-          setUpdatedProfilePicture(null);
-          setUserProfilePictureUrl("");
-        } catch (error: any) {
-            // console.error("Failed to delete profile picture:", error);
-        }
-      }
+      // // delete files that were removed and not fresh upload
+      // if (removedFiles.has("profile_picture_url") && userProfile?.profile_picture_url && typeof userProfile.profile_picture_url === "string") {
+      //   try {
+      //     await profilePictureDelete.mutateAsync();
+      //     setUpdatedProfilePicture(null);
+      //     setUserProfilePictureUrl("");
+      //   } catch (error: any) {
+      //       // console.error("Failed to delete profile picture:", error);
+      //   }
+      // }
       
-      if (removedFiles.has("logo_url") && userProfile?.organisation?.logo_url && typeof userProfile.organisation.logo_url === "string") {
-        try {
-          await logoDelete.mutateAsync();
-          setUpdatedProfilePicture(null);
-          setLogoUrl("");
-        } catch (error: any) {
-            // console.error("Failed to delete logo:", error);
-        }
-      }
+      // if (removedFiles.has("logo_url") && userProfile?.organisation?.logo_url && typeof userProfile.organisation.logo_url === "string") {
+      //   try {
+      //     await logoDelete.mutateAsync();
+      //     setUpdatedProfilePicture(null);
+      //     setLogoUrl("");
+      //   } catch (error: any) {
+      //       // console.error("Failed to delete logo:", error);
+      //   }
+      // }
       
-      setRemovedFiles(new Set());
+      // setRemovedFiles(new Set());
       const uploadTasks = [];
       if (allData.profile_picture_url instanceof File) {
         const response = await profilePictureUpload.mutateAsync(
@@ -923,7 +947,7 @@ const Profile = () => {
                     fileUploadKey={fileUploadKey}
                     organisationName={organisationNameValue}
                     onAbnValidationChange={setAbnStatus}
-                    onFileRemove={handleFileRemoval}
+                    onFileRemove={() => handleFileRemoval()}
                     removedFiles={removedFiles}
                   />
                 ))}
