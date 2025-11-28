@@ -25,6 +25,7 @@ interface PartnerCardProps {
   disableViewFullProfile?: boolean;
   disableAddToFolder?: boolean;
   opportunityId?: string;
+  opportunitySlug?: string;
 }
 
 export function PartnerCard({
@@ -36,6 +37,7 @@ export function PartnerCard({
   disableViewFullProfile = false,
   disableAddToFolder = false,
   opportunityId,
+  opportunitySlug,
 }: PartnerCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
@@ -287,12 +289,13 @@ export function PartnerCard({
         />
       )}
 
-      {showAddToFolderModal && organisation.id && !isInFolder && (
+      {showAddToFolderModal && organisation.id && !isInFolder && opportunitySlug && (
         <AddToFolderModal
           isOpen={showAddToFolderModal}
           onClose={() => setShowAddToFolderModal(false)}
-          organisationId={organisation.id.toString()}
+          organisationId={organisation.id}
           userName={organisation.name || "Organisation"}
+          opportunitySlug={opportunitySlug}
           onAddToFolder={() => setClickBackground(true)}
           onResetBackground={() => setClickBackground(false)}
           memberType="organisation"

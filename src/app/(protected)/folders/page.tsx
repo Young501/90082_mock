@@ -39,18 +39,18 @@ const Folder = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const folderId = searchParams.get("id");
+  const opportunitySlug = searchParams.get("opp") || undefined;
   const { user, accessibleOpportunities } = useAuthStore();
-  const { folders, isLoadingFolders, folderModal } = useFolderManagement();
+  const { folders, isLoadingFolders, folderModal } = useFolderManagement(opportunitySlug || "");
   const deleteFolder = useDeleteFolder();
   const removeMemberFromFolder = useRemoveMemberFromFolder();
 
   const { data: folderDetail, isLoading: isLoadingFolderDetail } =
-    useFolderDetail(folderId || "");
+    useFolderDetail(folderId || undefined);
 
-  const currentOpportunity = findOpportunityByIdOrSlug(
-    accessibleOpportunities,
-    "mtsi"
-  );
+  const currentOpportunity = opportunitySlug 
+    ? findOpportunityByIdOrSlug(accessibleOpportunities, opportunitySlug)
+    : undefined;
   const currentOpportunityId = currentOpportunity?.id;
 
   const {
@@ -71,7 +71,7 @@ const Folder = () => {
       await deleteFolder.mutateAsync(folderId);
       toast.success("Folder deleted successfully!");
     } catch (error: any) {
-      toast.error(error.response.data?.detail);
+      toast.error(error.response?.data?.detail || "Failed to delete folder");
     }
   };
 
@@ -79,25 +79,27 @@ const Folder = () => {
     folderModal.onOpen(folder);
   };
 
-  const handleFolderClick = (folderId: string) => {
-    router.push(`/folders?id=${folderId}`);
+  const handleFolderClick = (folderId: number) => {
+    const oppParam = opportunitySlug ? `&opp=${opportunitySlug}` : "";
+    router.push(`/folders?id=${folderId}${oppParam}`);
   };
 
   const handleBackToFolders = () => {
-    router.push("/folders");
+    const oppParam = opportunitySlug ? `?opp=${opportunitySlug}` : "";
+    router.push(`/folders${oppParam}`);
   };
 
-  const handleRemoveFromFolder = async (userId: string) => {
+  const handleRemoveFromFolder = async (memberId: string) => {
     if (!folderId) return;
 
     try {
       await removeMemberFromFolder.mutateAsync({
         folderId,
-        userId,
+        memberId: parseInt(memberId),
       });
-      toast.success("User removed from folder successfully");
+      toast.success("Member removed from folder successfully");
     } catch (error: any) {
-      toast.error(error.response.data?.detail);
+      toast.error(error.response?.data?.detail || "Failed to remove member");
     }
   };
 
@@ -205,7 +207,7 @@ const Folder = () => {
                         onValueChange={(details) => {
                           const value = details.value[0];
                           handleMemberTypeChange(
-                            value === "" ? undefined : value
+                            value === "" ? undefined : (value as "student" | "organisation")
                           );
                         }}
                         disabled={isLoadingMembers}
@@ -339,6 +341,40 @@ const Folder = () => {
           )}
         </VStack>
       </Box>
+    );
+  }
+
+  // show error access /folders directly without opportunity
+  if (!opportunitySlug) {
+    return (
+      <>
+        <PageTitle title={PAGE_TITLES.FOLDERS} />
+        <Box
+          py={6}
+          px={{ base: 4, lg: "72px" }}
+          maxW="1512px"
+          mx="auto"
+          mt="126px"
+        >
+          <VStack align="center" justify="center" minH="400px" gap={6}>
+            <Text fontSize="16px" color="#666" textAlign="center" maxW="500px">
+              Please access folders from the Discover page for a specific opportunity.
+            </Text>
+            <Link href="/discover" passHref>
+              <Button
+                bg="#2CA9DF"
+                color="white"
+                borderRadius="8px"
+                px={6}
+                py={3}
+                _hover={{ bg: "#2490C3" }}
+              >
+                Go to Discover
+              </Button>
+            </Link>
+          </VStack>
+        </Box>
+      </>
     );
   }
 

@@ -444,12 +444,13 @@ export function StudentCard({
         />
       )}
 
-      {showAddToFolderModal && student.id && !isInFolder && (
+      {showAddToFolderModal && student.id && !isInFolder && opportunitySlug && (
         <AddToFolderModal
           isOpen={showAddToFolderModal}
           onClose={() => setShowAddToFolderModal(false)}
-          userId={student.id.toString()}
+          userId={student.id}
           userName={getDisplayName()}
+          opportunitySlug={opportunitySlug}
           onAddToFolder={() => setClickBackground(true)}
           onResetBackground={() => setClickBackground(false)}
           memberType="student"

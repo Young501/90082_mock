@@ -344,15 +344,21 @@ export const passwordResetFormSchema = yup.object({
     .required("Please confirm password"),
 });
 
-export const createFolderSchema = yup.object({
+export const createFolderSchema: yup.ObjectSchema<{
+  opportunity: string;
+  name: string;
+  description?: string;
+}> = yup.object({
+  opportunity: yup
+    .string()
+    .required("Opportunity is required"),
   name: yup
     .string()
     .required("Folder name is required")
     .min(1, "Folder name cannot be empty"),
   description: yup
     .string()
-    .required("Description is required")
-    .min(1, "Description cannot be empty"),
+    .optional(),
 });
 
 export const changePasswordSchema = yup.object({

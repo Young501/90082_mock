@@ -14,7 +14,8 @@ import {
   Image,
   Icon,
 } from "@chakra-ui/react";
-import { LockIcon } from "lucide-react";
+import Link from "next/link";
+import { LockIcon, FolderPlus } from "lucide-react";
 import { useDiscovery } from "@/hooks/useDiscovery";
 import { DiscoveryFilterBox } from "./DiscoveryFilterBox";
 import { DiscoveryResultBox } from "./DiscoveryResultBox";
@@ -263,17 +264,32 @@ export default function DiscoveryPage() {
           {/* Enrolled user and eligible - show discovery interface */}
           {isEnrolled && accessInfo?.has_access && !isSubmitting ? (
             <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
-              <VStack align="stretch" mb={8}>
-                <Heading size="lg" color="#313238ff">
-                  Discover{" "}
-                  {targetUserType === "student" ? "Students" : "Partners"}
-                </Heading>
-                <Text color="gray.600">
-                  Search and filter{" "}
-                  {targetUserType === "student" ? "students" : "partners"} based
-                  on your criteria
-                </Text>
-              </VStack>
+              <Flex align="center" gap={3} mb={8}>
+                <Link href={`/folders?opp=${opportunitySlug}`}>
+                  <Box
+                    cursor="pointer"
+                    _hover={{ opacity: 0.8 }}
+                    title="View My Folders"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <FolderPlus size={40} color="#4a4a4a" />
+                  </Box>
+                </Link>
+
+                <VStack align="stretch" gap={0}>
+                  <Heading size="lg" color="#313238ff">
+                    Discover{" "}
+                    {targetUserType === "student" ? "Students" : "Partners"}
+                  </Heading>
+                  <Text color="gray.600">
+                    Search and filter{" "}
+                    {targetUserType === "student" ? "students" : "partners"} based
+                    on your criteria
+                  </Text>
+                </VStack>
+              </Flex>
 
               <Box borderRadius="md" mb={8} w="100%">
                 <DiscoveryFilterBox

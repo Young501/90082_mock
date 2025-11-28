@@ -11,9 +11,10 @@ import Loader from "@/components/ui/Loader";
 interface AddToFolderModalProps {
   isOpen: boolean;
   onClose: () => void;
-  userId?: string;
+  opportunitySlug: string;
+  userId?: number;
   userName: string;
-  organisationId?: string;
+  organisationId?: number;
   onResetBackground?: () => void;
   onAddToFolder?: () => void;
   memberType?: "student" | "organisation";
@@ -26,6 +27,7 @@ interface FormData {
 export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
   isOpen,
   onClose,
+  opportunitySlug,
   userId,
   userName,
   organisationId,
@@ -34,7 +36,7 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
   memberType,
 }) => {
   const [isAdding, setIsAdding] = useState(false);
-  const { data: folders, isLoading: foldersLoading } = useFolders();
+  const { data: folders, isLoading: foldersLoading } = useFolders(opportunitySlug);
   const addMemberToFolder = useAddMemberToFolder();
 
   const {
@@ -68,7 +70,7 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
       await Promise.all(
         selectedFolderIds.map((folderId) =>
           addMemberToFolder.mutateAsync({
-            folderId,
+            folderId: folderId.toString(),
             data:
               memberType === "student"
                 ? { user_id: userId }
