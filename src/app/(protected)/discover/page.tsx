@@ -15,7 +15,7 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { LockIcon, FolderPlus } from "lucide-react";
+import { LockIcon, FolderDown } from "lucide-react";
 import { useDiscovery } from "@/hooks/useDiscovery";
 import { DiscoveryFilterBox } from "./DiscoveryFilterBox";
 import { DiscoveryResultBox } from "./DiscoveryResultBox";
@@ -274,7 +274,7 @@ export default function DiscoveryPage() {
                     alignItems="center"
                     justifyContent="center"
                   >
-                    <FolderPlus size={40} color="#4a4a4a" />
+                    <FolderDown size={40} color="#4a4a4a" />
                   </Box>
                 </Link>
 
