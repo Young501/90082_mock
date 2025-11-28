@@ -65,8 +65,7 @@ const Profile = () => {
   >(null);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [showValidationError, setShowValidationError] = useState(false);
-  const [abnStatus, setAbnStatus] =
-    useState<AbnValidationStatus>("idle");
+  const [abnStatus, setAbnStatus] = useState<AbnValidationStatus>("idle");
   const [fileUploadKey, setFileUploadKey] = useState(0);
   const { handleChangePassword, changePasswordMutation } = useAuth();
   const [changePasswordSuccess, setChangePasswordSuccess] = useState(false);
@@ -151,21 +150,24 @@ const Profile = () => {
   // custom resolver that skips validation for removed files
   const customResolver = async (values: any, context: any, options: any) => {
     const result = await yupResolver(schema)(values, context, options);
-    
+
     if (result.errors && Object.keys(result.errors).length > 0) {
       const filteredErrors: Record<string, any> = {};
       Object.keys(result.errors).forEach((key) => {
         // skip validation error if field is in removedFiles and value is null/empty
-        const shouldSkipError = removedFiles.has(key) && 
-          (values[key] === null || values[key] === undefined || values[key] === '');
-        
+        const shouldSkipError =
+          removedFiles.has(key) &&
+          (values[key] === null ||
+            values[key] === undefined ||
+            values[key] === "");
+
         if (!shouldSkipError) {
           filteredErrors[key] = (result.errors as Record<string, any>)[key];
         }
       });
       result.errors = filteredErrors;
     }
-    
+
     return result;
   };
 
@@ -179,6 +181,7 @@ const Profile = () => {
     unregister,
     getValues,
     setError,
+    setValue,
     watch,
   } = useForm({
     resolver: customResolver,
@@ -217,33 +220,36 @@ const Profile = () => {
     }
   }, [logoValue]);
 
-  const handleFileRemoval = async() => {
+  const handleFileRemoval = async (fieldName: string) => {
+    // Add field to removed files set for tracking
+    setRemovedFiles((prev) => new Set(prev).add(fieldName));
 
-  // delete files that were removed and not fresh upload
-  if (removedFiles.has("profile_picture_url") && profilePictureValue && typeof profilePictureValue === "string") {
-    try {
-      await profilePictureDelete.mutateAsync();
-      setUpdatedProfilePicture(null);
-      setUserProfilePictureUrl("");
-    } catch (error: any) {
-        // console.error("Failed to delete profile picture:", error);
+    if (fieldName === "profile_picture_url") {
+      setValue("profile_picture_url", null);
+      if (profilePictureValue && typeof profilePictureValue === "string") {
+        try {
+          const response = await profilePictureDelete.mutateAsync();
+          // if (response.success) {
+          setUpdatedProfilePicture(null);
+          setUserProfilePictureUrl("");
+          toast.success(response.detail);
+        } catch (error: any) {
+          toast.error(error.message);
+        }
+      }
+    } else if (fieldName === "logo_url") {
+      setValue("logo_url", null);
+      if (logoValue && typeof logoValue === "string") {
+        try {
+          const response = await logoDelete.mutateAsync();
+          setUpdatedProfilePicture(null);
+          setLogoUrl("");
+          toast.success(response.detail);
+        } catch (error: any) {
+          toast.error(error.message);
+        }
+      }
     }
-  }
-  
-  if (removedFiles.has("logo_url") && logoValue && typeof logoValue === "string") {
-    try {
-      await logoDelete.mutateAsync();
-      setUpdatedProfilePicture(null);
-      setLogoUrl("");
-    } catch (error: any) {
-        // console.error("Failed to delete logo:", error);
-    }
-  }
-
-
-    // track which files were removed so can delete them on save
-    // setRemovedFiles((prev) => new Set(prev).add(fieldName));
-    
   };
 
   useEffect(() => {
@@ -343,7 +349,6 @@ const Profile = () => {
 
     return allTabs;
   }, [pages, isCoordinator]);
-
 
   const calculateProfileCompletion = (): number => {
     if (!userProfile) return 0;
@@ -557,28 +562,7 @@ const Profile = () => {
         await profileUpdateMutation.mutateAsync(finalSubmissionData);
       toast.success("Profile updated successfully!");
       setUserProfile(profileUpdateResponse);
-      
-      // // delete files that were removed and not fresh upload
-      // if (removedFiles.has("profile_picture_url") && userProfile?.profile_picture_url && typeof userProfile.profile_picture_url === "string") {
-      //   try {
-      //     await profilePictureDelete.mutateAsync();
-      //     setUpdatedProfilePicture(null);
-      //     setUserProfilePictureUrl("");
-      //   } catch (error: any) {
-      //       // console.error("Failed to delete profile picture:", error);
-      //   }
-      // }
-      
-      // if (removedFiles.has("logo_url") && userProfile?.organisation?.logo_url && typeof userProfile.organisation.logo_url === "string") {
-      //   try {
-      //     await logoDelete.mutateAsync();
-      //     setUpdatedProfilePicture(null);
-      //     setLogoUrl("");
-      //   } catch (error: any) {
-      //       // console.error("Failed to delete logo:", error);
-      //   }
-      // }
-      
+
       // setRemovedFiles(new Set());
       const uploadTasks = [];
       if (allData.profile_picture_url instanceof File) {
@@ -947,7 +931,9 @@ const Profile = () => {
                     fileUploadKey={fileUploadKey}
                     organisationName={organisationNameValue}
                     onAbnValidationChange={setAbnStatus}
-                    onFileRemove={() => handleFileRemoval()}
+                    onFileRemove={(fieldName: string) =>
+                      handleFileRemoval(fieldName)
+                    }
                     removedFiles={removedFiles}
                   />
                 ))}
@@ -971,9 +957,7 @@ const Profile = () => {
                   px={6}
                   bg="#CFF3FF"
                   loading={profileUpdateMutation.isPending}
-                  disabled={
-                    profileUpdateMutation.isPending || isAbnBlocking
-                  }
+                  disabled={profileUpdateMutation.isPending || isAbnBlocking}
                 >
                   <Image
                     src="/assets/saveicon.svg"

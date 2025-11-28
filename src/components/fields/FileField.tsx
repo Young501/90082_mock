@@ -114,6 +114,7 @@ export const FileField = ({
     };
   }, [cleanupPreviewUrl]);
 
+
   return (
     <Field.Root invalid={!!error} style={{ alignItems: "center" }}>
       {label && labelPosition === "top" && (
@@ -128,6 +129,7 @@ export const FileField = ({
         name={name}
         control={control}
         render={({ field }) => {
+          console.log("field.value", name, field.value, previewUrl);
           useEffect(() => {
             if (
               field.value instanceof File &&
@@ -139,35 +141,13 @@ export const FileField = ({
             }
           }, [field.value]);
 
-          // const generatePlaceholderBlob = async (): Promise<File | null> => {
-          //   try {
-          //     const response = await fetch("/assets/imgplaceholder.png");
-          //     const blob = await response.blob();
-          //     return new File([blob], "imgplaceholder.png", {
-          //       type: "image/png",
-          //     });
-          //   } catch (error) {
-          //     console.error("Failed to generate placeholder blob:", error);
-          //     return null;
-          //   }
-          // };
+        
 
           const isPlaceholderBlob = (value: any): boolean => {
             return value instanceof File && value.name === "imgplaceholder.png";
           };
 
-          // const handleRemoveFile = async () => {
-          //   cleanupPreviewUrl();
-
-          //   if (fileType === "image") {
-          //     const placeholderBlob = await generatePlaceholderBlob();
-          //     field.onChange(placeholderBlob);
-          //   } else {
-          //     field.onChange(null);
-          //   }
-
-          //   if (fileInputRef.current) fileInputRef.current.value = "";
-          // };
+        
 
           return (
             <>
@@ -277,7 +257,7 @@ export const FileField = ({
                           }}
                           onClick={() => fileInputRef.current?.click()}
                         />
-                        {field.value && (
+                        {field.value && typeof field.value === "string" && (
                           <IconButton
                             aria-label="Remove image"
                             size="sm"
