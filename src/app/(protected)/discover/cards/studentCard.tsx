@@ -73,8 +73,6 @@ export function StudentCard({
     return student?.skills;
   };
 
-  
-
   const handleViewFullProfile = () => {
     if (student.id && !disableViewFullProfile && !isMatched) {
       setShowFullProfile(true);
@@ -411,7 +409,7 @@ export function StudentCard({
               )}
             </Box>
             <Tooltip
-              disabled={isInTrialPeriod(opportunitySlug || "")}
+              disabled={!isInTrialPeriod(opportunitySlug || "")}
               positioning={{ placement: "top", offset: { mainAxis: 8 } }}
               content="Subscribe to view full profiles during your trial period."
             >
