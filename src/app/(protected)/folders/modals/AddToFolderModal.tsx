@@ -3,7 +3,11 @@ import { Box, Text, VStack, Input, Field } from "@chakra-ui/react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { SelectField } from "@/components/fields/SelectField";
-import { useFolders, useAddMemberToFolder, useCreateFolder } from "@/services/folder";
+import {
+  useFolders,
+  useAddMemberToFolder,
+  useCreateFolder,
+} from "@/services/folder";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
@@ -40,7 +44,8 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [newFolderDescription, setNewFolderDescription] = useState("");
-  const { data: folders, isLoading: foldersLoading } = useFolders(opportunitySlug);
+  const { data: folders, isLoading: foldersLoading } =
+    useFolders(opportunitySlug);
   const addMemberToFolder = useAddMemberToFolder();
   const createFolder = useCreateFolder();
 
@@ -135,7 +140,7 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
       setNewFolderDescription("");
       setIsCreatingFolder(false);
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || "Failed to create folder");
+      toast.error(error.response?.data?.name[0] || "Failed to create folder");
     }
   };
 
@@ -209,7 +214,12 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
                       error={errors.selectedFolders?.message}
                     />
 
-                    <Box display="flex" gap={4} justifyContent="flex-end" mt={4}>
+                    <Box
+                      display="flex"
+                      gap={4}
+                      justifyContent="flex-end"
+                      mt={4}
+                    >
                       <Button
                         type="submit"
                         fontSize="14px"
@@ -229,11 +239,15 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
                   </VStack>
                 </form>
               ) : null}
-              
+
               {isCreatingFolder ? (
                 <VStack align="stretch" gap={3}>
                   <Field.Root>
-                    <Field.Label fontSize="14px" fontWeight="500" color="#000000">
+                    <Field.Label
+                      fontSize="14px"
+                      fontWeight="500"
+                      color="#000000"
+                    >
                       New Folder Name
                     </Field.Label>
                     <Input
@@ -250,7 +264,11 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
                     />
                   </Field.Root>
                   <Field.Root>
-                    <Field.Label fontSize="14px" fontWeight="500" color="#000000">
+                    <Field.Label
+                      fontSize="14px"
+                      fontWeight="500"
+                      color="#000000"
+                    >
                       Description (optional)
                     </Field.Label>
                     <Input
@@ -301,6 +319,7 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
               ) : (
                 <Box
                   display="flex"
+                  width="fit-content"
                   alignItems="center"
                   gap={2}
                   cursor="pointer"

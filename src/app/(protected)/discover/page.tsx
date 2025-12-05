@@ -15,7 +15,7 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { LockIcon, FolderDown } from "lucide-react";
+import { LockIcon, FolderHeart } from "lucide-react";
 import { useDiscovery } from "@/hooks/useDiscovery";
 import { DiscoveryFilterBox } from "./DiscoveryFilterBox";
 import { DiscoveryResultBox } from "./DiscoveryResultBox";
@@ -264,33 +264,40 @@ export default function DiscoveryPage() {
           {/* Enrolled user and eligible - show discovery interface */}
           {isEnrolled && accessInfo?.has_access && !isSubmitting ? (
             <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
-              <Flex align="center" gap={3} mb={8}>
-                <Link href={`/folders?opp=${opportunitySlug}`}>
-                  <Box
-                    cursor="pointer"
-                    _hover={{ opacity: 0.8 }}
-                    title="View My Folders"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <FolderDown size={40} color="#4a4a4a" />
-                  </Box>
-                </Link>
-
-                <VStack align="stretch" gap={0}>
+              <Flex justify="space-between" align="center" mb={4}>
+                <VStack align="stretch">
                   <Heading size="lg" color="#313238ff">
                     Discover{" "}
                     {targetUserType === "student" ? "Students" : "Partners"}
                   </Heading>
                   <Text color="gray.600">
                     Search and filter{" "}
-                    {targetUserType === "student" ? "students" : "partners"} based
-                    on your criteria
+                    {targetUserType === "student" ? "students" : "partners"}{" "}
+                    based on your criteria
                   </Text>
                 </VStack>
+                <Button
+                  onClick={() =>
+                    router.push(`/folders/?opp=${opportunitySlug}`)
+                  }
+                  bg="#2CA9DF"
+                  borderRadius="15px"
+                  px={6}
+                  py={5}
+                  maxW="200px"
+                  // boxShadow="0px 4px 4px 0px #00000040"
+                  // h="auto"
+                  fontSize="16px"
+                  fontWeight="600"
+                  display="flex"
+                  alignItems="center"
+                  gap={4}
+                  _hover={{ bg: "#002157" }}
+                >
+                  <FolderHeart size="60px" color="white" />
+                  Folders
+                </Button>
               </Flex>
-
               <Box borderRadius="md" mb={8} w="100%">
                 <DiscoveryFilterBox
                   fields={filterableFields}
@@ -304,9 +311,7 @@ export default function DiscoveryPage() {
                   filterOptions={filterOptions}
                 />
               </Box>
-
               <Separator my={6} />
-
               <DiscoveryResultBox
                 results={searchResults}
                 count={resultsCount}
