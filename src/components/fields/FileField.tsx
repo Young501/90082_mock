@@ -95,25 +95,18 @@ export const FileField = ({
       return;
     }
 
-    onChange(file);
+    // Create new URL FIRST
+    const newFileUrl = URL.createObjectURL(file);
 
-    const fileUrl = URL.createObjectURL(file);
-    setPreviewUrl(fileUrl);
-  };
-
-  const cleanupPreviewUrl = useCallback(() => {
+    // Cleanup old URL if it exists
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
     }
-  }, [previewUrl]);
 
-  useEffect(() => {
-    return () => {
-      cleanupPreviewUrl();
-    };
-  }, [cleanupPreviewUrl]);
-
+    // Update state with new URL
+    setPreviewUrl(newFileUrl);
+    onChange(file);
+  };
 
   return (
     <Field.Root invalid={!!error} style={{ alignItems: "center" }}>
@@ -129,26 +122,7 @@ export const FileField = ({
         name={name}
         control={control}
         render={({ field }) => {
-          console.log("field.value", name, field.value, previewUrl);
-          useEffect(() => {
-            if (
-              field.value instanceof File &&
-              !previewUrl &&
-              config.showPreview
-            ) {
-              const fileUrl = URL.createObjectURL(field.value);
-              setPreviewUrl(fileUrl);
-            }
-          }, [field.value]);
-
-        
-
-          const isPlaceholderBlob = (value: any): boolean => {
-            return value instanceof File && value.name === "imgplaceholder.png";
-          };
-
-        
-
+          // console.log("field.value", name, field.value, previewUrl);
           return (
             <>
               <input
@@ -157,7 +131,6 @@ export const FileField = ({
                 onChange={(event) => {
                   const file = event.target.files?.[0];
                   if (file) {
-                    cleanupPreviewUrl();
                     handleFileChange(file, field.onChange);
                   }
                 }}
@@ -235,15 +208,13 @@ export const FileField = ({
                       <Box display="flex" justifyContent="center">
                         <Image
                           src={
-                            isPlaceholderBlob(field.value)
-                              ? "/assets/imgplaceholder.png"
-                              : previewUrl ||
-                                (description === "logo_url"
-                                  ? getLogoUrl()
-                                  : getUserProfilePictureUrl()) ||
-                                (typeof field.value === "string"
-                                  ? field.value
-                                  : "/assets/imgplaceholder.png")
+                            previewUrl ||
+                            (description === "logo_url"
+                              ? getLogoUrl()
+                              : getUserProfilePictureUrl()) ||
+                            (typeof field.value === "string"
+                              ? field.value
+                              : "/assets/imgplaceholder.png")
                           }
                           alt="Preview"
                           width={200}
