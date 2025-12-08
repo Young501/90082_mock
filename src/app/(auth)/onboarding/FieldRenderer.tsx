@@ -36,6 +36,8 @@ interface FieldRendererProps {
   fileUploadKey?: number;
   organisationName?: string;
   onAbnValidationChange?: (status: AbnValidationStatus) => void;
+  onFileRemove?: (fieldName: string) => void;
+  removedFiles?: Set<string>;
 }
 
 const FILE_FIELD_TYPES = {
@@ -57,6 +59,8 @@ export const FieldRenderer = ({
   fileUploadKey,
   organisationName,
   onAbnValidationChange,
+  onFileRemove,
+  removedFiles,
 }: FieldRendererProps) => {
   const error = errors[question.field]?.message as string | undefined;
   // const fieldOptions = question.options || question.option || [];
@@ -348,6 +352,9 @@ export const FieldRenderer = ({
               ? question.field
               : undefined
           }
+          onRemove={
+            onFileRemove ? () => onFileRemove(question.field) : undefined
+          }
         />
       );
     }
@@ -387,6 +394,8 @@ export const FieldRenderer = ({
             fileUploadKey={fileUploadKey}
             organisationName={organisationName}
             onAbnValidationChange={onAbnValidationChange}
+            onFileRemove={onFileRemove}
+            removedFiles={removedFiles}
           />
         </Box>
       ))}

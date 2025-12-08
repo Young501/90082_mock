@@ -105,6 +105,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     clearTempOrganisationUser,
     getIsOrganisationMemberOnboarding,
     getTempOrganisation,
+    setLogoUrl,
   } = useAuthStore();
 
   const getProfilePictureUrl = useCallback(
@@ -653,7 +654,14 @@ export const OnboardingSteps = ({ userType }: Props) => {
         }
 
         if (logo instanceof File) {
-          uploadPromises.push(logoUpload.mutateAsync(logo));
+          const logoPromise = logoUpload.mutateAsync(logo).then((response) => {
+            // TODO: we need return LGOGURL on upload logo endpoint instead of setting it in the store
+            if (response?.logo_url) {
+              setLogoUrl(response.logo_url);
+            }
+            return response;
+          });
+          uploadPromises.push(logoPromise);
         }
 
         if (uploadPromises.length > 0) {

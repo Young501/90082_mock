@@ -166,6 +166,10 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: "/api/v1/user/profile-picture",
   },
+  PROFILE_PICTURE_DELETE: {
+    method: "DELETE",
+    url: "/api/v1/user/profile-picture",
+  },
   ONBOARDING_PAGES: (userType: string): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/user-types/${userType}/onboarding-pages/`,
@@ -188,6 +192,10 @@ export const API_ENDPOINTS = {
   }),
   LOGO_UPLOAD: (userType: string): ApiEndpoint => ({
     method: "POST",
+    url: `/api/v1/${userType}/upload-logo`,
+  }),
+  LOGO_DELETE: (userType: string): ApiEndpoint => ({
+    method: "DELETE",
     url: `/api/v1/${userType}/upload-logo`,
   }),
   STUDENT_PROFILE: (id: string, opportunityId: string): ApiEndpoint => ({

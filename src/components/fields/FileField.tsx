@@ -11,7 +11,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { Control, Controller } from "react-hook-form";
 import Image from "next/image";
 import { useAuthStore } from "@/store";
-import { FileText, Upload, Download, Edit, X } from "lucide-react";
+import { FileText, Upload, Download, Edit, X, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
 
 export type FileFieldType = "image" | "resume";
@@ -35,6 +35,7 @@ interface FileFieldProps {
   config?: Partial<FileFieldConfig>;
   labelPosition?: "top" | "bottom";
   description?: string;
+  onRemove?: () => void;
 }
 
 // Default configurations for different file types
@@ -67,6 +68,7 @@ export const FileField = ({
   config: customConfig,
   labelPosition = "top",
   description,
+  onRemove,
 }: FileFieldProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const config = { ...DEFAULT_CONFIGS[fileType], ...customConfig };
@@ -93,24 +95,18 @@ export const FileField = ({
       return;
     }
 
-    onChange(file);
+    // Create new URL FIRST
+    const newFileUrl = URL.createObjectURL(file);
 
-    const fileUrl = URL.createObjectURL(file);
-    setPreviewUrl(fileUrl);
-  };
-
-  const cleanupPreviewUrl = useCallback(() => {
+    // Cleanup old URL if it exists
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
     }
-  }, [previewUrl]);
 
-  useEffect(() => {
-    return () => {
-      cleanupPreviewUrl();
-    };
-  }, [cleanupPreviewUrl]);
+    // Update state with new URL
+    setPreviewUrl(newFileUrl);
+    onChange(file);
+  };
 
   return (
     <Field.Root invalid={!!error} style={{ alignItems: "center" }}>
@@ -126,23 +122,7 @@ export const FileField = ({
         name={name}
         control={control}
         render={({ field }) => {
-          useEffect(() => {
-            if (
-              field.value instanceof File &&
-              !previewUrl &&
-              config.showPreview
-            ) {
-              const fileUrl = URL.createObjectURL(field.value);
-              setPreviewUrl(fileUrl);
-            }
-          }, [field.value]);
-
-          const handleRemoveFile = () => {
-            cleanupPreviewUrl();
-            field.onChange(null);
-            if (fileInputRef.current) fileInputRef.current.value = "";
-          };
-
+          // console.log("field.value", name, field.value, previewUrl);
           return (
             <>
               <input
@@ -151,7 +131,6 @@ export const FileField = ({
                 onChange={(event) => {
                   const file = event.target.files?.[0];
                   if (file) {
-                    cleanupPreviewUrl();
                     handleFileChange(file, field.onChange);
                   }
                 }}
@@ -189,7 +168,7 @@ export const FileField = ({
                         size="sm"
                         variant="ghost"
                         colorScheme="red"
-                        onClick={handleRemoveFile}
+                        // onClick={handleRemoveFile}
                       />
                     </Flex>
 
@@ -222,8 +201,7 @@ export const FileField = ({
                   borderRadius="full"
                   p={4}
                   textAlign="center"
-                  cursor="pointer"
-                  onClick={() => fileInputRef.current?.click()}
+                  position="relative"
                 >
                   <Box>
                     {config.showPreview ? (
@@ -246,8 +224,34 @@ export const FileField = ({
                             borderRadius: "50%",
                             width: "200px",
                             height: "200px",
+                            cursor: "pointer",
                           }}
+                          onClick={() => fileInputRef.current?.click()}
                         />
+                        {field.value && typeof field.value === "string" && (
+                          <IconButton
+                            aria-label="Remove image"
+                            size="sm"
+                            colorScheme="red"
+                            position="absolute"
+                            top="0"
+                            right="0"
+                            border="1px solid #002157"
+                            borderRadius="50%"
+                            width="32px"
+                            height="32px"
+                            backgroundColor="white"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // handleRemoveFile();
+                              if (onRemove) {
+                                onRemove();
+                              }
+                            }}
+                          >
+                            <Trash2 size={16} color="red" />
+                          </IconButton>
+                        )}
                       </Box>
                     ) : (
                       <Text color="blue.500">

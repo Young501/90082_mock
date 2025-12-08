@@ -167,7 +167,6 @@ export const useAuthStore = create<AuthState>()(
           set({ userProfilePictureUrl: url });
         }
       },
-
       setCoordinatorOpportunities: (opportunities: string[]) => {
         set({ coordinatorOpportunities: opportunities });
       },
