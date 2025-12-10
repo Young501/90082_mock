@@ -110,7 +110,7 @@ export function DiscoveryFilterBox({
               >
                 {hasSearched && (
                   <Button
-                    variant="ghost"
+                    // variant="ghost"
                     bg="#2CA9DF"
                     color="white"
                     onClick={onReset}

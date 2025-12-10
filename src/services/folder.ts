@@ -2,18 +2,20 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import {
   Folder,
+  FolderDetail,
   CreateFolderRequest,
   UpdateFolderRequest,
-  FolderMember,
   AddMemberToFolderRequest,
+  AddMemberToFolderResponse,
   FolderMembersResponse,
 } from "@/types/folder";
 
-export function useFolders() {
+export function useFolders(opportunitySlug: string | undefined) {
   return useQuery({
-    queryKey: ["folders"],
+    queryKey: ["folders", opportunitySlug],
     queryFn: (): Promise<Folder[]> =>
-      apiRequest({ endpoint: API_ENDPOINTS.FOLDERS }),
+      apiRequest({ endpoint: API_ENDPOINTS.FOLDERS(opportunitySlug!) }),
+    enabled: !!opportunitySlug,
     staleTime: 0,
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
@@ -31,17 +33,17 @@ export function useCreateFolder() {
         body: data,
       });
     },
-    onSuccess: () => {
-      queryClient.refetchQueries({ queryKey: ["folders"] });
+    onSuccess: (_, variables) => {
+      queryClient.refetchQueries({ queryKey: ["folders", variables.opportunity] });
     },
   });
 }
 
-export function useFolderDetail(folderId: string) {
+export function useFolderDetail(folderId: string | undefined) {
   return useQuery({
     queryKey: ["folder", folderId],
-    queryFn: (): Promise<Folder> =>
-      apiRequest({ endpoint: API_ENDPOINTS.FOLDER_DETAIL(folderId) }),
+    queryFn: (): Promise<FolderDetail> =>
+      apiRequest({ endpoint: API_ENDPOINTS.FOLDER_DETAIL(folderId!) }),
     enabled: !!folderId,
     staleTime: 0,
     refetchOnWindowFocus: true,
@@ -65,9 +67,9 @@ export function useUpdateFolder() {
         body: data,
       });
     },
-    onSuccess: (data) => {
+    onSuccess: (_, variables) => {
       queryClient.refetchQueries({ queryKey: ["folders"] });
-      queryClient.refetchQueries({ queryKey: ["folder", data.id] });
+      queryClient.refetchQueries({ queryKey: ["folder", variables.folderId] });
     },
   });
 }
@@ -88,16 +90,16 @@ export function useDeleteFolder() {
 }
 
 export function useFolderMembersPaginated(
-  folderId: string,
+  folderId: string | undefined,
   page: number = 1,
   pageSize: number = 20,
-  memberType?: string
+  memberType?: "student" | "organisation"
 ) {
   return useQuery({
     queryKey: ["folder-members", folderId, page, pageSize, memberType],
     queryFn: (): Promise<FolderMembersResponse> =>
       apiRequest({
-        endpoint: API_ENDPOINTS.FOLDER_MEMBERS(folderId),
+        endpoint: API_ENDPOINTS.FOLDER_MEMBERS(folderId!),
         params: {
           page,
           page_size: pageSize,
@@ -121,15 +123,15 @@ export function useAddMemberToFolder() {
     }: {
       folderId: string;
       data: AddMemberToFolderRequest;
-    }): Promise<FolderMember> => {
+    }): Promise<AddMemberToFolderResponse> => {
       return apiRequest({
         endpoint: API_ENDPOINTS.ADD_MEMBER_TO_FOLDER(folderId),
         body: data,
       });
     },
-    onSuccess: (_, { folderId }) => {
-      queryClient.refetchQueries({ queryKey: ["folder-members", folderId] });
-      queryClient.invalidateQueries({ queryKey: ["folder", folderId] });
+    onSuccess: (_, variables) => {
+      queryClient.refetchQueries({ queryKey: ["folder-members", variables.folderId] });
+      queryClient.invalidateQueries({ queryKey: ["folder", variables.folderId] });
       queryClient.invalidateQueries({ queryKey: ["folders"] });
     },
   });
@@ -141,18 +143,18 @@ export function useRemoveMemberFromFolder() {
   return useMutation({
     mutationFn: async ({
       folderId,
-      userId,
+      memberId,
     }: {
       folderId: string;
-      userId: string;
+      memberId: number;
     }): Promise<void> => {
       return apiRequest({
-        endpoint: API_ENDPOINTS.REMOVE_MEMBER_FROM_FOLDER(folderId, userId),
+        endpoint: API_ENDPOINTS.REMOVE_MEMBER_FROM_FOLDER(folderId, memberId.toString()),
       });
     },
-    onSuccess: (_, { folderId }) => {
-      queryClient.refetchQueries({ queryKey: ["folder-members", folderId] });
-      queryClient.invalidateQueries({ queryKey: ["folder", folderId] });
+    onSuccess: (_, variables) => {
+      queryClient.refetchQueries({ queryKey: ["folder-members", variables.folderId] });
+      queryClient.invalidateQueries({ queryKey: ["folder", variables.folderId] });
       queryClient.invalidateQueries({ queryKey: ["folders"] });
     },
   });

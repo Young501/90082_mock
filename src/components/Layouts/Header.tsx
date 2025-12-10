@@ -116,14 +116,6 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       isProtected: true,
     },
     {
-      label: "FOLDERS",
-      href: "/folders/",
-      isCoordinator: false,
-      isOrganisation: true,
-      isStudent: true,
-      isProtected: true,
-    },
-    {
       label: "CONTACT",
       href: "/contact/",
       isCoordinator: true,
@@ -212,25 +204,6 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
         <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>
           <Box py={isMobile ? 4 : 0}>
             <HelpCircle size={isMobile ? 24 : 30} color="white" />
-          </Box>
-        </Link>
-      );
-    }
-    if (item.label === "FOLDERS") {
-      return (
-        <Link href={item.href} key={item.label} onClick={handleMenuItemClick}>
-          <Box
-            py={isMobile ? 4 : 0}
-            pos="relative"
-            w={isMobile ? "24px" : "30px"}
-            h={isMobile ? "24px" : "30px"}
-          >
-            <Image
-              src="/assets/folder.svg"
-              alt="folder"
-              fill
-              style={{ objectFit: "contain" }}
-            />
           </Box>
         </Link>
       );

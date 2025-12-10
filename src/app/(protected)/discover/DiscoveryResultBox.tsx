@@ -75,6 +75,7 @@ export function DiscoveryResultBox({
                   key={key}
                   organisation={user}
                   opportunityId={opportunityId}
+                  opportunitySlug={opportunitySlug}
                 />
               );
             })}
