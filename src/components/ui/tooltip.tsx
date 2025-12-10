@@ -1,4 +1,4 @@
-import { Tooltip as ChakraTooltip, Portal } from "@chakra-ui/react";
+import { Tooltip as ChakraTooltip, Portal, Text } from "@chakra-ui/react";
 import * as React from "react";
 
 export interface TooltipProps extends ChakraTooltip.RootProps {
@@ -8,6 +8,9 @@ export interface TooltipProps extends ChakraTooltip.RootProps {
   content: React.ReactNode;
   contentProps?: ChakraTooltip.ContentProps;
   disabled?: boolean;
+  contentContainerStyles?: React.CSSProperties;
+  TextStyles?: React.CSSProperties;
+  minWidth?: { base: string; md: string };
 }
 
 export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
@@ -20,6 +23,9 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
       content,
       contentProps,
       portalRef,
+      contentContainerStyles,
+      TextStyles,
+      minWidth,
       ...rest
     } = props;
 
@@ -30,13 +36,19 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
         <ChakraTooltip.Trigger asChild>{children}</ChakraTooltip.Trigger>
         <Portal disabled={!portalled} container={portalRef}>
           <ChakraTooltip.Positioner>
-            <ChakraTooltip.Content ref={ref} {...contentProps}>
+            <ChakraTooltip.Content
+              bgSize="cover"
+              ref={ref}
+              {...contentProps}
+              style={contentContainerStyles}
+              minWidth={{ base: minWidth?.base, md: minWidth?.md }}
+            >
               {showArrow && (
                 <ChakraTooltip.Arrow>
                   <ChakraTooltip.ArrowTip />
                 </ChakraTooltip.Arrow>
               )}
-              {content}
+              <Text style={TextStyles}>{content}</Text>
             </ChakraTooltip.Content>
           </ChakraTooltip.Positioner>
         </Portal>

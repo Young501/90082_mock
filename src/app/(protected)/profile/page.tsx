@@ -5,8 +5,10 @@ import {
   useOnboardingPages,
   useProfileUpdate,
   useProfilePictureUpload,
+  useProfilePictureDelete,
   useResumeUpload,
   useLogoUpload,
+  useLogoDelete,
 } from "@/services/shared";
 import {
   Box,
@@ -51,6 +53,7 @@ const Profile = () => {
     setUserProfile,
     getUserProfilePictureUrl,
     getLogoUrl,
+    setLogoUrl,
     setUserProfilePictureUrl,
   } = useAuthStore();
   const userProfile: UserProfile | null = getUserProfile();
@@ -62,8 +65,7 @@ const Profile = () => {
   >(null);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [showValidationError, setShowValidationError] = useState(false);
-  const [abnStatus, setAbnStatus] =
-    useState<AbnValidationStatus>("idle");
+  const [abnStatus, setAbnStatus] = useState<AbnValidationStatus>("idle");
   const [fileUploadKey, setFileUploadKey] = useState(0);
   const { handleChangePassword, changePasswordMutation } = useAuth();
   const [changePasswordSuccess, setChangePasswordSuccess] = useState(false);
@@ -71,6 +73,7 @@ const Profile = () => {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+  const [removedFiles, setRemovedFiles] = useState<Set<string>>(new Set());
   const changePasswordForm = useForm({
     resolver: yupResolver(changePasswordSchema),
     mode: "onChange",
@@ -95,8 +98,10 @@ const Profile = () => {
     useOnboardingPages(userType);
   const profileUpdateMutation = useProfileUpdate(userType);
   const profilePictureUpload = useProfilePictureUpload();
+  const profilePictureDelete = useProfilePictureDelete();
   const resumeUpload = useResumeUpload(userType);
   const logoUpload = useLogoUpload(userType);
+  const logoDelete = useLogoDelete(userType);
 
   const pages = useMemo(() => {
     if (!onboardingData?.onboarding_pages) return [];
@@ -142,6 +147,30 @@ const Profile = () => {
     [activePage]
   );
 
+  // custom resolver that skips validation for removed files
+  const customResolver = async (values: any, context: any, options: any) => {
+    const result = await yupResolver(schema)(values, context, options);
+
+    if (result.errors && Object.keys(result.errors).length > 0) {
+      const filteredErrors: Record<string, any> = {};
+      Object.keys(result.errors).forEach((key) => {
+        // skip validation error if field is in removedFiles and value is null/empty
+        const shouldSkipError =
+          removedFiles.has(key) &&
+          (values[key] === null ||
+            values[key] === undefined ||
+            values[key] === "");
+
+        if (!shouldSkipError) {
+          filteredErrors[key] = (result.errors as Record<string, any>)[key];
+        }
+      });
+      result.errors = filteredErrors;
+    }
+
+    return result;
+  };
+
   const {
     register,
     control,
@@ -152,12 +181,15 @@ const Profile = () => {
     unregister,
     getValues,
     setError,
+    setValue,
     watch,
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: customResolver,
     // mode: "onChange",
   });
   const organisationNameValue = watch("name");
+  const profilePictureValue = watch("profile_picture_url");
+  const logoValue = watch("logo_url");
   const hasAbnLookupField = activePage?.questions?.some(
     (question: Question) => question.type === "abn_lookup"
   );
@@ -166,6 +198,59 @@ const Profile = () => {
     (abnStatus === "pending" ||
       abnStatus === "invalid" ||
       abnStatus === "error");
+
+  // remove field from removedFiles if user uploads a new file
+  useEffect(() => {
+    if (profilePictureValue instanceof File) {
+      setRemovedFiles((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete("profile_picture_url");
+        return newSet;
+      });
+    }
+  }, [profilePictureValue]);
+
+  useEffect(() => {
+    if (logoValue instanceof File) {
+      setRemovedFiles((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete("logo_url");
+        return newSet;
+      });
+    }
+  }, [logoValue]);
+
+  const handleFileRemoval = async (fieldName: string) => {
+    // Add field to removed files set for tracking
+    setRemovedFiles((prev) => new Set(prev).add(fieldName));
+
+    if (fieldName === "profile_picture_url") {
+      setValue("profile_picture_url", null);
+      if (profilePictureValue && typeof profilePictureValue === "string") {
+        try {
+          const response = await profilePictureDelete.mutateAsync();
+          // if (response.success) {
+          setUpdatedProfilePicture(null);
+          setUserProfilePictureUrl("");
+          toast.success(response.detail);
+        } catch (error: any) {
+          toast.error(error.message);
+        }
+      }
+    } else if (fieldName === "logo_url") {
+      setValue("logo_url", null);
+      if (logoValue && typeof logoValue === "string") {
+        try {
+          const response = await logoDelete.mutateAsync();
+          setUpdatedProfilePicture(null);
+          setLogoUrl("");
+          toast.success(response.detail);
+        } catch (error: any) {
+          toast.error(error.message);
+        }
+      }
+    }
+  };
 
   useEffect(() => {
     setAbnStatus("idle");
@@ -414,6 +499,7 @@ const Profile = () => {
     delete submissionData.location_geocode_lookup;
     delete submissionData.members;
     delete submissionData.email_domain;
+
     if (
       submissionData.organisation &&
       submissionData.organisation.organisation
@@ -476,6 +562,8 @@ const Profile = () => {
         await profileUpdateMutation.mutateAsync(finalSubmissionData);
       toast.success("Profile updated successfully!");
       setUserProfile(profileUpdateResponse);
+
+      // setRemovedFiles(new Set());
       const uploadTasks = [];
       if (allData.profile_picture_url instanceof File) {
         const response = await profilePictureUpload.mutateAsync(
@@ -575,8 +663,9 @@ const Profile = () => {
                   )}
                   <Avatar.Fallback
                     name={
-                      userType === "organisation" && userProfile?.name
-                        ? userProfile.name
+                      userType === "organisation" &&
+                      userProfile?.organisation?.name
+                        ? userProfile.organisation.name
                         : isCoordinator
                           ? "Coordinator"
                           : `${userProfile?.first_name} ${userProfile?.last_name}`
@@ -842,6 +931,10 @@ const Profile = () => {
                     fileUploadKey={fileUploadKey}
                     organisationName={organisationNameValue}
                     onAbnValidationChange={setAbnStatus}
+                    onFileRemove={(fieldName: string) =>
+                      handleFileRemoval(fieldName)
+                    }
+                    removedFiles={removedFiles}
                   />
                 ))}
                 {isAbnBlocking && (
@@ -864,9 +957,7 @@ const Profile = () => {
                   px={6}
                   bg="#CFF3FF"
                   loading={profileUpdateMutation.isPending}
-                  disabled={
-                    profileUpdateMutation.isPending || isAbnBlocking
-                  }
+                  disabled={profileUpdateMutation.isPending || isAbnBlocking}
                 >
                   <Image
                     src="/assets/saveicon.svg"

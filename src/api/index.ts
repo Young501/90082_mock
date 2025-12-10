@@ -166,6 +166,10 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: "/api/v1/user/profile-picture",
   },
+  PROFILE_PICTURE_DELETE: {
+    method: "DELETE",
+    url: "/api/v1/user/profile-picture",
+  },
   ONBOARDING_PAGES: (userType: string): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/user-types/${userType}/onboarding-pages/`,
@@ -190,6 +194,10 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v1/${userType}/upload-logo`,
   }),
+  LOGO_DELETE: (userType: string): ApiEndpoint => ({
+    method: "DELETE",
+    url: `/api/v1/${userType}/upload-logo`,
+  }),
   STUDENT_PROFILE: (id: string, opportunityId: string): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/student/${id}?opportunity_id=${opportunityId}`,
@@ -206,25 +214,26 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/accept/`,
   }),
-  FOLDERS: {
+  // folder endpoints using v2 opportunity-scoped APIs
+  FOLDERS: (opportunitySlug: string): ApiEndpoint => ({
     method: "GET",
-    url: "/api/v1/folders/",
-  },
+    url: `/api/v2/opportunities/folders/?opportunity=${opportunitySlug}`,
+  }),
   CREATE_FOLDER: {
     method: "POST",
-    url: "/api/v1/folders/",
+    url: "/api/v2/opportunities/folders/",
   },
   FOLDER_DETAIL: (folderId: string): ApiEndpoint => ({
     method: "GET",
-    url: `/api/v1/folders/${folderId}/`,
+    url: `/api/v2/opportunities/folders/${folderId}/`,
   }),
   UPDATE_FOLDER: (folderId: string): ApiEndpoint => ({
     method: "PUT",
-    url: `/api/v1/folders/${folderId}/`,
+    url: `/api/v2/opportunities/folders/${folderId}/`,
   }),
   DELETE_FOLDER: (folderId: string): ApiEndpoint => ({
     method: "DELETE",
-    url: `/api/v1/folders/${folderId}/`,
+    url: `/api/v2/opportunities/folders/${folderId}/`,
   }),
   CHANGE_PASSWORD: {
     method: "POST",
@@ -232,18 +241,18 @@ export const API_ENDPOINTS = {
   },
   ADD_MEMBER_TO_FOLDER: (folderId: string): ApiEndpoint => ({
     method: "POST",
-    url: `/api/v1/folders/${folderId}/member/`,
+    url: `/api/v2/opportunities/folders/${folderId}/member/`,
   }),
   REMOVE_MEMBER_FROM_FOLDER: (
     folderId: string,
-    userId: string
+    memberId: string
   ): ApiEndpoint => ({
     method: "DELETE",
-    url: `/api/v1/folders/${folderId}/member/${userId}/`,
+    url: `/api/v2/opportunities/folders/${folderId}/member/${memberId}/`,
   }),
   FOLDER_MEMBERS: (folderId: string): ApiEndpoint => ({
     method: "GET",
-    url: `/api/v1/folders/${folderId}/members/`,
+    url: `/api/v2/opportunities/folders/${folderId}/members/`,
   }),
   // v2 opportunities endpoints
   COORDINATOR_OPPORTUNITIES: {

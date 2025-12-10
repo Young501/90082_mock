@@ -33,18 +33,25 @@ import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { PaginationControls } from "@/components/ui/PaginationControls";
+import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
 
 const Folder = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const folderId = searchParams.get("id");
-  const { user, currentOpportunityId } = useAuthStore();
-  const { folders, isLoadingFolders, folderModal } = useFolderManagement();
+  const opportunitySlug = searchParams.get("opp") || undefined;
+  const { user, accessibleOpportunities } = useAuthStore();
+  const { folders, isLoadingFolders, folderModal } = useFolderManagement(opportunitySlug || "");
   const deleteFolder = useDeleteFolder();
   const removeMemberFromFolder = useRemoveMemberFromFolder();
 
   const { data: folderDetail, isLoading: isLoadingFolderDetail } =
-    useFolderDetail(folderId || "");
+    useFolderDetail(folderId || undefined);
+
+  const currentOpportunity = opportunitySlug 
+    ? findOpportunityByIdOrSlug(accessibleOpportunities, opportunitySlug)
+    : undefined;
+  const currentOpportunityId = currentOpportunity?.id;
 
   const {
     members: membersArray,
@@ -64,7 +71,7 @@ const Folder = () => {
       await deleteFolder.mutateAsync(folderId);
       toast.success("Folder deleted successfully!");
     } catch (error: any) {
-      toast.error(error.response.data?.detail);
+      toast.error(error.response?.data?.detail || "Failed to delete folder");
     }
   };
 
@@ -72,25 +79,27 @@ const Folder = () => {
     folderModal.onOpen(folder);
   };
 
-  const handleFolderClick = (folderId: string) => {
-    router.push(`/folders?id=${folderId}`);
+  const handleFolderClick = (folderId: number) => {
+    const oppParam = opportunitySlug ? `&opp=${opportunitySlug}` : "";
+    router.push(`/folders?id=${folderId}${oppParam}`);
   };
 
   const handleBackToFolders = () => {
-    router.push("/folders");
+    const oppParam = opportunitySlug ? `?opp=${opportunitySlug}` : "";
+    router.push(`/folders${oppParam}`);
   };
 
-  const handleRemoveFromFolder = async (userId: string) => {
+  const handleRemoveFromFolder = async (memberId: string) => {
     if (!folderId) return;
 
     try {
       await removeMemberFromFolder.mutateAsync({
         folderId,
-        userId,
+        memberId: parseInt(memberId),
       });
-      toast.success("User removed from folder successfully");
+      toast.success("Member removed from folder successfully");
     } catch (error: any) {
-      toast.error(error.response.data?.detail);
+      toast.error(error.response?.data?.detail || "Failed to remove member");
     }
   };
 
@@ -166,7 +175,7 @@ const Folder = () => {
                   </Text>
                   <Text fontSize="16px" color="#666">
                     Add members from the{" "}
-                    <Link href="/discover" passHref>
+                    <Link href={`/discover${opportunitySlug ? `?opp=${opportunitySlug}` : ""}`} passHref>
                       <Text
                         as="span"
                         color="blue.500"
@@ -198,7 +207,7 @@ const Folder = () => {
                         onValueChange={(details) => {
                           const value = details.value[0];
                           handleMemberTypeChange(
-                            value === "" ? undefined : value
+                            value === "" ? undefined : (value as "student" | "organisation")
                           );
                         }}
                         disabled={isLoadingMembers}
@@ -282,10 +291,10 @@ const Folder = () => {
                             userType={userType}
                             profilePictureUrl={userData?.profile_picture_url}
                             isInFolder={true}
-                            opportunityId={currentOpportunityId || undefined}
                             onRemoveFromFolder={() =>
                               handleRemoveFromFolder(userId.toString())
                             }
+                            opportunityId={currentOpportunityId?.toString()}
                           />
                         );
                       } else if (userType === "organisation") {
@@ -301,6 +310,7 @@ const Folder = () => {
                             onRemoveFromFolder={() =>
                               handleRemoveFromFolder(userId.toString())
                             }
+                            opportunityId={currentOpportunityId?.toString()}
                           />
                         );
                       }
@@ -334,6 +344,40 @@ const Folder = () => {
     );
   }
 
+  // show error access /folders directly without opportunity
+  if (!opportunitySlug) {
+    return (
+      <>
+        <PageTitle title={PAGE_TITLES.FOLDERS} />
+        <Box
+          py={6}
+          px={{ base: 4, lg: "72px" }}
+          maxW="1512px"
+          mx="auto"
+          mt="126px"
+        >
+          <VStack align="center" justify="center" minH="400px" gap={6}>
+            <Text fontSize="16px" color="#666" textAlign="center" maxW="500px">
+              Please access folders from the Discover page for a specific opportunity.
+            </Text>
+            <Link href="/discover" passHref>
+              <Button
+                bg="#2CA9DF"
+                color="white"
+                borderRadius="8px"
+                px={6}
+                py={3}
+                _hover={{ bg: "#2490C3" }}
+              >
+                Go to Discover
+              </Button>
+            </Link>
+          </VStack>
+        </Box>
+      </>
+    );
+  }
+
   return (
     <>
       <PageTitle title={PAGE_TITLES.FOLDERS} />
@@ -345,28 +389,52 @@ const Folder = () => {
         mt="126px"
       >
         <VStack align="stretch" gap={{ base: 6, md: 10, lg: 20 }}>
-          <Button
-            onClick={() => folderModal.onOpen()}
-            bg="#CFF3FF"
-            color="#000000"
-            borderRadius="8px"
-            px={6}
-            py={5}
-            maxW="350px"
-            boxShadow="0px 4px 4px 0px #00000040"
-            h="auto"
-            fontSize="22px"
-            fontWeight="600"
-            display="flex"
-            alignItems="center"
-            gap={4}
-            _hover={{
-              bg: "#B8E6FF",
-            }}
-          >
-            <Image src="/assets/plus.svg" alt="Add" width={16} height={16} />
-            Create a New Folder
-          </Button>
+          <HStack gap={4}>
+            <Button
+              onClick={() => router.push(`/discover${opportunitySlug ? `?opp=${opportunitySlug}` : ""}`)}
+              bg="#CFF3FF"
+              color="#000000"
+              borderRadius="8px"
+              px={6}
+              py={5}
+              maxW="350px"
+              boxShadow="0px 4px 4px 0px #00000040"
+              h="auto"
+              fontSize="22px"
+              fontWeight="600"
+              display="flex"
+              alignItems="center"
+              gap={6}
+              _hover={{
+                bg: "#B8E6FF",
+              }}
+            >
+              <Image src="/assets/arrowbackicon.svg" alt="Back" width={8} height={8}/>
+              Back
+            </Button>
+            <Button
+              onClick={() => folderModal.onOpen()}
+              bg="#CFF3FF"
+              color="#000000"
+              borderRadius="8px"
+              px={6}
+              py={5}
+              maxW="350px"
+              boxShadow="0px 4px 4px 0px #00000040"
+              h="auto"
+              fontSize="22px"
+              fontWeight="600"
+              display="flex"
+              alignItems="center"
+              gap={4}
+              _hover={{
+                bg: "#B8E6FF",
+              }}
+            >
+              <Image src="/assets/plus.svg" alt="Add" width={16} height={16} />
+              Create a New Folder
+            </Button>
+          </HStack>
 
           {isLoadingFolders ? (
             <Loader />

@@ -14,7 +14,8 @@ import {
   Image,
   Icon,
 } from "@chakra-ui/react";
-import { LockIcon } from "lucide-react";
+import Link from "next/link";
+import { LockIcon, FolderHeart } from "lucide-react";
 import { useDiscovery } from "@/hooks/useDiscovery";
 import { DiscoveryFilterBox } from "./DiscoveryFilterBox";
 import { DiscoveryResultBox } from "./DiscoveryResultBox";
@@ -37,34 +38,25 @@ export default function DiscoveryPage() {
   const router = useRouter();
   const opportunitySlug = sp.get("opp") || undefined;
 
-  const {
-    user,
-    currentOpportunityId,
-    isEnrolled,
-    isEligible,
-    setCurrentOpportunityId,
-    setEnrollmentStatus,
-    setEligibilityStatus,
-    resetOpportunityState,
-    setAccessibleOpportunities,
-  } = useAuthStore();
+  const { user, setAccessibleOpportunities } = useAuthStore();
+  const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
+  const [isUserEligible, setIsUserEligible] = useState<boolean | null>(null);
 
   const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } =
     useAccessibleOpportunities();
 
-  const opportunityId = useMemo(() => {
-    if (!opportunitySlug || !accessibleOpportunities) return undefined;
-    const found = accessibleOpportunities.find(
-      (opp) => opp.slug === opportunitySlug
-    );
-    return found ? found.id.toString() : undefined;
-  }, [opportunitySlug, accessibleOpportunities]);
+  const currentOpportunity = findOpportunityByIdOrSlug(
+    accessibleOpportunities,
+    opportunitySlug
+  );
+
+  const opportunityId = currentOpportunity?.id;
 
   const {
     data: opportunity,
     isLoading: isOpportunityLoading,
     error: opportunityError,
-  } = useOpportunityDetail(opportunityId || "");
+  } = useOpportunityDetail(opportunityId?.toString() || "");
 
   const userType = user?.user_types?.[0];
   const [accessInfo, setAccessInfo] = useState<AccessInfo | null>(null);
@@ -75,22 +67,6 @@ export default function DiscoveryPage() {
     }
   }, [accessibleOpportunities, setAccessibleOpportunities]);
 
-  // Update global state when opportunity changes
-  useEffect(() => {
-    if (opportunityId !== currentOpportunityId) {
-      setCurrentOpportunityId(opportunityId || null);
-      // Reset enrollment/eligibility when opportunity changes
-      setEnrollmentStatus(null);
-      setEligibilityStatus(null);
-    }
-  }, [
-    opportunityId,
-    currentOpportunityId,
-    setCurrentOpportunityId,
-    setEnrollmentStatus,
-    setEligibilityStatus,
-  ]);
-
   // Compute and cache enrollment status
   useEffect(() => {
     if (!opportunityId || !accessibleOpportunities) return;
@@ -100,30 +76,27 @@ export default function DiscoveryPage() {
       opportunitySlug
     );
     const enrolled = currentOpportunity?.enrollment_status === "enrolled";
-    setAccessInfo(currentOpportunity?.access || null);
 
-    if (isEnrolled !== enrolled) {
-      setEnrollmentStatus(enrolled);
+    if (enrolled !== isEnrolled) {
+      setIsEnrolled(enrolled);
     }
-  }, [
-    opportunityId,
-    accessibleOpportunities,
-    isEnrolled,
-    setEnrollmentStatus,
-    setAccessInfo,
-    opportunitySlug,
-  ]);
+    setAccessInfo(currentOpportunity?.access || null);
+  }, [opportunityId, accessibleOpportunities, isEnrolled]);
 
-  // Compute and cache eligibility status
+  // useEffect(() => {
+  //   setIsUserEligible(null);
+  //   setIsEnrolled(null);
+  // }, [opportunityId]);
+
   useEffect(() => {
-    if (!opportunity || !user?.email || isEligible !== null) return;
+    if (!opportunity || !user?.email || isUserEligible !== null) return;
 
     const userType = user?.user_types?.[0];
     if (
       userType !== "student" ||
       !opportunity.allowed_student_email_domains?.length
     ) {
-      setEligibilityStatus(true); // No restrictions or not a student
+      setIsUserEligible(true);
       return;
     }
 
@@ -131,14 +104,8 @@ export default function DiscoveryPage() {
       user.email,
       opportunity.allowed_student_email_domains
     );
-    setEligibilityStatus(eligible);
-  }, [
-    opportunity,
-    user?.email,
-    user?.user_types,
-    isEligible,
-    setEligibilityStatus,
-  ]);
+    setIsUserEligible(eligible);
+  }, [opportunity, user?.email, user?.user_types, isUserEligible]);
 
   // Auto-redirect logic when no id is provided
   useEffect(() => {
@@ -163,6 +130,8 @@ export default function DiscoveryPage() {
   // Discovery hook - only initialize if enrolled
   const isEnrollmentReady =
     !!accessibleOpportunities && !isOpportunitiesLoading;
+  const isEligible = isUserEligible ?? false;
+
   const {
     searchResults,
     hasSearched,
@@ -182,7 +151,7 @@ export default function DiscoveryPage() {
     totalPages,
     handlePageChange,
     handlePageSizeChange,
-  } = useDiscovery(opportunityId, {
+  } = useDiscovery(opportunityId?.toString() || "", {
     isEnrolled: isEnrolled === null ? undefined : isEnrolled,
     isEnrollmentReady,
   });
@@ -192,7 +161,7 @@ export default function DiscoveryPage() {
 
   const { handleEnroll, isSubmitting } = useHandleEnroll({
     isEligible,
-    opportunityId: opportunityId || "",
+    opportunityId: opportunityId?.toString() || "",
     opportunity,
     accessInfo,
     toast,
@@ -292,21 +261,43 @@ export default function DiscoveryPage() {
             </Box>{" "}
             opportunity
           </Heading>
-          {/* Enrolled user - show discovery interface */}
+          {/* Enrolled user and eligible - show discovery interface */}
           {isEnrolled && accessInfo?.has_access && !isSubmitting ? (
             <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
-              <VStack align="stretch" mb={8}>
-                <Heading size="lg" color="#313238ff">
-                  Discover{" "}
-                  {targetUserType === "student" ? "Students" : "Partners"}
-                </Heading>
-                <Text color="gray.600">
-                  Search and filter{" "}
-                  {targetUserType === "student" ? "students" : "partners"} based
-                  on your criteria
-                </Text>
-              </VStack>
-
+              <Flex justify="space-between" align="center" mb={4}>
+                <VStack align="stretch">
+                  <Heading size="lg" color="#313238ff">
+                    Discover{" "}
+                    {targetUserType === "student" ? "Students" : "Partners"}
+                  </Heading>
+                  <Text color="gray.600">
+                    Search and filter{" "}
+                    {targetUserType === "student" ? "students" : "partners"}{" "}
+                    based on your criteria
+                  </Text>
+                </VStack>
+                <Button
+                  onClick={() =>
+                    router.push(`/folders/?opp=${opportunitySlug}`)
+                  }
+                  bg="#2CA9DF"
+                  borderRadius="15px"
+                  px={6}
+                  py={5}
+                  maxW="200px"
+                  // boxShadow="0px 4px 4px 0px #00000040"
+                  // h="auto"
+                  fontSize="16px"
+                  fontWeight="600"
+                  display="flex"
+                  alignItems="center"
+                  gap={4}
+                  _hover={{ bg: "#002157" }}
+                >
+                  <FolderHeart size="60px" color="white" />
+                  Folders
+                </Button>
+              </Flex>
               <Box borderRadius="md" mb={8} w="100%">
                 <DiscoveryFilterBox
                   fields={filterableFields}
@@ -320,9 +311,7 @@ export default function DiscoveryPage() {
                   filterOptions={filterOptions}
                 />
               </Box>
-
               <Separator my={6} />
-
               <DiscoveryResultBox
                 results={searchResults}
                 count={resultsCount}
@@ -335,7 +324,8 @@ export default function DiscoveryPage() {
                 pageSize={pageSize}
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange}
-                opportunityId={opportunityId}
+                opportunityId={opportunityId?.toString() || ""}
+                opportunitySlug={opportunitySlug}
               />
             </Box>
           ) : (

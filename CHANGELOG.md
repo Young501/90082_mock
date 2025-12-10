@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Removed Folder from navigation. Instead now it is scoped to opportunities.
+
 ---
 
 ## [v1.2]

@@ -28,6 +28,7 @@ interface StudentCardProps {
   disableViewFullProfile?: boolean;
   disableAddToFolder?: boolean;
   opportunityId?: string;
+  opportunitySlug?: string;
 }
 
 export function StudentCard({
@@ -40,6 +41,7 @@ export function StudentCard({
   disableViewFullProfile = false,
   disableAddToFolder = false,
   opportunityId,
+  opportunitySlug,
 }: StudentCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
@@ -141,14 +143,22 @@ export function StudentCard({
                   style={{ color: "#DC2626", fontSize: "20px" }}
                 />
               ) : (
-                <Box pos="relative" w="20px" h="20px">
+                <Button
+                  pos="relative"
+                  w="20px"
+                  h="20px"
+                  bg="transparent"
+                  _hover={{ bg: "transparent" }}
+                  _disabled={{ bg: "transparent" }}
+                  disabled={isInTrialPeriod(opportunitySlug || "")}
+                >
                   <Image
                     src="/assets/addicon.svg"
                     alt="add"
                     fill
                     style={{ objectFit: "contain" }}
                   />
-                </Box>
+                </Button>
               )}
             </Box>
           </Box>
@@ -399,7 +409,7 @@ export function StudentCard({
               )}
             </Box>
             <Tooltip
-              disabled={!isInTrialPeriod()}
+              disabled={!isInTrialPeriod(opportunitySlug || "")}
               positioning={{ placement: "top", offset: { mainAxis: 8 } }}
               content="Subscribe to view full profiles during your trial period."
             >
@@ -413,7 +423,7 @@ export function StudentCard({
                   !student.id ||
                   disableViewFullProfile ||
                   isMatched ||
-                  isInTrialPeriod()
+                  isInTrialPeriod(opportunitySlug || "")
                 }
               >
                 View Full Profile
@@ -432,12 +442,13 @@ export function StudentCard({
         />
       )}
 
-      {showAddToFolderModal && student.id && !isInFolder && (
+      {showAddToFolderModal && student.id && !isInFolder && opportunitySlug && (
         <AddToFolderModal
           isOpen={showAddToFolderModal}
           onClose={() => setShowAddToFolderModal(false)}
-          userId={student.id.toString()}
+          userId={student.id}
           userName={getDisplayName()}
+          opportunitySlug={opportunitySlug}
           onAddToFolder={() => setClickBackground(true)}
           onResetBackground={() => setClickBackground(false)}
           memberType="student"

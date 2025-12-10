@@ -38,6 +38,21 @@ export function useProfilePictureUpload() {
   });
 }
 
+export function useProfilePictureDelete() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.PROFILE_PICTURE_DELETE,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+  });
+}
+
 export function useResumeUpload(userType: string) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -90,6 +105,20 @@ export function useLogoUpload(userType: string) {
       return apiRequest({
         endpoint: API_ENDPOINTS.LOGO_UPLOAD(userType),
         body: formData,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
+    },
+  });
+}
+
+export function useLogoDelete(userType: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.LOGO_DELETE(userType),
       });
     },
     onSuccess: () => {
@@ -286,7 +315,7 @@ export function useAccessibleOpportunities() {
       }
     },
     enabled: !!user,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 2 * 60 * 1000,
     retry: (failureCount, error: any) => {
       if (error?.response?.status === 404) {
         return false;
