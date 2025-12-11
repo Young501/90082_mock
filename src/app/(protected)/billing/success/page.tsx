@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Box,
@@ -11,6 +11,7 @@ import {
   Card,
   Alert,
   HStack,
+  Spinner,
 } from "@chakra-ui/react";
 import { CheckCircle, Loader, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -19,7 +20,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/authStore";
 import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
 
-export default function BillingSuccessPage() {
+function BillingSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
@@ -142,5 +143,27 @@ export default function BillingSuccessPage() {
         </Card.Root>
       </Container>
     </>
+  );
+}
+
+export default function BillingSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <Container
+          maxW="container.lg"
+          py={20}
+          mt={{ base: "50px", lg: "100px" }}
+          w="fit-content"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Spinner size="xl" />
+        </Container>
+      }
+    >
+      <BillingSuccessContent />
+    </Suspense>
   );
 }

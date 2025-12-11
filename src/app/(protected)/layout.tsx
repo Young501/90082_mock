@@ -1,14 +1,14 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { Container } from "@chakra-ui/react";
+import { Container, Spinner, Box } from "@chakra-ui/react";
 import Header from "@/components/Layouts/Header";
 import Footer from "@/components/Layouts/Footer";
 import { isInTrialPeriod } from "@/utils/subscriptionPermissions";
 import { useSearchParams } from "next/navigation";
 
-export default function ProtectedLayout({ children }: { children: ReactNode }) {
+function LayoutContent({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
   const opportunitySlug = searchParams.get("opp");
   return (
@@ -34,5 +34,29 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
         <Footer />
       </div>
     </ProtectedRoute>
+  );
+}
+
+export default function ProtectedLayout({ children }: { children: ReactNode }) {
+  return (
+    <Suspense
+      fallback={
+        <div
+          style={{
+            minHeight: "100vh",
+            display: "flex",
+            flexDirection: "column",
+            position: "relative",
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Spinner size="xl" />
+        </div>
+      }
+    >
+      <LayoutContent>{children}</LayoutContent>
+    </Suspense>
   );
 }
