@@ -43,9 +43,11 @@ export const useAcceptInvite = () => {
     }) => acceptInvite(opportunityId, token, questionnaire_answers),
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['accepted-opportunities'] }),
-        queryClient.invalidateQueries({ queryKey: ['accessible-opportunities'] }),
-      ])
+        queryClient.invalidateQueries({ queryKey: ["accepted-opportunities"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["accessible-opportunities"],
+        }),
+      ]);
       setTimeout(() => {
         router.push("/discover");
       }, 3000);

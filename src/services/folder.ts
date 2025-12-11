@@ -34,7 +34,9 @@ export function useCreateFolder() {
       });
     },
     onSuccess: (_, variables) => {
-      queryClient.refetchQueries({ queryKey: ["folders", variables.opportunity] });
+      queryClient.refetchQueries({
+        queryKey: ["folders", variables.opportunity],
+      });
     },
   });
 }
@@ -130,8 +132,12 @@ export function useAddMemberToFolder() {
       });
     },
     onSuccess: (_, variables) => {
-      queryClient.refetchQueries({ queryKey: ["folder-members", variables.folderId] });
-      queryClient.invalidateQueries({ queryKey: ["folder", variables.folderId] });
+      queryClient.refetchQueries({
+        queryKey: ["folder-members", variables.folderId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["folder", variables.folderId],
+      });
       queryClient.invalidateQueries({ queryKey: ["folders"] });
     },
   });
@@ -149,12 +155,19 @@ export function useRemoveMemberFromFolder() {
       memberId: number;
     }): Promise<void> => {
       return apiRequest({
-        endpoint: API_ENDPOINTS.REMOVE_MEMBER_FROM_FOLDER(folderId, memberId.toString()),
+        endpoint: API_ENDPOINTS.REMOVE_MEMBER_FROM_FOLDER(
+          folderId,
+          memberId.toString()
+        ),
       });
     },
     onSuccess: (_, variables) => {
-      queryClient.refetchQueries({ queryKey: ["folder-members", variables.folderId] });
-      queryClient.invalidateQueries({ queryKey: ["folder", variables.folderId] });
+      queryClient.refetchQueries({
+        queryKey: ["folder-members", variables.folderId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["folder", variables.folderId],
+      });
       queryClient.invalidateQueries({ queryKey: ["folders"] });
     },
   });

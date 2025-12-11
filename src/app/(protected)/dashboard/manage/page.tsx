@@ -1,6 +1,13 @@
 "use client";
-import { Box, Container, Text, VStack, Button } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Container,
+  Text,
+  VStack,
+  Button,
+  Spinner,
+} from "@chakra-ui/react";
+import React, { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import ManageFilter from "../components/ManageFilter";
 import InfiniteScroll from "@/components/InfiniteScroll";
@@ -14,7 +21,7 @@ import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { toast } from "react-toastify";
 
-const ManagePage = () => {
+const ManagePageContent = () => {
   const searchParams = useSearchParams();
   const type = searchParams.get("type");
   const { getCoordinatorOpportunities } = useAuthStore();
@@ -120,6 +127,30 @@ const ManagePage = () => {
         )}
       </Box>
     </>
+  );
+};
+
+const ManagePage = () => {
+  return (
+    <Suspense
+      fallback={
+        <Box
+          py={6}
+          px={{ base: 4, lg: "72px" }}
+          maxW="1512px"
+          mx="auto"
+          mt={{ base: "80px", lg: "126px" }}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minH="50vh"
+        >
+          <Spinner size="xl" />
+        </Box>
+      }
+    >
+      <ManagePageContent />
+    </Suspense>
   );
 };
 

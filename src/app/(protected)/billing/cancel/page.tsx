@@ -41,9 +41,7 @@ export default function BillingCancelPage() {
 
   const handleRetry = () => {
     if (context?.opportunitySlug) {
-      router.push(
-        `/opportunities/pricing?opp=${context?.opportunitySlug}`
-      );
+      router.push(`/opportunities/pricing?opp=${context?.opportunitySlug}`);
     } else {
       router.push("/dashboard");
     }

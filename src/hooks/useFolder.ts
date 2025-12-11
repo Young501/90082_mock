@@ -95,7 +95,8 @@ export function useFolderModal(opportunitySlug: string) {
 }
 
 export function useFolderManagement(opportunitySlug: string) {
-  const { data: folders, isLoading: isLoadingFolders } = useFolders(opportunitySlug);
+  const { data: folders, isLoading: isLoadingFolders } =
+    useFolders(opportunitySlug);
   const folderModal = useFolderModal(opportunitySlug);
 
   return {
@@ -108,7 +109,9 @@ export function useFolderManagement(opportunitySlug: string) {
 export function useFolderMembersManagement(folderId: string) {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [memberType, setMemberType] = useState<"student" | "organisation" | undefined>(undefined);
+  const [memberType, setMemberType] = useState<
+    "student" | "organisation" | undefined
+  >(undefined);
 
   const { data: folderMembers, isLoading: isLoadingMembers } =
     useFolderMembersPaginated(folderId, currentPage, pageSize, memberType);
@@ -122,7 +125,9 @@ export function useFolderMembersManagement(folderId: string) {
     setCurrentPage(1);
   };
 
-  const handleMemberTypeChange = (type: "student" | "organisation" | undefined) => {
+  const handleMemberTypeChange = (
+    type: "student" | "organisation" | undefined
+  ) => {
     setMemberType(type);
     setCurrentPage(1);
   };

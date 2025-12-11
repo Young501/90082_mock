@@ -41,14 +41,16 @@ const Folder = () => {
   const folderId = searchParams.get("id");
   const opportunitySlug = searchParams.get("opp") || undefined;
   const { user, accessibleOpportunities } = useAuthStore();
-  const { folders, isLoadingFolders, folderModal } = useFolderManagement(opportunitySlug || "");
+  const { folders, isLoadingFolders, folderModal } = useFolderManagement(
+    opportunitySlug || ""
+  );
   const deleteFolder = useDeleteFolder();
   const removeMemberFromFolder = useRemoveMemberFromFolder();
 
   const { data: folderDetail, isLoading: isLoadingFolderDetail } =
     useFolderDetail(folderId || undefined);
 
-  const currentOpportunity = opportunitySlug 
+  const currentOpportunity = opportunitySlug
     ? findOpportunityByIdOrSlug(accessibleOpportunities, opportunitySlug)
     : undefined;
   const currentOpportunityId = currentOpportunity?.id;
@@ -175,7 +177,10 @@ const Folder = () => {
                   </Text>
                   <Text fontSize="16px" color="#666">
                     Add members from the{" "}
-                    <Link href={`/discover${opportunitySlug ? `?opp=${opportunitySlug}` : ""}`} passHref>
+                    <Link
+                      href={`/discover${opportunitySlug ? `?opp=${opportunitySlug}` : ""}`}
+                      passHref
+                    >
                       <Text
                         as="span"
                         color="blue.500"
@@ -207,7 +212,9 @@ const Folder = () => {
                         onValueChange={(details) => {
                           const value = details.value[0];
                           handleMemberTypeChange(
-                            value === "" ? undefined : (value as "student" | "organisation")
+                            value === ""
+                              ? undefined
+                              : (value as "student" | "organisation")
                           );
                         }}
                         disabled={isLoadingMembers}
@@ -358,7 +365,8 @@ const Folder = () => {
         >
           <VStack align="center" justify="center" minH="400px" gap={6}>
             <Text fontSize="16px" color="#666" textAlign="center" maxW="500px">
-              Please access folders from the Discover page for a specific opportunity.
+              Please access folders from the Discover page for a specific
+              opportunity.
             </Text>
             <Link href="/discover" passHref>
               <Button
@@ -391,7 +399,11 @@ const Folder = () => {
         <VStack align="stretch" gap={{ base: 6, md: 10, lg: 20 }}>
           <HStack gap={4}>
             <Button
-              onClick={() => router.push(`/discover${opportunitySlug ? `?opp=${opportunitySlug}` : ""}`)}
+              onClick={() =>
+                router.push(
+                  `/discover${opportunitySlug ? `?opp=${opportunitySlug}` : ""}`
+                )
+              }
               bg="#CFF3FF"
               color="#000000"
               borderRadius="8px"
@@ -409,7 +421,12 @@ const Folder = () => {
                 bg: "#B8E6FF",
               }}
             >
-              <Image src="/assets/arrowbackicon.svg" alt="Back" width={8} height={8}/>
+              <Image
+                src="/assets/arrowbackicon.svg"
+                alt="Back"
+                width={8}
+                height={8}
+              />
               Back
             </Button>
             <Button

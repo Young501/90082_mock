@@ -81,7 +81,7 @@ export default function DiscoveryPage() {
       setIsEnrolled(enrolled);
     }
     setAccessInfo(currentOpportunity?.access || null);
-  }, [opportunityId, accessibleOpportunities, isEnrolled]);
+  }, [opportunityId, accessibleOpportunities, isEnrolled, opportunitySlug]);
 
   // useEffect(() => {
   //   setIsUserEligible(null);

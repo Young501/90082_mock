@@ -6,12 +6,13 @@ export const isInTrialPeriod = (opportunitySlug: string): boolean => {
   return trialInfo.isInTrial;
 };
 
-export const getSubscriptionTrialInfo = (opportunitySlug: string): {
+export const getSubscriptionTrialInfo = (
+  opportunitySlug: string
+): {
   isInTrial: boolean;
   trialEnd: string | null;
 } => {
-  const { accessibleOpportunities } =
-    useAuthStore.getState();
+  const { accessibleOpportunities } = useAuthStore.getState();
 
   if (!opportunitySlug || !accessibleOpportunities) {
     return { isInTrial: false, trialEnd: null };

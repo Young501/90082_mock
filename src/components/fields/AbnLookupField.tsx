@@ -97,7 +97,7 @@ export const AbnLookupField = ({
     if (formatted !== inputValue) {
       setInputValue(formatted);
     }
-  }, [field.value]);
+  }, [field.value, inputValue]);
 
   useEffect(() => {
     let isActive = true;
@@ -243,7 +243,7 @@ export const AbnLookupField = ({
     clearErrors,
     name,
     setError,
-    // emitStatusChange,
+    emitStatusChange,
   ]);
 
   const helperText = useMemo(() => {
