@@ -98,7 +98,8 @@ const fetchCoordinatorOpportunities = async () => {
 
 export const useAuth = () => {
   const router = useRouter();
-  const { setAuthData, user, setUserProfile, setIsAuthenticated } = useAuthStore();
+  const { setAuthData, user, setUserProfile, setIsAuthenticated } =
+    useAuthStore();
   const queryClient = useQueryClient();
   const [errorMsg, setErrorMsg] = useState("");
 

@@ -16,9 +16,7 @@ import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
-import {
-  getSubscriptionTrialInfo,
-} from "@/utils/subscriptionPermissions";
+import { getSubscriptionTrialInfo } from "@/utils/subscriptionPermissions";
 import { formatDate } from "@/utils/formatDate";
 
 const lessThan3Days = (date: string) => {

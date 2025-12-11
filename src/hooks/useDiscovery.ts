@@ -82,28 +82,27 @@ const extractFilterOptions = (
 
   return Object.fromEntries(
     Object.entries(options).map(([fieldName, valueSet]) => {
-
       //******** returning both types of field options, is required here i.e [string | { label: string; value: string }] *********//
       const field = fields.find((f) => f.field === fieldName);
       const extractedValues = Array.from(valueSet).sort();
-      
+
       if (field?.options) {
         // ************ reverted to use the utils function to parse the options now filter options arent an array of strings but array of objects with label and value this is consistent ************//
         const parsedOptions = parseQuestionnaireOptions(field.options);
-        
-        const optionMap = new Map(
-          parsedOptions.map((opt) => [opt.value, opt])
-        );
-        
+
+        const optionMap = new Map(parsedOptions.map((opt) => [opt.value, opt]));
+
         const mappedOptions = extractedValues
           .map((val) => optionMap.get(val))
-          .filter((opt): opt is { label: string; value: string } => opt !== undefined);
-        
+          .filter(
+            (opt): opt is { label: string; value: string } => opt !== undefined
+          );
+
         if (mappedOptions.length > 0) {
           return [fieldName, mappedOptions];
         }
       }
-      
+
       return [fieldName, extractedValues];
     })
   );

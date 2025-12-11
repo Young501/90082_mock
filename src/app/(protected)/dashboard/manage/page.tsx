@@ -1,5 +1,12 @@
 "use client";
-import { Box, Container, Text, VStack, Button, Spinner } from "@chakra-ui/react";
+import {
+  Box,
+  Container,
+  Text,
+  VStack,
+  Button,
+  Spinner,
+} from "@chakra-ui/react";
 import React, { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import ManageFilter from "../components/ManageFilter";

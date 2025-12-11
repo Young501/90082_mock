@@ -61,7 +61,7 @@ export const createPageSchema = (
             return digits || undefined;
           })
           .matches(/^\d{11}$/, "ABN must contain 11 digits");
-      }else if (question.type === "email") {
+      } else if (question.type === "email") {
         fieldSchema = yup
           .string()
           .email("Please enter a valid email address")
@@ -349,16 +349,12 @@ export const createFolderSchema: yup.ObjectSchema<{
   name: string;
   description?: string;
 }> = yup.object({
-  opportunity: yup
-    .string()
-    .required("Opportunity is required"),
+  opportunity: yup.string().required("Opportunity is required"),
   name: yup
     .string()
     .required("Folder name is required")
     .min(1, "Folder name cannot be empty"),
-  description: yup
-    .string()
-    .optional(),
+  description: yup.string().optional(),
 });
 
 export const changePasswordSchema = yup.object({

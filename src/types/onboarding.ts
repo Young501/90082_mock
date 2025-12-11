@@ -1,6 +1,11 @@
 export type AnswerValue = string | number | string[] | File | undefined;
 
-export type AbnValidationStatus = "idle" | "pending" | "valid" | "invalid" | "error";
+export type AbnValidationStatus =
+  | "idle"
+  | "pending"
+  | "valid"
+  | "invalid"
+  | "error";
 
 export interface AnswerMap {
   [field: string]: AnswerValue;

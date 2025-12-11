@@ -56,8 +56,9 @@ export default function OpportunityReviewPage() {
 
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const { questionnaireAnswers: answers } =
-    useQuestionnaireAnswers(opportunityId?.toString() || "");
+  const { questionnaireAnswers: answers } = useQuestionnaireAnswers(
+    opportunityId?.toString() || ""
+  );
 
   const enrollMutation = useEnrollInOpportunity();
 
@@ -109,7 +110,7 @@ export default function OpportunityReviewPage() {
       if (accessibleOpportunities) {
         const currentOpportunity = findOpportunityByIdOrSlug(
           accessibleOpportunities,
-          opportunityId?.toString() || "",
+          opportunityId?.toString() || ""
         );
 
         // if (currentOpportunity?.enrollment_status === "enrolled") {

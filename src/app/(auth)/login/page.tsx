@@ -52,7 +52,6 @@ export default function LoginPage() {
   const emailValue = watch("email");
   const passwordValue = watch("password");
 
-
   const onSubmit = async (data: FormData) => {
     try {
       setIsLoading(true);

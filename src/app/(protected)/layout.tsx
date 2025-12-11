@@ -27,7 +27,14 @@ function LayoutContent({ children }: { children: ReactNode }) {
           maxW="1512px"
           px={0}
           style={{ flex: 1 }}
-          mt={{ base: "20px", lg: opportunitySlug ? isInTrialPeriod(opportunitySlug) ? "40px" : "0px" : "0px" }}
+          mt={{
+            base: "20px",
+            lg: opportunitySlug
+              ? isInTrialPeriod(opportunitySlug)
+                ? "40px"
+                : "0px"
+              : "0px",
+          }}
         >
           {children}
         </Container>

@@ -9,8 +9,6 @@ export function findOpportunityByIdOrSlug(
   }
 
   return opportunities.find(
-    (opp) =>
-      opp.id.toString() === identifier || opp.slug === identifier
+    (opp) => opp.id.toString() === identifier || opp.slug === identifier
   );
 }
-
