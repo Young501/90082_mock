@@ -6,6 +6,7 @@ import React, {
   useRef,
   useMemo,
   useCallback,
+  Suspense,
 } from "react";
 import {
   Box,
@@ -15,6 +16,7 @@ import {
   Alert,
   HStack,
   Stack,
+  Spinner,
 } from "@chakra-ui/react";
 import ProgressTrack from "@/components/ProgressTrack";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -30,7 +32,7 @@ import { useQuestionnaireAnswers } from "@/hooks/useQuestionnaireAnswers";
 import { Question } from "@/types/onboarding";
 import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
 
-export default function OpportunityFillPage() {
+function OpportunityFillContent() {
   const sp = useSearchParams();
   const router = useRouter();
   const opportunitySlug = sp.get("opp") || "";
@@ -272,5 +274,24 @@ export default function OpportunityFillPage() {
         </Text>
       </VStack>
     </Box>
+  );
+}
+
+export default function OpportunityFillPage() {
+  return (
+    <Suspense
+      fallback={
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minH="60vh"
+        >
+          <Spinner size="xl" />
+        </Box>
+      }
+    >
+      <OpportunityFillContent />
+    </Suspense>
   );
 }

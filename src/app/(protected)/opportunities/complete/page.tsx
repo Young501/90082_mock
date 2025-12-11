@@ -43,9 +43,10 @@ export default function OpportunityCompletePage() {
   );
 
   const opportunityId = currentOpportunity?.id;
-  
-  const { clearAnswers } = useQuestionnaireAnswers(opportunityId?.toString() || "");
 
+  const { clearAnswers } = useQuestionnaireAnswers(
+    opportunityId?.toString() || ""
+  );
 
   const {
     data: opportunity,

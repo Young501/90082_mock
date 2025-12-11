@@ -289,18 +289,21 @@ export function PartnerCard({
         />
       )}
 
-      {showAddToFolderModal && organisation.id && !isInFolder && opportunitySlug && (
-        <AddToFolderModal
-          isOpen={showAddToFolderModal}
-          onClose={() => setShowAddToFolderModal(false)}
-          organisationId={organisation.id}
-          userName={organisation.name || "Organisation"}
-          opportunitySlug={opportunitySlug}
-          onAddToFolder={() => setClickBackground(true)}
-          onResetBackground={() => setClickBackground(false)}
-          memberType="organisation"
-        />
-      )}
+      {showAddToFolderModal &&
+        organisation.id &&
+        !isInFolder &&
+        opportunitySlug && (
+          <AddToFolderModal
+            isOpen={showAddToFolderModal}
+            onClose={() => setShowAddToFolderModal(false)}
+            organisationId={organisation.id}
+            userName={organisation.name || "Organisation"}
+            opportunitySlug={opportunitySlug}
+            onAddToFolder={() => setClickBackground(true)}
+            onResetBackground={() => setClickBackground(false)}
+            memberType="organisation"
+          />
+        )}
 
       {deleteModal && (
         <DeleteModal

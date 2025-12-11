@@ -69,8 +69,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const [showCreateOrganisationPrompt, setShowCreateOrganisationPrompt] =
     useState<boolean>(false);
   const [userPhaseData, setUserPhaseData] = useState<Record<string, any>>({});
-  const [abnStatus, setAbnStatus] =
-    useState<AbnValidationStatus>("idle");
+  const [abnStatus, setAbnStatus] = useState<AbnValidationStatus>("idle");
   const submissionMutation = useOnboardingSubmission(userType);
   const profileUpdateMutation = useProfileUpdate(userType);
   const profilePictureUpload = useProfilePictureUpload();
@@ -280,9 +279,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
 
   useEffect(() => {
     if (abnStatus === "valid" || abnStatus === "idle") {
-      setSubmitError((prev) =>
-        prev === ABN_BLOCK_MESSAGE ? "" : prev
-      );
+      setSubmitError((prev) => (prev === ABN_BLOCK_MESSAGE ? "" : prev));
     }
   }, [abnStatus, ABN_BLOCK_MESSAGE]);
 
