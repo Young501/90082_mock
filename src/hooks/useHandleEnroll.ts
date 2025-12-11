@@ -98,7 +98,9 @@ export function useHandleEnroll({
           const nextParam = shouldShowQuestionnaire
             ? "&next=questionnaire"
             : "";
-          router.push(`/opportunities/pricing?opp=${opportunitySlug}${nextParam}`);
+          router.push(
+            `/opportunities/pricing?opp=${opportunitySlug}${nextParam}`
+          );
           return;
         }
       }
@@ -129,6 +131,7 @@ export function useHandleEnroll({
     toast,
     refetchPricing,
     accessInfo,
+    opportunitySlug,
   ]);
 
   return {
