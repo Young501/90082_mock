@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/store/authStore";
+import { AccessOverrideInfo } from "@/types/opportunities";
 import { formatDate } from "@/utils/formatDate";
 
 export const isInTrialPeriod = (opportunitySlug: string): boolean => {
@@ -34,6 +35,8 @@ export const getSubscriptionTrialInfo = (
 
 export const getSubscriptionStatusDisplay = (
   has_access: boolean | false,
+  accessSource: string | undefined,
+  overrrideInfo: AccessOverrideInfo | null | undefined,
   subStatus: string | undefined,
   cancelAtPeriodEnd: boolean | undefined,
   currentPeriodEnd: string | null | undefined,
@@ -53,7 +56,14 @@ export const getSubscriptionStatusDisplay = (
         label: `Requires Subscription`,
         colorScheme: "red",
       };
-    } else return null;
+    } else if (accessSource === "override" && overrrideInfo) {
+      return {
+        icon: "🟢",
+        label: `Subscription Active — ends on ${formatDate(overrrideInfo.end)}`,
+        colorScheme: "green",
+      };
+    }
+    return null;
   }
   if (
     (subStatus === "active" || subStatus === "trialing") &&
@@ -61,7 +71,7 @@ export const getSubscriptionStatusDisplay = (
   ) {
     return {
       icon: "🟠",
-      label: `Canceled — access until ${getActiveDate()}`,
+      label: `Subscription Canceled — access until ${getActiveDate()}`,
       colorScheme: "orange",
     };
   }
@@ -70,22 +80,22 @@ export const getSubscriptionStatusDisplay = (
     case "active":
       return {
         icon: "🟢",
-        label: `Active — renews on ${getActiveDate()}`,
+        label: `Subscription Active — renews on ${getActiveDate()}`,
         colorScheme: "green",
       };
 
     case "trialing":
       return {
         icon: "🟢",
-        label: `Trial ends on ${getActiveDate()}`,
+        label: `Subscription Trial ends on ${getActiveDate()}`,
         colorScheme: "yellow",
       };
     case "canceled":
       return {
         icon: "🔴",
         label: currentPeriodEnd
-          ? `Canceled — access until ${formatDate(currentPeriodEnd)}`
-          : "Canceled",
+          ? `Subscription Canceled — access until ${formatDate(currentPeriodEnd)}`
+          : "Subscription Canceled",
         colorScheme: "red",
       };
     case "past_due":
@@ -98,13 +108,13 @@ export const getSubscriptionStatusDisplay = (
     case "incomplete_expired":
       return {
         icon: "⚪",
-        label: "Incomplete",
+        label: "Subscription Incomplete",
         colorScheme: "gray",
       };
     case "unpaid":
       return {
         icon: "🔴",
-        label: "Unpaid",
+        label: "Subscription Unpaid",
         colorScheme: "red",
       };
     default:

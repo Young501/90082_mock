@@ -25,6 +25,10 @@ type Props = {
   opportunitySlug?: string;
 };
 
+const STRIPE_PRICING_ENABLED = false; // [BJ] use this flag to turn back on stripe pricing flow
+const UNIMELB_SUBSCRIPTION_URL =
+  "https://ecommerce.unimelb.edu.au/uniconnected-subscription";
+
 export function useHandleEnroll({
   isEligible,
   opportunityId,
@@ -73,6 +77,11 @@ export function useHandleEnroll({
       }
 
       if (accessInfo?.next_action === "subscribe") {
+        if (!STRIPE_PRICING_ENABLED) {
+          window.location.href = UNIMELB_SUBSCRIPTION_URL;
+          return;
+        }
+
         // Step 1: Check for pricing
         setIsCheckingPricing(true);
         let hasPaidPricing = false;

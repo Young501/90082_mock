@@ -367,6 +367,8 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
                 const subStatus = getSubscriptionStatusDisplay(
                   accessInfo?.has_access,
+                  accessInfo?.access_source,
+                  accessInfo?.active_override,
                   accessInfo?.subscription?.status,
                   accessInfo?.subscription?.cancel_at_period_end,
                   accessInfo?.subscription?.current_period_end,
