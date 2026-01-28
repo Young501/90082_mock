@@ -17,7 +17,7 @@ import {
 import Link from "next/link";
 import { LockIcon, FolderHeart } from "lucide-react";
 import { useDiscovery } from "@/hooks/useDiscovery";
-import { DiscoveryFilterBox } from "./DiscoveryFilterBox";
+import { DiscoveryFilterV2 } from "./DiscoveryFilterV2";
 import { DiscoveryResultBox } from "./DiscoveryResultBox";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
@@ -133,6 +133,7 @@ export default function DiscoveryPage() {
     hasSearched,
     filterableFields,
     filterOptions,
+    autoSelectedFields,
     targetUserType,
     isLoading,
     isSearching,
@@ -258,8 +259,8 @@ export default function DiscoveryPage() {
             opportunity
           </Heading>
 
-          <OpportunityDescriptionCard 
-            opportunity={opportunity} 
+          <OpportunityDescriptionCard
+            opportunity={opportunity}
             currentOpportunity={currentOpportunity}
           />
           {/* Enrolled user and eligible - show discovery interface */}
@@ -299,35 +300,49 @@ export default function DiscoveryPage() {
                   Folders
                 </Button>
               </Flex>
-              <Box borderRadius="md" mb={8} w="100%">
-                <DiscoveryFilterBox
-                  fields={filterableFields}
-                  control={control}
-                  watchedValues={watchedValues}
-                  checkDependencies={checkDependencies}
-                  hasSearched={hasSearched}
-                  isSearching={isSearching}
-                  onSubmit={handleSearch}
-                  onReset={handleReset}
-                  filterOptions={filterOptions}
-                />
-              </Box>
-              <Separator my={6} />
-              <DiscoveryResultBox
-                results={searchResults}
-                count={resultsCount}
-                isLoading={isSearching}
-                hasSearched={hasSearched}
-                show={showResults}
-                userType={targetUserType!}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                pageSize={pageSize}
-                onPageChange={handlePageChange}
-                onPageSizeChange={handlePageSizeChange}
-                opportunityId={opportunityId?.toString() || ""}
-                opportunitySlug={opportunitySlug}
-              />
+              <Flex
+                direction={{ base: "column", lg: "row" }}
+                gap={8}
+                align="start"
+              >
+                <Box
+                  w={{ base: "100%", lg: "340px" }}
+                  flexShrink={0}
+                  position={{ lg: "sticky" }}
+                  top={{ lg: "140px" }}
+                >
+                  <DiscoveryFilterV2
+                    fields={filterableFields}
+                    control={control}
+                    watchedValues={watchedValues}
+                    checkDependencies={checkDependencies}
+                    hasSearched={hasSearched}
+                    isSearching={isSearching}
+                    onSubmit={handleSearch}
+                    onReset={handleReset}
+                    filterOptions={filterOptions}
+                    autoSelectedFields={autoSelectedFields}
+                  />
+                </Box>
+
+                <Box flex="1" w="100%" overflow="hidden">
+                  <DiscoveryResultBox
+                    results={searchResults}
+                    count={resultsCount}
+                    isLoading={isSearching}
+                    hasSearched={hasSearched}
+                    show={showResults}
+                    userType={targetUserType!}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    pageSize={pageSize}
+                    onPageChange={handlePageChange}
+                    onPageSizeChange={handlePageSizeChange}
+                    opportunityId={opportunityId?.toString() || ""}
+                    opportunitySlug={opportunitySlug}
+                  />
+                </Box>
+              </Flex>
             </Box>
           ) : (
             /* Not enrolled user - show enrollment interface */

@@ -54,7 +54,7 @@ export function DiscoveryResultBox({
       </HStack>
 
       {isLoading ? (
-        <Loader type="component" />
+        <Text>Loading...</Text>
       ) : count > 0 ? (
         <>
           <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={4}>
