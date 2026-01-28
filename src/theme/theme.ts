@@ -10,6 +10,10 @@ const config = defineConfig({
           700: { value: "#2a69ac" },
         },
       },
+      fonts: {
+        body: { value: "'Manrope', sans-serif" },
+        heading: { value: "'Manrope', sans-serif" },
+      },
     },
   },
 });

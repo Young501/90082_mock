@@ -32,6 +32,7 @@ import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 import { useHandleEnroll } from "@/hooks/useHandleEnroll";
 import { AccessInfo } from "@/types/opportunities";
 import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
+import { OpportunityDescriptionCard } from "./cards/OpportunityDescriptionCard";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
@@ -82,11 +83,6 @@ export default function DiscoveryPage() {
     }
     setAccessInfo(currentOpportunity?.access || null);
   }, [opportunityId, accessibleOpportunities, isEnrolled, opportunitySlug]);
-
-  // useEffect(() => {
-  //   setIsUserEligible(null);
-  //   setIsEnrolled(null);
-  // }, [opportunityId]);
 
   useEffect(() => {
     if (!opportunity || !user?.email || isUserEligible !== null) return;
@@ -261,6 +257,11 @@ export default function DiscoveryPage() {
             </Box>{" "}
             opportunity
           </Heading>
+
+          <OpportunityDescriptionCard 
+            opportunity={opportunity} 
+            currentOpportunity={currentOpportunity}
+          />
           {/* Enrolled user and eligible - show discovery interface */}
           {isEnrolled && accessInfo?.has_access && !isSubmitting ? (
             <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
@@ -350,7 +351,6 @@ export default function DiscoveryPage() {
                     }}
                   />
                 </Box>
-
                 <VStack align="flex-start" gap={6} maxW="500px" w="100%">
                   <Text fontSize="lg" color="gray.600">
                     {opportunity.description ||
@@ -375,7 +375,6 @@ export default function DiscoveryPage() {
                       )}
                     </VStack>
                   )}
-
                   <Button
                     colorScheme="green"
                     bg="green.600"
