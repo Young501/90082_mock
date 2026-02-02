@@ -46,6 +46,7 @@ export const OpportunityDescriptionCard = ({
       py={{ base: 4, md: 6 }}
       px={{ base: 4, md: 5 }}
       maxW="100%"
+      w="100%"
     >
       <VStack align="flex-start" gap={3}>
         <HStack align="start" justify="space-between" gap={1} w="full">

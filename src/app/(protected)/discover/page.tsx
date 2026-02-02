@@ -13,10 +13,12 @@ import {
   Button,
   Image,
   Icon,
+  HStack,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { LockIcon, FolderHeart } from "lucide-react";
 import { useDiscovery } from "@/hooks/useDiscovery";
+import { useDiscoveryV2 } from "@/hooks/useDiscoveryV2";
 import { DiscoveryFilterV2 } from "./DiscoveryFilterV2";
 import { DiscoveryResultBox } from "./DiscoveryResultBox";
 import { PageTitle } from "@/components/PageTitle";
@@ -32,7 +34,11 @@ import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 import { useHandleEnroll } from "@/hooks/useHandleEnroll";
 import { AccessInfo } from "@/types/opportunities";
 import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
+import { useFolders } from "@/services/folder";
 import { OpportunityDescriptionCard } from "./cards/OpportunityDescriptionCard";
+import DiscoveryFolderCard from "./DiscoveryFolderCard";
+import { CreateFolderModal } from "./CreateFolderModal";
+import type { DiscoveryFolderItem } from "./DiscoveryFolderCard";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
@@ -61,6 +67,26 @@ export default function DiscoveryPage() {
 
   const userType = user?.user_types?.[0];
   const [accessInfo, setAccessInfo] = useState<AccessInfo | null>(null);
+  const [createFolderModalOpen, setCreateFolderModalOpen] = useState(false);
+
+  const { data: foldersData, isLoading: isLoadingFolders } =
+    useFolders(opportunitySlug);
+  const discoveryFolders: DiscoveryFolderItem[] = useMemo(
+    () =>
+      (foldersData ?? []).map((f) => ({
+        id: String(f.id),
+        name: f.name,
+        count: f.member_count,
+      })),
+    [foldersData]
+  );
+  const handleFolderClick = useCallback(
+    (folder: DiscoveryFolderItem) => {
+      const oppParam = opportunitySlug ? `&opp=${opportunitySlug}` : "";
+      router.push(`/folders?id=${folder.id}${oppParam}`);
+    },
+    [opportunitySlug, router]
+  );
 
   useEffect(() => {
     if (accessibleOpportunities) {
@@ -128,33 +154,50 @@ export default function DiscoveryPage() {
     !!accessibleOpportunities && !isOpportunitiesLoading;
   const isEligible = isUserEligible ?? false;
 
+  // Use V2 Discovery hook
   const {
+    participantType,
+    filters,
+    facets,
     searchResults,
-    hasSearched,
-    filterableFields,
-    filterOptions,
-    autoSelectedFields,
-    targetUserType,
-    isLoading,
-    isSearching,
-    form,
-    handleSearch,
-    handleReset,
-    checkDependencies,
-    resultsCount,
-    showResults,
     currentPage,
     pageSize,
-    totalPages,
-    handlePageChange,
-    handlePageSizeChange,
-  } = useDiscovery(opportunityId?.toString() || "", {
+    hasNext,
+    hasPrevious,
+    isLoadingFacets,
+    isLoadingSearch,
+    isLoading: isLoadingV2,
+    handleFilterChange,
+    handlePageChange: handlePageChangeV2,
+    handlePageSizeChange: handlePageSizeChangeV2,
+    handleReset: handleResetV2,
+    totalPages: totalPagesV2,
+    hasFilters,
+    resultsCount: resultsCountV2,
+  } = useDiscoveryV2(opportunityId?.toString() || "", {
     isEnrolled: isEnrolled === null ? undefined : isEnrolled,
     isEnrollmentReady,
   });
 
-  const { control, watch } = form;
-  const watchedValues = watch();
+  const facetValidationSuccess = useMemo(() => {
+    const hasOnboardingWithCounts = Object.keys(
+      facets?.facets?.onboarding || {}
+    ).some((key) =>
+      facets?.facets?.onboarding?.[key]?.options?.some(
+        (option: { count: number }) => option.count > 0
+      )
+    );
+    const hasQuestionnaireWithCounts = Object.keys(
+      facets?.facets?.questionnaire || {}
+    ).some((key) =>
+      facets?.facets?.questionnaire?.[key]?.options?.some(
+        (option: { count: number }) => option.count > 0
+      )
+    );
+    return hasOnboardingWithCounts || hasQuestionnaireWithCounts;
+  }, [facets]);
+
+  console.log("facetValidationSuccess", facetValidationSuccess);
 
   const { handleEnroll, isSubmitting } = useHandleEnroll({
     isEligible,
@@ -226,58 +269,28 @@ export default function DiscoveryPage() {
         overflow="hidden"
       >
         <PageTitle title={PAGE_TITLES.DISCOVER} />
-        <Box
-          flex="1"
+        <VStack
+          // flex="1"
           px={{ base: 4, md: 8, lg: 16 }}
           mt={{ base: "80px", lg: "126px" }}
-          pb={{ base: 8, lg: 12 }}
+          py={{ base: 8, lg: 12 }}
           w="100%"
-          maxW="100vw"
+          // maxW="100vw"
           overflow="hidden"
+          gap={{ base: 5, lg: 6 }}
         >
-          {/* Title */}
-          <Heading
-            as="h1"
-            fontSize={{ base: "2xl", md: "4xl" }}
-            textAlign="center"
-            mt={{ base: 8, md: 12 }}
-            mb={{ base: 8, md: 12 }}
-            lineHeight="1.3"
-          >
-            You are exploring the{" "}
-            <Box
-              as="span"
-              bg="blue.600"
-              color="white"
-              px={4}
-              py={2}
-              borderRadius="2xl"
-              display="inline-block"
-            >
-              {opportunity.title}
-            </Box>{" "}
-            opportunity
-          </Heading>
-
           <OpportunityDescriptionCard
             opportunity={opportunity}
             currentOpportunity={currentOpportunity}
           />
           {/* Enrolled user and eligible - show discovery interface */}
           {isEnrolled && accessInfo?.has_access && !isSubmitting ? (
-            <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
-              <Flex justify="space-between" align="center" mb={4}>
-                <VStack align="stretch">
-                  <Heading size="lg" color="#313238ff">
-                    Discover{" "}
-                    {targetUserType === "student" ? "Students" : "Partners"}
-                  </Heading>
-                  <Text color="gray.600">
-                    Search and filter{" "}
-                    {targetUserType === "student" ? "students" : "partners"}{" "}
-                    based on your criteria
-                  </Text>
-                </VStack>
+            <Box w="100%" overflow="hidden">
+              {/* <Flex
+                // align="center"
+                justify="flex-end"
+                mb={4}
+              >
                 <Button
                   onClick={() =>
                     router.push(`/folders/?opp=${opportunitySlug}`)
@@ -287,8 +300,6 @@ export default function DiscoveryPage() {
                   px={6}
                   py={5}
                   maxW="200px"
-                  // boxShadow="0px 4px 4px 0px #00000040"
-                  // h="auto"
                   fontSize="16px"
                   fontWeight="600"
                   display="flex"
@@ -299,50 +310,66 @@ export default function DiscoveryPage() {
                   <FolderHeart size="60px" color="white" />
                   Folders
                 </Button>
-              </Flex>
-              <Flex
+              </Flex> */}
+              <Box
+                display="flex"
                 direction={{ base: "column", lg: "row" }}
                 gap={8}
-                align="start"
+                alignItems="start"
+                justifyContent="start"
               >
-                <Box
-                  w={{ base: "100%", lg: "340px" }}
+                <VStack
+                  w={{ base: "100%", lg: "261px" }}
                   flexShrink={0}
                   position={{ lg: "sticky" }}
-                  top={{ lg: "140px" }}
+                  gap={{ base: 4, md: 5 }}
                 >
-                  <DiscoveryFilterV2
-                    fields={filterableFields}
-                    control={control}
-                    watchedValues={watchedValues}
-                    checkDependencies={checkDependencies}
-                    hasSearched={hasSearched}
-                    isSearching={isSearching}
-                    onSubmit={handleSearch}
-                    onReset={handleReset}
-                    filterOptions={filterOptions}
-                    autoSelectedFields={autoSelectedFields}
+                  {facetValidationSuccess && (
+                    <DiscoveryFilterV2
+                      facets={facets}
+                      filters={filters}
+                      onFilterChange={handleFilterChange}
+                      onReset={handleResetV2}
+                      hasFilters={hasFilters}
+                      isLoading={isLoadingSearch}
+                    />
+                  )}
+                  <DiscoveryFolderCard
+                    folders={discoveryFolders}
+                    isLoading={isLoadingFolders}
+                    onCreateNewFolder={() => setCreateFolderModalOpen(true)}
+                    onFolderClick={handleFolderClick}
                   />
-                </Box>
+                  {opportunitySlug && (
+                    <CreateFolderModal
+                      isOpen={createFolderModalOpen}
+                      onClose={() => setCreateFolderModalOpen(false)}
+                      opportunitySlug={opportunitySlug}
+                      onSuccess={() => setCreateFolderModalOpen(false)}
+                    />
+                  )}
+                </VStack>
 
-                <Box flex="1" w="100%" overflow="hidden">
-                  <DiscoveryResultBox
-                    results={searchResults}
-                    count={resultsCount}
-                    isLoading={isSearching}
-                    hasSearched={hasSearched}
-                    show={showResults}
-                    userType={targetUserType!}
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    pageSize={pageSize}
-                    onPageChange={handlePageChange}
-                    onPageSizeChange={handlePageSizeChange}
-                    opportunityId={opportunityId?.toString() || ""}
-                    opportunitySlug={opportunitySlug}
-                  />
-                </Box>
-              </Flex>
+                <DiscoveryResultBox
+                  results={searchResults}
+                  isLoading={isLoadingSearch}
+                  hasSearched={hasFilters}
+                  show={searchResults.length > 0 || hasFilters}
+                  userType={participantType!}
+                  pagination={{
+                    currentPage,
+                    totalPages: totalPagesV2,
+                    pageSize,
+                    count: resultsCountV2,
+                    hasNext,
+                    hasPrevious,
+                    onPageChange: handlePageChangeV2,
+                    onPageSizeChange: handlePageSizeChangeV2,
+                  }}
+                  opportunityId={opportunityId?.toString() || ""}
+                  opportunitySlug={opportunitySlug}
+                />
+              </Box>
             </Box>
           ) : (
             /* Not enrolled user - show enrollment interface */
@@ -414,7 +441,7 @@ export default function DiscoveryPage() {
               </Flex>
             </Box>
           )}
-        </Box>
+        </VStack>
       </Box>
     );
   }

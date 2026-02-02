@@ -9,41 +9,44 @@ import {
 } from "@chakra-ui/react";
 import { UserProfile } from "@/types/shared";
 import { StudentCard, PartnerCard } from "./cards";
-import { PaginationControls } from "@/components/ui/PaginationControls";
+import { PaginationControlsV2 } from "@/components/ui/PaginationControlsV2";
 import Loader from "@/components/ui/Loader";
+export interface DiscoveryPaginationProps {
+  currentPage: number;
+  totalPages: number;
+  pageSize: number;
+  count: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+  onPageChange: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
+}
 
 interface DiscoveryResultBoxProps {
   results: UserProfile[];
-  count: number;
   isLoading: boolean;
   hasSearched: boolean;
   show: boolean;
   userType: string;
-  currentPage: number;
-  totalPages: number;
-  pageSize: number;
-  onPageChange: (page: number) => void;
-  onPageSizeChange: (pageSize: number) => void;
   opportunityId?: string;
   opportunitySlug?: string;
+  /** Optional; when omitted, pagination block is not rendered */
+  pagination?: DiscoveryPaginationProps;
 }
 
 export function DiscoveryResultBox({
   results,
-  count,
   isLoading,
   hasSearched,
   show,
   userType,
-  currentPage,
-  totalPages,
-  pageSize,
-  onPageChange,
-  onPageSizeChange,
+  pagination,
   opportunityId,
   opportunitySlug,
 }: DiscoveryResultBoxProps) {
   if (!show) return null;
+
+  const count = pagination?.count ?? 0;
 
   return (
     <VStack align="stretch" gap={6}>
@@ -81,17 +84,22 @@ export function DiscoveryResultBox({
             })}
           </SimpleGrid>
 
-          <Box mt={6}>
-            <PaginationControls
-              currentPage={currentPage}
-              totalPages={Math.max(totalPages, 1)}
-              pageSize={pageSize}
-              totalCount={count}
-              onPageChange={onPageChange}
-              onPageSizeChange={onPageSizeChange}
-              isLoading={isLoading}
-            />
-          </Box>
+          {pagination && (
+            <Box mt={6}>
+              <PaginationControlsV2
+                currentPage={pagination.currentPage}
+                totalPages={Math.max(pagination.totalPages, 1)}
+                pageSize={pagination.pageSize}
+                totalCount={pagination.count}
+                hasNext={pagination.hasNext}
+                hasPrevious={pagination.hasPrevious}
+                onPageChange={pagination.onPageChange}
+                onPageSizeChange={pagination.onPageSizeChange}
+                isLoading={isLoading}
+                itemLabel="opportunity"
+              />
+            </Box>
+          )}
         </>
       ) : (
         <>
@@ -103,17 +111,22 @@ export function DiscoveryResultBox({
             </Text>
           </Box>
 
-          <Box mt={6}>
-            <PaginationControls
-              currentPage={1}
-              totalPages={1}
-              pageSize={pageSize}
-              totalCount={0}
-              onPageChange={onPageChange}
-              onPageSizeChange={onPageSizeChange}
-              isLoading={isLoading}
-            />
-          </Box>
+          {pagination && (
+            <Box mt={6}>
+              <PaginationControlsV2
+                currentPage={1}
+                totalPages={1}
+                pageSize={pagination.pageSize}
+                totalCount={0}
+                hasNext={pagination.hasNext}
+                hasPrevious={pagination.hasPrevious}
+                onPageChange={pagination.onPageChange}
+                onPageSizeChange={pagination.onPageSizeChange}
+                isLoading={isLoading}
+                itemLabel="opportunity"
+              />
+            </Box>
+          )}
         </>
       )}
     </VStack>

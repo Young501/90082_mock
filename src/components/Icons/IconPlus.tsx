@@ -1,18 +1,18 @@
 import React from "react";
 
-const IconFilter = ({ color = "#3F3F46" }: { color?: string }) => {
+const IconPlus = ({ color = "#1679AB" }: { color?: string }) => {
   return (
     <svg
-      width="17"
-      height="12"
-      viewBox="0 0 17 12"
+      width="11"
+      height="11"
+      viewBox="0 0 11 11"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M1 1H16M4.33333 6H12.6667M6.83333 11H10.1667"
+        d="M0.75 5.41667H10.0833M5.41667 0.75V10.0833"
         stroke={color}
-        strokeWidth="2"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -20,4 +20,4 @@ const IconFilter = ({ color = "#3F3F46" }: { color?: string }) => {
   );
 };
 
-export default IconFilter;
+export default IconPlus;
