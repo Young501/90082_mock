@@ -50,7 +50,6 @@ export function useUserSearch(params: UserSearchParams | null) {
   });
 }
 
-// V2 Discovery API hooks
 export function useDiscoveryFacets(
   opportunityId: string | null,
   body: DiscoveryRequestBody | null

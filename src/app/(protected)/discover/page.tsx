@@ -20,7 +20,6 @@ import {
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { LockIcon, FolderHeart, X } from "lucide-react";
-import { useDiscovery } from "@/hooks/useDiscovery";
 import { useDiscoveryV2 } from "@/hooks/useDiscoveryV2";
 import { DiscoveryFilterV2 } from "./DiscoveryFilterV2";
 import { DiscoveryResultBox } from "./DiscoveryResultBox";
@@ -291,31 +290,6 @@ export default function DiscoveryPage() {
           {/* Enrolled user and eligible - show discovery interface */}
           {isEnrolled && accessInfo?.has_access && !isSubmitting ? (
             <Box w="100%" overflow="hidden">
-              {/* <Flex
-                // align="center"
-                justify="flex-end"
-                mb={4}
-              >
-                <Button
-                  onClick={() =>
-                    router.push(`/folders/?opp=${opportunitySlug}`)
-                  }
-                  bg="#2CA9DF"
-                  borderRadius="15px"
-                  px={6}
-                  py={5}
-                  maxW="200px"
-                  fontSize="16px"
-                  fontWeight="600"
-                  display="flex"
-                  alignItems="center"
-                  gap={4}
-                  _hover={{ bg: "#002157" }}
-                >
-                  <FolderHeart size="60px" color="white" />
-                  Folders
-                </Button>
-              </Flex> */}
               <Box
                 display="flex"
                 flexDirection={{ base: "column", lg: "row" }}
@@ -437,7 +411,7 @@ export default function DiscoveryPage() {
                   </Portal>
                 )}
 
-                {filterSheetOpen && facetValidationSuccess && (
+                {filterSheetOpen && facetValidationSuccess &&  (
                   <Portal>
                     <Box
                       position="fixed"
