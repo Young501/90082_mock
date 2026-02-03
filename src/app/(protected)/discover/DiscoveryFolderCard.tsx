@@ -1,12 +1,20 @@
 "use client";
 
 import React from "react";
-import { Box, VStack, HStack, Text, Button } from "@chakra-ui/react";
+import {
+  Box,
+  VStack,
+  HStack,
+  Text,
+  Button,
+  IconButton,
+} from "@chakra-ui/react";
 import {
   IconFolder,
   IconPlus,
   IconFolderSingleTrace,
 } from "@/components/Icons";
+import { X } from "lucide-react";
 
 export interface DiscoveryFolderItem {
   id: string;
@@ -17,15 +25,19 @@ export interface DiscoveryFolderItem {
 export interface DiscoveryFolderCardProps {
   folders?: DiscoveryFolderItem[];
   isLoading?: boolean;
+  inDrawer?: boolean;
   onCreateNewFolder?: () => void;
   onFolderClick?: (folder: DiscoveryFolderItem) => void;
+  onClose?: () => void;
 }
 
 export default function DiscoveryFolderCard({
   folders = [],
   isLoading = false,
+  inDrawer = false,
   onCreateNewFolder,
   onFolderClick,
+  onClose,
 }: DiscoveryFolderCardProps) {
   return (
     <Box
@@ -36,17 +48,35 @@ export default function DiscoveryFolderCard({
       borderColor="#E4E4E7"
       h="fit-content"
       w="100%"
-      maxW="261px"
+      maxW={inDrawer ? "none" : "261px"}
     >
       <VStack align="stretch" gap={4}>
         {/* Header: icon + "My Folder" */}
-        <HStack gap={2} align="center">
-          <Box flexShrink={0} color="#3F3F46">
-            <IconFolder color="#3F3F46" />
-          </Box>
-          <Text fontSize="md" fontWeight="bold" color="#27272A">
-            My Folder
-          </Text>
+        <HStack justify="space-between" align="center">
+          <HStack gap={2} align="center">
+            <Box flexShrink={0} color="#3F3F46">
+              <IconFolder color="#3F3F46" />
+            </Box>
+            <Text fontSize="md" fontWeight="bold" color="#27272A">
+              My Folder
+            </Text>
+          </HStack>
+
+          {inDrawer && (
+            <Box position="relative" minH={10} mb={1}>
+              <IconButton
+                position="absolute"
+                top={0}
+                right={0}
+                aria-label="Close"
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+              >
+                <X size={20} color="#52525B" />
+              </IconButton>
+            </Box>
+          )}
         </HStack>
 
         {/* Create New Folder button */}

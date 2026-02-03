@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { VStack, Flex, Text, HStack, Box, Separator } from "@chakra-ui/react";
+import {
+  VStack,
+  Flex,
+  Text,
+  HStack,
+  Box,
+  Separator,
+  IconButton,
+} from "@chakra-ui/react";
 import { Button } from "@/components/ui/Button";
 import { FilterFieldV2 } from "@/components/fields/FilterFieldV2";
 import {
@@ -7,8 +15,15 @@ import {
   DiscoveryFilters,
   FilterValue,
 } from "@/types/discovery";
-import { Filter, ChevronDown, ChevronUp } from "lucide-react";
+import { Filter, ChevronDown, ChevronUp, X } from "lucide-react";
 import IconFilter from "@/components/Icons/IconFilter";
+
+function isEmptyFilters(f: DiscoveryFilters): boolean {
+  const keys = Object.keys(f).filter((k) => k !== "questionnaire");
+  const hasQuestionnaire =
+    f.questionnaire && Object.keys(f.questionnaire).length > 0;
+  return keys.length === 0 && !hasQuestionnaire;
+}
 
 interface DiscoveryFilterV2Props {
   facets: FacetsResponse | null;
@@ -17,6 +32,9 @@ interface DiscoveryFilterV2Props {
   onReset: () => void;
   hasFilters: boolean;
   isLoading: boolean;
+  inDrawer?: boolean;
+  onApply?: () => void;
+  onClose?: () => void;
 }
 
 export function DiscoveryFilterV2({
@@ -26,11 +44,29 @@ export function DiscoveryFilterV2({
   onReset,
   hasFilters,
   isLoading,
+  inDrawer = false,
+  onApply,
+  onClose,
 }: DiscoveryFilterV2Props) {
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({});
   const hasInitializedExpanded = useRef(false);
+
+  // In drawer mode, keep pending filters in local state; apply only on "Apply filter"
+  const [localFilters, setLocalFilters] = useState<DiscoveryFilters>({});
+  const prevInDrawer = useRef(false);
+  useEffect(() => {
+    if (inDrawer && !prevInDrawer.current) {
+      setLocalFilters({
+        ...filters,
+        questionnaire: filters.questionnaire
+          ? { ...filters.questionnaire }
+          : undefined,
+      } as DiscoveryFilters);
+    }
+    prevInDrawer.current = inDrawer;
+  }, [inDrawer, filters]);
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections((prev) => ({
@@ -72,7 +108,8 @@ export function DiscoveryFilterV2({
     value: FilterValue | undefined,
     isQuestionnaire: boolean = false
   ) => {
-    const newFilters = { ...filters };
+    const source = inDrawer ? localFilters : filters;
+    const newFilters = { ...source };
 
     if (isQuestionnaire) {
       if (!newFilters.questionnaire) {
@@ -81,7 +118,6 @@ export function DiscoveryFilterV2({
 
       if (value === undefined) {
         delete newFilters.questionnaire[key];
-        // Remove questionnaire object if empty
         if (Object.keys(newFilters.questionnaire).length === 0) {
           delete newFilters.questionnaire;
         }
@@ -96,21 +132,37 @@ export function DiscoveryFilterV2({
       }
     }
 
-    onFilterChange(newFilters);
+    if (inDrawer) {
+      setLocalFilters(newFilters);
+    } else {
+      onFilterChange(newFilters);
+    }
   };
+
+  const effectiveFilters = inDrawer ? localFilters : filters;
+  const hasLocalFilters = inDrawer ? !isEmptyFilters(localFilters) : hasFilters;
 
   const getFilterValue = (
     key: string,
     isQuestionnaire: boolean = false
   ): FilterValue | undefined => {
     if (isQuestionnaire) {
-      return filters.questionnaire?.[key];
+      return effectiveFilters.questionnaire?.[key];
     }
-    // Skip the questionnaire property when accessing regular filters
     if (key === "questionnaire") {
       return undefined;
     }
-    return filters[key];
+    return effectiveFilters[key];
+  };
+
+  const handleApplyFilter = () => {
+    onFilterChange(localFilters);
+    onApply?.();
+  };
+
+  const handleResetInDrawer = () => {
+    setLocalFilters({});
+    onReset?.();
   };
 
   if (!facets) {
@@ -174,19 +226,36 @@ export function DiscoveryFilterV2({
     <Box
       bg="white"
       borderRadius="xl"
-      border="1px solid"
-      borderColor="#E4E4E7"
+      border={inDrawer ? "none" : "1px solid"}
+      borderColor={inDrawer ? "transparent" : "#E4E4E7"}
       p={{ base: 4, md: 5 }}
       w="100%"
-      maxW="261px"
+      maxW={inDrawer ? "none" : "261px"}
       h="fit-content"
     >
       <VStack align="stretch" gap={2}>
-        <HStack gap={3}>
-          <IconFilter />
-          <Text fontSize="md" fontWeight="bold" color="#27272A">
-            Filter
-          </Text>
+        <HStack justify="space-between" align="center">
+          <HStack gap={3}>
+            <IconFilter />
+            <Text fontSize="md" fontWeight="bold" color="#27272A">
+              Filter
+            </Text>
+          </HStack>
+          {inDrawer && (
+            <Box position="relative" minH={10} mb={1}>
+              <IconButton
+                position="absolute"
+                top={0}
+                right={0}
+                aria-label="Close"
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+              >
+                <X size={20} color="#52525B" />
+              </IconButton>
+            </Box>
+          )}
         </HStack>
 
         <VStack align="stretch" gap={0}>
@@ -236,7 +305,7 @@ export function DiscoveryFilterV2({
                     )}
 
                     {index < allFacets.length - 1 && (
-                      <Separator borderColor="gray.100" />
+                      <Separator borderColor="#E4E4E7" />
                     )}
                   </VStack>
                 </Box>
@@ -245,19 +314,48 @@ export function DiscoveryFilterV2({
           )}
         </VStack>
 
-        {hasFilters && (
-          <Box pt={2}>
+        {inDrawer ? (
+          <VStack align="stretch" gap={2} pt={4}>
             <Button
-              variant="ghost"
               w="100%"
-              onClick={onReset}
+              bg="#2CA9DF"
+              color="white"
+              onClick={handleApplyFilter}
               disabled={isLoading}
-              color="#3F3F46"
               fontSize="14px"
+              h="48px"
+              borderRadius="xl"
             >
-              Reset all filters
+              Apply filter
             </Button>
-          </Box>
+            {hasLocalFilters && (
+              <Button
+                variant="ghost"
+                w="100%"
+                onClick={handleResetInDrawer}
+                disabled={isLoading}
+                color="#3F3F46"
+                fontSize="14px"
+              >
+                Reset all filters
+              </Button>
+            )}
+          </VStack>
+        ) : (
+          hasFilters && (
+            <Box pt={2}>
+              <Button
+                variant="ghost"
+                w="100%"
+                onClick={onReset}
+                disabled={isLoading}
+                color="#3F3F46"
+                fontSize="14px"
+              >
+                Reset all filters
+              </Button>
+            </Box>
+          )
         )}
       </VStack>
     </Box>

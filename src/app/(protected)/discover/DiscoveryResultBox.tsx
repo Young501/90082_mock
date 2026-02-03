@@ -96,7 +96,7 @@ export function DiscoveryResultBox({
                 onPageChange={pagination.onPageChange}
                 onPageSizeChange={pagination.onPageSizeChange}
                 isLoading={isLoading}
-                itemLabel="opportunity"
+                itemLabel="organisations"
               />
             </Box>
           )}
@@ -123,7 +123,7 @@ export function DiscoveryResultBox({
                 onPageChange={pagination.onPageChange}
                 onPageSizeChange={pagination.onPageSizeChange}
                 isLoading={isLoading}
-                itemLabel="opportunity"
+                itemLabel="students"
               />
             </Box>
           )}

@@ -28,7 +28,7 @@ export function PaginationControlsV2({
   hasNext: hasNextProp,
   hasPrevious: hasPreviousProp,
   isLoading = false,
-  itemLabel = "items",
+  itemLabel = "members",
 }: PaginationControlsV2Props) {
   const hasNext = hasNextProp ?? currentPage < totalPages;
   const hasPrevious = hasPreviousProp ?? currentPage > 1;
@@ -62,9 +62,6 @@ export function PaginationControlsV2({
           </Text>
           {onPageSizeChange && (
             <HStack gap={2} align="center">
-              <Text fontSize="sm" color="#697488">
-                per page
-              </Text>
               <NativeSelect.Root
                 size="sm"
                 width="auto"
@@ -91,6 +88,9 @@ export function PaginationControlsV2({
                 </NativeSelect.Field>
                 <NativeSelect.Indicator />
               </NativeSelect.Root>
+              <Text fontSize="sm" color="#697488">
+                per page
+              </Text>
             </HStack>
           )}
         </HStack>

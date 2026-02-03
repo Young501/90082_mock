@@ -14,9 +14,12 @@ import {
   Image,
   Icon,
   HStack,
+  Portal,
+  IconButton,
 } from "@chakra-ui/react";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { LockIcon, FolderHeart } from "lucide-react";
+import { LockIcon, FolderHeart, X } from "lucide-react";
 import { useDiscovery } from "@/hooks/useDiscovery";
 import { useDiscoveryV2 } from "@/hooks/useDiscoveryV2";
 import { DiscoveryFilterV2 } from "./DiscoveryFilterV2";
@@ -39,6 +42,7 @@ import { OpportunityDescriptionCard } from "./cards/OpportunityDescriptionCard";
 import DiscoveryFolderCard from "./DiscoveryFolderCard";
 import { CreateFolderModal } from "./CreateFolderModal";
 import type { DiscoveryFolderItem } from "./DiscoveryFolderCard";
+import { IconFolder, IconFilter, IconArrowRight } from "@/components/Icons";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
@@ -68,6 +72,8 @@ export default function DiscoveryPage() {
   const userType = user?.user_types?.[0];
   const [accessInfo, setAccessInfo] = useState<AccessInfo | null>(null);
   const [createFolderModalOpen, setCreateFolderModalOpen] = useState(false);
+  const [folderSheetOpen, setFolderSheetOpen] = useState(false);
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
 
   const { data: foldersData, isLoading: isLoadingFolders } =
     useFolders(opportunitySlug);
@@ -341,6 +347,132 @@ export default function DiscoveryPage() {
                   />
                 </Box>
 
+                <HStack
+                  display={{ base: "flex", lg: "none" }}
+                  w="100%"
+                  gap={3}
+                  flexShrink={0}
+                >
+                  <Button
+                    variant="outline"
+                    flex={1}
+                    justifyContent="flex-start"
+                    gap={2}
+                    py="14px"
+                    px={4}
+                    borderRadius="xl"
+                    borderColor="#E4E4E7"
+                    borderWidth="1px"
+                    bg="white"
+                    color="#27272A"
+                    fontWeight="normal"
+                    fontSize="md"
+                    onClick={() => setFolderSheetOpen(true)}
+                  >
+                    <IconFolder color="#3F3F46" />
+                    My Folder
+                    <Box ml="auto">
+                      <ChevronRight size={20} color="#3F3F46" />
+                    </Box>
+                  </Button>
+                  {facetValidationSuccess && (
+                    <Button
+                      variant="outline"
+                      flex={1}
+                      justifyContent="flex-start"
+                      gap={2}
+                      py="14px"
+                      px={4}
+                      borderRadius="xl"
+                      borderColor="#E4E4E7"
+                      borderWidth="1px"
+                      bg="white"
+                      color="#27272A"
+                      fontWeight="normal"
+                      fontSize="md"
+                      onClick={() => setFilterSheetOpen(true)}
+                    >
+                      <IconFilter color="#3F3F46" />
+                      Filter
+                    </Button>
+                  )}
+                </HStack>
+
+                {folderSheetOpen && (
+                  <Portal>
+                    <Box
+                      position="fixed"
+                      inset={0}
+                      bg="blackAlpha.600"
+                      boxShadow="0px 4px 6px -4px #0000001A"
+                      zIndex={9998}
+                      onClick={() => setFolderSheetOpen(false)}
+                    />
+                    <Box
+                      position="fixed"
+                      bottom={4}
+                      left={4}
+                      right={4}
+                      maxH="85vh"
+                      overflowY="auto"
+                      bg="white"
+                      borderRadius="10px"
+                      zIndex={9999}
+                    >
+                      <DiscoveryFolderCard
+                        inDrawer
+                        folders={discoveryFolders}
+                        isLoading={isLoadingFolders}
+                        onCreateNewFolder={() => {
+                          setFolderSheetOpen(false);
+                          setCreateFolderModalOpen(true);
+                        }}
+                        onFolderClick={(folder) => {
+                          handleFolderClick(folder);
+                          setFolderSheetOpen(false);
+                        }}
+                        onClose={() => setFolderSheetOpen(false)}
+                      />
+                    </Box>
+                  </Portal>
+                )}
+
+                {filterSheetOpen && facetValidationSuccess && (
+                  <Portal>
+                    <Box
+                      position="fixed"
+                      inset={0}
+                      bg="blackAlpha.600"
+                      boxShadow="0px 4px 6px -4px #0000001A"
+                      zIndex={9998}
+                      onClick={() => setFilterSheetOpen(false)}
+                    />
+                    <Box
+                      position="fixed"
+                      bottom={4}
+                      left={4}
+                      right={4}
+                      maxH="85vh"
+                      overflowY="auto"
+                      bg="white"
+                      borderRadius="10px"
+                      zIndex={9999}
+                    >
+                      <DiscoveryFilterV2
+                        inDrawer
+                        facets={facets}
+                        filters={filters}
+                        onFilterChange={handleFilterChange}
+                        onReset={handleResetV2}
+                        hasFilters={hasFilters}
+                        isLoading={isLoadingSearch}
+                        onApply={() => setFilterSheetOpen(false)}
+                        onClose={() => setFilterSheetOpen(false)}
+                      />
+                    </Box>
+                  </Portal>
+                )}
+
                 {opportunitySlug && (
                   <CreateFolderModal
                     isOpen={createFolderModalOpen}
@@ -349,7 +481,6 @@ export default function DiscoveryPage() {
                     onSuccess={() => setCreateFolderModalOpen(false)}
                   />
                 )}
-                {/* </VStack> */}
 
                 <DiscoveryResultBox
                   results={searchResults}
