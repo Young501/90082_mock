@@ -49,7 +49,7 @@ export function DiscoveryResultBox({
   const count = pagination?.count ?? 0;
 
   return (
-    <VStack align="stretch" gap={6}>
+    <VStack align="stretch" gap={6} w="100%">
       <HStack justify="space-between" align="center">
         <Heading size="md">
           {hasSearched ? "Search Results" : "All Users"} ({count})

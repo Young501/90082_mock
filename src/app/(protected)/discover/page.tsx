@@ -154,7 +154,6 @@ export default function DiscoveryPage() {
     !!accessibleOpportunities && !isOpportunitiesLoading;
   const isEligible = isUserEligible ?? false;
 
-  // Use V2 Discovery hook
   const {
     participantType,
     filters,
@@ -313,16 +312,16 @@ export default function DiscoveryPage() {
               </Flex> */}
               <Box
                 display="flex"
-                direction={{ base: "column", lg: "row" }}
+                flexDirection={{ base: "column", lg: "row" }}
                 gap={8}
                 alignItems="start"
                 justifyContent="start"
+                w="100%"
               >
-                <VStack
-                  w={{ base: "100%", lg: "261px" }}
-                  flexShrink={0}
-                  position={{ lg: "sticky" }}
-                  gap={{ base: 4, md: 5 }}
+                <Box
+                  display={{ base: "none", lg: "flex" }}
+                  flexDirection="column"
+                  gap={5}
                 >
                   {facetValidationSuccess && (
                     <DiscoveryFilterV2
@@ -340,15 +339,17 @@ export default function DiscoveryPage() {
                     onCreateNewFolder={() => setCreateFolderModalOpen(true)}
                     onFolderClick={handleFolderClick}
                   />
-                  {opportunitySlug && (
-                    <CreateFolderModal
-                      isOpen={createFolderModalOpen}
-                      onClose={() => setCreateFolderModalOpen(false)}
-                      opportunitySlug={opportunitySlug}
-                      onSuccess={() => setCreateFolderModalOpen(false)}
-                    />
-                  )}
-                </VStack>
+                </Box>
+
+                {opportunitySlug && (
+                  <CreateFolderModal
+                    isOpen={createFolderModalOpen}
+                    onClose={() => setCreateFolderModalOpen(false)}
+                    opportunitySlug={opportunitySlug}
+                    onSuccess={() => setCreateFolderModalOpen(false)}
+                  />
+                )}
+                {/* </VStack> */}
 
                 <DiscoveryResultBox
                   results={searchResults}

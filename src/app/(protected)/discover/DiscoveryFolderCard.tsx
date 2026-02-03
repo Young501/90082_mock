@@ -29,13 +29,14 @@ export default function DiscoveryFolderCard({
 }: DiscoveryFolderCardProps) {
   return (
     <Box
-      w="full"
       bg="white"
       borderRadius="xl"
       p={5}
       borderWidth="1px"
       borderColor="#E4E4E7"
       h="fit-content"
+      w="100%"
+      maxW="261px"
     >
       <VStack align="stretch" gap={4}>
         {/* Header: icon + "My Folder" */}
