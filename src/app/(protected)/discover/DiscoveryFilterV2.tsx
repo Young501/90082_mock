@@ -51,7 +51,6 @@ export function DiscoveryFilterV2({
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({});
-  const hasInitializedExpanded = useRef(false);
 
   // In drawer mode, keep pending filters in local state; apply only on "Apply filter"
   const [localFilters, setLocalFilters] = useState<DiscoveryFilters>({});
@@ -74,34 +73,6 @@ export function DiscoveryFilterV2({
       [sectionId]: !prev[sectionId],
     }));
   };
-
-  // Initialize expanded
-  useEffect(() => {
-    if (!facets || hasInitializedExpanded.current) return;
-    hasInitializedExpanded.current = true;
-
-    const initial: Record<string, boolean> = {};
-    let count = 0;
-
-    // Expand first 2 sections by default
-    Object.keys(facets.facets.onboarding).forEach((key) => {
-      if (count < 2) {
-        initial[`onboarding-${key}`] = true;
-        count++;
-      }
-    });
-
-    if (count < 2) {
-      Object.keys(facets.facets.questionnaire).forEach((key) => {
-        if (count < 2) {
-          initial[`questionnaire-${key}`] = true;
-          count++;
-        }
-      });
-    }
-
-    setExpandedSections(initial);
-  }, [facets]);
 
   const handleFilterValueChange = (
     key: string,
@@ -141,6 +112,54 @@ export function DiscoveryFilterV2({
 
   const effectiveFilters = inDrawer ? localFilters : filters;
   const hasLocalFilters = inDrawer ? !isEmptyFilters(localFilters) : hasFilters;
+
+  useEffect(() => {
+    if (!facets) return;
+
+    const onboardingKeys = Object.keys(facets.facets.onboarding || {});
+    const questionnaireKeys = Object.keys(facets.facets.questionnaire || {});
+    const firstSectionId = onboardingKeys[0]
+      ? `onboarding-${onboardingKeys[0]}`
+      : questionnaireKeys[0]
+        ? `questionnaire-${questionnaireKeys[0]}`
+        : null;
+
+    setExpandedSections((prev) => {
+      const next = { ...prev };
+
+      // keep first filter expanded
+      if (firstSectionId && !next[firstSectionId]) {
+        next[firstSectionId] = true;
+      }
+
+      // Onboarding filters
+      Object.keys(effectiveFilters).forEach((key) => {
+        if (key === "questionnaire") return;
+        const value = effectiveFilters[key];
+        if (value !== undefined) {
+          const sectionId = `onboarding-${key}`;
+          if (!next[sectionId]) {
+            next[sectionId] = true;
+          }
+        }
+      });
+
+      // Questionnaire filters
+      if (effectiveFilters.questionnaire) {
+        Object.keys(effectiveFilters.questionnaire).forEach((key) => {
+          const value = effectiveFilters.questionnaire?.[key];
+          if (value !== undefined) {
+            const sectionId = `questionnaire-${key}`;
+            if (!next[sectionId]) {
+              next[sectionId] = true;
+            }
+          }
+        });
+      }
+
+      return next;
+    });
+  }, [facets, effectiveFilters]);
 
   const getFilterValue = (
     key: string,
@@ -222,27 +241,83 @@ export function DiscoveryFilterV2({
       })),
   ];
 
-  return (
-    <Box
-      bg="white"
-      borderRadius="xl"
-      border={inDrawer ? "none" : "1px solid"}
-      borderColor={inDrawer ? "transparent" : "#E4E4E7"}
-      p={{ base: 4, md: 5 }}
-      w="100%"
-      maxW={inDrawer ? "none" : "261px"}
-      h="fit-content"
-    >
-      <VStack align="stretch" gap={2}>
-        <HStack justify="space-between" align="center">
-          <HStack gap={3}>
-            <IconFilter />
-            <Text fontSize="md" fontWeight="bold" color="#27272A">
-              Filter
-            </Text>
-          </HStack>
-          {inDrawer && (
-            <Box position="relative" minH={10} mb={1}>
+  const filterContent = (
+    <VStack align="stretch" gap={0}>
+      {allFacets.map(({ key, facet, isQuestionnaire, sectionId }, index) => {
+        const isExpanded = expandedSections[sectionId] ?? false;
+
+        return (
+          <Box key={sectionId}>
+            <VStack align="stretch" gap={0}>
+              <HStack
+                pt={4}
+                pb="10px"
+                cursor="pointer"
+                onClick={() => toggleSection(sectionId)}
+                justify="space-between"
+              >
+                <VStack align="flex-start" gap={0}>
+                  <Text fontSize="sm" fontWeight="600" color="#52525B">
+                    {facet.label}
+                  </Text>
+                  {isQuestionnaire && (
+                    <Text fontSize="xs" color="#3F3F46">
+                      (questionnaire)
+                    </Text>
+                  )}
+                </VStack>
+                <Box w="16px" h="16px">
+                  {isExpanded ? (
+                    <ChevronUp size={16} color="#71717A" />
+                  ) : (
+                    <ChevronDown size={16} color="#71717A" />
+                  )}
+                </Box>
+              </HStack>
+
+              {isExpanded && (
+                <Box pb={4}>
+                  <FilterFieldV2
+                    facet={facet}
+                    value={getFilterValue(key, isQuestionnaire)}
+                    onChange={(value) =>
+                      handleFilterValueChange(key, value, isQuestionnaire)
+                    }
+                  />
+                </Box>
+              )}
+
+              {index < allFacets.length - 1 && (
+                <Separator borderColor="#E4E4E7" />
+              )}
+            </VStack>
+          </Box>
+        );
+      })}
+    </VStack>
+  );
+
+  if (inDrawer) {
+    return (
+      <Box
+        bg="white"
+        borderRadius="xl"
+        w="100%"
+        h="85vh"
+        maxH="85vh"
+        overflow="hidden"
+        display="flex"
+        flexDirection="column"
+      >
+        <Box flexShrink={0} px={{ base: 4, md: 5 }} pt={4} pb={2} bg="white">
+          <HStack justify="space-between" align="center">
+            <HStack gap={3}>
+              <IconFilter />
+              <Text fontSize="md" fontWeight="bold" color="#27272A">
+                Filter
+              </Text>
+            </HStack>
+            <Box position="relative" minH={10}>
               <IconButton
                 position="absolute"
                 top={0}
@@ -255,67 +330,29 @@ export function DiscoveryFilterV2({
                 <X size={20} color="#52525B" />
               </IconButton>
             </Box>
-          )}
-        </HStack>
+          </HStack>
+        </Box>
 
-        <VStack align="stretch" gap={0}>
-          {allFacets.map(
-            ({ key, facet, isQuestionnaire, sectionId }, index) => {
-              const isExpanded = expandedSections[sectionId] ?? false;
+        <Box
+          flex={1}
+          minH={0}
+          overflowY="auto"
+          overflowX="hidden"
+          px={{ base: 4, md: 5 }}
+        >
+          {filterContent}
+        </Box>
 
-              return (
-                <Box key={sectionId}>
-                  <VStack align="stretch" gap={0}>
-                    <HStack
-                      pt={4}
-                      pb="10px"
-                      cursor="pointer"
-                      onClick={() => toggleSection(sectionId)}
-                      justify="space-between"
-                    >
-                      <VStack align="flex-start" gap={0}>
-                        <Text fontSize="sm" fontWeight="600" color="#52525B">
-                          {facet.label}
-                        </Text>
-                        {isQuestionnaire && (
-                          <Text fontSize="xs" color="#3F3F46">
-                            (questionnaire)
-                          </Text>
-                        )}
-                      </VStack>
-                      <Box w="16px" h="16px">
-                        {isExpanded ? (
-                          <ChevronUp size={16} color="#71717A" />
-                        ) : (
-                          <ChevronDown size={16} color="#71717A" />
-                        )}
-                      </Box>
-                    </HStack>
-
-                    {isExpanded && (
-                      <Box pb={4}>
-                        <FilterFieldV2
-                          facet={facet}
-                          value={getFilterValue(key, isQuestionnaire)}
-                          onChange={(value) =>
-                            handleFilterValueChange(key, value, isQuestionnaire)
-                          }
-                        />
-                      </Box>
-                    )}
-
-                    {index < allFacets.length - 1 && (
-                      <Separator borderColor="#E4E4E7" />
-                    )}
-                  </VStack>
-                </Box>
-              );
-            }
-          )}
-        </VStack>
-
-        {inDrawer ? (
-          <VStack align="stretch" gap={2} pt={4}>
+        <Box
+          flexShrink={0}
+          px={{ base: 4, md: 5 }}
+          pt={4}
+          pb={5}
+          bg="white"
+          borderTopWidth="1px"
+          borderTopColor="#E4E4E7"
+        >
+          <VStack align="stretch" gap={2}>
             <Button
               w="100%"
               bg="#2CA9DF"
@@ -341,21 +378,47 @@ export function DiscoveryFilterV2({
               </Button>
             )}
           </VStack>
-        ) : (
-          hasFilters && (
-            <Box pt={2}>
-              <Button
-                variant="ghost"
-                w="100%"
-                onClick={onReset}
-                disabled={isLoading}
-                color="#3F3F46"
-                fontSize="14px"
-              >
-                Reset all filters
-              </Button>
-            </Box>
-          )
+        </Box>
+      </Box>
+    );
+  }
+
+  return (
+    <Box
+      bg="white"
+      borderRadius="xl"
+      border="1px solid"
+      borderColor="#E4E4E7"
+      p={{ base: 4, md: 5 }}
+      w="100%"
+      maxW="261px"
+      h="fit-content"
+    >
+      <VStack align="stretch" gap={2}>
+        <HStack justify="space-between" align="center">
+          <HStack gap={3}>
+            <IconFilter />
+            <Text fontSize="md" fontWeight="bold" color="#27272A">
+              Filter
+            </Text>
+          </HStack>
+        </HStack>
+
+        {filterContent}
+
+        {hasFilters && (
+          <Box pt={2}>
+            <Button
+              variant="ghost"
+              w="100%"
+              onClick={onReset}
+              disabled={isLoading}
+              color="#3F3F46"
+              fontSize="14px"
+            >
+              Reset all filters
+            </Button>
+          </Box>
         )}
       </VStack>
     </Box>

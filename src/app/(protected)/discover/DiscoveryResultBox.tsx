@@ -96,7 +96,9 @@ export function DiscoveryResultBox({
                 onPageChange={pagination.onPageChange}
                 onPageSizeChange={pagination.onPageSizeChange}
                 isLoading={isLoading}
-                itemLabel="organisations"
+                itemLabel={
+                  userType === "student" ? "students" : "organisations"
+                }
               />
             </Box>
           )}
@@ -123,7 +125,9 @@ export function DiscoveryResultBox({
                 onPageChange={pagination.onPageChange}
                 onPageSizeChange={pagination.onPageSizeChange}
                 isLoading={isLoading}
-                itemLabel="students"
+                itemLabel={
+                  userType === "student" ? "students" : "organisations"
+                }
               />
             </Box>
           )}

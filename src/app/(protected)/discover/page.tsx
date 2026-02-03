@@ -198,8 +198,15 @@ export default function DiscoveryPage() {
         (option: { count: number }) => option.count > 0
       )
     );
-    return hasOnboardingWithCounts || hasQuestionnaireWithCounts;
-  }, [facets]);
+
+    const hasAnyFacets = hasOnboardingWithCounts || hasQuestionnaireWithCounts;
+
+    if (hasAnyFacets || isLoadingSearch) {
+      return true;
+    }
+
+    return false;
+  }, [facets, isLoadingSearch]);
 
   console.log("facetValidationSuccess", facetValidationSuccess);
 
@@ -411,7 +418,7 @@ export default function DiscoveryPage() {
                   </Portal>
                 )}
 
-                {filterSheetOpen && facetValidationSuccess &&  (
+                {filterSheetOpen && (
                   <Portal>
                     <Box
                       position="fixed"
