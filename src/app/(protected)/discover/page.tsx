@@ -42,6 +42,7 @@ import DiscoveryFolderCard from "./DiscoveryFolderCard";
 import { CreateFolderModal } from "./CreateFolderModal";
 import type { DiscoveryFolderItem } from "./DiscoveryFolderCard";
 import { IconFolder, IconFilter, IconArrowRight } from "@/components/Icons";
+import Sidebar from "@/components/Layouts/Sidebar";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
@@ -483,6 +484,7 @@ export default function DiscoveryPage() {
                   opportunitySlug={opportunitySlug}
                 />
               </Box>
+              <Sidebar />
             </Box>
           ) : (
             /* Not enrolled user - show enrollment interface */
