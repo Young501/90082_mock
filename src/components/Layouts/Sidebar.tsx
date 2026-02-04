@@ -13,20 +13,29 @@ import {
   Home,
   Briefcase,
   MessageCircle,
-  Headphones,
+  Headset,
   User,
   ChevronDown,
   ExternalLink,
+  CircleCheckBig,
 } from "lucide-react";
+
+import {
+  IconHome,
+  IconMessage,
+  IconSupport,
+  IconUser,
+  IconOpportunity,
+} from "@/components/Icons";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import type { AccessibleOpportunity } from "@/types/opportunities";
 
-const ACTIVE_BG = "#63B3ED";
-const INACTIVE_COLOR = "gray.700";
-const QUICK_LINKS_BG = "gray.50";
+const ACTIVE_BG = "#2AA8E0";
+const INACTIVE_COLOR = "#71717A";
+// const QUICK_LINKS_BG = "gray.50";
 
 interface SidebarMenuItem {
   key: string;
@@ -47,8 +56,8 @@ interface QuickLinkItem {
 }
 
 const QUICK_LINKS: QuickLinkItem[] = [
-  { label: "University Portal", href: "https://www.unimelb.edu.au/" },
-  { label: "Career Services", href: "https://careers.unimelb.edu.au/" },
+  { label: "University Portal", href: "#" },
+  { label: "Career Services", href: "#" },
   { label: "Support Centre", href: "/contact/" },
   { label: "FAQs", href: "/contact/#faqs" },
 ];
@@ -100,7 +109,7 @@ const Sidebar = ({
       icon: <Home size={20} />,
       isCoordinator: true,
       isOrganisation: false,
-      isStudent: false,
+      isStudent: true,
       isProtected: true,
     },
     {
@@ -129,7 +138,7 @@ const Sidebar = ({
       key: "support",
       label: "Support",
       href: "/contact/",
-      icon: <Headphones size={20} />,
+      icon: <Headset size={20} />,
       isCoordinator: true,
       isOrganisation: true,
       isStudent: true,
@@ -179,24 +188,27 @@ const Sidebar = ({
     const content = (
       <HStack
         w="full"
-        py={2.5}
-        px={3}
-        borderRadius="md"
+        p={3}
+        borderRadius="xl"
         bg={active ? ACTIVE_BG : "transparent"}
         color={active ? "white" : INACTIVE_COLOR}
-        _hover={!active ? { bg: "gray.100" } : undefined}
         cursor="pointer"
         gap={3}
       >
-        <Box flexShrink={0} color={active ? "white" : "inherit"}>
+        <Box flexShrink={0} w={5} h={5} color={active ? "white" : "#71717A"}>
           {item.icon}
         </Box>
-        <Text fontSize="sm" fontWeight={active ? 600 : 500} flex={1}>
+        <Text
+          fontSize="md"
+          fontWeight={active ? 600 : 500}
+          color={active ? "white" : "#71717A"}
+          flex={1}
+        >
           {item.label}
         </Text>
         {item.badge != null && item.badge > 0 && (
           <Box
-            bg={active ? "whiteAlpha.400" : QUICK_LINKS_BG}
+            bg={active ? "white" : "#F4F4F5"}
             color={active ? "white" : ACTIVE_BG}
             fontSize="xs"
             fontWeight={600}
@@ -226,18 +238,26 @@ const Sidebar = ({
         <Link href="/discover/" key="discover" style={{ width: "100%" }}>
           <HStack
             w="full"
-            py={2.5}
-            px={3}
-            borderRadius="md"
+            p={3}
+            borderRadius="xl"
             bg={active ? ACTIVE_BG : "transparent"}
             color={active ? "white" : INACTIVE_COLOR}
-            _hover={!active ? { bg: "gray.100" } : undefined}
             gap={3}
           >
-            <Box flexShrink={0}>
+            <Box
+              flexShrink={0}
+              w={5}
+              h={5}
+              color={active ? "white" : "#71717A"}
+            >
               <Briefcase size={20} />
             </Box>
-            <Text fontSize="sm" fontWeight={active ? 600 : 500} flex={1}>
+            <Text
+              fontSize="md"
+              fontWeight={active ? 600 : 500}
+              color={active ? "white" : "#71717A"}
+              flex={1}
+            >
               My Opportunities
             </Text>
           </HStack>
@@ -254,18 +274,26 @@ const Sidebar = ({
         >
           <HStack
             w="full"
-            py={2.5}
-            px={3}
-            borderRadius="md"
+            p={3}
+            borderRadius="xl"
             bg={active ? ACTIVE_BG : "transparent"}
             color={active ? "white" : INACTIVE_COLOR}
-            _hover={!active ? { bg: "gray.100" } : undefined}
             gap={3}
           >
-            <Box flexShrink={0}>
+            <Box
+              flexShrink={0}
+              w={5}
+              h={5}
+              color={active ? "white" : "#71717A"}
+            >
               <Briefcase size={20} />
             </Box>
-            <Text fontSize="sm" fontWeight={active ? 600 : 500} flex={1}>
+            <Text
+              fontSize="md"
+              fontWeight={active ? 600 : 500}
+              color={active ? "white" : "#71717A"}
+              flex={1}
+            >
               My Opportunities
             </Text>
             <ChevronDown size={16} />
@@ -283,20 +311,28 @@ const Sidebar = ({
       >
         <Box
           w="full"
-          py={2.5}
-          px={3}
-          borderRadius="md"
+          p={3}
+          borderRadius="xl"
           bg={active ? ACTIVE_BG : "transparent"}
           color={active ? "white" : INACTIVE_COLOR}
-          _hover={!active ? { bg: "gray.100" } : undefined}
           cursor="pointer"
           onClick={onDiscoverToggle}
         >
           <HStack gap={3}>
-            <Box flexShrink={0}>
+            <Box
+              flexShrink={0}
+              w={5}
+              h={5}
+              color={active ? "white" : "#71717A"}
+            >
               <Briefcase size={20} />
             </Box>
-            <Text fontSize="sm" fontWeight={active ? 600 : 500} flex={1}>
+            <Text
+              fontSize="md"
+              fontWeight={active ? 600 : 500}
+              color={active ? "white" : "#71717A"}
+              flex={1}
+            >
               My Opportunities
             </Text>
             <Box
@@ -324,34 +360,42 @@ const Sidebar = ({
                 onClick={onDiscoverClose}
               >
                 <HStack
-                  py={1.5}
-                  px={2}
-                  borderRadius="md"
-                  _hover={{ bg: "gray.100" }}
+                  p={3}
+                  borderRadius="xl"
+                  bg={active ? "#EAF6FD" : "transparent"}
+                  color={active ? "#1679AB" : INACTIVE_COLOR}
                   gap={2}
                 >
-                  <Box
-                    fontSize="10px"
-                    px={1.5}
-                    py={0.5}
-                    borderRadius="md"
+                  {/* <Box
+                    fontSize="xs"
+                    p={2}
+                    borderRadius="xl"
                     bg={
-                      o.enrollment_status === "enrolled"
-                        ? "green.100"
-                        : "yellow.100"
+                      o.enrollment_status === "enrolled" ? "#EAF6FD" : "#FFF3CC"
                     }
                     color={
-                      o.enrollment_status === "enrolled"
-                        ? "green.800"
-                        : "yellow.800"
+                      o.enrollment_status === "enrolled" ? "#1679AB" : "#B87333"
                     }
-                    fontWeight="600"
+                    fontWeight="500"
                   >
                     {o.enrollment_status === "enrolled"
                       ? "Enrolled"
                       : "Not Enrolled"}
-                  </Box>
-                  <Text fontSize="sm">{o.title || `Opportunity ${o.id}`}</Text>
+                  </Box> */}
+                  <Text
+                    fontSize="md"
+                    fontWeight={500}
+                    color={active ? "#1679AB" : INACTIVE_COLOR}
+                    flex={1}
+                  >
+                    {o.title || `Opportunity ${o.id}`}
+                  </Text>
+                  <CircleCheckBig
+                    size={20}
+                    color={
+                      o.enrollment_status === "enrolled" ? "#1679AB" : "#B87333"
+                    }
+                  />
                 </HStack>
               </Link>
             ))}
@@ -380,46 +424,47 @@ const Sidebar = ({
       overflow="hidden"
       display="flex"
       flexDirection="column"
+      p={4}
     >
-      {/* MENU */}
-      <Box p={4} flex="1 1 auto">
+      <Box flex="1 1 auto">
         <Text
           fontSize="xs"
           fontWeight={700}
-          color="gray.500"
+          color="#52525B"
           letterSpacing="wider"
-          mb={3}
+          mb={4}
+          px={3}
         >
           MENU
         </Text>
-        <VStack align="stretch" gap={0.5}>
+        <VStack align="stretch" gap={2}>
           {menuItems.map((item) => renderMenuItem(item))}
         </VStack>
       </Box>
 
-      {/* QUICK LINKS */}
-      <Box px={4} py={4} borderTopWidth="1px" borderColor="gray.100">
+      <Box px={3} py={4} borderTopWidth="1px" borderColor="gray.100">
         <Text
           fontSize="xs"
           fontWeight={700}
-          color="gray.500"
+          color="#52525B"
           letterSpacing="wider"
           mb={3}
         >
           QUICK LINKS
         </Text>
-        <VStack align="stretch" gap={0.5}>
+        <VStack align="stretch" gap={2}>
           {QUICK_LINKS.map((q) => (
             <ChakraLink
               key={q.label}
               href={q.href}
               // isExternal={q.href.startsWith("http")}
               _hover={{ textDecoration: "none" }}
-              color={INACTIVE_COLOR}
-              fontSize="sm"
+              color="#52525B"
+              fontSize="md"
+              fontWeight={500}
             >
-              <HStack py={2} gap={3} _hover={{ color: "blue.600" }}>
-                <ExternalLink size={16} />
+              <HStack p={3} gap={3} _hover={{ color: "blue.600" }}>
+                <ExternalLink size={16} color="#71717A" />
                 <Text>{q.label}</Text>
               </HStack>
             </ChakraLink>
