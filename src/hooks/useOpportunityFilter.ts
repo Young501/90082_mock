@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuthStore } from "@/store";
-import { useDiscoveryFacets, useDiscoverySearch } from "@/services/user";
+import { useOpportunityFacets, useOpportunitySearch } from "@/services/filter";
 import {
   FacetsResponse,
-  DiscoveryRequestBody,
-  DiscoveryFilters,
-  StudentProfile,
-  OrganisationProfile,
-} from "@/types/discovery";
+  OpportunityRequestBody,
+  OpportunityFilters,
+} from "@/types/opportunity";
 
-interface UseDiscoveryV2Options {
+import type { StudentProfile, OrganisationProfile } from "@/types/discovery";
+
+interface UseOpportunityFilterOptions {
   isEnrolled?: boolean;
   isEnrollmentReady?: boolean;
 }
@@ -17,11 +17,11 @@ interface UseDiscoveryV2Options {
 // Helper function to build request body with nesting
 const buildRequestBody = (
   participantType: string,
-  filters: DiscoveryFilters,
+  filters: OpportunityFilters,
   query?: string,
   sort?: string
-): DiscoveryRequestBody => {
-  const body: DiscoveryRequestBody = {
+): OpportunityRequestBody => {
+  const body: OpportunityRequestBody = {
     participant_type: participantType,
   };
 
@@ -40,15 +40,15 @@ const buildRequestBody = (
   return body;
 };
 
-export const useDiscoveryV2 = (
+export const useOpportunityFilter = (
   opportunityId?: string,
-  opts: UseDiscoveryV2Options = {}
+  opts: UseOpportunityFilterOptions = {}
 ) => {
   const { isEnrolled, isEnrollmentReady } = opts;
   const { user } = useAuthStore();
 
   const [participantType, setParticipantType] = useState<string>("");
-  const [filters, setFilters] = useState<DiscoveryFilters>({});
+  const [filters, setFilters] = useState<OpportunityFilters>({});
   const [query, setQuery] = useState<string>("");
   const [sort, setSort] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -59,8 +59,6 @@ export const useDiscoveryV2 = (
     if (!userType) return "";
     return userType === "student" ? "organisation" : "student";
   }, [userType]);
-
-  console.log("targetParticipantType", targetParticipantType);
 
   useEffect(() => {
     if (targetParticipantType) {
@@ -79,7 +77,7 @@ export const useDiscoveryV2 = (
     data: facetsData,
     isLoading: isLoadingFacets,
     error: facetsError,
-  } = useDiscoveryFacets(
+  } = useOpportunityFacets(
     opportunityId && isEnrolled && isEnrollmentReady ? opportunityId : null,
     requestBody
   );
@@ -88,7 +86,7 @@ export const useDiscoveryV2 = (
     data: searchData,
     isLoading: isLoadingSearch,
     error: searchError,
-  } = useDiscoverySearch(
+  } = useOpportunitySearch(
     opportunityId && isEnrolled && isEnrollmentReady ? opportunityId : null,
     requestBody,
     currentPage,
@@ -96,7 +94,7 @@ export const useDiscoveryV2 = (
   );
 
   const handleFilterChange = useCallback(
-    (newFilters: DiscoveryFilters) => {
+    (newFilters: OpportunityFilters) => {
       setFilters(newFilters);
       setCurrentPage(1);
     },

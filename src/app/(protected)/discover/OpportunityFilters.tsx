@@ -10,25 +10,25 @@ import {
 } from "@chakra-ui/react";
 import { Button } from "@/components/ui/Button";
 import { FilterFieldV2 } from "@/components/fields/FilterFieldV2";
-import {
+import type {
   FacetsResponse,
-  DiscoveryFilters,
+  OpportunityFilters,
   FilterValue,
-} from "@/types/discovery";
+} from "@/types/opportunity";
 import { Filter, ChevronDown, ChevronUp, X } from "lucide-react";
 import IconFilter from "@/components/Icons/IconFilter";
 
-function isEmptyFilters(f: DiscoveryFilters): boolean {
+function isEmptyFilters(f: OpportunityFilters): boolean {
   const keys = Object.keys(f).filter((k) => k !== "questionnaire");
   const hasQuestionnaire =
     f.questionnaire && Object.keys(f.questionnaire).length > 0;
   return keys.length === 0 && !hasQuestionnaire;
 }
 
-interface DiscoveryFilterV2Props {
+interface OpportunityFiltersProps {
   facets: FacetsResponse | null;
-  filters: DiscoveryFilters;
-  onFilterChange: (filters: DiscoveryFilters) => void;
+  filters: OpportunityFilters;
+  onFilterChange: (filters: OpportunityFilters) => void;
   onReset: () => void;
   hasFilters: boolean;
   isLoading: boolean;
@@ -37,7 +37,7 @@ interface DiscoveryFilterV2Props {
   onClose?: () => void;
 }
 
-export function DiscoveryFilterV2({
+export function OpportunityFilters({
   facets,
   filters,
   onFilterChange,
@@ -47,13 +47,13 @@ export function DiscoveryFilterV2({
   inDrawer = false,
   onApply,
   onClose,
-}: DiscoveryFilterV2Props) {
+}: OpportunityFiltersProps) {
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({});
 
   // In drawer mode, keep pending filters in local state; apply only on "Apply filter"
-  const [localFilters, setLocalFilters] = useState<DiscoveryFilters>({});
+  const [localFilters, setLocalFilters] = useState<OpportunityFilters>({});
   const prevInDrawer = useRef(false);
   useEffect(() => {
     if (inDrawer && !prevInDrawer.current) {
@@ -62,7 +62,7 @@ export function DiscoveryFilterV2({
         questionnaire: filters.questionnaire
           ? { ...filters.questionnaire }
           : undefined,
-      } as DiscoveryFilters);
+      } as OpportunityFilters);
     }
     prevInDrawer.current = inDrawer;
   }, [inDrawer, filters]);

@@ -13,7 +13,7 @@ import {
   FacetOption,
   FilterValue,
   ArrayFilterValue,
-} from "@/types/discovery";
+} from "@/types/opportunity";
 
 interface FilterFieldV2Props {
   facet: FacetField;

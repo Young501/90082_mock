@@ -20,8 +20,8 @@ import {
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { LockIcon, FolderHeart, X } from "lucide-react";
-import { useDiscoveryV2 } from "@/hooks/useDiscoveryV2";
-import { DiscoveryFilterV2 } from "./DiscoveryFilterV2";
+import { useOpportunityFilter } from "@/hooks/useOpportunityFilter";
+import { OpportunityFilters } from "./OpportunityFilters";
 import { DiscoveryResultBox } from "./DiscoveryResultBox";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
@@ -178,7 +178,7 @@ export default function DiscoveryPage() {
     totalPages: totalPagesV2,
     hasFilters,
     resultsCount: resultsCountV2,
-  } = useDiscoveryV2(opportunityId?.toString() || "", {
+  } = useOpportunityFilter(opportunityId?.toString() || "", {
     isEnrolled: isEnrolled === null ? undefined : isEnrolled,
     isEnrollmentReady,
   });
@@ -311,7 +311,7 @@ export default function DiscoveryPage() {
                   gap={5}
                 >
                   {facetValidationSuccess && (
-                    <DiscoveryFilterV2
+                    <OpportunityFilters
                       facets={facets}
                       filters={filters}
                       onFilterChange={handleFilterChange}
@@ -439,7 +439,7 @@ export default function DiscoveryPage() {
                       borderRadius="10px"
                       zIndex={9999}
                     >
-                      <DiscoveryFilterV2
+                      <OpportunityFilters
                         inDrawer
                         facets={facets}
                         filters={filters}
