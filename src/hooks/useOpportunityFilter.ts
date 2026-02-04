@@ -1,15 +1,17 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuthStore } from "@/store";
-import { useDiscoveryFacets, useDiscoverySearch } from "@/services/user";
+import { useOpportunityFacets, useOpportunitySearch } from "@/services/filter";
 import {
   FacetsResponse,
-  DiscoveryRequestBody,
-  DiscoveryFilters,
-  StudentProfile,
-  OrganisationProfile,
-} from "@/types/discovery";
+  OpportunityRequestBody,
+  OpportunityFilters,
+  OpportunitySort,
+  OpportunitySortBy,
+} from "@/types/opportunity";
 
-interface UseDiscoveryV2Options {
+import type { StudentProfile, OrganisationProfile } from "@/types/discovery";
+
+interface UseOpportunityFilterOptions {
   isEnrolled?: boolean;
   isEnrollmentReady?: boolean;
 }
@@ -17,11 +19,11 @@ interface UseDiscoveryV2Options {
 // Helper function to build request body with nesting
 const buildRequestBody = (
   participantType: string,
-  filters: DiscoveryFilters,
+  filters: OpportunityFilters,
   query?: string,
-  sort?: string
-): DiscoveryRequestBody => {
-  const body: DiscoveryRequestBody = {
+  sort?: OpportunitySort
+): OpportunityRequestBody => {
+  const body: OpportunityRequestBody = {
     participant_type: participantType,
   };
 
@@ -32,6 +34,7 @@ const buildRequestBody = (
   if (sort) {
     body.sort = sort;
   }
+  // body.sort = sort ?? { by: "distance" };
 
   if (Object.keys(filters).length > 0) {
     body.filters = filters;
@@ -40,27 +43,26 @@ const buildRequestBody = (
   return body;
 };
 
-export const useDiscoveryV2 = (
+export const useOpportunityFilter = (
   opportunityId?: string,
-  opts: UseDiscoveryV2Options = {}
+  opts: UseOpportunityFilterOptions = {}
 ) => {
   const { isEnrolled, isEnrollmentReady } = opts;
   const { user } = useAuthStore();
 
   const [participantType, setParticipantType] = useState<string>("");
-  const [filters, setFilters] = useState<DiscoveryFilters>({});
+  const [filters, setFilters] = useState<OpportunityFilters>({});
   const [query, setQuery] = useState<string>("");
-  const [sort, setSort] = useState<string>("");
+  const [sort, setSort] = useState<OpportunitySort | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const [facets, setFacets] = useState<FacetsResponse | null>(null);
 
   const userType = user?.user_types?.[0];
   const targetParticipantType = useMemo(() => {
     if (!userType) return "";
     return userType === "student" ? "organisation" : "student";
   }, [userType]);
-
-  console.log("targetParticipantType", targetParticipantType);
 
   useEffect(() => {
     if (targetParticipantType) {
@@ -72,23 +74,45 @@ export const useDiscoveryV2 = (
     if (!participantType || !isEnrollmentReady || !isEnrolled) {
       return null;
     }
-    return buildRequestBody(participantType, filters, query, sort);
+    return buildRequestBody(
+      participantType,
+      filters,
+      query,
+      sort ?? undefined
+    );
   }, [participantType, filters, query, sort, isEnrollmentReady, isEnrolled]);
 
   const {
     data: facetsData,
     isLoading: isLoadingFacets,
     error: facetsError,
-  } = useDiscoveryFacets(
+  } = useOpportunityFacets(
     opportunityId && isEnrolled && isEnrollmentReady ? opportunityId : null,
     requestBody
   );
+
+  useEffect(() => {
+    if (!requestBody || !opportunityId || !isEnrolled || !isEnrollmentReady) {
+      setFacets(null);
+      return;
+    }
+
+    if (facetsData) {
+      setFacets(facetsData);
+    }
+  }, [
+    facetsData,
+    requestBody,
+    opportunityId,
+    isEnrolled,
+    isEnrollmentReady,
+  ]);
 
   const {
     data: searchData,
     isLoading: isLoadingSearch,
     error: searchError,
-  } = useDiscoverySearch(
+  } = useOpportunitySearch(
     opportunityId && isEnrolled && isEnrollmentReady ? opportunityId : null,
     requestBody,
     currentPage,
@@ -96,7 +120,7 @@ export const useDiscoveryV2 = (
   );
 
   const handleFilterChange = useCallback(
-    (newFilters: DiscoveryFilters) => {
+    (newFilters: OpportunityFilters) => {
       setFilters(newFilters);
       setCurrentPage(1);
     },
@@ -117,14 +141,17 @@ export const useDiscoveryV2 = (
     setCurrentPage(1);
   }, []);
 
-  const handleSortChange = useCallback((newSort: string) => {
-    setSort(newSort);
-  }, []);
+  const handleSortChange = useCallback(
+    (newSort: OpportunitySortBy | null) => {
+      setSort(newSort ? { by: newSort } : null);
+    },
+    []
+  );
 
   const handleReset = useCallback(() => {
     setFilters({});
     setQuery("");
-    setSort("");
+    setSort(null);
     setCurrentPage(1);
   }, []);
 
@@ -134,13 +161,11 @@ export const useDiscoveryV2 = (
     return Math.ceil(count / pageSize);
   }, [searchData?.page.count, pageSize]);
 
-  // Check if any filters are applied
   const hasFilters = useMemo(() => {
-    return Object.keys(filters).length > 0 || query !== "" || sort !== "";
-  }, [filters, query, sort]);
+    return Object.keys(filters).length > 0 || query !== "";
+  }, [filters, query]);
 
   // Extract data with fallbacks
-  const facets = facetsData || null;
   const searchResults = searchData?.results || [];
   const resultsCount = searchData?.page.count || 0;
   const hasNext = !!searchData?.page.next;

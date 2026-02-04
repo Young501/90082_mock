@@ -347,11 +347,11 @@ export const API_ENDPOINTS = {
     url: "/api/v1/subscriptions/checkout-session/",
   },
   // V2 Discovery endpoints
-  DISCOVERY_FACETS: (opportunityId: string): ApiEndpoint => ({
+  OPPORTUNITY_FACETS: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v2/opportunities/${opportunityId}/participants/facets`,
   }),
-  DISCOVERY_SEARCH: (opportunityId: string): ApiEndpoint => ({
+  OPPORTUNITY_SEARCH: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v2/opportunities/${opportunityId}/participants/search`,
   }),
