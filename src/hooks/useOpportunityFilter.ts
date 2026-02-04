@@ -54,6 +54,7 @@ export const useOpportunityFilter = (
   const [sort, setSort] = useState<OpportunitySort>({ by: "distance" });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const [facets, setFacets] = useState<FacetsResponse | null>(null);
 
   const userType = user?.user_types?.[0];
   const targetParticipantType = useMemo(() => {
@@ -82,6 +83,23 @@ export const useOpportunityFilter = (
     opportunityId && isEnrolled && isEnrollmentReady ? opportunityId : null,
     requestBody
   );
+
+  useEffect(() => {
+    if (!requestBody || !opportunityId || !isEnrolled || !isEnrollmentReady) {
+      setFacets(null);
+      return;
+    }
+
+    if (facetsData) {
+      setFacets(facetsData);
+    }
+  }, [
+    facetsData,
+    requestBody,
+    opportunityId,
+    isEnrolled,
+    isEnrollmentReady,
+  ]);
 
   const {
     data: searchData,
@@ -139,7 +157,6 @@ export const useOpportunityFilter = (
   }, [filters, query]);
 
   // Extract data with fallbacks
-  const facets = facetsData || null;
   const searchResults = searchData?.results || [];
   const resultsCount = searchData?.page.count || 0;
   const hasNext = !!searchData?.page.next;

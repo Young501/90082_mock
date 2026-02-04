@@ -13,6 +13,7 @@ import { StudentCard, PartnerCard } from "./cards";
 import { PaginationControlsV2 } from "@/components/ui/PaginationControlsV2";
 import Loader from "@/components/ui/Loader";
 import { SearchIcon } from "lucide-react";
+import { SortComponent } from "@/components/SortComponent";
 export interface DiscoveryPaginationProps {
   currentPage: number;
   totalPages: number;
@@ -73,7 +74,10 @@ export function DiscoveryResultBox({
       <VStack align="stretch" gap={3}>
         <HStack justify="space-between" align="center">
           <Heading size="md">
-            {hasSearched ? "Search Results" : "All Users"} ({count})
+            {hasSearched &&
+              (userType === "student"
+                ? "Available Students "
+                : "Available Organisations")}
           </Heading>
         </HStack>
 
@@ -109,6 +113,13 @@ export function DiscoveryResultBox({
           </Box>
         </Box>
       </VStack>
+
+      <Box>
+        <Text>
+          {count} {userType === "student" ? "students" : "organisations"} found
+        </Text>
+        <SortComponent />
+      </Box>
 
       {isLoading ? (
         <Text>Loading...</Text>
