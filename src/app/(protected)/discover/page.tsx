@@ -469,7 +469,9 @@ export default function DiscoveryPage() {
                   results={searchResults}
                   isLoading={isLoadingSearch}
                   hasSearched={hasFilters}
-                  show={searchResults.length > 0 || hasFilters}
+                  show={
+                    searchResults.length > 0 || hasFilters || isLoadingSearch
+                  }
                   userType={participantType!}
                   query={query ?? ""}
                   onQueryChange={handleQueryChange}

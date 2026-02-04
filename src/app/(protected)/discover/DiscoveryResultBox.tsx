@@ -136,7 +136,15 @@ export function DiscoveryResultBox({
       </HStack>
 
       {isLoading ? (
-        <Text>Loading...</Text>
+        <Box
+          py={8}
+          minH="120px"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Loader />
+        </Box>
       ) : count > 0 ? (
         <>
           <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={4}>
