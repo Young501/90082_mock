@@ -40,11 +40,8 @@ const InvitePage = () => {
 
   return (
     <Box
-      py={6}
-      px={{ base: 4, lg: "72px" }}
       maxW="1512px"
       mx="auto"
-      mt={{ base: "80px", lg: "126px" }}
     >
       <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
         <Text fontSize="lg" color="gray.500">
@@ -70,11 +67,8 @@ const StudentInvitePage = ({
     <>
       <PageTitle title={PAGE_TITLES.INVITE_STUDENTS} />
       <Box
-        py={6}
-        px={{ base: 0, lg: "72px" }}
         maxW="1512px"
         mx="auto"
-        mt={{ base: "80px", lg: "126px" }}
       >
         <Container maxW="1512px" display="flex" flexDirection="column" gap={8}>
           <VStack gap={6} align="stretch">
@@ -124,11 +118,8 @@ const PartnerInvitePage = ({
     <>
       <PageTitle title={PAGE_TITLES.INVITE_PARTNERS} />
       <Box
-        py={6}
-        px={{ base: 4, lg: "72px" }}
         maxW="1512px"
         mx="auto"
-        mt={{ base: "80px", lg: "126px" }}
       >
         <Container maxW="1512px" display="flex" flexDirection="column" gap={8}>
           <VStack gap={6} align="stretch">

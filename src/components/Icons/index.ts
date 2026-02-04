@@ -12,4 +12,21 @@ import IconSupport from "./IconSupport";
 import IconUser from "./IconUser";
 import IconOpportunity from "./IconOpportunity";
 import IconCheck from "./IconCheck";
-export { IconArrowRight, IconArrowLeft, IconAvatar, IconFilter, IconMoreEllipsis, IconFolder, IconPlus, IconFolderSingleTrace, IconHome, IconMessage, IconSupport, IconUser, IconOpportunity, IconCheck };
+import IconSidebarLine from "./IconSidebarLine";
+export {
+  IconArrowRight,
+  IconArrowLeft,
+  IconAvatar,
+  IconFilter,
+  IconMoreEllipsis,
+  IconFolder,
+  IconPlus,
+  IconFolderSingleTrace,
+  IconHome,
+  IconMessage,
+  IconSupport,
+  IconUser,
+  IconOpportunity,
+  IconCheck,
+  IconSidebarLine,
+};

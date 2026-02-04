@@ -26,10 +26,11 @@ import {
   IconSupport,
   IconUser,
   IconOpportunity,
+  IconSidebarLine,
 } from "@/components/Icons";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import type { AccessibleOpportunity } from "@/types/opportunities";
 
@@ -73,6 +74,7 @@ const Sidebar = ({
   unreadMessageCount = 0,
 }: SidebarProps) => {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { getUserType, accessibleOpportunities } = useAuthStore();
   const discoverDropdownRef = useRef<HTMLDivElement>(null);
   const {
@@ -232,6 +234,7 @@ const Sidebar = ({
   const renderDiscoverItem = () => {
     const active = pathname?.startsWith("/discover");
     const hasOpps = opps && opps.length > 0;
+    const activeOppSlug = searchParams?.get("opp");
 
     if (!hasOpps || opps.length === 0) {
       return (
@@ -345,59 +348,44 @@ const Sidebar = ({
           </HStack>
         </Box>
         {isDiscoverOpen && (
-          <VStack
-            align="stretch"
-            mt={1}
-            pl={3}
-            borderLeft="2px solid"
-            borderColor="gray.200"
-            gap={1}
-          >
-            {opps.map((o) => (
-              <Link
-                href={`/discover/?opp=${o.slug}`}
-                key={o.id}
-                onClick={onDiscoverClose}
-              >
-                <HStack
-                  p={3}
-                  borderRadius="xl"
-                  bg={active ? "#EAF6FD" : "transparent"}
-                  color={active ? "#1679AB" : INACTIVE_COLOR}
-                  gap={2}
+          <VStack align="stretch" mt={1} pl={3} gap={1}>
+            {opps.map((o, index) => (
+              <HStack key={o.id} align="flex-start" gap={2}>
+                <Box pt={3} pr={1}>
+                  <IconSidebarLine />
+                </Box>
+                <Link
+                  href={`/discover/?opp=${o.slug}`}
+                  style={{ width: "100%" }}
                 >
-                  {/* <Box
-                    fontSize="xs"
-                    p={2}
-                    borderRadius="xl"
-                    bg={
-                      o.enrollment_status === "enrolled" ? "#EAF6FD" : "#FFF3CC"
-                    }
-                    color={
-                      o.enrollment_status === "enrolled" ? "#1679AB" : "#B87333"
-                    }
-                    fontWeight="500"
-                  >
-                    {o.enrollment_status === "enrolled"
-                      ? "Enrolled"
-                      : "Not Enrolled"}
-                  </Box> */}
-                  <Text
-                    fontSize="md"
-                    fontWeight={500}
-                    color={active ? "#1679AB" : INACTIVE_COLOR}
-                    flex={1}
-                  >
-                    {o.title || `Opportunity ${o.id}`}
-                  </Text>
-                  <CircleCheckBig
-                    size={20}
-                    color={
-                      o.enrollment_status === "enrolled" ? "#1679AB" : "#B87333"
-                    }
-                  />
-                </HStack>
-              </Link>
+                  {/*
+                    An opportunity is considered "active" when its slug matches
+                    the `opp` query parameter while the Discover section itself is active.
+                  */}
+                  {(() => {
+                    const isActiveOpp = active && activeOppSlug === o.slug;
+                    return (
+                      <HStack
+                        p={3}
+                        borderRadius="xl"
+                        bg={isActiveOpp ? "#EAF6FD" : "transparent"}
+                        color={isActiveOpp ? "#1679AB" : INACTIVE_COLOR}
+                        gap={2}
+                      >
+                        <Text
+                          fontSize="md"
+                          fontWeight={500}
+                          color={isActiveOpp ? "#1679AB" : INACTIVE_COLOR}
+                          flex={1}
+                        >
+                          {o.title || `Opportunity ${o.id}`}
+                        </Text>
+                        <CircleCheckBig size={20} color="#1679AB" />
+                      </HStack>
+                    );
+                  })()}
+                </Link>
+              </HStack>
             ))}
           </VStack>
         )}
@@ -413,8 +401,8 @@ const Sidebar = ({
   return (
     <Box
       w="full"
-      h="full"
-      minH="100%"
+      h="fit-content"
+      // minH="100%"
       maxW="300px"
       bg="white"
       borderRadius="lg"
@@ -425,6 +413,7 @@ const Sidebar = ({
       display="flex"
       flexDirection="column"
       p={4}
+      // minH="fit-content"
     >
       <Box flex="1 1 auto">
         <Text

@@ -42,7 +42,6 @@ import DiscoveryFolderCard from "./DiscoveryFolderCard";
 import { CreateFolderModal } from "./CreateFolderModal";
 import type { DiscoveryFolderItem } from "./DiscoveryFolderCard";
 import { IconFolder, IconFilter, IconArrowRight } from "@/components/Icons";
-import Sidebar from "@/components/Layouts/Sidebar";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
@@ -236,7 +235,7 @@ export default function DiscoveryPage() {
             justify="center"
             align="center"
             minH="400px"
-            mt={{ base: "80px", lg: "126px" }}
+            // mt={{ base: "80px", lg: "126px" }}
           >
             <VStack gap={4} align="center">
               <Spinner size="xl" color="blue.500" />
@@ -259,7 +258,7 @@ export default function DiscoveryPage() {
           <PageTitle title={PAGE_TITLES.DISCOVER} />
           <Box
             px={{ base: 4, md: 8, lg: 16 }}
-            mt={{ base: "80px", lg: "126px" }}
+            // mt={{ base: "80px", lg: "126px" }}
           >
             <Alert.Root status="error" mb={8}>
               <Alert.Indicator />
@@ -283,9 +282,9 @@ export default function DiscoveryPage() {
         <PageTitle title={PAGE_TITLES.DISCOVER} />
         <VStack
           // flex="1"
-          px={{ base: 4, md: 8, lg: 16 }}
-          mt={{ base: "80px", lg: "126px" }}
-          py={{ base: 8, lg: 12 }}
+          // px={{ base: 4, md: 8, lg: 16 }}
+          // mt={{ base: "80px", lg: "126px" }}
+          // py={{ base: 8, lg: 12 }}
           w="100%"
           // maxW="100vw"
           overflow="hidden"
@@ -484,7 +483,6 @@ export default function DiscoveryPage() {
                   opportunitySlug={opportunitySlug}
                 />
               </Box>
-              <Sidebar />
             </Box>
           ) : (
             /* Not enrolled user - show enrollment interface */
@@ -569,7 +567,6 @@ export default function DiscoveryPage() {
         p={{ base: 4, md: 6 }}
         maxW="1280px"
         mx="auto"
-        mt={{ base: "80px", lg: "126px" }}
         w="100%"
         overflow="hidden"
       >

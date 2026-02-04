@@ -2,16 +2,17 @@
 
 import { ReactNode, Suspense } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { Container, Spinner, Box } from "@chakra-ui/react";
+import { Container, Spinner, Box, useBreakpointValue } from "@chakra-ui/react";
 import Header from "@/components/Layouts/Header";
 import Footer from "@/components/Layouts/Footer";
-import Sidebar from "@/components/Layouts/Sidebar";
 import { isInTrialPeriod } from "@/utils/subscriptionPermissions";
 import { useSearchParams } from "next/navigation";
+import Sidebar from "@/components/Layouts/Sidebar";
 
 function LayoutContent({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
   const opportunitySlug = searchParams.get("opp");
+  const isMobile = useBreakpointValue({ base: true, lg: false });
   return (
     <ProtectedRoute>
       <div
@@ -28,29 +29,31 @@ function LayoutContent({ children }: { children: ReactNode }) {
           display="flex"
           flex={1}
           w="100%"
-          maxW="1512px"
+          maxW="1440px"
           mx="auto"
-          alignSelf="stretch"
+          mt={`${isMobile ? "80px" : "126px"}`}
+          // alignSelf="stretch"
           gap={6}
-          px={{ base: 4, lg: 6 }}
-          py={{ base: 4, lg: 6 }}
-          mt={{
-            base: "20px",
-            lg: opportunitySlug
-              ? isInTrialPeriod(opportunitySlug)
-                ? "40px"
-                : "0px"
-              : "0px",
-          }}
+          py={{ base: 4, lg: 10 }}
+          px={{ base: 6, lg: 14 }}
+          // px={{ base: 4, lg: 6 }}
+          // py={{ base: 4, lg: 6 }}
+          // mt={{
+          //   base: "20px",
+          //   lg: opportunitySlug
+          //     ? isInTrialPeriod(opportunitySlug)
+          //       ? "40px"
+          //       : "0px"
+          //     : "0px",
+          // }}
         >
-          {/* <Box
+          <Box
             display={{ base: "none", md: "block" }}
             flexShrink={0}
-            w="280px"
-            alignSelf="stretch"
+            w="300px"
           >
             <Sidebar isProtected={true} />
-          </Box> */}
+          </Box>
           <Container maxW="100%" px={0} flex={1} style={{ minWidth: 0 }}>
             {children}
           </Container>
