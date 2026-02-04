@@ -162,6 +162,7 @@ export default function DiscoveryPage() {
   const {
     participantType,
     filters,
+    query,
     facets,
     searchResults,
     currentPage,
@@ -174,6 +175,7 @@ export default function DiscoveryPage() {
     handleFilterChange,
     handlePageChange: handlePageChangeV2,
     handlePageSizeChange: handlePageSizeChangeV2,
+    handleQueryChange,
     handleReset: handleResetV2,
     totalPages: totalPagesV2,
     hasFilters,
@@ -469,6 +471,8 @@ export default function DiscoveryPage() {
                   hasSearched={hasFilters}
                   show={searchResults.length > 0 || hasFilters}
                   userType={participantType!}
+                  query={query ?? ""}
+                  onQueryChange={handleQueryChange}
                   pagination={{
                     currentPage,
                     totalPages: totalPagesV2,

@@ -29,6 +29,12 @@ export interface ArrayFilterValue {
 
 export type FilterValue = string[] | ArrayFilterValue | boolean | number;
 
+export type OpportunitySortBy = "distance" | "best_match";
+
+export interface OpportunitySort {
+  by: OpportunitySortBy;
+}
+
 export type OpportunityFilters = Record<string, FilterValue | undefined> & {
   questionnaire?: Record<string, FilterValue | undefined>;
 };
@@ -36,7 +42,7 @@ export type OpportunityFilters = Record<string, FilterValue | undefined> & {
 export interface OpportunityRequestBody {
   participant_type: string;
   query?: string;
-  sort?: string;
+  sort?: OpportunitySort;
   filters?: OpportunityFilters;
 }
 

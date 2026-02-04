@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   VStack,
@@ -6,11 +6,13 @@ import {
   Heading,
   Text,
   SimpleGrid,
+  Input,
 } from "@chakra-ui/react";
 import { UserProfile } from "@/types/shared";
 import { StudentCard, PartnerCard } from "./cards";
 import { PaginationControlsV2 } from "@/components/ui/PaginationControlsV2";
 import Loader from "@/components/ui/Loader";
+import { SearchIcon } from "lucide-react";
 export interface DiscoveryPaginationProps {
   currentPage: number;
   totalPages: number;
@@ -30,8 +32,9 @@ interface DiscoveryResultBoxProps {
   userType: string;
   opportunityId?: string;
   opportunitySlug?: string;
-  /** Optional; when omitted, pagination block is not rendered */
   pagination?: DiscoveryPaginationProps;
+  query?: string;
+  onQueryChange?: (query: string) => void;
 }
 
 export function DiscoveryResultBox({
@@ -43,18 +46,69 @@ export function DiscoveryResultBox({
   pagination,
   opportunityId,
   opportunitySlug,
+  query,
+  onQueryChange,
 }: DiscoveryResultBoxProps) {
   if (!show) return null;
 
   const count = pagination?.count ?? 0;
 
+  const [searchInput, setSearchInput] = useState(query ?? "");
+
+  useEffect(() => {
+    setSearchInput(query ?? "");
+  }, [query]);
+
+  // Debounce query changes
+  useEffect(() => {
+    if (!onQueryChange) return;
+    const handle = setTimeout(() => {
+      onQueryChange(searchInput);
+    }, 400);
+    return () => clearTimeout(handle);
+  }, [searchInput, onQueryChange]);
+
   return (
     <VStack align="stretch" gap={6} w="100%">
-      <HStack justify="space-between" align="center">
-        <Heading size="md">
-          {hasSearched ? "Search Results" : "All Users"} ({count})
-        </Heading>
-      </HStack>
+      <VStack align="stretch" gap={3}>
+        <HStack justify="space-between" align="center">
+          <Heading size="md">
+            {hasSearched ? "Search Results" : "All Users"} ({count})
+          </Heading>
+        </HStack>
+
+        <Box w="100%" maxW="679px">
+          <Box
+            as="label"
+            w="100%"
+            borderRadius="xl"
+            borderWidth="1px"
+            borderColor="#D4D4D8"
+            bg="white"
+            px={4}
+            h="40px"
+            py={2.5}
+            display="flex"
+            alignItems="center"
+            gap={2}
+          >
+            <SearchIcon size={16} color="#A1A1AA" />
+            <Input
+              border="none"
+              outline="none"
+              background="transparent"
+              fontSize="sm"
+              cursor="pointer"
+              px={0}
+              py={0}
+              color="#A1A1AA"
+              placeholder="Search by name, skills, etc..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+          </Box>
+        </Box>
+      </VStack>
 
       {isLoading ? (
         <Text>Loading...</Text>

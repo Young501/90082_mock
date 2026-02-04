@@ -5,6 +5,8 @@ import {
   FacetsResponse,
   OpportunityRequestBody,
   OpportunityFilters,
+  OpportunitySort,
+  OpportunitySortBy,
 } from "@/types/opportunity";
 
 import type { StudentProfile, OrganisationProfile } from "@/types/discovery";
@@ -19,7 +21,7 @@ const buildRequestBody = (
   participantType: string,
   filters: OpportunityFilters,
   query?: string,
-  sort?: string
+  sort?: OpportunitySort
 ): OpportunityRequestBody => {
   const body: OpportunityRequestBody = {
     participant_type: participantType,
@@ -29,9 +31,8 @@ const buildRequestBody = (
     body.query = query;
   }
 
-  if (sort) {
-    body.sort = sort;
-  }
+  // Always send a sort; default to distance
+  body.sort = sort ?? { by: "distance" };
 
   if (Object.keys(filters).length > 0) {
     body.filters = filters;
@@ -50,7 +51,7 @@ export const useOpportunityFilter = (
   const [participantType, setParticipantType] = useState<string>("");
   const [filters, setFilters] = useState<OpportunityFilters>({});
   const [query, setQuery] = useState<string>("");
-  const [sort, setSort] = useState<string>("");
+  const [sort, setSort] = useState<OpportunitySort>({ by: "distance" });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
@@ -115,14 +116,14 @@ export const useOpportunityFilter = (
     setCurrentPage(1);
   }, []);
 
-  const handleSortChange = useCallback((newSort: string) => {
-    setSort(newSort);
+  const handleSortChange = useCallback((newSort: OpportunitySortBy) => {
+    setSort({ by: newSort });
   }, []);
 
   const handleReset = useCallback(() => {
     setFilters({});
     setQuery("");
-    setSort("");
+    setSort({ by: "distance" });
     setCurrentPage(1);
   }, []);
 
@@ -132,10 +133,10 @@ export const useOpportunityFilter = (
     return Math.ceil(count / pageSize);
   }, [searchData?.page.count, pageSize]);
 
-  // Check if any filters are applied
   const hasFilters = useMemo(() => {
-    return Object.keys(filters).length > 0 || query !== "" || sort !== "";
-  }, [filters, query, sort]);
+    // Sort is always applied set to distance)
+    return Object.keys(filters).length > 0 || query !== "";
+  }, [filters, query]);
 
   // Extract data with fallbacks
   const facets = facetsData || null;

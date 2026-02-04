@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Text,
@@ -210,7 +210,30 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
   };
 
   const renderRangeFilter = () => {
-    const currentValue = typeof value === "number" ? value : 50;
+    const [rangeValue, setRangeValue] = useState<number>(
+      typeof value === "number" ? value : 50
+    );
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+      if (typeof value === "number") {
+        setRangeValue(value);
+      } else if (value === undefined) {
+        setRangeValue(50);
+      }
+    }, [value]);
+
+    const handleRangeChange = (newValue: number) => {
+      setRangeValue(newValue);
+
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+
+      debounceRef.current = setTimeout(() => {
+        onChange(newValue);
+      }, 500);
+    };
 
     return (
       <VStack align="stretch" gap={3} w="100%">
@@ -219,14 +242,14 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
             Distance:
           </Text>
           <Text fontSize="16px" fontWeight="600" color="#3F3F46">
-            {currentValue} km
+            {rangeValue} km
           </Text>
         </HStack>
         <Slider.Root
-          value={[currentValue]}
+          value={[rangeValue]}
           onValueChange={(details) => {
             const newValue = details.value[0];
-            onChange(newValue);
+            handleRangeChange(newValue);
           }}
           min={1}
           max={200}
