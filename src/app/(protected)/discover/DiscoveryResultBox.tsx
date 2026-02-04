@@ -14,6 +14,7 @@ import { PaginationControlsV2 } from "@/components/ui/PaginationControlsV2";
 import Loader from "@/components/ui/Loader";
 import { SearchIcon } from "lucide-react";
 import { SortComponent } from "@/components/SortComponent";
+import type { OpportunitySortBy } from "@/types/opportunity";
 export interface DiscoveryPaginationProps {
   currentPage: number;
   totalPages: number;
@@ -36,6 +37,8 @@ interface DiscoveryResultBoxProps {
   pagination?: DiscoveryPaginationProps;
   query?: string;
   onQueryChange?: (query: string) => void;
+  sortBy?: OpportunitySortBy | null;
+  onSortChange?: (value: OpportunitySortBy | null) => void;
 }
 
 export function DiscoveryResultBox({
@@ -49,6 +52,8 @@ export function DiscoveryResultBox({
   opportunitySlug,
   query,
   onQueryChange,
+  sortBy,
+  onSortChange,
 }: DiscoveryResultBoxProps) {
   if (!show) return null;
 
@@ -74,10 +79,9 @@ export function DiscoveryResultBox({
       <VStack align="stretch" gap={3}>
         <HStack justify="space-between" align="center">
           <Heading size="md">
-            {hasSearched &&
-              (userType === "student"
-                ? "Available Students "
-                : "Available Organisations")}
+            {userType === "student"
+              ? "Available Students "
+              : "Available Organisations"}
           </Heading>
         </HStack>
 
@@ -114,12 +118,22 @@ export function DiscoveryResultBox({
         </Box>
       </VStack>
 
-      <Box>
-        <Text>
+      <HStack justify="space-between" align="center">
+        <Text fontSize="sm" color="#52525B">
           {count} {userType === "student" ? "students" : "organisations"} found
         </Text>
-        <SortComponent />
-      </Box>
+        {onSortChange && (
+          <SortComponent
+            triggerLabel="Sort by"
+            value={sortBy ?? null}
+            onChange={onSortChange}
+            options={[
+              { label: "Distance", value: "distance" },
+              { label: "Best Match", value: "best_match" },
+            ]}
+          />
+        )}
+      </HStack>
 
       {isLoading ? (
         <Text>Loading...</Text>

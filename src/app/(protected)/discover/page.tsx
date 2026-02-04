@@ -163,6 +163,7 @@ export default function DiscoveryPage() {
     participantType,
     filters,
     query,
+    sort,
     facets,
     searchResults,
     currentPage,
@@ -176,6 +177,7 @@ export default function DiscoveryPage() {
     handlePageChange: handlePageChangeV2,
     handlePageSizeChange: handlePageSizeChangeV2,
     handleQueryChange,
+    handleSortChange,
     handleReset: handleResetV2,
     totalPages: totalPagesV2,
     hasFilters,
@@ -283,12 +285,10 @@ export default function DiscoveryPage() {
       >
         <PageTitle title={PAGE_TITLES.DISCOVER} />
         <VStack
-          // flex="1"
           px={{ base: 4, md: 8, lg: 16 }}
           mt={{ base: "80px", lg: "126px" }}
           py={{ base: 8, lg: 12 }}
           w="100%"
-          // maxW="100vw"
           overflow="hidden"
           gap={{ base: 5, lg: 6 }}
         >
@@ -473,6 +473,8 @@ export default function DiscoveryPage() {
                   userType={participantType!}
                   query={query ?? ""}
                   onQueryChange={handleQueryChange}
+                  sortBy={sort?.by ?? undefined}
+                  onSortChange={handleSortChange}
                   pagination={{
                     currentPage,
                     totalPages: totalPagesV2,

@@ -51,7 +51,6 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
                   onChange(newValues.length > 0 ? newValues : undefined);
                 }}
                 size="sm"
-                // variant="outline"
                 colorPalette="#2AA8E0"
               >
                 <Checkbox.HiddenInput />

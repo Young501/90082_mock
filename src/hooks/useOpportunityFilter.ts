@@ -31,8 +31,10 @@ const buildRequestBody = (
     body.query = query;
   }
 
-  // Always send a sort; default to distance
-  body.sort = sort ?? { by: "distance" };
+  if (sort) {
+    body.sort = sort;
+  }
+  // body.sort = sort ?? { by: "distance" };
 
   if (Object.keys(filters).length > 0) {
     body.filters = filters;
@@ -51,7 +53,7 @@ export const useOpportunityFilter = (
   const [participantType, setParticipantType] = useState<string>("");
   const [filters, setFilters] = useState<OpportunityFilters>({});
   const [query, setQuery] = useState<string>("");
-  const [sort, setSort] = useState<OpportunitySort>({ by: "distance" });
+  const [sort, setSort] = useState<OpportunitySort | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [facets, setFacets] = useState<FacetsResponse | null>(null);
@@ -72,7 +74,12 @@ export const useOpportunityFilter = (
     if (!participantType || !isEnrollmentReady || !isEnrolled) {
       return null;
     }
-    return buildRequestBody(participantType, filters, query, sort);
+    return buildRequestBody(
+      participantType,
+      filters,
+      query,
+      sort ?? undefined
+    );
   }, [participantType, filters, query, sort, isEnrollmentReady, isEnrolled]);
 
   const {
@@ -134,14 +141,17 @@ export const useOpportunityFilter = (
     setCurrentPage(1);
   }, []);
 
-  const handleSortChange = useCallback((newSort: OpportunitySortBy) => {
-    setSort({ by: newSort });
-  }, []);
+  const handleSortChange = useCallback(
+    (newSort: OpportunitySortBy | null) => {
+      setSort(newSort ? { by: newSort } : null);
+    },
+    []
+  );
 
   const handleReset = useCallback(() => {
     setFilters({});
     setQuery("");
-    setSort({ by: "distance" });
+    setSort(null);
     setCurrentPage(1);
   }, []);
 
@@ -152,7 +162,6 @@ export const useOpportunityFilter = (
   }, [searchData?.page.count, pageSize]);
 
   const hasFilters = useMemo(() => {
-    // Sort is always applied set to distance)
     return Object.keys(filters).length > 0 || query !== "";
   }, [filters, query]);
 
