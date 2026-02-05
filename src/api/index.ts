@@ -157,11 +157,6 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: "/api/v1/opportunities/accepted/",
   },
-  USERS_SEARCH: {
-    method: "GET",
-    url: "/api/v1/users/search/",
-    auth: true,
-  },
   PROFILE_PICTURE_UPLOAD: {
     method: "POST",
     url: "/api/v1/user/profile-picture",
@@ -346,6 +341,15 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: "/api/v1/subscriptions/checkout-session/",
   },
+  // V2 Discovery endpoints
+  OPPORTUNITY_FACETS: (opportunityId: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v2/opportunities/${opportunityId}/participants/facets`,
+  }),
+  OPPORTUNITY_SEARCH: (opportunityId: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v2/opportunities/${opportunityId}/participants/search`,
+  }),
 };
 
 /*********

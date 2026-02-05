@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   VStack,
@@ -6,55 +6,145 @@ import {
   Heading,
   Text,
   SimpleGrid,
+  Input,
 } from "@chakra-ui/react";
 import { UserProfile } from "@/types/shared";
 import { StudentCard, PartnerCard } from "./cards";
-import { PaginationControls } from "@/components/ui/PaginationControls";
+import { PaginationControlsV2 } from "@/components/ui/PaginationControlsV2";
 import Loader from "@/components/ui/Loader";
+import { SearchIcon } from "lucide-react";
+import { SortComponent } from "@/components/SortComponent";
+import type { OpportunitySortBy } from "@/types/opportunity";
+export interface DiscoveryPaginationProps {
+  currentPage: number;
+  totalPages: number;
+  pageSize: number;
+  count: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+  onPageChange: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
+}
 
 interface DiscoveryResultBoxProps {
   results: UserProfile[];
-  count: number;
   isLoading: boolean;
   hasSearched: boolean;
   show: boolean;
   userType: string;
-  currentPage: number;
-  totalPages: number;
-  pageSize: number;
-  onPageChange: (page: number) => void;
-  onPageSizeChange: (pageSize: number) => void;
   opportunityId?: string;
   opportunitySlug?: string;
+  pagination?: DiscoveryPaginationProps;
+  query?: string;
+  onQueryChange?: (query: string) => void;
+  sortBy?: OpportunitySortBy | null;
+  onSortChange?: (value: OpportunitySortBy | null) => void;
 }
 
 export function DiscoveryResultBox({
   results,
-  count,
   isLoading,
   hasSearched,
   show,
   userType,
-  currentPage,
-  totalPages,
-  pageSize,
-  onPageChange,
-  onPageSizeChange,
+  pagination,
   opportunityId,
   opportunitySlug,
+  query,
+  onQueryChange,
+  sortBy,
+  onSortChange,
 }: DiscoveryResultBoxProps) {
   if (!show) return null;
 
+  const count = pagination?.count ?? 0;
+
+  const [searchInput, setSearchInput] = useState(query ?? "");
+
+  useEffect(() => {
+    setSearchInput(query ?? "");
+  }, [query]);
+
+  // Debounce query changes
+  useEffect(() => {
+    if (!onQueryChange) return;
+    const handle = setTimeout(() => {
+      onQueryChange(searchInput);
+    }, 400);
+    return () => clearTimeout(handle);
+  }, [searchInput, onQueryChange]);
+
   return (
-    <VStack align="stretch" gap={6}>
+    <VStack align="stretch" gap={6} w="100%">
+      <VStack align="stretch" gap={3}>
+        <HStack justify="space-between" align="center">
+          <Heading size="md">
+            {userType === "student"
+              ? "Available Students "
+              : "Available Organisations"}
+          </Heading>
+        </HStack>
+
+        <Box w="100%" maxW="679px">
+          <Box
+            as="label"
+            w="100%"
+            borderRadius="xl"
+            borderWidth="1px"
+            borderColor="#D4D4D8"
+            bg="white"
+            px={4}
+            h="40px"
+            py={2.5}
+            display="flex"
+            alignItems="center"
+            gap={2}
+          >
+            <SearchIcon size={16} color="#A1A1AA" />
+            <Input
+              border="none"
+              outline="none"
+              background="transparent"
+              fontSize="sm"
+              cursor="pointer"
+              px={0}
+              py={0}
+              color="#A1A1AA"
+              placeholder="Search by name, skills, etc..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+          </Box>
+        </Box>
+      </VStack>
+
       <HStack justify="space-between" align="center">
-        <Heading size="md">
-          {hasSearched ? "Search Results" : "All Users"} ({count})
-        </Heading>
+        <Text fontSize="sm" color="#52525B">
+          {count} {userType === "student" ? "students" : "organisations"} found
+        </Text>
+        {onSortChange && (
+          <SortComponent
+            triggerLabel="Sort by"
+            value={sortBy ?? null}
+            onChange={onSortChange}
+            options={[
+              { label: "Distance", value: "distance" },
+              // { label: "Best Match", value: "best_match" },
+            ]}
+          />
+        )}
       </HStack>
 
       {isLoading ? (
-        <Loader type="component" />
+        <Box
+          py={8}
+          minH="120px"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Loader />
+        </Box>
       ) : count > 0 ? (
         <>
           <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={4}>
@@ -81,17 +171,24 @@ export function DiscoveryResultBox({
             })}
           </SimpleGrid>
 
-          <Box mt={6}>
-            <PaginationControls
-              currentPage={currentPage}
-              totalPages={Math.max(totalPages, 1)}
-              pageSize={pageSize}
-              totalCount={count}
-              onPageChange={onPageChange}
-              onPageSizeChange={onPageSizeChange}
-              isLoading={isLoading}
-            />
-          </Box>
+          {pagination && (
+            <Box mt={6}>
+              <PaginationControlsV2
+                currentPage={pagination.currentPage}
+                totalPages={Math.max(pagination.totalPages, 1)}
+                pageSize={pagination.pageSize}
+                totalCount={pagination.count}
+                hasNext={pagination.hasNext}
+                hasPrevious={pagination.hasPrevious}
+                onPageChange={pagination.onPageChange}
+                onPageSizeChange={pagination.onPageSizeChange}
+                isLoading={isLoading}
+                itemLabel={
+                  userType === "student" ? "students" : "organisations"
+                }
+              />
+            </Box>
+          )}
         </>
       ) : (
         <>
@@ -103,17 +200,24 @@ export function DiscoveryResultBox({
             </Text>
           </Box>
 
-          <Box mt={6}>
-            <PaginationControls
-              currentPage={1}
-              totalPages={1}
-              pageSize={pageSize}
-              totalCount={0}
-              onPageChange={onPageChange}
-              onPageSizeChange={onPageSizeChange}
-              isLoading={isLoading}
-            />
-          </Box>
+          {pagination && (
+            <Box mt={6}>
+              <PaginationControlsV2
+                currentPage={1}
+                totalPages={1}
+                pageSize={pagination.pageSize}
+                totalCount={0}
+                hasNext={pagination.hasNext}
+                hasPrevious={pagination.hasPrevious}
+                onPageChange={pagination.onPageChange}
+                onPageSizeChange={pagination.onPageSizeChange}
+                isLoading={isLoading}
+                itemLabel={
+                  userType === "student" ? "students" : "organisations"
+                }
+              />
+            </Box>
+          )}
         </>
       )}
     </VStack>
