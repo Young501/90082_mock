@@ -157,11 +157,6 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: "/api/v1/opportunities/accepted/",
   },
-  USERS_SEARCH: {
-    method: "GET",
-    url: "/api/v1/users/search/",
-    auth: true,
-  },
   PROFILE_PICTURE_UPLOAD: {
     method: "POST",
     url: "/api/v1/user/profile-picture",

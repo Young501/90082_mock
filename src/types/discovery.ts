@@ -92,13 +92,3 @@ export interface OrganisationProfile {
     role?: string;
   }[];
 }
-
-export interface UserSearchParams {
-  user_type: string;
-  opportunity_id: string;
-  sort_by?: string;
-  page?: number;
-  page_size?: number;
-  [key: string]: any;
-}
-
