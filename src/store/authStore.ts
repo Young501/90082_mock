@@ -152,7 +152,7 @@ export const useAuthStore = create<AuthState>()(
 
       getUserProfilePictureUrl: () => {
         return (
-          get().userProfilePictureUrl || get().user?.profile_picture_url || null
+          get().userProfilePictureUrl || get().user?.profile_picture_url || get().userProfile?.profile_picture_url || null
         );
       },
 
