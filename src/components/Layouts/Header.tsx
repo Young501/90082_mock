@@ -6,6 +6,7 @@ import {
   useBreakpointValue,
   Button,
   Drawer,
+  Popover,
 } from "@chakra-ui/react";
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -15,6 +16,7 @@ import {
   ChevronDown,
   Menu,
   X,
+  LogOut,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -55,44 +57,14 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     getUserProfilePictureUrl,
   } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isDiscoverDropdownOpen, setIsDiscoverDropdownOpen] = useState(false);
-  const discoverDropdownRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
   const userType = getUserType();
-  const isCoordinator = userType === "coordinator";
-  const isOrganisation = userType === "organisation";
-  const isStudent = userType === "student";
-  const accessibleOpps = accessibleOpportunities;
-
-  const firstName = getUserFirstName?.() ?? "";
+  
   const profilePictureUrl = getUserProfilePictureUrl?.() ?? null;
 
-  const isOnInviteOrOnboardingPage =
-    pathname?.includes("/invite") ||
-    pathname?.includes("/onboarding") ||
-    pathname?.includes("/verify-email");
-
-  // // Close dropdown when clicking outside
-  // useEffect(() => {
-  //   const handleClickOutside = (event: MouseEvent) => {
-  //     if (
-  //       discoverDropdownRef.current &&
-  //       !discoverDropdownRef.current.contains(event.target as Node)
-  //     ) {
-  //       setIsDiscoverDropdownOpen(false);
-  //     }
-  //   };
-
-  //   if (isDiscoverDropdownOpen) {
-  //     document.addEventListener("mousedown", handleClickOutside);
-  //   }
-
-  //   return () => {
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   };
-  // }, [isDiscoverDropdownOpen]);
+ 
 
   const getSignupLink = () => {
     const inviteToken = searchParams.get("invite_token");
@@ -139,77 +111,6 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     },
   ];
 
-  const getMenuItems = () => {
-    if (!isProtected) {
-      const publicItems = MENU_ITEMS.filter((item) => !item.isProtected);
-      if (isOnInviteOrOnboardingPage) {
-        return publicItems.filter(
-          (item) => item.label !== "LOGIN" && item.label !== "SIGN UP"
-        );
-      }
-      return publicItems;
-    }
-    // if (isCoordinator) {
-    //   return MENU_ITEMS.filter(
-    //     (item) => item.isCoordinator && item.isProtected
-    //   );
-    // }
-    // if (isOrganisation) {
-    //   return MENU_ITEMS.filter(
-    //     (item) => item.isOrganisation && item.isProtected
-    //   );
-    // }
-    // if (isStudent) {
-    //   return MENU_ITEMS.filter((item) => item.isStudent && item.isProtected);
-    // }
-    // return [];
-  };
-
-  const renderMenuItem = (item: MenuItem, isMobile = false) => {
-    if (item.label === "LOGOUT") {
-      return (
-        <Button
-          key={item.label}
-          bg="transparent"
-          p={0}
-          w={isMobile ? "100%" : undefined}
-          onClick={handleUserLogout}
-        >
-          <Box py={isMobile ? 4 : 0}>
-            <Image
-              src="/assets/LinkIcon.svg"
-              alt="logout"
-              width={isMobile ? 24 : 30}
-              height={isMobile ? 24 : 30}
-            />
-          </Box>
-        </Button>
-      );
-    }
-    if (item.label === "CONTACT") {
-      return (
-        <Link href={item.href} key={item.label}>
-          <Box py={isMobile ? 4 : 0}>
-            <HelpCircle size={isMobile ? 24 : 30} color="white" />
-          </Box>
-        </Link>
-      );
-    }
-
-    return (
-      <Link href={item.href} key={item.label}>
-        <Text
-          py={isMobile ? 4 : 0}
-          fontSize={isMobile ? "16px" : "18px"}
-          fontWeight={isMobile ? "600" : "700"}
-          color={isProtected ? "white" : "black"}
-        >
-          {item.label}
-        </Text>
-      </Link>
-    );
-  };
-
   const handleUserLogout = async () => {
     await handleLogout();
     logout();
@@ -221,26 +122,6 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const Overlay = () => (
-    <Box
-      position="fixed"
-      top={0}
-      left={0}
-      right={0}
-      bottom={0}
-      bg="blackAlpha.500"
-      zIndex={1001}
-      opacity={isMobileMenuOpen ? 1 : 0}
-      visibility={isMobileMenuOpen ? "visible" : "hidden"}
-      transition="all 0.3s ease"
-      onClick={(e) => {
-        // Only close menu if clicking directly on overlay, not on child elements
-        if (e.target === e.currentTarget) {
-          setIsMobileMenuOpen(false);
-        }
-      }}
-    />
-  );
 
   const SubscriptionBanner: React.FC<{
     isInMobileMenu?: boolean;
@@ -306,79 +187,112 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               maxHeight={{ base: "58px", lg: "76px" }}
               py={3}
             >
-              <Link href="/">
-                <Box
-                  pos="relative"
-                  w={isMobile ? "164px" : "260px"}
-                  h={isMobile ? "40px" : "70px"}
-                >
-                  <Image
-                    alt="Uniconnected"
-                    src="/assets/Logoone.png"
-                    fill
-                    style={{ objectFit: "contain" }}
-                    priority
-                  />
-                </Box>
-              </Link>
-
-              {!isMobile ? (
-                <HStack gap={4}>
-                  <Box
-                    w={10}
-                    h={10}
-                    borderRadius="full"
-                    bg="#FAFAFA"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    gap={2}
+              <Box display="flex" alignItems="center" gap={1}>
+                {isMobile && (
+                  <Button
+                    aria-label="Open menu"
+                    variant="ghost"
+                    color="black"
+                    onClick={handleMenuToggle}
+                    px={2}
+                    minW="auto"
+                    height="auto"
                   >
-                    <Bell size={18} color="#18181B" />
+                    <Menu width={20} height={20} color="#1679AB" />
+                  </Button>
+                )}
+                <Link href="/">
+                  <Box
+                    pos="relative"
+                    w={{ base: "133px", md: "216px", lg: "260px" }}
+                    h={{ base: "32px", md: "52px", lg: "64px" }}
+                  >
+                    <Image
+                      alt="Uniconnected"
+                      src="/assets/Logoone.png"
+                      fill
+                      style={{ objectFit: "contain" }}
+                      priority
+                    />
                   </Box>
-                  <Box
-                    overflow="hidden"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    gap={1}
-                  >
+                </Link>
+              </Box>
+              <HStack gap={4}>
+                <Box
+                  w={10}
+                  h={10}
+                  borderRadius="full"
+                  bg="#FAFAFA"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  gap={2}
+                >
+                  <Bell size={18} color="#18181B" />
+                </Box>
+                <Popover.Root positioning={{ placement: "bottom-end" }}>
+                  <Popover.Trigger>
                     <Box
-                      w={8}
-                      h={8}
-                      borderRadius="full"
-                      overflow="hidden"
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
+                      gap={2}
+                      px={1}
+                      py={1}
+                      borderRadius="full"
+                      cursor="pointer"
+                      _hover={{ bg: "#F4F4F5" }}
                     >
-                      {profilePictureUrl ? (
-                        <Image
-                          src={profilePictureUrl}
-                          alt="Profile picture"
-                          width={32}
-                          height={32}
-                        />
-                      ) : (
-                        <UserRound size={20} color="#18181B" />
-                      )}
+                      <Box
+                        w={8}
+                        h={8}
+                        borderRadius="full"
+                        overflow="hidden"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        {profilePictureUrl ? (
+                          <Image
+                            src={profilePictureUrl}
+                            alt="Profile picture"
+                            width={32}
+                            height={32}
+                            style={{ objectFit: "cover" }}
+                          />
+                        ) : (
+                          <UserRound size={20} color="#18181B" />
+                        )}
+                      </Box>
+                      <ChevronDown width={20} height={20} color="#18181B" />
                     </Box>
-                    <ChevronDown width={20} height={20} color="#18181B" />
-                  </Box>
-                </HStack>
-              ) : (
-                <Button
-                  aria-label="Open menu"
-                  variant="ghost"
-                  color="black"
-                  onClick={handleMenuToggle}
-                  px={2}
-                  minW="auto"
-                  height="auto"
-                >
-                  <Menu width={20} height={20} color="black" />
-                </Button>
-              )}
+                  </Popover.Trigger>
+                  <Popover.Positioner>
+                    <Popover.Content
+                      bg="white"
+                      borderRadius="lg"
+                      boxShadow="lg"
+                      minW="180px"
+                      borderWidth="1px"
+                      borderColor="gray.100"
+                    >
+                      <Popover.Body p={2}>
+                        <Button
+                          w="100%"
+                          justifyContent="flex-start"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleUserLogout}
+                          gap={2}
+                        >
+                          <LogOut size={16} />
+                          Log out
+                        </Button>
+                      </Popover.Body>
+                    </Popover.Content>
+                  </Popover.Positioner>
+                </Popover.Root>
+              </HStack>
             </Box>
             <SubscriptionBanner isInMobileMenu={isMobileMenuOpen} />
             {isMobile && (
@@ -478,10 +392,9 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             </Button>
             <HStack gap={6} display={{ base: "none", md: "flex" }}>
               <UserRound size={20} color="black" />
-              {getMenuItems()?.map((item) => renderMenuItem(item, false))}
+              {/* {getMenuItems()?.map((item) => renderMenuItem(item, false))} */}
             </HStack>
           </Box>
-          {/* {isMobile && <MobileMenu />} */}
         </>
       )}
     </>

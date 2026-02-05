@@ -46,7 +46,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
           //     : "0px",
           // }}
         >
-          <Box display={{ base: "none", md: "block" }} flexShrink={0} w="300px">
+          <Box display={{ base: "none", lg: "block" }} flexShrink={0} w="300px">
             <Sidebar isProtected={true} />
           </Box>
           <Container maxW="100%" px={0} flex={1} style={{ minWidth: 0 }}>
