@@ -58,11 +58,15 @@ const QUICK_LINKS: QuickLinkItem[] = [
 interface SidebarProps {
   isProtected?: boolean;
   unreadMessageCount?: number;
+  isMobileMenuOpen?: boolean;
+  setIsMobileMenuOpen?: (open: boolean) => void;
 }
 
 const Sidebar = ({
   isProtected = true,
   unreadMessageCount = 0,
+  isMobileMenuOpen = false,
+  setIsMobileMenuOpen = () => {},
 }: SidebarProps) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -119,7 +123,7 @@ const Sidebar = ({
     {
       key: "messages",
       label: "Messages",
-      href: "/inbox/",
+      href: "/messaging/",
       icon: <MessageCircle size={20} />,
       isCoordinator: true,
       isOrganisation: true,
@@ -216,7 +220,12 @@ const Sidebar = ({
     );
 
     return (
-      <Link href={item.href} key={item.key} style={{ width: "100%" }}>
+      <Link
+        href={item.href}
+        key={item.key}
+        style={{ width: "100%" }}
+        onClick={() => setIsMobileMenuOpen(false)}
+      >
         {content}
       </Link>
     );
@@ -229,7 +238,12 @@ const Sidebar = ({
 
     if (!hasOpps || opps.length === 0) {
       return (
-        <Link href="/discover/" key="discover" style={{ width: "100%" }}>
+        <Link
+          href="/discover/"
+          key="discover"
+          style={{ width: "100%" }}
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
           <HStack
             w="full"
             p={3}
@@ -357,6 +371,7 @@ const Sidebar = ({
                   key={o.id}
                   href={`/discover/?opp=${o.slug}`}
                   style={{ width: "100%" }}
+                  onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {/*
                     An opportunity is considered "active" when its slug matches
@@ -402,18 +417,16 @@ const Sidebar = ({
     <Box
       w="full"
       h="fit-content"
-      // minH="100%"
-      maxW="300px"
+      maxW={{ base: "100%", lg: "300px" }}
       bg="white"
-      borderRadius="lg"
+      borderRadius={{ base: "0", lg: "lg" }}
       boxShadow="sm"
-      border="1px solid"
-      borderColor="gray.100"
+      border={{ base: "none", lg: "1px solid" }}
+      borderColor={{ base: "transparent", lg: "gray.100" }}
       overflow="hidden"
       display="flex"
       flexDirection="column"
       p={4}
-      // minH="fit-content"
     >
       <Box flex="1 1 auto">
         <Text
@@ -447,8 +460,7 @@ const Sidebar = ({
             <ChakraLink
               key={q.label}
               href={q.href}
-              // isExternal={q.href.startsWith("http")}
-              _hover={{ textDecoration: "none" }}
+              onClick={() => setIsMobileMenuOpen(false)}
               color="#52525B"
               fontSize="md"
               fontWeight={500}

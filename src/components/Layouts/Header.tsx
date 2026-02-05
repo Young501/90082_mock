@@ -5,9 +5,17 @@ import {
   VStack,
   useBreakpointValue,
   Button,
+  Drawer,
 } from "@chakra-ui/react";
 import React, { useState, useEffect, useRef } from "react";
-import { UserRound, HelpCircle, Bell, ChevronDown, Menu } from "lucide-react";
+import {
+  UserRound,
+  HelpCircle,
+  Bell,
+  ChevronDown,
+  Menu,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/hooks/auth";
@@ -16,6 +24,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import { getSubscriptionTrialInfo } from "@/utils/subscriptionPermissions";
 import { formatDate } from "@/utils/formatDate";
+import Sidebar from "@/components/Layouts/Sidebar";
 
 const lessThan3Days = (date: string) => {
   const trialEndDate = new Date(date);
@@ -272,155 +281,157 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     );
   };
 
-  // const MobileMenu = () => (
-  //   <>
-  //     <Overlay />
-  //     <Box
-  //       position="fixed"
-  //       top={0}
-  //       right={0}
-  //       bottom={0}
-  //       width="100vw"
-  //       bg={isProtected ? "#002157" : "white"}
-  //       zIndex={1002}
-  //       transform={isMobileMenuOpen ? "translateX(0)" : "translateX(100%)"}
-  //       transition="transform 0.3s ease"
-  //       boxShadow="lg"
-  //       overflowY="auto"
-  //     >
-  //       <Box
-  //         display="flex"
-  //         justifyContent="space-between"
-  //         alignItems="center"
-  //         p={4}
-  //       >
-  //         <Link href="/">
-  //           <Box
-  //             display="flex"
-  //             justifyContent="center"
-  //             alignItems="center"
-  //             transition="background 0.2s"
-  //           >
-  //             <Box pos="relative" w="200px" h="60px">
-  //               <Image
-  //                 src="/assets/Logoone.png"
-  //                 alt="Uniconnected"
-  //                 fill
-  //                 style={{ objectFit: "contain" }}
-  //                 priority
-  //               />
-  //             </Box>
-  //           </Box>
-  //         </Link>
-  //         <Button
-  //           aria-label="Close menu"
-  //           variant="ghost"
-  //           color={isProtected ? "white" : "black"}
-  //           size="sm"
-  //           onClick={handleMenuToggle}
-  //         >
-  //           <Box pos="relative" w="20px" h="20px">
-  //             <Image
-  //               src={
-  //                 isProtected ? "/assets/cancelwhite.svg" : "/assets/cancel.svg"
-  //               }
-  //               alt="close"
-  //               fill
-  //               style={{ objectFit: "contain" }}
-  //             />
-  //           </Box>
-  //         </Button>
-  //       </Box>
-  //     </Box>
-  //   </>
-  // );
-
   return (
     <>
       {isProtected ? (
         <>
           <Box
             bg="white"
-            h={`${isMobile ? "58px" : "76px"}`}
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            px={{ base: 4, lg: 16 }}
-            py={3}
             position="fixed"
             top={0}
             left={0}
             right={0}
             zIndex={9999}
             width="100%"
-            maxHeight={{ base: "58px", lg: "76px" }}
             borderBottom="1px solid rgba(148, 163, 184, 0.35)"
+            h={`${isMobile ? "58px" : "76px"}`}
           >
-            <Link href="/">
-              <Box
-                pos="relative"
-                w={isMobile ? "164px" : "260px"}
-                h={isMobile ? "40px" : "70px"}
-              >
-                <Image
-                  alt="Uniconnected"
-                  src="/assets/Logoone.png"
-                  fill
-                  style={{ objectFit: "contain" }}
-                  priority
-                />
-              </Box>
-            </Link>
+            <Box
+              maxW="1440px"
+              display="flex"
+              mx="auto"
+              alignItems="center"
+              justifyContent="space-between"
+              px={{ base: 4, lg: 16 }}
+              maxHeight={{ base: "58px", lg: "76px" }}
+              py={3}
+            >
+              <Link href="/">
+                <Box
+                  pos="relative"
+                  w={isMobile ? "164px" : "260px"}
+                  h={isMobile ? "40px" : "70px"}
+                >
+                  <Image
+                    alt="Uniconnected"
+                    src="/assets/Logoone.png"
+                    fill
+                    style={{ objectFit: "contain" }}
+                    priority
+                  />
+                </Box>
+              </Link>
 
-            {!isMobile ? (
-              <HStack gap={4}>
-                <Box
-                  w={10}
-                  h={10}
-                  borderRadius="full"
-                  bg="##FAFAFA"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  gap={2}
+              {!isMobile ? (
+                <HStack gap={4}>
+                  <Box
+                    w={10}
+                    h={10}
+                    borderRadius="full"
+                    bg="#FAFAFA"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    gap={2}
+                  >
+                    <Bell size={18} color="#18181B" />
+                  </Box>
+                  <Box
+                    overflow="hidden"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    gap={1}
+                  >
+                    <Box
+                      w={8}
+                      h={8}
+                      borderRadius="full"
+                      overflow="hidden"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      {profilePictureUrl ? (
+                        <Image
+                          src={profilePictureUrl}
+                          alt="Profile picture"
+                          width={32}
+                          height={32}
+                        />
+                      ) : (
+                        <UserRound size={20} color="#18181B" />
+                      )}
+                    </Box>
+                    <ChevronDown width={20} height={20} color="#18181B" />
+                  </Box>
+                </HStack>
+              ) : (
+                <Button
+                  aria-label="Open menu"
+                  variant="ghost"
+                  color="black"
+                  onClick={handleMenuToggle}
+                  px={2}
+                  minW="auto"
+                  height="auto"
                 >
-                  <Bell size={18} color="#18181B" />
-                </Box>
-                <Box
-                  w={10}
-                  h={10}
-                  borderRadius="full"
-                  // bg="#F4F4F5"
-                  overflow="hidden"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  gap={1}
+                  <Menu width={20} height={20} color="black" />
+                </Button>
+              )}
+            </Box>
+            <SubscriptionBanner isInMobileMenu={isMobileMenuOpen} />
+            {isMobile && (
+              <Box mt="58px" position="relative" zIndex={99999}>
+                <Drawer.Root
+                  open={isMobileMenuOpen}
+                  onOpenChange={(details) => setIsMobileMenuOpen(details.open)}
+                  placement="end"
+                  size="full"
                 >
-                  {profilePictureUrl ? (
-                    <Image
-                      src={profilePictureUrl}
-                      alt="Profile picture"
-                      width={40}
-                      height={40}
-                      style={{ objectFit: "cover" }}
-                    />
-                  ) : (
-                    <UserRound size={20} color="#18181B" />
-                  )}
-                  <ChevronDown width={20} height={20} color="#18181B" />
-                </Box>
-              </HStack>
-            ) : (
-              <Menu
-                width={20}
-                height={20}
-                color="black"
-                onClick={handleMenuToggle}
-              />
+                  <Drawer.Backdrop />
+                  <Drawer.Positioner>
+                    <Drawer.Content bg="white">
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        px={4}
+                        py={3}
+                        borderBottom="1px solid rgba(148, 163, 184, 0.35)"
+                      >
+                        <Box pos="relative" w="164px" h="34px">
+                          <Image
+                            alt="Uniconnected"
+                            src="/assets/Logoone.png"
+                            fill
+                            style={{ objectFit: "contain" }}
+                            priority
+                          />
+                        </Box>
+                        <Button
+                          aria-label="Close menu"
+                          variant="ghost"
+                          onClick={handleMenuToggle}
+                          px={2}
+                          minW="auto"
+                          height="auto"
+                        >
+                          <X width={20} height={20} color="#0F172A" />
+                        </Button>
+                      </Box>
+                      <Drawer.Body p={4}>
+                        <Sidebar
+                          isMobileMenuOpen={isMobileMenuOpen}
+                          setIsMobileMenuOpen={handleMenuToggle}
+                        />
+                      </Drawer.Body>
+                    </Drawer.Content>
+                  </Drawer.Positioner>
+                </Drawer.Root>
+              </Box>
             )}
           </Box>
-          <SubscriptionBanner isInMobileMenu={isMobileMenuOpen} />
         </>
       ) : (
         <>
