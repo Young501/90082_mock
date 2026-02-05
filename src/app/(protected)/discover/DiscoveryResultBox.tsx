@@ -129,7 +129,7 @@ export function DiscoveryResultBox({
             onChange={onSortChange}
             options={[
               { label: "Distance", value: "distance" },
-              { label: "Best Match", value: "best_match" },
+              // { label: "Best Match", value: "best_match" },
             ]}
           />
         )}

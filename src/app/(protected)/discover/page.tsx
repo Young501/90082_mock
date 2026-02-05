@@ -187,6 +187,12 @@ export default function DiscoveryPage() {
     isEnrollmentReady,
   });
 
+  useEffect(() => {
+    if (!sort?.by) {
+      handleSortChange("distance");
+    }
+  }, [sort?.by, handleSortChange]);
+
   const facetValidationSuccess = useMemo(() => {
     const hasOnboardingWithCounts = Object.keys(
       facets?.facets?.onboarding || {}
