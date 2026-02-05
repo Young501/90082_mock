@@ -31,8 +31,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
           w="100%"
           maxW="1440px"
           mx="auto"
-          mt={`${isMobile ? "80px" : "126px"}`}
-          // alignSelf="stretch"
+          mt={`${isMobile ? "58px" : "76px"}`}
           gap={6}
           py={{ base: 4, lg: 10 }}
           px={{ base: 6, lg: 14 }}
@@ -47,11 +46,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
           //     : "0px",
           // }}
         >
-          <Box
-            display={{ base: "none", md: "block" }}
-            flexShrink={0}
-            w="300px"
-          >
+          <Box display={{ base: "none", md: "block" }} flexShrink={0} w="300px">
             <Sidebar isProtected={true} />
           </Box>
           <Container maxW="100%" px={0} flex={1} style={{ minWidth: 0 }}>

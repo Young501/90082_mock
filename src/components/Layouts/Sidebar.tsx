@@ -259,42 +259,42 @@ const Sidebar = ({
       );
     }
 
-    if (opps.length === 1) {
-      return (
-        <Link
-          href={`/discover/?opp=${opps[0].slug}`}
-          key="discover"
-          style={{ width: "100%" }}
-        >
-          <HStack
-            w="full"
-            p={3}
-            borderRadius="xl"
-            bg={active ? ACTIVE_BG : "transparent"}
-            color={active ? "white" : INACTIVE_COLOR}
-            gap={3}
-          >
-            <Box
-              flexShrink={0}
-              w={5}
-              h={5}
-              color={active ? "white" : "#71717A"}
-            >
-              <Briefcase size={20} />
-            </Box>
-            <Text
-              fontSize="md"
-              fontWeight={active ? 600 : 500}
-              color={active ? "white" : "#71717A"}
-              flex={1}
-            >
-              My Opportunity
-            </Text>
-            {/* {<ChevronDown size={16} />} */}
-          </HStack>
-        </Link>
-      );
-    }
+    // if (opps.length === 1) {
+    //   return (
+    //     <Link
+    //       href={`/discover/?opp=${opps[0].slug}`}
+    //       key="discover"
+    //       style={{ width: "100%" }}
+    //     >
+    //       <HStack
+    //         w="full"
+    //         p={3}
+    //         borderRadius="xl"
+    //         bg={active ? ACTIVE_BG : "transparent"}
+    //         color={active ? "white" : INACTIVE_COLOR}
+    //         gap={3}
+    //       >
+    //         <Box
+    //           flexShrink={0}
+    //           w={5}
+    //           h={5}
+    //           color={active ? "white" : "#71717A"}
+    //         >
+    //           <Briefcase size={20} />
+    //         </Box>
+    //         <Text
+    //           fontSize="md"
+    //           fontWeight={active ? 600 : 500}
+    //           color={active ? "white" : "#71717A"}
+    //           flex={1}
+    //         >
+    //           My Opportunity
+    //         </Text>
+    //         {/* {<ChevronDown size={16} />} */}
+    //       </HStack>
+    //     </Link>
+    //   );
+    // }
 
     return (
       <Box
@@ -329,7 +329,7 @@ const Sidebar = ({
             >
               My Opportunities
             </Text>
-            {opps.length > 1 && (
+            {opps.length >= 1 && (
               <Box
                 as="span"
                 transform={isDiscoverOpen ? "rotate(180deg)" : "rotate(0)"}
@@ -341,13 +341,20 @@ const Sidebar = ({
           </HStack>
         </Box>
         {isDiscoverOpen && (
-          <VStack align="stretch" mt={1} pl={3} gap={1}>
-            {opps.map((o, index) => (
-              <HStack key={o.id} align="flex-start" gap={2}>
-                <Box pt={3} pr={1}>
-                  <IconSidebarLine />
-                </Box>
+          <Box mt={1} pl={3} display="flex">
+            <Box
+              w="11px"
+              flexShrink={0}
+              alignSelf="stretch"
+              display="flex"
+              alignItems="stretch"
+            >
+              <IconSidebarLine segmentCount={opps.length} />
+            </Box>
+            <VStack align="stretch" flex={1} pl={2} gap={1}>
+              {opps.map((o) => (
                 <Link
+                  key={o.id}
                   href={`/discover/?opp=${o.slug}`}
                   style={{ width: "100%" }}
                 >
@@ -378,9 +385,9 @@ const Sidebar = ({
                     );
                   })()}
                 </Link>
-              </HStack>
-            ))}
-          </VStack>
+              ))}
+            </VStack>
+          </Box>
         )}
       </Box>
     );
@@ -424,13 +431,14 @@ const Sidebar = ({
         </VStack>
       </Box>
 
-      <Box px={3} py={4} borderTopWidth="1px" borderColor="gray.100">
+      <Box py={4} borderTopWidth="1px" borderColor="gray.100">
         <Text
           fontSize="xs"
           fontWeight={700}
           color="#52525B"
           letterSpacing="wider"
           mb={3}
+          pl={3}
         >
           QUICK LINKS
         </Text>
