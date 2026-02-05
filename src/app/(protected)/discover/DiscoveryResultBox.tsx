@@ -147,7 +147,7 @@ export function DiscoveryResultBox({
         </Box>
       ) : count > 0 ? (
         <>
-          <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={4}>
+          <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
             {results.map((user) => {
               const key = user.id || Math.random();
 

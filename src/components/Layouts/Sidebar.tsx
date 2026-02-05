@@ -20,14 +20,7 @@ import {
   CircleCheckBig,
 } from "lucide-react";
 
-import {
-  IconHome,
-  IconMessage,
-  IconSupport,
-  IconUser,
-  IconOpportunity,
-  IconSidebarLine,
-} from "@/components/Icons";
+import { IconSidebarLine } from "@/components/Icons";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -36,7 +29,6 @@ import type { AccessibleOpportunity } from "@/types/opportunities";
 
 const ACTIVE_BG = "#2AA8E0";
 const INACTIVE_COLOR = "#71717A";
-// const QUICK_LINKS_BG = "gray.50";
 
 interface SidebarMenuItem {
   key: string;
@@ -65,7 +57,6 @@ const QUICK_LINKS: QuickLinkItem[] = [
 
 interface SidebarProps {
   isProtected?: boolean;
-  /** Unread message count for Messages badge (e.g. from API). */
   unreadMessageCount?: number;
 }
 
@@ -297,9 +288,9 @@ const Sidebar = ({
               color={active ? "white" : "#71717A"}
               flex={1}
             >
-              My Opportunities
+              My Opportunity
             </Text>
-            <ChevronDown size={16} />
+            {/* {<ChevronDown size={16} />} */}
           </HStack>
         </Link>
       );
@@ -338,13 +329,15 @@ const Sidebar = ({
             >
               My Opportunities
             </Text>
-            <Box
-              as="span"
-              transform={isDiscoverOpen ? "rotate(180deg)" : "rotate(0)"}
-              transition="transform 0.2s"
-            >
-              <ChevronDown size={16} />
-            </Box>
+            {opps.length > 1 && (
+              <Box
+                as="span"
+                transform={isDiscoverOpen ? "rotate(180deg)" : "rotate(0)"}
+                transition="transform 0.2s"
+              >
+                <ChevronDown size={16} />
+              </Box>
+            )}
           </HStack>
         </Box>
         {isDiscoverOpen && (
@@ -360,7 +353,7 @@ const Sidebar = ({
                 >
                   {/*
                     An opportunity is considered "active" when its slug matches
-                    the `opp` query parameter while the Discover section itself is active.
+                    the `opp`.
                   */}
                   {(() => {
                     const isActiveOpp = active && activeOppSlug === o.slug;
