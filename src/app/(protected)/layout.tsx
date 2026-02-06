@@ -25,34 +25,41 @@ function LayoutContent({ children }: { children: ReactNode }) {
         }}
       >
         <Header isProtected={true} />
-        <Box
-          display="flex"
-          flex={1}
-          w="100%"
-          maxW="1440px"
-          mx="auto"
-          mt={`${isMobile ? "58px" : "76px"}`}
-          gap={6}
-          py={{ base: 4, lg: 10 }}
-          px={{ base: 6, lg: 14 }}
-          // px={{ base: 4, lg: 6 }}
-          // py={{ base: 4, lg: 6 }}
-          // mt={{
-          //   base: "20px",
-          //   lg: opportunitySlug
-          //     ? isInTrialPeriod(opportunitySlug)
-          //       ? "40px"
-          //       : "0px"
-          //     : "0px",
-          // }}
-        >
-          <Box display={{ base: "none", lg: "block" }} flexShrink={0} w="300px">
-            <Sidebar isProtected={true} />
+        <Box bg="#FAFAFA">
+          <Box
+            display="flex"
+            flex={1}
+            w="100%"
+            maxW="1440px"
+            mx="auto"
+            mt={`${isMobile ? "58px" : "76px"}`}
+            gap={6}
+            py={{ base: 4, lg: 10 }}
+            px={{ base: 4, lg: 14 }}
+            // px={{ base: 4, lg: 6 }}
+            // py={{ base: 4, lg: 6 }}
+            // mt={{
+            //   base: "20px",
+            //   lg: opportunitySlug
+            //     ? isInTrialPeriod(opportunitySlug)
+            //       ? "40px"
+            //       : "0px"
+            //     : "0px",
+            // }}
+          >
+            <Box
+              display={{ base: "none", lg: "block" }}
+              flexShrink={0}
+              w="300px"
+            >
+              <Sidebar isProtected={true} />
+            </Box>
+            <Container maxW="100%" px={0} flex={1} style={{ minWidth: 0 }}>
+              {children}
+            </Container>
           </Box>
-          <Container maxW="100%" px={0} flex={1} style={{ minWidth: 0 }}>
-            {children}
-          </Container>
         </Box>
+
         <Footer />
       </div>
     </ProtectedRoute>

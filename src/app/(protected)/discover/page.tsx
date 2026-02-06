@@ -41,7 +41,8 @@ import { OpportunityDescriptionCard } from "./cards/OpportunityDescriptionCard";
 import DiscoveryFolderCard from "./DiscoveryFolderCard";
 import { CreateFolderModal } from "./CreateFolderModal";
 import type { DiscoveryFolderItem } from "./DiscoveryFolderCard";
-import { IconFolder, IconFilter, IconArrowRight } from "@/components/Icons";
+import { IconFolder, IconArrowRight } from "@/components/Icons";
+import { FilterButton } from "@/components/ui/FilterButton";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
@@ -360,25 +361,11 @@ export default function DiscoveryPage() {
                     </Box>
                   </Button>
                   {facetValidationSuccess && (
-                    <Button
-                      variant="outline"
+                    <FilterButton
                       flex={1}
-                      justifyContent="flex-start"
-                      gap={2}
-                      py="14px"
-                      px={4}
-                      borderRadius="xl"
-                      borderColor="#E4E4E7"
-                      borderWidth="1px"
-                      bg="white"
-                      color="#27272A"
-                      fontWeight="normal"
-                      fontSize="md"
+                      label="Filter"
                       onClick={() => setFilterSheetOpen(true)}
-                    >
-                      <IconFilter color="#3F3F46" />
-                      Filter
-                    </Button>
+                    />
                   )}
                 </HStack>
 
