@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, VStack, Text, Alert, Drawer } from "@chakra-ui/react";
+import { Box, VStack, Text, Alert, Drawer, IconButton } from "@chakra-ui/react";
 import { StudentProfile, OrganisationProfile } from "@/types/discovery";
 import {
   useStudentProfile,
@@ -12,6 +12,7 @@ import Loader from "@/components/ui/Loader";
 import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/Button";
 import { RenderStudentDetails, RenderOrganisationDetails } from "./index";
+import { X } from "lucide-react";
 
 interface FullProfileCardProps {
   profileId: string;
@@ -22,6 +23,7 @@ interface FullProfileCardProps {
   organisationProfile?: OrganisationProfile;
   disableBtns?: boolean;
   opportunityId?: string;
+  opportunitySlug?: string;
   isCoordinator?: boolean;
 }
 
@@ -34,6 +36,7 @@ export function FullProfileCard({
   organisationProfile,
   disableBtns = false,
   opportunityId,
+  opportunitySlug,
   isCoordinator = false,
 }: FullProfileCardProps) {
   const shouldFetchStudent =
@@ -181,6 +184,7 @@ export function FullProfileCard({
             organisation={profile as OrganisationProfile}
             disableBtns={disableBtns}
             opportunityId={opportunityId}
+            opportunitySlug={opportunitySlug}
             userType={userType}
           />
         )}
@@ -202,11 +206,9 @@ export function FullProfileCard({
         <Drawer.Positioner>
           <Drawer.Content
             maxH={{ base: "90vh", lg: "85vh" }}
-            borderTopRadius="xl"
-            boxShadow="0px 5.92px 11.84px 5.92px #00000040"
             overflowY="auto"
             position="relative"
-            bg="white"
+            bg="transparent"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
@@ -217,9 +219,9 @@ export function FullProfileCard({
               },
             }}
           >
-            <Button
+            <IconButton
               position="sticky"
-              top={0}
+              top="-100px"
               zIndex={10}
               size="sm"
               variant="ghost"
@@ -228,20 +230,20 @@ export function FullProfileCard({
               justifyContent="flex-end"
               onClick={onClose}
               pr={4}
-              pt={4}
-              pb={2}
               bg="transparent"
               borderRadius="full"
               ml="auto"
             >
-              <Image
-                src="/assets/cancel.svg"
-                alt="Close"
-                width={25}
-                height={25}
-              />
-            </Button>
-            <Drawer.Body p={0} pt={0} bg="white">
+              <X size={24} fontWeight="bold" color="white" />
+            </IconButton>
+
+            <Drawer.Body
+              p={0}
+              pt={0}
+              bg="white"
+              borderTopRadius="xl"
+              boxShadow="0px 5.92px 11.84px 5.92px #00000040"
+            >
               {profileContent}
             </Drawer.Body>
           </Drawer.Content>
