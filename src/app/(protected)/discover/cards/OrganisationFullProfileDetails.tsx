@@ -39,9 +39,12 @@ export const RenderOrganisationDetails = ({
     <Box
       w="full"
       h="full"
+      maxW="1006px"
       display="flex"
+      //   justifyContent="center"
+      mx="auto"
       flexDirection={{ base: "column", lg: "row" }}
-      px={{ base: 4, lg: 16 }}
+    //   px={{ base: 4, lg: 16 }}
       py={{ base: 10, lg: 12 }}
       gap={{ base: 4, lg: 8 }}
     >
