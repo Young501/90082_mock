@@ -8,7 +8,7 @@ import {
   SimpleGrid,
 } from "@chakra-ui/react";
 import { UserProfile } from "@/types/shared";
-import { StudentCard, PartnerCard } from "./cards";
+import { StudentCard, OrganisationCard } from "./cards";
 import { PaginationControlsV2 } from "@/components/ui/PaginationControlsV2";
 import Loader from "@/components/ui/Loader";
 import { SearchInput } from "@/components/ui/SearchInput";
@@ -136,7 +136,7 @@ export function DiscoveryResultBox({
                   opportunitySlug={opportunitySlug}
                 />
               ) : (
-                <PartnerCard
+                <OrganisationCard
                   key={key}
                   organisation={user}
                   opportunityId={opportunityId}

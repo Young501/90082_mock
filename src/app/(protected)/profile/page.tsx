@@ -21,7 +21,7 @@ import {
   Alert,
 } from "@chakra-ui/react";
 import { StudentCard } from "../discover/cards/studentCard";
-import { PartnerCard } from "../discover/cards/partnerCard";
+import { OrganisationCard } from "../discover/cards";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -789,7 +789,7 @@ const Profile = () => {
                     </VStack>
                   ) : userType === "organisation" ? (
                     <VStack gap={10} w="full" align="flex-start">
-                      <PartnerCard
+                      <OrganisationCard
                         organisation={userProfile?.organisation || userProfile}
                         profilePictureUrl={getUserProfilePictureUrl()}
                         maxW="500px"
