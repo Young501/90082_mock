@@ -71,7 +71,7 @@ export const ConversationList = ({
         borderColor="#E4E4E7"
         borderRadius="xl"
       >
-        <VStack align="stretch" gap={0}>
+        <VStack align="stretch" gap={0} w="100%">
           {conversations.map((conversation) => {
             const isActive = conversation.id === selectedConversationId;
             return (

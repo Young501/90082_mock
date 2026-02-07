@@ -147,7 +147,7 @@ const Inbox = () => {
 
     if (isSinglePane) {
       return (
-        <Box w="100%" py={4}>
+        <Box w="100%">
           {isShowingThreadOnSinglePane ? (
             <ConversationView
               isSinglePane={isSinglePane}
@@ -181,7 +181,7 @@ const Inbox = () => {
 
     return (
       <Flex w="100%" gap={4} align="stretch" p={4}>
-        <Box flexBasis="340px" maxW="360px">
+        <Box flexBasis="358px" maxW="358px">
           <ConversationList
             conversations={filteredConversations}
             selectedConversationId={selectedConversationId}
@@ -221,13 +221,9 @@ const Inbox = () => {
         justifyContent="center"
         alignItems="start"
         borderRadius="xl"
-        // border={{ base: "none", md: "1px solid #E4E4E7" }}
         borderWidth="1px"
         borderColor="#E4E4E7"
-        // border={{ base: "none", md: "1px solid #E4E4E7" }}
         bg="white"
-        // py={4}
-        // px={{ base: 0, md: 4 }}
       >
         {renderContent()}
       </Box>

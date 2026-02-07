@@ -6,14 +6,15 @@ import {
   VStack,
   HStack,
   Text,
-  Input,
   IconButton,
   Avatar,
   Tag,
 } from "@chakra-ui/react";
 import IconUserPlaceholder from "@/components/Icons/IconUserPlaceholder";
+import { ButtonV2 } from "@/components/ui/ButtonV2";
 
 import { MenuPopover } from "@/components/ui/MenuPopover";
+import { MessageComposerInput } from "@/components/ui/MessageComposerInput";
 
 import {
   Archive,
@@ -75,7 +76,7 @@ export const ConversationView = ({
     <Box
       w="100%"
       borderRadius="xl"
-      borderWidth={{ base: "0px", md: "1px" }}
+      borderWidth={{ base: "0px", lg: "1px" }}
       borderColor={{ base: "transparent", md: "#E4E4E7" }}
       // border={{ base: "none", md: "1px solid #E4E4E7" }}
       bg="white"
@@ -94,9 +95,15 @@ export const ConversationView = ({
       >
         {/* // chakra button and iconbutton behavious adds minimum width to the icons */}
         {isSinglePane && (
-          <Box as="button" onClick={onBackToList}>
+          <IconButton
+            aria-label="back"
+            variant="ghost"
+            minW="fit-content"
+            h="fit-content"
+            onClick={onBackToList}
+          >
             <ChevronLeft size={20} />
-          </Box>
+          </IconButton>
         )}
         <Box
           w="32px"
@@ -135,9 +142,14 @@ export const ConversationView = ({
             </Tag.Root>
             <MenuPopover
               trigger={
-                <Box as="button" aria-label="Conversation options">
+                <IconButton
+                  variant="ghost"
+                  minW="fit-content"
+                  aria-label="Conversation options"
+                  h="fit-content"
+                >
                   <Pen size={12} color="#71717A" />
-                </Box>
+                </IconButton>
               }
               placement="bottom-start"
             >
@@ -166,28 +178,24 @@ export const ConversationView = ({
             </MenuPopover>
           </HStack>
         </VStack>
-        {/* <IconButton
-          aria-label={
-            conversation?.isArchived
-              ? "Unarchive conversation"
-              : "Archive conversation"
-          }
-          variant="ghost"
-          onClick={() => onToggleArchive(conversation?.id ?? "")}
-        >
-          {conversation?.isArchived ? (
-            <ArchiveRestore size={18} />
-          ) : (
-            <Archive size={18} />
-          )}
-        </IconButton> */}
+
         <HStack>
-          <Box as="button">
+          <IconButton
+            aria-label="Search"
+            variant="ghost"
+            minW="fit-content"
+            h="fit-content"
+          >
             <Search size={20} color="#71717A" />
-          </Box>
-          <Box as="button">
+          </IconButton>
+          <IconButton
+            aria-label="More options"
+            variant="ghost"
+            minW="fit-content"
+            h="fit-content"
+          >
             <EllipsisVertical size={20} color="#71717A" />
-          </Box>
+          </IconButton>
         </HStack>
       </HStack>
 
@@ -249,134 +257,247 @@ export const ConversationView = ({
                     w="100%"
                     justifyContent={isMine ? "flex-end" : "flex-start"}
                   >
-                    <Hstack>
-                      
-                    </Hstack>
-                    <HStack
-                      justifyContent={isMine ? "flex-end" : "flex-start"}
-                      opacity={showActions ? 1 : 0}
-                      transition="opacity 0.15s ease"
-                      flexShrink={0}
-                    >
-                      <Box aria-label="React to message" as="button">
-                        <SmilePlus
-                          size={16}
-                          color={isMine ? "#1679AB" : "#4B5563"}
-                        />
-                      </Box>
-                      <MenuPopover
-                        variant={isSinglePane ? "drawer" : "popover"}
-                        title="Message actions"
-                        open={isSinglePane ? showActions : undefined}
-                        onOpenChange={
-                          isSinglePane
-                            ? (v) => !v && setActiveMessageActionsId(null)
-                            : undefined
-                        }
-                        trigger={
-                          <Box
-                            as="button"
-                            aria-label="Message actions"
-                            onClick={() =>
-                              isSinglePane
-                                ? setActiveMessageActionsId((current) =>
-                                    current === message.id ? null : message.id
-                                  )
-                                : undefined
-                            }
+                    <VStack gap={1}>
+                      <HStack
+                        alignItems="center"
+                        gap={1}
+                        // justifyContent={isMine ? "flex-end" : "flex-start"}
+                      >
+                        {isMine && (
+                          <HStack
+                            justifyContent={isMine ? "flex-end" : "flex-start"}
+                            opacity={showActions ? 1 : 0}
+                            transition="opacity 0.15s ease"
+                            flexShrink={0}
                           >
-                            <MoreHorizontal
-                              size={16}
-                              color={isMine ? "#1679AB" : "#4B5563"}
-                            />
-                          </Box>
-                        }
-                      >
-                        <HStack gap={2} cursor="pointer" px={2} py={1}>
-                          <Text fontSize="sm">Reply</Text>
-                        </HStack>
-                        <HStack
-                          gap={2}
-                          cursor="pointer"
-                          px={2}
-                          py={1}
-                          onClick={() => {
-                            if (message.text) {
-                              navigator.clipboard
-                                ?.writeText(message.text)
-                                .catch(() => undefined);
-                            }
-                          }}
-                        >
-                          <Text fontSize="sm">Copy</Text>
-                        </HStack>
-                        <HStack gap={2} cursor="pointer" px={2} py={1}>
-                          <Text fontSize="sm">Edit</Text>
-                        </HStack>
-                        <HStack gap={2} cursor="pointer" px={2} py={1}>
-                          <Text fontSize="sm">Star</Text>
-                        </HStack>
-                        <Box
-                          mt={1}
-                          borderTopWidth="1px"
-                          borderTopColor="#E4E4E7"
-                        />
-                        <HStack gap={2} cursor="pointer" px={2} py={1}>
-                          <Text fontSize="sm" color="red.500">
-                            Delete message
-                          </Text>
-                        </HStack>
-                      </MenuPopover>
-                    </HStack>
-
-                    <VStack align="flex-end" gap={1}>
-                      <Box
-                        borderRadius="xl"
-                        px={3}
-                        py={2}
-                        bg={isMine ? "#1679AB" : "#F4F4F5"}
-                        color={isMine ? "white" : "#18181B"}
-                        maxW="396px"
-                        w="100%"
-                      >
-                        {message.text && (
-                          <Text fontSize="sm" whiteSpace="pre-wrap">
-                            {message.text}
-                          </Text>
-                        )}
-                        {message.attachments &&
-                          message.attachments.length > 0 && (
-                            <VStack
-                              align="flex-start"
-                              gap={1}
-                              mt={message.text ? 2 : 0}
+                            <IconButton
+                              variant="ghost"
+                              minW="fit-content"
+                              aria-label="React to message"
+                              h="fit-content"
                             >
-                              {message.attachments.map((att) => (
-                                <HStack key={att.id} gap={2}>
-                                  <Paperclip
-                                    size={14}
-                                    color={isMine ? "white" : "#4B5563"}
+                              <SmilePlus
+                                size={16}
+                                color={isMine ? "#1F97D1" : "#4B5563"}
+                              />
+                            </IconButton>
+                            <MenuPopover
+                              variant={isSinglePane ? "drawer" : "popover"}
+                              title="Message actions"
+                              open={isSinglePane ? showActions : undefined}
+                              onOpenChange={
+                                isSinglePane
+                                  ? (v) => !v && setActiveMessageActionsId(null)
+                                  : undefined
+                              }
+                              trigger={
+                                <IconButton
+                                  variant="ghost"
+                                  minW="fit-content"
+                                  h="fit-content"
+                                  aria-label="Message actions"
+                                  onClick={() =>
+                                    isSinglePane
+                                      ? setActiveMessageActionsId((current) =>
+                                          current === message.id
+                                            ? null
+                                            : message.id
+                                        )
+                                      : undefined
+                                  }
+                                >
+                                  <MoreHorizontal
+                                    size={16}
+                                    color={isMine ? "#1679AB" : "#4B5563"}
                                   />
-                                  <Text
-                                    fontSize="xs"
-                                    textDecoration="underline"
-                                  >
-                                    {att.name}
-                                  </Text>
-                                </HStack>
-                              ))}
-                            </VStack>
+                                </IconButton>
+                              }
+                            >
+                              <HStack gap={2} cursor="pointer" px={2} py={1}>
+                                <Text fontSize="sm">Reply</Text>
+                              </HStack>
+                              <HStack
+                                gap={2}
+                                cursor="pointer"
+                                px={2}
+                                py={1}
+                                onClick={() => {
+                                  if (message.text) {
+                                    navigator.clipboard
+                                      ?.writeText(message.text)
+                                      .catch(() => undefined);
+                                  }
+                                }}
+                              >
+                                <Text fontSize="sm">Copy</Text>
+                              </HStack>
+                              <HStack gap={2} cursor="pointer" px={2} py={1}>
+                                <Text fontSize="sm">Edit</Text>
+                              </HStack>
+                              <HStack gap={2} cursor="pointer" px={2} py={1}>
+                                <Text fontSize="sm">Star</Text>
+                              </HStack>
+                              <Box
+                                mt={1}
+                                borderTopWidth="1px"
+                                borderTopColor="#E4E4E7"
+                              />
+                              <HStack gap={2} cursor="pointer" px={2} py={1}>
+                                <Text fontSize="sm" color="red.500">
+                                  Delete message
+                                </Text>
+                              </HStack>
+                            </MenuPopover>
+                          </HStack>
+                        )}
+
+                        <Box
+                          borderRadius="xl"
+                          px={4}
+                          py={3}
+                          bg={isMine ? "#1F97D1" : "#F4F4F5"}
+                          color={isMine ? "white" : "#18181B"}
+                          maxW="396px"
+                          w="100%"
+                          borderWidth="1px"
+                          borderColor={isMine ? "#1F97D1" : "#E4E4E7"}
+                          style={{
+                            borderRadius: isMine
+                              ? "12px 0px 12px 12px"
+                              : "0px 12px 12px 12px",
+                          }}
+                          // borderRadius={isMine ? "" : "lg"}
+                        >
+                          {message.text && (
+                            <Text fontSize="sm" whiteSpace="pre-wrap">
+                              {message.text}
+                            </Text>
                           )}
-                      </Box>
+                          {message.attachments &&
+                            message.attachments.length > 0 && (
+                              <VStack
+                                align="flex-start"
+                                gap={1}
+                                mt={message.text ? 2 : 0}
+                              >
+                                {message.attachments.map((att) => (
+                                  <HStack key={att.id} gap={2}>
+                                    <Paperclip
+                                      size={14}
+                                      color={isMine ? "white" : "#4B5563"}
+                                    />
+                                    <Text
+                                      fontSize="xs"
+                                      textDecoration="underline"
+                                    >
+                                      {att.name}
+                                    </Text>
+                                  </HStack>
+                                ))}
+                              </VStack>
+                            )}
+                        </Box>
+                        {!isMine && (
+                          <HStack
+                            justifyContent={isMine ? "flex-end" : "flex-start"}
+                            opacity={showActions ? 1 : 0}
+                            transition="opacity 0.15s ease"
+                            flexShrink={0}
+                          >
+                            <IconButton
+                              aria-label="React to message"
+                              variant="ghost"
+                              minW="fit-content"
+                              h="fit-content"
+                            >
+                              <SmilePlus
+                                size={16}
+                                color={isMine ? "#1679AB" : "#4B5563"}
+                              />
+                            </IconButton>
+                            <MenuPopover
+                              variant={isSinglePane ? "drawer" : "popover"}
+                              title="Message actions"
+                              open={isSinglePane ? showActions : undefined}
+                              onOpenChange={
+                                isSinglePane
+                                  ? (v) => !v && setActiveMessageActionsId(null)
+                                  : undefined
+                              }
+                              trigger={
+                                <IconButton
+                                  variant="ghost"
+                                  minW="fit-content"
+                                  h="fit-content"
+                                  aria-label="Message actions"
+                                  onClick={() =>
+                                    isSinglePane
+                                      ? setActiveMessageActionsId((current) =>
+                                          current === message.id
+                                            ? null
+                                            : message.id
+                                        )
+                                      : undefined
+                                  }
+                                >
+                                  <MoreHorizontal
+                                    size={16}
+                                    color={isMine ? "#1679AB" : "#4B5563"}
+                                  />
+                                </IconButton>
+                              }
+                            >
+                              <HStack gap={2} cursor="pointer" px={2} py={1}>
+                                <Text fontSize="sm">Reply</Text>
+                              </HStack>
+                              <HStack
+                                gap={2}
+                                cursor="pointer"
+                                px={2}
+                                py={1}
+                                onClick={() => {
+                                  if (message.text) {
+                                    navigator.clipboard
+                                      ?.writeText(message.text)
+                                      .catch(() => undefined);
+                                  }
+                                }}
+                              >
+                                <Text fontSize="sm">Copy</Text>
+                              </HStack>
+                              <HStack gap={2} cursor="pointer" px={2} py={1}>
+                                <Text fontSize="sm">Edit</Text>
+                              </HStack>
+                              <HStack gap={2} cursor="pointer" px={2} py={1}>
+                                <Text fontSize="sm">Star</Text>
+                              </HStack>
+                              <Box
+                                mt={1}
+                                borderTopWidth="1px"
+                                borderTopColor="#E4E4E7"
+                              />
+                              <HStack gap={2} cursor="pointer" px={2} py={1}>
+                                <Text fontSize="sm" color="red.500">
+                                  Delete message
+                                </Text>
+                              </HStack>
+                            </MenuPopover>
+                          </HStack>
+                        )}
+                      </HStack>
                       <Text
                         mt={1}
+                        flexShrink={0}
+                        whiteSpace="nowrap"
+                        alignSelf={isMine ? "flex-end" : "flex-start"}
                         fontSize="10px"
-                        color="gray.500"
+                        color="#52525B"
                         textAlign={isMine ? "right" : "left"}
                       >
                         {formatRelativeTime(message.createdAt)}
                       </Text>
                     </VStack>
+
                     <Box></Box>
                   </Box>
                   {/* </Box> */}
@@ -388,109 +509,46 @@ export const ConversationView = ({
         )}
       </Box>
 
-      <Box px={4} py={3} borderTopWidth="1px" borderColor="#E4E4E7">
-        <HStack gap={2}>
-          <MenuPopover
-            variant={isSinglePane ? "drawer" : "popover"}
-            placement="top-start"
-            title="Attach"
-            open={isSinglePane ? isAttachmentOpen : undefined}
-            onOpenChange={isSinglePane ? setIsAttachmentOpen : undefined}
-            trigger={
-              <IconButton
-                aria-label="Attach file"
-                variant="ghost"
-                onClick={() =>
-                  isSinglePane ? setIsAttachmentOpen(true) : undefined
-                }
-              >
-                <Paperclip size={18} />
-              </IconButton>
-            }
-            contentProps={isSinglePane ? { p: 4 } : { p: 3 }}
-          >
-            <VStack align="stretch" gap={2}>
-              <HStack
-                gap={3}
-                cursor="pointer"
-                onClick={() => isSinglePane && setIsAttachmentOpen(false)}
-              >
-                <Box
-                  w={8}
-                  h={8}
-                  borderRadius="full"
-                  bg="#EFF6FF"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Paperclip size={16} color="#1679AB" />
-                </Box>
-                <Text fontSize="sm" color="#111827">
-                  Share documents
-                </Text>
-              </HStack>
-              <HStack
-                gap={3}
-                cursor="pointer"
-                onClick={() => isSinglePane && setIsAttachmentOpen(false)}
-              >
-                <Box
-                  w={8}
-                  h={8}
-                  borderRadius="full"
-                  bg="#EFF6FF"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Paperclip size={16} color="#1679AB" />
-                </Box>
-                <Text fontSize="sm" color="#111827">
-                  Share videos
-                </Text>
-              </HStack>
-              <HStack
-                gap={3}
-                cursor="pointer"
-                onClick={() => isSinglePane && setIsAttachmentOpen(false)}
-              >
-                <Box
-                  w={8}
-                  h={8}
-                  borderRadius="full"
-                  bg="#EFF6FF"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Paperclip size={16} color="#1679AB" />
-                </Box>
-                <Text fontSize="sm" color="#111827">
-                  Share photos
-                </Text>
-              </HStack>
-            </VStack>
-          </MenuPopover>
-          <Input
-            placeholder="Type your message"
+      <Box
+        pt={5}
+        pb={4}
+        px={{ base: 4, md: 5 }}
+        borderTopWidth="1px"
+        borderColor="#E4E4E7"
+      >
+        <HStack gap={2} align="stretch">
+          <MessageComposerInput
             value={composerText}
-            onChange={(e) => onComposerTextChange(e.target.value)}
+            onChange={onComposerTextChange}
+            placeholder="Type your message..."
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 onSendMessage();
               }
             }}
+            attachmentDrawer={!!isSinglePane}
+            attachmentOpen={isAttachmentOpen}
+            onAttachmentOpenChange={setIsAttachmentOpen}
           />
-          <IconButton
+
+          <ButtonV2
+            variant="primary"
             aria-label="Send message"
             colorScheme="blue"
             disabled={!composerText.trim()}
             onClick={onSendMessage}
+            flexShrink={0}
+            h="40px"
+            fontSize="sm"
+            px={{ base: 2.5, md: 4 }}
+            iconPosition="end"
+            icon={<Send size={18} />}
           >
-            <Send size={18} />
-          </IconButton>
+            <Text fontSize="sm" display={{ base: "none", md: "inline-block" }}>
+              Send
+            </Text>
+          </ButtonV2>
         </HStack>
       </Box>
     </Box>

@@ -37,7 +37,6 @@ export const ConversationBox: React.FC<ConversationBoxProps> = ({
       py={4}
       cursor="pointer"
       bg={isActive ? "#EFF6FF" : "white"}
-      //   _hover={{ bg: isActive ? "#E0EDFF" : "#F9FAFB" }}
       borderBottomWidth="1px"
       borderColor="#F3F4F6"
       onClick={() => onSelect(conversation.id)}
@@ -129,21 +128,9 @@ export const ConversationBox: React.FC<ConversationBoxProps> = ({
                       : "Star conversation"
                   }
                   variant="ghost"
-                  size="xs"
-                  w="20px"
-                  h="20px"
-                  //   bg="transparent"
-                  //   p={0}
-                  //   _focus={{
-                  //     bg: "transparent",
-                  //     p: 0,
-                  //   }}
-                  //   w="20px"
-                  //   h="20px"
-                  //   _hover={{
-                  //     bg: "transparent",
-                  //     p: 0,
-                  //   }}
+                  h="fit-content"
+                  w="fit-content"
+                  minW="fit-content"
                   onClick={(e) => {
                     e.stopPropagation();
                     onToggleArchive(conversation.id);
@@ -159,21 +146,8 @@ export const ConversationBox: React.FC<ConversationBoxProps> = ({
                 <IconButton
                   aria-label="More options"
                   variant="ghost"
-                  size="xs"
-                  w="20px"
-                  h="20px"
-                  //   bg="transparent"
-                  //   p={0}
-                  //   _focus={{
-                  //     bg: "transparent",
-                  //     p: 0,
-                  //   }}
-                  //   w="20px"
-                  //   h="20px"
-                  //   _hover={{
-                  //     bg: "transparent",
-                  //     p: 0,
-                  //   }}
+                  minW="fit-content"
+                  h="fit-content"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <MoreHorizontal
@@ -192,9 +166,3 @@ export const ConversationBox: React.FC<ConversationBoxProps> = ({
 };
 
 export default ConversationBox;
-
-{
-  /* <Text fontSize="xs" color="gray.500" whiteSpace="nowrap">
-              {formatRelativeTime(conversation.lastActivityAt)}
-            </Text> */
-}

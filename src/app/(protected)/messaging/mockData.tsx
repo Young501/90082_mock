@@ -204,14 +204,14 @@ export const MOCK_MESSAGES: MessagesByConversation = {
       createdAt: new Date(Date.now() - 2.5 * 60 * 60 * 1000).toISOString(),
     },
     {
-      id: "m1",
+      id: "m233",
       conversationId: "1",
       sender: "me",
       text: "Thanks for your interest! We would love to discuss the volunteer opportunity with you.",
       createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
     },
     {
-      id: "m2",
+      id: "m42",
       conversationId: "1",
       sender: "them",
       text: "Thanks for your interest! We would love to discuss the volunteer opportunity with you.",
