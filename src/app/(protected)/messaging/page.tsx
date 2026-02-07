@@ -9,6 +9,7 @@ import { ConversationView } from "./ConversationView";
 import { MOCK_CONVERSATIONS, MOCK_MESSAGES } from "./mockData";
 import {
   ConversationSummary,
+  ConversationId,
   MessagesByConversation,
   Message,
 } from "@/types/messaging";
@@ -21,7 +22,7 @@ const Inbox = () => {
   const [messagesByConversation, setMessagesByConversation] =
     useState<MessagesByConversation>(MOCK_MESSAGES);
   const [selectedConversationId, setSelectedConversationId] =
-    useState<string | null>(
+    useState<ConversationId | null>(
       MOCK_CONVERSATIONS.length ? MOCK_CONVERSATIONS[0].id : null
     );
   const [showArchived, setShowArchived] = useState(false);
@@ -63,7 +64,7 @@ const Inbox = () => {
     return messagesByConversation[selectedConversation.id] || [];
   }, [messagesByConversation, selectedConversation]);
 
-  const markConversationAsRead = (conversationId: string) => {
+  const markConversationAsRead = (conversationId: ConversationId) => {
     setConversations((prev) =>
       prev.map((c) =>
         c.id === conversationId ? { ...c, hasUnread: false, unreadCount: 0 } : c
@@ -71,7 +72,7 @@ const Inbox = () => {
     );
   };
 
-  const handleSelectConversation = (conversationId: string) => {
+  const handleSelectConversation = (conversationId: ConversationId) => {
     setSelectedConversationId(conversationId);
     markConversationAsRead(conversationId);
     if (isSinglePane) {
@@ -79,7 +80,7 @@ const Inbox = () => {
     }
   };
 
-  const handleToggleArchive = (conversationId: string) => {
+  const handleToggleArchive = (conversationId: ConversationId) => {
     setConversations((prev) =>
       prev.map((c) =>
         c.id === conversationId ? { ...c, isArchived: !c.isArchived } : c
@@ -146,7 +147,7 @@ const Inbox = () => {
 
     if (isSinglePane) {
       return (
-        <Box w="100%">
+        <Box w="100%" py={4}>
           {isShowingThreadOnSinglePane ? (
             <ConversationView
               isSinglePane={isSinglePane}
@@ -160,24 +161,26 @@ const Inbox = () => {
               onToggleArchive={handleToggleArchive}
             />
           ) : (
-            <ConversationList
-              conversations={filteredConversations}
-              selectedConversationId={selectedConversationId}
-              showArchived={showArchived}
-              searchTerm={searchTerm}
-              onSearchTermChange={setSearchTerm}
-              onShowArchivedChange={setShowArchived}
-              onSelectConversation={handleSelectConversation}
-              onToggleArchive={handleToggleArchive}
-              hasAnyConversations={hasAnyConversations}
-            />
+            <Box p={4}>
+              <ConversationList
+                conversations={filteredConversations}
+                selectedConversationId={selectedConversationId}
+                showArchived={showArchived}
+                searchTerm={searchTerm}
+                onSearchTermChange={setSearchTerm}
+                onShowArchivedChange={setShowArchived}
+                onSelectConversation={handleSelectConversation}
+                onToggleArchive={handleToggleArchive}
+                hasAnyConversations={hasAnyConversations}
+              />
+            </Box>
           )}
         </Box>
       );
     }
 
     return (
-      <Flex w="100%" gap={4} align="stretch">
+      <Flex w="100%" gap={4} align="stretch" p={4}>
         <Box flexBasis="340px" maxW="360px">
           <ConversationList
             conversations={filteredConversations}
@@ -218,10 +221,13 @@ const Inbox = () => {
         justifyContent="center"
         alignItems="start"
         borderRadius="xl"
+        // border={{ base: "none", md: "1px solid #E4E4E7" }}
         borderWidth="1px"
         borderColor="#E4E4E7"
+        // border={{ base: "none", md: "1px solid #E4E4E7" }}
         bg="white"
-        p={4}
+        // py={4}
+        // px={{ base: 0, md: 4 }}
       >
         {renderContent()}
       </Box>

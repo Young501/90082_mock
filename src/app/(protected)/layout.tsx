@@ -25,7 +25,10 @@ function LayoutContent({ children }: { children: ReactNode }) {
         }}
       >
         <Header isProtected={true} />
-        <Box bg="#FAFAFA">
+        <Box
+          bg="#FAFAFA"
+          h={{ base: "calc(100vh - 58px)", lg: "calc(100vh - 76px)" }}
+        >
           <Box
             display="flex"
             flex={1}
@@ -60,7 +63,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
           </Box>
         </Box>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </ProtectedRoute>
   );

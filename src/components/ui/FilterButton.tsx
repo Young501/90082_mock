@@ -1,5 +1,6 @@
-import { Button, type ButtonProps, Box } from "@chakra-ui/react";
+import { type ButtonProps, Button } from "@chakra-ui/react";
 import { IconFilter } from "@/components/Icons";
+// import { Button } from "@/components/ui/Button";
 
 export interface FilterButtonProps extends ButtonProps {
   label?: string;

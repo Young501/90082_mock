@@ -1,6 +1,7 @@
 import React from "react";
-import { Box, HStack, Text, VStack, Popover } from "@chakra-ui/react";
+import { Box, HStack, Text, VStack } from "@chakra-ui/react";
 import { FilterButton } from "@/components/ui/FilterButton";
+import { MenuPopover } from "@/components/ui/MenuPopover";
 
 interface ArchiveFilterPopoverProps {
   showArchived: boolean;
@@ -12,59 +13,47 @@ export const ArchiveFilterPopover: React.FC<ArchiveFilterPopoverProps> = ({
   onShowArchivedChange,
 }) => {
   return (
-    <Popover.Root positioning={{ placement: "bottom-end" }}>
-      <Popover.Trigger>
+    <MenuPopover
+      placement="bottom-end"
+      title="Filter conversations"
+      minW="200px"
+      contentProps={{ p: 3 }}
+      trigger={
         <Box>
           <FilterButton paddingX={2.5} />
         </Box>
-      </Popover.Trigger>
-      <Popover.Positioner>
-        <Popover.Content
-          bg="white"
-          borderRadius="lg"
-          boxShadow="lg"
-          borderWidth="1px"
-          borderColor="gray.100"
-          p={3}
-          minW="200px"
+      }
+    >
+      <VStack align="stretch" gap={1}>
+        <HStack
+          gap={2}
+          cursor="pointer"
+          px={2}
+          py={1}
+          borderRadius="md"
+          bg={!showArchived ? "#F4F4F5" : "transparent"}
+          _hover={{ bg: "#F4F4F5" }}
+          onClick={() => onShowArchivedChange(false)}
         >
-          <VStack align="stretch" gap={2}>
-            <Text fontWeight="semibold" fontSize="sm">
-              Filter conversations
-            </Text>
-            <VStack align="stretch" gap={1}>
-              <HStack
-                gap={2}
-                cursor="pointer"
-                px={2}
-                py={1}
-                borderRadius="md"
-                bg={!showArchived ? "#F4F4F5" : "transparent"}
-                _hover={{ bg: "#F4F4F5" }}
-                onClick={() => onShowArchivedChange(false)}
-              >
-                <Text fontSize="sm" color="#111827">
-                  Inbox
-                </Text>
-              </HStack>
-              <HStack
-                gap={2}
-                cursor="pointer"
-                px={2}
-                py={1}
-                borderRadius="md"
-                bg={showArchived ? "#F4F4F5" : "transparent"}
-                _hover={{ bg: "#F4F4F5" }}
-                onClick={() => onShowArchivedChange(true)}
-              >
-                <Text fontSize="sm" color="#111827">
-                  Archived
-                </Text>
-              </HStack>
-            </VStack>
-          </VStack>
-        </Popover.Content>
-      </Popover.Positioner>
-    </Popover.Root>
+          <Text fontSize="sm" color="#111827">
+            Inbox
+          </Text>
+        </HStack>
+        <HStack
+          gap={2}
+          cursor="pointer"
+          px={2}
+          py={1}
+          borderRadius="md"
+          bg={showArchived ? "#F4F4F5" : "transparent"}
+          _hover={{ bg: "#F4F4F5" }}
+          onClick={() => onShowArchivedChange(true)}
+        >
+          <Text fontSize="sm" color="#111827">
+            Archived
+          </Text>
+        </HStack>
+      </VStack>
+    </MenuPopover>
   );
 };

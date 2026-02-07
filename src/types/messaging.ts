@@ -1,6 +1,6 @@
-
+export type ConversationId = string;
 export interface ConversationSummary {
-  id: string ;
+  id: ConversationId;
   title: string;
   subtitle: string; 
   lastMessagePreview: string;
@@ -20,11 +20,11 @@ export interface MessageAttachment {
 
 export interface Message {
   id: string;
-  conversationId: string;
+  conversationId: ConversationId;
   sender: "me" | "them";
   text?: string;
   attachments?: MessageAttachment[];
   createdAt: string; 
 }
 
-export type MessagesByConversation = Record<string, Message[]>;
+export type MessagesByConversation = Record<ConversationId, Message[]>;
