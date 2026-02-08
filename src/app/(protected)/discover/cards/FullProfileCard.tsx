@@ -242,6 +242,8 @@ export function FullProfileCard({
               pt={0}
               bg="white"
               borderTopRadius="xl"
+              py={{ base: 5, md: 16 }}
+              px={{ base: 4, md: 6 }}
               boxShadow="0px 5.92px 11.84px 5.92px #00000040"
             >
               {profileContent}

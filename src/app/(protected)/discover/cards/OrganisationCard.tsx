@@ -285,6 +285,7 @@ export function OrganisationCard({
           profileId={organisation.id.toString()}
           profileType="organisation"
           opportunityId={opportunityId || ""}
+          opportunitySlug={opportunitySlug || ""}
           onClose={() => setShowFullProfile(false)}
         />
       )}
