@@ -28,3 +28,21 @@ export interface Message {
 }
 
 export type MessagesByConversation = Record<ConversationId, Message[]>;
+
+export interface ContactMember {
+  id?: number;
+  first_name?: string;
+  last_name?: string;
+  profile_picture_url?: string | null;
+  role?: string;
+}
+
+export interface ContactFormData {
+  other_user_id: number;
+  subject: string;
+  message: string;
+}
+export interface ConversationResponse {
+  id: number;
+  [key: string]: unknown;
+}

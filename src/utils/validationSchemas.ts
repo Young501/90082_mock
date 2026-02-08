@@ -370,11 +370,7 @@ export const changePasswordSchema = yup.object({
 });
 
 export const emailContactValidationSchema = yup.object().shape({
-  user_id: yup.number().required("Recipient ID is required"),
-  reply_to: yup
-    .string()
-    .email("Invalid email")
-    .required("Your email is required"),
+  other_user_id: yup.number().required("Recipient is required"),
   subject: yup.string().default(""),
   message: yup
     .string()

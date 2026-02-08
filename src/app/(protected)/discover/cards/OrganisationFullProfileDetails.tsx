@@ -477,6 +477,7 @@ export const RenderOrganisationDetails = ({
           recipientId={organisation.id}
           organisationId={organisation.id.toString()}
           acceptedOpportunityId={opportunityId}
+          members={organisation.members}
           recipientName={
             organisation.name ||
             `${organisation.first_name ?? ""} ${organisation.last_name ?? ""}`.trim() ||

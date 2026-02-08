@@ -28,17 +28,10 @@ export function ButtonV2({
       borderRadius: "xl",
       fontSize: "xs",
       fontWeight: "500",
-      //   _hover: {
-      //     bg: "#001844",
-      //   },
+  
       _active: {
         transform: "scale(0.98)",
       },
-      //   _disabled: {
-      //     bg: "#4a5568",
-      //     opacity: 0.6,
-      //     cursor: "not-allowed",
-      //   },
     },
     secondary: {
       bg: "#EAF6FD",

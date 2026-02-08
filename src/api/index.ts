@@ -355,6 +355,15 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v2/opportunities/${opportunityId}/participants/search`,
   }),
+  // Messaging
+  GET_OR_CREATE_CONVERSATION: (): ApiEndpoint => ({
+    method: "POST",
+    url: "/api/v1/messaging/conversations/get-or-create/",
+  }),
+  SEND_MESSAGE: (conversationId: string | number): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v1/messaging/conversations/${conversationId}/messages/`,
+  }),
 };
 
 /*********
