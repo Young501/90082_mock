@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
   VStack,
@@ -10,6 +10,8 @@ import {
   HStack,
   Grid,
   IconButton,
+  Flex,
+  Avatar,
 } from "@chakra-ui/react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -21,7 +23,7 @@ import { useAuthStore } from "@/store";
 import { toast } from "react-toastify";
 import { ContactFormData, ContactMember } from "@/types/messaging";
 import { emailContactValidationSchema } from "@/utils/validationSchemas";
-import { X } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 
 interface ContactPageProps {
   recipientId: number;
@@ -62,6 +64,164 @@ const recipientDisplayName = (
     ? `${name}${member.role ? ` (${member.role})` : ""}`
     : recipientName;
 };
+
+// **********************************************************************************************************************
+// ************* Custom recipient dropdown component for select here only, chakra native select behaves weirdly with custom styling on select options
+// **********************************************************************************************************************
+
+
+function CustomRecipientDropdown({
+  selectableMembers,
+  value,
+  onChange,
+}: {
+  selectableMembers: ContactMember[];
+  value: number;
+  onChange: (id: number) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  const selectedMember = selectableMembers.find((m) => m.id === value);
+  const selectedName = selectedMember
+    ? [selectedMember.first_name, selectedMember.last_name]
+        .filter(Boolean)
+        .join(" ") || "—"
+    : "Select recipient";
+
+  return (
+    <Box ref={containerRef} position="relative">
+      <Button
+        type="button"
+        width="100%"
+        h="40px"
+        px="12px"
+        border="1px solid #E4E4E7"
+        borderRadius="xl"
+        fontWeight="normal"
+        fontSize="sm"
+        textAlign="left"
+        bg="white"
+        _hover={{ bg: "gray.50" }}
+        _active={{ bg: "gray.50" }}
+        cursor="pointer"
+        display="flex"
+        alignItems="center"
+        onClick={() => setIsOpen((prev) => !prev)}
+      >
+        <Flex align="center" gap="8px" flex={1} minW={0}>
+          <Box flex="1" minW={0}>
+            <Text fontSize="sm" fontWeight="normal" color="black" truncate>
+              {selectedName}
+            </Text>
+          </Box>
+          <ChevronDown
+            size={16}
+            color="black"
+            style={{
+              flexShrink: 0,
+              transform: isOpen ? "rotate(180deg)" : undefined,
+            }}
+          />
+        </Flex>
+      </Button>
+      {isOpen && (
+        <Box
+          position="absolute"
+          top="100%"
+          left={0}
+          right={0}
+          mt={1}
+          zIndex={1100}
+          maxH="300px"
+          overflowY="auto"
+          borderRadius="xl"
+          boxShadow="md"
+          border="1px solid #E4E4E7"
+          bg="white"
+          py={1}
+        >
+          {selectableMembers.map((m) => {
+            const name =
+              [m.first_name, m.last_name].filter(Boolean).join(" ") || "—";
+            return (
+              <Box
+                key={m.id}
+                px={3}
+                py={2}
+                cursor="pointer"
+                bg={value === m.id ? "#F4F4F5" : "white"}
+                _hover={{ bg: "#F4F4F5" }}
+                onClick={() => {
+                  onChange(m.id!);
+                  setIsOpen(false);
+                }}
+              >
+                <Flex align="center" gap="12px" width="100%">
+                  {m.profile_picture_url ? (
+                    <Avatar.Root size="sm" borderRadius="md">
+                      <Avatar.Image
+                        src={m.profile_picture_url}
+                        alt={name}
+                        w="36px"
+                        h="36px"
+                        borderRadius="md"
+                      />
+                      <Avatar.Fallback bg="#E4E4E7" color="black">
+                        {m.first_name?.[0] || ""}
+                        {m.last_name?.[0] || ""}
+                      </Avatar.Fallback>
+                    </Avatar.Root>
+                  ) : (
+                    <Flex
+                      w="32px"
+                      h="32px"
+                      align="center"
+                      justify="center"
+                      bg="#E4E4E7"
+                      borderRadius="md"
+                      fontSize="sm"
+                      fontWeight="medium"
+                    >
+                      <Text fontSize="sm" fontWeight="medium" color="black">
+                        {m.first_name?.[0] || ""}
+                        {m.last_name?.[0] || ""}
+                      </Text>
+                    </Flex>
+                  )}
+                  <Box flex="1" minW={0}>
+                    <Text fontSize="sm" fontWeight="medium" truncate>
+                      {name}
+                    </Text>
+                    {m.role && (
+                      <Text fontSize="xs" color="gray.500" truncate>
+                        {m.role}
+                      </Text>
+                    )}
+                  </Box>
+                </Flex>
+              </Box>
+            );
+          })}
+        </Box>
+      )}
+    </Box>
+  );
+}
 
 export function ContactPage({
   recipientId,
@@ -240,38 +400,11 @@ export function ContactPage({
                     name="other_user_id"
                     control={control}
                     render={({ field }) => (
-                      <Box
-                        as="select"
-                        width="100%"
-                        padding="8px 12px"
-                        // size="sm"
-                        h="40px"
-                        py="10px"
-                        px="12px"
-                        border="1px solid #E4E4E7"
-                        borderRadius="xl"
-                        fontWeight="normal"
-                        fontSize="sm"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            Number((e.target as HTMLSelectElement).value)
-                          )
-                        }
-                      >
-                        {selectableMembers.map((m) => {
-                          const name =
-                            [m.first_name, m.last_name]
-                              .filter(Boolean)
-                              .join(" ") || "—";
-                          const label = m.role ? `${name} (${m.role})` : name;
-                          return (
-                            <option key={m.id} value={m.id}>
-                              {label}
-                            </option>
-                          );
-                        })}
-                      </Box>
+                      <CustomRecipientDropdown
+                        selectableMembers={selectableMembers}
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
                     )}
                   />
                 ) : (
