@@ -124,3 +124,28 @@ export function useSendMessage() {
     },
   });
 }
+
+export function updateConversationArchiveState(
+  conversationId: number,
+  isArchived: boolean
+): Promise<ConversationResponse> {
+  return apiRequest({
+    endpoint: API_ENDPOINTS.UPDATE_CONVERSATION_STATE(conversationId),
+    body: { is_archived: isArchived },
+  });
+}
+
+export function useToggleConversationArchive() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { conversationId: number; isArchived: boolean }) =>
+      updateConversationArchiveState(data.conversationId, data.isArchived),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: CONVERSATIONS_QUERY_KEY });
+      queryClient.invalidateQueries({
+        queryKey: MESSAGES_QUERY_KEY(variables.conversationId),
+      });
+    },
+  });
+}

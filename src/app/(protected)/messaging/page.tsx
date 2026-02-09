@@ -10,6 +10,7 @@ import {
   useConversationsList,
   useConversationMessages,
   useSendMessage,
+  useToggleConversationArchive,
 } from "@/services/messaging";
 import {
   ConversationSummary,
@@ -53,6 +54,7 @@ const Inbox = () => {
     useConversationMessages(selectedConversationId, { page_size: 50 });
 
   const sendMessageMutation = useSendMessage();
+  const toggleArchiveMutation = useToggleConversationArchive();
 
   const filteredConversations = useMemo(() => {
     if (!searchTerm.trim()) return conversations;
@@ -92,8 +94,14 @@ const Inbox = () => {
     if (isSinglePane) setIsShowingThreadOnSinglePane(true);
   };
 
-  const handleToggleArchive = (_conversationId: ConversationId) => {
-    // Archive/unarchive would call PATCH .../state/ and invalidate list
+  const handleToggleArchive = (conversationId: ConversationId) => {
+    const conversation = conversations.find((c) => c.id === conversationId);
+    if (!conversation) return;
+
+    toggleArchiveMutation.mutate({
+      conversationId,
+      isArchived: !conversation.isArchived,
+    });
   };
 
   const hasAnyConversations = filteredConversations.length > 0;

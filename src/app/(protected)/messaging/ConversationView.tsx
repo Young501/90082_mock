@@ -219,14 +219,38 @@ export const ConversationView = ({
           >
             <Search size={20} color="#71717A" />
           </IconButton>
-          <IconButton
-            aria-label="More options"
-            variant="ghost"
-            minW="fit-content"
-            h="fit-content"
+
+          <MenuPopover
+            trigger={
+              <IconButton
+                variant="ghost"
+                minW="fit-content"
+                aria-label="Conversation options"
+                h="fit-content"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <EllipsisVertical size={20} color="#71717A" />
+              </IconButton>
+            }
+            placement="bottom-start"
           >
-            <EllipsisVertical size={20} color="#71717A" />
-          </IconButton>
+            <HStack
+              gap={2}
+              cursor="pointer"
+              px={2}
+              py={1}
+              borderRadius="md"
+              _hover={{ bg: "#F4F4F5" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (conversation?.id != null) onToggleArchive(conversation.id);
+              }}
+            >
+              <Text fontSize="sm" color="#111827">
+                {conversation?.isArchived ? "Unarchive chat" : "Archive chat"}
+              </Text>
+            </HStack>
+          </MenuPopover>
         </HStack>
       </HStack>
 

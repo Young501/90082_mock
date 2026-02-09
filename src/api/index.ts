@@ -372,6 +372,10 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v1/messaging/conversations/${conversationId}/messages/`,
   }),
+  UPDATE_CONVERSATION_STATE: (conversationId: number): ApiEndpoint => ({
+    method: "PATCH",
+    url: `/api/v1/messaging/conversations/${conversationId}/state/`,
+  }),
 };
 
 /*********
@@ -386,7 +390,12 @@ export async function apiRequest<T = any>({
   const { method, url } = endpoint;
 
   const config = {
-    method: method.toLowerCase() as "get" | "post" | "put" | "delete",
+    method: method.toLowerCase() as
+      | "get"
+      | "post"
+      | "put"
+      | "delete"
+      | "patch",
     url,
     headers: {
       ...headers,
