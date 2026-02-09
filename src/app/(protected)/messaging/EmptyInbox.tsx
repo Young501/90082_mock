@@ -15,6 +15,7 @@ export const EmptyInbox = () => {
       px={4}
       w="100%"
       maxW="374px"
+      mx="auto"
     >
       <Box display="flex" alignItems="center" justifyContent="center">
         <MessageCircleX size={32} color="#52525B" />

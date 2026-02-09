@@ -69,12 +69,6 @@ export function useConversationMessages(
         ? Promise.resolve({ next: null, previous: null, results: [] })
         : listMessages(conversationId, params),
     enabled: conversationId != null,
-    select: (data): Message[] =>
-      conversationId == null
-        ? []
-        : data.results.map((item) =>
-            messageListItemToMessage(item, conversationId, numericUserId)
-          ),
   });
 }
 

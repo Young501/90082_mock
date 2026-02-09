@@ -16,6 +16,7 @@ import {
   ConversationSummary,
   ConversationId,
   Message,
+  messageListItemToMessage,
 } from "@/types/messaging";
 import { useAuthStore } from "@/store";
 
@@ -48,8 +49,59 @@ const Inbox = () => {
     page_size: 50,
   });
 
-  const { data: selectedMessages = [], isLoading: messagesLoading } =
-    useConversationMessages(selectedConversationId, { page_size: 5 });
+  const [messagesCursor, setMessagesCursor] = useState<string | null>(null);
+  const [allMessages, setAllMessages] = useState<Message[]>([]);
+
+  // Cursor pagination: API returns newest-first. No cursor = first page (newest).
+  // messagesData.previous = cursor to fetch the next older page; we store that
+  // in messagesCursor and merge each older page into allMessages by prepending.
+  const { data: messagesData, isLoading: messagesLoading } =
+    useConversationMessages(selectedConversationId, {
+      page_size: 5,
+      cursor: messagesCursor || undefined,
+    });
+
+  const selectedMessages = useMemo(() => {
+    if (!messagesData) return [];
+    const currentUserId = useAuthStore.getState().user?.id;
+    const numericUserId =
+      currentUserId != null ? Number(currentUserId) : undefined;
+    return messagesData.results.map((item) =>
+      messageListItemToMessage(item, selectedConversationId!, numericUserId)
+    );
+  }, [messagesData, selectedConversationId]);
+
+  const hasMoreMessages = !!messagesData?.previous;
+  const isLoadingMoreMessages = messagesLoading && !!messagesCursor;
+
+  useEffect(() => {
+    if (selectedConversationId) {
+      setAllMessages([]);
+      setMessagesCursor(null);
+    }
+  }, [selectedConversationId]);
+
+  // Sync API page(s) into allMessages: initial page replaces; older pages prepend.
+  useEffect(() => {
+    if (selectedMessages.length === 0) return;
+    if (messagesCursor) {
+      setAllMessages((prev) => {
+        const existingIds = new Set(prev.map((m) => m.id));
+        const newMessages = selectedMessages.filter(
+          (m) => !existingIds.has(m.id)
+        );
+        return [...newMessages, ...prev];
+      });
+    } else {
+      setAllMessages(selectedMessages);
+    }
+  }, [selectedMessages, messagesCursor]);
+
+  const handleLoadMoreMessages = () => {
+    if (messagesData?.previous && !messagesLoading) {
+      setMessagesCursor(messagesData.previous);
+    }
+  };
 
   const sendMessageMutation = useSendMessage();
   const toggleArchiveMutation = useToggleConversationArchive();
@@ -121,7 +173,10 @@ const Inbox = () => {
         replyToId: replyToId,
       },
       {
-        onSuccess: () => setComposerText(""),
+        onSuccess: () => {
+          setComposerText("");
+          setMessagesCursor(null);
+        },
       }
     );
   };
@@ -169,14 +224,17 @@ const Inbox = () => {
             <ConversationView
               isSinglePane={isSinglePane}
               conversation={selectedConversation}
-              messages={selectedMessages}
+              messages={allMessages}
               composerText={composerText}
               onComposerTextChange={setComposerText}
               onSendMessage={handleSendMessage}
               onBackToList={() => setIsShowingThreadOnSinglePane(false)}
               onToggleArchive={handleToggleArchive}
-              messagesLoading={messagesLoading}
+              messagesLoading={messagesLoading && !messagesCursor}
               profileType={profileType}
+              hasMoreMessages={hasMoreMessages}
+              onLoadMoreMessages={handleLoadMoreMessages}
+              isLoadingMoreMessages={isLoadingMoreMessages}
             />
           ) : (
             <Box p={4} h="100%">
@@ -218,14 +276,17 @@ const Inbox = () => {
           <ConversationView
             isSinglePane={isSinglePane}
             conversation={selectedConversation}
-            messages={selectedMessages}
+            messages={allMessages}
             composerText={composerText}
             onComposerTextChange={setComposerText}
             onSendMessage={handleSendMessage}
             onBackToList={() => setIsShowingThreadOnSinglePane(false)}
             onToggleArchive={handleToggleArchive}
-            messagesLoading={messagesLoading}
+            messagesLoading={messagesLoading && !messagesCursor}
             profileType={profileType}
+            hasMoreMessages={hasMoreMessages}
+            onLoadMoreMessages={handleLoadMoreMessages}
+            isLoadingMoreMessages={isLoadingMoreMessages}
           />
         </Box>
       </Flex>

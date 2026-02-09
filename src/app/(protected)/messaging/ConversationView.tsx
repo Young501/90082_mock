@@ -51,6 +51,9 @@ interface ConversationViewProps {
   onToggleArchive: (id: ConversationId) => void;
   messagesLoading?: boolean;
   profileType: "coordinator" | "organisation" | "student";
+  hasMoreMessages?: boolean;
+  onLoadMoreMessages?: () => void;
+  isLoadingMoreMessages?: boolean;
 }
 
 export const ConversationView = ({
@@ -64,8 +67,13 @@ export const ConversationView = ({
   onToggleArchive,
   messagesLoading = false,
   profileType,
+  hasMoreMessages = false,
+  onLoadMoreMessages,
+  isLoadingMoreMessages = false,
 }: ConversationViewProps) => {
+  console.log("messages", messages);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [isAttachmentOpen, setIsAttachmentOpen] = useState(false);
   const [activeMessageActionsId, setActiveMessageActionsId] = useState<
     string | null
@@ -73,7 +81,7 @@ export const ConversationView = ({
   const [isCopied, setIsCopied] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
-  const currentUserId = useAuthStore((s) => s.user?.id);
+  const currentUserId = useAuthStore((s: any) => s.user?.id);
   const numericUserId =
     currentUserId != null ? Number(currentUserId) : undefined;
   console.log("ConversationView", conversation);
@@ -118,6 +126,18 @@ export const ConversationView = ({
 
   const handleCancelReply = () => {
     setReplyToMessage(null);
+  };
+
+  const scrollToMessage = (messageId: string | number) => {
+    const id = String(messageId);
+    const messageElement = messageRefs.current.get(id);
+    if (messageElement) {
+      messageElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      messageElement.style.backgroundColor = "#F4F4F5";
+      setTimeout(() => {
+        messageElement.style.backgroundColor = "";
+      }, 500);
+    }
   };
 
   if (!conversation) {
@@ -382,6 +402,36 @@ export const ConversationView = ({
           </VStack>
         ) : (
           <VStack align="stretch" gap={{ base: 3, md: 6 }}>
+            {hasMoreMessages && onLoadMoreMessages && (
+              <Box
+                display="flex"
+                justifyContent="center"
+                py={2}
+                borderBottomWidth="1px"
+                borderBottomColor="#E4E4E7"
+              >
+                <ButtonV2
+                  variant="ghost"
+                  onClick={onLoadMoreMessages}
+                  disabled={isLoadingMoreMessages}
+                  aria-label="Load older messages"
+                  h="fit-content"
+                  py={2}
+                  px={4}
+                >
+                  {isLoadingMoreMessages ? (
+                    <HStack gap={2}>
+                      <Spinner size="sm" />
+                      <Text fontSize="xs">Loading older messages...</Text>
+                    </HStack>
+                  ) : (
+                    <Text fontSize="xs" color="#71717A">
+                      Load older messages
+                    </Text>
+                  )}
+                </ButtonV2>
+              </Box>
+            )}
             {orderedMessages.map((message) => {
               const isMine = message.sender === "me";
               const showActions = activeMessageActionsId === message.id;
@@ -403,6 +453,13 @@ export const ConversationView = ({
               return (
                 <Box
                   key={message.id}
+                  ref={(el: HTMLDivElement | null) => {
+                    if (el) {
+                      messageRefs.current.set(message.id, el);
+                    } else {
+                      messageRefs.current.delete(message.id);
+                    }
+                  }}
                   display="flex"
                   justifyContent={isMine ? "flex-end" : "flex-start"}
                   onMouseEnter={handleHoverIn}
@@ -430,15 +487,37 @@ export const ConversationView = ({
                         gap={1}
                         // justifyContent={isMine ? "flex-end" : "flex-start"}
                       >
-                        {isMine && (
-                          <HStack
-                            justifyContent={isMine ? "flex-end" : "flex-start"}
-                            opacity={showActions ? 1 : 0}
-                            transition="opacity 0.15s ease"
-                            flexShrink={0}
-                          >
-                            {/* TODO: REACT TO MESSAGE FEATURE: PENDING API AVAILABILITY */}
-                            {/* <IconButton
+                        <HStack gap={3} align="flex-start">
+                          {!isMine && (
+                            <Avatar.Root size="sm">
+                              <Avatar.Image
+                                src={
+                                  message.messanger?.profile_picture_url ?? ""
+                                }
+                                alt={message.messanger?.full_name ?? ""}
+                                w="28px"
+                                h="28px"
+                              />
+                              <Avatar.Fallback bg="#E4E4E7" color="black">
+                                {message.messanger?.full_name
+                                  ?.slice(0, 2)
+                                  .toUpperCase()}
+                              </Avatar.Fallback>
+                            </Avatar.Root>
+                          )}
+                          <VStack gap={1}>
+                            <HStack gap={1}>
+                              {isMine && (
+                                <HStack
+                                  justifyContent={
+                                    isMine ? "flex-end" : "flex-start"
+                                  }
+                                  opacity={showActions ? 1 : 0}
+                                  transition="opacity 0.15s ease"
+                                  flexShrink={0}
+                                >
+                                  {/* TODO: REACT TO MESSAGE FEATURE: PENDING API AVAILABILITY */}
+                                  {/* <IconButton
                               variant="ghost"
                               minW="fit-content"
                               aria-label="React to message"
@@ -449,40 +528,47 @@ export const ConversationView = ({
                                 color={isMine ? "#1F97D1" : "#4B5563"}
                               />
                             </IconButton> */}
-                            <MenuPopover
-                              variant={isSinglePane ? "drawer" : "popover"}
-                              title="Message actions"
-                              open={isSinglePane ? showActions : undefined}
-                              placement="left-start"
-                              onOpenChange={
-                                isSinglePane
-                                  ? (v) => !v && setActiveMessageActionsId(null)
-                                  : undefined
-                              }
-                              trigger={
-                                <IconButton
-                                  variant="ghost"
-                                  minW="fit-content"
-                                  h="fit-content"
-                                  aria-label="Message actions"
-                                  onClick={() =>
-                                    isSinglePane
-                                      ? setActiveMessageActionsId((current) =>
-                                          current === message.id
-                                            ? null
-                                            : message.id
-                                        )
-                                      : undefined
-                                  }
-                                >
-                                  <MoreHorizontal
-                                    size={16}
-                                    color={isMine ? "#1679AB" : "#4B5563"}
-                                  />
-                                </IconButton>
-                              }
-                            >
-                              {/* <ButtonV2
+                                  <MenuPopover
+                                    variant={
+                                      isSinglePane ? "drawer" : "popover"
+                                    }
+                                    title="Message actions"
+                                    open={
+                                      isSinglePane ? showActions : undefined
+                                    }
+                                    placement="left-start"
+                                    onOpenChange={
+                                      isSinglePane
+                                        ? (v) =>
+                                            !v &&
+                                            setActiveMessageActionsId(null)
+                                        : undefined
+                                    }
+                                    trigger={
+                                      <IconButton
+                                        variant="ghost"
+                                        minW="fit-content"
+                                        h="fit-content"
+                                        aria-label="Message actions"
+                                        onClick={() =>
+                                          isSinglePane
+                                            ? setActiveMessageActionsId(
+                                                (current) =>
+                                                  current === message.id
+                                                    ? null
+                                                    : message.id
+                                              )
+                                            : undefined
+                                        }
+                                      >
+                                        <MoreHorizontal
+                                          size={16}
+                                          color={isMine ? "#1679AB" : "#4B5563"}
+                                        />
+                                      </IconButton>
+                                    }
+                                  >
+                                    {/* <ButtonV2
                                 variant="ghost"
                                 minW="fit-content"
                                 h="fit-content"
@@ -502,221 +588,257 @@ export const ConversationView = ({
                               >
                                 <Text fontSize="sm">Reply</Text>
                               </ButtonV2> */}
-                              <ButtonV2
-                                variant="ghost"
-                                minW="fit-content"
-                                h="fit-content"
-                                display="flex"
-                                alignItems="start"
-                                justifyContent="start"
-                                aria-label="Copy message"
-                                px={2}
-                                py={0}
-                                color="black"
-                                textDecoration="none"
-                                _hover={{
-                                  textDecoration: "none",
-                                }}
-                                onClick={() => {
-                                  if (message.text) {
-                                    navigator.clipboard
-                                      ?.writeText(message.text)
-                                      .catch(() => undefined);
-                                    setIsCopied(true);
-                                    setTimeout(() => {
-                                      setIsCopied(false);
-                                    }, 2000);
-                                  }
-                                }}
-                              >
-                                {isCopied ? (
-                                  <Text
-                                    fontSize="sm"
-                                    fontWeight="semibold"
-                                    color={
-                                      profileType === "organisation"
-                                        ? "#3AADA8"
-                                        : "#1F97D1"
-                                    }
-                                  >
-                                    Copied
-                                  </Text>
-                                ) : (
-                                  <Text fontSize="sm">Copy</Text>
-                                )}
-                              </ButtonV2>
-                              {/* TODO: EDIT MESSAGE FEATURE: PENDING API AVAILABILITY */}
-                              {/* <HStack gap={2} cursor="pointer" px={2} py={1}>
+                                    <ButtonV2
+                                      variant="ghost"
+                                      minW="fit-content"
+                                      h="fit-content"
+                                      display="flex"
+                                      alignItems="start"
+                                      justifyContent="start"
+                                      aria-label="Copy message"
+                                      px={2}
+                                      py={0}
+                                      color="black"
+                                      textDecoration="none"
+                                      _hover={{
+                                        textDecoration: "none",
+                                      }}
+                                      onClick={() => {
+                                        if (message.text) {
+                                          navigator.clipboard
+                                            ?.writeText(message.text)
+                                            .catch(() => undefined);
+                                          setIsCopied(true);
+                                          setTimeout(() => {
+                                            setIsCopied(false);
+                                          }, 2000);
+                                        }
+                                      }}
+                                    >
+                                      {isCopied ? (
+                                        <Text
+                                          fontSize="sm"
+                                          fontWeight="semibold"
+                                          color={
+                                            profileType === "organisation"
+                                              ? "#3AADA8"
+                                              : "#1F97D1"
+                                          }
+                                        >
+                                          Copied
+                                        </Text>
+                                      ) : (
+                                        <Text fontSize="sm">Copy</Text>
+                                      )}
+                                    </ButtonV2>
+                                    {/* TODO: EDIT MESSAGE FEATURE: PENDING API AVAILABILITY */}
+                                    {/* <HStack gap={2} cursor="pointer" px={2} py={1}>
                                 <Text fontSize="sm">Edit</Text>
                               </HStack>
                               {/* TODO: STAR MESSAGE FEATURE: PENDING API AVAILABILITY */}
-                              {/* <HStack gap={2} cursor="pointer" px={2} py={1}>
+                                    {/* <HStack gap={2} cursor="pointer" px={2} py={1}>
                                 <Text fontSize="sm">Star</Text>
                               </HStack> */}
+                                    <Box
+                                      mt={1}
+                                      borderTopWidth="1px"
+                                      borderTopColor="#E4E4E7"
+                                    />
+                                    <HStack
+                                      gap={2}
+                                      cursor="pointer"
+                                      px={2}
+                                      py={1}
+                                    >
+                                      <Text fontSize="sm" color="red.500">
+                                        Delete message
+                                      </Text>
+                                    </HStack>
+                                  </MenuPopover>
+                                </HStack>
+                              )}
                               <Box
-                                mt={1}
-                                borderTopWidth="1px"
-                                borderTopColor="#E4E4E7"
-                              />
-                              <HStack gap={2} cursor="pointer" px={2} py={1}>
-                                <Text fontSize="sm" color="red.500">
-                                  Delete message
-                                </Text>
-                              </HStack>
-                            </MenuPopover>
-                          </HStack>
-                        )}
-
-                        <Box
-                          borderRadius="xl"
-                          px={4}
-                          py={3}
-                          bg={
-                            isMine
-                              ? profileType === "organisation"
-                                ? "#3AADA8"
-                                : "#1F97D1"
-                              : "#F4F4F5"
-                          }
-                          color={isMine ? "white" : "#18181B"}
-                          maxW="396px"
-                          w="100%"
-                          borderWidth="1px"
-                          borderColor={
-                            isMine
-                              ? profileType === "organisation"
-                                ? "#3AADA8"
-                                : "#1F97D1"
-                              : "#E4E4E7"
-                          }
-                          style={{
-                            borderRadius: isMine
-                              ? "12px 0px 12px 12px"
-                              : "0px 12px 12px 12px",
-                          }}
-                        >
-                          {message.replyToPreview && (
-                            <Box
-                              mb={2}
-                              pb={2}
-                              borderBottomWidth="1px"
-                              borderBottomColor={
-                                isMine
-                                  ? "rgba(255, 255, 255, 0.3)"
-                                  : "rgba(0, 0, 0, 0.1)"
-                              }
-                            >
-                              <HStack gap={2} align="flex-start">
-                                <Box
-                                  w="3px"
-                                  h="100%"
-                                  bg={
-                                    isMine
-                                      ? "rgba(255, 255, 255, 0.5)"
-                                      : profileType === "organisation"
-                                        ? "#3AADA8"
-                                        : "#1F97D1"
-                                  }
-                                  borderRadius="sm"
-                                  flexShrink={0}
-                                />
-                                <VStack
-                                  align="flex-start"
-                                  gap={0}
-                                  flex={1}
-                                  minW={0}
-                                >
-                                  <HStack gap={1}>
-                                    <Reply
-                                      size={12}
-                                      color={
-                                        isMine
-                                          ? "rgba(255, 255, 255, 0.8)"
-                                          : profileType === "organisation"
-                                            ? "#3AADA8"
-                                            : "#1F97D1"
-                                      }
-                                    />
-                                    <Text
-                                      fontSize="xs"
-                                      fontWeight="semibold"
-                                      color={
-                                        isMine
-                                          ? "rgba(255, 255, 255, 0.9)"
-                                          : profileType === "organisation"
-                                            ? "#3AADA8"
-                                            : "#1F97D1"
-                                      }
-                                    >
-                                      {message.replyToPreview.isSoftDeleted
-                                        ? "Deleted message"
-                                        : message.replyToPreview.senderId ===
-                                            numericUserId
-                                          ? "Replying to your message"
-                                          : "Replying to message"}
-                                    </Text>
-                                  </HStack>
-                                  {!message.replyToPreview.isSoftDeleted && (
-                                    <Text
-                                      fontSize="xs"
-                                      color={
-                                        isMine
-                                          ? "rgba(255, 255, 255, 0.8)"
-                                          : "#71717A"
-                                      }
-                                      overflow="hidden"
-                                      textOverflow="ellipsis"
-                                      display="-webkit-box"
-                                      style={{
-                                        WebkitLineClamp: 2,
-                                        WebkitBoxOrient: "vertical",
-                                      }}
-                                    >
-                                      {message.replyToPreview.contentPreview}
-                                    </Text>
-                                  )}
-                                </VStack>
-                              </HStack>
-                            </Box>
-                          )}
-                          {message.text && (
-                            <Text fontSize="sm" whiteSpace="pre-wrap">
-                              {message.text}
-                            </Text>
-                          )}
-                          {message.attachments &&
-                            message.attachments.length > 0 && (
-                              <VStack
-                                align="flex-start"
-                                gap={1}
-                                mt={message.text ? 2 : 0}
+                                borderRadius="xl"
+                                px={4}
+                                py={3}
+                                bg={
+                                  isMine
+                                    ? profileType === "organisation"
+                                      ? "#3AADA8"
+                                      : "#1F97D1"
+                                    : "#F4F4F5"
+                                }
+                                color={isMine ? "white" : "#18181B"}
+                                maxW="396px"
+                                w="100%"
+                                borderWidth="1px"
+                                borderColor={
+                                  isMine
+                                    ? profileType === "organisation"
+                                      ? "#3AADA8"
+                                      : "#1F97D1"
+                                    : "#E4E4E7"
+                                }
+                                style={{
+                                  borderRadius: isMine
+                                    ? "12px 0px 12px 12px"
+                                    : "0px 12px 12px 12px",
+                                }}
                               >
-                                {message.attachments.map((att) => (
-                                  <HStack key={att.id} gap={2}>
-                                    <Paperclip
-                                      size={14}
-                                      color={isMine ? "white" : "#4B5563"}
-                                    />
-                                    <Text
-                                      fontSize="xs"
-                                      textDecoration="underline"
+                                {message.replyToPreview && (
+                                  <Box
+                                    mb={2}
+                                    pb={2}
+                                    borderBottomWidth="1px"
+                                    borderBottomColor={
+                                      isMine
+                                        ? "rgba(255, 255, 255, 0.3)"
+                                        : "rgba(0, 0, 0, 0.1)"
+                                    }
+                                  >
+                                    <HStack gap={2} align="flex-start">
+                                      <Box
+                                        w="3px"
+                                        h="100%"
+                                        bg={
+                                          isMine
+                                            ? "rgba(255, 255, 255, 0.5)"
+                                            : profileType === "organisation"
+                                              ? "#3AADA8"
+                                              : "#1F97D1"
+                                        }
+                                        borderRadius="sm"
+                                        flexShrink={0}
+                                      />
+                                      <VStack
+                                        align="flex-start"
+                                        gap={0}
+                                        flex={1}
+                                        minW={0}
+                                        cursor={
+                                          message.replyToPreview?.isSoftDeleted
+                                            ? "default"
+                                            : "pointer"
+                                        }
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (
+                                            message.replyToPreview &&
+                                            !message.replyToPreview
+                                              .isSoftDeleted
+                                          ) {
+                                            scrollToMessage(
+                                              message.replyToPreview.id
+                                            );
+                                          }
+                                        }}
+                                        _hover={
+                                          message.replyToPreview &&
+                                          !message.replyToPreview.isSoftDeleted
+                                            ? {
+                                                opacity: 0.8,
+                                              }
+                                            : {}
+                                        }
+                                      >
+                                        <HStack gap={1}>
+                                          <Reply
+                                            size={12}
+                                            color={
+                                              isMine
+                                                ? "rgba(255, 255, 255, 0.8)"
+                                                : profileType === "organisation"
+                                                  ? "#3AADA8"
+                                                  : "#1F97D1"
+                                            }
+                                          />
+                                          <Text
+                                            fontSize="xs"
+                                            fontWeight="semibold"
+                                            color={
+                                              isMine
+                                                ? "rgba(255, 255, 255, 0.9)"
+                                                : profileType === "organisation"
+                                                  ? "#3AADA8"
+                                                  : "#1F97D1"
+                                            }
+                                          >
+                                            {message.replyToPreview
+                                              .isSoftDeleted
+                                              ? "Deleted message"
+                                              : message.replyToPreview
+                                                    .senderId === numericUserId
+                                                ? "Replying to your message"
+                                                : "Replying to message"}
+                                          </Text>
+                                        </HStack>
+                                        {!message.replyToPreview
+                                          .isSoftDeleted && (
+                                          <Text
+                                            fontSize="xs"
+                                            color={
+                                              isMine
+                                                ? "rgba(255, 255, 255, 0.8)"
+                                                : "#71717A"
+                                            }
+                                            overflow="hidden"
+                                            textOverflow="ellipsis"
+                                            display="-webkit-box"
+                                            style={{
+                                              WebkitLineClamp: 2,
+                                              WebkitBoxOrient: "vertical",
+                                            }}
+                                          >
+                                            {
+                                              message.replyToPreview
+                                                .contentPreview
+                                            }
+                                          </Text>
+                                        )}
+                                      </VStack>
+                                    </HStack>
+                                  </Box>
+                                )}
+                                {message.text && (
+                                  <Text fontSize="sm" whiteSpace="pre-wrap">
+                                    {message.text}
+                                  </Text>
+                                )}
+                                {message.attachments &&
+                                  message.attachments.length > 0 && (
+                                    <VStack
+                                      align="flex-start"
+                                      gap={1}
+                                      mt={message.text ? 2 : 0}
                                     >
-                                      {att.name}
-                                    </Text>
-                                  </HStack>
-                                ))}
-                              </VStack>
-                            )}
-                        </Box>
-                        {!isMine && (
-                          <HStack
-                            justifyContent={isMine ? "flex-end" : "flex-start"}
-                            opacity={showActions ? 1 : 0}
-                            transition="opacity 0.15s ease"
-                            flexShrink={0}
-                          >
-                            {/* TODO: REACT TO MESSAGE FEATURE: PENDING API AVAILABILITY */}
-                            {/* <IconButton
+                                      {message.attachments.map((att) => (
+                                        <HStack key={att.id} gap={2}>
+                                          <Paperclip
+                                            size={14}
+                                            color={isMine ? "white" : "#4B5563"}
+                                          />
+                                          <Text
+                                            fontSize="xs"
+                                            textDecoration="underline"
+                                          >
+                                            {att.name}
+                                          </Text>
+                                        </HStack>
+                                      ))}
+                                    </VStack>
+                                  )}
+                              </Box>
+                              {!isMine && (
+                                <HStack
+                                  justifyContent={
+                                    isMine ? "flex-end" : "flex-start"
+                                  }
+                                  opacity={showActions ? 1 : 0}
+                                  transition="opacity 0.15s ease"
+                                  flexShrink={0}
+                                >
+                                  {/* TODO: REACT TO MESSAGE FEATURE: PENDING API AVAILABILITY */}
+                                  {/* <IconButton
                               aria-label="React to message"
                               variant="ghost"
                               minW="fit-content"
@@ -727,138 +849,172 @@ export const ConversationView = ({
                                 color={isMine ? "#1679AB" : "#4B5563"}
                               />
                             </IconButton> */}
-                            <MenuPopover
-                              variant={isSinglePane ? "drawer" : "popover"}
-                              title="Message actions"
-                              open={isSinglePane ? showActions : undefined}
-                              onOpenChange={
-                                isSinglePane
-                                  ? (v) => !v && setActiveMessageActionsId(null)
-                                  : undefined
-                              }
-                              trigger={
-                                <IconButton
-                                  variant="ghost"
-                                  minW="fit-content"
-                                  h="fit-content"
-                                  aria-label="Message actions"
-                                  onClick={() =>
-                                    isSinglePane
-                                      ? setActiveMessageActionsId((current) =>
-                                          current === message.id
-                                            ? null
-                                            : message.id
-                                        )
-                                      : undefined
-                                  }
-                                >
-                                  <MoreHorizontal
-                                    size={16}
-                                    color={isMine ? "#1679AB" : "#4B5563"}
-                                  />
-                                </IconButton>
-                              }
-                            >
-                              <ButtonV2
-                                variant="ghost"
-                                minW="fit-content"
-                                h="fit-content"
-                                display="flex"
-                                alignItems="start"
-                                justifyContent="start"
-                                aria-label="Reply to message"
-                                px={2}
-                                py={0}
-                                color="black"
-                                textDecoration="none"
-                                _hover={{
-                                  textDecoration: "none",
-                                }}
-                                gap={2}
-                                cursor="pointer"
-                                onClick={() => handleReplyToMessage(message)}
-                              >
-                                <Text fontSize="sm">Reply</Text>
-                              </ButtonV2>
-                              <ButtonV2
-                                variant="ghost"
-                                minW="fit-content"
-                                h="fit-content"
-                                display="flex"
-                                alignItems="start"
-                                justifyContent="start"
-                                aria-label="Copy message"
-                                px={2}
-                                py={0}
-                                color="black"
-                                textDecoration="none"
-                                _hover={{
-                                  textDecoration: "none",
-                                }}
-                                onClick={() => {
-                                  if (message.text) {
-                                    navigator.clipboard
-                                      ?.writeText(message.text)
-                                      .catch(() => undefined);
-                                    setIsCopied(true);
-                                    setTimeout(() => {
-                                      setIsCopied(false);
-                                    }, 2000);
-                                  }
-                                }}
-                              >
-                                {isCopied ? (
-                                  <Text
-                                    fontSize="sm"
-                                    fontWeight="semibold"
-                                    color={
-                                      profileType === "organisation"
-                                        ? "#3AADA8"
-                                        : "#1F97D1"
+                                  <MenuPopover
+                                    variant={
+                                      isSinglePane ? "drawer" : "popover"
+                                    }
+                                    title="Message actions"
+                                    open={
+                                      isSinglePane ? showActions : undefined
+                                    }
+                                    onOpenChange={
+                                      isSinglePane
+                                        ? (v) =>
+                                            !v &&
+                                            setActiveMessageActionsId(null)
+                                        : undefined
+                                    }
+                                    trigger={
+                                      <IconButton
+                                        variant="ghost"
+                                        minW="fit-content"
+                                        h="fit-content"
+                                        aria-label="Message actions"
+                                        onClick={() =>
+                                          isSinglePane
+                                            ? setActiveMessageActionsId(
+                                                (current) =>
+                                                  current === message.id
+                                                    ? null
+                                                    : message.id
+                                              )
+                                            : undefined
+                                        }
+                                      >
+                                        <MoreHorizontal
+                                          size={16}
+                                          color={isMine ? "#1679AB" : "#4B5563"}
+                                        />
+                                      </IconButton>
                                     }
                                   >
-                                    Copied
-                                  </Text>
-                                ) : (
-                                  <Text fontSize="sm">Copy</Text>
-                                )}
-                              </ButtonV2>
-                              {/* TODO: EDIT MESSAGE FEATURE: PENDING API AVAILABILITY */}
-                              {/* <HStack gap={2} cursor="pointer" px={2} py={1}>
+                                    <ButtonV2
+                                      variant="ghost"
+                                      minW="fit-content"
+                                      h="fit-content"
+                                      display="flex"
+                                      alignItems="start"
+                                      justifyContent="start"
+                                      aria-label="Reply to message"
+                                      px={2}
+                                      py={0}
+                                      color="black"
+                                      textDecoration="none"
+                                      _hover={{
+                                        textDecoration: "none",
+                                      }}
+                                      gap={2}
+                                      cursor="pointer"
+                                      onClick={() =>
+                                        handleReplyToMessage(message)
+                                      }
+                                    >
+                                      <Text fontSize="sm">Reply</Text>
+                                    </ButtonV2>
+                                    <ButtonV2
+                                      variant="ghost"
+                                      minW="fit-content"
+                                      h="fit-content"
+                                      display="flex"
+                                      alignItems="start"
+                                      justifyContent="start"
+                                      aria-label="Copy message"
+                                      px={2}
+                                      py={0}
+                                      color="black"
+                                      textDecoration="none"
+                                      _hover={{
+                                        textDecoration: "none",
+                                      }}
+                                      onClick={() => {
+                                        if (message.text) {
+                                          navigator.clipboard
+                                            ?.writeText(message.text)
+                                            .catch(() => undefined);
+                                          setIsCopied(true);
+                                          setTimeout(() => {
+                                            setIsCopied(false);
+                                          }, 2000);
+                                        }
+                                      }}
+                                    >
+                                      {isCopied ? (
+                                        <Text
+                                          fontSize="sm"
+                                          fontWeight="semibold"
+                                          color={
+                                            profileType === "organisation"
+                                              ? "#3AADA8"
+                                              : "#1F97D1"
+                                          }
+                                        >
+                                          Copied
+                                        </Text>
+                                      ) : (
+                                        <Text fontSize="sm">Copy</Text>
+                                      )}
+                                    </ButtonV2>
+                                    {/* TODO: EDIT MESSAGE FEATURE: PENDING API AVAILABILITY */}
+                                    {/* <HStack gap={2} cursor="pointer" px={2} py={1}>
                                 <Text fontSize="sm">Edit</Text>
                               </HStack> */}
-                              {/* TODO: STAR MESSAGE FEATURE: PENDING API AVAILABILITY */}
-                              {/* <HStack gap={2} cursor="pointer" px={2} py={1}>
+                                    {/* TODO: STAR MESSAGE FEATURE: PENDING API AVAILABILITY */}
+                                    {/* <HStack gap={2} cursor="pointer" px={2} py={1}>
                                 <Text fontSize="sm">Star</Text>
                               </HStack> */}
-                              <Box
-                                mt={1}
-                                borderTopWidth="1px"
-                                borderTopColor="#E4E4E7"
+                                    <Box
+                                      mt={1}
+                                      borderTopWidth="1px"
+                                      borderTopColor="#E4E4E7"
+                                    />
+                                    <HStack
+                                      gap={2}
+                                      cursor="pointer"
+                                      px={2}
+                                      py={1}
+                                    >
+                                      <Text fontSize="sm" color="red.500">
+                                        Delete message
+                                      </Text>
+                                    </HStack>
+                                  </MenuPopover>
+                                </HStack>
+                              )}
+                            </HStack>
+                            <Text
+                              mt={1}
+                              flexShrink={0}
+                              whiteSpace="nowrap"
+                              alignSelf={isMine ? "flex-end" : "flex-start"}
+                              fontSize="10px"
+                              color="#52525B"
+                              textAlign={isMine ? "right" : "left"}
+                            >
+                              {formatRelativeTime(message.createdAt)}
+                            </Text>
+                          </VStack>
+                          {isMine && (
+                            <Avatar.Root size="sm">
+                              <Avatar.Image
+                                src={
+                                  message.messanger?.profile_picture_url ?? ""
+                                }
+                                alt={message.messanger?.full_name ?? ""}
+                                w="28px"
+                                h="28px"
                               />
-                              <HStack gap={2} cursor="pointer" px={2} py={1}>
-                                <Text fontSize="sm" color="red.500">
-                                  Delete message
-                                </Text>
-                              </HStack>
-                            </MenuPopover>
-                          </HStack>
-                        )}
+                              <Avatar.Fallback bg="#E4E4E7" color="black">
+                                {message.messanger?.full_name
+                                  ?.slice(0, 2)
+                                  .toUpperCase()}
+                              </Avatar.Fallback>
+                            </Avatar.Root>
+                          )}
+                        </HStack>
                       </HStack>
-                      <Text
-                        mt={1}
-                        flexShrink={0}
-                        whiteSpace="nowrap"
-                        alignSelf={isMine ? "flex-end" : "flex-start"}
-                        fontSize="10px"
-                        color="#52525B"
-                        textAlign={isMine ? "right" : "left"}
-                      >
-                        {formatRelativeTime(message.createdAt)}
-                      </Text>
                     </VStack>
 
-                    <Box></Box>
+                    {/* <Box></Box> */}
                   </Box>
                   {/* </Box> */}
                 </Box>

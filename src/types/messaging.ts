@@ -70,7 +70,6 @@ export interface ListMessagesParams {
   page_size?: number;
 }
 
-// —— UI types (used by components) ——
 
 export type ConversationId = number;
 
@@ -110,6 +109,7 @@ export interface Message {
   attachments?: MessageAttachment[];
   createdAt: string;
   replyToPreview?: ReplyToPreview | null;
+  messanger?: MessagingUser | null;
 }
 
 export type MessagesByConversation = Record<ConversationId, Message[]>;
@@ -165,6 +165,7 @@ export function messageListItemToMessage(
     sender: isMe ? "me" : "them",
     text: item.is_soft_deleted ? undefined : item.content,
     createdAt: item.created_at,
+    messanger: item.sender,
     replyToPreview: item.reply_to_preview
       ? {
           id: item.reply_to_preview.id,
