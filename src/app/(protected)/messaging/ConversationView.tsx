@@ -79,6 +79,59 @@ export const ConversationView = ({
 
   const isEmptyThread = messages.length === 0;
 
+  if (!conversation) {
+    return (
+      <Box
+        w="100%"
+        borderRadius="xl"
+        borderWidth={{ base: "0px", lg: "1px" }}
+        borderColor={{ base: "transparent", md: "#E4E4E7" }}
+        bg="white"
+        display="flex"
+        flexDirection="column"
+        h="100%"
+      >
+        {isSinglePane && (
+          <HStack
+            px={{ base: 3, md: 4 }}
+            py={3}
+            borderBottomWidth="1px"
+            borderColor="#E4E4E7"
+            alignItems="center"
+            gap={{ base: 2, md: 3 }}
+          >
+            <IconButton
+              aria-label="back"
+              variant="ghost"
+              minW="fit-content"
+              h="fit-content"
+              onClick={onBackToList}
+            >
+              <ChevronLeft size={20} />
+            </IconButton>
+            <Text fontWeight="semibold" fontSize="sm" color="black">
+              Messages
+            </Text>
+          </HStack>
+        )}
+
+        <Flex flex={1} align="center" justify="center" px={6} py={8}>
+          <VStack maxW="360px" textAlign="center" gap={3}>
+            <IconUserPlaceholder />
+            <Text fontWeight="semibold" fontSize="md">
+              Select a conversation to get started
+            </Text>
+            <Text fontSize="sm" color="gray.600">
+              Choose a conversation from the list on the left to view messages
+              here. If there are no conversations, start by reaching out to a
+              contact.
+            </Text>
+          </VStack>
+        </Flex>
+      </Box>
+    );
+  }
+
   return (
     <Box
       w="100%"
@@ -254,7 +307,14 @@ export const ConversationView = ({
         </HStack>
       </HStack>
 
-      <Box flex={1} overflowY="auto" px={4} py={4} maxH="calc(100vh - 260px)">
+      <Box
+        flex={1}
+        overflowY="auto"
+        px={4}
+        py={4}
+        h="100%"
+        maxH="calc(100vh - 260px)"
+      >
         {messagesLoading ? (
           <Flex w="100%" h="100%" minH="200px" align="center" justify="center">
             <Spinner size="md" />

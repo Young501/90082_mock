@@ -80,14 +80,17 @@ const Inbox = () => {
   );
 
   useEffect(() => {
-    if (
-      selectedConversationId == null &&
-      filteredConversations.length > 0 &&
-      !conversationsLoading
-    ) {
-      setSelectedConversationId(filteredConversations[0].id);
+    if (selectedConversationId == null) return;
+
+    const existsInFiltered = filteredConversations.some(
+      (c) => c.id === selectedConversationId
+    );
+
+    if (!existsInFiltered) {
+      setSelectedConversationId(null);
+      setIsShowingThreadOnSinglePane(false);
     }
-  }, [filteredConversations, conversationsLoading, selectedConversationId]);
+  }, [filteredConversations, selectedConversationId]);
 
   const handleSelectConversation = (conversationId: ConversationId) => {
     setSelectedConversationId(conversationId);
@@ -136,24 +139,24 @@ const Inbox = () => {
       );
     }
 
-    if (!hasAnyConversations) {
-      return (
-        <Flex w="100%" h="100%" gap={4} align="center" justify="center">
-          <ConversationList
-            conversations={[]}
-            selectedConversationId={selectedConversationId}
-            showArchived={showArchived}
-            searchTerm={searchTerm}
-            onSearchTermChange={setSearchTerm}
-            onShowArchivedChange={setShowArchived}
-            onSelectConversation={handleSelectConversation}
-            onToggleArchive={handleToggleArchive}
-            hasAnyConversations={false}
-            profileType={profileType}
-          />
-        </Flex>
-      );
-    }
+    // if (!hasAnyConversations) {
+    //   return (
+    //     <Flex w="100%" h="100%" gap={4} align="center" justify="center">
+    //       <ConversationList
+    //         conversations={[]}
+    //         selectedConversationId={selectedConversationId}
+    //         showArchived={showArchived}
+    //         searchTerm={searchTerm}
+    //         onSearchTermChange={setSearchTerm}
+    //         onShowArchivedChange={setShowArchived}
+    //         onSelectConversation={handleSelectConversation}
+    //         onToggleArchive={handleToggleArchive}
+    //         hasAnyConversations={false}
+    //         profileType={profileType}
+    //       />
+    //     </Flex>
+    //   );
+    // }
 
     if (isSinglePane) {
       return (

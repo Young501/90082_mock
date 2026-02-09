@@ -47,6 +47,7 @@ export function useConversationsList(params?: ListConversationsParams) {
   return useQuery({
     queryKey: [...CONVERSATIONS_QUERY_KEY, params],
     queryFn: () => listConversations(params),
+    staleTime: 30_000,
     select: (data): ConversationSummary[] =>
       data.results.map(conversationListItemToSummary),
   });
@@ -62,6 +63,7 @@ export function useConversationMessages(
 
   return useQuery({
     queryKey: conversationId == null ? [] : [...MESSAGES_QUERY_KEY(conversationId), params],
+    staleTime: 10_000,
     queryFn: () =>
       conversationId == null
         ? Promise.resolve({ next: null, previous: null, results: [] })
@@ -77,12 +79,14 @@ export function useConversationMessages(
 }
 
 export function useGetOrCreateConversation() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (data: {
       other_user_id: number;
       opportunity_id?: number;
-    }) => {
-      return apiRequest<ConversationResponse>({
+    }) =>
+      apiRequest<ConversationResponse>({
         endpoint: API_ENDPOINTS.GET_OR_CREATE_CONVERSATION(),
         body: {
           other_user_id: data.other_user_id,
@@ -90,7 +94,15 @@ export function useGetOrCreateConversation() {
             opportunity_id: data.opportunity_id,
           }),
         },
-      });
+      }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: CONVERSATIONS_QUERY_KEY });
+      const conversationId = (data as any)?.id;
+      if (conversationId != null) {
+        queryClient.invalidateQueries({
+          queryKey: MESSAGES_QUERY_KEY(conversationId),
+        });
+      }
     },
   });
 }

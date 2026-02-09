@@ -35,9 +35,9 @@ export const ConversationList = ({
   hasAnyConversations,
   profileType,
 }: ConversationListProps) => {
-  if (!hasAnyConversations) {
-    return <EmptyInbox />;
-  }
+  // if (!hasAnyConversations) {
+  //   return <EmptyInbox />;
+  // }
 
   return (
     <Box
@@ -74,19 +74,23 @@ export const ConversationList = ({
         borderRadius="xl"
       >
         <VStack align="stretch" gap={0} w="100%">
-          {conversations.map((conversation) => {
-            const isActive = conversation.id === selectedConversationId;
-            return (
-              <ConversationBox
-                key={conversation.id}
-                conversation={conversation}
-                isActive={isActive}
-                onSelect={onSelectConversation}
-                onToggleArchive={onToggleArchive}
-                profileType={profileType}
-              />
-            );
-          })}
+          {hasAnyConversations ? (
+            conversations.map((conversation) => {
+              const isActive = conversation.id === selectedConversationId;
+              return (
+                <ConversationBox
+                  key={conversation.id}
+                  conversation={conversation}
+                  isActive={isActive}
+                  onSelect={onSelectConversation}
+                  onToggleArchive={onToggleArchive}
+                  profileType={profileType}
+                />
+              );
+            })
+          ) : (
+            <EmptyInbox />
+          )}
         </VStack>
       </Box>
     </Box>
