@@ -38,12 +38,20 @@ export interface PaginatedResponse<T> {
 export type ConversationListResponseApi =
   PaginatedResponse<ConversationListItemApi>;
 
+export interface ReplyToPreviewApi {
+  id: number;
+  sender_id: number;
+  content_preview: string;
+  is_soft_deleted: boolean;
+}
+
 export interface MessageListItemApi {
   id: number;
   sender: MessagingUser;
   content: string;
   created_at: string;
   is_soft_deleted: boolean;
+  reply_to_preview?: ReplyToPreviewApi | null;
 }
 
 export type MessageListResponseApi = PaginatedResponse<MessageListItemApi>;
@@ -87,6 +95,13 @@ export interface MessageAttachment {
   type: string;
 }
 
+export interface ReplyToPreview {
+  id: number;
+  senderId: number;
+  contentPreview: string;
+  isSoftDeleted: boolean;
+}
+
 export interface Message {
   id: string;
   conversationId: ConversationId;
@@ -94,6 +109,7 @@ export interface Message {
   text?: string;
   attachments?: MessageAttachment[];
   createdAt: string;
+  replyToPreview?: ReplyToPreview | null;
 }
 
 export type MessagesByConversation = Record<ConversationId, Message[]>;
@@ -149,5 +165,13 @@ export function messageListItemToMessage(
     sender: isMe ? "me" : "them",
     text: item.is_soft_deleted ? undefined : item.content,
     createdAt: item.created_at,
+    replyToPreview: item.reply_to_preview
+      ? {
+          id: item.reply_to_preview.id,
+          senderId: item.reply_to_preview.sender_id,
+          contentPreview: item.reply_to_preview.content_preview,
+          isSoftDeleted: item.reply_to_preview.is_soft_deleted,
+        }
+      : null,
   };
 }

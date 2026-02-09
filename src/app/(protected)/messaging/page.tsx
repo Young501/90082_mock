@@ -32,14 +32,12 @@ const Inbox = () => {
 
   const { getUserType } = useAuthStore();
   const userType = getUserType();
-  console.log("userType", userType);
   const profileType =
     userType === "coordinator"
       ? "coordinator"
       : userType === "organisation"
         ? "organisation"
         : "student";
-  console.log("profileType", profileType);
 
   const {
     data: conversations = [],
@@ -51,7 +49,7 @@ const Inbox = () => {
   });
 
   const { data: selectedMessages = [], isLoading: messagesLoading } =
-    useConversationMessages(selectedConversationId, { page_size: 50 });
+    useConversationMessages(selectedConversationId, { page_size: 5 });
 
   const sendMessageMutation = useSendMessage();
   const toggleArchiveMutation = useToggleConversationArchive();
@@ -109,12 +107,18 @@ const Inbox = () => {
 
   const hasAnyConversations = filteredConversations.length > 0;
 
-  const handleSendMessage = () => {
-    if (!selectedConversation || !composerText.trim()) return;
+  const handleSendMessage = (files?: File[], replyToId?: number) => {
+    if (
+      !selectedConversation ||
+      (!composerText.trim() && !files?.length && !replyToId)
+    )
+      return;
     sendMessageMutation.mutate(
       {
         conversationId: selectedConversation.id,
-        content: composerText.trim(),
+        content: composerText.trim() || "",
+        files: files,
+        replyToId: replyToId,
       },
       {
         onSuccess: () => setComposerText(""),

@@ -29,6 +29,8 @@ import {
   Pen,
   Search,
   EllipsisVertical,
+  X,
+  Reply,
 } from "lucide-react";
 import {
   ConversationId,
@@ -44,7 +46,7 @@ interface ConversationViewProps {
   messages: Message[];
   composerText: string;
   onComposerTextChange: (value: string) => void;
-  onSendMessage: () => void;
+  onSendMessage: (files?: File[], replyToId?: number) => void;
   onBackToList: () => void;
   onToggleArchive: (id: ConversationId) => void;
   messagesLoading?: boolean;
@@ -69,9 +71,14 @@ export const ConversationView = ({
     string | null
   >(null);
   const [isCopied, setIsCopied] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
+  const currentUserId = useAuthStore((s) => s.user?.id);
+  const numericUserId =
+    currentUserId != null ? Number(currentUserId) : undefined;
   console.log("ConversationView", conversation);
 
-  // ordered oldest 
+  // ordered oldest
   const orderedMessages = [...messages].sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   );
@@ -83,6 +90,35 @@ export const ConversationView = ({
   }, [conversation?.id, orderedMessages.length]);
 
   const isEmptyThread = orderedMessages.length === 0;
+
+  const handleFilesSelected = (files: File[]) => {
+    setSelectedFiles((prev) => [...prev, ...files]);
+    setIsAttachmentOpen(false);
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSendWithFiles = () => {
+    const replyToId = replyToMessage ? Number(replyToMessage.id) : undefined;
+    onSendMessage(
+      selectedFiles.length > 0 ? selectedFiles : undefined,
+      replyToId
+    );
+    setSelectedFiles([]);
+    setReplyToMessage(null);
+  };
+
+  const handleReplyToMessage = (message: Message) => {
+    setReplyToMessage(message);
+    setIsAttachmentOpen(false);
+    setActiveMessageActionsId(null);
+  };
+
+  const handleCancelReply = () => {
+    setReplyToMessage(null);
+  };
 
   if (!conversation) {
     return (
@@ -559,6 +595,90 @@ export const ConversationView = ({
                               : "0px 12px 12px 12px",
                           }}
                         >
+                          {message.replyToPreview && (
+                            <Box
+                              mb={2}
+                              pb={2}
+                              borderBottomWidth="1px"
+                              borderBottomColor={
+                                isMine
+                                  ? "rgba(255, 255, 255, 0.3)"
+                                  : "rgba(0, 0, 0, 0.1)"
+                              }
+                            >
+                              <HStack gap={2} align="flex-start">
+                                <Box
+                                  w="3px"
+                                  h="100%"
+                                  bg={
+                                    isMine
+                                      ? "rgba(255, 255, 255, 0.5)"
+                                      : profileType === "organisation"
+                                        ? "#3AADA8"
+                                        : "#1F97D1"
+                                  }
+                                  borderRadius="sm"
+                                  flexShrink={0}
+                                />
+                                <VStack
+                                  align="flex-start"
+                                  gap={0}
+                                  flex={1}
+                                  minW={0}
+                                >
+                                  <HStack gap={1}>
+                                    <Reply
+                                      size={12}
+                                      color={
+                                        isMine
+                                          ? "rgba(255, 255, 255, 0.8)"
+                                          : profileType === "organisation"
+                                            ? "#3AADA8"
+                                            : "#1F97D1"
+                                      }
+                                    />
+                                    <Text
+                                      fontSize="xs"
+                                      fontWeight="semibold"
+                                      color={
+                                        isMine
+                                          ? "rgba(255, 255, 255, 0.9)"
+                                          : profileType === "organisation"
+                                            ? "#3AADA8"
+                                            : "#1F97D1"
+                                      }
+                                    >
+                                      {message.replyToPreview.isSoftDeleted
+                                        ? "Deleted message"
+                                        : message.replyToPreview.senderId ===
+                                            numericUserId
+                                          ? "Replying to your message"
+                                          : "Replying to message"}
+                                    </Text>
+                                  </HStack>
+                                  {!message.replyToPreview.isSoftDeleted && (
+                                    <Text
+                                      fontSize="xs"
+                                      color={
+                                        isMine
+                                          ? "rgba(255, 255, 255, 0.8)"
+                                          : "#71717A"
+                                      }
+                                      overflow="hidden"
+                                      textOverflow="ellipsis"
+                                      display="-webkit-box"
+                                      style={{
+                                        WebkitLineClamp: 2,
+                                        WebkitBoxOrient: "vertical",
+                                      }}
+                                    >
+                                      {message.replyToPreview.contentPreview}
+                                    </Text>
+                                  )}
+                                </VStack>
+                              </HStack>
+                            </Box>
+                          )}
                           {message.text && (
                             <Text fontSize="sm" whiteSpace="pre-wrap">
                               {message.text}
@@ -646,7 +766,7 @@ export const ConversationView = ({
                                 display="flex"
                                 alignItems="start"
                                 justifyContent="start"
-                                aria-label="Copy message"
+                                aria-label="Reply to message"
                                 px={2}
                                 py={0}
                                 color="black"
@@ -656,6 +776,7 @@ export const ConversationView = ({
                                 }}
                                 gap={2}
                                 cursor="pointer"
+                                onClick={() => handleReplyToMessage(message)}
                               >
                                 <Text fontSize="sm">Reply</Text>
                               </ButtonV2>
@@ -748,6 +869,106 @@ export const ConversationView = ({
         )}
       </Box>
 
+      {(selectedFiles.length > 0 || replyToMessage) && (
+        <Box
+          px={{ base: 4, md: 5 }}
+          pt={3}
+          pb={2}
+          borderTopWidth="1px"
+          borderColor="#E4E4E7"
+        >
+          <VStack align="stretch" gap={2}>
+            {replyToMessage && (
+              <Box
+                px={3}
+                py={2}
+                bg={profileType === "organisation" ? "#14B8A6" : "#EFF6FF"}
+                borderRadius="md"
+                position="relative"
+              >
+                <HStack justify="space-between" align="flex-start" gap={2}>
+                  <VStack align="flex-start" gap={1} flex={1} minW={0}>
+                    <HStack gap={2}>
+                      <Reply
+                        size={14}
+                        color={
+                          profileType === "organisation" ? "#FFFFFF" : "#1679AB"
+                        }
+                      />
+                      <Text
+                        fontSize="xs"
+                        fontWeight="semibold"
+                        color={
+                          profileType === "organisation" ? "#FFFFFF" : "#1679AB"
+                        }
+                      >
+                        Replying to{" "}
+                        {replyToMessage.sender === "me"
+                          ? "yourself"
+                          : "message"}
+                      </Text>
+                    </HStack>
+                    <Text
+                      fontSize="sm"
+                      color="#111827"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                      display="-webkit-box"
+                      style={{
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                      }}
+                    >
+                      {replyToMessage.text || "Message with attachment"}
+                    </Text>
+                  </VStack>
+                  <IconButton
+                    aria-label="Cancel reply"
+                    variant="ghost"
+                    size="sm"
+                    minW="fit-content"
+                    h="fit-content"
+                    onClick={handleCancelReply}
+                  >
+                    <X size={16} color="#71717A" />
+                  </IconButton>
+                </HStack>
+              </Box>
+            )}
+            {selectedFiles.map((file, index) => (
+              <HStack
+                key={`${file.name}-${index}`}
+                gap={2}
+                px={3}
+                py={2}
+                bg="#F4F4F5"
+                borderRadius="md"
+                justify="space-between"
+              >
+                <HStack gap={2} minW={0} flex={1}>
+                  <Paperclip size={16} color="#52525B" />
+                  <Text fontSize="sm" color="#111827" truncate>
+                    {file.name}
+                  </Text>
+                  <Text fontSize="xs" color="#71717A">
+                    ({(file.size / 1024).toFixed(1)} KB)
+                  </Text>
+                </HStack>
+                <IconButton
+                  aria-label="Remove file"
+                  variant="ghost"
+                  size="sm"
+                  minW="fit-content"
+                  h="fit-content"
+                  onClick={() => handleRemoveFile(index)}
+                >
+                  <X size={16} color="#71717A" />
+                </IconButton>
+              </HStack>
+            ))}
+          </VStack>
+        </Box>
+      )}
       <Box
         pt={5}
         pb={4}
@@ -764,20 +985,25 @@ export const ConversationView = ({
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                onSendMessage();
+                handleSendWithFiles();
               }
             }}
             attachmentDrawer={!!isSinglePane}
             attachmentOpen={isAttachmentOpen}
             onAttachmentOpenChange={setIsAttachmentOpen}
+            onFilesSelected={handleFilesSelected}
           />
 
           <ButtonV2
             variant="primary"
             aria-label="Send message"
             colorScheme="blue"
-            disabled={!composerText.trim()}
-            onClick={onSendMessage}
+            disabled={
+              !composerText.trim() &&
+              selectedFiles.length === 0 &&
+              !replyToMessage
+            }
+            onClick={handleSendWithFiles}
             flexShrink={0}
             h="40px"
             fontSize="sm"

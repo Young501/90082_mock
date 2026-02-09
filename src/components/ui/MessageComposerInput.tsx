@@ -10,6 +10,7 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { Paperclip } from "lucide-react";
+import { useRef } from "react";
 import { MenuPopover } from "./MenuPopover";
 
 export interface MessageComposerInputProps {
@@ -20,6 +21,7 @@ export interface MessageComposerInputProps {
   attachmentDrawer?: boolean;
   attachmentOpen?: boolean;
   onAttachmentOpenChange?: (open: boolean) => void;
+  onFilesSelected?: (files: File[]) => void;
   inputProps?: Omit<
     ChakraInputProps,
     "value" | "onChange" | "placeholder" | "onKeyDown"
@@ -28,9 +30,36 @@ export interface MessageComposerInputProps {
   paddingY?: number;
 }
 
-const defaultAttachmentOptions = (onOptionSelect?: () => void) => (
+const defaultAttachmentOptions = (
+  onOptionSelect?: () => void,
+  onFileSelect?: (files: File[]) => void,
+  fileInputRef?: React.RefObject<HTMLInputElement | null>
+) => (
   <VStack align="stretch" gap={2}>
-    <HStack gap={3} cursor="pointer" onClick={onOptionSelect}>
+    <input
+      ref={fileInputRef}
+      type="file"
+      multiple
+      accept="image/*,video/*,.pdf,.doc,.docx,.txt"
+      style={{ display: "none" }}
+      onChange={(e) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length > 0 && onFileSelect) {
+          onFileSelect(files);
+        }
+        if (fileInputRef?.current) {
+          fileInputRef.current.value = "";
+        }
+        onOptionSelect?.();
+      }}
+    />
+    <HStack
+      gap={3}
+      cursor="pointer"
+      onClick={() => {
+        fileInputRef?.current?.click();
+      }}
+    >
       <Box
         w={8}
         h={8}
@@ -46,7 +75,13 @@ const defaultAttachmentOptions = (onOptionSelect?: () => void) => (
         Share documents
       </Text>
     </HStack>
-    <HStack gap={3} cursor="pointer" onClick={onOptionSelect}>
+    <HStack
+      gap={3}
+      cursor="pointer"
+      onClick={() => {
+        fileInputRef?.current?.click();
+      }}
+    >
       <Box
         w={8}
         h={8}
@@ -62,7 +97,13 @@ const defaultAttachmentOptions = (onOptionSelect?: () => void) => (
         Share videos
       </Text>
     </HStack>
-    <HStack gap={3} cursor="pointer" onClick={onOptionSelect}>
+    <HStack
+      gap={3}
+      cursor="pointer"
+      onClick={() => {
+        fileInputRef?.current?.click();
+      }}
+    >
       <Box
         w={8}
         h={8}
@@ -89,10 +130,12 @@ export function MessageComposerInput({
   attachmentDrawer = false,
   attachmentOpen = false,
   onAttachmentOpenChange,
+  onFilesSelected,
   inputProps,
   paddingX = 4,
   paddingY = 2.5,
 }: MessageComposerInputProps) {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const closeAttachment = () =>
     attachmentDrawer && onAttachmentOpenChange?.(false);
 
@@ -149,7 +192,7 @@ export function MessageComposerInput({
         }
         contentProps={attachmentDrawer ? { p: 4 } : { p: 3 }}
       >
-        {defaultAttachmentOptions(closeAttachment)}
+        {defaultAttachmentOptions(closeAttachment, onFilesSelected, fileInputRef)}
       </MenuPopover>
     </Box>
   );

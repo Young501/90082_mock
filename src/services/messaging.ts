@@ -115,19 +115,29 @@ export function useSendMessage() {
       conversationId: number;
       content: string;
       files?: File[];
+      replyToId?: number;
     }) => {
-      if (!data.files?.length) {
+      // If sending files (optionally with text), send multipart/form-data
+      if (data.files?.length) {
+        const formData = new FormData();
+        formData.append("content", data.content || "");
+        if (data.replyToId != null) {
+          formData.append("reply_to_id", String(data.replyToId));
+        }
+        // Append each file with files[] key for multiple attachments
+        data.files.forEach((file) => formData.append("files[]", file));
         return apiRequest({
           endpoint: API_ENDPOINTS.SEND_MESSAGE(data.conversationId),
-          body: { content: data.content },
+          body: formData,
         });
       }
-      const formData = new FormData();
-      formData.append("content", data.content);
-      data.files.forEach((file) => formData.append("files[]", file));
+      // If no files, send regular JSON
       return apiRequest({
         endpoint: API_ENDPOINTS.SEND_MESSAGE(data.conversationId),
-        body: formData,
+        body: {
+          content: data.content,
+          ...(data.replyToId != null && { reply_to_id: data.replyToId }),
+        },
       });
     },
     onSuccess: (_, variables) => {
