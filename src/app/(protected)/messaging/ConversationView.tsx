@@ -3,12 +3,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
+  Flex,
   VStack,
   HStack,
   Text,
   IconButton,
   Avatar,
   Tag,
+  Spinner,
 } from "@chakra-ui/react";
 import IconUserPlaceholder from "@/components/Icons/IconUserPlaceholder";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
@@ -34,36 +36,38 @@ import {
   Message,
 } from "@/types/messaging";
 import { formatRelativeTime } from "@/utils/formatDate";
+import { useAuthStore } from "@/store";
 
 interface ConversationViewProps {
   isSinglePane: boolean | undefined;
   conversation: ConversationSummary | null;
   messages: Message[];
-  // hasAnyConversations: boolean;
   composerText: string;
   onComposerTextChange: (value: string) => void;
   onSendMessage: () => void;
   onBackToList: () => void;
   onToggleArchive: (id: ConversationId) => void;
+  messagesLoading?: boolean;
 }
 
 export const ConversationView = ({
   isSinglePane,
   conversation,
   messages,
-  // hasAnyConversations,
   composerText,
   onComposerTextChange,
   onSendMessage,
   onBackToList,
   onToggleArchive,
+  messagesLoading = false,
 }: ConversationViewProps) => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [isAttachmentOpen, setIsAttachmentOpen] = useState(false);
   const [activeMessageActionsId, setActiveMessageActionsId] = useState<
     string | null
   >(null);
-
+  const { getUserType } = useAuthStore();
+  const userType = getUserType();
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -78,7 +82,6 @@ export const ConversationView = ({
       borderRadius="xl"
       borderWidth={{ base: "0px", lg: "1px" }}
       borderColor={{ base: "transparent", md: "#E4E4E7" }}
-      // border={{ base: "none", md: "1px solid #E4E4E7" }}
       bg="white"
       display="flex"
       flexDirection="column"
@@ -89,11 +92,9 @@ export const ConversationView = ({
         py={3}
         borderBottomWidth="1px"
         borderColor="#E4E4E7"
-        // display="flex"
         alignItems="center"
         gap={{ base: 2, md: 3 }}
       >
-        {/* // chakra button and iconbutton behavious adds minimum width to the icons */}
         {isSinglePane && (
           <IconButton
             aria-label="back"
@@ -117,29 +118,56 @@ export const ConversationView = ({
         >
           {/* <IconUserPlaceholder /> */}
           {/* {conversation.title.slice(0, 2).toUpperCase()} */}
-          {conversation?.avatar ? (
-            <Avatar.Image
-              src={conversation?.avatar}
-              alt={conversation?.title}
-            />
+          {conversation?.avatar && userType === "organisation" ? (
+            <Avatar.Root size="sm">
+              <Avatar.Image
+                src={conversation?.avatar ?? ""}
+                alt={conversation?.studentTitle}
+                w="32px"
+                h="32px"
+              />
+              <Avatar.Fallback bg="#E4E4E7" color="black">
+                {conversation?.studentTitle.slice(0, 2).toUpperCase()}
+              </Avatar.Fallback>
+            </Avatar.Root>
           ) : (
-            <IconUserPlaceholder />
+            <Avatar.Root size="sm">
+              <Avatar.Image
+                src={conversation?.avatar ?? ""}
+                alt={conversation?.organisationTitle}
+                w="32px"
+                h="32px"
+              />
+              <Avatar.Fallback bg="#E4E4E7" color="black">
+                {conversation?.organisationTitle.slice(0, 2).toUpperCase()}
+              </Avatar.Fallback>
+            </Avatar.Root>
           )}
           {/* <Image src={conversation.avatar} alt={conversation.title} /> */}
         </Box>
         <VStack align="flex-start" gap={0} flex={1} minW={0}>
           <Text fontWeight="semibold" color="black" fontSize="sm" truncate>
-            {conversation?.title}
+            {userType === "organisation"
+              ? conversation?.organisationTitle
+              : conversation?.studentTitle}
           </Text>
           <HStack flexWrap="wrap">
             <Text fontSize="xs" color="#2563EB" truncate>
-              {conversation?.subtitle}
+              {userType === "organisation"
+                ? conversation?.organisationSubtitle
+                : conversation?.studentSubtitle}
             </Text>
-            <Tag.Root>
-              <Tag.Label fontSize="xs" color="black" truncate>
-                Employment Demo
-              </Tag.Label>
-            </Tag.Root>
+            {userType === "organisation" ? (
+              conversation?.organisationSubtitle
+            ) : conversation?.studentSubtitle ? (
+              <Tag.Root>
+                <Tag.Label fontSize="xs" color="black" truncate>
+                  {userType === "organisation"
+                    ? conversation?.organisationSubtitle
+                    : conversation?.studentSubtitle}
+                </Tag.Label>
+              </Tag.Root>
+            ) : null}
             <MenuPopover
               trigger={
                 <IconButton
@@ -200,7 +228,11 @@ export const ConversationView = ({
       </HStack>
 
       <Box flex={1} overflowY="auto" px={4} py={4} maxH="calc(100vh - 260px)">
-        {isEmptyThread ? (
+        {messagesLoading ? (
+          <Flex w="100%" h="100%" minH="120px" align="center" justify="center">
+            <Spinner size="md" />
+          </Flex>
+        ) : isEmptyThread ? (
           <VStack w="100%" h="100%" align="center" justify="center" gap={3}>
             <Text fontWeight="semibold">Start the conversation</Text>
             <Text

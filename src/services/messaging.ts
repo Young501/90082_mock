@@ -1,46 +1,126 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
-import { ConversationResponse } from "@/types/messaging";
+import {
+  ConversationListResponseApi,
+  ConversationResponse,
+  ConversationSummary,
+  conversationListItemToSummary,
+  ListConversationsParams,
+  ListMessagesParams,
+  Message,
+  MessageListResponseApi,
+  messageListItemToMessage,
+} from "@/types/messaging";
+import { useAuthStore } from "@/store";
 
-  
-  export function useGetOrCreateConversation() {
-    return useMutation({
-      mutationFn: async (data: {
-        other_user_id: number;
-        opportunity_id?: number;
-      }) => {
-        return apiRequest<ConversationResponse>({
-          endpoint: API_ENDPOINTS.GET_OR_CREATE_CONVERSATION(),
-          body: {
-            other_user_id: data.other_user_id,
-            ...(data.opportunity_id != null && { opportunity_id: data.opportunity_id }),
-          },
-        });
-      },
-    });
-  }
-  
-  export function useSendMessage() {
-    return useMutation({    
-      mutationFn: async (data: {
-        conversationId: number;
-        content: string;
-        files?: File[];
-      }) => {
-        if (!data.files?.length) {
-          return apiRequest({
-            endpoint: API_ENDPOINTS.SEND_MESSAGE(data.conversationId),
-            body: { content: data.content },
-          });
-        }
-        const formData = new FormData();
-        formData.append("content", data.content);
-        data.files.forEach((file) => formData.append("files[]", file));
+export function listConversations(
+  params?: ListConversationsParams
+): Promise<ConversationListResponseApi> {
+  const query: Record<string, string | number | boolean> = {};
+  if (params?.archived !== undefined) query.archived = params.archived;
+  if (params?.cursor != null && params.cursor !== "") query.cursor = params.cursor;
+  if (params?.opportunity_id != null) query.opportunity_id = params.opportunity_id;
+  if (params?.page_size != null) query.page_size = params.page_size;
+  return apiRequest({
+    endpoint: API_ENDPOINTS.LIST_CONVERSATIONS(),
+    params: Object.keys(query).length ? query : undefined,
+  });
+}
+
+export function listMessages(
+  conversationId: number,
+  params?: ListMessagesParams
+): Promise<MessageListResponseApi> {
+  const query: Record<string, string | number> = {};
+  if (params?.cursor != null && params.cursor !== "") query.cursor = params.cursor;
+  if (params?.page_size != null) query.page_size = params.page_size;
+  return apiRequest({
+    endpoint: API_ENDPOINTS.LIST_MESSAGES(conversationId),
+    params: Object.keys(query).length ? query : undefined,
+  });
+}
+
+const CONVERSATIONS_QUERY_KEY = ["messaging", "conversations"];
+const MESSAGES_QUERY_KEY = (id: number) => ["messaging", "conversations", id, "messages"];
+
+export function useConversationsList(params?: ListConversationsParams) {
+  return useQuery({
+    queryKey: [...CONVERSATIONS_QUERY_KEY, params],
+    queryFn: () => listConversations(params),
+    select: (data): ConversationSummary[] =>
+      data.results.map(conversationListItemToSummary),
+  });
+}
+
+export function useConversationMessages(
+  conversationId: number | null,
+  params?: ListMessagesParams
+) {
+  const currentUserId = useAuthStore((s) => s.user?.id);
+  const numericUserId =
+    currentUserId != null ? Number(currentUserId) : undefined;
+
+  return useQuery({
+    queryKey: conversationId == null ? [] : [...MESSAGES_QUERY_KEY(conversationId), params],
+    queryFn: () =>
+      conversationId == null
+        ? Promise.resolve({ next: null, previous: null, results: [] })
+        : listMessages(conversationId, params),
+    enabled: conversationId != null,
+    select: (data): Message[] =>
+      conversationId == null
+        ? []
+        : data.results.map((item) =>
+            messageListItemToMessage(item, conversationId, numericUserId)
+          ),
+  });
+}
+
+export function useGetOrCreateConversation() {
+  return useMutation({
+    mutationFn: async (data: {
+      other_user_id: number;
+      opportunity_id?: number;
+    }) => {
+      return apiRequest<ConversationResponse>({
+        endpoint: API_ENDPOINTS.GET_OR_CREATE_CONVERSATION(),
+        body: {
+          other_user_id: data.other_user_id,
+          ...(data.opportunity_id != null && {
+            opportunity_id: data.opportunity_id,
+          }),
+        },
+      });
+    },
+  });
+}
+
+export function useSendMessage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      conversationId: number;
+      content: string;
+      files?: File[];
+    }) => {
+      if (!data.files?.length) {
         return apiRequest({
           endpoint: API_ENDPOINTS.SEND_MESSAGE(data.conversationId),
-          body: formData,
+          body: { content: data.content },
         });
-      },
-    });
-  }
-  
+      }
+      const formData = new FormData();
+      formData.append("content", data.content);
+      data.files.forEach((file) => formData.append("files[]", file));
+      return apiRequest({
+        endpoint: API_ENDPOINTS.SEND_MESSAGE(data.conversationId),
+        body: formData,
+      });
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: MESSAGES_QUERY_KEY(variables.conversationId) });
+      queryClient.invalidateQueries({ queryKey: CONVERSATIONS_QUERY_KEY });
+    },
+  });
+}

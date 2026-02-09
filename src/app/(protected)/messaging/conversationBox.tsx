@@ -15,6 +15,7 @@ import { Star, MoreHorizontal } from "lucide-react";
 import { ConversationId, ConversationSummary } from "@/types/messaging";
 import { formatRelativeTime } from "@/utils/formatDate";
 import IconUserPlaceholder from "@/components/Icons/IconUserPlaceholder";
+import { useAuthStore } from "@/store";
 
 interface ConversationBoxProps {
   conversation: ConversationSummary;
@@ -30,7 +31,8 @@ export const ConversationBox: React.FC<ConversationBoxProps> = ({
   onToggleArchive,
 }) => {
   const [isHovered, setIsHovered] = React.useState(false);
-
+  const { getUserType } = useAuthStore();
+  const userType = getUserType();
   return (
     <Box
       px={3}
@@ -57,10 +59,30 @@ export const ConversationBox: React.FC<ConversationBoxProps> = ({
         >
           {/* <IconUserPlaceholder /> */}
           {/* {conversation.title.slice(0, 2).toUpperCase()} */}
-          {conversation.avatar ? (
-            <Avatar.Image src={conversation.avatar} alt={conversation.title} />
+          {conversation.avatar && userType === "organisation" ? (
+            <Avatar.Root size="sm">
+              <Avatar.Image
+                src={conversation.avatar}
+                alt={conversation.studentTitle}
+                w="32px"
+                h="32px"
+              />
+              <Avatar.Fallback bg="#E4E4E7" color="black">
+                {conversation.studentTitle.slice(0, 2).toUpperCase()}
+              </Avatar.Fallback>
+            </Avatar.Root>
           ) : (
-            <IconUserPlaceholder />
+            <Avatar.Root size="sm">
+              <Avatar.Image
+                src={conversation?.avatar ?? ""}
+                alt={conversation.organisationTitle}
+                w="32px"
+                h="32px"
+              />
+              <Avatar.Fallback bg="#E4E4E7" color="black">
+                {conversation.organisationTitle.slice(0, 2).toUpperCase()}
+              </Avatar.Fallback>
+            </Avatar.Root>
           )}
           {/* <Image src={conversation.avatar} alt={conversation.title} /> */}
         </Box>
@@ -73,10 +95,14 @@ export const ConversationBox: React.FC<ConversationBoxProps> = ({
                 truncate
                 color="black"
               >
-                {conversation.title}
+                {userType === "organisation"
+                  ? conversation.studentTitle
+                  : conversation.organisationTitle}
               </Text>
               <Text fontSize="xs" color="#2563EB" truncate>
-                {conversation.subtitle}
+                {userType === "organisation"
+                  ? conversation.studentSubtitle
+                  : conversation.organisationSubtitle}
               </Text>
             </VStack>
             <VStack align="flex-end" gap={2}>

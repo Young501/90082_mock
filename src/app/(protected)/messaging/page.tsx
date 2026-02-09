@@ -1,137 +1,126 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import { Box, Flex, useBreakpointValue } from "@chakra-ui/react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Box, Flex, Spinner, Text, useBreakpointValue } from "@chakra-ui/react";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { ConversationList } from "./ConversationList";
 import { ConversationView } from "./ConversationView";
-import { MOCK_CONVERSATIONS, MOCK_MESSAGES } from "./mockData";
+import {
+  useConversationsList,
+  useConversationMessages,
+  useSendMessage,
+} from "@/services/messaging";
 import {
   ConversationSummary,
   ConversationId,
-  MessagesByConversation,
   Message,
 } from "@/types/messaging";
 
 const Inbox = () => {
   const isSinglePane = useBreakpointValue({ base: true, md: true, lg: false });
 
-  const [conversations, setConversations] =
-    useState<ConversationSummary[]>(MOCK_CONVERSATIONS);
-  const [messagesByConversation, setMessagesByConversation] =
-    useState<MessagesByConversation>(MOCK_MESSAGES);
   const [selectedConversationId, setSelectedConversationId] =
-    useState<ConversationId | null>(
-      MOCK_CONVERSATIONS.length ? MOCK_CONVERSATIONS[0].id : null
-    );
+    useState<ConversationId | null>(null);
   const [showArchived, setShowArchived] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isShowingThreadOnSinglePane, setIsShowingThreadOnSinglePane] =
     useState(false);
   const [composerText, setComposerText] = useState("");
 
+  const {
+    data: conversations = [],
+    isLoading: conversationsLoading,
+    isError: conversationsError,
+  } = useConversationsList({
+    archived: showArchived,
+    page_size: 50,
+  });
+
+  const { data: selectedMessages = [], isLoading: messagesLoading } =
+    useConversationMessages(selectedConversationId, { page_size: 50 });
+
+  const sendMessageMutation = useSendMessage();
+
   const filteredConversations = useMemo(() => {
-    return conversations
-      .filter((c) => c.isArchived === showArchived)
-      .filter((c) => {
-        if (!searchTerm.trim()) return true;
-        const q = searchTerm.toLowerCase();
-        return (
-          c.title.toLowerCase().includes(q) ||
-          c.subtitle.toLowerCase().includes(q) ||
-          c.lastMessagePreview.toLowerCase().includes(q)
-        );
-      })
-      .sort((a, b) => {
-        return (
-          new Date(b.lastActivityAt).getTime() -
-          new Date(a.lastActivityAt).getTime()
-        );
-      });
-  }, [conversations, searchTerm, showArchived]);
+    if (!searchTerm.trim()) return conversations;
+    const q = searchTerm.toLowerCase();
+    return conversations.filter(
+      (c) =>
+        c.organisationTitle.toLowerCase().includes(q) ||
+        c.studentTitle.toLowerCase().includes(q) ||
+        c.organisationSubtitle.toLowerCase().includes(q) ||
+        c.studentSubtitle.toLowerCase().includes(q) ||
+        c.lastMessagePreview.toLowerCase().includes(q)
+    );
+  }, [conversations, searchTerm]);
+
+  console.log("filteredConversations", filteredConversations);
 
   const selectedConversation = useMemo(
     () =>
       selectedConversationId
-        ? conversations.find((c) => c.id === selectedConversationId) || null
+        ? (conversations.find((c) => c.id === selectedConversationId) ?? null)
         : null,
     [conversations, selectedConversationId]
   );
 
-  const selectedMessages: Message[] = useMemo(() => {
-    if (!selectedConversation) return [];
-    return messagesByConversation[selectedConversation.id] || [];
-  }, [messagesByConversation, selectedConversation]);
-
-  const markConversationAsRead = (conversationId: ConversationId) => {
-    setConversations((prev) =>
-      prev.map((c) =>
-        c.id === conversationId ? { ...c, hasUnread: false, unreadCount: 0 } : c
-      )
-    );
-  };
+  useEffect(() => {
+    if (
+      selectedConversationId == null &&
+      filteredConversations.length > 0 &&
+      !conversationsLoading
+    ) {
+      setSelectedConversationId(filteredConversations[0].id);
+    }
+  }, [filteredConversations, conversationsLoading, selectedConversationId]);
 
   const handleSelectConversation = (conversationId: ConversationId) => {
     setSelectedConversationId(conversationId);
-    markConversationAsRead(conversationId);
-    if (isSinglePane) {
-      setIsShowingThreadOnSinglePane(true);
-    }
+    if (isSinglePane) setIsShowingThreadOnSinglePane(true);
   };
 
-  const handleToggleArchive = (conversationId: ConversationId) => {
-    setConversations((prev) =>
-      prev.map((c) =>
-        c.id === conversationId ? { ...c, isArchived: !c.isArchived } : c
-      )
-    );
+  const handleToggleArchive = (_conversationId: ConversationId) => {
+    // Archive/unarchive would call PATCH .../state/ and invalidate list
   };
+
+  const hasAnyConversations = filteredConversations.length > 0;
 
   const handleSendMessage = () => {
     if (!selectedConversation || !composerText.trim()) return;
-
-    const newMessage: Message = {
-      id: `local-${Date.now()}`,
-      conversationId: selectedConversation.id,
-      sender: "me",
-      text: composerText.trim(),
-      createdAt: new Date().toISOString(),
-    };
-
-    setMessagesByConversation((prev) => {
-      const existing = prev[selectedConversation.id] || [];
-      return {
-        ...prev,
-        [selectedConversation.id]: [...existing, newMessage],
-      };
-    });
-
-    setConversations((prev) =>
-      prev.map((c) =>
-        c.id === selectedConversation.id
-          ? {
-              ...c,
-              lastMessagePreview: newMessage.text || "",
-              lastActivityAt: newMessage.createdAt,
-              hasUnread: false,
-              unreadCount: 0,
-            }
-          : c
-      )
+    sendMessageMutation.mutate(
+      {
+        conversationId: selectedConversation.id,
+        content: composerText.trim(),
+      },
+      {
+        onSuccess: () => setComposerText(""),
+      }
     );
-
-    setComposerText("");
   };
 
-  const hasAnyConversations = conversations.length > 0;
-
   const renderContent = () => {
+    if (conversationsError) {
+      return (
+        <Flex w="100%" h="100%" align="center" justify="center" p={4}>
+          <Text color="red.500">Failed to load conversations.</Text>
+        </Flex>
+      );
+    }
+
+    if (conversationsLoading) {
+      return (
+        <Flex w="100%" h="100%" align="center" justify="center" p={4}>
+          <Spinner size="lg" />
+        </Flex>
+      );
+    }
+
     if (!hasAnyConversations) {
       return (
         <Flex w="100%" h="100%" gap={4} align="center" justify="center">
           <ConversationList
-            conversations={filteredConversations}
+            conversations={[]}
             selectedConversationId={selectedConversationId}
             showArchived={showArchived}
             searchTerm={searchTerm}
@@ -139,7 +128,7 @@ const Inbox = () => {
             onShowArchivedChange={setShowArchived}
             onSelectConversation={handleSelectConversation}
             onToggleArchive={handleToggleArchive}
-            hasAnyConversations={hasAnyConversations}
+            hasAnyConversations={false}
           />
         </Flex>
       );
@@ -148,17 +137,17 @@ const Inbox = () => {
     if (isSinglePane) {
       return (
         <Box w="100%">
-          {isShowingThreadOnSinglePane ? (
+          {isShowingThreadOnSinglePane && selectedConversation ? (
             <ConversationView
               isSinglePane={isSinglePane}
               conversation={selectedConversation}
               messages={selectedMessages}
-              // hasAnyConversations={hasAnyConversations}
               composerText={composerText}
               onComposerTextChange={setComposerText}
               onSendMessage={handleSendMessage}
               onBackToList={() => setIsShowingThreadOnSinglePane(false)}
               onToggleArchive={handleToggleArchive}
+              messagesLoading={messagesLoading}
             />
           ) : (
             <Box p={4}>
@@ -199,12 +188,12 @@ const Inbox = () => {
             isSinglePane={isSinglePane}
             conversation={selectedConversation}
             messages={selectedMessages}
-            // hasAnyConversations={hasAnyConversations}
             composerText={composerText}
             onComposerTextChange={setComposerText}
             onSendMessage={handleSendMessage}
             onBackToList={() => setIsShowingThreadOnSinglePane(false)}
             onToggleArchive={handleToggleArchive}
+            messagesLoading={messagesLoading}
           />
         </Box>
       </Flex>
