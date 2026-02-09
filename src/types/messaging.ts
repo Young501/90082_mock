@@ -1,4 +1,3 @@
-// —— API response types (match backend) ——
 
 export interface MessagingUser {
   id: number;

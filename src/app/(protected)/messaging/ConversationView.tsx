@@ -119,8 +119,6 @@ export const ConversationView = ({
           fontWeight="semibold"
           flexShrink={0}
         >
-          {/* <IconUserPlaceholder /> */}
-          {/* {conversation.title.slice(0, 2).toUpperCase()} */}
           {conversation?.avatar && profileType === "organisation" ? (
             <Avatar.Root size="sm">
               <Avatar.Image
@@ -155,32 +153,19 @@ export const ConversationView = ({
               : conversation?.organisationTitle}
           </Text>
           <HStack flexWrap="wrap">
-            {/* <Text fontSize="xs" color="#2563EB" truncate>
-              {profileType === "organisation"
-                ? conversation?.organisationSubtitle
-                : conversation?.studentSubtitle}
-            </Text> */}
-            {conversation?.studentSubtitle &&
-              conversation?.organisationSubtitle && (
-                // conversation?.studentSubtitle
-                // )  conversation?.organisationSubtitle ? (
+            {profileType === "organisation" &&
+              conversation?.studentSubtitle && (
                 <Tag.Root>
                   <Tag.Label fontSize="xs" color="black" truncate>
-                    {profileType === "organisation"
-                      ? conversation?.studentSubtitle
-                      : conversation?.organisationSubtitle}
+                    {conversation?.studentSubtitle}
                   </Tag.Label>
                 </Tag.Root>
               )}
-              {conversation?.studentSubtitle &&
+            {profileType === "student" &&
               conversation?.organisationSubtitle && (
-                // conversation?.studentSubtitle
-                // )  conversation?.organisationSubtitle ? (
                 <Tag.Root>
                   <Tag.Label fontSize="xs" color="black" truncate>
-                    {profileType === "organisation"
-                      ? conversation?.studentSubtitle
-                      : conversation?.organisationSubtitle}
+                    {conversation?.organisationSubtitle}
                   </Tag.Label>
                 </Tag.Root>
               )}
