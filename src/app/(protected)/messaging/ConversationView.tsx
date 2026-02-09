@@ -37,7 +37,10 @@ import {
   ConversationSummary,
   Message,
 } from "@/types/messaging";
-import { formatRelativeTime } from "@/utils/formatDate";
+import {
+  formatDateTimeToReadable,
+  formatRelativeTime,
+} from "@/utils/formatDate";
 import { useAuthStore } from "@/store";
 
 interface ConversationViewProps {
@@ -990,7 +993,7 @@ export const ConversationView = ({
                               color="#52525B"
                               textAlign={isMine ? "right" : "left"}
                             >
-                              {formatRelativeTime(message.createdAt)}
+                              {formatDateTimeToReadable(message.createdAt)}
                             </Text>
                           </VStack>
                           {isMine && (
