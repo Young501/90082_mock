@@ -52,12 +52,9 @@ const Inbox = () => {
   const [messagesCursor, setMessagesCursor] = useState<string | null>(null);
   const [allMessages, setAllMessages] = useState<Message[]>([]);
 
-  // Cursor pagination: API returns newest-first. No cursor = first page (newest).
-  // messagesData.previous = cursor to fetch the next older page; we store that
-  // in messagesCursor and merge each older page into allMessages by prepending.
   const { data: messagesData, isLoading: messagesLoading } =
     useConversationMessages(selectedConversationId, {
-      page_size: 5,
+      page_size: 50,
       cursor: messagesCursor || undefined,
     });
 
@@ -81,19 +78,22 @@ const Inbox = () => {
     }
   }, [selectedConversationId]);
 
-  // Sync API page(s) into allMessages: initial page replaces; older pages prepend.
   useEffect(() => {
-    if (selectedMessages.length === 0) return;
-    if (messagesCursor) {
-      setAllMessages((prev) => {
-        const existingIds = new Set(prev.map((m) => m.id));
-        const newMessages = selectedMessages.filter(
-          (m) => !existingIds.has(m.id)
-        );
-        return [...newMessages, ...prev];
-      });
-    } else {
-      setAllMessages(selectedMessages);
+    if (selectedMessages.length > 0) {
+      if (messagesCursor) {
+        // Loading older messages - prepend them
+        setAllMessages((prev) => {
+          const existingIds = new Set(prev.map((m) => m.id));
+          const newMessages = selectedMessages.filter(
+            (m) => !existingIds.has(m.id)
+          );
+
+          return [...newMessages, ...prev];
+        });
+      } else {
+        // Initial load or new conversation - replace
+        setAllMessages(selectedMessages);
+      }
     }
   }, [selectedMessages, messagesCursor]);
 

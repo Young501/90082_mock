@@ -9,7 +9,7 @@ import {
   Text,
   IconButton,
 } from "@chakra-ui/react";
-import { Paperclip } from "lucide-react";
+import { Paperclip, FileText, Images } from "lucide-react";
 import { useRef } from "react";
 import { MenuPopover } from "./MenuPopover";
 
@@ -54,50 +54,52 @@ const defaultAttachmentOptions = (
       }}
     />
     <HStack
-      gap={3}
+      gap={1.5}
       cursor="pointer"
+      px={2}
+      py={1.5}
       onClick={() => {
         fileInputRef?.current?.click();
       }}
     >
       <Box
-        w={8}
-        h={8}
         borderRadius="full"
-        bg="#EFF6FF"
         display="flex"
         alignItems="center"
         justifyContent="center"
+        minH="fit-content"
+        w="fit-content"
       >
-        <Paperclip size={16} color="#1679AB" />
+        <FileText size={16} color="black" />
       </Box>
       <Text fontSize="sm" color="#111827">
-        Share documents
+        Documents
       </Text>
     </HStack>
     <HStack
-      gap={3}
+      gap={1.5}
       cursor="pointer"
+      px={2}
+      py={1.5}
       onClick={() => {
         fileInputRef?.current?.click();
       }}
     >
       <Box
-        w={8}
-        h={8}
         borderRadius="full"
-        bg="#EFF6FF"
         display="flex"
         alignItems="center"
         justifyContent="center"
+        minH="fit-content"
+        w="fit-content"
       >
-        <Paperclip size={16} color="#1F97D1" />
+        <Images size={16} color="black" />
       </Box>
       <Text fontSize="sm" color="#111827">
-        Share videos
+        Photos and Videos
       </Text>
     </HStack>
-    <HStack
+    {/* <HStack
       gap={3}
       cursor="pointer"
       onClick={() => {
@@ -118,7 +120,7 @@ const defaultAttachmentOptions = (
       <Text fontSize="sm" color="#111827">
         Share photos
       </Text>
-    </HStack>
+    </HStack> */}
   </VStack>
 );
 
@@ -192,7 +194,11 @@ export function MessageComposerInput({
         }
         contentProps={attachmentDrawer ? { p: 4 } : { p: 3 }}
       >
-        {defaultAttachmentOptions(closeAttachment, onFilesSelected, fileInputRef)}
+        {defaultAttachmentOptions(
+          closeAttachment,
+          onFilesSelected,
+          fileInputRef
+        )}
       </MenuPopover>
     </Box>
   );
