@@ -20,6 +20,7 @@ interface ConversationListProps {
   onSelectConversation: (id: ConversationId) => void;
   onToggleArchive: (id: ConversationId) => void;
   hasAnyConversations: boolean;
+  profileType: "coordinator" | "organisation" | "student";
 }
 
 export const ConversationList = ({
@@ -32,6 +33,7 @@ export const ConversationList = ({
   onSelectConversation,
   onToggleArchive,
   hasAnyConversations,
+  profileType,
 }: ConversationListProps) => {
   if (!hasAnyConversations) {
     return <EmptyInbox />;
@@ -81,6 +83,7 @@ export const ConversationList = ({
                 isActive={isActive}
                 onSelect={onSelectConversation}
                 onToggleArchive={onToggleArchive}
+                profileType={profileType}
               />
             );
           })}

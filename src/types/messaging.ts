@@ -69,7 +69,7 @@ export type ConversationId = number;
 
 export interface ConversationSummary {
   id: ConversationId;
-  organisationTitle: string;
+  organisationTitle?: string;
   studentTitle: string;
   organisationSubtitle: string;
   studentSubtitle: string;
@@ -124,10 +124,10 @@ export function conversationListItemToSummary(
 ): ConversationSummary {
   return {
     id: item.id,
-    organisationTitle: item.other_user.organisation_name ?? "",
+    organisationTitle: item.other_user.organisation_name || "",
     studentTitle: item.other_user.full_name,
     organisationSubtitle: item.other_user.full_name || (item.opportunity_title || item.other_user.organisation_name || ""),
-    studentSubtitle: item.opportunity_title || item.other_user.organisation_name || "",
+    studentSubtitle: item.opportunity_title || "",
     lastMessagePreview: item.last_message?.content ?? "",
     lastActivityAt: item.last_message_at,
     hasUnread: item.has_unread,

@@ -16,6 +16,7 @@ import {
   ConversationId,
   Message,
 } from "@/types/messaging";
+import { useAuthStore } from "@/store";
 
 const Inbox = () => {
   const isSinglePane = useBreakpointValue({ base: true, md: true, lg: false });
@@ -27,6 +28,17 @@ const Inbox = () => {
   const [isShowingThreadOnSinglePane, setIsShowingThreadOnSinglePane] =
     useState(false);
   const [composerText, setComposerText] = useState("");
+
+  const { getUserType } = useAuthStore();
+  const userType = getUserType();
+  console.log("userType", userType);
+  const profileType =
+    userType === "coordinator"
+      ? "coordinator"
+      : userType === "organisation"
+        ? "organisation"
+        : "student";
+  console.log("profileType", profileType);
 
   const {
     data: conversations = [],
@@ -47,7 +59,7 @@ const Inbox = () => {
     const q = searchTerm.toLowerCase();
     return conversations.filter(
       (c) =>
-        c.organisationTitle.toLowerCase().includes(q) ||
+        c.organisationTitle?.toLowerCase().includes(q) ||
         c.studentTitle.toLowerCase().includes(q) ||
         c.organisationSubtitle.toLowerCase().includes(q) ||
         c.studentSubtitle.toLowerCase().includes(q) ||
@@ -129,6 +141,7 @@ const Inbox = () => {
             onSelectConversation={handleSelectConversation}
             onToggleArchive={handleToggleArchive}
             hasAnyConversations={false}
+            profileType={profileType}
           />
         </Flex>
       );
@@ -148,6 +161,7 @@ const Inbox = () => {
               onBackToList={() => setIsShowingThreadOnSinglePane(false)}
               onToggleArchive={handleToggleArchive}
               messagesLoading={messagesLoading}
+              profileType={profileType}
             />
           ) : (
             <Box p={4}>
@@ -161,6 +175,7 @@ const Inbox = () => {
                 onSelectConversation={handleSelectConversation}
                 onToggleArchive={handleToggleArchive}
                 hasAnyConversations={hasAnyConversations}
+                profileType={profileType}
               />
             </Box>
           )}
@@ -181,6 +196,7 @@ const Inbox = () => {
             onSelectConversation={handleSelectConversation}
             onToggleArchive={handleToggleArchive}
             hasAnyConversations={hasAnyConversations}
+            profileType={profileType}
           />
         </Box>
         <Box flex={1}>
@@ -194,6 +210,7 @@ const Inbox = () => {
             onBackToList={() => setIsShowingThreadOnSinglePane(false)}
             onToggleArchive={handleToggleArchive}
             messagesLoading={messagesLoading}
+            profileType={profileType}
           />
         </Box>
       </Flex>

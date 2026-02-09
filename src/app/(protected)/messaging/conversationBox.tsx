@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   HStack,
@@ -22,17 +22,18 @@ interface ConversationBoxProps {
   isActive: boolean;
   onSelect: (id: ConversationId) => void;
   onToggleArchive: (id: ConversationId) => void;
+  profileType: "coordinator" | "organisation" | "student";
 }
 
-export const ConversationBox: React.FC<ConversationBoxProps> = ({
+export const ConversationBox = ({
   conversation,
   isActive,
   onSelect,
   onToggleArchive,
-}) => {
-  const [isHovered, setIsHovered] = React.useState(false);
-  const { getUserType } = useAuthStore();
-  const userType = getUserType();
+  profileType,
+}: ConversationBoxProps) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
   return (
     <Box
       px={3}
@@ -59,7 +60,7 @@ export const ConversationBox: React.FC<ConversationBoxProps> = ({
         >
           {/* <IconUserPlaceholder /> */}
           {/* {conversation.title.slice(0, 2).toUpperCase()} */}
-          {conversation.avatar && userType === "organisation" ? (
+          {conversation.avatar && profileType === "organisation" ? (
             <Avatar.Root size="sm">
               <Avatar.Image
                 src={conversation.avatar}
@@ -75,12 +76,12 @@ export const ConversationBox: React.FC<ConversationBoxProps> = ({
             <Avatar.Root size="sm">
               <Avatar.Image
                 src={conversation?.avatar ?? ""}
-                alt={conversation.organisationTitle}
+                alt={conversation.organisationTitle ?? ""}
                 w="32px"
                 h="32px"
               />
               <Avatar.Fallback bg="#E4E4E7" color="black">
-                {conversation.organisationTitle.slice(0, 2).toUpperCase()}
+                {conversation.organisationTitle?.slice(0, 2).toUpperCase()}
               </Avatar.Fallback>
             </Avatar.Root>
           )}
@@ -95,12 +96,12 @@ export const ConversationBox: React.FC<ConversationBoxProps> = ({
                 truncate
                 color="black"
               >
-                {userType === "organisation"
+                {profileType === "organisation"
                   ? conversation.studentTitle
                   : conversation.organisationTitle}
               </Text>
               <Text fontSize="xs" color="#2563EB" truncate>
-                {userType === "organisation"
+                {profileType === "organisation"
                   ? conversation.studentSubtitle
                   : conversation.organisationSubtitle}
               </Text>

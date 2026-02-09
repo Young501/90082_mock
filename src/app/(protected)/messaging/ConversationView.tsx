@@ -48,6 +48,7 @@ interface ConversationViewProps {
   onBackToList: () => void;
   onToggleArchive: (id: ConversationId) => void;
   messagesLoading?: boolean;
+  profileType: "coordinator" | "organisation" | "student";
 }
 
 export const ConversationView = ({
@@ -60,14 +61,16 @@ export const ConversationView = ({
   onBackToList,
   onToggleArchive,
   messagesLoading = false,
+  profileType,
 }: ConversationViewProps) => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [isAttachmentOpen, setIsAttachmentOpen] = useState(false);
   const [activeMessageActionsId, setActiveMessageActionsId] = useState<
     string | null
   >(null);
-  const { getUserType } = useAuthStore();
-  const userType = getUserType();
+
+  console.log("ConversationView", conversation);
+
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -118,7 +121,7 @@ export const ConversationView = ({
         >
           {/* <IconUserPlaceholder /> */}
           {/* {conversation.title.slice(0, 2).toUpperCase()} */}
-          {conversation?.avatar && userType === "organisation" ? (
+          {conversation?.avatar && profileType === "organisation" ? (
             <Avatar.Root size="sm">
               <Avatar.Image
                 src={conversation?.avatar ?? ""}
@@ -134,12 +137,12 @@ export const ConversationView = ({
             <Avatar.Root size="sm">
               <Avatar.Image
                 src={conversation?.avatar ?? ""}
-                alt={conversation?.organisationTitle}
+                alt={conversation?.organisationTitle ?? ""}
                 w="32px"
                 h="32px"
               />
               <Avatar.Fallback bg="#E4E4E7" color="black">
-                {conversation?.organisationTitle.slice(0, 2).toUpperCase()}
+                {conversation?.organisationTitle?.slice(0, 2).toUpperCase()}
               </Avatar.Fallback>
             </Avatar.Root>
           )}
@@ -147,27 +150,40 @@ export const ConversationView = ({
         </Box>
         <VStack align="flex-start" gap={0} flex={1} minW={0}>
           <Text fontWeight="semibold" color="black" fontSize="sm" truncate>
-            {userType === "organisation"
-              ? conversation?.organisationTitle
-              : conversation?.studentTitle}
+            {profileType === "organisation"
+              ? conversation?.studentTitle
+              : conversation?.organisationTitle}
           </Text>
           <HStack flexWrap="wrap">
-            <Text fontSize="xs" color="#2563EB" truncate>
-              {userType === "organisation"
+            {/* <Text fontSize="xs" color="#2563EB" truncate>
+              {profileType === "organisation"
                 ? conversation?.organisationSubtitle
                 : conversation?.studentSubtitle}
-            </Text>
-            {userType === "organisation" ? (
-              conversation?.organisationSubtitle
-            ) : conversation?.studentSubtitle ? (
-              <Tag.Root>
-                <Tag.Label fontSize="xs" color="black" truncate>
-                  {userType === "organisation"
-                    ? conversation?.organisationSubtitle
-                    : conversation?.studentSubtitle}
-                </Tag.Label>
-              </Tag.Root>
-            ) : null}
+            </Text> */}
+            {conversation?.studentSubtitle &&
+              conversation?.organisationSubtitle && (
+                // conversation?.studentSubtitle
+                // )  conversation?.organisationSubtitle ? (
+                <Tag.Root>
+                  <Tag.Label fontSize="xs" color="black" truncate>
+                    {profileType === "organisation"
+                      ? conversation?.studentSubtitle
+                      : conversation?.organisationSubtitle}
+                  </Tag.Label>
+                </Tag.Root>
+              )}
+              {conversation?.studentSubtitle &&
+              conversation?.organisationSubtitle && (
+                // conversation?.studentSubtitle
+                // )  conversation?.organisationSubtitle ? (
+                <Tag.Root>
+                  <Tag.Label fontSize="xs" color="black" truncate>
+                    {profileType === "organisation"
+                      ? conversation?.studentSubtitle
+                      : conversation?.organisationSubtitle}
+                  </Tag.Label>
+                </Tag.Root>
+              )}
             <MenuPopover
               trigger={
                 <IconButton
@@ -229,7 +245,7 @@ export const ConversationView = ({
 
       <Box flex={1} overflowY="auto" px={4} py={4} maxH="calc(100vh - 260px)">
         {messagesLoading ? (
-          <Flex w="100%" h="100%" minH="120px" align="center" justify="center">
+          <Flex w="100%" h="100%" minH="200px" align="center" justify="center">
             <Spinner size="md" />
           </Flex>
         ) : isEmptyThread ? (
@@ -387,18 +403,29 @@ export const ConversationView = ({
                           borderRadius="xl"
                           px={4}
                           py={3}
-                          bg={isMine ? "#1F97D1" : "#F4F4F5"}
+                          bg={
+                            isMine
+                              ? profileType === "organisation"
+                                ? "#3AADA8"
+                                : "#1F97D1"
+                              : "#F4F4F5"
+                          }
                           color={isMine ? "white" : "#18181B"}
                           maxW="396px"
                           w="100%"
                           borderWidth="1px"
-                          borderColor={isMine ? "#1F97D1" : "#E4E4E7"}
+                          borderColor={
+                            isMine
+                              ? profileType === "organisation"
+                                ? "#3AADA8"
+                                : "#1F97D1"
+                              : "#E4E4E7"
+                          }
                           style={{
                             borderRadius: isMine
                               ? "12px 0px 12px 12px"
                               : "0px 12px 12px 12px",
                           }}
-                          // borderRadius={isMine ? "" : "lg"}
                         >
                           {message.text && (
                             <Text fontSize="sm" whiteSpace="pre-wrap">
@@ -576,6 +603,7 @@ export const ConversationView = ({
             px={{ base: 2.5, md: 4 }}
             iconPosition="end"
             icon={<Send size={18} />}
+            profileType={profileType}
           >
             <Text fontSize="sm" display={{ base: "none", md: "inline-block" }}>
               Send

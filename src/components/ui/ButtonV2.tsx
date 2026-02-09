@@ -10,6 +10,7 @@ interface CustomButtonProps extends Omit<ButtonProps, "variant"> {
   iconPosition?: "start" | "end";
   icon?: React.ReactNode;
   children: ReactNode;
+  profileType: "coordinator" | "organisation" | "student";
 }
 
 export function ButtonV2({
@@ -18,17 +19,18 @@ export function ButtonV2({
   children,
   iconPosition = "start",
   icon,
+  profileType,
   ...props
 }: CustomButtonProps) {
   const styles = {
     primary: {
-      bg: "#2AA8E0",
+      bg: profileType === "organisation" ? "#3AADA8" : "#2AA8E0",
       color: "#FFFFFF",
       h: "32px",
       borderRadius: "xl",
       fontSize: "xs",
       fontWeight: "500",
-  
+
       _active: {
         transform: "scale(0.98)",
       },
