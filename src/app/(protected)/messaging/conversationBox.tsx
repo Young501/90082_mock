@@ -16,6 +16,7 @@ import { ConversationId, ConversationSummary } from "@/types/messaging";
 import { formatRelativeTime } from "@/utils/formatDate";
 import IconUserPlaceholder from "@/components/Icons/IconUserPlaceholder";
 import { useAuthStore } from "@/store";
+import { MenuPopover } from "@/components/ui/MenuPopover";
 
 interface ConversationBoxProps {
   conversation: ConversationSummary;
@@ -33,7 +34,7 @@ export const ConversationBox = ({
   profileType,
 }: ConversationBoxProps) => {
   const [isHovered, setIsHovered] = useState(false);
-  
+
   return (
     <Box
       px={3}
@@ -148,7 +149,8 @@ export const ConversationBox = ({
                 opacity={isHovered ? 1 : 0}
                 transition="opacity 0.15s ease"
               >
-                <IconButton
+                {/* TODO: Add to favorites functionality: PENDING API AVAILABILITY */}
+                {/* <IconButton
                   aria-label={
                     conversation.isArchived
                       ? "Unstar conversation"
@@ -169,20 +171,52 @@ export const ConversationBox = ({
                     color={conversation.isArchived ? "#FBBF24" : "#27272A"}
                     fill={conversation.isArchived ? "#FBBF24" : "none"}
                   />
-                </IconButton>
-                <IconButton
+                </IconButton> */}
+                {/* <IconButton
                   aria-label="More options"
                   variant="ghost"
                   minW="fit-content"
                   h="fit-content"
                   onClick={(e) => e.stopPropagation()}
+                > */}
+
+                <MenuPopover
+                  trigger={
+                    <IconButton
+                      variant="ghost"
+                      minW="fit-content"
+                      aria-label="Conversation options"
+                      h="fit-content"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <MoreHorizontal
+                        size={20}
+                        fontWeight="medium"
+                        color="#27272A"
+                      />
+                    </IconButton>
+                  }
+                  placement="bottom"
                 >
-                  <MoreHorizontal
-                    size={20}
-                    fontWeight="medium"
-                    color="#27272A"
-                  />
-                </IconButton>
+                  <HStack
+                    gap={2}
+                    cursor="pointer"
+                    px={2}
+                    py={1}
+                    borderRadius="md"
+                    _hover={{ bg: "#F4F4F5" }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (conversation?.id != null) onToggleArchive(conversation.id);
+                    }}
+                  >
+                    <Text fontSize="sm" color="#111827">
+                      {conversation?.isArchived
+                        ? "Unarchive chat"
+                        : "Archive chat"}
+                    </Text>
+                  </HStack>
+                </MenuPopover>
               </HStack>
             )}
           </HStack>

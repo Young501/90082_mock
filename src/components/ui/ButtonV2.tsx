@@ -10,7 +10,7 @@ interface CustomButtonProps extends Omit<ButtonProps, "variant"> {
   iconPosition?: "start" | "end";
   icon?: React.ReactNode;
   children: ReactNode;
-  profileType: "coordinator" | "organisation" | "student";
+  profileType?: "coordinator" | "organisation" | "student";
 }
 
 export function ButtonV2({
@@ -54,6 +54,9 @@ export function ButtonV2({
       color: "#2CA9DF",
       fontSize: "16px",
       fontWeight: "400",
+      _active: {
+        transform: "scale(0.98)",
+      },
       _hover: {
         textDecoration: "underline",
       },

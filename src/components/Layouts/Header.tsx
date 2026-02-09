@@ -2,11 +2,9 @@ import {
   Box,
   HStack,
   Text,
-  VStack,
   useBreakpointValue,
   Button,
   Drawer,
-  Popover,
 } from "@chakra-ui/react";
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -27,6 +25,8 @@ import { toast } from "react-toastify";
 import { getSubscriptionTrialInfo } from "@/utils/subscriptionPermissions";
 import { formatDate } from "@/utils/formatDate";
 import Sidebar from "@/components/Layouts/Sidebar";
+import { MenuPopover } from "../ui/MenuPopover";
+import { ButtonV2 } from "../ui/ButtonV2";
 
 const lessThan3Days = (date: string) => {
   const trialEndDate = new Date(date);
@@ -230,8 +230,11 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                 >
                   <Bell size={18} color="#18181B" />
                 </Box>
-                <Popover.Root positioning={{ placement: "bottom-end" }}>
-                  <Popover.Trigger>
+                
+                <MenuPopover
+                  placement="bottom-end"
+                  minW="180px"
+                  trigger={
                     <Box
                       display="flex"
                       alignItems="center"
@@ -266,32 +269,23 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                       </Box>
                       <ChevronDown width={20} height={20} color="#18181B" />
                     </Box>
-                  </Popover.Trigger>
-                  <Popover.Positioner>
-                    <Popover.Content
-                      bg="white"
-                      borderRadius="lg"
-                      boxShadow="lg"
-                      minW="180px"
-                      borderWidth="1px"
-                      borderColor="gray.100"
-                    >
-                      <Popover.Body p={2}>
-                        <Button
-                          w="100%"
-                          justifyContent="flex-start"
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleUserLogout}
-                          gap={2}
-                        >
-                          <LogOut size={16} />
-                          Log out
-                        </Button>
-                      </Popover.Body>
-                    </Popover.Content>
-                  </Popover.Positioner>
-                </Popover.Root>
+                  }
+                >
+                  <HStack
+                    gap={2}
+                    cursor="pointer"
+                    px={2}
+                    py={1}
+                    borderRadius="md"
+                    _hover={{ bg: "#F4F4F5" }}
+                    onClick={handleUserLogout}
+                  >
+                    <LogOut size={16} color="#111827" />
+                    <Text fontSize="sm" color="#111827">
+                      Log out
+                    </Text>
+                  </HStack>
+                </MenuPopover>
               </HStack>
             </Box>
             <SubscriptionBanner isInMobileMenu={isMobileMenuOpen} />

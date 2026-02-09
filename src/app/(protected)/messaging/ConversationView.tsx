@@ -68,7 +68,7 @@ export const ConversationView = ({
   const [activeMessageActionsId, setActiveMessageActionsId] = useState<
     string | null
   >(null);
-
+  const [isCopied, setIsCopied] = useState(false);
   console.log("ConversationView", conversation);
 
   useEffect(() => {
@@ -169,7 +169,9 @@ export const ConversationView = ({
                   </Tag.Label>
                 </Tag.Root>
               )}
-            <MenuPopover
+
+            {/* TODO: EDIT FEATURE: PENDING API AVAILABILITY */}
+            {/* <MenuPopover
               trigger={
                 <IconButton
                   variant="ghost"
@@ -204,7 +206,7 @@ export const ConversationView = ({
                   {conversation?.isArchived ? "Unarchive chat" : "Archive chat"}
                 </Text>
               </HStack>
-            </MenuPopover>
+            </MenuPopover> */}
           </HStack>
         </VStack>
 
@@ -303,7 +305,8 @@ export const ConversationView = ({
                             transition="opacity 0.15s ease"
                             flexShrink={0}
                           >
-                            <IconButton
+                            {/* TODO: REACT TO MESSAGE FEATURE: PENDING API AVAILABILITY */}
+                            {/* <IconButton
                               variant="ghost"
                               minW="fit-content"
                               aria-label="React to message"
@@ -313,11 +316,12 @@ export const ConversationView = ({
                                 size={16}
                                 color={isMine ? "#1F97D1" : "#4B5563"}
                               />
-                            </IconButton>
+                            </IconButton> */}
                             <MenuPopover
                               variant={isSinglePane ? "drawer" : "popover"}
                               title="Message actions"
                               open={isSinglePane ? showActions : undefined}
+                              placement="left-start"
                               onOpenChange={
                                 isSinglePane
                                   ? (v) => !v && setActiveMessageActionsId(null)
@@ -346,30 +350,77 @@ export const ConversationView = ({
                                 </IconButton>
                               }
                             >
-                              <HStack gap={2} cursor="pointer" px={2} py={1}>
-                                <Text fontSize="sm">Reply</Text>
-                              </HStack>
-                              <HStack
+                              {/* <ButtonV2
+                                variant="ghost"
+                                minW="fit-content"
+                                h="fit-content"
+                                display="flex"
+                                alignItems="start"
+                                justifyContent="start"
+                                aria-label="Copy message"
+                                px={2}
+                                py={0}
+                                color="black"
+                                textDecoration="none"
+                                _hover={{
+                                  textDecoration: "none",
+                                }}
                                 gap={2}
                                 cursor="pointer"
+                              >
+                                <Text fontSize="sm">Reply</Text>
+                              </ButtonV2> */}
+                              <ButtonV2
+                                variant="ghost"
+                                minW="fit-content"
+                                h="fit-content"
+                                display="flex"
+                                alignItems="start"
+                                justifyContent="start"
+                                aria-label="Copy message"
                                 px={2}
-                                py={1}
+                                py={0}
+                                color="black"
+                                textDecoration="none"
+                                _hover={{
+                                  textDecoration: "none",
+                                }}
                                 onClick={() => {
                                   if (message.text) {
                                     navigator.clipboard
                                       ?.writeText(message.text)
                                       .catch(() => undefined);
+                                    setIsCopied(true);
+                                    setTimeout(() => {
+                                      setIsCopied(false);
+                                    }, 2000);
                                   }
                                 }}
                               >
-                                <Text fontSize="sm">Copy</Text>
-                              </HStack>
-                              <HStack gap={2} cursor="pointer" px={2} py={1}>
+                                {isCopied ? (
+                                  <Text
+                                    fontSize="sm"
+                                    fontWeight="semibold"
+                                    color={
+                                      profileType === "organisation"
+                                        ? "#3AADA8"
+                                        : "#1F97D1"
+                                    }
+                                  >
+                                    Copied
+                                  </Text>
+                                ) : (
+                                  <Text fontSize="sm">Copy</Text>
+                                )}
+                              </ButtonV2>
+                              {/* TODO: EDIT MESSAGE FEATURE: PENDING API AVAILABILITY */}
+                              {/* <HStack gap={2} cursor="pointer" px={2} py={1}>
                                 <Text fontSize="sm">Edit</Text>
                               </HStack>
-                              <HStack gap={2} cursor="pointer" px={2} py={1}>
+                              {/* TODO: STAR MESSAGE FEATURE: PENDING API AVAILABILITY */}
+                              {/* <HStack gap={2} cursor="pointer" px={2} py={1}>
                                 <Text fontSize="sm">Star</Text>
-                              </HStack>
+                              </HStack> */}
                               <Box
                                 mt={1}
                                 borderTopWidth="1px"
@@ -448,7 +499,8 @@ export const ConversationView = ({
                             transition="opacity 0.15s ease"
                             flexShrink={0}
                           >
-                            <IconButton
+                            {/* TODO: REACT TO MESSAGE FEATURE: PENDING API AVAILABILITY */}
+                            {/* <IconButton
                               aria-label="React to message"
                               variant="ghost"
                               minW="fit-content"
@@ -458,7 +510,7 @@ export const ConversationView = ({
                                 size={16}
                                 color={isMine ? "#1679AB" : "#4B5563"}
                               />
-                            </IconButton>
+                            </IconButton> */}
                             <MenuPopover
                               variant={isSinglePane ? "drawer" : "popover"}
                               title="Message actions"
@@ -491,30 +543,77 @@ export const ConversationView = ({
                                 </IconButton>
                               }
                             >
-                              <HStack gap={2} cursor="pointer" px={2} py={1}>
-                                <Text fontSize="sm">Reply</Text>
-                              </HStack>
-                              <HStack
+                              <ButtonV2
+                                variant="ghost"
+                                minW="fit-content"
+                                h="fit-content"
+                                display="flex"
+                                alignItems="start"
+                                justifyContent="start"
+                                aria-label="Copy message"
+                                px={2}
+                                py={0}
+                                color="black"
+                                textDecoration="none"
+                                _hover={{
+                                  textDecoration: "none",
+                                }}
                                 gap={2}
                                 cursor="pointer"
+                              >
+                                <Text fontSize="sm">Reply</Text>
+                              </ButtonV2>
+                              <ButtonV2
+                                variant="ghost"
+                                minW="fit-content"
+                                h="fit-content"
+                                display="flex"
+                                alignItems="start"
+                                justifyContent="start"
+                                aria-label="Copy message"
                                 px={2}
-                                py={1}
+                                py={0}
+                                color="black"
+                                textDecoration="none"
+                                _hover={{
+                                  textDecoration: "none",
+                                }}
                                 onClick={() => {
                                   if (message.text) {
                                     navigator.clipboard
                                       ?.writeText(message.text)
                                       .catch(() => undefined);
+                                    setIsCopied(true);
+                                    setTimeout(() => {
+                                      setIsCopied(false);
+                                    }, 2000);
                                   }
                                 }}
                               >
-                                <Text fontSize="sm">Copy</Text>
-                              </HStack>
-                              <HStack gap={2} cursor="pointer" px={2} py={1}>
+                                {isCopied ? (
+                                  <Text
+                                    fontSize="sm"
+                                    fontWeight="semibold"
+                                    color={
+                                      profileType === "organisation"
+                                        ? "#3AADA8"
+                                        : "#1F97D1"
+                                    }
+                                  >
+                                    Copied
+                                  </Text>
+                                ) : (
+                                  <Text fontSize="sm">Copy</Text>
+                                )}
+                              </ButtonV2>
+                              {/* TODO: EDIT MESSAGE FEATURE: PENDING API AVAILABILITY */}
+                              {/* <HStack gap={2} cursor="pointer" px={2} py={1}>
                                 <Text fontSize="sm">Edit</Text>
-                              </HStack>
-                              <HStack gap={2} cursor="pointer" px={2} py={1}>
+                              </HStack> */}
+                              {/* TODO: STAR MESSAGE FEATURE: PENDING API AVAILABILITY */}
+                              {/* <HStack gap={2} cursor="pointer" px={2} py={1}>
                                 <Text fontSize="sm">Star</Text>
-                              </HStack>
+                              </HStack> */}
                               <Box
                                 mt={1}
                                 borderTopWidth="1px"
