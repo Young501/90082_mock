@@ -61,10 +61,8 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const pathname = usePathname();
 
   const userType = getUserType();
-  
-  const profilePictureUrl = getUserProfilePictureUrl?.() ?? null;
 
- 
+  const profilePictureUrl = getUserProfilePictureUrl?.() ?? null;
 
   const getSignupLink = () => {
     const inviteToken = searchParams.get("invite_token");
@@ -121,7 +119,6 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const handleMenuToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
-
 
   const SubscriptionBanner: React.FC<{
     isInMobileMenu?: boolean;
@@ -230,7 +227,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                 >
                   <Bell size={18} color="#18181B" />
                 </Box>
-                
+
                 <MenuPopover
                   placement="bottom-end"
                   minW="180px"

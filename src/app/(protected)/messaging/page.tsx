@@ -160,7 +160,7 @@ const Inbox = () => {
 
     if (isSinglePane) {
       return (
-        <Box w="100%">
+        <Box w="100%" h="100%">
           {isShowingThreadOnSinglePane && selectedConversation ? (
             <ConversationView
               isSinglePane={isSinglePane}
@@ -175,7 +175,7 @@ const Inbox = () => {
               profileType={profileType}
             />
           ) : (
-            <Box p={4}>
+            <Box p={4} h="100%">
               <ConversationList
                 conversations={filteredConversations}
                 selectedConversationId={selectedConversationId}
@@ -196,7 +196,7 @@ const Inbox = () => {
 
     return (
       <Flex w="100%" gap={4} align="stretch" p={4}>
-        <Box flexBasis="358px" maxW="358px">
+        <Box flexBasis="358px" maxW="358px" h="100%">
           <ConversationList
             conversations={filteredConversations}
             selectedConversationId={selectedConversationId}
@@ -210,7 +210,7 @@ const Inbox = () => {
             profileType={profileType}
           />
         </Box>
-        <Box flex={1}>
+        <Box flex={1} h="100%">
           <ConversationView
             isSinglePane={isSinglePane}
             conversation={selectedConversation}
@@ -234,6 +234,8 @@ const Inbox = () => {
       <Box
         w="100%"
         h="100%"
+        // maxH=""
+        // maxH="calc(100vh - 256px)"
         display="flex"
         justifyContent="center"
         alignItems="start"

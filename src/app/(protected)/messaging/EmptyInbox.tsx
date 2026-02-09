@@ -12,6 +12,7 @@ export const EmptyInbox = () => {
       justify="center"
       gap={6}
       py={16}
+      px={4}
       w="100%"
       maxW="374px"
     >

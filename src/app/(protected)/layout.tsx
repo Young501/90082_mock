@@ -22,12 +22,14 @@ function LayoutContent({ children }: { children: ReactNode }) {
           flexDirection: "column",
           position: "relative",
           width: "100%",
+          height: "100%",
+          backgroundColor: "#FAFAFA",
         }}
       >
         <Header isProtected={true} />
         <Box
-          bg="#FAFAFA"
-          h={{ base: "calc(100vh - 58px)", lg: "calc(100vh - 76px)" }}
+          h="100%"
+          // h={{ base: "calc(100vh - 58px)", lg: "calc(100vh - 76px)" }}
         >
           <Box
             display="flex"
@@ -39,6 +41,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
             gap={6}
             py={{ base: 4, lg: 10 }}
             px={{ base: 4, lg: 14 }}
+            h="100%"
             // px={{ base: 4, lg: 6 }}
             // py={{ base: 4, lg: 6 }}
             // mt={{
@@ -57,7 +60,13 @@ function LayoutContent({ children }: { children: ReactNode }) {
             >
               <Sidebar isProtected={true} />
             </Box>
-            <Container maxW="100%" px={0} flex={1} style={{ minWidth: 0 }}>
+            <Container
+              maxW="100%"
+              px={0}
+              flex={1}
+              style={{ minWidth: 0 }}
+              h="100%"
+            >
               {children}
             </Container>
           </Box>

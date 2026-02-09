@@ -71,13 +71,18 @@ export const ConversationView = ({
   const [isCopied, setIsCopied] = useState(false);
   console.log("ConversationView", conversation);
 
+  // ordered oldest 
+  const orderedMessages = [...messages].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
+
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [conversation?.id, messages.length]);
+  }, [conversation?.id, orderedMessages.length]);
 
-  const isEmptyThread = messages.length === 0;
+  const isEmptyThread = orderedMessages.length === 0;
 
   if (!conversation) {
     return (
@@ -90,6 +95,7 @@ export const ConversationView = ({
         display="flex"
         flexDirection="column"
         h="100%"
+        maxH={{ base: "calc(100vh - 90px)", lg: "calc(100vh - 188px)" }}
       >
         {isSinglePane && (
           <HStack
@@ -142,6 +148,7 @@ export const ConversationView = ({
       display="flex"
       flexDirection="column"
       h="100%"
+      maxH={{ base: "calc(100vh - 90px)", lg: "calc(100vh - 188px)" }}
     >
       <HStack
         px={{ base: 3, md: 4 }}
@@ -150,6 +157,7 @@ export const ConversationView = ({
         borderColor="#E4E4E7"
         alignItems="center"
         gap={{ base: 2, md: 3 }}
+        h="fit-content"
       >
         {isSinglePane && (
           <IconButton
@@ -309,11 +317,15 @@ export const ConversationView = ({
 
       <Box
         flex={1}
+        // minH={0}
+        // maxH="calc(100vh - 435px)"
+        // maxH="100vh"
+        minH="0"
+        h="100%"
+        // maxH="100%"
         overflowY="auto"
         px={4}
         py={4}
-        h="100%"
-        maxH="calc(100vh - 260px)"
       >
         {messagesLoading ? (
           <Flex w="100%" h="100%" minH="200px" align="center" justify="center">
@@ -334,7 +346,7 @@ export const ConversationView = ({
           </VStack>
         ) : (
           <VStack align="stretch" gap={{ base: 3, md: 6 }}>
-            {messages.map((message) => {
+            {orderedMessages.map((message) => {
               const isMine = message.sender === "me";
               const showActions = activeMessageActionsId === message.id;
 
@@ -742,6 +754,7 @@ export const ConversationView = ({
         px={{ base: 4, md: 5 }}
         borderTopWidth="1px"
         borderColor="#E4E4E7"
+        h="fit-content"
       >
         <HStack gap={2} align="stretch">
           <MessageComposerInput
