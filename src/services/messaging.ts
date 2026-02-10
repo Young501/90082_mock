@@ -118,8 +118,8 @@ export function useSendMessage() {
         if (data.replyToId != null) {
           formData.append("reply_to_id", String(data.replyToId));
         }
-        // Append each file with files[] key for multiple attachments
-        data.files.forEach((file) => formData.append("files[]", file));
+        // Append each file with "files" key - API expects multipart with same key for array
+        data.files.forEach((file) => formData.append("files", file));
         return apiRequest({
           endpoint: API_ENDPOINTS.SEND_MESSAGE(data.conversationId),
           body: formData,

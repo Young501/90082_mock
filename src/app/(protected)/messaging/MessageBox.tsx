@@ -50,8 +50,7 @@ export const MessageBox = ({
   isCopied,
   onCopy,
 }: MessageBoxProps) => {
-  const accentColor =
-    profileType === "organisation" ? "#3AADA8" : "#1F97D1";
+  const accentColor = profileType === "organisation" ? "#3AADA8" : "#1F97D1";
   const bubbleBg = isMine ? accentColor : "#F4F4F5";
   const bubbleBorder = isMine ? accentColor : "#E4E4E7";
   const bubbleBorderRadius = isMine
@@ -203,8 +202,7 @@ function ReplyPreview({
   onScrollToMessage,
 }: ReplyPreviewProps) {
   const preview = message.replyToPreview!;
-  const accentColor =
-    profileType === "organisation" ? "#3AADA8" : "#1F97D1";
+  const accentColor = profileType === "organisation" ? "#3AADA8" : "#1F97D1";
 
   return (
     <Box
@@ -219,11 +217,7 @@ function ReplyPreview({
         <Box
           w="3px"
           h="100%"
-          bg={
-            isMine
-              ? "rgba(255, 255, 255, 0.5)"
-              : accentColor
-          }
+          bg={isMine ? "rgba(255, 255, 255, 0.5)" : accentColor}
           borderRadius="sm"
           flexShrink={0}
         />
@@ -239,11 +233,7 @@ function ReplyPreview({
               onScrollToMessage(preview.id);
             }
           }}
-          _hover={
-            !preview.isSoftDeleted
-              ? { opacity: 0.8 }
-              : {}
-          }
+          _hover={!preview.isSoftDeleted ? { opacity: 0.8 } : {}}
         >
           <HStack gap={1}>
             <Reply
@@ -327,8 +317,7 @@ function MessageActionsMenu({
   onCloseActions,
   onReply,
 }: MessageActionsMenuProps) {
-  const accentColor =
-    profileType === "organisation" ? "#3AADA8" : "#1F97D1";
+  const accentColor = profileType === "organisation" ? "#3AADA8" : "#1F97D1";
 
   return (
     <HStack
@@ -341,10 +330,8 @@ function MessageActionsMenu({
         variant={isSinglePane ? "drawer" : "popover"}
         title="Message actions"
         open={isSinglePane ? showActions : undefined}
-        placement="left-start"
-        onOpenChange={
-          isSinglePane ? (v) => !v && onCloseActions() : undefined
-        }
+        placement={isMine ? "left-start" : "right-start"}
+        onOpenChange={isSinglePane ? (v) => !v && onCloseActions() : undefined}
         trigger={
           <IconButton
             variant="ghost"
@@ -353,10 +340,7 @@ function MessageActionsMenu({
             aria-label="Message actions"
             onClick={isSinglePane ? onMessageClick : undefined}
           >
-            <MoreHorizontal
-              size={16}
-              color={isMine ? "#1679AB" : "#4B5563"}
-            />
+            <MoreHorizontal size={16} color={isMine ? "#1679AB" : "#4B5563"} />
           </IconButton>
         }
       >
