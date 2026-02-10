@@ -383,19 +383,48 @@ const Sidebar = ({
                       <HStack
                         p={3}
                         borderRadius="xl"
-                        bg={isActiveOpp ? "#EAF6FD" : "transparent"}
-                        color={isActiveOpp ? "#1679AB" : INACTIVE_COLOR}
+                        borderWidth="1px"
+                        borderColor={
+                          isActiveOpp
+                            ? isStudent
+                              ? "#D6EDFB"
+                              : "#D3EFEA"
+                            : "transparent"
+                        }
+                        bg={
+                          isActiveOpp
+                            ? isStudent
+                              ? "#EAF6FD"
+                              : "#E9F7F6"
+                            : "transparent"
+                        }
+                        color={
+                          isActiveOpp
+                            ? isStudent
+                              ? "#1679AB"
+                              : "#1F7F7B"
+                            : INACTIVE_COLOR
+                        }
                         gap={2}
                       >
                         <Text
                           fontSize="md"
                           fontWeight={500}
-                          color={isActiveOpp ? "#1679AB" : INACTIVE_COLOR}
+                          color={
+                            isActiveOpp
+                              ? isStudent
+                                ? "#1679AB"
+                                : "#1F7F7B"
+                              : INACTIVE_COLOR
+                          }
                           flex={1}
                         >
                           {o.title || `Opportunity ${o.id}`}
                         </Text>
-                        <CircleCheckBig size={20} color="#1679AB" />
+                        <CircleCheckBig
+                          size={20}
+                          color={isStudent ? "#1679AB" : "#1F7F7B"}
+                        />
                       </HStack>
                     );
                   })()}
