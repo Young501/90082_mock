@@ -248,7 +248,7 @@ const Sidebar = ({
             w="full"
             p={3}
             borderRadius="xl"
-            bg={active ? ACTIVE_BG : "transparent"}
+            bg={active ? (isStudent ? "#2AA8E0" : "#3AADA8") : "transparent"}
             color={active ? "white" : INACTIVE_COLOR}
             gap={3}
           >
@@ -321,7 +321,7 @@ const Sidebar = ({
           w="full"
           p={3}
           borderRadius="xl"
-          bg={active ? ACTIVE_BG : "transparent"}
+          bg={active ? (isStudent ? "#2AA8E0" : "#3AADA8") : "transparent"}
           color={active ? "white" : INACTIVE_COLOR}
           cursor="pointer"
           onClick={onDiscoverToggle}
