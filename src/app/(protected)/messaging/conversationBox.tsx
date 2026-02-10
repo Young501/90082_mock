@@ -14,8 +14,7 @@ import {
 import { Star, MoreHorizontal } from "lucide-react";
 import { ConversationId, ConversationSummary } from "@/types/messaging";
 import { formatRelativeTime } from "@/utils/formatDate";
-import IconUserPlaceholder from "@/components/Icons/IconUserPlaceholder";
-import { useAuthStore } from "@/store";
+
 import { MenuPopover } from "@/components/ui/MenuPopover";
 
 interface ConversationBoxProps {
@@ -114,7 +113,7 @@ export const ConversationBox = ({
               {conversation.hasUnread && conversation.unreadCount > 0 && (
                 <Badge
                   borderRadius="6px"
-                  bg="#1679AB"
+                  bg={profileType === "organisation" ? "#1F7F7B" : "#1679AB"}
                   color="white"
                   fontSize="10px"
                   textAlign="center"
@@ -207,7 +206,8 @@ export const ConversationBox = ({
                     _hover={{ bg: "#F4F4F5" }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (conversation?.id != null) onToggleArchive(conversation.id);
+                      if (conversation?.id != null)
+                        onToggleArchive(conversation.id);
                     }}
                   >
                     <Text fontSize="sm" color="#111827">
