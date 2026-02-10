@@ -49,6 +49,12 @@ export interface StudentProfile {
   resume_url?: string;
   questionnaire_answers?: Record<string, any>;
   matched?: boolean;
+  university?: {
+    id?: number;
+    name?: string;
+    logo_url?: string;
+    links?: Record<string, string>;
+  };
 }
 
 export interface OrganisationProfile {
