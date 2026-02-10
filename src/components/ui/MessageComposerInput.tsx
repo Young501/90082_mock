@@ -99,28 +99,6 @@ const defaultAttachmentOptions = (
         Photos and Videos
       </Text>
     </HStack>
-    {/* <HStack
-      gap={3}
-      cursor="pointer"
-      onClick={() => {
-        fileInputRef?.current?.click();
-      }}
-    >
-      <Box
-        w={8}
-        h={8}
-        borderRadius="full"
-        bg="#EFF6FF"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Paperclip size={16} color="#1F97D1" />
-      </Box>
-      <Text fontSize="sm" color="#111827">
-        Share photos
-      </Text>
-    </HStack> */}
   </VStack>
 );
 

@@ -198,25 +198,6 @@ const Inbox = () => {
       );
     }
 
-    // if (!hasAnyConversations) {
-    //   return (
-    //     <Flex w="100%" h="100%" gap={4} align="center" justify="center">
-    //       <ConversationList
-    //         conversations={[]}
-    //         selectedConversationId={selectedConversationId}
-    //         showArchived={showArchived}
-    //         searchTerm={searchTerm}
-    //         onSearchTermChange={setSearchTerm}
-    //         onShowArchivedChange={setShowArchived}
-    //         onSelectConversation={handleSelectConversation}
-    //         onToggleArchive={handleToggleArchive}
-    //         hasAnyConversations={false}
-    //         profileType={profileType}
-    //       />
-    //     </Flex>
-    //   );
-    // }
-
     if (isSinglePane) {
       return (
         <Box w="100%" h="100%">
@@ -299,8 +280,6 @@ const Inbox = () => {
       <Box
         w="100%"
         h="100%"
-        // maxH=""
-        // maxH="calc(100vh - 256px)"
         display="flex"
         justifyContent="center"
         alignItems="start"

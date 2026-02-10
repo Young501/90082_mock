@@ -35,10 +35,6 @@ export const ConversationList = ({
   hasAnyConversations,
   profileType,
 }: ConversationListProps) => {
-  // if (!hasAnyConversations) {
-  //   return <EmptyInbox />;
-  // }
-
   return (
     <Box
       w="100%"

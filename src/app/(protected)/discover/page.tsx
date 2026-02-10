@@ -240,7 +240,6 @@ export default function DiscoveryPage() {
             justify="center"
             align="center"
             minH="400px"
-            // mt={{ base: "80px", lg: "126px" }}
           >
             <VStack gap={4} align="center">
               <Spinner size="xl" color="blue.500" />
@@ -286,10 +285,7 @@ export default function DiscoveryPage() {
       >
         <PageTitle title={PAGE_TITLES.DISCOVER} />
         <VStack
-          // flex="1"
-          // px={{ base: 4, md: 8, lg: 16 }}
-          // mt={{ base: "80px", lg: "126px" }}
-          // py={{ base: 8, lg: 12 }}
+         
           w="100%"
           overflow="hidden"
           gap={{ base: 5, lg: 6 }}
