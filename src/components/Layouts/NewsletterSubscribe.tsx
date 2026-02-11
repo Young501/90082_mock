@@ -4,6 +4,7 @@ import { Box, VStack, HStack, Text, Input, InputGroup } from "@chakra-ui/react";
 import { useState } from "react";
 import { Mail } from "lucide-react";
 import { ButtonV2 } from "../ui/ButtonV2";
+import { InputField } from "../ui/Input";
 
 const NewsletterSubscribe = () => {
   const [email, setEmail] = useState("");
@@ -35,27 +36,25 @@ const NewsletterSubscribe = () => {
         </VStack>
 
         <Box as="form" onSubmit={handleSubmit} w="100%" maxW="480px">
-          <HStack
-            gap={4}
-            alignItems="stretch"
-          >
-            <InputGroup
-              flex={1}
+          <HStack gap={4} alignItems="stretch">
+            <InputField
+              type="email"
+              placeholder="example@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              inputStyles={{
+                h: "48px",
+                bg: "transparent",
+                border: "1px solid white",
+                borderRadius: "md",
+                color: "#A1A1AA",
+                _placeholder: { color: "#A1A1AA" },
+                _focus: {
+                  outline: "none",
+                },
+              }}
               startElement={<Mail size={20} color="#A1A1AA" />}
-            >
-              <Input
-                type="email"
-                placeholder="example@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                bg="transparent"
-                border="1px solid white"
-                borderRadius="md"
-                color="#A1A1AA"
-                _placeholder={{ color: "#A1A1AA" }}
-                h="48px"
-              />
-            </InputGroup>
+            />
             <ButtonV2
               type="submit"
               bg="#2AA8E0"
@@ -63,6 +62,7 @@ const NewsletterSubscribe = () => {
               fontWeight="600"
               borderRadius="lg"
               h="48px"
+              fontSize="sm"
               px={6}
               flexShrink={0}
               _active={{

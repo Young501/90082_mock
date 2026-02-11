@@ -288,6 +288,11 @@ const passwordSchema = yup
   .required("Password is required")
   .min(8, "Password must be at least 8 characters");
 
+const confirmPasswordSchema = yup
+  .string()
+  .required("Please confirm your password")
+  .oneOf([yup.ref("password")], "Passwords do not match");
+
 export const loginValidationSchema = yup.object({
   email: emailSchema,
   password: passwordSchema,
@@ -303,6 +308,7 @@ const boolChecked = (msg: string) =>
 export const baseAuthSchema = yup.object({
   email: emailSchema,
   password: passwordSchema,
+  confirm_password: confirmPasswordSchema,
   privacy_policy: boolChecked("Privacy policy is required"),
 });
 
