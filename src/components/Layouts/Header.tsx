@@ -23,7 +23,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import { getSubscriptionTrialInfo } from "@/utils/subscriptionPermissions";
 import { formatDate } from "@/utils/formatDate";
@@ -61,18 +61,9 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
   const router = useRouter();
   const { handleLogout } = useAuth();
-  const {
-    logout,
-    getUserType,
-    accessibleOpportunities,
-    getUserFirstName,
-    getUserProfilePictureUrl,
-  } = useAuthStore();
+  const { logout, getUserProfilePictureUrl } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
-  const pathname = usePathname();
-
-  const userType = getUserType();
 
   const profilePictureUrl = getUserProfilePictureUrl?.() ?? null;
 
@@ -93,7 +84,11 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
       href: "/contact/",
       icon: Headset,
       variant: "ghost",
-      customStyles: { border: "1px solid #D6EDFB", borderRadius: "xl" },
+      customStyles: {
+        border: "1px solid #D6EDFB",
+        borderRadius: "xl",
+        textDecoration: "none",
+      },
     },
     {
       label: "Login",

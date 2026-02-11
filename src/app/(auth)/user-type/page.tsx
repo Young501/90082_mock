@@ -34,7 +34,6 @@ export default function UserTypePage() {
           maxW="600px"
           bg="white"
           borderRadius="2xl"
-          // p={{ base: 6, md: 10 }}
           py={{ base: 6, md: 8 }}
           px={{ base: 6, md: 12 }}
           boxShadow="xl"

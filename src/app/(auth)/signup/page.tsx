@@ -7,7 +7,7 @@ import { InputField, ButtonV2 } from "@/components/ui";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useAuth } from "@/hooks/auth";
-import { motion } from "framer-motion";
+import { motion, transform } from "framer-motion";
 import Link from "next/link";
 import { Mail } from "lucide-react";
 import {
@@ -18,7 +18,7 @@ import {
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { toast } from "react-toastify";
-import { userTypesData } from "@/utils/constants";
+// import { userTypesData } from "@/utils/constants";
 
 interface FormData {
   email: string;
@@ -81,6 +81,10 @@ const SignupPage = () => {
   const emailValue = watch("email");
   const passwordValue = watch("password");
   const confirmPasswordValue = watch("confirm_password");
+  const studentTermsAndConditions = watch("student_terms_and_conditions");
+  const organisationTermsAndConditions = watch(
+    "organisation_terms_and_conditions"
+  );
 
   const onSubmit = async (data: FormData) => {
     if (!userType) return;
@@ -106,19 +110,16 @@ const SignupPage = () => {
 
   const isStudent = userType === "student";
   const isOrganisation = userType === "organisation";
-  const userTypeConfig = userTypesData.find((t) => t.key === userType);
+  // const userTypeConfig = userTypesData.find((t) => t.key === userType);
 
   return (
     <>
       <PageTitle title={PAGE_TITLES.SIGNUP} />
       <Box
         w="100%"
-        // bg={isOrganisation ? "#0D4F4F" : "#002157"}
         display="flex"
         alignItems="center"
         justifyContent="center"
-        // px={{ base: 4, sm: 6, md: 8 }}
-        // py={{ base: 8, md: 12 }}
       >
         <MotionBox
           initial={{ opacity: 0, y: 20 }}
@@ -294,7 +295,7 @@ const SignupPage = () => {
                     w="100%"
                     fontSize="lg"
                     fontWeight="600"
-                    h="64px"
+                    h={{ base: "48px", md: "64px" }}
                     borderRadius="xl"
                   >
                     Create account
@@ -316,7 +317,7 @@ const SignupPage = () => {
                         w="100%"
                         fontSize="lg"
                         fontWeight="600"
-                        h="64px"
+                        h={{ base: "48px", md: "64px" }}
                         borderRadius="xl"
                         onClick={() => {
                           toast.info("This feature is coming soon ...");
@@ -341,7 +342,17 @@ const SignupPage = () => {
                           {...register("student_terms_and_conditions")}
                         >
                           <Checkbox.HiddenInput />
-                          <Checkbox.Control />
+                          <Checkbox.Control
+                            bg={
+                              studentTermsAndConditions
+                                ? "#2AA8E0"
+                                : "transparent"
+                            }
+                            border="1px solid #E4E4E7"
+                            color={
+                              studentTermsAndConditions ? "white" : undefined
+                            }
+                          />
                           <Checkbox.Label fontSize="xs" fontWeight="700">
                             I agree to the{" "}
                             <Link
@@ -372,7 +383,11 @@ const SignupPage = () => {
                           </Checkbox.Label>
                         </Checkbox.Root>
                         {errors.student_terms_and_conditions && (
-                          <Text color="red.500" fontSize="sm">
+                          <Text
+                            color="red.500"
+                            fontSize="sm"
+                            textAlign="center"
+                          >
                             {
                               errors.student_terms_and_conditions
                                 .message as string
@@ -386,12 +401,24 @@ const SignupPage = () => {
                       <>
                         <VStack align="stretch" gap={1}>
                           <Checkbox.Root
-                            colorPalette="blue"
+                            colorPalette="#3AADA8"
                             color="black"
                             {...register("organisation_terms_and_conditions")}
                           >
                             <Checkbox.HiddenInput />
-                            <Checkbox.Control />
+                            <Checkbox.Control
+                              bg={
+                                organisationTermsAndConditions
+                                  ? "#3AADA8"
+                                  : "transparent"
+                              }
+                              border="1px solid #E4E4E7"
+                              color={
+                                organisationTermsAndConditions
+                                  ? "white"
+                                  : undefined
+                              }
+                            />
                             <Checkbox.Label fontSize="xs" fontWeight="700">
                               I agree to the{" "}
                               <Link
@@ -422,7 +449,11 @@ const SignupPage = () => {
                             </Checkbox.Label>
                           </Checkbox.Root>
                           {errors.organisation_terms_and_conditions && (
-                            <Text color="red.500" fontSize="sm">
+                            <Text
+                              color="red.500"
+                              fontSize="xs"
+                              textAlign="center"
+                            >
                               {
                                 errors.organisation_terms_and_conditions
                                   .message as string
@@ -436,30 +467,26 @@ const SignupPage = () => {
                 </VStack>
               </VStack>
 
-              <Flex
-                justify="center"
-                align="center"
-                gap={2}
-                pt={2}
-                borderTop="1px solid"
-                borderColor="gray.200"
-              >
+              <Flex justify="center" align="center" gap={2} pt={2}>
                 <Text fontSize="sm" color="black" fontWeight="500">
                   Have an account?
                 </Text>
-                <Link href="/login/" passHref>
-                  <Text
-                    as="span"
-                    fontSize="sm"
-                    color="#002157"
-                    fontWeight="600"
-                    textDecoration="underline"
-                    cursor="pointer"
-                    _hover={{ opacity: 0.8 }}
-                  >
-                    Log in
-                  </Text>
-                </Link>
+                <ButtonV2
+                  variant="ghost"
+                  onClick={() => router.push("/login/")}
+                  border={isStudent ? "1px solid #D6EDFB" : "1px solid #D3EFEA"}
+                  h="40px"
+                  borderRadius="xl"
+                  fontSize="xs"
+                  color={isStudent ? "#1679AB" : "#3AADA8"}
+                  py={2.5}
+                  px={4}
+                  _hover={{
+                    textDecoration: "none",
+                  }}
+                >
+                  Log in
+                </ButtonV2>
               </Flex>
             </VStack>
           </form>
