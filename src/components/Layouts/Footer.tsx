@@ -1,70 +1,147 @@
-import { Box, Text, VStack } from "@chakra-ui/react";
+import { Box, Text, VStack, HStack } from "@chakra-ui/react";
 import React from "react";
-import Logo from "../Logo";
 import Image from "next/image";
-// import { useBreakpointValue } from "@chakra-ui/react";
-import { useRouter } from "next/navigation";
+import { Facebook, Instagram, Linkedin, X } from "lucide-react";
+import Link from "next/link";
+
+const SOCIAL_MEDIA_LINKS = [
+  {
+    name: "Facebook",
+    icon: <Facebook size={12} />,
+    link: "https://www.facebook.com/uniconnected",
+  },
+  {
+    name: "Twitter",
+    icon: <X size={12} />,
+    link: "https://www.twitter.com/uniconnected",
+  },
+  {
+    name: "LinkedIn",
+    icon: <Linkedin size={12} />,
+    link: "https://www.linkedin.com/company/uniconnected",
+  },
+  {
+    name: "Instagram",
+    icon: <Instagram size={12} />,
+    link: "https://www.instagram.com/uniconnected",
+  },
+];
 
 const Footer = () => {
-  // const isMobile = useBreakpointValue({ base: false, lg: true });
-  const router = useRouter();
   return (
-    <div style={{ marginTop: "auto", width: "100%" }}>
-      <Box
+    <Box mt="auto" w="100%">
+      <VStack
         bg="#002157"
-        h={{ base: "90px", lg: "180px" }}
         display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        px={{ base: 4, lg: 8 }}
+        alignItems={{ base: "center", lg: "stretch" }}
+        px={{ base: 4, lg: 20 }}
         color="white"
+        py={14}
+        w="100%"
+        maxW="1440px"
+        mx="auto"
+        gap={{ base: 8, lg: 6 }}
+        justifyContent="center"
       >
-        <VStack align="start" gap={2}>
-          <Text fontSize={{ base: "10px", lg: "20px" }} fontWeight="700">
-            Need Help?{" "}
-            <span
-              style={{ textDecoration: "underline", cursor: "pointer" }}
-              onClick={() => {
-                router.push("/contact");
-              }}
+        <Box
+          display="flex"
+          flexDirection={{ base: "column", lg: "row" }}
+          alignItems={{ base: "center", lg: "center" }}
+          justifyContent={{ base: "center", lg: "space-between" }}
+          w="100%"
+          gap={{ base: 6, lg: 4 }}
+        >
+          <Box flexShrink={0}>
+            <Image
+              src="/assets/uniconnectedLogoBlueVariant.png"
+              alt="Uniconnected"
+              width={233}
+              height={56}
+            />
+          </Box>
+
+          <HStack
+            flexDirection={{ base: "column", lg: "row" }}
+            alignItems={{ base: "center", lg: "center" }}
+            justifyContent={{ base: "center", lg: "flex-end" }}
+            gap={{ base: 4, lg: 8 }}
+            w={{ base: "100%", lg: "auto" }}
+          >
+            <HStack
+              gap={2}
+              whiteSpace="nowrap"
+              flexWrap="nowrap"
+              justifyContent={{ base: "center", lg: "flex-start" }}
             >
-              Contact Us
-            </span>
-          </Text>
-          <Text fontSize={{ base: "10px", lg: "20px" }} fontWeight="700">
-            Copyright © UniConnected 2025.
-          </Text>
-        </VStack>
+              <Text fontSize="14px" fontWeight="600" color="#FAFAFA">
+                contact us :
+              </Text>
+              <Link
+                href="mailto:contactus@uniconnected.com"
+                style={{ textDecoration: "none" }}
+              >
+                <Text
+                  as="span"
+                  fontSize="14px"
+                  fontWeight="600"
+                  color="#2AA8E0"
+                  whiteSpace="nowrap"
+                >
+                  contactus@uniconnected.com
+                </Text>
+              </Link>
+            </HStack>
 
-        <Box
-          display={{ base: "block", md: "none" }}
-          pos="relative"
-          w="100px"
-          h="22px"
-        >
-          <Image
-            alt="logo"
-            src="/uni.png"
-            fill
-            style={{ objectFit: "contain" }}
-          />
+            <HStack
+              gap={2}
+              alignItems="center"
+              justifyContent={{ base: "center", lg: "flex-start" }}
+            >
+              <Text
+                fontSize="14px"
+                fontWeight="600"
+                color="#FAFAFA"
+                whiteSpace="nowrap"
+              >
+                follow us :
+              </Text>
+              <HStack gap={2}>
+                {SOCIAL_MEDIA_LINKS.map((link) => (
+                  <Link
+                    key={link.name}
+                    href={link.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#2AA8E0",
+                      borderRadius: "50%",
+                      width: "24px",
+                      height: "24px",
+                      padding: "6px",
+                      color: "white",
+                    }}
+                  >
+                    {link.icon}
+                  </Link>
+                ))}
+              </HStack>
+            </HStack>
+          </HStack>
         </Box>
 
-        <Box
-          display={{ base: "none", md: "block" }}
-          pos="relative"
-          w="300px"
-          h="80px"
+        <Text
+          fontSize="14px"
+          fontWeight="400"
+          textAlign="center"
+          color="#A1A1AA"
         >
-          <Image
-            alt="logo"
-            src="/uni.png"
-            fill
-            style={{ objectFit: "contain" }}
-          />
-        </Box>
-      </Box>
-    </div>
+          Copyright © Uniconnected {new Date().getFullYear()}
+        </Text>
+      </VStack>
+    </Box>
   );
 };
 
