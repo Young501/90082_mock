@@ -1,500 +1,203 @@
 "use client";
 
-import { Box, Button, Flex, Heading, Text, VStack } from "@chakra-ui/react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft } from "lucide-react";
+import { Box, Flex, Heading, Text, VStack } from "@chakra-ui/react";
+import { motion } from "framer-motion";
+import { ChevronRight, User, Building2, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
-import { UserTypeData } from "@/types/auth";
-import { userTypesData } from "@/utils/constants";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
-import { toast } from "react-toastify";
+import { userTypesData } from "@/utils/constants";
+
+const HEXAGON_CLIP = "polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)";
 
 const MotionBox = motion.create(Box);
-const MotionFlex = motion.create(Flex);
 
 export default function UserTypePage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [hoveredType, setHoveredType] = useState<string | null>(null);
 
-  const handleSelect = async (typeKey: string) => {
-    if (isAnimating) return;
-
-    setIsAnimating(true);
-    setSelectedType(typeKey);
-
-    setTimeout(() => {
-      setIsAnimating(false);
-    }, 400);
-  };
-
-  const handleBack = () => {
-    if (isAnimating) return;
-    setIsAnimating(true);
-    setSelectedType(null);
-    setTimeout(() => {
-      setIsAnimating(false);
-    }, 400);
-  };
-
-  const handleLogin = (typeKey: string) => {
-    if (typeKey === "alumni" || typeKey === "academic") {
-      toast.info("This feature is coming soon ...");
-      handleBack();
-      return;
-    }
-
+  const handleSelect = (typeKey: string) => {
     const params = new URLSearchParams({ "user-type": typeKey });
     router.push(`/signup/?${params.toString()}`);
-  };
-
-  const getExpandedContent = (type: UserTypeData) => {
-    const descriptions = {
-      student:
-        "Create a profile and discover opportunities for employment, learning and growth",
-      alumni:
-        "Connect with current students and share your professional experience",
-      academic:
-        "Engage with students and industry partners for research collaboration",
-      organisation:
-        "Find talented students and collaborate with academic institutions",
-    };
-
-    return (
-      <>
-        <Flex
-          direction="column"
-          align="center"
-          justify="center"
-          h="100%"
-          textAlign="center"
-          px={{ base: 4, lg: 8 }}
-        >
-          <VStack gap={{ base: 3, lg: 6 }}>
-            <Heading
-              fontSize={{
-                base: "10px",
-                md: "14px",
-                lg: "17.5px",
-              }}
-              fontWeight="700"
-              color="white"
-              textAlign="center"
-              lineHeight="1.2"
-            >
-              {type.name}
-            </Heading>
-
-            <Text
-              fontSize={{ base: "7px", md: "12px", lg: "9px" }}
-              color="white"
-              maxW="400px"
-              textAlign="center"
-              opacity={0.9}
-            >
-              {descriptions[type.key as keyof typeof descriptions]}
-            </Text>
-
-            <Button
-              bg="rgba(255,255,255,0.2)"
-              color="white"
-              border="2px solid white"
-              _hover={{ bg: "rgba(255,255,255,0.3)" }}
-              _active={{ transform: "scale(0.95)" }}
-              size={{ base: "md", lg: "lg" }}
-              borderRadius="full"
-              px={{ base: 4, lg: 8 }}
-              py={{ base: 2, lg: 3 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleLogin(type.key);
-              }}
-              fontSize={{ base: "8px", md: "12px", lg: "18px" }}
-              fontWeight="700"
-              transition="all 0.2s ease"
-              minH={{ base: "24px", lg: "auto" }}
-            >
-              SIGN UP
-            </Button>
-          </VStack>
-        </Flex>
-      </>
-    );
   };
 
   return (
     <>
       <PageTitle title={PAGE_TITLES.USER_TYPE} />
-      <Box
-        display={["block", "block", "block", "flex"]}
-        flexDirection={"column"}
-        w="100%"
-        h="inherit"
-        m={"auto"}
-        px="0"
-        overflowY="auto"
-      >
-        <Flex
-          direction={{ base: "column", lg: "row" }}
-          align="center"
-          justify="space-between"
-          flex="1"
+      <Box w="100%" display="flex" alignItems="center" justifyContent="center">
+        <MotionBox
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          w="100%"
+          maxW="600px"
+          bg="white"
+          borderRadius="2xl"
+          // p={{ base: 6, md: 10 }}
+          py={{ base: 6, md: 8 }}
+          px={{ base: 6, md: 12 }}
+          boxShadow="xl"
         >
-          <VStack
-            gap={{ base: 4, md: 6 }}
-            flex="1"
-            maxW={{ base: "100%", lg: "600px" }}
-            textAlign="center"
-            mb={{ base: 0, lg: 0 }}
-          >
-            <Box
-              w={{
-                base: "120px",
-                sm: "150px",
-                md: "200px",
-                lg: "233px",
-              }}
-              h={{
-                base: "120px",
-                sm: "150px",
-                md: "200px",
-                lg: "233px",
-              }}
-              position="relative"
-            >
-              <Image
-                src="/assets/mini-logo.png"
-                fill
-                alt="logo"
-                style={{ objectFit: "contain" }}
-              />
-            </Box>
-
-            <VStack gap={{ base: 3, md: 4 }}>
+          <VStack align="stretch" gap={6}>
+            <VStack align="stretch" gap={2} textAlign="left">
               <Heading
-                fontSize={{
-                  base: "24px",
-                  sm: "28px",
-                  md: "42px",
-                  lg: "55px",
-                }}
-                fontWeight="700"
+                fontSize={{ base: "2xl", md: "4xl" }}
+                fontWeight="600"
                 color="black"
-                lineHeight="1.21"
-                textAlign="center"
-                px={{ base: 2, md: 0 }}
+                lineHeight="1.2"
               >
-                Discover Your Connections Here
+                Get started
               </Heading>
-
               <Text
-                fontSize={{
-                  base: "14px",
-                  sm: "16px",
-                  md: "20px",
-                  lg: "25px",
-                }}
+                fontSize={{ base: "sm", md: "md" }}
                 color="black"
-                lineHeight="1.4"
-                textAlign="center"
-                maxW={{ base: "100%", md: "500px" }}
-                px={{ base: 2, md: 0 }}
+                lineHeight="1.5"
+                opacity={0.9}
               >
-                Connect with opportunities tailored to your studies, skills and
-                career goals
+                To begin this journey, tell us what type of account you&apos;d
+                be opening.
               </Text>
             </VStack>
-          </VStack>
 
-          <Box w="100%" maxW="676px" mx="auto" mt={{ base: 2, md: 6, lg: 14 }}>
-            <Box
-              flex="1"
-              maxW={{ base: "100%", lg: "676px" }}
-              position="relative"
-              h={{
-                base: "280px",
-                sm: "320px",
-                md: "400px",
-                lg: "484px",
-              }}
-              mx={{ base: 2, md: 0 }}
-            >
-              <MotionFlex
-                wrap="wrap"
-                gap={{ base: 3, sm: 4, md: 6 }}
-                w="100%"
-                h="100%"
-                position="relative"
-              >
-                {userTypesData.map((type, index) => {
-                  const isSelected = selectedType === type.key;
-                  const isAnySelected = selectedType !== null;
+            <VStack gap={4} align="stretch">
+              {userTypesData.map((option, index) => {
+                const isHovered = hoveredType === option.key;
+                const IconComponent = option.icon;
 
-                  const getTransformOrigin = () => {
-                    if (index === 0) return "left top";
-                    if (index === 1) return "right top";
-                    if (index === 2) return "left bottom";
-                    if (index === 3) return "right bottom";
-                    return "center";
-                  };
+                return (
+                  <MotionBox
+                    key={option.key}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{
+                      duration: 0.35,
+                      delay: 0.1 + index * 0.1,
+                      ease: "easeOut",
+                    }}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                  >
+                    <Flex
+                      as="button"
+                      w="100%"
+                      align="center"
+                      gap={4}
+                      px={{ base: 3, md: 6 }}
+                      py={{ base: 4, md: 5 }}
+                      borderRadius="xl"
+                      bg={isHovered ? userTypesData[index].bgColor : "white"}
+                      borderColor={
+                        isHovered ? userTypesData[index].borderColor : "none"
+                      }
+                      cursor="pointer"
+                      textAlign="left"
+                      transition="all 0.25s cubic-bezier(0.4, 0, 0.2, 1)"
+                      boxShadow="0px 2px 14px 1px #0000000F"
+                      _hover={{
+                        bg: userTypesData[index].bgColor,
+                        border: `1px solid ${userTypesData[index].borderColor}`,
 
-                  return (
-                    <MotionBox
-                      key={type.key}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{
-                        opacity: isAnySelected && !isSelected ? 0 : 1,
-                        scale: isSelected ? 2.1 : 1,
-                        zIndex: isSelected ? 10 : 1,
+                        boxShadow: "0px 4px 14px 1px #0000000A",
                       }}
-                      transition={{
-                        delay: isAnySelected ? 0 : index * 0.1,
-                        duration: 0.4,
-                        ease: "easeInOut",
-                      }}
-                      w={{
-                        base: "calc(50% - 6px)",
-                        sm: "calc(50% - 8px)",
-                        md: "calc(50% - 12px)",
-                      }}
-                      h={{
-                        base: "calc(50% - 6px)",
-                        sm: "calc(50% - 8px)",
-                        md: "calc(50% - 12px)",
-                      }}
-                      position="relative"
-                      style={{
-                        transformOrigin: getTransformOrigin(),
-                      }}
+                      onClick={() => handleSelect(option.key)}
+                      onMouseEnter={() => setHoveredType(option.key)}
+                      onMouseLeave={() => setHoveredType(null)}
                     >
                       <MotionBox
-                        position="absolute"
-                        initial={{
-                          scale: 1,
-                        }}
-                        animate={{
-                          top: isSelected
-                            ? 16
-                            : (() => {
-                                if (index === 0 || index === 1)
-                                  return "calc(100% - 53px)";
-                                return "calc(100% - 53px)";
-                              })(),
-                          left: isSelected
-                            ? 16
-                            : (() => {
-                                if (index === 0 || index === 2)
-                                  return "calc(100% - 53px)";
-                                return "calc(100% - 53px)";
-                              })(),
-                          width: isSelected ? "40px" : "37px",
-                          height: isSelected ? "40px" : "37px",
-                          backgroundColor: isSelected
-                            ? "rgba(255,255,255,0.2)"
-                            : type.key === "student"
-                              ? "#F87C7C"
-                              : type.key === "alumni"
-                                ? "#FDE047"
-                                : type.key === "academic"
-                                  ? "#A3CFFF"
-                                  : "#BBF7D0",
-                          scale: [0.6],
-                        }}
-                        transition={{
-                          duration: 0.4,
-                          ease: "easeInOut",
-                          delay: 0.3,
-                        }}
-                        borderRadius="50%"
-                        zIndex={40}
-                        cursor={isSelected ? "pointer" : "default"}
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        onClick={
-                          isSelected
-                            ? (e) => {
-                                e.stopPropagation();
-                                handleBack();
-                              }
-                            : () => {
-                                handleSelect(type.key);
-                              }
-                        }
-                        _hover={
-                          isSelected
-                            ? {
-                                bg: "rgba(255,255,255,0.3)",
-                              }
-                            : {}
-                        }
-                      >
-                        <AnimatePresence mode="wait">
-                          {isSelected ? (
-                            <motion.div
-                              key="back-icon"
-                              initial={{
-                                opacity: 0,
-                                scale: 0.5,
-                              }}
-                              animate={{
-                                opacity: 1,
-                                scale: [1],
-                              }}
-                              exit={{
-                                opacity: 0,
-                                scale: 0.5,
-                              }}
-                              transition={{
-                                delay: 0.3,
-                                duration: 0.3,
-                              }}
-                            >
-                              <ChevronLeft size={20} color="white" />
-                            </motion.div>
-                          ) : (
-                            <motion.div
-                              key="empty"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
-                              transition={{
-                                duration: 0.2,
-                              }}
-                            />
-                          )}
-                        </AnimatePresence>
-                      </MotionBox>
-                      <Box
-                        bg={type.bgColor}
-                        w="100%"
-                        h="100%"
-                        borderRadius="19px"
                         position="relative"
-                        cursor={
-                          isAnySelected && !isSelected ? "default" : "pointer"
-                        }
-                        transition="all 0.3s ease"
-                        _hover={
-                          !isAnySelected
-                            ? {
-                                transform: "scale(1.02)",
-                                boxShadow: `0px 0px 8px 6px ${type.shadowColor}`,
-                              }
-                            : {}
-                        }
-                        onClick={() => !isAnySelected && handleSelect(type.key)}
-                        boxShadow={`0px 0px 4px 3px ${type.shadowColor}`}
+                        w="52px"
+                        h="52px"
+                        flexShrink={0}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
+                        animate={{ scale: isHovered ? 1.02 : 1 }}
                       >
                         <Box
-                          bg={type.bgColor}
-                          w="calc(100% - 16px)"
-                          h="calc(100% - 16px)"
-                          borderRadius="19px"
                           position="absolute"
-                          top="8px"
-                          left="8px"
+                          inset={0}
+                          bg={
+                            isHovered ? userTypesData[index].bgColor : "#E4E4E7"
+                          }
+                          clipPath={HEXAGON_CLIP}
+                        />
+                        <Box
+                          position="absolute"
+                          top="2px"
+                          left="2px"
+                          right="2px"
+                          bottom="2px"
+                          bg={isHovered ? userTypesData[index].color : "white"}
+                          clipPath={HEXAGON_CLIP}
                           display="flex"
-                          flexDirection="column"
                           alignItems="center"
                           justifyContent="center"
-                          gap={4}
-                          overflow="hidden"
-                          padding={"4px"}
                         >
-                          <Flex
-                            rounded={"19px"}
-                            justifyContent={"center"}
-                            alignItems={"center"}
-                            minH="100%"
-                            w="100%"
-                            h="100%"
-                            shadow={"0px 0px 4px 3px #00000026"}
-                            margin={"4px"}
-                          >
-                            {isSelected ? (
-                              <MotionBox
-                                initial={{
-                                  opacity: 0,
-                                }}
-                                animate={{
-                                  opacity: 1,
-                                }}
-                                transition={{
-                                  delay: 0.3,
-                                  duration: 0.3,
-                                }}
-                                w="100%"
-                                h="100%"
-                                position="relative"
-                              >
-                                {getExpandedContent(type)}
-                              </MotionBox>
-                            ) : (
-                              <>
-                                <Text
-                                  fontSize={{
-                                    base: "14px",
-                                    sm: "16px",
-                                    md: "24px",
-                                    lg: "35px",
-                                  }}
-                                  fontWeight="700"
-                                  color="white"
-                                  textAlign="center"
-                                  lineHeight="1.21"
-                                  px={{
-                                    base: 1,
-                                    md: 2,
-                                  }}
-                                >
-                                  {type.name}
-                                </Text>
-                              </>
-                            )}
-                          </Flex>
+                          <IconComponent
+                            size={option.iconSize}
+                            color={
+                              isHovered ? "white" : userTypesData[index].color
+                            }
+                            aria-hidden
+                          />
                         </Box>
-                      </Box>
-                    </MotionBox>
-                  );
-                })}
-              </MotionFlex>
-            </Box>
+                      </MotionBox>
 
-            <Box
-              w="100%"
-              maxW="676px"
-              mx="auto"
-              mt={16}
-              px={{ base: 4, md: 0 }}
+                      <Box flex={1} w="100%">
+                        <VStack
+                          flex={1}
+                          align="stretch"
+                          gap={1}
+                          minW={0}
+                          maxW="239px"
+                        >
+                          <Text fontSize="md" fontWeight="500" color="black">
+                            {option.name}
+                          </Text>
+                          <Text fontSize="sm" color="#52525B" lineHeight="1.4">
+                            {option.description}
+                          </Text>
+                        </VStack>
+                      </Box>
+
+                      <MotionBox
+                        animate={{
+                          opacity: isHovered ? 1 : 0,
+                          x: isHovered ? 0 : -4,
+                        }}
+                        transition={{ duration: 0.2 }}
+                        flexShrink={0}
+                      >
+                        <ArrowRight
+                          size={24}
+                          color={userTypesData[index].color}
+                          aria-hidden
+                        />
+                      </MotionBox>
+                    </Flex>
+                  </MotionBox>
+                );
+              })}
+            </VStack>
+
+            {/* <Flex
+              pt={4}
+              borderTop="1px solid"
+              borderColor="gray.200"
+              justify="center"
             >
-              <Button
-                w="100%"
-                maxW="676px"
-                h={{ base: "50px", md: "45px" }}
-                bg="#002157"
-                color="white"
-                borderRadius="25px"
-                fontSize={{ base: "16px", md: "18px", lg: "20px" }}
-                fontWeight="500"
-                mx="auto"
-                display="block"
-                mb={{ base: 6, md: 8 }}
-                _hover={{ opacity: 0.8 }}
-                _active={{ transform: "scale(0.98)" }}
-                boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
-                transition="all 0.2s ease"
-                onClick={() => handleLogin("coordinator")}
+              <Box
+                as="button"
+                fontSize="sm"
+                color="gray.600"
+                _hover={{ color: "#002157", textDecoration: "underline" }}
+                transition="color 0.2s"
+                onClick={() => handleSelect("coordinator")}
               >
                 I&apos;m a Coordinator
-              </Button>
-            </Box>
-          </Box>
-        </Flex>
+              </Box>
+            </Flex> */}
+          </VStack>
+        </MotionBox>
       </Box>
     </>
   );

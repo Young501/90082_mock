@@ -399,6 +399,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               mx="auto"
               h="100%"
               px={{ base: 4, lg: 20 }}
+              py={3}
             >
               <Link href="/">
                 <Box pos="relative" w="200px" h="60px">

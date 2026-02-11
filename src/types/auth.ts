@@ -1,3 +1,5 @@
+import type { LucideIcon } from "lucide-react";
+
 export interface LoginData {
   email: string;
   password: string;
@@ -32,5 +34,9 @@ export interface UserTypeData {
   name: string;
   color: string;
   bgColor: string;
-  shadowColor: string;
+  shadowColor?: string;
+  icon: LucideIcon;
+  iconSize: number;
+  description: string;
+  borderColor: string;
 }
