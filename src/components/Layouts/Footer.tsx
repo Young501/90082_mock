@@ -3,6 +3,7 @@ import React from "react";
 import Image from "next/image";
 import { Facebook, Instagram, Linkedin, X } from "lucide-react";
 import Link from "next/link";
+import NewsletterSubscribe from "./NewsletterSubscribe";
 
 const SOCIAL_MEDIA_LINKS = [
   {
@@ -30,19 +31,21 @@ const SOCIAL_MEDIA_LINKS = [
 const Footer = () => {
   return (
     <Box mt="auto" w="100%">
-      <VStack
-        bg="#002157"
-        display="flex"
-        alignItems={{ base: "center", lg: "stretch" }}
-        px={{ base: 4, lg: 20 }}
-        color="white"
-        py={14}
-        w="100%"
-        maxW="1440px"
-        mx="auto"
-        gap={{ base: 8, lg: 6 }}
-        justifyContent="center"
-      >
+      <NewsletterSubscribe />
+      <Box bg="#0A425F">
+        <VStack
+          display="flex"
+          alignItems={{ base: "center", lg: "stretch" }}
+          px={{ base: 4, lg: 20 }}
+          color="white"
+          py={14}
+          w="100%"
+          maxW="1440px"
+          mx="auto"
+          gap={{ base: 8, lg: 6 }}
+          justifyContent="center"
+          borderTop="1px solid #E4E4E7"
+        >
         <Box
           display="flex"
           flexDirection={{ base: "column", lg: "row" }}
@@ -87,7 +90,7 @@ const Footer = () => {
                   color="#2AA8E0"
                   whiteSpace="nowrap"
                 >
-                  contactus@uniconnected.com
+                  hello@Uniconnected.com
                 </Text>
               </Link>
             </HStack>
@@ -140,7 +143,8 @@ const Footer = () => {
         >
           Copyright © Uniconnected {new Date().getFullYear()}
         </Text>
-      </VStack>
+        </VStack>
+      </Box>
     </Box>
   );
 };

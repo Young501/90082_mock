@@ -382,22 +382,24 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
           <Box
             bg="white"
             h={{ base: "58px", lg: "76px" }}
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            px={{ base: 4, lg: 20 }}
             position="fixed"
             top={0}
             left={0}
             right={0}
             zIndex={1000}
-            width="100%"
-            maxW="1440px"
-            mx="auto"
             maxHeight={{ base: "58px", lg: "76px" }}
             borderBottom="1px solid rgba(148, 163, 184, 0.35)"
           >
-            <Box>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              width="100%"
+              maxW="1440px"
+              mx="auto"
+              h="100%"
+              px={{ base: 4, lg: 20 }}
+            >
               <Link href="/">
                 <Box pos="relative" w="200px" h="60px">
                   <Image
