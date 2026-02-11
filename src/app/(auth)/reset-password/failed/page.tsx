@@ -18,7 +18,7 @@ function ResetPasswordFailedContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
-  const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
+  const containerMaxW = useBreakpointValue({ base: "100%", lg: "1440px" });
 
   useEffect(() => {
     const message =

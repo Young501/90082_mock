@@ -13,7 +13,7 @@ import SuccessBubbles from "@/components/Icons/SuccessBubbles";
 
 export default function ResetPasswordSuccessPage() {
   const router = useRouter();
-  const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
+  const containerMaxW = useBreakpointValue({ base: "100%", lg: "1440px" });
 
   const handleLoginClick = () => {
     router.push("/login/");

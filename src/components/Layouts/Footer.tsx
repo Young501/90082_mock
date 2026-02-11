@@ -9,7 +9,13 @@ const Footer = () => {
   return (
     <Box mt="auto" w="100%">
       <NewsletterSubscribe />
-      <Box bg="#0A425F">
+      <Box
+        bg="#0A425F"
+        backgroundImage="url('/assets/Backgroundwaves.svg')"
+        backgroundSize="auto"
+        // backgroundPosition="center"
+        backgroundRepeat="repeat"
+      >
         <VStack
           display="flex"
           alignItems={{ base: "center", lg: "stretch" }}

@@ -16,7 +16,17 @@ const NewsletterSubscribe = () => {
   };
 
   return (
-    <Box bg="#0A425F" w="100%" pt={14} pb={6} px={{ base: 4, lg: 20 }}>
+    <Box
+      bg="#0A425F"
+      backgroundImage="url('/assets/Backgroundwaves.svg')"
+      backgroundSize="auto"
+      // backgroundPosition="center"
+      backgroundRepeat="repeat"
+      w="100%"
+      pt={14}
+      pb={6}
+      px={{ base: 4, lg: 20 }}
+    >
       <VStack
         maxW="1440px"
         mx="auto"

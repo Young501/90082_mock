@@ -21,16 +21,16 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({
   children,
-  maxWidth = "1512px",
+  maxWidth = "1440px",
 }: AuthLayoutProps) {
   const isMobile = useBreakpointValue({ base: true, lg: false });
   const containerMaxW = useBreakpointValue({ base: "100%", lg: maxWidth });
 
   return (
-    <Box h={["auto", "auto", "100vh"]} minH="100vh" position="relative">
+    <Box h="100%" position="relative">
       <Box p={0} h="100%" display="flex" flexDirection="column">
         <Header />
-        <Box flex={1} overflowY={["auto", "auto", "auto", "hidden"]}>
+        <Box flex={1} h="100%">
           <Container maxW={containerMaxW} p={0} h="100%">
             {children}
           </Container>

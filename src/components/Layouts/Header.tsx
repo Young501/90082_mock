@@ -71,8 +71,6 @@ const Header = ({
   const { logout, getUserProfilePictureUrl } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
-  // const pathname = usePathname();
-  // const isOnboardingPage = pathname?.startsWith("/onboarding") ?? false;
 
   const profilePictureUrl = getUserProfilePictureUrl?.() ?? null;
 
