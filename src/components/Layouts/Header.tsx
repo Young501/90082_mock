@@ -23,7 +23,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import { getSubscriptionTrialInfo } from "@/utils/subscriptionPermissions";
 import { formatDate } from "@/utils/formatDate";
@@ -55,15 +55,24 @@ interface PublicMenuItem {
   icon?: React.ComponentType<{ size?: number; color?: string }>;
   variant: "ghost" | "secondary" | "primary";
   customStyles?: Record<string, unknown>;
+  isOnbardingPage?: boolean;
 }
 
-const Header = ({ isProtected }: { isProtected?: boolean }) => {
+const Header = ({
+  isProtected,
+  isOnboardingPage,
+}: {
+  isProtected?: boolean;
+  isOnboardingPage?: boolean;
+}) => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
   const router = useRouter();
   const { handleLogout } = useAuth();
   const { logout, getUserProfilePictureUrl } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
+  // const pathname = usePathname();
+  // const isOnboardingPage = pathname?.startsWith("/onboarding") ?? false;
 
   const profilePictureUrl = getUserProfilePictureUrl?.() ?? null;
 
@@ -89,18 +98,25 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
         borderRadius: "xl",
         textDecoration: "none",
       },
+      isOnbardingPage: true,
     },
     {
       label: "Login",
       href: "/login/",
       variant: "secondary",
+      isOnbardingPage: false,
     },
     {
       label: "Get Started",
       href: getSignupLink(),
       variant: "primary",
+      isOnbardingPage: false,
     },
   ];
+
+  const publicMenuItems = isOnboardingPage
+    ? PUBLIC_HEADER_MENU_ITEMS.filter((item) => item.isOnbardingPage === true)
+    : PUBLIC_HEADER_MENU_ITEMS;
 
   const handleUserLogout = async () => {
     await handleLogout();
@@ -411,7 +427,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
               <Box>
                 {!isMobile ? (
                   <HStack gap={4}>
-                    {PUBLIC_HEADER_MENU_ITEMS.map((item) =>
+                    {publicMenuItems.map((item) =>
                       renderPublicMenuItem(item, false)
                     )}
                   </HStack>
@@ -471,7 +487,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                     </Box>
                     <Drawer.Body p={4}>
                       <VStack gap={4} alignItems="stretch" w="full">
-                        {PUBLIC_HEADER_MENU_ITEMS.map((item) =>
+                        {publicMenuItems.map((item) =>
                           renderPublicMenuItem(item, true)
                         )}
                       </VStack>

@@ -4,6 +4,7 @@ import { Container, useBreakpointValue, Box } from "@chakra-ui/react";
 import { ReactNode, Suspense } from "react";
 import Footer from "@/components/Layouts/Footer";
 import Header from "@/components/Layouts/Header";
+import { usePathname } from "next/navigation";
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -12,6 +13,8 @@ interface AuthLayoutProps {
 export default function Layout({ children }: AuthLayoutProps) {
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
   const isMobile = useBreakpointValue({ base: true, lg: false });
+  const pathname = usePathname();
+  const isOnboardingPage = pathname?.startsWith("/onboarding") ?? false;
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <div
@@ -23,7 +26,7 @@ export default function Layout({ children }: AuthLayoutProps) {
           width: "100%",
         }}
       >
-        <Header />
+        <Header isOnboardingPage={isOnboardingPage} />
 
         <Box
           display="flex"
@@ -41,7 +44,7 @@ export default function Layout({ children }: AuthLayoutProps) {
             {children}
           </Container>
         </Box>
-        <Footer />
+        {!isOnboardingPage && <Footer />}
       </div>
     </Suspense>
   );
