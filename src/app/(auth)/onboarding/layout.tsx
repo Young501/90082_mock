@@ -6,8 +6,8 @@ export default function OnboardingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ProtectedRoute>
-      <>{children}</>
-    </ProtectedRoute>
+    // <ProtectedRoute>
+    <>{children}</>
+    // </ProtectedRoute>
   );
 }

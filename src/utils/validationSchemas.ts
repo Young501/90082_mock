@@ -1,6 +1,6 @@
 import * as yup from "yup";
 import { Question } from "@/types/onboarding";
-import { isDisallowedDomain } from "./constants";
+import { isDisallowedDomain } from "@/utils/constants";
 
 type ParentChainItem = { field: string; value: any };
 

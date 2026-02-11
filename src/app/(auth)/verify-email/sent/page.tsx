@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
+import SuccessBubbles from "@/components/Icons/SuccessBubbles";
 
 function EmailSentContent() {
   const searchParams = useSearchParams();
@@ -33,38 +34,39 @@ function EmailSentContent() {
           justifyContent="center"
           minHeight="60vh"
           textAlign="center"
-          px={{ base: 4, md: 6, lg: 8 }}
-          py={{ base: 8, md: 12, lg: 16 }}
         >
-          <VStack gap={{ base: 6, md: 8 }}>
-            <Text
-              fontSize={{ base: "28px", md: "38px", lg: "48px" }}
-              fontWeight="700"
-              color="black"
-              lineHeight="1.21"
-              maxWidth={{ base: "100%", md: "600px", lg: "800px" }}
-            >
-              We sent verification to your email
-            </Text>
+          <VStack gap={{ base: 6, md: 8 }} maxW={{ base: "100%", md: "625px" }}>
+            <SuccessBubbles />
 
-            <VStack gap={{ base: 2, md: 3 }}>
+            <VStack maxW="497px" gap={{ base: 3, md: 4 }}>
               <Text
-                fontSize={{ base: "16px", md: "20px", lg: "24px" }}
-                color="black"
-                lineHeight="1.4"
+                fontSize={{ base: "24px", md: "36px" }}
+                fontWeight="600"
+                color="#18181B"
+                lineHeight="1.21"
               >
-                Verify your email at{" "}
-                <Text as="span" fontWeight="600">
-                  {userEmail}
-                </Text>
+                Thanks for signing up with us
               </Text>
 
               <Text
-                fontSize={{ base: "16px", md: "20px", lg: "24px" }}
-                color="black"
+                fontSize={{ base: "sm", md: "md" }}
+                color="#52525B"
                 lineHeight="1.4"
               >
-                to continue creating an account
+                We sent an email to{" "}
+                <Text as="span" fontWeight="600">
+                  {userEmail}
+                </Text>{" "}
+                to verify your email address.Please click on the “Verify email”
+                button to continue
+              </Text>
+
+              <Text
+                fontSize={{ base: "sm", md: "md" }}
+                color="#52525B"
+                lineHeight="1.4"
+              >
+                Please note that the email maybe in your spam folder.
               </Text>
             </VStack>
           </VStack>

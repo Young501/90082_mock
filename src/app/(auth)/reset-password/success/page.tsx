@@ -28,31 +28,29 @@ export default function ResetPasswordSuccessPage() {
         justifyContent="center"
         minHeight="60vh"
         textAlign="center"
-        px={{ base: 4, md: 6, lg: 8 }}
-        py={{ base: 8, md: 12, lg: 16 }}
       >
-        <VStack gap={{ base: 6, md: 8 }}>
+        <VStack gap={{ base: 6, md: 8 }} maxW={{ base: "100%", md: "625px" }}>
           <SuccessBubbles />
 
-          <Text
-            fontSize={{ base: "24px", md: "32px", lg: "42px" }}
-            fontWeight="700"
-            color="black"
-            lineHeight="1.21"
-          >
-            Password Reset Successfully!
-          </Text>
+          <VStack maxW="497px" gap={{ base: 3, md: 4 }}>
+            <Text
+              fontSize={{ base: "24px", md: "36px" }}
+              fontWeight="600"
+              color="#18181B"
+              lineHeight="1.21"
+            >
+              Password Reset Successfully!
+            </Text>
 
-          <Text
-            fontSize={{ base: "14px", md: "18px", lg: "20px" }}
-            color="black"
-            maxWidth={{ base: "100%", md: "500px", lg: "600px" }}
-            lineHeight="1.4"
-            px={{ base: 2, md: 0 }}
-          >
-            Your password has been reset successfully. You can now log in to
-            your account with your new password.
-          </Text>
+            <Text
+              fontSize={{ base: "sm", md: "md" }}
+              color="#52525B"
+              lineHeight="1.4"
+            >
+              Your password has been reset successfully. You can now log in to
+              your account with your new password.
+            </Text>
+          </VStack>
 
           <ButtonV2
             variant="primary"

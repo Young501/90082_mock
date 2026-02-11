@@ -74,7 +74,7 @@ const SignupPage = () => {
       confirm_password: "",
       student_terms_and_conditions: false,
       organisation_terms_and_conditions: false,
-      privacy_policy: false,
+      // privacy_policy: false,
     },
   });
 
@@ -87,6 +87,7 @@ const SignupPage = () => {
   );
 
   const onSubmit = async (data: FormData) => {
+    console.log("Sign up data", data)
     if (!userType) return;
 
     try {
