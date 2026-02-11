@@ -6,13 +6,13 @@ import {
   Box,
   Container,
   Text,
-  Button,
   VStack,
   Icon,
   Alert,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { XCircle } from "lucide-react";
+import { ButtonV2 } from "@/components/ui/ButtonV2";
 
 function ResetPasswordFailedContent() {
   const searchParams = useSearchParams();
@@ -92,41 +92,33 @@ function ResetPasswordFailedContent() {
           <VStack
             gap={{ base: 3, md: 4 }}
             width="full"
-            maxWidth={{ base: "280px", md: "320px", lg: "400px" }}
+            // maxWidth={{ base: "280px", md: "320px", lg: "400px" }}
           >
-            <Button
+            <ButtonV2
               w="100%"
-              h={{ base: "45px", md: "50px" }}
-              bg="#002157"
-              color="white"
-              borderRadius="25px"
-              fontSize={{ base: "16px", md: "18px", lg: "20px" }}
+              variant="secondary"
+              h={{ base: "48px", md: "64px" }}
+              fontSize="md"
               fontWeight="500"
+              px={{ base: 4, md: 7 }}
+              py={{ base: 4, md: 4.5 }}
               onClick={handleTryAgainClick}
-              _hover={{ opacity: 0.8 }}
-              _active={{ transform: "scale(0.98)" }}
-              boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
-              transition="all 0.2s ease"
             >
               Try Again
-            </Button>
+            </ButtonV2>
 
-            <Button
+            <ButtonV2
               w="100%"
-              h={{ base: "45px", md: "50px" }}
-              bg="white"
-              color="#002157"
-              borderRadius="25px"
-              fontSize={{ base: "16px", md: "18px", lg: "20px" }}
+              variant="primary"
+              h={{ base: "48px", md: "64px" }}
+              fontSize="md"
               fontWeight="500"
+              px={{ base: 4, md: 7 }}
+              py={{ base: 4, md: 4.5 }}
               onClick={handleLoginClick}
-              border="2px solid #002157"
-              _hover={{ bg: "gray.50" }}
-              _active={{ transform: "scale(0.98)" }}
-              transition="all 0.2s ease"
             >
               Back to Login
-            </Button>
+            </ButtonV2>
           </VStack>
         </VStack>
       </Box>
