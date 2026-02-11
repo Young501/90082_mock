@@ -1,32 +1,9 @@
 import { Box, Text, VStack, HStack } from "@chakra-ui/react";
 import React from "react";
 import Image from "next/image";
-import { Facebook, Instagram, Linkedin, X } from "lucide-react";
 import Link from "next/link";
 import NewsletterSubscribe from "./NewsletterSubscribe";
-
-const SOCIAL_MEDIA_LINKS = [
-  {
-    name: "Facebook",
-    icon: <Facebook size={12} />,
-    link: "https://www.facebook.com/uniconnected",
-  },
-  {
-    name: "Twitter",
-    icon: <X size={12} />,
-    link: "https://www.twitter.com/uniconnected",
-  },
-  {
-    name: "LinkedIn",
-    icon: <Linkedin size={12} />,
-    link: "https://www.linkedin.com/company/uniconnected",
-  },
-  {
-    name: "Instagram",
-    icon: <Instagram size={12} />,
-    link: "https://www.instagram.com/uniconnected",
-  },
-];
+import { SOCIAL_MEDIA_LINKS, CONTACT_EMAIL } from "@/utils/constants";
 
 const Footer = () => {
   return (
@@ -85,8 +62,10 @@ const Footer = () => {
                   contact us :
                 </Text>
                 <Link
-                  href="mailto:contactus@uniconnected.com"
-                  style={{ textDecoration: "none" }}
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  style={{ textDecoration: "none", cursor: "pointer" }}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <Text
                     as="span"
@@ -96,7 +75,7 @@ const Footer = () => {
                     whiteSpace="nowrap"
                     textTransform="capitalize"
                   >
-                    hello@Uniconnected.com
+                    {CONTACT_EMAIL}
                   </Text>
                 </Link>
               </HStack>
@@ -132,9 +111,10 @@ const Footer = () => {
                         height: "24px",
                         padding: "6px",
                         color: "white",
+                        cursor: "pointer",
                       }}
                     >
-                      {link.icon}
+                      <link.icon size={12} />
                     </Link>
                   ))}
                 </HStack>

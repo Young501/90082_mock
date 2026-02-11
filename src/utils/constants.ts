@@ -1,5 +1,5 @@
 import { UserTypeData } from "@/types/auth";
-import { User, Building2 } from "lucide-react";
+import { User, Building2, Instagram, Linkedin, X, Facebook } from "lucide-react";
 
 export const DISALLOWED_DOMAINS = [
   "gmail.com",
@@ -40,5 +40,31 @@ export const userTypesData: UserTypeData[] = [
     color: "#3AADA8",
     bgColor: "#E9F7F6",
     borderColor: "#D3EFEA",
+  },
+];
+
+export const CONTACT_EMAIL = "contactus@uniconnected.com";
+
+
+export const SOCIAL_MEDIA_LINKS = [
+  {
+    name: "Facebook",
+    icon: Facebook,
+    link: "https://www.facebook.com/uniconnected",
+  },
+  {
+    name: "Twitter",
+    icon: X,
+    link: "https://www.twitter.com/uniconnected",
+  },
+  {
+    name: "LinkedIn",
+    icon: Linkedin,
+    link: "https://www.linkedin.com/company/uniconnected",
+  },
+  {
+    name: "Instagram",
+    icon: Instagram,
+    link: "https://www.instagram.com/uniconnected",
   },
 ];
