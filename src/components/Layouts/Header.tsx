@@ -206,7 +206,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                   >
                     <Image
                       alt="Uniconnected"
-                      src="/assets/Logoone.png"
+                      src="/assets/header-logo-original.png"
                       fill
                       style={{ objectFit: "contain" }}
                       priority
@@ -308,7 +308,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                         <Box pos="relative" w="164px" h="34px">
                           <Image
                             alt="Uniconnected"
-                            src="/assets/Logoone.png"
+                            src="/assets/header-logo-original.png"
                             fill
                             style={{ objectFit: "contain" }}
                             priority
@@ -359,7 +359,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
             <Link href="/">
               <Box pos="relative" w="200px" h="60px">
                 <Image
-                  src="/assets/Logoone.png"
+                  src="/assets/header-logo-original.png"
                   alt="Uniconnected"
                   fill
                   style={{ objectFit: "contain" }}

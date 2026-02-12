@@ -1,6 +1,5 @@
 import { StudentProfile, OrganisationProfile } from "./discovery";
 
-
 export type FilterKind = "scalar" | "array" | "boolean" | "range";
 
 export interface FacetOption {
@@ -39,7 +38,7 @@ export type OpportunityFilters = Record<string, FilterValue | undefined> & {
   questionnaire?: Record<string, FilterValue | undefined>;
 };
 
-export interface OpportunityRequestBody {
+export interface OpportunitySearchRequestBody {
   participant_type: string;
   query?: string;
   sort?: OpportunitySort;
@@ -52,5 +51,5 @@ export interface SearchResponse {
     count: number;
     next: string | null;
     previous: string | null;
-  }
+  };
 }
