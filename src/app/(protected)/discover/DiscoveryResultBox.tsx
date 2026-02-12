@@ -6,13 +6,12 @@ import {
   Heading,
   Text,
   SimpleGrid,
-  Input,
 } from "@chakra-ui/react";
 import { UserProfile } from "@/types/shared";
-import { StudentCard, PartnerCard } from "./cards";
+import { StudentCard, OrganisationCard } from "./cards";
 import { PaginationControlsV2 } from "@/components/ui/PaginationControlsV2";
 import Loader from "@/components/ui/Loader";
-import { SearchIcon } from "lucide-react";
+import { SearchInput } from "@/components/ui/SearchInput";
 import { SortComponent } from "@/components/SortComponent";
 import type { OpportunitySortBy } from "@/types/opportunity";
 export interface DiscoveryPaginationProps {
@@ -86,35 +85,11 @@ export function DiscoveryResultBox({
         </HStack>
 
         <Box w="100%" maxW="679px">
-          <Box
-            as="label"
-            w="100%"
-            borderRadius="xl"
-            borderWidth="1px"
-            borderColor="#D4D4D8"
-            bg="white"
-            px={4}
-            h="40px"
-            py={2.5}
-            display="flex"
-            alignItems="center"
-            gap={2}
-          >
-            <SearchIcon size={16} color="#A1A1AA" />
-            <Input
-              border="none"
-              outline="none"
-              background="transparent"
-              fontSize="sm"
-              cursor="pointer"
-              px={0}
-              py={0}
-              color="#A1A1AA"
-              placeholder="Search by name, skills, etc..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-            />
-          </Box>
+          <SearchInput
+            value={searchInput}
+            onChange={setSearchInput}
+            placeholder="Search by name, skills, etc..."
+          />
         </Box>
       </VStack>
 
@@ -147,7 +122,7 @@ export function DiscoveryResultBox({
         </Box>
       ) : count > 0 ? (
         <>
-          <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={4}>
+          <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
             {results.map((user) => {
               const key = user.id || Math.random();
 
@@ -161,7 +136,7 @@ export function DiscoveryResultBox({
                   opportunitySlug={opportunitySlug}
                 />
               ) : (
-                <PartnerCard
+                <OrganisationCard
                   key={key}
                   organisation={user}
                   opportunityId={opportunityId}

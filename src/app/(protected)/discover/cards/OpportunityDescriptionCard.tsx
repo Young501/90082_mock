@@ -71,8 +71,6 @@ export const OpportunityDescriptionCard = ({
                   alt={opportunity.title}
                   width={36}
                   height={36}
-                  //   width={{ base: 21, md: 36 }}
-                  //   height={{ base: 21, md: 36 }}
                 />
               ) : (
                 <Image
@@ -80,8 +78,6 @@ export const OpportunityDescriptionCard = ({
                   alt="Placeholder"
                   width={36}
                   height={36}
-                  //   width={{ base: 21, md: 36 }}
-                  //   height={{ base: 21, md: 36 }}
                   style={{
                     objectFit: "contain",
                   }}

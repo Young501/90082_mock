@@ -1,3 +1,5 @@
 export { StudentCard } from "./studentCard";
-export { PartnerCard } from "./partnerCard";
+export { OrganisationCard } from "./OrganisationCard";
 export { FullProfileCard } from "./FullProfileCard";
+export { RenderStudentDetails } from "./StudentFullProfileDetails";
+export { RenderOrganisationDetails } from "./OrganisationFullProfileDetails";

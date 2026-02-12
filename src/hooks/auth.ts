@@ -188,6 +188,7 @@ export const useAuth = () => {
       return apiRequest({
         endpoint: API_ENDPOINTS.LOGOUT,
       });
+      
     },
     onError: (error: any) => {
       const errorMessage = getErrorMessage(error, "Logout failed");

@@ -12,7 +12,7 @@ export const PAGE_TITLES = {
   DISCOVER: "Discover | Uniconnected",
   PROFILE: "Profile | Uniconnected",
   FOLDERS: "Folders | Uniconnected",
-  INBOX: "Inbox | Uniconnected",
+  MESSAGING: "Messaging | Uniconnected",
   USER_TYPE: "User Type | Uniconnected",
   ONBOARDING: "Onboarding | Uniconnected",
   VERIFY_EMAIL: "Verify Email | Uniconnected",

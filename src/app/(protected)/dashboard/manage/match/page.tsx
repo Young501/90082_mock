@@ -73,11 +73,8 @@ const Match = () => {
     <>
       <PageTitle title={PAGE_TITLES.MATCH} />
       <Box
-        py={6}
-        px={{ base: 4, lg: "72px" }}
         maxW="1512px"
         mx="auto"
-        mt={{ base: "80px", lg: "126px" }}
       >
         <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
           <Text

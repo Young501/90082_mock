@@ -84,7 +84,7 @@ export function SortComponent<T extends string = string>({
             borderColor="#E4E4E7"
             boxShadow="sm"
             p={1}
-            maxW="235px"
+            maxW="200px"
           >
             <Popover.Body p={0}>
               <VStack align="stretch" gap={2}>

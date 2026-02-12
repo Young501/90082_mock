@@ -16,7 +16,7 @@ import { DeleteModal } from "../../folders/modals/DeleteModal";
 import { Button } from "@/components/ui/Button";
 import { Globe } from "lucide-react";
 
-interface PartnerCardProps {
+interface OrganisationCardProps {
   organisation: OrganisationProfile;
   maxW?: string;
   profilePictureUrl?: string | null;
@@ -28,7 +28,7 @@ interface PartnerCardProps {
   opportunitySlug?: string;
 }
 
-export function PartnerCard({
+export function OrganisationCard({
   organisation,
   maxW,
   profilePictureUrl,
@@ -38,7 +38,7 @@ export function PartnerCard({
   disableAddToFolder = false,
   opportunityId,
   opportunitySlug,
-}: PartnerCardProps) {
+}: OrganisationCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
   const [clickBackground, setClickBackground] = useState(false);
@@ -285,6 +285,7 @@ export function PartnerCard({
           profileId={organisation.id.toString()}
           profileType="organisation"
           opportunityId={opportunityId || ""}
+          opportunitySlug={opportunitySlug || ""}
           onClose={() => setShowFullProfile(false)}
         />
       )}

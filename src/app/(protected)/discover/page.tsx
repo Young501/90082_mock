@@ -41,7 +41,8 @@ import { OpportunityDescriptionCard } from "./cards/OpportunityDescriptionCard";
 import DiscoveryFolderCard from "./DiscoveryFolderCard";
 import { CreateFolderModal } from "./CreateFolderModal";
 import type { DiscoveryFolderItem } from "./DiscoveryFolderCard";
-import { IconFolder, IconFilter, IconArrowRight } from "@/components/Icons";
+import { IconFolder, IconArrowRight } from "@/components/Icons";
+import { FilterButton } from "@/components/ui/FilterButton";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
@@ -245,7 +246,6 @@ export default function DiscoveryPage() {
             justify="center"
             align="center"
             minH="400px"
-            mt={{ base: "80px", lg: "126px" }}
           >
             <VStack gap={4} align="center">
               <Spinner size="xl" color="blue.500" />
@@ -268,7 +268,7 @@ export default function DiscoveryPage() {
           <PageTitle title={PAGE_TITLES.DISCOVER} />
           <Box
             px={{ base: 4, md: 8, lg: 16 }}
-            mt={{ base: "80px", lg: "126px" }}
+            // mt={{ base: "80px", lg: "126px" }}
           >
             <Alert.Root status="error" mb={8}>
               <Alert.Indicator />
@@ -291,9 +291,7 @@ export default function DiscoveryPage() {
       >
         <PageTitle title={PAGE_TITLES.DISCOVER} />
         <VStack
-          px={{ base: 4, md: 8, lg: 16 }}
-          mt={{ base: "80px", lg: "126px" }}
-          py={{ base: 8, lg: 12 }}
+         
           w="100%"
           overflow="hidden"
           gap={{ base: 5, lg: 6 }}
@@ -365,25 +363,11 @@ export default function DiscoveryPage() {
                     </Box>
                   </Button>
                   {facetValidationSuccess && (
-                    <Button
-                      variant="outline"
+                    <FilterButton
                       flex={1}
-                      justifyContent="flex-start"
-                      gap={2}
-                      py="14px"
-                      px={4}
-                      borderRadius="xl"
-                      borderColor="#E4E4E7"
-                      borderWidth="1px"
-                      bg="white"
-                      color="#27272A"
-                      fontWeight="normal"
-                      fontSize="md"
+                      label="Filter"
                       onClick={() => setFilterSheetOpen(true)}
-                    >
-                      <IconFilter color="#3F3F46" />
-                      Filter
-                    </Button>
+                    />
                   )}
                 </HStack>
 
@@ -581,7 +565,6 @@ export default function DiscoveryPage() {
         p={{ base: 4, md: 6 }}
         maxW="1280px"
         mx="auto"
-        mt={{ base: "80px", lg: "126px" }}
         w="100%"
         overflow="hidden"
       >

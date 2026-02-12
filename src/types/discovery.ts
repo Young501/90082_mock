@@ -84,6 +84,7 @@ export interface OrganisationProfile {
   allow_contact?: boolean;
   contact_email?: string;
   description?: string;
+  actively_hiring?: boolean;
   members?: {
     id?: number;
     first_name?: string;

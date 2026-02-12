@@ -2,15 +2,17 @@
 
 import { ReactNode, Suspense } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { Container, Spinner, Box } from "@chakra-ui/react";
+import { Container, Spinner, Box, useBreakpointValue } from "@chakra-ui/react";
 import Header from "@/components/Layouts/Header";
 import Footer from "@/components/Layouts/Footer";
 import { isInTrialPeriod } from "@/utils/subscriptionPermissions";
 import { useSearchParams } from "next/navigation";
+import Sidebar from "@/components/Layouts/Sidebar";
 
 function LayoutContent({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
   const opportunitySlug = searchParams.get("opp");
+  const isMobile = useBreakpointValue({ base: true, lg: false });
   return (
     <ProtectedRoute>
       <div
@@ -20,25 +22,57 @@ function LayoutContent({ children }: { children: ReactNode }) {
           flexDirection: "column",
           position: "relative",
           width: "100%",
+          height: "100%",
+          backgroundColor: "#FAFAFA",
         }}
       >
         <Header isProtected={true} />
-        <Container
-          maxW="1512px"
-          px={0}
-          style={{ flex: 1 }}
-          mt={{
-            base: "20px",
-            lg: opportunitySlug
-              ? isInTrialPeriod(opportunitySlug)
-                ? "40px"
-                : "0px"
-              : "0px",
-          }}
+        <Box
+          h="100%"
+          // h={{ base: "calc(100vh - 58px)", lg: "calc(100vh - 76px)" }}
         >
-          {children}
-        </Container>
-        <Footer />
+          <Box
+            display="flex"
+            flex={1}
+            w="100%"
+            maxW="1440px"
+            mx="auto"
+            mt={`${isMobile ? "58px" : "76px"}`}
+            gap={6}
+            py={{ base: 4, lg: 10 }}
+            px={{ base: 4, lg: 14 }}
+            h="100%"
+            // px={{ base: 4, lg: 6 }}
+            // py={{ base: 4, lg: 6 }}
+            // mt={{
+            //   base: "20px",
+            //   lg: opportunitySlug
+            //     ? isInTrialPeriod(opportunitySlug)
+            //       ? "40px"
+            //       : "0px"
+            //     : "0px",
+            // }}
+          >
+            <Box
+              display={{ base: "none", lg: "block" }}
+              flexShrink={0}
+              w="300px"
+            >
+              <Sidebar isProtected={true} />
+            </Box>
+            <Container
+              maxW="100%"
+              px={0}
+              flex={1}
+              style={{ minWidth: 0 }}
+              h="100%"
+            >
+              {children}
+            </Container>
+          </Box>
+        </Box>
+
+        {/* <Footer /> */}
       </div>
     </ProtectedRoute>
   );
