@@ -6,16 +6,13 @@ import {
   Box,
   Container,
   Text,
-  Button,
   VStack,
-  Icon,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { CheckCircle } from "lucide-react";
-import { useAuthStore } from "@/store";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
-
+import SuccessBubbles from "@/components/Icons/SuccessBubbles";
+import { ButtonV2 } from "@/components/ui/ButtonV2";
 export default function EmailVerifySuccessPage() {
   const router = useRouter();
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
@@ -35,53 +32,43 @@ export default function EmailVerifySuccessPage() {
           justifyContent="center"
           minHeight="60vh"
           textAlign="center"
-          px={{ base: 4, md: 6, lg: 8 }}
-          py={{ base: 8, md: 12, lg: 16 }}
         >
-          <VStack gap={{ base: 6, md: 8 }}>
-            <Icon
-              as={CheckCircle}
-              boxSize={{ base: 12, md: 16, lg: 20 }}
-              color="green.500"
-            />
+          <VStack gap={{ base: 6, md: 8 }} maxW={{ base: "100%", md: "625px" }}>
+            <SuccessBubbles />
 
-            <Text
-              fontSize={{ base: "24px", md: "32px", lg: "42px" }}
-              fontWeight="700"
-              color="black"
-              lineHeight="1.21"
-            >
-              Email Verified Successfully!
-            </Text>
+            <VStack maxW="497px" gap={{ base: 3, md: 4 }}>
+              <Text
+                fontSize={{ base: "24px", md: "36px" }}
+                fontWeight="600"
+                color="#18181B"
+                lineHeight="1.21"
+              >
+                Email Verified!
+              </Text>
 
-            <Text
-              fontSize={{ base: "14px", md: "18px", lg: "20px" }}
-              color="black"
-              maxWidth={{ base: "100%", md: "500px", lg: "600px" }}
-              lineHeight="1.4"
-              px={{ base: 2, md: 0 }}
-            >
-              Your email has been verified. You can now log in to your account
-              and start exploring UniConnected.
-            </Text>
+              <Text
+                fontSize={{ base: "sm", md: "md" }}
+                color="#52525B"
+                lineHeight="1.4"
+              >
+                We are pleased to inform you that your account verification was
+                successful, kindly Press continue to pursue your signup.
+              </Text>
 
-            <Button
-              w={{ base: "280px", md: "320px", lg: "400px" }}
-              h={{ base: "45px", md: "50px" }}
-              bg="#002157"
-              color="white"
-              borderRadius="25px"
-              fontSize={{ base: "16px", md: "18px", lg: "20px" }}
-              fontWeight="500"
-              onClick={handleLoginClick}
-              _hover={{ opacity: 0.8 }}
-              _active={{ transform: "scale(0.98)" }}
-              boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
-              transition="all 0.2s ease"
-              mt={{ base: 4, md: 6 }}
-            >
-              Go to Login
-            </Button>
+              <ButtonV2
+                variant="primary"
+                h={{ base: "48px", md: "64px" }}
+                fontSize="md"
+                fontWeight="500"
+                w="100%"
+                maxW={{ base: "100%", md: "137px" }}
+                px={{ base: 4, md: 7 }}
+                py={{ base: 4, md: 4.5 }}
+                onClick={handleLoginClick}
+              >
+                Continue
+              </ButtonV2>
+            </VStack>
           </VStack>
         </Box>
       </Container>

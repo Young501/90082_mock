@@ -6,13 +6,17 @@ import { Container, Spinner, Box, useBreakpointValue } from "@chakra-ui/react";
 import Header from "@/components/Layouts/Header";
 import Footer from "@/components/Layouts/Footer";
 import { isInTrialPeriod } from "@/utils/subscriptionPermissions";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Sidebar from "@/components/Layouts/Sidebar";
 
 function LayoutContent({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
   const opportunitySlug = searchParams.get("opp");
   const isMobile = useBreakpointValue({ base: true, lg: false });
+
+  const pathname = usePathname();
+  const isOnboardingPage = pathname?.startsWith("/onboarding") ?? false;
+
   return (
     <ProtectedRoute>
       <div
@@ -26,7 +30,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
           backgroundColor: "#FAFAFA",
         }}
       >
-        <Header isProtected={true} />
+        <Header isProtected={true} isOnboardingPage={isOnboardingPage} />
         <Box
           h="100%"
           // h={{ base: "calc(100vh - 58px)", lg: "calc(100vh - 76px)" }}

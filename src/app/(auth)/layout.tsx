@@ -4,6 +4,7 @@ import { Container, useBreakpointValue, Box } from "@chakra-ui/react";
 import { ReactNode, Suspense } from "react";
 import Footer from "@/components/Layouts/Footer";
 import Header from "@/components/Layouts/Header";
+import { usePathname } from "next/navigation";
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -11,7 +12,9 @@ interface AuthLayoutProps {
 
 export default function Layout({ children }: AuthLayoutProps) {
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
-
+  const isMobile = useBreakpointValue({ base: true, lg: false });
+  const pathname = usePathname();
+  const isOnboardingPage = pathname?.startsWith("/onboarding") ?? false;
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <div
@@ -23,26 +26,33 @@ export default function Layout({ children }: AuthLayoutProps) {
           width: "100%",
         }}
       >
-        <Header />
+        <Header isOnboardingPage={isOnboardingPage} />
 
         <Box
-          flex="1"
           display="flex"
-          flexDirection="column"
-          mt={{ base: "80px", lg: "126px" }}
-          minH="calc(100vh - 305px)"
-          overflow="auto"
-          overflowX="hidden"
-          justifyContent="center"
-          pt="0"
-          pb="0"
-          px={{ base: "16px", md: "48px", lg: "130px" }}
+          flex={1}
+          w="100%"
+          mt={`${isMobile ? "0" : "76px"}`}
+          gap={6}
+          py={20}
+          px={{ base: 4, lg: 14 }}
+          h="100%"
+          bg="#0A425F"
+          backgroundImage="url('/assets/Backgroundwaves.svg')"
+          backgroundSize="auto"
+          // backgroundPosition="center"
+          backgroundRepeat="repeat"
         >
-          <Container maxW={containerMaxW} px={0} position="relative">
+          <Container
+            maxW="1440px"
+            mx="auto"
+            px={0}
+            position="relative"
+          >
             {children}
           </Container>
         </Box>
-        <Footer />
+        {!isOnboardingPage && <Footer />}
       </div>
     </Suspense>
   );

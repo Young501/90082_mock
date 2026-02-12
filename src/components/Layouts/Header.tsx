@@ -5,6 +5,8 @@ import {
   useBreakpointValue,
   Button,
   Drawer,
+  IconButton,
+  VStack,
 } from "@chakra-ui/react";
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -15,6 +17,7 @@ import {
   Menu,
   X,
   LogOut,
+  Headset,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -45,22 +48,29 @@ interface MenuItem {
   isProtected: boolean;
 }
 
-const Header = ({ isProtected }: { isProtected?: boolean }) => {
+interface PublicMenuItem {
+  label: string;
+  subLabel?: string;
+  href: string;
+  icon?: React.ComponentType<{ size?: number; color?: string }>;
+  variant: "ghost" | "secondary" | "primary";
+  customStyles?: Record<string, unknown>;
+  isOnbardingPage?: boolean;
+}
+
+const Header = ({
+  isProtected,
+  isOnboardingPage,
+}: {
+  isProtected?: boolean;
+  isOnboardingPage?: boolean;
+}) => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
   const router = useRouter();
   const { handleLogout } = useAuth();
-  const {
-    logout,
-    getUserType,
-    accessibleOpportunities,
-    getUserFirstName,
-    getUserProfilePictureUrl,
-  } = useAuthStore();
+  const { logout, getUserProfilePictureUrl } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
-  const pathname = usePathname();
-
-  const userType = getUserType();
 
   const profilePictureUrl = getUserProfilePictureUrl?.() ?? null;
 
@@ -74,40 +84,37 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
     return "/user-type/";
   };
 
-  const MENU_ITEMS: MenuItem[] = [
+  const PUBLIC_HEADER_MENU_ITEMS: PublicMenuItem[] = [
     {
-      label: "CONTACT",
+      label: "Contact Us",
+      subLabel: "Need Help?",
       href: "/contact/",
-      isCoordinator: true,
-      isOrganisation: true,
-      isStudent: true,
-      isProtected: true,
+      icon: Headset,
+      variant: "ghost",
+      customStyles: {
+        border: "1px solid #D6EDFB",
+        borderRadius: "xl",
+        textDecoration: "none",
+      },
+      isOnbardingPage: true,
     },
     {
-      label: "LOGOUT",
-      href: "/logout/",
-      isCoordinator: true,
-      isOrganisation: true,
-      isStudent: true,
-      isProtected: true,
-    },
-    {
-      label: "LOGIN",
+      label: "Login",
       href: "/login/",
-      isCoordinator: false,
-      isOrganisation: false,
-      isStudent: false,
-      isProtected: false,
+      variant: "secondary",
+      isOnbardingPage: false,
     },
     {
-      label: "SIGN UP",
+      label: "Sign up",
       href: getSignupLink(),
-      isCoordinator: false,
-      isOrganisation: false,
-      isStudent: false,
-      isProtected: false,
+      variant: "primary",
+      isOnbardingPage: false,
     },
   ];
+
+  const publicMenuItems = isOnboardingPage
+    ? PUBLIC_HEADER_MENU_ITEMS.filter((item) => item.isOnbardingPage === true)
+    : PUBLIC_HEADER_MENU_ITEMS;
 
   const handleUserLogout = async () => {
     await handleLogout();
@@ -118,6 +125,47 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
 
   const handleMenuToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const renderPublicMenuItem = (item: PublicMenuItem, isCompact = false) => {
+    const content = item.icon ? (
+      <HStack>
+        <item.icon size={20} color="black" />
+        <Box display="flex" flexDirection="column" alignItems="start">
+          <Text fontSize="2xs" color="#A1A1AA" lineHeight="1.3">
+            {item.subLabel}
+          </Text>
+          <Text fontSize="xs" color="#1679AB" lineHeight="1.3">
+            {item.label}
+          </Text>
+        </Box>
+      </HStack>
+    ) : (
+      item.label
+    );
+    const button = (
+      <ButtonV2
+        variant={item.variant}
+        h={12}
+        fontSize="md"
+        py="9px"
+        px="20px"
+        w={isCompact ? "full" : undefined}
+        {...(item.customStyles ?? {})}
+      >
+        {content}
+      </ButtonV2>
+    );
+    return (
+      <Box key={item.href} w={isCompact ? "full" : undefined}>
+        <Link
+          href={item.href}
+          onClick={isCompact ? handleMenuToggle : undefined}
+        >
+          {button}
+        </Link>
+      </Box>
+    );
   };
 
   const SubscriptionBanner: React.FC<{
@@ -206,7 +254,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                   >
                     <Image
                       alt="Uniconnected"
-                      src="/assets/header-logo-original.png"
+                      src="/assets/header-logo-faidat.png"
                       fill
                       style={{ objectFit: "contain" }}
                       priority
@@ -308,7 +356,7 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
                         <Box pos="relative" w="164px" h="34px">
                           <Image
                             alt="Uniconnected"
-                            src="/assets/header-logo-original.png"
+                            src="/assets/header-logo-faidat.png"
                             fill
                             style={{ objectFit: "contain" }}
                             priority
@@ -343,49 +391,110 @@ const Header = ({ isProtected }: { isProtected?: boolean }) => {
           <Box
             bg="white"
             h={{ base: "58px", lg: "76px" }}
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            px={{ base: 4, lg: 8 }}
             position="fixed"
             top={0}
             left={0}
             right={0}
             zIndex={1000}
-            width="100%"
             maxHeight={{ base: "58px", lg: "76px" }}
             borderBottom="1px solid rgba(148, 163, 184, 0.35)"
           >
-            <Link href="/">
-              <Box pos="relative" w="200px" h="60px">
-                <Image
-                  src="/assets/header-logo-original.png"
-                  alt="Uniconnected"
-                  fill
-                  style={{ objectFit: "contain" }}
-                  priority
-                />
-              </Box>
-            </Link>
-            <Button
-              aria-label="Open menu"
-              variant="ghost"
-              color="black"
-              display={{ base: "flex", md: "none" }}
-              onClick={handleMenuToggle}
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              width="100%"
+              maxW="1440px"
+              mx="auto"
+              h="100%"
+              px={{ base: 4, lg: 20 }}
+              py={3}
             >
-              <Image
-                src="/assets/blackhamburger.svg"
-                alt="menu"
-                width={20}
-                height={20}
-              />
-            </Button>
-            <HStack gap={6} display={{ base: "none", md: "flex" }}>
-              <UserRound size={20} color="black" />
-              {/* {getMenuItems()?.map((item) => renderMenuItem(item, false))} */}
-            </HStack>
+              <Link href="/">
+                <Box pos="relative" w="200px" h="60px">
+                  <Image
+                    src="/assets/header-logo-faidat.png"
+                    alt="Uniconnected"
+                    fill
+                    style={{ objectFit: "contain" }}
+                    priority
+                  />
+                </Box>
+              </Link>
+
+              <Box>
+                {!isMobile ? (
+                  <HStack gap={4}>
+                    {publicMenuItems.map((item) =>
+                      renderPublicMenuItem(item, false)
+                    )}
+                  </HStack>
+                ) : (
+                  <IconButton
+                    aria-label="Open menu"
+                    variant="ghost"
+                    color="black"
+                    display={{ base: "flex", lg: "none" }}
+                    onClick={handleMenuToggle}
+                  >
+                    <Menu size={20} color="black" />
+                  </IconButton>
+                )}
+              </Box>
+            </Box>
           </Box>
+
+          {isMobile && (
+            <Box mt="58px" position="relative" zIndex={1001}>
+              <Drawer.Root
+                open={isMobileMenuOpen}
+                onOpenChange={(details) => setIsMobileMenuOpen(details.open)}
+                placement="end"
+                size="full"
+              >
+                <Drawer.Backdrop />
+                <Drawer.Positioner>
+                  <Drawer.Content bg="white">
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      px={4}
+                      py={3}
+                      borderBottom="1px solid rgba(148, 163, 184, 0.35)"
+                    >
+                      <Box pos="relative" w="164px" h="34px">
+                        <Image
+                          alt="Uniconnected"
+                          src="/assets/header-logo-faidat.png"
+                          fill
+                          style={{ objectFit: "contain" }}
+                          priority
+                        />
+                      </Box>
+                      <Button
+                        aria-label="Close menu"
+                        variant="ghost"
+                        onClick={handleMenuToggle}
+                        px={2}
+                        minW="auto"
+                        height="auto"
+                      >
+                        <X width={20} height={20} color="#0F172A" />
+                      </Button>
+                    </Box>
+                    <Drawer.Body p={4}>
+                      <VStack gap={4} alignItems="stretch" w="full">
+                        {publicMenuItems.map((item) =>
+                          renderPublicMenuItem(item, true)
+                        )}
+                      </VStack>
+                    </Drawer.Body>
+                  </Drawer.Content>
+                </Drawer.Positioner>
+              </Drawer.Root>
+            </Box>
+          )}
         </>
       )}
     </>

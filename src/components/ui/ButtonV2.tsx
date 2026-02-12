@@ -42,6 +42,7 @@ export function ButtonV2({
       borderRadius: "xl",
       fontSize: "xs",
       fontWeight: "500",
+      border: "1px solid #D6EDFB",
       //   _hover: {
       //     bg: "#001844",
       //   },

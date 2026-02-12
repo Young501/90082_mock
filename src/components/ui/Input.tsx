@@ -12,7 +12,7 @@ import { ReactNode, useState, useEffect, forwardRef } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
 interface InputFieldProps {
-  label: string;
+  label?: string;
   type?: string;
   name?: string;
   value?: string;
@@ -20,11 +20,14 @@ interface InputFieldProps {
   placeholder?: string;
   error?: string;
   autoComplete?: string;
+  startElement?: ReactNode;
   endElement?: ReactNode;
   showPasswordToggle?: boolean;
   showPassword?: boolean;
   onTogglePassword?: () => void;
   labelStyle?: "floating" | "top";
+  variant?: "default" | "signup";
+  inputStyles?: Record<string, unknown>;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
 }
@@ -40,13 +43,16 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
       placeholder,
       error,
       autoComplete,
+      startElement,
       endElement,
       showPasswordToggle,
       showPassword,
       onTogglePassword,
       labelStyle = "top",
+      variant = "default",
       onBlur,
       onFocus,
+      inputStyles,
     },
     ref
   ) => {
@@ -67,6 +73,19 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
       onBlur?.(e);
     };
 
+    const isSignupVariant = variant === "signup";
+    // const inputStyles = isSignupVariant
+    //   ? {
+    //       borderColor: "gray.300",
+    //       _focus: { borderColor: "#002157", boxShadow: "0 0 0 1px #002157" },
+    //       _hover: { borderColor: "gray.400" },
+    //     }
+    //   : {
+    //       borderColor: "#2CA9DF",
+    //       _focus: { borderColor: "#2CA9DF", boxShadow: "0 0 0 1px #2CA9DF" },
+    //       _hover: { borderColor: "#2CA9DF" },
+    //     };
+
     if (labelStyle === "floating") {
       return (
         <Field.Root invalid={!!error}>
@@ -84,7 +103,13 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
               transition="all 0.2s ease"
               fontSize="16px"
               fontWeight="400"
-              color={hasValue || isFocused ? "#2CA9DF" : "#282F68"}
+              color={
+                hasValue || isFocused
+                  ? isSignupVariant
+                    ? "#002157"
+                    : "#2CA9DF"
+                  : "#282F68"
+              }
               pointerEvents="none"
               bg="white"
               px={1}
@@ -93,6 +118,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
               {label}
             </Text>
             <InputGroup
+              startElement={startElement}
               endElement={
                 showPasswordToggle ? (
                   <IconButton
@@ -130,18 +156,11 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                 h="60px"
                 borderRadius="10px"
                 border="2px solid"
-                borderColor="#2CA9DF"
                 bg="white"
                 fontSize="16px"
                 px={6}
                 pt={hasValue || isFocused ? 4 : 0}
-                _focus={{
-                  borderColor: "#2CA9DF",
-                  boxShadow: "0 0 0 1px #2CA9DF",
-                }}
-                _hover={{
-                  borderColor: "#2CA9DF",
-                }}
+                {...inputStyles}
               />
             </InputGroup>
           </Box>
@@ -152,12 +171,15 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
 
     return (
       <Field.Root invalid={!!error}>
-        <Box mb={2}>
-          <Field.Label fontSize="20px" fontWeight="400" color="#282F68" mb={4}>
-            {label}
-          </Field.Label>
-        </Box>
+        {label && (
+          <Box>
+            <Field.Label fontSize="sm" fontWeight="500" color="black">
+              {label}
+            </Field.Label>
+          </Box>
+        )}
         <InputGroup
+          startElement={startElement}
           endElement={
             showPasswordToggle ? (
               <IconButton
@@ -184,22 +206,17 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             onChange={onChange}
             placeholder={placeholder}
             h="60px"
-            borderRadius="30px"
-            border="2px solid"
-            borderColor="#2CA9DF"
+            borderRadius={isSignupVariant ? "10px" : "30px"}
+            border="2px solid #E4E4E7"
+            // _focus={{ borderColor: "#E4E4E7", boxShadow: "0 0 0 1px #E4E4E7" }}
+            // _hover={{ borderColor: "#E4E4E7" }}
             bg="white"
             fontSize="16px"
             px={6}
-            _focus={{
-              borderColor: "#2CA9DF",
-              boxShadow: "0 0 0 1px #2CA9DF",
-            }}
-            _hover={{
-              borderColor: "#2CA9DF",
-            }}
+            {...inputStyles}
           />
         </InputGroup>
-        {error && <Field.ErrorText mt={2}>{error}</Field.ErrorText>}
+        {error && <Field.ErrorText>{error}</Field.ErrorText>}
       </Field.Root>
     );
   }
