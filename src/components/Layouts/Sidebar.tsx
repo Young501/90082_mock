@@ -70,7 +70,7 @@ const Sidebar = ({
 }: SidebarProps) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { getUserType, accessibleOpportunities } = useAuthStore();
+  const { getUserType, accessibleOpportunities, userProfile } = useAuthStore();
   const discoverDropdownRef = useRef<HTMLDivElement>(null);
   const {
     open: isDiscoverOpen,
@@ -106,7 +106,7 @@ const Sidebar = ({
       icon: <Home size={20} />,
       isCoordinator: true,
       isOrganisation: false,
-      isStudent: true,
+      isStudent: false,
       isProtected: true,
     },
     {
@@ -191,6 +191,7 @@ const Sidebar = ({
         color={active ? "white" : INACTIVE_COLOR}
         cursor="pointer"
         gap={3}
+        h="100%"
       >
         <Box flexShrink={0} w={5} h={5} color={active ? "white" : "#71717A"}>
           {item.icon}
@@ -279,6 +280,7 @@ const Sidebar = ({
         ref={discoverDropdownRef}
         w="full"
         position="relative"
+        h="100%"
       >
         <Box
           w="full"
@@ -408,7 +410,8 @@ const Sidebar = ({
   return (
     <Box
       w="full"
-      h="fit-content"
+      // h="100%"
+      h={{ base: "100%", lg: "calc(100vh - 188px)" }}
       maxW={{ base: "100%", lg: "300px" }}
       bg="white"
       borderRadius={{ base: "0", lg: "lg" }}
@@ -435,56 +438,62 @@ const Sidebar = ({
           {menuItems.map((item) => renderMenuItem(item))}
         </VStack>
       </Box>
-
-      <Box py={4} borderTopWidth="1px" borderColor="gray.100">
-        <Text
-          fontSize="xs"
-          fontWeight={700}
-          color="#52525B"
-          letterSpacing="wider"
-          mb={3}
-          pl={3}
-        >
-          QUICK LINKS
-        </Text>
-        <VStack align="stretch" gap={2}>
-          {QUICK_LINKS.map((q) => (
-            <ChakraLink
-              key={q.label}
-              href={q.href}
-              onClick={() => setIsMobileMenuOpen(false)}
-              color="#52525B"
-              fontSize="md"
-              fontWeight={500}
-            >
-              <HStack p={3} gap={3} _hover={{ color: "blue.600" }}>
-                <ExternalLink size={16} color="#71717A" />
-                <Text>{q.label}</Text>
-              </HStack>
-            </ChakraLink>
-          ))}
-        </VStack>
-      </Box>
-
-      <Box p={4} borderRadius="lg" mt="auto">
-        <VStack gap={2}>
-          <Box
-            position="relative"
-            h="260px"
-            w="260px"
-            display="flex"
-            justifyContent="center"
+      {userProfile?.university?.links && isStudent && (
+        <Box py={4} borderTopWidth="1px" borderColor="gray.100">
+          <Text
+            fontSize="xs"
+            fontWeight={700}
+            color="#52525B"
+            letterSpacing="wider"
+            mb={3}
+            pl={3}
           >
-            <Image
-              src="/assets/meluni2.png"
-              alt="The University of Melbourne"
-              width={260}
-              height={260}
-              style={{ objectFit: "contain" }}
-            />
-          </Box>
-        </VStack>
-      </Box>
+            {userProfile?.university?.name} Links
+          </Text>
+          <VStack align="stretch" gap={2}>
+            {Object.entries(userProfile?.university?.links ?? {}).map(
+              ([label, url]) => (
+                <ChakraLink
+                  key={label}
+                  href={url}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  color="#52525B"
+                  fontSize="md"
+                  fontWeight={500}
+                >
+                  <HStack p={3} gap={3} _hover={{ color: "blue.600" }}>
+                    <ExternalLink size={16} color="#71717A" />
+                    <Text>{label}</Text>
+                  </HStack>
+                </ChakraLink>
+              )
+            )}
+          </VStack>
+        </Box>
+      )}
+
+      {userProfile?.university?.logo_url && isStudent && (
+        <Box p={4} borderRadius="lg" mt="auto">
+          <VStack gap={2}>
+            <Box
+              position="relative"
+              h="260px"
+              w="260px"
+              display="flex"
+              justifyContent="center"
+              borderRadius="lg"
+            >
+              <Image
+                src={userProfile?.university?.logo_url}
+                alt={userProfile?.university?.name || "University Logo"}
+                width={260}
+                height={260}
+                style={{ objectFit: "contain", borderRadius: "12px" }}
+              />
+            </Box>
+          </VStack>
+        </Box>
+      )}
     </Box>
   );
 };
