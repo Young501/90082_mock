@@ -5,12 +5,16 @@ import Link from "next/link";
 // import NewsletterSubscribe from "./NewsletterSubscribe";
 import { SOCIAL_MEDIA_LINKS, CONTACT_EMAIL } from "@/utils/constants";
 
-const Footer = () => {
+const Footer = ({
+  isOrganisationSignupPage,
+}: {
+  isOrganisationSignupPage?: boolean;
+}) => {
   return (
     <Box mt="auto" w="100%">
       {/* <NewsletterSubscribe /> */}
       <Box
-        bg="#0A425F"
+        bg={isOrganisationSignupPage ? "#0F4F4D" : "#0A425F"}
         backgroundImage="url('/assets/Backgroundwaves.svg')"
         backgroundSize="auto"
         // backgroundPosition="center"
