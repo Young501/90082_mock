@@ -411,7 +411,7 @@ const Sidebar = ({
     <Box
       w="full"
       // h="100%"
-      h={{ base: "100%", lg: "calc(100vh - 188px)" }}
+      minH={{ base: "100%", lg: "calc(100vh - 188px)" }}
       maxW={{ base: "100%", lg: "300px" }}
       bg="white"
       borderRadius={{ base: "0", lg: "lg" }}
@@ -486,8 +486,9 @@ const Sidebar = ({
               <Image
                 src={userProfile?.university?.logo_url}
                 alt={userProfile?.university?.name || "University Logo"}
-                width={260}
-                height={260}
+                // width={260}
+                // height={260}
+                fill
                 style={{ objectFit: "contain", borderRadius: "12px" }}
               />
             </Box>
