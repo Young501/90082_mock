@@ -2,13 +2,13 @@ import { Box, Text, VStack, HStack } from "@chakra-ui/react";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import NewsletterSubscribe from "./NewsletterSubscribe";
+// import NewsletterSubscribe from "./NewsletterSubscribe";
 import { SOCIAL_MEDIA_LINKS, CONTACT_EMAIL } from "@/utils/constants";
 
 const Footer = () => {
   return (
     <Box mt="auto" w="100%">
-      <NewsletterSubscribe />
+      {/* <NewsletterSubscribe /> */}
       <Box
         bg="#0A425F"
         backgroundImage="url('/assets/Backgroundwaves.svg')"
@@ -79,7 +79,7 @@ const Footer = () => {
                     fontWeight="600"
                     color="#2AA8E0"
                     whiteSpace="nowrap"
-                    textTransform="capitalize"
+                    // textTransform="capitalize"
                   >
                     {CONTACT_EMAIL}
                   </Text>

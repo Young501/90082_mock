@@ -87,7 +87,7 @@ const SignupPage = () => {
   );
 
   const onSubmit = async (data: FormData) => {
-    console.log("Sign up data", data)
+    console.log("Sign up data", data);
     if (!userType) return;
 
     try {
@@ -116,12 +116,7 @@ const SignupPage = () => {
   return (
     <>
       <PageTitle title={PAGE_TITLES.SIGNUP} />
-      <Box
-        w="100%"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
+      <Box w="100%" display="flex" alignItems="center" justifyContent="center">
         <MotionBox
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -185,7 +180,7 @@ const SignupPage = () => {
                     placeholder={
                       isOrganisation
                         ? "you@company.com"
-                        : "sarah.smith@student.ac.uk"
+                        : "sarah.smith@student.unimelb.edu.au"
                     }
                     variant="signup"
                     inputStyles={{

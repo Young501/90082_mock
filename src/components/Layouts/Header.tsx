@@ -105,7 +105,7 @@ const Header = ({
       isOnbardingPage: false,
     },
     {
-      label: "Get Started",
+      label: "Sign up",
       href: getSignupLink(),
       variant: "primary",
       isOnbardingPage: false,
@@ -132,10 +132,10 @@ const Header = ({
       <HStack>
         <item.icon size={20} color="black" />
         <Box display="flex" flexDirection="column" alignItems="start">
-          <Text fontSize="2xs" color="#A1A1AA">
+          <Text fontSize="2xs" color="#A1A1AA" lineHeight="1.3">
             {item.subLabel}
           </Text>
-          <Text fontSize="xs" color="#1679AB">
+          <Text fontSize="xs" color="#1679AB" lineHeight="1.3">
             {item.label}
           </Text>
         </Box>
@@ -254,7 +254,7 @@ const Header = ({
                   >
                     <Image
                       alt="Uniconnected"
-                      src="/assets/header-logo-original.png"
+                      src="/assets/header-logo-faidat.png"
                       fill
                       style={{ objectFit: "contain" }}
                       priority
@@ -356,7 +356,7 @@ const Header = ({
                         <Box pos="relative" w="164px" h="34px">
                           <Image
                             alt="Uniconnected"
-                            src="/assets/header-logo-original.png"
+                            src="/assets/header-logo-faidat.png"
                             fill
                             style={{ objectFit: "contain" }}
                             priority
@@ -413,7 +413,7 @@ const Header = ({
               <Link href="/">
                 <Box pos="relative" w="200px" h="60px">
                   <Image
-                    src="/assets/header-logo-original.png"
+                    src="/assets/header-logo-faidat.png"
                     alt="Uniconnected"
                     fill
                     style={{ objectFit: "contain" }}
@@ -466,7 +466,7 @@ const Header = ({
                       <Box pos="relative" w="164px" h="34px">
                         <Image
                           alt="Uniconnected"
-                          src="/assets/header-logo-original.png"
+                          src="/assets/header-logo-faidat.png"
                           fill
                           style={{ objectFit: "contain" }}
                           priority

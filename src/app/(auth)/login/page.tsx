@@ -106,7 +106,7 @@ export default function LoginPage() {
                     autoComplete="email"
                     error={errors.email?.message as string}
                     labelStyle="top"
-                    placeholder="sarah.smith@student.ac.uk"
+                    placeholder="sarah.smith@student.unimelb.edu.au"
                     variant="signup"
                     inputStyles={{
                       borderRadius: "sm",
