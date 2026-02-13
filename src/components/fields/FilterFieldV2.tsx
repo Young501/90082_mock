@@ -51,12 +51,16 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
                   onChange(newValues.length > 0 ? newValues : undefined);
                 }}
                 size="sm"
-                colorPalette="#2AA8E0"
+                colorPalette="profile.500"
               >
                 <Checkbox.HiddenInput />
                 <Checkbox.Control
-                  bg={isChecked ? "#2AA8E0" : "transparent"}
-                  border={isChecked ? "1px solid #2AA8E0" : "1px solid #E4E4E7"}
+                  bg={isChecked ? "profile.500" : "transparent"}
+                  border={
+                    isChecked
+                      ? "1px solid var(--border-100)"
+                      : "1px solid #E4E4E7"
+                  }
                 />
                 <Checkbox.Label fontSize="xs" color="#3F3F46">
                   {option.value}
@@ -108,13 +112,13 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
               }
             }}
             size="sm"
-            colorPalette="#2AA8E0"
+            colorPalette="profile.500"
           >
             <HStack gap={4}>
               <RadioGroup.Item value="or">
                 <RadioGroup.ItemHiddenInput />
                 <RadioGroup.ItemControl
-                  bg={currentMode === "or" ? "#2AA8E0" : "transparent"}
+                  bg={currentMode === "or" ? "profile.500" : "transparent"}
                   border="1px solid #E4E4E7"
                 />
                 <RadioGroup.ItemText fontSize="xs" color="#3F3F46">
@@ -124,7 +128,7 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
               <RadioGroup.Item value="and">
                 <RadioGroup.ItemHiddenInput />
                 <RadioGroup.ItemControl
-                  bg={currentMode === "and" ? "#2AA8E0" : "transparent"}
+                  bg={currentMode === "and" ? "profile.500" : "transparent"}
                   border="1px solid #E4E4E7"
                 />
                 <RadioGroup.ItemText fontSize="xs" color="#3F3F46">
@@ -159,13 +163,15 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
                       );
                     }}
                     size="sm"
-                    colorPalette="#2AA8E0"
+                    colorPalette="profile.500"
                   >
                     <Checkbox.HiddenInput />
                     <Checkbox.Control
-                      bg={isChecked ? "#2AA8E0" : "transparent"}
+                      bg={isChecked ? "profile.500" : "transparent"}
                       border={
-                        isChecked ? "1px solid #2AA8E0" : "1px solid #E4E4E7"
+                        isChecked
+                          ? "1px solid var(--border-100)"
+                          : "1px solid #E4E4E7"
                       }
                     />
                     <Checkbox.Label fontSize="xs" color="#3F3F46">
@@ -194,11 +200,11 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
           onChange(checked ? true : undefined);
         }}
         size="sm"
-        colorPalette="#2AA8E0"
+        colorPalette="profile.500"
       >
         <Checkbox.HiddenInput />
         <Checkbox.Control
-          bg={isChecked ? "#2AA8E0" : "transparent"}
+          bg={isChecked ? "profile.500" : "transparent"}
           border="1px solid #E4E4E7"
         />
         <Checkbox.Label fontSize="xs" color="#3F3F46">
@@ -257,9 +263,13 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
         >
           <Slider.Control>
             <Slider.Track bg="#F4F4F5">
-              <Slider.Range bg="#2AA8E0" />
+              <Slider.Range bg="profile.500" />
             </Slider.Track>
-            <Slider.Thumb index={0} bg="#2AA8E0" border="2px solid #2AA8E0" />
+            <Slider.Thumb
+              index={0}
+              bg="profile.500"
+              border="2px solid var(--border-100)"
+            />
           </Slider.Control>
         </Slider.Root>
       </VStack>

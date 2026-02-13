@@ -187,7 +187,7 @@ const Sidebar = ({
         w="full"
         p={3}
         borderRadius="xl"
-        bg={active ? (isStudent ? "#2AA8E0" : "#3AADA8") : "transparent"}
+        bg={active ? "profile.500" : "transparent"}
         color={active ? "white" : INACTIVE_COLOR}
         cursor="pointer"
         gap={3}
@@ -249,7 +249,7 @@ const Sidebar = ({
             w="full"
             p={3}
             borderRadius="xl"
-            bg={active ? (isStudent ? "#2AA8E0" : "#3AADA8") : "transparent"}
+            bg={active ? "profile.500" : "transparent"}
             color={active ? "white" : INACTIVE_COLOR}
             gap={3}
           >
@@ -286,7 +286,7 @@ const Sidebar = ({
           w="full"
           p={3}
           borderRadius="xl"
-          bg={active ? (isStudent ? "#2AA8E0" : "#3AADA8") : "transparent"}
+          bg={active ? "profile.500" : "transparent"}
           color={active ? "white" : INACTIVE_COLOR}
           cursor="pointer"
           onClick={onDiscoverToggle}
@@ -386,10 +386,7 @@ const Sidebar = ({
                         >
                           {o.title || `Opportunity ${o.id}`}
                         </Text>
-                        <CircleCheckBig
-                          size={20}
-                          color={isStudent ? "#1679AB" : "#1F7F7B"}
-                        />
+                        <CircleCheckBig size={20} color="var(--profile-500)" />
                       </HStack>
                     );
                   })()}
