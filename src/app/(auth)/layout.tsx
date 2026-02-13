@@ -4,19 +4,28 @@ import { Container, useBreakpointValue, Box } from "@chakra-ui/react";
 import { ReactNode, Suspense } from "react";
 import Footer from "@/components/Layouts/Footer";
 import Header from "@/components/Layouts/Header";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 interface AuthLayoutProps {
   children: ReactNode;
 }
 
-export default function Layout({ children }: AuthLayoutProps) {
+function AuthLayoutContent({ children }: AuthLayoutProps) {
   const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
   const isMobile = useBreakpointValue({ base: true, lg: false });
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const isOnboardingPage = pathname?.startsWith("/onboarding") ?? false;
+  const allowedbgwaves = pathname
+    ? ["/login", "/signup", "/user-type"].some((path) =>
+        pathname.startsWith(path)
+      )
+    : false;
+
+  const isOrganisationSignupPage =
+    searchParams?.get("user-type") === "organisation" ?? false;
+
   return (
-    <Suspense fallback={<div>Loading...</div>}>
       <div
         style={{
           minHeight: "100vh",
@@ -37,23 +46,37 @@ export default function Layout({ children }: AuthLayoutProps) {
           py={20}
           px={{ base: 4, lg: 14 }}
           h="100%"
-          bg="#0A425F"
-          backgroundImage="url('/assets/Backgroundwaves.svg')"
+          bg={
+            allowedbgwaves
+              ? !isOrganisationSignupPage
+                ? "#0A425F"
+                : "#0F4F4D"
+              : "transparent"
+          }
+          backgroundImage={
+            allowedbgwaves
+              ? "url('/assets/Backgroundwaves.svg')"
+              : "transparent"
+          }
           backgroundSize="auto"
           // backgroundPosition="center"
-          backgroundRepeat="repeat"
+          backgroundRepeat={allowedbgwaves ? "repeat" : "no-repeat"}
         >
-          <Container
-            maxW="1440px"
-            mx="auto"
-            px={0}
-            position="relative"
-          >
+          <Container maxW="1440px" mx="auto" px={0} position="relative">
             {children}
           </Container>
         </Box>
-        {!isOnboardingPage && <Footer />}
+        {!isOnboardingPage && (
+          <Footer isOrganisationSignupPage={isOrganisationSignupPage} />
+        )}
       </div>
+  );
+}
+
+export default function Layout({ children }: AuthLayoutProps) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthLayoutContent>{children}</AuthLayoutContent>
     </Suspense>
   );
 }

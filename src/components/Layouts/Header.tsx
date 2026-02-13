@@ -254,7 +254,7 @@ const Header = ({
                   >
                     <Image
                       alt="Uniconnected"
-                      src="/assets/header-logo-faidat.png"
+                      src="/assets/logo.svg"
                       fill
                       style={{ objectFit: "contain" }}
                       priority
@@ -356,7 +356,7 @@ const Header = ({
                         <Box pos="relative" w="164px" h="34px">
                           <Image
                             alt="Uniconnected"
-                            src="/assets/header-logo-faidat.png"
+                            src="/assets/logo.svg"
                             fill
                             style={{ objectFit: "contain" }}
                             priority
@@ -413,7 +413,7 @@ const Header = ({
               <Link href="/">
                 <Box pos="relative" w="200px" h="60px">
                   <Image
-                    src="/assets/header-logo-faidat.png"
+                    src="/assets/logo.svg"
                     alt="Uniconnected"
                     fill
                     style={{ objectFit: "contain" }}
@@ -466,7 +466,7 @@ const Header = ({
                       <Box pos="relative" w="164px" h="34px">
                         <Image
                           alt="Uniconnected"
-                          src="/assets/header-logo-faidat.png"
+                          src="/assets/logo.svg"
                           fill
                           style={{ objectFit: "contain" }}
                           priority
