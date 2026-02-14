@@ -29,10 +29,10 @@ export interface StudentProfile {
   location?: string;
   distance_km?: number;
   profile_picture_url?: string | null;
-  course_name?: string;
+  degree?: string;
   course_stream?: string;
-  specialization?: string[] | string;
-  course_progression?: string;
+  specialisations?: string[] | string;
+  progression?: string;
   skills?: string[];
   credentials?: string[];
   preferred_location?: string[];

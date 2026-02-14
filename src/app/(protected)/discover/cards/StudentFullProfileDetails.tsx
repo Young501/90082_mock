@@ -78,7 +78,7 @@ export const RenderStudentDetails = ({
               {student.first_name + " " + student.last_name}
             </Heading>
             <Text fontSize="14px" fontWeight="400" textTransform="capitalize">
-              {student.course_name || "Student"}
+              {"Student"}
             </Text>
           </VStack>
         </Box>
@@ -183,7 +183,7 @@ export const RenderStudentDetails = ({
         gap={{ base: 4, lg: 8 }}
       >
         <Grid templateColumns="repeat(2, 1fr)" gap={4} w="full">
-          {student.course_name && (
+          {student.degree && (
             <HStack gap={2} align="start">
               <Box
                 w="12px"
@@ -203,8 +203,10 @@ export const RenderStudentDetails = ({
                 />
               </Box>
               <Text fontSize="sm" color="gray.600">
-                {student.course_name} <br />
-                {student.course_progression}
+                {student.faculty} <br />
+                {student.course_stream} <br />
+                {student.degree} <br />
+                {student.progression}
               </Text>
             </HStack>
           )}
@@ -272,7 +274,7 @@ export const RenderStudentDetails = ({
                   width={12}
                   height={12}
                   src="/assets/certificationIcon.svg"
-                  alt="specialization"
+                  alt="specialisations"
                   style={{ objectFit: "contain" }}
                 />
               </Box>
@@ -292,7 +294,10 @@ export const RenderStudentDetails = ({
             fallbackText={student.location || "Not specified"}
           />
 
-          <BadgeSection title="Specialization" items={student.specialization} />
+          <BadgeSection
+            title="specialisations"
+            items={student.specialisations}
+          />
 
           <BadgeSection title="Skills" items={student.skills} />
 
