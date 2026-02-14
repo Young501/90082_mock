@@ -15,7 +15,6 @@ export const useHomepage = (enabled = true) => {
       try {
         return await getHomepage();
       } catch (err: unknown) {
-        console.error("Failed to fetch homepage:", err);
         toast.error("Failed to load dashboard");
         throw err;
       }
