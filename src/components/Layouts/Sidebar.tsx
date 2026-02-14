@@ -105,8 +105,8 @@ const Sidebar = ({
       href: "/dashboard/",
       icon: <Home size={20} />,
       isCoordinator: true,
-      isOrganisation: false,
-      isStudent: false,
+      isOrganisation: true,
+      isStudent: true,
       isProtected: true,
     },
     {
