@@ -21,6 +21,7 @@ import Image from "next/image";
 interface MyOpportunitiesProps {
   opportunities: HomepageOpportunity[];
   userType: string;
+  height?: string;
 }
 
 // TODO: Add opportunity summary
@@ -28,6 +29,7 @@ interface MyOpportunitiesProps {
 export function MyOpportunities({
   opportunities,
   userType,
+  height = "100%",
 }: MyOpportunitiesProps) {
   const router = useRouter();
 
@@ -51,17 +53,16 @@ export function MyOpportunities({
       p={{ base: 4, md: 5 }}
       border="1px solid #E4E4E7"
       width="100%"
-      h="100%"
-      overflow="auto"
       display="flex"
       flexDirection="column"
       gap={4}
+      h={height}
     >
       <Text fontSize="md" fontWeight="600" color="black">
         My Opportunities
       </Text>
 
-      <VStack align="stretch" gap={4} w="100%">
+      <VStack align="stretch" gap={4} w="100%" overflowY="scroll">
         {opportunities.length === 0 ? (
           <Text color="#52525B" fontSize="sm">
             No opportunities yet. Discover opportunities to get started.
@@ -107,12 +108,27 @@ export function MyOpportunities({
                 </Box>
 
                 <VStack align="stretch" gap={1} flex={1} minW={0}>
-                  <Text fontSize="md" fontWeight="600" color="gray.800">
+                  <Text fontSize="md" fontWeight="600" color="black">
                     {opp.title}
                   </Text>
-                  <Text fontSize="xs" color="gray.500">
-                    {getStatusLabel(opp)}
-                  </Text>
+                  <HStack>
+                    <Text fontSize="xs" color="#173DA6">
+                      {getStatusLabel(opp)}
+                    </Text>
+                    {opp.visibility_display === "Public" && (
+                      <Badge
+                        bg="#F4F4F5"
+                        color="#27272A"
+                        fontSize={{ base: "2xs", md: "xs" }}
+                        px={2}
+                        py={0.5}
+                        borderRadius="4px"
+                        fontWeight="normal"
+                      >
+                        Default
+                      </Badge>
+                    )}
+                  </HStack>
                 </VStack>
 
                 <HStack gap={4} flexShrink={0}>

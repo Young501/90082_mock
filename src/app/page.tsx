@@ -12,11 +12,13 @@ export default function Home() {
     if (isAuthenticated && token && user) {
       const userType = user.user_types?.[0];
 
-      if (userType === "coordinator") {
-        router.push("/dashboard");
-      } else if (userType === "organisation" || userType === "student") {
-        router.push("/discover");
-      }
+      router.push("/dashboard");
+
+      // if (userType === "coordinator") {
+      //   router.push("/dashboard");
+      // } else if (userType === "organisation" || userType === "student") {
+      //   router.push("/discover");
+      // }
     } else {
       router.push("/user-type/");
     }

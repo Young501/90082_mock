@@ -42,7 +42,7 @@ export function TeamMembers({ members = [] }: TeamMembersProps) {
             href="/profile/"
             style={{
               fontSize: "14px",
-              fontWeight: 600,
+              fontWeight: 500,
               color: "var(--profile-500)",
             }}
           >

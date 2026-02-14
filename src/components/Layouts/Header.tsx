@@ -65,7 +65,7 @@ const Header = ({
   isProtected?: boolean;
   isOnboardingPage?: boolean;
 }) => {
-  const isMobile = useBreakpointValue({ base: true, lg: false });
+  const isMobile = useBreakpointValue({ base: true, lg: true, xl: false });
   const router = useRouter();
   const { handleLogout } = useAuth();
   const { logout, getUserProfilePictureUrl } = useAuthStore();
@@ -184,7 +184,7 @@ const Header = ({
     return (
       <Box
         position="fixed"
-        top={isMobile ? "80px" : "126px"}
+        top={{ base: "80px", lg: "126px", xl: "126px" }}
         left={0}
         right={0}
         bg={lessThan3Days(trialInfo.trialEnd) ? "#FF0000" : "#FFA500"}
@@ -220,7 +220,7 @@ const Header = ({
             zIndex={9999}
             width="100%"
             borderBottom="1px solid rgba(148, 163, 184, 0.35)"
-            h={`${isMobile ? "58px" : "76px"}`}
+            h={{ base: "58px", lg: "76px" }}
           >
             <Box
               maxW="1440px"
@@ -335,7 +335,11 @@ const Header = ({
             </Box>
             <SubscriptionBanner isInMobileMenu={isMobileMenuOpen} />
             {isMobile && (
-              <Box mt="58px" position="relative" zIndex={99999}>
+              <Box
+                mt={{ base: "58px", lg: "0" }}
+                position="relative"
+                zIndex={99999}
+              >
                 <Drawer.Root
                   open={isMobileMenuOpen}
                   onOpenChange={(details) => setIsMobileMenuOpen(details.open)}
@@ -349,7 +353,7 @@ const Header = ({
                         display="flex"
                         alignItems="center"
                         justifyContent="space-between"
-                        px={4}
+                        px={{ base: 4, lg: 16 }}
                         py={3}
                         borderBottom="1px solid rgba(148, 163, 184, 0.35)"
                       >
@@ -373,7 +377,7 @@ const Header = ({
                           <X width={20} height={20} color="#0F172A" />
                         </Button>
                       </Box>
-                      <Drawer.Body p={4}>
+                      <Drawer.Body p={{ base: 4, lg: 14 }}>
                         <Sidebar
                           isMobileMenuOpen={isMobileMenuOpen}
                           setIsMobileMenuOpen={handleMenuToggle}
@@ -434,7 +438,7 @@ const Header = ({
                     aria-label="Open menu"
                     variant="ghost"
                     color="black"
-                    display={{ base: "flex", lg: "none" }}
+                    display={{ base: "flex", xl: "none" }}
                     onClick={handleMenuToggle}
                   >
                     <Menu size={20} color="black" />
@@ -445,7 +449,11 @@ const Header = ({
           </Box>
 
           {isMobile && (
-            <Box mt="58px" position="relative" zIndex={1001}>
+            <Box
+              mt={{ base: "58px", lg: "0" }}
+              position="relative"
+              zIndex={1001}
+            >
               <Drawer.Root
                 open={isMobileMenuOpen}
                 onOpenChange={(details) => setIsMobileMenuOpen(details.open)}
@@ -459,7 +467,7 @@ const Header = ({
                       display="flex"
                       alignItems="center"
                       justifyContent="space-between"
-                      px={4}
+                      px={{ base: 4, lg: 16 }}
                       py={3}
                       borderBottom="1px solid rgba(148, 163, 184, 0.35)"
                     >

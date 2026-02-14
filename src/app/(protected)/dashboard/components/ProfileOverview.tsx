@@ -11,6 +11,7 @@ import {
   Separator,
 } from "@chakra-ui/react";
 import { Button } from "@/components/ui/Button";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useRouter } from "next/navigation";
 import { CircleCheck, CircleCheckBig, Info } from "lucide-react";
 import type { HomepageProfile } from "@/types/homepage";
@@ -37,8 +38,10 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
       p={{ base: 4, md: 5 }}
       border="1px solid #E4E4E7"
       width="100%"
+      minW={0}
       h="100%"
-      overflow="auto"
+      overflowY="auto"
+      overflowX="hidden"
       display="flex"
       flexDirection="column"
       gap={4}
@@ -66,7 +69,7 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
               {profile.name?.slice(0, 2).toUpperCase()}
             </Avatar.Fallback>
           </Avatar.Root>
-          <VStack gap={1} align="center">
+          <VStack gap={1} align="center" w="100%" minW={0}>
             <Text fontSize="md" fontWeight="600" textAlign="center">
               {userType === "organisation"
                 ? profile.organisation_name
@@ -76,27 +79,35 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
             {userType === "student" && (
               <Box
                 w="100%"
-                overflowX="auto"
-                overflowY="hidden"
-                // css={{ "&::-webkit-scrollbar": { height: 4 } }}
+                minW={0}
+                overflow="hidden"
+                alignSelf="stretch"
               >
                 <HStack
                   gap={2}
                   align="center"
-                  flexWrap="nowrap"
                   justify="center"
-                  minW="min-content"
+                  py={0.5}
                 >
                   {profile.course_name && (
-                    <Text
-                      fontSize="xs"
-                      color="#52525B"
-                      truncate
-                      flexShrink={1}
-                      minW={0}
-                    >
-                      {profile.course_name}
-                    </Text>
+                    <Tooltip content={profile.course_name}>
+                      <Box
+                        minW={0}
+                        maxW="200px"
+                        flexShrink={1}
+                        overflow="hidden"
+                        cursor="default"
+                      >
+                        <Text
+                          fontSize="xs"
+                          color="#52525B"
+                          truncate
+                          display="block"
+                        >
+                          {profile.course_name}
+                        </Text>
+                      </Box>
+                    </Tooltip>
                   )}
                   {profile.course_name && profile.course_progression && (
                     <Separator
@@ -106,33 +117,24 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
                     />
                   )}
                   {profile.course_progression && (
-                    <Text
-                      fontSize="xs"
-                      color="#52525B"
-                      truncate
-                      flexShrink={1}
-                      minW={0}
-                    >
-                      {profile.course_progression}
-                    </Text>
-                  )}
-                  {profile.course_name && profile.course_progression && (
-                    <Separator
-                      orientation="vertical"
-                      height="4"
-                      flexShrink={0}
-                    />
-                  )}
-                  {profile.course_progression && (
-                    <Text
-                      fontSize="xs"
-                      color="#52525B"
-                      truncate
-                      flexShrink={1}
-                      minW={0}
-                    >
-                      This is even more interesting you might be shocked
-                    </Text>
+                    <Tooltip content={profile.course_progression}>
+                      <Box
+                        minW={0}
+                        maxW="200px"
+                        flexShrink={1}
+                        overflow="hidden"
+                        cursor="default"
+                      >
+                        <Text
+                          fontSize="xs"
+                          color="#52525B"
+                          truncate
+                          display="block"
+                        >
+                          {profile.course_progression}
+                        </Text>
+                      </Box>
+                    </Tooltip>
                   )}
                 </HStack>
               </Box>

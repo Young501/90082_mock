@@ -38,16 +38,19 @@ export function RecentMessages({ messages }: RecentMessagesProps) {
         <Text fontSize="md" fontWeight="600" color="black">
           Recent Messages
         </Text>
-        <Link
-          href="/messaging/"
-          style={{
-            fontSize: "14px",
-            fontWeight: 600,
-            color: "var(--profile-500)",
-          }}
-        >
-          View all
-        </Link>
+
+        {messages.length > 0 && (
+          <Link
+            href="/messaging/"
+            style={{
+              fontSize: "14px",
+              fontWeight: 500,
+              color: "var(--profile-500)",
+            }}
+          >
+            View all
+          </Link>
+        )}
       </HStack>
 
       <VStack align="stretch" gap={3}>

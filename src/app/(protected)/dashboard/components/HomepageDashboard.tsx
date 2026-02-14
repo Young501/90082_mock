@@ -23,13 +23,21 @@ export function HomepageDashboard({ data }: HomepageDashboardProps) {
         flexDirection={{ base: "column", md: "row" }}
         gap={6}
         w="100%"
-        h="100%"
       >
-        <Box w="100%" maxW={{ base: "100%", md: "260px", lg: "294px" }} flexShrink={0}>
+        <Box
+          w="100%"
+          maxW={{ base: "100%", md: "260px", lg: "294px" }}
+          flexShrink={0}
+          maxH="551px"
+        >
           <ProfileOverview profile={profile} userType={user_type} />
         </Box>
-        <Box w="100%" flex={1}>
-          <MyOpportunities opportunities={opportunities} userType={user_type} />
+        <Box w="100%" maxH="551px">
+          <MyOpportunities
+            opportunities={opportunities}
+            userType={user_type}
+            height="551px"
+          />
         </Box>
       </Box>
 
