@@ -43,7 +43,7 @@ export function HomepageDashboard({ data }: HomepageDashboardProps) {
 
       <SimpleGrid columns={{ base: 1, lg: 2 }} gap={6} width="100%">
         <RecentMessages messages={recent_messages} />
-        <TeamMembers members={team_members} />
+        {/* <TeamMembers members={team_members} /> */}
       </SimpleGrid>
     </>
   );
