@@ -105,8 +105,8 @@ const Sidebar = ({
       href: "/dashboard/",
       icon: <Home size={20} />,
       isCoordinator: true,
-      isOrganisation: false,
-      isStudent: false,
+      isOrganisation: true,
+      isStudent: true,
       isProtected: true,
     },
     {
@@ -409,7 +409,7 @@ const Sidebar = ({
       w="full"
       // h="100%"
       minH={{ base: "100%", lg: "calc(100vh - 188px)" }}
-      maxW={{ base: "100%", lg: "300px" }}
+      maxW={{ base: "100%", lg: "100%", xl: "300px" }}
       bg="white"
       borderRadius={{ base: "0", lg: "lg" }}
       boxShadow="sm"
