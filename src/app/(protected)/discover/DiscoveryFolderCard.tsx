@@ -87,15 +87,15 @@ export default function DiscoveryFolderCard({
           gap={2}
           py={3}
           borderRadius="xl"
-          borderColor="#D6EDFB"
+          borderColor="border.100"
           borderWidth="1px"
           bg="white"
-          color="#1679AB"
+          color="profile.500"
           fontWeight="normal"
           fontSize="sm"
           onClick={onCreateNewFolder}
         >
-          <IconPlus />
+          <IconPlus color="var(--profile-500)" />
           Create New Folder
         </Button>
 

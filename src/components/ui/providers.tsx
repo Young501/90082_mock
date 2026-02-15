@@ -6,6 +6,7 @@ import { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { system } from "@/theme/theme";
+import { ProfileThemeProvider } from "@/components/ui/ProfileThemeProvider";
 import "@fortawesome/fontawesome-free/css/all.css";
 
 const queryClient = new QueryClient({
@@ -29,7 +30,8 @@ export default function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ChakraProvider value={system}>
-        <NextThemeProvider
+        <ProfileThemeProvider>
+          <NextThemeProvider
           attribute="class"
           defaultTheme="light"
           forcedTheme="light"
@@ -37,6 +39,7 @@ export default function Providers({ children }: { children: ReactNode }) {
         >
           {children}
         </NextThemeProvider>
+        </ProfileThemeProvider>
       </ChakraProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

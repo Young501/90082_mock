@@ -242,11 +242,7 @@ export default function DiscoveryPage() {
           overflow="hidden"
         >
           <PageTitle title={PAGE_TITLES.DISCOVER} />
-          <Flex
-            justify="center"
-            align="center"
-            minH="400px"
-          >
+          <Flex justify="center" align="center" minH="400px">
             <VStack gap={4} align="center">
               <Spinner size="xl" color="blue.500" />
               <Text>Loading opportunity details...</Text>
@@ -290,12 +286,7 @@ export default function DiscoveryPage() {
         overflow="hidden"
       >
         <PageTitle title={PAGE_TITLES.DISCOVER} />
-        <VStack
-         
-          w="100%"
-          overflow="hidden"
-          gap={{ base: 5, lg: 6 }}
-        >
+        <VStack w="100%" overflow="hidden" gap={{ base: 5, lg: 6 }}>
           <OpportunityDescriptionCard
             opportunity={opportunity}
             currentOpportunity={currentOpportunity}
