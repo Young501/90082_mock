@@ -137,6 +137,7 @@ export function useSendMessage() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: MESSAGES_QUERY_KEY(variables.conversationId) });
       queryClient.invalidateQueries({ queryKey: CONVERSATIONS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
 }

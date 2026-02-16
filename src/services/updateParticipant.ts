@@ -74,6 +74,7 @@ export function useEnrollInOpportunity() {
       });
       // Also invalidate opportunity participant query
       queryClient.invalidateQueries({ queryKey: ["opportunity-participant"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
 }
