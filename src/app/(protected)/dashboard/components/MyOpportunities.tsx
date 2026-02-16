@@ -58,7 +58,8 @@ export function MyOpportunities({
       display="flex"
       flexDirection="column"
       gap={4}
-      h={height}
+      h="fit-content"
+      minH={0}
       maxH={maxH}
     >
       <Text fontSize="md" fontWeight="600" color="black">
@@ -170,11 +171,9 @@ export function MyOpportunities({
                   </Text>
                 )}
 
-                {userType === "student" && (
-                  <Text fontSize="xs" color="#52525B">
-                    {opp.description}
-                  </Text>
-                )}
+                <Text fontSize="xs" color="#52525B">
+                  {opp.description}
+                </Text>
               </VStack>
 
               <VStack gap={2} flexShrink={0} w="full" align="stretch">

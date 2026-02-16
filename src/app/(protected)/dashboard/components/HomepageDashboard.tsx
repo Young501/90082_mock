@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Container, Text, SimpleGrid, HStack } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { ProfileOverview } from "./ProfileOverview";
 import { MyOpportunities } from "./MyOpportunities";
 import { RecentMessages } from "./RecentMessages";
@@ -17,34 +17,34 @@ export function HomepageDashboard({ data }: HomepageDashboardProps) {
     data;
 
   return (
-    <>
+    <Box
+      display="grid"
+      gridTemplateColumns={{ base: "1fr", md: "260px 1fr", lg: "294px 1fr" }}
+      gap={6}
+      w="100%"
+    >
       <Box
+        minW={0}
+        h="100%"
         display="flex"
-        flexDirection={{ base: "column", md: "row" }}
-        gap={6}
-        w="100%"
+        flexDirection="column"
       >
-        <Box
-          w="100%"
-          maxW={{ base: "100%", md: "260px", lg: "294px" }}
-          flexShrink={0}
-          // maxH="551px"
-        >
-          <ProfileOverview profile={profile} userType={user_type} />
-        </Box>
-        <Box w="100%" h="100%">
-          <MyOpportunities
-            opportunities={opportunities}
-            userType={user_type}
-            maxH="551px"
-          />
-        </Box>
+        <ProfileOverview profile={profile} userType={user_type} />
       </Box>
 
-      <SimpleGrid columns={{ base: 1, lg: 2 }} gap={6} width="100%">
+      <Box
+        minW={0}
+        display="flex"
+        flexDirection="column"
+        gap={6}
+      >
+        <MyOpportunities
+          opportunities={opportunities}
+          userType={user_type}
+          maxH="551px"
+        />
         <RecentMessages messages={recent_messages} userType={user_type} />
-        {/* <TeamMembers members={team_members} /> */}
-      </SimpleGrid>
-    </>
+      </Box>
+    </Box>
   );
 }

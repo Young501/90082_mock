@@ -38,12 +38,12 @@ export function RecentMessages({ messages, userType }: RecentMessagesProps) {
       borderRadius="12px"
       p={{ base: 4, md: 5 }}
       border="1px solid #E4E4E7"
-      width={userType === "student" && !isMobile ? "294px" : "100%"}
-      h="100%"
+      // width={userType === "student" && !isMobile ? "294px" : "100%"}
       overflow="auto"
       display="flex"
       flexDirection="column"
       gap={4}
+      flexShrink={0}
     >
       <HStack justify="space-between" align="center">
         <Text fontSize="md" fontWeight="600" color="black">

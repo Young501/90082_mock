@@ -44,7 +44,8 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
       border="1px solid #E4E4E7"
       width="100%"
       minW={0}
-      h="100%"
+      flex={1}
+      minH={0}
       overflowY="auto"
       overflowX="hidden"
       display="flex"
