@@ -32,11 +32,11 @@ export function HomepageDashboard({ data }: HomepageDashboardProps) {
         >
           <ProfileOverview profile={profile} userType={user_type} />
         </Box>
-        <Box w="100%" maxH="551px">
+        <Box w="100%" h="100%">
           <MyOpportunities
             opportunities={opportunities}
             userType={user_type}
-            height="551px"
+            maxH="551px"
           />
         </Box>
       </Box>

@@ -22,6 +22,7 @@ interface MyOpportunitiesProps {
   opportunities: HomepageOpportunity[];
   userType: string;
   height?: string;
+  maxH?: string;
 }
 
 // TODO: Add opportunity summary
@@ -29,7 +30,8 @@ interface MyOpportunitiesProps {
 export function MyOpportunities({
   opportunities,
   userType,
-  height = "100%",
+  height = "fit-content",
+  maxH = "551px",
 }: MyOpportunitiesProps) {
   const router = useRouter();
 
@@ -57,6 +59,7 @@ export function MyOpportunities({
       flexDirection="column"
       gap={4}
       h={height}
+      maxH={maxH}
     >
       <Text fontSize="md" fontWeight="600" color="black">
         My Opportunities
