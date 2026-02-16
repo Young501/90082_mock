@@ -20,7 +20,6 @@ export const useHomepage = (enabled = true) => {
       }
     },
     enabled,
-    staleTime: 5 * 60 * 1000,
     retry: 1,
   });
 

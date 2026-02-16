@@ -11,6 +11,7 @@ import {
 import React, { useRef, useEffect } from "react";
 import {
   Home,
+  LayoutDashboard,
   Briefcase,
   MessageCircle,
   Headset,
@@ -102,11 +103,21 @@ const Sidebar = ({
     {
       key: "home",
       label: "Home",
-      href: "/dashboard/",
+      href: "/home/",
       icon: <Home size={20} />,
-      isCoordinator: true,
+      isCoordinator: false,
       isOrganisation: true,
       isStudent: true,
+      isProtected: true,
+    },
+    {
+      key: "dashboard",
+      label: "Dashboard",
+      href: "/dashboard/",
+      icon: <LayoutDashboard size={20} />,
+      isCoordinator: true,
+      isOrganisation: false,
+      isStudent: false,
       isProtected: true,
     },
     {
@@ -167,6 +178,8 @@ const Sidebar = ({
   };
 
   const isActive = (href: string) => {
+    if (href === "/home/")
+      return pathname === "/home" || pathname === "/home/";
     if (href === "/dashboard/")
       return pathname === "/dashboard" || pathname === "/dashboard/";
     if (href === "/discover/") return pathname?.startsWith("/discover");
