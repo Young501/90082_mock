@@ -28,7 +28,7 @@ export function HomepageDashboard({ data }: HomepageDashboardProps) {
           w="100%"
           maxW={{ base: "100%", md: "260px", lg: "294px" }}
           flexShrink={0}
-          maxH="551px"
+          // maxH="551px"
         >
           <ProfileOverview profile={profile} userType={user_type} />
         </Box>
@@ -42,7 +42,7 @@ export function HomepageDashboard({ data }: HomepageDashboardProps) {
       </Box>
 
       <SimpleGrid columns={{ base: 1, lg: 2 }} gap={6} width="100%">
-        <RecentMessages messages={recent_messages} />
+        <RecentMessages messages={recent_messages} userType={user_type} />
         {/* <TeamMembers members={team_members} /> */}
       </SimpleGrid>
     </>

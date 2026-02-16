@@ -12,6 +12,7 @@ export interface HomepageProfile {
   course_name?: string;
   course_progression?: string;
   abn?: string;
+  skills?: string[];
   completion_items: ProfileCompletionItem[];
 }
 

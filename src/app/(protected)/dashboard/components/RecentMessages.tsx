@@ -1,13 +1,23 @@
 "use client";
 
 import React from "react";
-import { Box, VStack, HStack, Text, Image, Flex } from "@chakra-ui/react";
+import {
+  Box,
+  VStack,
+  HStack,
+  Text,
+  Image,
+  Flex,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 import Link from "next/link";
 import type { HomepageRecentMessage } from "@/types/homepage";
 import { formatRelativeTime } from "@/utils/formatDate";
+import { MessageCircleX } from "lucide-react";
 
 interface RecentMessagesProps {
   messages: HomepageRecentMessage[];
+  userType: string;
 }
 
 const truncateToWords = (text: string, maxWords = 10) => {
@@ -17,7 +27,8 @@ const truncateToWords = (text: string, maxWords = 10) => {
   return words.slice(0, maxWords).join(" ") + "...";
 };
 
-export function RecentMessages({ messages }: RecentMessagesProps) {
+export function RecentMessages({ messages, userType }: RecentMessagesProps) {
+  const isMobile = useBreakpointValue({ base: true, md: false });
   const displayName = (msg: HomepageRecentMessage) =>
     msg.other_user.organisation_name ?? msg.other_user.full_name ?? "Unknown";
 
@@ -27,7 +38,7 @@ export function RecentMessages({ messages }: RecentMessagesProps) {
       borderRadius="12px"
       p={{ base: 4, md: 5 }}
       border="1px solid #E4E4E7"
-      width="100%"
+      width={userType === "student" && !isMobile ? "294px" : "100%"}
       h="100%"
       overflow="auto"
       display="flex"
@@ -55,9 +66,28 @@ export function RecentMessages({ messages }: RecentMessagesProps) {
 
       <VStack align="stretch" gap={3}>
         {messages.length === 0 ? (
-          <Text color="gray.600" fontSize="sm">
-            No messages yet.
-          </Text>
+          <VStack
+            align="center"
+            justify="center"
+            h="100%"
+            gap={4}
+            w="100%"
+            minH="261px"
+          >
+            <MessageCircleX size={25} color="#A1A1AA" />
+            <Text
+              color="black"
+              fontSize="md"
+              textAlign="center"
+              fontWeight="600"
+            >
+              No conversations yet.
+            </Text>
+            <Text fontSize="sm" color="#52525B" textAlign="center">
+              Once you start a conversation, your messages will appear here.
+              Reach out to get the conversation going.
+            </Text>
+          </VStack>
         ) : (
           messages.slice(0, 4).map((msg) => (
             <Link
