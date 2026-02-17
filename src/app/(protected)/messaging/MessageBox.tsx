@@ -50,9 +50,8 @@ export const MessageBox = ({
   isCopied,
   onCopy,
 }: MessageBoxProps) => {
-  const accentColor = profileType === "organisation" ? "#3AADA8" : "#1F97D1";
-  const bubbleBg = isMine ? accentColor : "#F4F4F5";
-  const bubbleBorder = isMine ? accentColor : "#E4E4E7";
+  const bubbleBg = isMine ? "profile.500" : "#F4F4F5";
+  const bubbleBorder = isMine ? "profile.500" : "#E4E4E7";
   const bubbleBorderRadius = isMine
     ? "12px 0px 12px 12px"
     : "0px 12px 12px 12px";
@@ -202,7 +201,6 @@ function ReplyPreview({
   onScrollToMessage,
 }: ReplyPreviewProps) {
   const preview = message.replyToPreview!;
-  const accentColor = profileType === "organisation" ? "#3AADA8" : "#1F97D1";
 
   return (
     <Box
@@ -217,7 +215,7 @@ function ReplyPreview({
         <Box
           w="3px"
           h="100%"
-          bg={isMine ? "rgba(255, 255, 255, 0.5)" : accentColor}
+          bg={isMine ? "rgba(255, 255, 255, 0.5)" : "profile.500"}
           borderRadius="sm"
           flexShrink={0}
         />
@@ -238,12 +236,12 @@ function ReplyPreview({
           <HStack gap={1}>
             <Reply
               size={12}
-              color={isMine ? "rgba(255, 255, 255, 0.8)" : accentColor}
+              color={isMine ? "rgba(255, 255, 255, 0.8)" : "var(--profile-500)"}
             />
             <Text
               fontSize="xs"
               fontWeight="semibold"
-              color={isMine ? "rgba(255, 255, 255, 0.9)" : accentColor}
+              color={isMine ? "rgba(255, 255, 255, 0.9)" : "profile.500"}
             >
               {preview.isSoftDeleted
                 ? "Deleted message"
@@ -317,8 +315,6 @@ function MessageActionsMenu({
   onCloseActions,
   onReply,
 }: MessageActionsMenuProps) {
-  const accentColor = profileType === "organisation" ? "#3AADA8" : "#1F97D1";
-
   return (
     <HStack
       justifyContent={isMine ? "flex-end" : "flex-start"}
@@ -380,8 +376,8 @@ function MessageActionsMenu({
           _hover={{ textDecoration: "none" }}
           onClick={onCopy}
         >
-          {isCopied ? (
-            <Text fontSize="sm" fontWeight="semibold" color={accentColor}>
+          {          isCopied ? (
+            <Text fontSize="sm" fontWeight="semibold" color="profile.500">
               Copied
             </Text>
           ) : (

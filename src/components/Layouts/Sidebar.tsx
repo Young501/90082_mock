@@ -11,6 +11,7 @@ import {
 import React, { useRef, useEffect } from "react";
 import {
   Home,
+  LayoutDashboard,
   Briefcase,
   MessageCircle,
   Headset,
@@ -102,8 +103,18 @@ const Sidebar = ({
     {
       key: "home",
       label: "Home",
-      href: "/dashboard/",
+      href: "/home/",
       icon: <Home size={20} />,
+      isCoordinator: false,
+      isOrganisation: true,
+      isStudent: true,
+      isProtected: true,
+    },
+    {
+      key: "dashboard",
+      label: "Dashboard",
+      href: "/dashboard/",
+      icon: <LayoutDashboard size={20} />,
       isCoordinator: true,
       isOrganisation: false,
       isStudent: false,
@@ -167,6 +178,8 @@ const Sidebar = ({
   };
 
   const isActive = (href: string) => {
+    if (href === "/home/")
+      return pathname === "/home" || pathname === "/home/";
     if (href === "/dashboard/")
       return pathname === "/dashboard" || pathname === "/dashboard/";
     if (href === "/discover/") return pathname?.startsWith("/discover");
@@ -187,7 +200,7 @@ const Sidebar = ({
         w="full"
         p={3}
         borderRadius="xl"
-        bg={active ? (isStudent ? "#2AA8E0" : "#3AADA8") : "transparent"}
+        bg={active ? "profile.500" : "transparent"}
         color={active ? "white" : INACTIVE_COLOR}
         cursor="pointer"
         gap={3}
@@ -249,7 +262,7 @@ const Sidebar = ({
             w="full"
             p={3}
             borderRadius="xl"
-            bg={active ? (isStudent ? "#2AA8E0" : "#3AADA8") : "transparent"}
+            bg={active ? "profile.500" : "transparent"}
             color={active ? "white" : INACTIVE_COLOR}
             gap={3}
           >
@@ -286,7 +299,7 @@ const Sidebar = ({
           w="full"
           p={3}
           borderRadius="xl"
-          bg={active ? (isStudent ? "#2AA8E0" : "#3AADA8") : "transparent"}
+          bg={active ? "profile.500" : "transparent"}
           color={active ? "white" : INACTIVE_COLOR}
           cursor="pointer"
           onClick={onDiscoverToggle}
@@ -386,10 +399,7 @@ const Sidebar = ({
                         >
                           {o.title || `Opportunity ${o.id}`}
                         </Text>
-                        <CircleCheckBig
-                          size={20}
-                          color={isStudent ? "#1679AB" : "#1F7F7B"}
-                        />
+                        <CircleCheckBig size={20} color="var(--profile-500)" />
                       </HStack>
                     );
                   })()}
@@ -412,7 +422,7 @@ const Sidebar = ({
       w="full"
       // h="100%"
       minH={{ base: "100%", lg: "calc(100vh - 188px)" }}
-      maxW={{ base: "100%", lg: "300px" }}
+      maxW={{ base: "100%", lg: "100%", xl: "300px" }}
       bg="white"
       borderRadius={{ base: "0", lg: "lg" }}
       boxShadow="sm"

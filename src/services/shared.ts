@@ -34,6 +34,7 @@ export function useProfilePictureUpload() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-profile"] });
       queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
 }
@@ -49,6 +50,7 @@ export function useProfilePictureDelete() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-profile"] });
       queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
 }
@@ -66,6 +68,7 @@ export function useResumeUpload(userType: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
 }
@@ -82,6 +85,7 @@ export function useProfileUpdate(userType: string) {
     },
     onSuccess: (_response: any, _variables, _context) => {
       queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
 }
@@ -109,6 +113,7 @@ export function useLogoUpload(userType: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
 }
@@ -123,6 +128,7 @@ export function useLogoDelete(userType: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
 }

@@ -58,7 +58,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
             // }}
           >
             <Box
-              display={{ base: "none", lg: "block" }}
+              display={{ base: "none", xl: "block" }}
               flexShrink={0}
               w="300px"
             >

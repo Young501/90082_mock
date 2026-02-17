@@ -355,7 +355,7 @@ export function OpportunityFilters({
           <VStack align="stretch" gap={2}>
             <Button
               w="100%"
-              bg="#2CA9DF"
+              bg="profile.500"
               color="white"
               onClick={handleApplyFilter}
               disabled={isLoading}
