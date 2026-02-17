@@ -291,7 +291,7 @@ export const API_ENDPOINTS = {
   }),
   HOMEPAGE: {
     method: "GET",
-    url: "/api/v1/homepage",
+    url: "/api/v2/ui/homepage",
   },
   OPPORTUNITY_PARTICIPANTS: (opportunityId: string): ApiEndpoint => ({
     method: "GET",

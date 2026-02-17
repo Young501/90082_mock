@@ -28,13 +28,11 @@ interface ProfileOverviewProps {
 export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
   const router = useRouter();
   const { userProfile } = useAuthStore();
-  const allItemsCompleted = profile.completion_items.every(
+  const allItemsCompleted = profile.completion_items?.every(
     (item) => item.completed
   );
 
   const studentName = `${userProfile?.first_name} ${userProfile?.last_name}`;
-
-  
 
   return (
     <Box
@@ -196,7 +194,7 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
               Profile status
             </Text>
           )}
-          {profile.completion_items.map((item) => (
+          {profile.completion_items && profile.completion_items.map((item) => (
             <HStack key={item.key} gap={3}>
               <CircleCheck
                 size={20}
