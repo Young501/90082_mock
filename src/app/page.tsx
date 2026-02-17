@@ -11,14 +11,11 @@ export default function Home() {
   useEffect(() => {
     if (isAuthenticated && token && user) {
       const userType = user.user_types?.[0];
-
-      router.push("/dashboard");
-
-      // if (userType === "coordinator") {
-      //   router.push("/dashboard");
-      // } else if (userType === "organisation" || userType === "student") {
-      //   router.push("/discover");
-      // }
+      if (userType === "coordinator") {
+        router.push("/dashboard");
+      } else {
+        router.push("/home");
+      }
     } else {
       router.push("/user-type/");
     }

@@ -22,6 +22,7 @@ interface MyOpportunitiesProps {
   opportunities: HomepageOpportunity[];
   userType: string;
   height?: string;
+  maxH?: string;
 }
 
 // TODO: Add opportunity summary
@@ -29,7 +30,8 @@ interface MyOpportunitiesProps {
 export function MyOpportunities({
   opportunities,
   userType,
-  height = "100%",
+  height = "fit-content",
+  maxH = "551px",
 }: MyOpportunitiesProps) {
   const router = useRouter();
 
@@ -56,7 +58,9 @@ export function MyOpportunities({
       display="flex"
       flexDirection="column"
       gap={4}
-      h={height}
+      h="fit-content"
+      minH={0}
+      maxH={maxH}
     >
       <Text fontSize="md" fontWeight="600" color="black">
         My Opportunities
@@ -78,88 +82,103 @@ export function MyOpportunities({
               align="stretch"
               gap={6}
             >
-              <HStack align="flex-start" gap={3} flex={1} minW={0}>
-                <Box
-                  flexShrink={0}
-                  w="48px"
-                  h="48px"
-                  bg="#F4F4F5"
-                  borderRadius="16px"
-                  p={2}
-                >
-                  {opp.logo_url ? (
-                    <Image
-                      src={opp.logo_url as string}
-                      alt={opp.title}
-                      width={32}
-                      height={32}
-                    />
-                  ) : (
-                    <Image
-                      src="/assets/opportunityLogoPlaceholder.svg"
-                      alt="Placeholder"
-                      width={32}
-                      height={32}
-                      style={{
-                        objectFit: "contain",
-                      }}
-                    />
-                  )}
-                </Box>
+              <VStack align="stretch" gap={2}>
+                <HStack align="flex-start" gap={3} flex={1} minW={0}>
+                  <Box
+                    flexShrink={0}
+                    w="48px"
+                    h="48px"
+                    bg="#F4F4F5"
+                    borderRadius="16px"
+                    p={2}
+                  >
+                    {opp.logo_url ? (
+                      <Image
+                        src={opp.logo_url as string}
+                        alt={opp.title}
+                        width={32}
+                        height={32}
+                      />
+                    ) : (
+                      <Image
+                        src="/assets/opportunityLogoPlaceholder.svg"
+                        alt="Placeholder"
+                        width={32}
+                        height={32}
+                        style={{
+                          objectFit: "contain",
+                        }}
+                      />
+                    )}
+                  </Box>
 
-                <VStack align="stretch" gap={1} flex={1} minW={0}>
-                  <Text fontSize="md" fontWeight="600" color="black">
-                    {opp.title}
-                  </Text>
-                  <HStack>
-                    <Text fontSize="xs" color="#173DA6">
-                      {getStatusLabel(opp)}
+                  <VStack align="stretch" gap={1} flex={1} minW={0}>
+                    <Text fontSize="md" fontWeight="600" color="black">
+                      {opp.title}
                     </Text>
-                    {opp.visibility_display === "Public" && (
+                    <HStack>
+                      <Text fontSize="xs" color="#173DA6">
+                        {getStatusLabel(opp)}
+                      </Text>
+                      {opp.visibility_display === "Public" && (
+                        <Badge
+                          bg="#F4F4F5"
+                          color="#27272A"
+                          fontSize={{ base: "2xs", md: "xs" }}
+                          px={2}
+                          py={0.5}
+                          borderRadius="4px"
+                          fontWeight="normal"
+                        >
+                          Default
+                        </Badge>
+                      )}
+                    </HStack>
+                  </VStack>
+
+                  <HStack gap={4} flexShrink={0}>
+                    {" "}
+                    {isEnrolled(opp) && (
                       <Badge
-                        bg="#F4F4F5"
-                        color="#27272A"
-                        fontSize={{ base: "2xs", md: "xs" }}
-                        px={2}
-                        py={0.5}
+                        bg=""
+                        // border="1px solid"
+                        boxShadow="0px 0px 1px 0px #116932 inset"
+                        fontSize={{ base: "xs", md: "sm" }}
+                        px={{ base: "6px", md: 3 }}
+                        py={{ base: "2px", md: 1 }}
                         borderRadius="4px"
                         fontWeight="normal"
+                        color="#116932"
                       >
-                        Default
+                        Enrolled
                       </Badge>
                     )}
-                  </HStack>
-                </VStack>
-
-                <HStack gap={4} flexShrink={0}>
-                  {" "}
-                  {isEnrolled(opp) && (
-                    <Badge
-                      bg=""
-                      // border="1px solid"
-                      boxShadow="0px 0px 1px 0px #116932 inset"
-                      fontSize={{ base: "xs", md: "sm" }}
-                      px={{ base: "6px", md: 3 }}
-                      py={{ base: "2px", md: 1 }}
-                      borderRadius="4px"
-                      fontWeight="normal"
-                      color="#116932"
+                    <IconButton
+                      aria-label="More options"
+                      variant="ghost"
+                      w="fit-content"
+                      h="fit-content"
                     >
-                      Enrolled
-                    </Badge>
-                  )}
-                  <IconButton
-                    aria-label="More options"
-                    variant="ghost"
-                    w="fit-content"
-                    h="fit-content"
-                  >
-                    <EllipsisVertical size={20} color="#52525B" />
-                  </IconButton>
+                      <EllipsisVertical size={20} color="#52525B" />
+                    </IconButton>
+                  </HStack>
                 </HStack>
-              </HStack>
-              <HStack gap={2} flexShrink={0} w="full" align="stretch">
+
+                {userType === "student" && !isEnrolled(opp) && (
+                  <Text fontSize="sm" color="#A1A1AA">
+                    You&apos;re required to enroll first in order to access
+                    opportunities from this program
+                  </Text>
+                )}
+
+                <Text fontSize="xs" color="#52525B">
+                  {opp.description}
+                </Text>
+              </VStack>
+
+              <VStack gap={2} flexShrink={0} w="full" align="stretch">
                 {/* {MISSING OPPORTUNITY SUMMARY} */}
+
                 <ButtonV2
                   bg={
                     userType === "organisation"
@@ -195,7 +214,7 @@ export function MyOpportunities({
                 >
                   {isEnrolled(opp) ? "Explore Opportunity" : "Enroll"}
                 </ButtonV2>
-              </HStack>
+              </VStack>
             </VStack>
           ))
         )}

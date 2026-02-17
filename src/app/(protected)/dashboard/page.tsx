@@ -12,11 +12,12 @@ import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { useAuthStore } from "@/store";
 import { useDashboard } from "@/hooks/useDashboard";
-import { useHomepage } from "@/hooks/useHomepage";
 import { CoordinatorDashboard } from "./components/CoordinatorDashboard";
-import { HomepageDashboard } from "./components/HomepageDashboard";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const DashboardPage = () => {
+  const router = useRouter();
   const userType = useAuthStore((s) => s.user?.user_types?.[0]);
   const isCoordinator = userType === "coordinator";
 
@@ -26,16 +27,32 @@ const DashboardPage = () => {
     error: dashboardError,
   } = useDashboard();
 
-  const {
-    homepageStats,
-    isLoading: isHomepageLoading,
-    error: homepageError,
-  } = useHomepage(!isCoordinator);
+  useEffect(() => {
+    if (!isCoordinator && userType) {
+      router.replace("/home/");
+    }
+  }, [isCoordinator, userType, router]);
 
-  const isLoading = isCoordinator ? isDashboardLoading : isHomepageLoading;
-  const error = isCoordinator ? dashboardError : homepageError;
+  if (!isCoordinator) {
+    return (
+      <Container
+        maxW="1512px"
+        py={8}
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minH="400px"
+        mx="auto"
+      >
+        <VStack gap={4} justify="center" minH="400px">
+          <Loader size="xl" color="#000000" />
+          <Text>Redirecting...</Text>
+        </VStack>
+      </Container>
+    );
+  }
 
-  if (isLoading) {
+  if (isDashboardLoading) {
     return (
       <Container
         maxW="1512px"
@@ -54,7 +71,7 @@ const DashboardPage = () => {
     );
   }
 
-  if (error) {
+  if (dashboardError) {
     return (
       <Container
         maxW="1512px"
@@ -88,39 +105,21 @@ const DashboardPage = () => {
           flexDirection="column"
           gap={12}
         >
-          {isCoordinator ? (
-            (() => {
-              if (!dashboardStats) {
-                return (
-                  <Box bg="transparent" borderRadius="15px" p={6}>
-                    <Text fontSize="lg" fontWeight="bold" color="#000000" mb={2}>
-                      No opportunity selected
-                    </Text>
-                    <Text color="#000000">
-                      Please select an opportunity to view dashboard statistics.
-                    </Text>
-                  </Box>
-                );
-              }
-              return (
-                <CoordinatorDashboard
-                  dashboardStats={dashboardStats}
-                  isLoading={false}
-                  error={null}
-                />
-              );
-            })()
-          ) : homepageStats ? (
-            <HomepageDashboard data={homepageStats} />
-          ) : (
+          {!dashboardStats ? (
             <Box bg="transparent" borderRadius="15px" p={6}>
               <Text fontSize="lg" fontWeight="bold" color="#000000" mb={2}>
-                No dashboard data
+                No opportunity selected
               </Text>
               <Text color="#000000">
-                No dashboard data available. Please try again later.
+                Please select an opportunity to view dashboard statistics.
               </Text>
             </Box>
+          ) : (
+            <CoordinatorDashboard
+              dashboardStats={dashboardStats}
+              isLoading={false}
+              error={null}
+            />
           )}
         </Container>
       </Box>

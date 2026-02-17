@@ -188,7 +188,9 @@ export const useAuth = () => {
       return apiRequest({
         endpoint: API_ENDPOINTS.LOGOUT,
       });
-      
+    },
+    onSettled: () => {
+      queryClient.removeQueries({ queryKey: ["homepage"] });
     },
     onError: (error: any) => {
       const errorMessage = getErrorMessage(error, "Logout failed");

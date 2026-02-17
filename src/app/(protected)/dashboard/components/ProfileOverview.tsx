@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { CircleCheck, CircleCheckBig, Info } from "lucide-react";
 import type { HomepageProfile } from "@/types/homepage";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
+import { useAuthStore } from "@/store/authStore";
 
 interface ProfileOverviewProps {
   profile: HomepageProfile;
@@ -26,10 +27,14 @@ interface ProfileOverviewProps {
 
 export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
   const router = useRouter();
-
+  const { userProfile } = useAuthStore();
   const allItemsCompleted = profile.completion_items.every(
     (item) => item.completed
   );
+
+  const studentName = `${userProfile?.first_name} ${userProfile?.last_name}`;
+
+  
 
   return (
     <Box
@@ -39,7 +44,8 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
       border="1px solid #E4E4E7"
       width="100%"
       minW={0}
-      h="100%"
+      flex={1}
+      minH={0}
       overflowY="auto"
       overflowX="hidden"
       display="flex"
@@ -73,22 +79,12 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
             <Text fontSize="md" fontWeight="600" textAlign="center">
               {userType === "organisation"
                 ? profile.organisation_name
-                : profile.name}
+                : studentName}
             </Text>
 
             {userType === "student" && (
-              <Box
-                w="100%"
-                minW={0}
-                overflow="hidden"
-                alignSelf="stretch"
-              >
-                <HStack
-                  gap={2}
-                  align="center"
-                  justify="center"
-                  py={0.5}
-                >
+              <Box w="100%" minW={0} overflow="hidden" alignSelf="stretch">
+                <HStack gap={2} align="center" justify="center" py={0.5}>
                   {profile.course_name && (
                     <Tooltip content={profile.course_name}>
                       <Box
@@ -148,10 +144,58 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
           </VStack>
         </VStack>
 
+        {profile.skills && profile.skills.length > 0 && (
+          <VStack align="stretch" gap={2}>
+            <Text fontSize="sm" fontWeight="500" color="#52525B">
+              Skills
+            </Text>
+            <HStack gap={2} flexWrap="wrap">
+              {profile.skills.slice(0, 2).map((skill, index) => (
+                <Box
+                  key={index}
+                  bg="#F3E8FF"
+                  color="#641BA3"
+                  borderRadius="4px"
+                  py={1.5}
+                  px={2}
+                  fontSize="2xs"
+                  fontWeight="400"
+                  boxShadow="0px 0px 1px 0px #641BA3 inset"
+                >
+                  {skill}
+                </Box>
+              ))}
+              {profile.skills.length > 2 && (
+                <Tooltip
+                  content={profile.skills.join(", ")}
+                  positioning={{ placement: "top", offset: { mainAxis: 8 } }}
+                >
+                  <Box
+                    as="span"
+                    bg="#F3E8FF"
+                    color="#641BA3"
+                    borderRadius="4px"
+                    py={1.5}
+                    px={2}
+                    fontSize="2xs"
+                    fontWeight="400"
+                    boxShadow="0px 0px 1px 0px #641BA3 inset"
+                    cursor="pointer"
+                  >
+                    +{profile.skills.length - 2} more
+                  </Box>
+                </Tooltip>
+              )}
+            </HStack>
+          </VStack>
+        )}
+
         <VStack align="stretch" gap={2}>
-          <Text fontSize="md" fontWeight="500" color="#52525B" mb={2}>
-            Profile Status
-          </Text>
+          {userType === "organisation" && (
+            <Text fontSize="sm" fontWeight="500" color="#52525B" mb={2.5}>
+              Profile status
+            </Text>
+          )}
           {profile.completion_items.map((item) => (
             <HStack key={item.key} gap={3}>
               <CircleCheck
@@ -170,32 +214,34 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
           ))}
         </VStack>
 
-        <HStack
-          gap={2}
-          align="start"
-          fontSize="xs"
-          bg="#FAFAFA"
-          boxShadow="0px 0px 0px 1px var(--graymuted) inset"
-          p={3}
-          borderRadius="8px"
-          border="1px solid #E4E4E7"
-          // justifyContent="start"
-        >
-          <Box
-            w="fit-content"
-            h="fit-content"
-            borderRadius="full"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
+        {!allItemsCompleted && (
+          <HStack
+            gap={2}
+            align="start"
+            fontSize="xs"
+            bg="#FAFAFA"
+            boxShadow="0px 0px 0px 1px var(--graymuted) inset"
+            p={3}
+            borderRadius="8px"
+            border="1px solid #E4E4E7"
+            // justifyContent="start"
           >
-            <Info size={16} color="black" fontWeight="bold" />
-          </Box>
-          <Text fontSize="xs" color="#000000">
-            Complete your profile to get better job matches and increase your
-            visibility to recruiters.
-          </Text>
-        </HStack>
+            <Box
+              w="fit-content"
+              h="fit-content"
+              borderRadius="full"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Info size={16} color="black" fontWeight="bold" />
+            </Box>
+            <Text fontSize="xs" color="#000000">
+              Complete your profile to get better job matches and increase your
+              visibility to recruiters.
+            </Text>
+          </HStack>
+        )}
       </VStack>
 
       <ButtonV2
