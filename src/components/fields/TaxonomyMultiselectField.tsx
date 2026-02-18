@@ -299,7 +299,7 @@ export const TaxonomyMultiselectField = ({
 
               {maxSelection && (
                 <Text fontSize="xs" color="#71717A">
-                  Maximum {maxSelection} skills
+                  Maximum {maxSelection} options
                 </Text>
               )}
 
@@ -311,16 +311,19 @@ export const TaxonomyMultiselectField = ({
                     return (
                       <Tag.Root
                         key={val}
-                        size="sm"
                         variant="subtle"
                         borderRadius="md"
                         px={2}
-                        py="2px"
-                        h="24px"
+                        py="4px"
+                        h="26px"
                         bg="#F4F4F5"
                         boxShadow="0px 0px 1px 0px #27272A inset"
                       >
-                        <Tag.Label fontSize="sm" color="#27272A">
+                        <Tag.Label
+                          fontSize="sm"
+                          lineHeight="unset"
+                          color="#27272A"
+                        >
                           {label}
                         </Tag.Label>
                         <Tag.EndElement>

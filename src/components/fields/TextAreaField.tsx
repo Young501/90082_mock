@@ -10,6 +10,7 @@ interface TextAreaFieldProps {
   required?: boolean;
   inputProps?: any;
   icon?: string;
+  maxLength?: number;
 }
 
 export const TextAreaField = forwardRef<
@@ -25,6 +26,7 @@ export const TextAreaField = forwardRef<
       placeholder,
       inputProps,
       icon,
+      maxLength,
       ...props
     },
     _ref
@@ -53,9 +55,15 @@ export const TextAreaField = forwardRef<
                 {...register}
                 {...props}
                 {...inputProps}
+                maxLength={maxLength}
               />
             </Box>
           </Box>
+          {maxLength && (
+            <Text fontSize="xs" color="#71717A">
+              Maximum {maxLength} characters
+            </Text>
+          )}
           {error && <Field.ErrorText>{error}</Field.ErrorText>}
         </VStack>
       </Field.Root>

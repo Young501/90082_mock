@@ -199,6 +199,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     getIsOrganisationMemberOnboarding,
     getTempOrganisation,
     setLogoUrl,
+    userProfile,
   } = useAuthStore();
 
   const getProfilePictureUrl = useCallback(
@@ -952,12 +953,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
       abnStatus === "invalid" ||
       abnStatus === "error");
   const organisationName = watch("name");
-  const universitySlug =
-    userType === "student" && studentProfileV2?.university
-      ? typeof studentProfileV2.university === "string"
-        ? studentProfileV2.university
-        : ((studentProfileV2.university as { code?: string })?.code ?? null)
-      : null;
+
 
   return (
     <Box
@@ -1024,7 +1020,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
             onFieldUnregistered={handleFieldUnregistered}
             onParentValueChange={handleParentValueChange}
             organisationName={organisationName}
-            universitySlug={universitySlug}
+            university={userProfile?.university}
             onAbnValidationChange={(status) => {
               if (question.type === "abn_lookup") {
                 setAbnStatus(status);

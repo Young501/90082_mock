@@ -43,7 +43,10 @@ interface FieldRendererProps {
   onAbnValidationChange?: (status: AbnValidationStatus) => void;
   onFileRemove?: (fieldName: string) => void;
   removedFiles?: Set<string>;
-  universitySlug?: string | null;
+  university?: {
+    slug?: string;
+    name?: string;
+  };
 }
 
 const FILE_FIELD_TYPES: Record<string, "image" | "resume"> = {
@@ -67,8 +70,13 @@ export const FieldRenderer = ({
   onAbnValidationChange,
   onFileRemove,
   removedFiles,
-  universitySlug,
+  university,
 }: FieldRendererProps) => {
+  const universitySlug = university?.slug;
+  const universityName = university?.name;
+
+  console.log("this is everything universtiy", university);
+
   const error = errors[question.field]?.message as string | undefined;
   const taxonomyParentField = question.taxonomy_query?.parent ?? "__none__";
   const taxonomyParentValue = useWatch({
@@ -236,17 +244,31 @@ export const FieldRenderer = ({
     }
 
     if (question.type === "display") {
+      const displayValue =
+        question.field === "university" && universityName
+          ? universityName
+          : "—";
       return (
-        <InputField
-          label={question.filter_label || question.label}
-          register={register(question.field)}
-          error={error}
-          inputProps={{
-            readOnly: true,
-            bg: "#F4F4F5",
-            cursor: "default",
-          }}
-        />
+        <Box mb={2}>
+          <Text fontSize="sm" fontWeight="500" color="#71717A" mb={1}>
+            {question.filter_label || question.label}
+          </Text>
+          <Box
+            h="48px"
+            px={6}
+            py={3}
+            borderRadius="sm"
+            border="1px solid"
+            borderColor="#E4E4E7"
+            bg="#F4F4F5"
+            display="flex"
+            alignItems="center"
+          >
+            <Text fontSize="md" color="#3F3F46">
+              {displayValue}
+            </Text>
+          </Box>
+        </Box>
       );
     }
 
@@ -464,6 +486,7 @@ export const FieldRenderer = ({
         <TextAreaField
           register={register(question.field)}
           error={error}
+          maxLength={question?.max_length}
           required={question.required}
           placeholder={question.placeholder ?? question.label}
           icon={question.icon}
