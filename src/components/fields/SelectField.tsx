@@ -9,11 +9,18 @@ import {
 import { useMemo, useState } from "react";
 import { Control, Controller } from "react-hook-form";
 
+interface SelectOption {
+  label: string;
+  value: string;
+  /** Unique key for React when value is duplicated (e.g. taxonomy nodes) */
+  key?: string | number;
+}
+
 interface SelectFieldProps {
   name: string;
   label?: string;
   control: Control<any>;
-  options: string[] | { label: string; value: string }[];
+  options: string[] | SelectOption[];
   placeholder?: string;
   multiple?: boolean;
   error?: string;
@@ -35,10 +42,13 @@ export const SelectField = ({
   const [filter, setFilter] = useState("");
   const optionItems = useMemo(
     () =>
-      options.map((option) => ({
-        label: typeof option === "string" ? option : option.label,
-        value: typeof option === "string" ? option : option.value,
-      })),
+      options.map((option) => {
+        const label = typeof option === "string" ? option : option.label;
+        const value = typeof option === "string" ? option : option.value;
+        const key =
+          typeof option === "object" && "key" in option ? option.key : undefined;
+        return { label, value, key };
+      }),
     [options]
   );
   const filteredItems = useMemo(() => {
@@ -160,7 +170,10 @@ export const SelectField = ({
                       </span>
                     )}
                     {filteredItems.map((opt) => (
-                      <Select.Item item={opt} key={opt.value}>
+                      <Select.Item
+                        item={{ label: opt.label, value: opt.value }}
+                        key={String(opt.key ?? opt.value)}
+                      >
                         {opt.label}
                         <Select.ItemIndicator />
                       </Select.Item>

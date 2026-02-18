@@ -1,6 +1,7 @@
 "use client";
 
-import { Progress, Box, Heading, Text } from "@chakra-ui/react";
+import { Progress, Box, Heading, Text, HStack } from "@chakra-ui/react";
+import { UseMutationResult } from "@tanstack/react-query";
 import { Alert } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -11,6 +12,9 @@ import {
   useProfilePictureUpload,
   useResumeUpload,
   useLogoUpload,
+  useStudentProfileUpdateV2,
+  useUserMeUpdateV2,
+  useStudentProfileV2,
 } from "@/services/shared";
 import { useOnboardingLogic } from "@/hooks/useOnboardingLogic";
 import { createPageSchema } from "@/utils/validationSchemas";
@@ -26,6 +30,88 @@ import Loader from "@/components/ui/Loader";
 
 interface Props {
   userType: string;
+}
+
+const STUDENT_ENDPOINT_FIELDS = [
+  "profile_picture",
+  "resume",
+  "location",
+  "location_geocode_lookup",
+];
+
+async function submitStudentOnboardingV2(
+  allData: Record<string, any>,
+  allQuestions: Question[],
+  profilePictureUpload: UseMutationResult<any, any, File, unknown>,
+  resumeUpload: UseMutationResult<any, any, File, unknown>,
+  userMeUpdateV2: UseMutationResult<any, any, Record<string, any>, unknown>,
+  studentProfileUpdateV2: UseMutationResult<
+    any,
+    any,
+    Record<string, any>,
+    unknown
+  >,
+  setUserProfilePictureUrl: (url: string) => void
+) {
+  const userFields = allQuestions
+    .filter((q) => q.model === "user" && !q.endpoint)
+    .map((q) => q.field);
+  const studentProfileFields = allQuestions
+    .filter((q) => q.model === "student_profile" && !q.endpoint)
+    .map((q) => q.field);
+
+  const userPayload: Record<string, any> = {};
+  userFields.forEach((field) => {
+    if (allData[field] !== undefined && allData[field] !== "") {
+      userPayload[field] = allData[field];
+    }
+  });
+  const studentPayload: Record<string, any> = {};
+  studentProfileFields.forEach((field) => {
+    if (allData[field] !== undefined && allData[field] !== "") {
+      studentPayload[field] = allData[field];
+    }
+  });
+
+  STUDENT_ENDPOINT_FIELDS.forEach((f) => {
+    delete userPayload[f];
+    delete studentPayload[f];
+  });
+
+  if (allData.location) {
+    userPayload.location = allData.location;
+  }
+
+  if (Object.keys(userPayload).length > 0) {
+    await userMeUpdateV2.mutateAsync(userPayload);
+  }
+
+  if (Object.keys(studentPayload).length > 0) {
+    await studentProfileUpdateV2.mutateAsync(studentPayload);
+  }
+
+  const profilePicture = allData.profile_picture ?? allData.profile_picture_url;
+  if (profilePicture instanceof File) {
+    try {
+      const profileRes = await profilePictureUpload.mutateAsync(profilePicture);
+      if (profileRes?.profile_picture_url) {
+        setUserProfilePictureUrl(profileRes.profile_picture_url);
+      }
+    } catch {
+      toast.error("Profile picture upload failed. You can add it later.");
+    }
+  }
+
+  const resume = allData.resume ?? allData.resume_url;
+  if (resume instanceof File) {
+    try {
+      await resumeUpload.mutateAsync(resume);
+    } catch {
+      toast.error("Resume upload failed. You can add it later.");
+    }
+  }
+
+  toast.success("Profile created successfully!");
 }
 
 export const OnboardingSteps = ({ userType }: Props) => {
@@ -72,6 +158,9 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const [abnStatus, setAbnStatus] = useState<AbnValidationStatus>("idle");
   const submissionMutation = useOnboardingSubmission(userType);
   const profileUpdateMutation = useProfileUpdate(userType);
+  const studentProfileUpdateV2 = useStudentProfileUpdateV2();
+  const userMeUpdateV2 = useUserMeUpdateV2();
+  const { data: studentProfileV2 } = useStudentProfileV2();
   const profilePictureUpload = useProfilePictureUpload();
   const resumeUpload = useResumeUpload(userType);
   const logoUpload = useLogoUpload(userType);
@@ -97,6 +186,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     resolver: yupResolver(schema),
     mode: "onChange",
     reValidateMode: "onChange",
+    shouldUnregister: false,
   });
 
   const {
@@ -255,6 +345,28 @@ export const OnboardingSteps = ({ userType }: Props) => {
       return () => clearTimeout(timeoutId);
     }
   }, [setValue, formData, currentPage]);
+
+  // Pre-populate display fields (e.g. university) from student profile v2
+  useEffect(() => {
+    if (
+      userType === "student" &&
+      studentProfileV2 &&
+      currentPage?.questions.some((q) => q.type === "display")
+    ) {
+      currentPage.questions.forEach((q) => {
+        if (q.type === "display" && q.model === "student_profile") {
+          const val = (studentProfileV2 as Record<string, any>)[q.field];
+          if (val != null) {
+            const displayVal =
+              typeof val === "object" && val?.label != null
+                ? val.label
+                : String(val);
+            setValue(q.field, displayVal, { shouldValidate: false });
+          }
+        }
+      });
+    }
+  }, [userType, studentProfileV2, currentPage, setValue]);
 
   useEffect(() => {
     if (formKey > 0 && Object.keys(formData).length > 0) {
@@ -546,6 +658,23 @@ export const OnboardingSteps = ({ userType }: Props) => {
       const allData = { ...formData, ...currentValues };
       const isOrganisationMember = getIsOrganisationMemberOnboarding();
 
+      if (userType === "student") {
+        const allQuestions = pages.flatMap((p) => p.questions);
+        const { setUserProfilePictureUrl: setProfilePic } =
+          useAuthStore.getState();
+        await submitStudentOnboardingV2(
+          allData,
+          allQuestions,
+          profilePictureUpload,
+          resumeUpload,
+          userMeUpdateV2,
+          studentProfileUpdateV2,
+          setProfilePic
+        );
+        router.push("/onboarding/success");
+        return;
+      }
+
       if (
         userType === "organisation" &&
         currentPhase === "user" &&
@@ -738,6 +867,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const loadingStates =
     submissionMutation.isPending ||
     profileUpdateMutation.isPending ||
+    studentProfileUpdateV2.isPending ||
+    userMeUpdateV2.isPending ||
     isLoadingOrganisationPrompt ||
     logoUpload.isPending ||
     profilePictureUpload.isPending ||
@@ -759,10 +890,15 @@ export const OnboardingSteps = ({ userType }: Props) => {
       abnStatus === "invalid" ||
       abnStatus === "error");
   const organisationName = watch("name");
+  const universitySlug =
+    userType === "student" && studentProfileV2?.university
+      ? typeof studentProfileV2.university === "string"
+        ? studentProfileV2.university
+        : ((studentProfileV2.university as { code?: string })?.code ?? null)
+      : null;
 
   return (
     <Box
-      p={6}
       display="flex"
       flexDirection="column"
       alignItems="center"
@@ -770,11 +906,33 @@ export const OnboardingSteps = ({ userType }: Props) => {
       w="100%"
       mx="auto"
     >
-      <Box w="100%" maxW="588px" textAlign="left" mb={8}>
-        <Heading fontSize={{ base: "28px", md: "35px" }} mb={4}>
-          {currentPage.guide}
+      <Box w="100%" textAlign="left" mb={5}>
+        <Heading fontSize="2xl" fontWeight="600" color="black" mb={4}>
+          Create Your {userType === "student" ? "Student" : "Organisation"}{" "}
+          Profile
         </Heading>
-        <Text fontSize="sm" color="gray.600" mb={4} ml={1}>
+        <HStack justify="space-between" w="100%" mb={2}>
+          <Text fontSize="lg" color="#52525B">
+            {currentPage.title}
+          </Text>
+          <Box bg="#F4F4F5" px={2} py={0.5} rounded="4px">
+            <Text fontSize="sm" color="#27272A" fontWeight="700">
+              Step {currentPage.id} of {totalSteps()}
+            </Text>
+          </Box>
+        </HStack>
+
+        {pages.length > 1 ? (
+          <Box mb={2}>
+            <ProgressTrack
+              progressPercent={progressPercent}
+              totalSteps={totalSteps()}
+            />
+          </Box>
+        ) : (
+          <Box h="20px" />
+        )}
+        <Text fontSize="sm" color="#52525B">
           Required fields are marked with{" "}
           <Text as="span" color="red.500">
             *
@@ -786,8 +944,10 @@ export const OnboardingSteps = ({ userType }: Props) => {
         as="form"
         onSubmit={handleFormSubmit}
         w="100%"
-        maxW="588px"
         key={formKey}
+        border="1px solid #E4E4E7"
+        rounded="3xl"
+        p={{ base: 4, md: 8 }}
       >
         {currentPage.questions.map((question) => (
           <FieldRenderer
@@ -802,6 +962,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
             onFieldUnregistered={handleFieldUnregistered}
             onParentValueChange={handleParentValueChange}
             organisationName={organisationName}
+            universitySlug={universitySlug}
             onAbnValidationChange={(status) => {
               if (question.type === "abn_lookup") {
                 setAbnStatus(status);
@@ -885,16 +1046,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
                 </Button>
               )}
             </Box>
-            {pages.length > 1 ? (
-              <Box>
-                <ProgressTrack
-                  progressPercent={progressPercent}
-                  totalSteps={totalSteps()}
-                />
-              </Box>
-            ) : (
-              <Box h="20px" />
-            )}
           </Box>
         </Box>
       </Box>

@@ -181,6 +181,27 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v1/${userType}`,
   }),
+  // v2 Profiles & User APIs (Schema 2.0.0)
+  STUDENT_PROFILE_V2: {
+    method: "GET",
+    url: "/api/v2/profiles/student/me/",
+  },
+  STUDENT_PROFILE_UPDATE_V2: {
+    method: "PATCH",
+    url: "/api/v2/profiles/student/me/",
+  },
+  USER_ME_V2: {
+    method: "GET",
+    url: "/api/v2/users/me/",
+  },
+  USER_ME_UPDATE_V2: {
+    method: "PATCH",
+    url: "/api/v2/users/me/",
+  },
+  TAXONOMY: {
+    method: "GET",
+    url: "/api/v2/taxonomy/",
+  },
   RESUME_UPLOAD: (userType: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/${userType}/upload-resume`,

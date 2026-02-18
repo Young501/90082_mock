@@ -2,7 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import { useAuthStore } from "@/store/authStore";
 import { Opportunity, AccessibleOpportunity } from "@/types/opportunities";
-import { AbnValidationResponse } from "@/types/shared";
+import { AbnValidationResponse, TaxonomyQueryParams } from "@/types/shared";
+
 
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
@@ -90,12 +91,15 @@ export function useProfileUpdate(userType: string) {
   });
 }
 
-export function useOnboardingPages(userType: string) {
+export function useOnboardingPages(
+  userType: string,
+  enabled: boolean = true
+) {
   return useQuery({
     queryKey: ["onboarding-pages", userType],
     queryFn: () =>
       apiRequest({ endpoint: API_ENDPOINTS.ONBOARDING_PAGES(userType) }),
-    enabled: !!userType,
+    enabled: !!userType && enabled,
     staleTime: 10 * 60 * 1000,
   });
 }
@@ -192,6 +196,93 @@ export function useUserProfile(userType: string) {
         return false;
       }
       return failureCount < 2;
+    },
+  });
+}
+
+export function useStudentProfileV2(enabled: boolean = true) {
+  return useQuery({
+    queryKey: ["student-profile-v2"],
+    queryFn: () =>
+      apiRequest({ endpoint: API_ENDPOINTS.STUDENT_PROFILE_V2 }),
+    enabled,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+}
+
+export function useUserMeV2() {
+  return useQuery({
+    queryKey: ["user-me-v2"],
+    queryFn: () => apiRequest({ endpoint: API_ENDPOINTS.USER_ME_V2 }),
+    enabled: true,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useTaxonomy(params: TaxonomyQueryParams | null) {
+  const queryParams: Record<string, string> = {};
+  if (params) {
+    queryParams.type = params.type;
+      if (
+      params.university != null &&
+      params.university !== "" &&
+      params.university !== "dynamic"
+    ) {
+      queryParams.university = params.university;
+    }
+    if (params.parent != null && params.parent !== "") {
+      queryParams.parent = params.parent;
+    }
+  }
+
+  return useQuery({
+    queryKey: ["taxonomy", params],
+    queryFn: () =>
+      apiRequest({
+        endpoint: API_ENDPOINTS.TAXONOMY,
+        params: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+      }),
+    enabled: !!params?.type,
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+export function useStudentProfileUpdateV2() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: Record<string, any>) => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.STUDENT_PROFILE_UPDATE_V2,
+        body: data,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["student-profile-v2"] });
+      queryClient.invalidateQueries({ queryKey: ["user-profile", "student"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
+    },
+  });
+}
+
+export function useUserMeUpdateV2() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: Record<string, any>) => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.USER_ME_UPDATE_V2,
+        body: data,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-me-v2"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
 }

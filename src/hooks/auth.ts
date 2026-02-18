@@ -14,6 +14,24 @@ import { toast } from "react-toastify";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { UserProfile, OrganisationCheckResponse } from "@/types/shared";
 
+/** required fields for student onboarding completion  */
+export const STUDENT_ONBOARDING_REQUIRED_FIELDS = [
+  "faculty",
+  "course_stream",
+] as const;
+
+export const isStudentOnboardingComplete = (
+  profile: Record<string, any>  
+): boolean => {
+  return STUDENT_ONBOARDING_REQUIRED_FIELDS.every((field) => {
+    const value = profile[field];
+    if (value == null) return false;
+    if (Array.isArray(value)) return value.length > 0;
+    if (typeof value === "string") return value.trim() !== "";
+    return true;
+  });
+};
+
 export const checkOnboardingStatus = async ({
   user,
   router,
@@ -36,6 +54,30 @@ export const checkOnboardingStatus = async ({
     if (redirectOnSuccess) {
       await fetchCoordinatorOpportunities();
       router.push("/dashboard/");
+    }
+    return;
+  }
+
+  if (userType === "student") {
+    try {
+      const response = await apiRequest({
+        endpoint: API_ENDPOINTS.STUDENT_PROFILE_V2,
+      });
+      setUserProfile(response);
+      if (redirectOnSuccess) {
+        if (isStudentOnboardingComplete(response)) {
+          router.push("/home/");
+        } else {
+          router.push("/onboarding/");
+        }
+      }
+    } catch (error: any) {
+      if (error?.response?.status === 404) {
+        if (redirectOnSuccess) router.push("/onboarding/");
+        return;
+      }
+      console.error("Error checking onboarding status:", error);
+      toast.error("Error checking onboarding status");
     }
     return;
   }

@@ -9,5 +9,7 @@ export { CardSelectField } from "./CardSelectField";
 export { TextAreaField } from "./TextAreaField";
 export { GeocodeAutocompleteInput } from "./GeocodeAutocompleteInput";
 export { AbnLookupField } from "./AbnLookupField";
+export { TaxonomySelectField } from "./TaxonomySelectField";
+export { TaxonomyMultiselectField } from "./TaxonomyMultiselectField";
 
 export type { FileFieldType, FileFieldConfig } from "./FileField";
