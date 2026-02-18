@@ -56,10 +56,13 @@ async function submitStudentOnboardingV2(
   setUserProfilePictureUrl: (url: string) => void
 ) {
   const userFields = allQuestions
-    .filter((q) => q.model === "user" && !q.endpoint)
+    .filter((q) => q.model === "user" && !q.endpoint && q.type !== "display")
     .map((q) => q.field);
   const studentProfileFields = allQuestions
-    .filter((q) => q.model === "student_profile" && !q.endpoint)
+    .filter(
+      (q) =>
+        q.model === "student_profile" && !q.endpoint && q.type !== "display"
+    )
     .map((q) => q.field);
 
   const userPayload: Record<string, any> = {};
@@ -138,7 +141,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     if (!isLoading && pages) {
       if (!pages || pages.length === 0) {
         toast.info("No onboarding required. Redirecting to Home");
-        router.push("/discover/");
+        router.push("/home/");
         return;
       }
     }

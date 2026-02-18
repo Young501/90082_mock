@@ -91,7 +91,13 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
 
             {userType === "student" && (
               <Box w="100%" minW={0} overflow="hidden" alignSelf="stretch">
-                <HStack gap={2} align="center" justify="center" py={0.5}>
+                <HStack
+                  gap={2}
+                  align="center"
+                  justify="center"
+                  py={0.5}
+                  flexWrap="wrap"
+                >
                   {profile.course_name && (
                     <Tooltip content={profile.course_name}>
                       <Box
@@ -104,7 +110,7 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
                         <Text
                           fontSize="xs"
                           color="#52525B"
-                          truncate
+                          // truncate
                           display="block"
                         >
                           {profile.course_name}
@@ -128,12 +134,7 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
                         overflow="hidden"
                         cursor="default"
                       >
-                        <Text
-                          fontSize="xs"
-                          color="#52525B"
-                          truncate
-                          display="block"
-                        >
+                        <Text fontSize="xs" color="#52525B" display="block">
                           {profile.course_progression}
                         </Text>
                       </Box>
