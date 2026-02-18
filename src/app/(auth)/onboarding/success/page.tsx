@@ -44,7 +44,7 @@ export default function OnboardingSuccessPage() {
   }, [getUserType, getUserProfilePictureUrl, getLogoUrl]);
 
   const handleRouting = () => {
-    router.push("/discover/");
+    router.push("/home");
   };
 
   return (

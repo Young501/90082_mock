@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, Suspense } from "react";
+import { ReactNode, Suspense, useEffect } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Container, Spinner, Box, useBreakpointValue } from "@chakra-ui/react";
 import Header from "@/components/Layouts/Header";
@@ -8,8 +8,23 @@ import Footer from "@/components/Layouts/Footer";
 import { isInTrialPeriod } from "@/utils/subscriptionPermissions";
 import { usePathname, useSearchParams } from "next/navigation";
 import Sidebar from "@/components/Layouts/Sidebar";
+import { useProfile } from "@/hooks/useProfile";
+import { useAuthStore } from "@/store/authStore";
+import { useAccessibleOpportunities } from "@/services/shared";
 
 function LayoutContent({ children }: { children: ReactNode }) {
+  const userType = useAuthStore((s) => s.getUserType()) ?? "";
+  const setAccessibleOpportunities = useAuthStore(
+    (s) => s.setAccessibleOpportunities
+  );
+  useProfile(userType === "coordinator" ? "" : userType);
+  const { data: accessibleOpportunities } = useAccessibleOpportunities();
+
+  useEffect(() => {
+    if (accessibleOpportunities) {
+      setAccessibleOpportunities(accessibleOpportunities);
+    }
+  }, [accessibleOpportunities, setAccessibleOpportunities]);
   const searchParams = useSearchParams();
   const opportunitySlug = searchParams.get("opp");
   const isMobile = useBreakpointValue({ base: true, lg: false });
