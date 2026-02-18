@@ -907,18 +907,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
         w="100%"
         mx="auto"
       >
-        <Box w="100%" textAlign="left" mb={5}>
-          <Heading fontSize="2xl" fontWeight="600" color="black" mb={4}>
-            Create Your {userType === "student" ? "Student" : "Organisation"}{" "}
-            Profile
-          </Heading>
-        </Box>
-        <Box
-          w="100%"
-          border="1px solid #E4E4E7"
-          rounded="3xl"
-          p={{ base: 4, md: 8 }}
-        >
+        <Box w="100%">
           <ReviewPreview
             formData={reviewFormData}
             pages={pages}

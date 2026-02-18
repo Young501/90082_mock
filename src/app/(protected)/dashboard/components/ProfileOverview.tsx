@@ -27,12 +27,15 @@ interface ProfileOverviewProps {
 
 export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
   const router = useRouter();
-  const { userProfile } = useAuthStore();
+  const { userProfile, user } = useAuthStore();
   const allItemsCompleted = profile.completion_items?.every(
     (item) => item.completed
   );
 
-  const studentName = `${userProfile?.first_name} ${userProfile?.last_name}`;
+  const studentName =
+    userProfile?.first_name && userProfile?.last_name
+      ? `${userProfile?.first_name} ${userProfile?.last_name}`
+      : user?.email || "";
 
   return (
     <Box
@@ -74,7 +77,13 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
             </Avatar.Fallback>
           </Avatar.Root>
           <VStack gap={1} align="center" w="100%" minW={0}>
-            <Text fontSize="md" fontWeight="600" textAlign="center">
+            <Text
+              fontSize="md"
+              fontWeight="600"
+              textAlign="center"
+              maxW="100%"
+              truncate
+            >
               {userType === "organisation"
                 ? profile.organisation_name
                 : studentName}
@@ -194,22 +203,23 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
               Profile status
             </Text>
           )}
-          {profile.completion_items && profile.completion_items.map((item) => (
-            <HStack key={item.key} gap={3}>
-              <CircleCheck
-                size={20}
-                color={item.completed ? "#16A34A" : "#E4E4E7"}
-                style={{ flexShrink: 0 }}
-              />
-              <Text
-                fontSize="sm"
-                color="#52525B"
-                // opacity={item.completed ? 1 : 0.7}
-              >
-                {item.label}
-              </Text>
-            </HStack>
-          ))}
+          {profile.completion_items &&
+            profile.completion_items.map((item) => (
+              <HStack key={item.key} gap={3}>
+                <CircleCheck
+                  size={20}
+                  color={item.completed ? "#16A34A" : "#E4E4E7"}
+                  style={{ flexShrink: 0 }}
+                />
+                <Text
+                  fontSize="sm"
+                  color="#52525B"
+                  // opacity={item.completed ? 1 : 0.7}
+                >
+                  {item.label}
+                </Text>
+              </HStack>
+            ))}
         </VStack>
 
         {!allItemsCompleted && (

@@ -192,6 +192,20 @@ export function ReviewPreview({
     }
 
     const display = formatAnswerForDisplay(question, value);
+
+    if (question.type === "textarea") {
+      return (
+        <Text
+          fontSize="sm"
+          color="#3F3F46"
+          lineClamp={3}
+          title={typeof display === "string" ? display : undefined}
+        >
+          {display}
+        </Text>
+      );
+    }
+
     return (
       <Text fontSize="sm" color="#3F3F46">
         {display}
