@@ -106,6 +106,16 @@ export const useOnboardingLogic = (userType: string) => {
     }
   }, [pages, currentPageId]);
 
+  const goToPage = useCallback(
+    (pageId: number) => {
+      const page = pages.find((p: Page) => p.id === pageId);
+      if (page) {
+        setCurrentPageId(pageId);
+      }
+    },
+    [pages]
+  );
+
   const startOrganisationPhase = useCallback(() => {
     if (userType === "organisation") {
       setCurrentPhase("organisation");
@@ -132,6 +142,7 @@ export const useOnboardingLogic = (userType: string) => {
     ...navigationInfo,
     goToPreviousPage,
     goToNextPage,
+    goToPage,
     startOrganisationPhase,
   };
 };

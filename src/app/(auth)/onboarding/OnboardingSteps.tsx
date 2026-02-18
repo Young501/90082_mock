@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 import ProgressTrack from "@/components/ProgressTrack";
 import { useAuthStore } from "@/store/authStore";
 import { CreateOrganisationPrompt } from "./CreateOrganisationPrompt";
+import { ReviewPreview } from "./ReviewPreview";
 import Loader from "@/components/ui/Loader";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 
@@ -129,6 +130,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     isUserPhaseComplete,
     goToPreviousPage,
     goToNextPage,
+    goToPage,
     startOrganisationPhase,
   } = useOnboardingLogic(userType);
 
@@ -155,6 +157,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const [parentValues, setParentValues] = useState<Record<string, any>>({});
   const [showCreateOrganisationPrompt, setShowCreateOrganisationPrompt] =
     useState<boolean>(false);
+  const [showReviewPreview, setShowReviewPreview] = useState<boolean>(false);
   const [userPhaseData, setUserPhaseData] = useState<Record<string, any>>({});
   const [abnStatus, setAbnStatus] = useState<AbnValidationStatus>("idle");
   const submissionMutation = useOnboardingSubmission(userType);
@@ -629,6 +632,35 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   };
 
+  const onReviewClick = async () => {
+    setHasAttemptedSubmit(true);
+
+    try {
+      const isValid = await performValidationWithoutGhosts();
+      const hasAbnLookup = currentPage?.questions.some(
+        (question) => question.type === "abn_lookup"
+      );
+      const abnBlocked =
+        !!hasAbnLookup &&
+        (abnStatus === "pending" ||
+          abnStatus === "invalid" ||
+          abnStatus === "error");
+
+      if (isValid && !abnBlocked) {
+        setShowValidationError(false);
+        setSubmitError("");
+        setShowReviewPreview(true);
+      } else {
+        if (abnBlocked) {
+          setSubmitError(ABN_BLOCK_MESSAGE);
+        }
+        setShowValidationError(true);
+      }
+    } catch {
+      setShowValidationError(true);
+    }
+  };
+
   const onSubmit = async () => {
     setHasAttemptedSubmit(true);
 
@@ -844,6 +876,16 @@ export const OnboardingSteps = ({ userType }: Props) => {
     reset();
   };
 
+  const loadingStates =
+    submissionMutation.isPending ||
+    profileUpdateMutation.isPending ||
+    studentProfileUpdateV2.isPending ||
+    userMeUpdateV2.isPending ||
+    isLoadingOrganisationPrompt ||
+    logoUpload.isPending ||
+    profilePictureUpload.isPending ||
+    resumeUpload.isPending;
+
   if (showCreateOrganisationPrompt && !getIsOrganisationMemberOnboarding()) {
     return (
       <CreateOrganisationPrompt
@@ -851,6 +893,46 @@ export const OnboardingSteps = ({ userType }: Props) => {
         userPhaseData={userPhaseData}
         userType={userType}
       />
+    );
+  }
+
+  if (showReviewPreview && isLastPage) {
+    const reviewFormData = { ...formData, ...getValues() };
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        w="100%"
+        mx="auto"
+      >
+        <Box w="100%" textAlign="left" mb={5}>
+          <Heading fontSize="2xl" fontWeight="600" color="black" mb={4}>
+            Create Your {userType === "student" ? "Student" : "Organisation"}{" "}
+            Profile
+          </Heading>
+        </Box>
+        <Box
+          w="100%"
+          border="1px solid #E4E4E7"
+          rounded="3xl"
+          p={{ base: 4, md: 8 }}
+        >
+          <ReviewPreview
+            formData={reviewFormData}
+            pages={pages}
+            goToPage={(pageId) => {
+              setShowReviewPreview(false);
+              goToPage(pageId);
+            }}
+            onSubmit={onSubmit}
+            onBack={() => setShowReviewPreview(false)}
+            userType={userType}
+            isLoading={loadingStates}
+          />
+        </Box>
+      </Box>
     );
   }
 
@@ -864,16 +946,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
   if (!currentPage) return <Text>No onboarding page found.</Text>;
 
   const hasFormErrors = Object.keys(errors).length > 0;
-
-  const loadingStates =
-    submissionMutation.isPending ||
-    profileUpdateMutation.isPending ||
-    studentProfileUpdateV2.isPending ||
-    userMeUpdateV2.isPending ||
-    isLoadingOrganisationPrompt ||
-    logoUpload.isPending ||
-    profilePictureUpload.isPending ||
-    resumeUpload.isPending;
 
   const totalSteps = () => {
     if (pages.length === 1) {
@@ -1016,7 +1088,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
                   py="18px"
                   fontSize="lg"
                   onClick={goToPreviousPage}
-                  // w={{ base: "calc(50% - 8px)", md: "100%" }}
                   disabled={loadingStates}
                 >
                   Back
@@ -1026,16 +1097,14 @@ export const OnboardingSteps = ({ userType }: Props) => {
               {isLastPage ? (
                 <ButtonV2
                   type="button"
-                  onClick={onSubmit}
+                  onClick={onReviewClick}
                   variant="primary"
                   h="64px"
-                  // borderRadius="xl"
                   fontSize="lg"
                   w={{
                     base: !isFirstPage ? "calc(50% - 8px)" : "100%",
                     md: !isFirstPage ? "fit-content" : "100%",
                   }}
-                  // w={!isFirstPage ? "45%" : "100%"}
                   px="28px"
                   py="18px"
                   isLoading={loadingStates}
@@ -1048,19 +1117,13 @@ export const OnboardingSteps = ({ userType }: Props) => {
                   type="submit"
                   variant="primary"
                   h="64px"
-                  // borderRadius="xl"
                   fontSize="lg"
                   w={{
                     base: !isFirstPage ? "calc(50% - 8px)" : "100%",
                     md: !isFirstPage ? "fit-content" : "100%",
                   }}
-                  // w={!isFirstPage ? "45%" : "100%"}
                   px="28px"
                   py="18px"
-                  // w={{
-                  //   base: !isFirstPage ? "calc(50% - 8px)" : "100%",
-                  //   md: "100%",
-                  // }}
                   isLoading={loadingStates}
                   disabled={loadingStates || isAbnBlocking || hasFormErrors}
                 >

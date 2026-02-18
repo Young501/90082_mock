@@ -313,7 +313,6 @@ export const TaxonomyMultiselectField = ({
                         key={val}
                         size="sm"
                         variant="subtle"
-                        // colorPalette="gray"
                         borderRadius="md"
                         px={2}
                         py="2px"
