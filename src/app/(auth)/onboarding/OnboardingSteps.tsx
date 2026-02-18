@@ -27,6 +27,7 @@ import ProgressTrack from "@/components/ProgressTrack";
 import { useAuthStore } from "@/store/authStore";
 import { CreateOrganisationPrompt } from "./CreateOrganisationPrompt";
 import Loader from "@/components/ui/Loader";
+import { ButtonV2 } from "@/components/ui/ButtonV2";
 
 interface Props {
   userType: string;
@@ -999,51 +1000,72 @@ export const OnboardingSteps = ({ userType }: Props) => {
               mt={6}
               display="flex"
               alignItems="center"
-              justifyContent={!isFirstPage ? "space-between" : "flex-end"}
-              gap={{ base: 4, md: 0 }}
+              justifyContent={{
+                base: isFirstPage ? "flex-start" : "center",
+                md: !isFirstPage ? "flex-end" : "flex-start",
+              }}
+              gap={{ base: 4, md: 4 }}
             >
               {!isFirstPage && (
-                <Button
+                <ButtonV2
                   type="button"
+                  variant="secondary"
+                  h="64px"
+                  w={{ base: "calc(50% - 8px)", md: "fit-content" }}
+                  px="28px"
+                  py="18px"
+                  fontSize="lg"
                   onClick={goToPreviousPage}
-                  variant="primary"
-                  w={{ base: "calc(50% - 8px)", md: "271px" }}
-                  style={{ borderRadius: "0px" }}
+                  // w={{ base: "calc(50% - 8px)", md: "100%" }}
                   disabled={loadingStates}
                 >
-                  Previous
-                </Button>
+                  Back
+                </ButtonV2>
               )}
 
               {isLastPage ? (
-                <Button
+                <ButtonV2
                   type="button"
                   onClick={onSubmit}
                   variant="primary"
+                  h="64px"
+                  // borderRadius="xl"
+                  fontSize="lg"
                   w={{
                     base: !isFirstPage ? "calc(50% - 8px)" : "100%",
-                    md: "271px",
+                    md: !isFirstPage ? "fit-content" : "100%",
                   }}
-                  style={{ borderRadius: "0px" }}
+                  // w={!isFirstPage ? "45%" : "100%"}
+                  px="28px"
+                  py="18px"
                   isLoading={loadingStates}
                   disabled={loadingStates || isAbnBlocking || hasFormErrors}
                 >
-                  Submit
-                </Button>
+                  Review
+                </ButtonV2>
               ) : (
-                <Button
+                <ButtonV2
                   type="submit"
                   variant="primary"
+                  h="64px"
+                  // borderRadius="xl"
+                  fontSize="lg"
                   w={{
                     base: !isFirstPage ? "calc(50% - 8px)" : "100%",
-                    md: "271px",
+                    md: !isFirstPage ? "fit-content" : "100%",
                   }}
-                  style={{ borderRadius: "0px" }}
+                  // w={!isFirstPage ? "45%" : "100%"}
+                  px="28px"
+                  py="18px"
+                  // w={{
+                  //   base: !isFirstPage ? "calc(50% - 8px)" : "100%",
+                  //   md: "100%",
+                  // }}
                   isLoading={loadingStates}
                   disabled={loadingStates || isAbnBlocking || hasFormErrors}
                 >
                   Next
-                </Button>
+                </ButtonV2>
               )}
             </Box>
           </Box>

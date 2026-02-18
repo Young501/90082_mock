@@ -1,4 +1,4 @@
-import { Box } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 import {
   UseFormRegister,
   Control,
@@ -8,8 +8,11 @@ import {
 } from "react-hook-form";
 import {
   InputField,
+  UrlInputField,
   SelectField,
   FileField,
+  ImageUploadField,
+  DocumentUploadField,
   CheckboxField,
   BooleanCheckboxField,
   SkillsPillField,
@@ -18,6 +21,8 @@ import {
   TextAreaField,
   GeocodeAutocompleteInput,
   AbnLookupField,
+  TaxonomySelectField,
+  TaxonomyMultiselectField,
 } from "@/components/fields";
 import { AbnValidationStatus, Question } from "@/types/onboarding";
 import { useMemo, useEffect, useRef, useCallback } from "react";
@@ -38,13 +43,14 @@ interface FieldRendererProps {
   onAbnValidationChange?: (status: AbnValidationStatus) => void;
   onFileRemove?: (fieldName: string) => void;
   removedFiles?: Set<string>;
+  universitySlug?: string | null;
 }
 
-const FILE_FIELD_TYPES = {
-  profile_picture_url: "image",
-  resume_url: "resume",
+const FILE_FIELD_TYPES: Record<string, "image" | "resume"> = {
+  profile_picture: "image",
+  resume: "resume",
   logo_url: "image",
-} as const;
+};
 
 export const FieldRenderer = ({
   question,
@@ -61,8 +67,14 @@ export const FieldRenderer = ({
   onAbnValidationChange,
   onFileRemove,
   removedFiles,
+  universitySlug,
 }: FieldRendererProps) => {
   const error = errors[question.field]?.message as string | undefined;
+  const taxonomyParentField = question.taxonomy_query?.parent ?? "__none__";
+  const taxonomyParentValue = useWatch({
+    control,
+    name: taxonomyParentField,
+  });
   // const fieldOptions = question.options || question.option || [];
   const rawFieldOptions = question.options || question.option || [];
   const fieldOptions = parseQuestionnaireOptions(rawFieldOptions).map(
@@ -162,29 +174,29 @@ export const FieldRenderer = ({
   ]);
 
   const renderField = () => {
-    if (
-      question.type === "text" ||
-      question.type === "location" ||
-      question.type === "url" ||
-      question.type === "email"
-    ) {
+    if (question.type === "url") {
+      return (
+        <UrlInputField
+          name={question.field}
+          label={question.label}
+          control={control}
+          error={error}
+          required={question.required}
+          placeholder={question.placeholder ?? "yourwebsite.com"}
+        />
+      );
+    }
+
+    if (question.type === "text" || question.type === "email") {
       return (
         <InputField
+          label={question.label}
           register={register(question.field)}
           error={error}
           required={question.required}
-          placeholder={`${question.label}`}
+          placeholder={question.placeholder}
           icon={question.icon}
           type={question.type}
-          inputProps={{
-            h: "60px",
-            borderRadius: "0px",
-            border: "1px solid",
-            borderColor: "#2CA9DF",
-            bg: "white",
-            fontSize: "16px",
-            px: 6,
-          }}
         />
       );
     }
@@ -213,7 +225,7 @@ export const FieldRenderer = ({
           control={control}
           error={error}
           required={question.required}
-          placeholder={question.label}
+          placeholder={question.placeholder ?? "Start typing city or address"}
           label={question.label}
           value={fieldValue}
           icon={question.icon}
@@ -223,15 +235,66 @@ export const FieldRenderer = ({
       );
     }
 
+    if (question.type === "display") {
+      return (
+        <Box mb={2}>
+          <Text fontSize="sm" fontWeight="500" color="gray.700" mb={1}>
+            {question.label}
+          </Text>
+          <Text fontSize="md" color="gray.900">
+            {fieldValue ?? "—"}
+          </Text>
+        </Box>
+      );
+    }
+
+    if (question.type === "taxonomy-select" && question.taxonomy_query) {
+      return (
+        <TaxonomySelectField
+          name={question.field}
+          label={question.label}
+          control={control}
+          taxonomyQuery={question.taxonomy_query}
+          parentValue={
+            taxonomyParentField !== "__none__" ? taxonomyParentValue : null
+          }
+          universitySlug={universitySlug}
+          error={error}
+          required={question.required}
+          filterLabel={question.filter_label}
+        />
+      );
+    }
+
+    if (question.type === "taxonomy-multiselect" && question.taxonomy_query) {
+      return (
+        <TaxonomyMultiselectField
+          name={question.field}
+          label={question.label}
+          control={control}
+          taxonomyQuery={question.taxonomy_query}
+          parentValue={
+            taxonomyParentField !== "__none__" ? taxonomyParentValue : null
+          }
+          universitySlug={universitySlug}
+          error={error}
+          required={question.required}
+          maxSelection={question.max_selection}
+          filterLabel={question.filter_label}
+        />
+      );
+    }
+
     if (question.type === "number") {
+      const numLabel = question.filter_label || question.label;
       return (
         <InputField
-          label={question.filter_label || question.label}
+          label={numLabel}
           register={register(question.field)}
           error={error}
           required={question.required}
           type="number"
-          placeholder={`Enter ${question.filter_label || question.label.toLowerCase()}`}
+          placeholder={question.placeholder}
         />
       );
     }
@@ -329,28 +392,21 @@ export const FieldRenderer = ({
       );
     }
 
-    if (question.type === "file") {
-      const fileType =
-        FILE_FIELD_TYPES[question.field as keyof typeof FILE_FIELD_TYPES];
-      if (!fileType) {
-        return null;
-      }
+    if (question.type === "file-image") {
       return (
-        <FileField
+        <ImageUploadField
           key={`${question.field}-${fileUploadKey || 0}`}
           name={question.field}
           label={question.label}
           control={control}
-          fileType={fileType}
           error={error}
           required={question.required}
-          labelPosition="bottom"
           description={
-            question.field === "profile_picture_url" ||
-            question.field === "logo_url" ||
-            question.field === "resume_url"
-              ? question.field
-              : undefined
+            question.field === "profile_picture"
+              ? "profile_picture"
+              : question.field === "logo_url"
+                ? "logo_url"
+                : undefined
           }
           onRemove={
             onFileRemove ? () => onFileRemove(question.field) : undefined
@@ -359,13 +415,55 @@ export const FieldRenderer = ({
       );
     }
 
+    if (question.type === "file-document") {
+      return (
+        <DocumentUploadField
+          key={`${question.field}-${fileUploadKey || 0}`}
+          name={question.field}
+          label={question.label}
+          control={control}
+          error={error}
+          required={question.required}
+          onRemove={
+            onFileRemove ? () => onFileRemove(question.field) : undefined
+          }
+        />
+      );
+    }
+
+    // if (question.type === "file") {
+    //   const fileType = FILE_FIELD_TYPES[question.field] ?? "image";
+    //   return (
+    //     <FileField
+    //       key={`${question.field}-${fileUploadKey || 0}`}
+    //       name={question.field}
+    //       label={question.label}
+    //       control={control}
+    //       fileType={fileType}
+    //       error={error}
+    //       required={question.required}
+    //       labelPosition="top"
+    //       description={
+    //         question.field === "profile_picture" ||
+    //         question.field === "logo_url" ||
+    //         question.field === "resume"
+    //           ? question.field
+    //           : undefined
+    //       }
+    //       onRemove={
+    //         onFileRemove ? () => onFileRemove(question.field) : undefined
+    //       }
+    //     />
+    //   );
+    // }
+
     if (question.type === "textarea") {
       return (
         <TextAreaField
           register={register(question.field)}
           error={error}
           required={question.required}
-          placeholder={question.label}
+          placeholder={question.placeholder ?? question.label}
           icon={question.icon}
           label={question.label}
         />

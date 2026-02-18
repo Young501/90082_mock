@@ -46,7 +46,9 @@ export const SelectField = ({
         const label = typeof option === "string" ? option : option.label;
         const value = typeof option === "string" ? option : option.value;
         const key =
-          typeof option === "object" && "key" in option ? option.key : undefined;
+          typeof option === "object" && "key" in option
+            ? option.key
+            : undefined;
         return { label, value, key };
       }),
     [options]
@@ -97,7 +99,7 @@ export const SelectField = ({
           )}
           {multiple && maxSelection && (
             <span
-              style={{ color: "#666", marginLeft: "8px", fontSize: "14px" }}
+              style={{ color: "#666", marginLeft: "8px", fontSize: "11px" }}
             >
               (Max {maxSelection})
             </span>
@@ -118,10 +120,17 @@ export const SelectField = ({
             onBlur={field.onBlur}
             width="100%"
             size="md"
+            // h="48px"
           >
             <Select.HiddenSelect />
             <Select.Control>
-              <Select.Trigger>
+              <Select.Trigger
+                h="48px"
+                //  px={6}
+                borderRadius="sm"
+                border="1px solid"
+                borderColor="#E4E4E7"
+              >
                 <Select.ValueText>
                   {field.value
                     ? multiple

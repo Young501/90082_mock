@@ -1,11 +1,22 @@
 "use client";
 
-import { useMemo } from "react";
-import { Control } from "react-hook-form";
+import { useMemo, useState } from "react";
+import {
+  Box,
+  Field,
+  Flex,
+  HStack,
+  Input,
+  Popover,
+  Tag,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
+import { ChevronDown } from "lucide-react";
+import { Control, Controller } from "react-hook-form";
 import { useTaxonomy } from "@/services/shared";
 import { TaxonomyNode } from "@/types/shared";
 import { TaxonomyQueryParams } from "@/types/shared";
-import { SelectField } from "./SelectField";
 
 interface TaxonomyMultiselectFieldProps {
   name: string;
@@ -18,6 +29,7 @@ interface TaxonomyMultiselectFieldProps {
   required?: boolean;
   maxSelection?: number;
   filterLabel?: string;
+  placeholder?: string;
 }
 
 export const TaxonomyMultiselectField = ({
@@ -31,7 +43,11 @@ export const TaxonomyMultiselectField = ({
   required,
   maxSelection,
   filterLabel,
+  placeholder = "Search and select skills",
 }: TaxonomyMultiselectFieldProps) => {
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+
   const params = useMemo(() => {
     const university =
       taxonomyQuery.university === "dynamic"
@@ -55,6 +71,15 @@ export const TaxonomyMultiselectField = ({
     }));
   }, [nodes]);
 
+  const filteredOptions = useMemo(() => {
+    if (!search.trim()) return options;
+    const lower = search.toLowerCase();
+    return options.filter(
+      (opt) =>
+        typeof opt.label === "string" && opt.label.toLowerCase().includes(lower)
+    );
+  }, [options, search]);
+
   if (isLoading) {
     return (
       <div style={{ padding: "12px", color: "#666" }}>Loading options...</div>
@@ -62,15 +87,263 @@ export const TaxonomyMultiselectField = ({
   }
 
   return (
-    <SelectField
-      name={name}
-      label={filterLabel || label}
-      control={control}
-      options={options}
-      error={error}
-      required={required}
-      multiple={true}
-      maxSelection={maxSelection}
-    />
+    <Field.Root invalid={!!error}>
+      {(filterLabel || label) && (
+        <Field.Label
+          fontSize="sm"
+          fontWeight="500"
+          color="black"
+          display="block"
+        >
+          {filterLabel || label}
+          {required && (
+            <span style={{ color: "red", marginLeft: "4px" }}>*</span>
+          )}
+        </Field.Label>
+      )}
+      <Controller
+        name={name}
+        control={control}
+        defaultValue={[]}
+        render={({ field }) => {
+          const selectedValues: string[] = Array.isArray(field.value)
+            ? field.value
+            : [];
+
+          const handleCheckChange = (optValue: string, checked: boolean) => {
+            if (checked) {
+              if (maxSelection && selectedValues.length >= maxSelection) return;
+              field.onChange([...selectedValues, optValue]);
+            } else {
+              field.onChange(selectedValues.filter((v) => v !== optValue));
+            }
+          };
+
+          return (
+            <VStack align="stretch" gap={2} w="100%">
+              <Popover.Root
+                positioning={{ placement: "bottom-start", sameWidth: true }}
+                open={open}
+                onOpenChange={(e) => setOpen(e.open)}
+              >
+                <Popover.Trigger asChild>
+                  <button
+                    type="button"
+                    style={{
+                      width: "100%",
+                      height: "48px",
+                      padding: "0 16px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 8,
+                      borderRadius: "4px",
+                      border: "1px solid #E4E4E7",
+                      background: "white",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      font: "inherit",
+                    }}
+                  >
+                    <span
+                      style={{
+                        flex: 1,
+                        fontSize: "14px",
+                        color: "#9CA3AF",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {placeholder}
+                    </span>
+                    <ChevronDown
+                      size={20}
+                      style={{
+                        flexShrink: 0,
+                        color: "#71717A",
+                        transition: "transform 0.2s",
+                        transform: open ? "rotate(180deg)" : "none",
+                      }}
+                    />
+                  </button>
+                </Popover.Trigger>
+                <Popover.Positioner>
+                  <Popover.Content
+                    w="var(--reference-width)"
+                    borderRadius="md"
+                    border="1px solid"
+                    borderColor="#E4E4E7"
+                    boxShadow="md"
+                    bg="white"
+                    p={0}
+                    overflow="hidden"
+                  >
+                    <Box p={2} borderBottomWidth="1px" borderColor="#E4E4E7">
+                      <Input
+                        placeholder={placeholder}
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        size="sm"
+                        borderRadius="md"
+                        border="1px solid"
+                        borderColor="#E4E4E7"
+                        bg="gray.50"
+                        _focus={{
+                          borderColor: "#E4E4E7",
+                          boxShadow: "0 0 0 1px #E4E4E7",
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === " ") e.stopPropagation();
+                        }}
+                      />
+                    </Box>
+                    <Box maxH="240px" overflowY="auto" p={2}>
+                      {filteredOptions.length === 0 ? (
+                        <Box
+                          py={4}
+                          color="#888"
+                          fontSize="sm"
+                          textAlign="center"
+                        >
+                          No options
+                        </Box>
+                      ) : (
+                        <VStack align="stretch" gap={0}>
+                          {filteredOptions.map((opt) => {
+                            const isChecked = selectedValues.includes(
+                              opt.value
+                            );
+                            const isDisabled =
+                              !isChecked &&
+                              !!maxSelection &&
+                              selectedValues.length >= maxSelection;
+
+                            return (
+                              <HStack
+                                key={String(opt.key ?? opt.value)}
+                                role="button"
+                                tabIndex={0}
+                                py={2}
+                                px={2}
+                                gap={2}
+                                align="center"
+                                borderRadius="md"
+                                w="100%"
+                                textAlign="left"
+                                bg="transparent"
+                                border="none"
+                                cursor={isDisabled ? "not-allowed" : "pointer"}
+                                opacity={isDisabled ? 0.6 : 1}
+                                _hover={
+                                  !isDisabled ? { bg: "gray.50" } : undefined
+                                }
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  if (isDisabled) return;
+                                  handleCheckChange(opt.value, !isChecked);
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" || e.key === " ") {
+                                    e.preventDefault();
+                                    if (isDisabled) return;
+                                    handleCheckChange(opt.value, !isChecked);
+                                  }
+                                }}
+                              >
+                                <Box
+                                  w="4"
+                                  h="4"
+                                  flexShrink={0}
+                                  border="1px solid"
+                                  borderColor={
+                                    isChecked ? "#2AA8E0" : "#E4E4E7"
+                                  }
+                                  bg={isChecked ? "#2AA8E0" : "transparent"}
+                                  borderRadius="2px"
+                                  display="flex"
+                                  alignItems="center"
+                                  justifyContent="center"
+                                >
+                                  {isChecked && (
+                                    <svg
+                                      width="12"
+                                      height="12"
+                                      viewBox="0 0 12 12"
+                                      fill="none"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path
+                                        d="M2 6L5 9L10 3"
+                                        stroke="white"
+                                        strokeWidth="1.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      />
+                                    </svg>
+                                  )}
+                                </Box>
+                                <Box as="span" fontSize="sm" color="#000000">
+                                  {opt.label}
+                                </Box>
+                              </HStack>
+                            );
+                          })}
+                        </VStack>
+                      )}
+                    </Box>
+                  </Popover.Content>
+                </Popover.Positioner>
+              </Popover.Root>
+
+              {maxSelection && (
+                <Text fontSize="xs" color="#71717A">
+                  Maximum {maxSelection} skills
+                </Text>
+              )}
+
+              {selectedValues.length > 0 && (
+                <Flex wrap="wrap" gap={2} mt={1}>
+                  {selectedValues.map((val) => {
+                    const opt = options.find((o) => o.value === val);
+                    const label = opt ? opt.label : val;
+                    return (
+                      <Tag.Root
+                        key={val}
+                        size="sm"
+                        variant="subtle"
+                        // colorPalette="gray"
+                        borderRadius="md"
+                        px={2}
+                        py="2px"
+                        h="24px"
+                        bg="#F4F4F5"
+                        boxShadow="0px 0px 1px 0px #27272A inset"
+                      >
+                        <Tag.Label fontSize="sm" color="#27272A">
+                          {label}
+                        </Tag.Label>
+                        <Tag.EndElement>
+                          <Tag.CloseTrigger
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleCheckChange(val, false);
+                            }}
+                            aria-label={`Remove ${label}`}
+                          />
+                        </Tag.EndElement>
+                      </Tag.Root>
+                    );
+                  })}
+                </Flex>
+              )}
+            </VStack>
+          );
+        }}
+      />
+      {error && <Field.ErrorText>{error}</Field.ErrorText>}
+    </Field.Root>
   );
 };
