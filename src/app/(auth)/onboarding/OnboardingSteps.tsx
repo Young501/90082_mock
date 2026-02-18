@@ -1015,6 +1015,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
             control={control}
             errors={errors}
             setError={setError}
+            setValue={setValue}
             clearErrors={clearErrors}
             unregister={unregister}
             onFieldUnregistered={handleFieldUnregistered}

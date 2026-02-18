@@ -86,6 +86,10 @@ export const TaxonomyMultiselectField = ({
     );
   }
 
+  if (options.length === 0) {
+    return null;
+  }
+
   return (
     <Field.Root invalid={!!error}>
       {(filterLabel || label) && (

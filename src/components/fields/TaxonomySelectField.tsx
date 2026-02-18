@@ -59,6 +59,10 @@ export const TaxonomySelectField = ({
     );
   }
 
+  if (options.length === 0) {
+    return null;
+  }
+
   return (
     <SelectField
       name={name}
