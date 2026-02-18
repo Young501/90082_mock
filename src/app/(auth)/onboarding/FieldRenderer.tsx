@@ -237,14 +237,16 @@ export const FieldRenderer = ({
 
     if (question.type === "display") {
       return (
-        <Box mb={2}>
-          <Text fontSize="sm" fontWeight="500" color="gray.700" mb={1}>
-            {question.label}
-          </Text>
-          <Text fontSize="md" color="gray.900">
-            {fieldValue ?? "—"}
-          </Text>
-        </Box>
+        <InputField
+          label={question.filter_label || question.label}
+          register={register(question.field)}
+          error={error}
+          inputProps={{
+            readOnly: true,
+            bg: "#F4F4F5",
+            cursor: "default",
+          }}
+        />
       );
     }
 
