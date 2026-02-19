@@ -9,12 +9,13 @@ import {
   VStack,
   HStack,
   Button,
+  Tag,
 } from "@chakra-ui/react";
 import { PenLine, FileText, Link as LinkIcon } from "lucide-react";
 import { Page, Question } from "@/types/onboarding";
 import { formatAnswerForDisplay } from "@/utils/formatAnswer";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
-import { TaxonomyValueDisplay } from "./TaxonomyValueDisplay";
+import { useTaxonomyLabels } from "@/hooks/useTaxonomyLabels";
 import Link from "next/link";
 
 const SKIP_TYPES = ["abn_lookup", "display"];
@@ -42,6 +43,41 @@ function ImagePreview({ src, isFile }: { src: string; isFile: boolean }) {
         style={{ width: "100%", height: "100%", objectFit: "cover" }}
       />
     </Box>
+  );
+}
+
+function TaxonomyLabelsDisplay({
+  question,
+  value,
+  formData,
+  university,
+}: {
+  question: Question;
+  value: string | string[];
+  formData: Record<string, any>;
+  university?: { slug?: string; name?: string } | null;
+}) {
+  const labels = useTaxonomyLabels(question, value, formData, university);
+  if (labels.length === 0) return null;
+  return (
+    <Flex wrap="wrap" gap={2}>
+      {labels.map((label, i) => (
+        <Tag.Root
+          key={`${question.field}-${i}`}
+          variant="subtle"
+          borderRadius="md"
+          px={2}
+          py="4px"
+          h="26px"
+          bg="#F4F4F5"
+          boxShadow="0px 0px 1px 0px #27272A inset"
+        >
+          <Tag.Label fontSize="sm" lineHeight="unset" color="#27272A">
+            {label}
+          </Tag.Label>
+        </Tag.Root>
+      ))}
+    </Flex>
   );
 }
 
@@ -120,7 +156,7 @@ export function ReviewPreview({
       question.type === "taxonomy-select"
     ) {
       return (
-        <TaxonomyValueDisplay
+        <TaxonomyLabelsDisplay
           question={question}
           value={value}
           formData={formData}
