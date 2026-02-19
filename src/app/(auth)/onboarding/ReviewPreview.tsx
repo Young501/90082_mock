@@ -8,13 +8,13 @@ import {
   Flex,
   VStack,
   HStack,
-  Tag,
   Button,
 } from "@chakra-ui/react";
 import { PenLine, FileText, Link as LinkIcon } from "lucide-react";
 import { Page, Question } from "@/types/onboarding";
 import { formatAnswerForDisplay } from "@/utils/formatAnswer";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
+import { TaxonomyValueDisplay } from "./TaxonomyValueDisplay";
 import Link from "next/link";
 
 const SKIP_TYPES = ["abn_lookup", "display"];
@@ -60,6 +60,7 @@ interface ReviewPreviewProps {
   onBack: () => void;
   userType: string;
   isLoading?: boolean;
+  university?: { slug?: string; name?: string } | null;
 }
 
 export function ReviewPreview({
@@ -70,6 +71,7 @@ export function ReviewPreview({
   onBack,
   userType,
   isLoading = false,
+  university,
 }: ReviewPreviewProps) {
   const collectQuestions = (
     questions: Question[],
@@ -117,27 +119,13 @@ export function ReviewPreview({
       question.type === "taxonomy-multiselect" ||
       question.type === "taxonomy-select"
     ) {
-      const arr = Array.isArray(value) ? value : [value];
-      const labels = arr.map((v) => formatAnswerForDisplay(question, v));
       return (
-        <Flex wrap="wrap" gap={2}>
-          {labels.map((label, i) => (
-            <Tag.Root
-              key={`${question.field}-${i}`}
-              variant="subtle"
-              borderRadius="md"
-              px={2}
-              py="4px"
-              h="26px"
-              bg="#F4F4F5"
-              boxShadow="0px 0px 1px 0px #27272A inset"
-            >
-              <Tag.Label fontSize="sm" lineHeight="unset" color="#27272A">
-                {label}
-              </Tag.Label>
-            </Tag.Root>
-          ))}
-        </Flex>
+        <TaxonomyValueDisplay
+          question={question}
+          value={value}
+          formData={formData}
+          university={university}
+        />
       );
     }
 

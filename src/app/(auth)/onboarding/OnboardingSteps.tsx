@@ -923,6 +923,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
             onBack={() => setShowReviewPreview(false)}
             userType={userType}
             isLoading={loadingStates}
+            university={userProfile?.university}
           />
         </Box>
       </Box>

@@ -110,6 +110,7 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
                         <Text
                           fontSize="xs"
                           color="#52525B"
+                          textAlign="center"
                           // truncate
                           display="block"
                         >
@@ -134,7 +135,12 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
                         overflow="hidden"
                         cursor="default"
                       >
-                        <Text fontSize="xs" color="#52525B" display="block">
+                        <Text
+                          fontSize="xs"
+                          color="#52525B"
+                          display="block"
+                          textAlign="center"
+                        >
                           {profile.course_progression}
                         </Text>
                       </Box>
