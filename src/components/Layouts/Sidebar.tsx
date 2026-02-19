@@ -44,18 +44,6 @@ interface SidebarMenuItem {
   badge?: number | null;
 }
 
-interface QuickLinkItem {
-  label: string;
-  href: string;
-}
-
-const QUICK_LINKS: QuickLinkItem[] = [
-  { label: "University Portal", href: "#" },
-  { label: "Career Services", href: "#" },
-  { label: "Support Centre", href: "/contact/" },
-  { label: "FAQs", href: "/contact/#faqs" },
-];
-
 interface SidebarProps {
   isProtected?: boolean;
   unreadMessageCount?: number;
@@ -178,8 +166,7 @@ const Sidebar = ({
   };
 
   const isActive = (href: string) => {
-    if (href === "/home/")
-      return pathname === "/home" || pathname === "/home/";
+    if (href === "/home/") return pathname === "/home" || pathname === "/home/";
     if (href === "/dashboard/")
       return pathname === "/dashboard" || pathname === "/dashboard/";
     if (href === "/discover/") return pathname?.startsWith("/discover");
@@ -456,28 +443,36 @@ const Sidebar = ({
             color="#52525B"
             letterSpacing="wider"
             mb={3}
+            mt={3}
             pl={3}
+            textTransform={"uppercase"}
           >
-            {userProfile?.university?.name} Links
+            {userProfile?.university?.name}
           </Text>
-          <VStack align="stretch" gap={2}>
-            {Object.entries(userProfile?.university?.links ?? {}).map(
-              ([label, url]) => (
-                <ChakraLink
-                  key={label}
-                  href={url}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  color="#52525B"
-                  fontSize="md"
-                  fontWeight={500}
-                >
-                  <HStack p={3} gap={3} _hover={{ color: "blue.600" }}>
-                    <ExternalLink size={16} color="#71717A" />
-                    <Text>{label}</Text>
-                  </HStack>
-                </ChakraLink>
-              )
-            )}
+          <VStack align="stretch" gap={0.1}>
+            {(userProfile?.university?.links ?? []).map((link) => (
+              <ChakraLink
+                key={link.url}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                color="#52525B"
+                fontSize="xs"
+                fontWeight={500}
+                _hover={{ color: "blue.600" }}
+                _focus={{
+                  boxShadow: "none",
+                  outline: "none",
+                }}
+              >
+                <HStack p={3} gap={3} _hover={{ color: "blue.600" }}>
+                  <ExternalLink size={16} color="#71717A" />
+                  <Text fontSize="sm" color="#52525B">
+                    {link.label}
+                  </Text>
+                </HStack>
+              </ChakraLink>
+            ))}
           </VStack>
         </Box>
       )}
