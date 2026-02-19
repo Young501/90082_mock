@@ -96,6 +96,7 @@ export interface OrganisationProfile {
   contact_email?: string;
   description?: string;
   actively_hiring?: boolean;
+  matchPercentage?: number;
   members?: {
     id?: number;
     first_name?: string;
