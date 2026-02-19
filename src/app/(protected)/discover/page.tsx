@@ -4,22 +4,18 @@ import React, { useEffect, useMemo, useCallback, useState } from "react";
 import {
   Box,
   VStack,
-  Heading,
   Text,
-  Separator,
   Flex,
   Spinner,
   Alert,
   Button,
-  Image,
-  Icon,
   HStack,
   Portal,
   IconButton,
 } from "@chakra-ui/react";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { LockIcon, FolderHeart, X } from "lucide-react";
+import { MessageCircleX } from "lucide-react";
 import { useOpportunityFilter } from "@/hooks/useOpportunityFilter";
 import { OpportunityFilters } from "./OpportunityFilters";
 import { DiscoveryResultBox } from "./DiscoveryResultBox";
@@ -38,6 +34,7 @@ import { AccessInfo } from "@/types/opportunities";
 import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
 import { useFolders } from "@/services/folder";
 import { OpportunityDescriptionCard } from "./cards/OpportunityDescriptionCard";
+import { OpportunityNotEnrolledCard } from "./cards/OpportunityNotEnrolledCard";
 import DiscoveryFolderCard from "./DiscoveryFolderCard";
 import { CreateFolderModal } from "./CreateFolderModal";
 import type { DiscoveryFolderItem } from "./DiscoveryFolderCard";
@@ -468,74 +465,12 @@ export default function DiscoveryPage() {
               </Box>
             </Box>
           ) : (
-            /* Not enrolled user - show enrollment interface */
-            <Box maxW="800px" mx="auto" w="100%" overflow="hidden">
-              <Flex
-                direction={{ base: "column", md: "row" }}
-                align="center"
-                justify="center"
-                gap={{ base: 8, lg: 16 }}
-              >
-                <Box flexShrink={0}>
-                  <Image
-                    src="/assets/discoverNothing.png"
-                    alt="Discover"
-                    width={400}
-                    height={300}
-                    style={{
-                      height: "auto",
-                      width: "100%",
-                      maxWidth: "300px",
-                    }}
-                  />
-                </Box>
-                <VStack align="flex-start" gap={6} maxW="500px" w="100%">
-                  <Text fontSize="lg" color="gray.600">
-                    {opportunity.description ||
-                      "Ready to connect with industry partners seeking university talent? Join the Opportunity to access part-time, casual, and graduate roles within your university community."}
-                  </Text>
-
-                  {(opportunity.start_date || opportunity.end_date) && (
-                    <VStack align="flex-start" gap={2} w="100%">
-                      {opportunity.start_date && (
-                        <Text fontSize="sm" color="gray.500">
-                          <strong>Start Date:</strong>{" "}
-                          {new Date(
-                            opportunity.start_date
-                          ).toLocaleDateString()}
-                        </Text>
-                      )}
-                      {opportunity.end_date && (
-                        <Text fontSize="sm" color="gray.500">
-                          <strong>End Date:</strong>{" "}
-                          {new Date(opportunity.end_date).toLocaleDateString()}
-                        </Text>
-                      )}
-                    </VStack>
-                  )}
-                  <Button
-                    colorScheme="green"
-                    bg="green.600"
-                    color="white"
-                    _hover={{ bg: "green.700" }}
-                    size="lg"
-                    borderRadius="xl"
-                    h="50px"
-                    w={{ base: "full", md: "160px" }}
-                    onClick={handleEnroll}
-                    loading={isSubmitting}
-                    disabled={isSubmitting}
-                  >
-                    {accessInfo?.next_action === "subscribe" && (
-                      <Icon as={LockIcon} />
-                    )}
-                    {accessInfo?.next_action === "subscribe"
-                      ? "Subscribe"
-                      : "Enroll"}
-                  </Button>
-                </VStack>
-              </Flex>
-            </Box>
+            <OpportunityNotEnrolledCard
+              opportunity={opportunity}
+              accessInfo={accessInfo}
+              onEnroll={handleEnroll}
+              isSubmitting={isSubmitting}
+            />
           )}
         </VStack>
       </Box>
@@ -563,25 +498,37 @@ export default function DiscoveryPage() {
           </Flex>
         ) : !accessibleOpportunities || accessibleOpportunities.length === 0 ? (
           // No opportunities available
-          <Flex justify="center" align="center" minH="400px">
-            <VStack gap={6} align="center" textAlign="center">
-              <Image
-                src="/assets/discoverNothing.png"
-                alt="No opportunities"
-                width={300}
-                height={200}
-                style={{ height: "auto", width: "100%", maxWidth: "200px" }}
-              />
-              <VStack gap={4} align="center">
-                <Heading size="lg" color="#282F68">
-                  You haven&apos;t added any opportunities yet.
-                </Heading>
-                <Text color="gray.600" fontSize="lg" maxW="500px">
-                  Please accept an opportunity invitation first, and then
-                  you&apos;ll be able to start discovering and connecting with
-                  other users.
-                </Text>
-              </VStack>
+          <Flex
+            justify="center"
+            align="center"
+            h="100%"
+            // minH="400px"
+            minH="calc(100vh - 200px)"
+          >
+            <VStack
+              h="100%"
+              align="center"
+              justify="center"
+              gap={6}
+              w="100%"
+              maxW="374px"
+              mx="auto"
+              my="auto"
+            >
+              <Box display="flex" alignItems="center" justifyContent="center">
+                <MessageCircleX size={64} color="#52525B" />
+              </Box>
+              <Text fontWeight="semibold" fontSize="xl">
+                No opportunities found yet
+              </Text>
+              <Text
+                fontSize="lg"
+                color="#52525B"
+                textAlign="center"
+                maxW="310px"
+              >
+                No opportunities found. Please check back later.
+              </Text>
             </VStack>
           </Flex>
         ) : null}
