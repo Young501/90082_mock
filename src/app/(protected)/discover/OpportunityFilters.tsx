@@ -391,7 +391,7 @@ export function OpportunityFilters({
       borderColor="#E4E4E7"
       p={{ base: 4, md: 5 }}
       w="100%"
-      maxW="261px"
+      minW="261px"
       h="fit-content"
     >
       <VStack align="stretch" gap={2}>

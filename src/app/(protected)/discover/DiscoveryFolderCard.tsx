@@ -48,7 +48,7 @@ export default function DiscoveryFolderCard({
       borderColor="#E4E4E7"
       h="fit-content"
       w="100%"
-      maxW={inDrawer ? "none" : "261px"}
+      minW={inDrawer ? "none" : "261px"}
     >
       <VStack align="stretch" gap={4}>
         {/* Header: icon + "My Folder" */}
