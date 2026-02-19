@@ -4,7 +4,6 @@ import { useAuthStore } from "@/store/authStore";
 import { Opportunity, AccessibleOpportunity } from "@/types/opportunities";
 import { AbnValidationResponse, TaxonomyQueryParams } from "@/types/shared";
 
-
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
 
@@ -56,19 +55,19 @@ export function useProfilePictureDelete() {
   });
 }
 
-export function useResumeUpload(userType: string) {
+export function useResumeUpload() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append("file", file);
       return apiRequest({
-        endpoint: API_ENDPOINTS.RESUME_UPLOAD(userType),
+        endpoint: API_ENDPOINTS.RESUME_UPLOAD,
         body: formData,
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
+      queryClient.invalidateQueries({ queryKey: ["user-profile", "student"] });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
@@ -91,10 +90,7 @@ export function useProfileUpdate(userType: string) {
   });
 }
 
-export function useOnboardingPages(
-  userType: string,
-  enabled: boolean = true
-) {
+export function useOnboardingPages(userType: string, enabled: boolean = true) {
   return useQuery({
     queryKey: ["onboarding-pages", userType],
     queryFn: () =>
@@ -203,8 +199,7 @@ export function useUserProfile(userType: string) {
 export function useStudentProfileV2(enabled: boolean = true) {
   return useQuery({
     queryKey: ["student-profile-v2"],
-    queryFn: () =>
-      apiRequest({ endpoint: API_ENDPOINTS.STUDENT_PROFILE_V2 }),
+    queryFn: () => apiRequest({ endpoint: API_ENDPOINTS.STUDENT_PROFILE_V2 }),
     enabled,
     staleTime: 5 * 60 * 1000,
     retry: (failureCount, error: any) => {
@@ -229,7 +224,7 @@ export function useTaxonomy(params: TaxonomyQueryParams | null) {
   const queryParams: Record<string, string> = {};
   if (params) {
     queryParams.type = params.type;
-      if (
+    if (
       params.university != null &&
       params.university !== "" &&
       params.university !== "dynamic"

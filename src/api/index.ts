@@ -190,6 +190,10 @@ export const API_ENDPOINTS = {
     method: "PATCH",
     url: "/api/v2/profiles/student/me/",
   },
+  RESUME_UPLOAD: {
+    method: "POST",
+    url: `/api/v2/profiles/student/me/upload-resume/`,
+  },
   USER_ME_V2: {
     method: "GET",
     url: "/api/v2/users/me/",
@@ -202,10 +206,6 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: "/api/v2/taxonomy/",
   },
-  RESUME_UPLOAD: (userType: string): ApiEndpoint => ({
-    method: "POST",
-    url: `/api/v1/${userType}/upload-resume`,
-  }),
   LOGO_UPLOAD: (userType: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/${userType}/upload-logo`,
@@ -410,12 +410,7 @@ export async function apiRequest<T = any>({
   const { method, url } = endpoint;
 
   const config = {
-    method: method.toLowerCase() as
-      | "get"
-      | "post"
-      | "put"
-      | "delete"
-      | "patch",
+    method: method.toLowerCase() as "get" | "post" | "put" | "delete" | "patch",
     url,
     headers: {
       ...headers,

@@ -169,7 +169,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const userMeUpdateV2 = useUserMeUpdateV2();
   const { data: studentProfileV2 } = useStudentProfileV2();
   const profilePictureUpload = useProfilePictureUpload();
-  const resumeUpload = useResumeUpload(userType);
+  const resumeUpload = useResumeUpload();
   const logoUpload = useLogoUpload(userType);
   const schema = createPageSchema(currentPage?.questions || []);
   const [isLoadingOrganisationPrompt, setIsLoadingOrganisationPrompt] =
@@ -956,7 +956,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
       abnStatus === "invalid" ||
       abnStatus === "error");
   const organisationName = watch("name");
-
 
   return (
     <Box

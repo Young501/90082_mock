@@ -43,7 +43,7 @@ export const TaxonomyMultiselectField = ({
   required,
   maxSelection,
   filterLabel,
-  placeholder = "Search and select skills",
+  placeholder = "Search and select options",
 }: TaxonomyMultiselectFieldProps) => {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
