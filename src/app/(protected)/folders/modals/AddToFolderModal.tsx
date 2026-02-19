@@ -158,9 +158,7 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
             <HStack justify="space-between" align="flex-start">
               <VStack align="stretch" gap={1}>
                 <Text fontSize="xl" fontWeight="600" color="#18181B">
-                  Save{" "}
-                  {entityLabel.charAt(0).toUpperCase() + entityLabel.slice(1)}{" "}
-                  to Folder
+                  Save {entityLabel} to Folder
                 </Text>
                 <Text fontSize="sm" color="#71717A">
                   Select folder(s) to save this {entityLabel} to. Folders are
@@ -352,15 +350,20 @@ function FolderSelectCard({
         )}
       </Box>
 
-      <VStack align="flex-start" h="100%">
+      <Box
+        display="flex"
+        flexDirection="column"
+        h="100%"
+        justifyContent="space-between"
+      >
         <Image
           src="/assets/grouporg2.png"
           alt="Folder"
           width={60}
           height={32}
-          objectFit="contain"
+          style={{ objectFit: "contain" }}
         />
-        <VStack align="stretch" mt="auto" gap={1} flex={1} minW={0}>
+        <VStack align="stretch" gap={1} minW={0}>
           <Text fontSize="sm" fontWeight="600" color="#18181B" lineClamp={2}>
             {folder.name}
           </Text>
@@ -373,7 +376,7 @@ function FolderSelectCard({
             </Text>
           )}
         </VStack>
-      </VStack>
+      </Box>
     </Box>
   );
 }

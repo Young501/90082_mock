@@ -83,6 +83,7 @@ export function DiscoveryResultBox({
       border="1px solid"
       borderColor="#E4E4E7"
       p={{ base: 4, md: 5 }}
+      h={{ base: "100%", lg: "calc(100vh - 355px)" }}
     >
       <VStack align="stretch" gap={3}>
         <HStack justify="space-between" align="center">
@@ -131,7 +132,12 @@ export function DiscoveryResultBox({
         </Box>
       ) : count > 0 ? (
         <>
-          <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
+          <SimpleGrid
+            columns={{ base: 1, md: 2 }}
+            gap={4}
+            h="100%"
+            overflowY="auto"
+          >
             {results.map((user) => {
               const key = user.id || Math.random();
 

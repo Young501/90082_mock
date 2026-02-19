@@ -35,6 +35,7 @@ export function OrganisationCard({
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [addedToFolder, setAddedToFolder] = useState(false);
 
   const getCompanyLogo = () => {
     return organisation.logo_url || organisation.profile_picture_url;
@@ -92,9 +93,6 @@ export function OrganisationCard({
           borderColor: "#D4D4D8",
         }}
       >
-        {/* Save/Bookmark icon */}
-
-        {/* <Box p={4}> */}
         <HStack
           align="flex-start"
           gap={3}
@@ -216,8 +214,8 @@ export function OrganisationCard({
               top={4}
               right={4}
               cursor="pointer"
-              color="#71717A"
-              _hover={{ color: "#2AA8E0", bg: "#F4F4F5" }}
+              color={addedToFolder ? "#2AA8E0" : "#71717A"}
+              _hover={{ color: "#2AA8E0" }}
               onClick={handleAddToFolder}
               aria-label={isInFolder ? "Remove from folder" : "Add to folder"}
             >
@@ -229,7 +227,10 @@ export function OrganisationCard({
                   />
                 </Box>
               ) : (
-                <FolderHeart size={18} strokeWidth={1.5} />
+                <FolderHeart
+                  size={18}
+                  strokeWidth={addedToFolder ? 2.5 : 1.5}
+                />
               )}
             </Box>
           )}
@@ -274,7 +275,6 @@ export function OrganisationCard({
         />
       )}
 
-
       {/* we need to find a way to access right organisation ID from here to navigate to the contact modal directly */}
 
       {/* {showContactModal && organisation.id && (
@@ -303,8 +303,8 @@ export function OrganisationCard({
             organisationId={organisation.id}
             userName={organisation.name || "Organisation"}
             opportunitySlug={opportunitySlug}
-            onAddToFolder={() => {}}
-            onResetBackground={() => {}}
+            onAddToFolder={() => setAddedToFolder(true)}
+            onResetBackground={() => setAddedToFolder(false)}
             memberType="organisation"
           />
         )}
