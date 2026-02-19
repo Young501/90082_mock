@@ -4,6 +4,7 @@ export type FilterKind = "scalar" | "array" | "boolean" | "range";
 
 export interface FacetOption {
   value: string;
+  label: string;
   count: number;
 }
 

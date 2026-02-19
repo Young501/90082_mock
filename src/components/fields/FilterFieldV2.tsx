@@ -63,7 +63,7 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
                   }
                 />
                 <Checkbox.Label fontSize="xs" color="#3F3F46">
-                  {option.value}
+                  {option.label}
                 </Checkbox.Label>
               </Checkbox.Root>
               <Text fontSize="xs" color="#52525B">
@@ -175,7 +175,7 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
                       }
                     />
                     <Checkbox.Label fontSize="xs" color="#3F3F46">
-                      {option.value}
+                      {option.label}
                     </Checkbox.Label>
                   </Checkbox.Root>
                   <Text fontSize="xs" color="#52525B">

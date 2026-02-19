@@ -58,13 +58,11 @@ export const useOnboardingLogic = (userType: string) => {
     return showOrgPages ? organisationPages : userPages;
   }, [userType, currentPhase, pagesData, getIsOrganisationMemberOnboarding]);
 
-  console.log("pages", pages);
 
   const currentPage = useMemo(() => {
     return pages.find((p: Page) => p.id === currentPageId);
   }, [pages, currentPageId]);
 
-  console.log("currentPage", currentPage);
 
   const error = queryError?.message || null;
 
@@ -83,8 +81,6 @@ export const useOnboardingLogic = (userType: string) => {
     const isFirstPage = currentPage?.id === 1;
     const isLastPage = currentPage?.id === pages[pages.length - 1]?.id;
 
-    console.log("isLastPage", isLastPage);
-    console.log("currentPage", currentPage);
 
     return {
       isFirstPage,
