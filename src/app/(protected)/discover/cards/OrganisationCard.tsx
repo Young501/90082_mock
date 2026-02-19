@@ -7,6 +7,7 @@ import { DeleteModal } from "../../folders/modals/DeleteModal";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { MapPin, MessageCircle, FolderHeart, Dot } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
+import { ContactPage } from "@/components/ContactPage";
 
 interface OrganisationCardProps {
   organisation: OrganisationProfile;
@@ -33,6 +34,7 @@ export function OrganisationCard({
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
 
   const getCompanyLogo = () => {
     return organisation.logo_url || organisation.profile_picture_url;
@@ -46,7 +48,7 @@ export function OrganisationCard({
 
   const handleContact = () => {
     if (organisation.allow_contact && organisation.id) {
-      setShowFullProfile(true);
+      setShowContactModal(true);
     }
   };
 
@@ -271,6 +273,25 @@ export function OrganisationCard({
           onClose={() => setShowFullProfile(false)}
         />
       )}
+
+
+      {/* we need to find a way to access right organisation ID from here to navigate to the contact modal directly */}
+
+      {/* {showContactModal && organisation.id && (
+        <ContactPage
+          recipientId={organisation.id}
+          organisationId={organisation.id.toString()}
+          acceptedOpportunityId={opportunityId}
+          members={organisation.members}
+          recipientName={
+            organisation.name ||
+            `${organisation.first_name ?? ""} ${organisation.last_name ?? ""}`.trim() ||
+            "Organisation"
+          }
+          profileType="organisation"
+          onBack={() => setShowContactModal(false)}
+        />
+      )} */}
 
       {showAddToFolderModal &&
         organisation.id &&

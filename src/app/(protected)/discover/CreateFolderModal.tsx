@@ -1,11 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, VStack, Text, Input, Field, Portal } from "@chakra-ui/react";
+import {
+  Box,
+  VStack,
+  Text,
+  Input,
+  Field,
+  Portal,
+  IconButton,
+} from "@chakra-ui/react";
 import Image from "next/image";
 import { useCreateFolder } from "@/services/folder";
 import { toast } from "react-toastify";
-import { Button } from "@/components/ui/Button";
+import { ButtonV2 } from "@/components/ui/ButtonV2";
+import { X } from "lucide-react";
 
 export interface CreateFolderModalProps {
   isOpen: boolean;
@@ -77,25 +86,21 @@ export function CreateFolderModal({
           onClick={(e) => e.stopPropagation()}
           position="relative"
         >
-          <Button
+          <IconButton
             position="absolute"
             top={4}
             right={4}
             variant="ghost"
             size="sm"
             onClick={handleClose}
+            aria-label="Close"
           >
-            <Image
-              src="/assets/cancel.svg"
-              alt="Close"
-              width={25}
-              height={25}
-            />
-          </Button>
+            <X size={20} color="#52525B" />
+          </IconButton>
 
           <VStack align="stretch" gap={6}>
             <Text
-              fontSize="24px"
+              fontSize="xl"
               fontWeight="bold"
               color="#000000"
               textAlign="left"
@@ -105,67 +110,56 @@ export function CreateFolderModal({
 
             <VStack align="stretch" gap={3}>
               <Field.Root>
-                <Field.Label fontSize="14px" fontWeight="500" color="#000000">
-                  Folder Name
-                </Field.Label>
                 <Input
                   value={newFolderName}
                   onChange={(e) => setNewFolderName(e.target.value)}
-                  placeholder="Enter folder name"
+                  placeholder="Folder name"
                   h="45px"
-                  borderRadius="8px"
-                  border="1px solid #2CA9DF"
-                  _focus={{
-                    borderColor: "#2CA9DF",
-                    boxShadow: "0 0 0 1px #2CA9DF",
-                  }}
+                  borderRadius="xl"
+                  border="1px solid #E4E4E7"
                 />
               </Field.Root>
               <Field.Root>
-                <Field.Label fontSize="14px" fontWeight="500" color="#000000">
-                  Description (optional)
-                </Field.Label>
                 <Input
                   value={newFolderDescription}
                   onChange={(e) => setNewFolderDescription(e.target.value)}
-                  placeholder="Enter folder description"
+                  placeholder="Folder description"
                   h="45px"
-                  borderRadius="8px"
-                  border="1px solid #2CA9DF"
-                  _focus={{
-                    borderColor: "#2CA9DF",
-                    boxShadow: "0 0 0 1px #2CA9DF",
-                  }}
+                  borderRadius="xl"
+                  border="1px solid #E4E4E7"
                 />
               </Field.Root>
-              <Box display="flex" gap={3} justifyContent="flex-end" mt={2}>
-                <Button
-                  variant="ghost"
-                  bg="gray.200"
-                  color="gray.700"
-                  onClick={handleClose}
-                  fontSize="14px"
-                  h="40px"
-                  px={6}
-                  borderRadius="15px"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  bg="#2CA9DF"
-                  color="white"
-                  onClick={handleCreateFolder}
-                  isLoading={createFolder.isPending}
-                  disabled={!newFolderName.trim()}
-                  fontSize="14px"
-                  h="40px"
-                  px={6}
-                  borderRadius="15px"
-                >
-                  Create
-                </Button>
-              </Box>
             </VStack>
+            <Box display="flex" gap={3} justifyContent="flex-start" mt={2}>
+              <ButtonV2
+                variant="ghost"
+                bg="transparent"
+                color="black"
+                onClick={handleClose}
+                fontSize="14px"
+                border="1px solid #E4E4E7"
+                h="40px"
+                px={6}
+                borderRadius="xl"
+                w="155px"
+              >
+                Cancel
+              </ButtonV2>
+              <ButtonV2
+                bg="#2AA8E0"
+                color="white"
+                flex={1}
+                onClick={handleCreateFolder}
+                isLoading={createFolder.isPending}
+                disabled={!newFolderName.trim()}
+                fontSize="14px"
+                h="40px"
+                px={6}
+                borderRadius="xl"
+              >
+                Create
+              </ButtonV2>
+            </Box>
           </VStack>
         </Box>
       </Box>
