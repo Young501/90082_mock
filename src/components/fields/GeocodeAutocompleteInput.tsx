@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, memo } from "react";
-import { Box, Input, VStack, Text, Field } from "@chakra-ui/react";
+import { Box, Input, InputGroup, Text, Field } from "@chakra-ui/react";
+import { MapPin } from "lucide-react";
 import { useGeocode } from "@/services/shared";
 import { useDebounce } from "@/hooks/useDebounce";
 import { GeocodeResult } from "@/types/shared";
@@ -29,7 +30,7 @@ export const GeocodeAutocompleteInput = memo(
     onChange,
     onSelect,
     onLocationUpdate,
-    placeholder = "Enter location",
+    placeholder = "Start typing city or address",
     required = false,
     error,
     isProfilePage = false,
@@ -182,74 +183,57 @@ export const GeocodeAutocompleteInput = memo(
       }
     }, [value, controller]);
 
+    const startElement = (
+      <Box display="flex" alignItems="center">
+        {icon && (
+          <i className={icon} style={{ color: "#9CA3AF", fontSize: "18px" }} />
+        )}
+      </Box>
+    );
+
     return (
       <Field.Root invalid={!!fieldError}>
         <Box ref={containerRef} position="relative" width="100%">
-          <Box
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: "4px",
-              width: "100%",
-              ...(required && { marginLeft: "-11px" }),
-            }}
-          >
-            {required && (
-              <Box>
-                {required && (
-                  <span style={{ color: "red", marginLeft: "4px" }}>*</span>
-                )}
-              </Box>
-            )}
-
-            <Box position="relative" width="100%">
-              {icon && (
-                <Box
-                  position="absolute"
-                  left="16px"
-                  top="50%"
-                  transform="translateY(-50%)"
-                  zIndex={2}
-                  pointerEvents="none"
-                >
-                  <i
-                    className={icon}
-                    style={{
-                      color: "#C3C3C3",
-                      fontSize: "18px",
-                    }}
-                  />
-                </Box>
+          {label && (
+            <Field.Label
+              fontSize="sm"
+              fontWeight="500"
+              color="black"
+              mb={2}
+              display="block"
+            >
+              {label}
+              {required && (
+                <span style={{ color: "red", marginLeft: "4px" }}>*</span>
               )}
-              <Input
-                type="text"
-                placeholder={placeholder}
-                h="60px"
-                borderRadius="0px"
-                pl={icon ? "48px" : "24px"}
-                border="1px solid"
-                style={{
-                  border: "1px solid #A2DDF0",
-                  borderRadius: "8px",
-                }}
-                _focus={{
-                  borderColor: "#A2DDF0",
-                  boxShadow: "0 0 0 1px #A2DDF0",
-                }}
-                _hover={{
-                  borderColor: "#A2DDF0",
-                }}
-                bg="white"
-                fontSize="16px"
-                px={icon ? 12 : 6}
-                {...(controller
-                  ? controller.field
-                  : { value: inputValue || "" })}
-                onChange={handleInputChange}
-                ref={inputRef}
-              />
-            </Box>
-          </Box>
+            </Field.Label>
+          )}
+          <InputGroup startElement={startElement}>
+            <Input
+              type="text"
+              placeholder={placeholder}
+              h="48px"
+              bg="white"
+              fontSize="16px"
+              px={6}
+              borderRadius="sm"
+              border="1px solid"
+              borderColor="#E4E4E7"
+              _focus={{
+                outline: "none",
+                borderColor: "#E4E4E7",
+                boxShadow: "0 0 0 1px #E4E4E7",
+              }}
+              {...(controller ? controller.field : {})}
+              value={
+                controller
+                  ? (controller.field.value ?? "")
+                  : (inputValue ?? "")
+              }
+              onChange={handleInputChange}
+              ref={inputRef}
+            />
+          </InputGroup>
 
           {fieldError && <Field.ErrorText mt={2}>{fieldError}</Field.ErrorText>}
 

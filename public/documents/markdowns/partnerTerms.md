@@ -59,8 +59,6 @@ The University does not recommend or endorse any student profiles featured on Un
 
 The University will be under no liability to Users in respect of any loss or damage (including consequential loss or damage, such as loss of opportunity or loss of revenue) which may be suffered or incurred or which may arise directly or indirectly in connection with their access and/or use of the UniConnected platform.
 
-User's acknowledge that they indemnify the user against any direct loss suffered by the
-
 ## 5. LEGISLATION AND RESERVED RIGHTS
 
 By registering to use UniConnected, Users will have access to a range of student profiles.

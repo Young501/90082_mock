@@ -279,7 +279,7 @@ export function StudentCard({
                         </Box>
                       </HStack>
                     )}
-                    {student.course_name && (
+                    {student.degree && (
                       <HStack gap={2} align="start">
                         <Box
                           w="12px"
@@ -304,8 +304,9 @@ export function StudentCard({
                           whiteSpace="normal"
                           wordBreak="break-word"
                         >
-                          {student.course_name} <br />
-                          {student.course_progression}
+                          {student.course_stream} <br />
+                          {student.degree} <br />
+                          {student.progression}
                         </Text>
                       </HStack>
                     )}
@@ -325,7 +326,7 @@ export function StudentCard({
                             width={12}
                             height={12}
                             src="/assets/certificationIcon.svg"
-                            alt="specialization"
+                            alt="specialisations"
                             style={{ objectFit: "contain" }}
                           />
                         </Box>

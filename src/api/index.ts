@@ -181,10 +181,31 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v1/${userType}`,
   }),
-  RESUME_UPLOAD: (userType: string): ApiEndpoint => ({
+  // v2 Profiles & User APIs (Schema 2.0.0)
+  STUDENT_PROFILE_V2: {
+    method: "GET",
+    url: "/api/v2/profiles/student/me/",
+  },
+  STUDENT_PROFILE_UPDATE_V2: {
+    method: "PATCH",
+    url: "/api/v2/profiles/student/me/",
+  },
+  RESUME_UPLOAD: {
     method: "POST",
-    url: `/api/v1/${userType}/upload-resume`,
-  }),
+    url: `/api/v2/profiles/student/me/upload-resume/`,
+  },
+  USER_ME_V2: {
+    method: "GET",
+    url: "/api/v2/users/me/",
+  },
+  USER_ME_UPDATE_V2: {
+    method: "PATCH",
+    url: "/api/v2/users/me/",
+  },
+  TAXONOMY: {
+    method: "GET",
+    url: "/api/v2/taxonomy/",
+  },
   LOGO_UPLOAD: (userType: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/${userType}/upload-logo`,
@@ -291,7 +312,7 @@ export const API_ENDPOINTS = {
   }),
   HOMEPAGE: {
     method: "GET",
-    url: "/api/v1/homepage",
+    url: "/api/v2/ui/homepage",
   },
   OPPORTUNITY_PARTICIPANTS: (opportunityId: string): ApiEndpoint => ({
     method: "GET",
@@ -389,12 +410,7 @@ export async function apiRequest<T = any>({
   const { method, url } = endpoint;
 
   const config = {
-    method: method.toLowerCase() as
-      | "get"
-      | "post"
-      | "put"
-      | "delete"
-      | "patch",
+    method: method.toLowerCase() as "get" | "post" | "put" | "delete" | "patch",
     url,
     headers: {
       ...headers,

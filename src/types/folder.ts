@@ -28,10 +28,10 @@ export interface StudentMemberProfile {
   first_name: string;
   last_name: string;
   profile_picture_url: string | null;
-  course_name: string | null;
+  degree: string | null;
   course_stream: string | null;
-  specialization: string | null;
-  course_progression: string | null;
+  specialisations: string | null;
+  progression: string | null;
   skills: string[];
   credentials: string[];
   preferred_location: string | null;

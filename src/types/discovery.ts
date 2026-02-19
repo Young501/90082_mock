@@ -22,6 +22,11 @@ export interface DependencyCondition {
   operator?: "equals" | "contains" | "not_equals";
 }
 
+export interface UniversityLink {
+  label: string;
+  url: string;
+}
+
 export interface StudentProfile {
   id?: number;
   first_name?: string;
@@ -29,10 +34,10 @@ export interface StudentProfile {
   location?: string;
   distance_km?: number;
   profile_picture_url?: string | null;
-  course_name?: string;
+  degree?: string;
   course_stream?: string;
-  specialization?: string[] | string;
-  course_progression?: string;
+  specialisations?: string[] | string;
+  progression?: string;
   skills?: string[];
   credentials?: string[];
   preferred_location?: string[];
@@ -53,7 +58,7 @@ export interface StudentProfile {
     id?: number;
     name?: string;
     logo_url?: string;
-    links?: Record<string, string>;
+    links?: UniversityLink[];
   };
 }
 

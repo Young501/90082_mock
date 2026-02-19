@@ -1,15 +1,19 @@
-import { Box } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 import {
   UseFormRegister,
   Control,
   FieldErrors,
   useWatch,
   UseFormSetError,
+  UseFormSetValue,
 } from "react-hook-form";
 import {
   InputField,
+  UrlInputField,
   SelectField,
   FileField,
+  ImageUploadField,
+  DocumentUploadField,
   CheckboxField,
   BooleanCheckboxField,
   SkillsPillField,
@@ -18,6 +22,8 @@ import {
   TextAreaField,
   GeocodeAutocompleteInput,
   AbnLookupField,
+  TaxonomySelectField,
+  TaxonomyMultiselectField,
 } from "@/components/fields";
 import { AbnValidationStatus, Question } from "@/types/onboarding";
 import { useMemo, useEffect, useRef, useCallback } from "react";
@@ -29,6 +35,7 @@ interface FieldRendererProps {
   control: Control<any>;
   errors: FieldErrors<any>;
   setError: UseFormSetError<any>;
+  setValue?: UseFormSetValue<any>;
   clearErrors?: (name: string) => void;
   unregister?: (name: string) => void;
   onFieldUnregistered?: (fieldName: string) => void;
@@ -38,13 +45,19 @@ interface FieldRendererProps {
   onAbnValidationChange?: (status: AbnValidationStatus) => void;
   onFileRemove?: (fieldName: string) => void;
   removedFiles?: Set<string>;
+  university?: {
+    slug?: string;
+    name?: string;
+  };
 }
 
-const FILE_FIELD_TYPES = {
-  profile_picture_url: "image",
-  resume_url: "resume",
-  logo_url: "image",
-} as const;
+const EMPTY_OPTION_FIELD_TYPES = [
+  "select",
+  "multi-select",
+  "tag-select",
+  "checkbox-group",
+  "card-select",
+] as const;
 
 export const FieldRenderer = ({
   question,
@@ -52,6 +65,7 @@ export const FieldRenderer = ({
   control,
   errors,
   setError,
+  setValue,
   clearErrors,
   unregister,
   onFieldUnregistered,
@@ -61,9 +75,17 @@ export const FieldRenderer = ({
   onAbnValidationChange,
   onFileRemove,
   removedFiles,
+  university,
 }: FieldRendererProps) => {
+  const universitySlug = university?.slug;
+  const universityName = university?.name;
+
   const error = errors[question.field]?.message as string | undefined;
-  // const fieldOptions = question.options || question.option || [];
+  const taxonomyParentField = question.taxonomy_query?.parent ?? "__none__";
+  const taxonomyParentValue = useWatch({
+    control,
+    name: taxonomyParentField,
+  });
   const rawFieldOptions = question.options || question.option || [];
   const fieldOptions = parseQuestionnaireOptions(rawFieldOptions).map(
     (opt) => ({
@@ -73,6 +95,7 @@ export const FieldRenderer = ({
   );
 
   const previousFieldValue = useRef<any>(undefined);
+  const previousTaxonomyParentValue = useRef<any>(undefined);
 
   const fieldValue = useWatch({
     control,
@@ -101,6 +124,52 @@ export const FieldRenderer = ({
     }
     return fields;
   }, []);
+
+  // Clear field value when hidden due to empty options (static option fields)
+  useEffect(() => {
+    if (
+      (EMPTY_OPTION_FIELD_TYPES as readonly string[]).includes(question.type) &&
+      fieldOptions.length === 0 &&
+      setValue
+    ) {
+      const emptyValue = question.type === "multi-select" ? [] : "";
+      setValue(question.field, emptyValue, { shouldValidate: false });
+      clearErrors?.(question.field);
+    }
+  }, [
+    question.type,
+    question.field,
+    fieldOptions.length,
+    setValue,
+    clearErrors,
+  ]);
+
+  // Clear taxonomy-dependent field value when parent changes
+  useEffect(() => {
+    if (
+      taxonomyParentField === "__none__" ||
+      !setValue ||
+      (question.type !== "taxonomy-select" &&
+        question.type !== "taxonomy-multiselect")
+    ) {
+      return;
+    }
+    const prevParent = previousTaxonomyParentValue.current;
+    const currParent = taxonomyParentValue;
+    if (prevParent !== undefined && prevParent !== currParent) {
+      const emptyValue = question.type === "taxonomy-multiselect" ? [] : "";
+      setValue(question.field, emptyValue, { shouldValidate: false });
+      clearErrors?.(question.field);
+    }
+    previousTaxonomyParentValue.current = currParent;
+  }, [
+    taxonomyParentField,
+    taxonomyParentValue,
+    question.field,
+    question.type,
+    setValue,
+    clearErrors,
+  ]);
 
   useEffect(() => {
     if (!question.followup_question || !clearErrors || !unregister) return;
@@ -162,29 +231,29 @@ export const FieldRenderer = ({
   ]);
 
   const renderField = () => {
-    if (
-      question.type === "text" ||
-      question.type === "location" ||
-      question.type === "url" ||
-      question.type === "email"
-    ) {
+    if (question.type === "url") {
+      return (
+        <UrlInputField
+          name={question.field}
+          label={question.label}
+          control={control}
+          error={error}
+          required={question.required}
+          placeholder={question.placeholder ?? "yourwebsite.com"}
+        />
+      );
+    }
+
+    if (question.type === "text" || question.type === "email") {
       return (
         <InputField
+          label={question.label}
           register={register(question.field)}
           error={error}
           required={question.required}
-          placeholder={`${question.label}`}
+          placeholder={question.placeholder}
           icon={question.icon}
           type={question.type}
-          inputProps={{
-            h: "60px",
-            borderRadius: "0px",
-            border: "1px solid",
-            borderColor: "#2CA9DF",
-            bg: "white",
-            fontSize: "16px",
-            px: 6,
-          }}
         />
       );
     }
@@ -213,7 +282,7 @@ export const FieldRenderer = ({
           control={control}
           error={error}
           required={question.required}
-          placeholder={question.label}
+          placeholder={question.placeholder ?? "Start typing city or address"}
           label={question.label}
           value={fieldValue}
           icon={question.icon}
@@ -223,15 +292,82 @@ export const FieldRenderer = ({
       );
     }
 
+    if (question.type === "display") {
+      const displayValue =
+        question.field === "university" && universityName
+          ? universityName
+          : "—";
+      return (
+        <Box mb={2}>
+          <Text fontSize="sm" fontWeight="500" color="#71717A" mb={1}>
+            {question.filter_label || question.label}
+          </Text>
+          <Box
+            h="48px"
+            px={6}
+            py={3}
+            borderRadius="sm"
+            border="1px solid"
+            borderColor="#E4E4E7"
+            bg="#F4F4F5"
+            display="flex"
+            alignItems="center"
+          >
+            <Text fontSize="md" color="#3F3F46">
+              {displayValue}
+            </Text>
+          </Box>
+        </Box>
+      );
+    }
+
+    if (question.type === "taxonomy-select" && question.taxonomy_query) {
+      return (
+        <TaxonomySelectField
+          name={question.field}
+          label={question.label}
+          control={control}
+          taxonomyQuery={question.taxonomy_query}
+          parentValue={
+            taxonomyParentField !== "__none__" ? taxonomyParentValue : null
+          }
+          universitySlug={universitySlug}
+          error={error}
+          required={question.required}
+          filterLabel={question.filter_label}
+        />
+      );
+    }
+
+    if (question.type === "taxonomy-multiselect" && question.taxonomy_query) {
+      return (
+        <TaxonomyMultiselectField
+          name={question.field}
+          label={question.label}
+          control={control}
+          taxonomyQuery={question.taxonomy_query}
+          parentValue={
+            taxonomyParentField !== "__none__" ? taxonomyParentValue : null
+          }
+          universitySlug={universitySlug}
+          error={error}
+          required={question.required}
+          maxSelection={question.max_selection}
+          filterLabel={question.filter_label}
+        />
+      );
+    }
+
     if (question.type === "number") {
+      const numLabel = question.filter_label || question.label;
       return (
         <InputField
-          label={question.filter_label || question.label}
+          label={numLabel}
           register={register(question.field)}
           error={error}
           required={question.required}
           type="number"
-          placeholder={`Enter ${question.filter_label || question.label.toLowerCase()}`}
+          placeholder={question.placeholder}
         />
       );
     }
@@ -329,29 +465,38 @@ export const FieldRenderer = ({
       );
     }
 
-    if (question.type === "file") {
-      const fileType =
-        FILE_FIELD_TYPES[question.field as keyof typeof FILE_FIELD_TYPES];
-      if (!fileType) {
-        return null;
-      }
+    if (question.type === "file-image") {
       return (
-        <FileField
+        <ImageUploadField
           key={`${question.field}-${fileUploadKey || 0}`}
           name={question.field}
           label={question.label}
           control={control}
-          fileType={fileType}
           error={error}
           required={question.required}
-          labelPosition="bottom"
           description={
-            question.field === "profile_picture_url" ||
-            question.field === "logo_url" ||
-            question.field === "resume_url"
-              ? question.field
-              : undefined
+            question.field === "profile_picture"
+              ? "profile_picture"
+              : question.field === "logo_url"
+                ? "logo_url"
+                : undefined
           }
+          onRemove={
+            onFileRemove ? () => onFileRemove(question.field) : undefined
+          }
+        />
+      );
+    }
+
+    if (question.type === "file-document") {
+      return (
+        <DocumentUploadField
+          key={`${question.field}-${fileUploadKey || 0}`}
+          name={question.field}
+          label={question.label}
+          control={control}
+          error={error}
+          required={question.required}
           onRemove={
             onFileRemove ? () => onFileRemove(question.field) : undefined
           }
@@ -364,8 +509,9 @@ export const FieldRenderer = ({
         <TextAreaField
           register={register(question.field)}
           error={error}
+          maxLength={question?.max_length}
           required={question.required}
-          placeholder={question.label}
+          placeholder={question.placeholder ?? question.label}
           icon={question.icon}
           label={question.label}
         />
@@ -375,9 +521,14 @@ export const FieldRenderer = ({
     return null;
   };
 
+  const fieldContent = renderField();
+  if (!fieldContent && followupQuestions.length === 0) {
+    return null;
+  }
+
   return (
     <Box mb={4}>
-      {renderField()}
+      {fieldContent}
 
       {followupQuestions.map((followupQuestion) => (
         <Box key={followupQuestion.field} ml={4} mt={2}>
@@ -387,6 +538,7 @@ export const FieldRenderer = ({
             control={control}
             errors={errors}
             setError={setError}
+            setValue={setValue}
             clearErrors={clearErrors}
             unregister={unregister}
             onFieldUnregistered={onFieldUnregistered}
@@ -396,6 +548,7 @@ export const FieldRenderer = ({
             onAbnValidationChange={onAbnValidationChange}
             onFileRemove={onFileRemove}
             removedFiles={removedFiles}
+            university={university}
           />
         </Box>
       ))}

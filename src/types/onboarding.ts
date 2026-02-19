@@ -1,3 +1,5 @@
+import { TaxonomyQueryParams } from "./shared";
+
 export type AnswerValue = string | number | string[] | File | undefined;
 
 export type AbnValidationStatus =
@@ -46,7 +48,12 @@ export interface Question {
     | "card-select"
     | "location_geocode_lookup"
     | "abn_lookup"
-    | "email";
+    | "email"
+    | "taxonomy-select"
+    | "taxonomy-multiselect"
+    | "file-image"
+    | "file-document"
+    | "display";
 
   required?: boolean;
   icon?: string;
@@ -56,20 +63,24 @@ export interface Question {
   max_selection?: number;
   max_selections?: number;
   "max-selection"?: number;
+  max_length?: number;
   followup_question?: FollowupQuestionMap;
   upload_endpoint?: string;
+  endpoint?: string;
   is_filter?: boolean;
   allow_custom?: boolean;
   min?: number;
   max?: number;
   unit?: string;
+  placeholder?: string;
+  model?: "user" | "student_profile";
+  taxonomy_query?: TaxonomyQueryParams;
 }
 
 export interface Page {
   id: number;
-  guide: string;
+  title?: string;
   questions: Question[];
-  follow_by?: number;
 }
 
 export interface OnboardingContextType {

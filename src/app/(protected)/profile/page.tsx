@@ -99,7 +99,7 @@ const Profile = () => {
   const profileUpdateMutation = useProfileUpdate(userType);
   const profilePictureUpload = useProfilePictureUpload();
   const profilePictureDelete = useProfilePictureDelete();
-  const resumeUpload = useResumeUpload(userType);
+  const resumeUpload = useResumeUpload();
   const logoUpload = useLogoUpload(userType);
   const logoDelete = useLogoDelete(userType);
 

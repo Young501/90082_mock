@@ -64,3 +64,18 @@ export interface AbnValidationResponse {
   valid: boolean;
   matchedName?: string | null;
 }
+
+export interface TaxonomyQueryParams {
+  type: string;
+    parent?: string | null;
+  university?: string | null | "dynamic";
+}
+
+export interface TaxonomyNode {
+  id: number;
+  type: string;
+  code: string;
+  label: string;
+  university?: string | null;
+  parent?: string | null;
+}

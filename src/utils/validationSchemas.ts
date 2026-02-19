@@ -86,14 +86,20 @@ export const createPageSchema = (
           .max(question.max || 200, `Value must be at most ${question.max}`);
       } else if (question.type === "url") {
         fieldSchema = yup.string().url("Invalid URL format");
-      } else if (question.type === "select") {
+      } else if (
+        question.type === "select" ||
+        question.type === "taxonomy-select"
+      ) {
         fieldSchema = yup.string().transform((value: any) => {
           if (value === "" || value === null || value === undefined) {
             return undefined;
           }
           return value;
         });
-      } else if (question.type === "multi-select") {
+      } else if (
+        question.type === "multi-select" ||
+        question.type === "taxonomy-multiselect"
+      ) {
         fieldSchema = yup
           .array()
           .of(yup.string())
@@ -141,7 +147,11 @@ export const createPageSchema = (
               return value;
             });
         }
-      } else if (question.type === "file") {
+      } else if (
+        question.type === "file" ||
+        question.type === "file-image" ||
+        question.type === "file-document"
+      ) {
         fieldSchema = yup
           .mixed()
           .test(
@@ -155,6 +165,8 @@ export const createPageSchema = (
               return false;
             }
           );
+      } else if (question.type === "display") {
+        fieldSchema = yup.string().optional();
       } else if (question.type === "card-select") {
         const maxSelections = question.max_selection;
         if (maxSelections === 1) {
@@ -204,6 +216,7 @@ export const createPageSchema = (
           then: (schema: any) => {
             if (
               question.type === "multi-select" ||
+              question.type === "taxonomy-multiselect" ||
               question.type === "tag-select" ||
               (question.type === "checkbox-group" &&
                 question.max_selection !== 1) ||
@@ -225,7 +238,11 @@ export const createPageSchema = (
                   "This field is required",
                   (value: any) => typeof value === "number" && !isNaN(value)
                 );
-            } else if (question.type === "file") {
+            } else if (
+              question.type === "file" ||
+              question.type === "file-image" ||
+              question.type === "file-document"
+            ) {
               if (!isProfilePage) {
                 return schema.required("This field is required");
               }
@@ -239,6 +256,7 @@ export const createPageSchema = (
       } else if (question.required) {
         if (
           question.type === "multi-select" ||
+          question.type === "taxonomy-multiselect" ||
           question.type === "tag-select" ||
           (question.type === "checkbox-group" &&
             question.max_selection !== 1) ||
@@ -260,7 +278,11 @@ export const createPageSchema = (
               "This field is required",
               (value: any) => typeof value === "number" && !isNaN(value)
             );
-        } else if (question.type === "file") {
+        } else if (
+          question.type === "file" ||
+          question.type === "file-image" ||
+          question.type === "file-document"
+        ) {
           if (!isProfilePage) {
             fieldSchema = fieldSchema.required("This field is required");
           }

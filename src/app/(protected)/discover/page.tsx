@@ -49,7 +49,7 @@ export default function DiscoveryPage() {
   const router = useRouter();
   const opportunitySlug = sp.get("opp") || undefined;
 
-  const { user, setAccessibleOpportunities } = useAuthStore();
+  const { user } = useAuthStore();
   const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
   const [isUserEligible, setIsUserEligible] = useState<boolean | null>(null);
 
@@ -93,12 +93,6 @@ export default function DiscoveryPage() {
     },
     [opportunitySlug, router]
   );
-
-  useEffect(() => {
-    if (accessibleOpportunities) {
-      setAccessibleOpportunities(accessibleOpportunities);
-    }
-  }, [accessibleOpportunities, setAccessibleOpportunities]);
 
   // Compute and cache enrollment status
   useEffect(() => {
