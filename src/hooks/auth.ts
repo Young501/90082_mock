@@ -21,7 +21,7 @@ export const STUDENT_ONBOARDING_REQUIRED_FIELDS = [
 ] as const;
 
 export const isStudentOnboardingComplete = (
-  profile: Record<string, any>  
+  profile: Record<string, any>
 ): boolean => {
   return STUDENT_ONBOARDING_REQUIRED_FIELDS.every((field) => {
     const value = profile[field];
@@ -186,13 +186,7 @@ export const useAuth = () => {
         },
       });
     },
-    onSuccess: (response) => {
-      const successMessage = getSuccessMessage(
-        response,
-        "Account created successfully"
-      );
-      toast.success(successMessage);
-    },
+    onSuccess: (response) => {},
     onError: (error: any) => {
       const errorMessage = getErrorMessage(error, "Signup failed");
       toast.error(errorMessage);

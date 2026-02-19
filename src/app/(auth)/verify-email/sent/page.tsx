@@ -53,12 +53,12 @@ function EmailSentContent() {
                 color="#52525B"
                 lineHeight="1.4"
               >
-                We sent an email to{" "}
+                We&apos;ve sent a verification email to{" "}
                 <Text as="span" fontWeight="600">
                   {userEmail}
-                </Text>{" "}
-                to verify your email address.Please click on the “Verify email”
-                button to continue
+                </Text>
+                {". "}
+                Please click the “Verify email” button to continue.
               </Text>
 
               <Text
@@ -66,7 +66,7 @@ function EmailSentContent() {
                 color="#52525B"
                 lineHeight="1.4"
               >
-                Please note that the email maybe in your spam folder.
+                If you don&apos;t see it, check your spam or junk folder.
               </Text>
             </VStack>
           </VStack>
