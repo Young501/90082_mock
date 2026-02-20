@@ -4,7 +4,12 @@ import React from "react";
 import { Box, VStack, Text } from "@chakra-ui/react";
 import { MessageCircleX } from "lucide-react";
 
-export const EmptyInbox = () => {
+interface EmptyInboxProps {
+  title?: string;
+  description?: string;
+}
+
+export const EmptyInbox = ({ title, description }: EmptyInboxProps) => {
   return (
     <VStack
       h="100%"
@@ -21,11 +26,10 @@ export const EmptyInbox = () => {
         <MessageCircleX size={32} color="#52525B" />
       </Box>
       <Text fontWeight="semibold" fontSize="lg">
-        No conversations yet
+       {title}
       </Text>
       <Text fontSize="sm" color="#52525B" textAlign="center" maxW="310px">
-        When you start messaging organisations, your conversations will appear
-        here.
+        {description}
       </Text>
     </VStack>
   );

@@ -139,14 +139,14 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
         display="flex"
         alignItems="center"
         justifyContent="center"
-        zIndex={1000}
+        zIndex={9999}
         onClick={handleClose}
       >
         <Box
           bg="white"
           borderRadius="xl"
           w={{ base: "95%", lg: "682px" }}
-          maxH="90vh"
+          maxH="80vh"
           display="flex"
           flexDirection="column"
           overflow="hidden"

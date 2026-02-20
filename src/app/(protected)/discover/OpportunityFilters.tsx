@@ -17,6 +17,7 @@ import type {
 } from "@/types/opportunity";
 import { Filter, ChevronDown, ChevronUp, X } from "lucide-react";
 import IconFilter from "@/components/Icons/IconFilter";
+import { EmptyInbox } from "@/app/(protected)/messaging/EmptyInbox";
 
 function isEmptyFilters(f: OpportunityFilters): boolean {
   const keys = Object.keys(f).filter((k) => k !== "questionnaire");
@@ -35,6 +36,7 @@ interface OpportunityFiltersProps {
   inDrawer?: boolean;
   onApply?: () => void;
   onClose?: () => void;
+  facetValidationSuccess?: boolean;
 }
 
 export function OpportunityFilters({
@@ -47,10 +49,15 @@ export function OpportunityFilters({
   inDrawer = false,
   onApply,
   onClose,
+  facetValidationSuccess,
 }: OpportunityFiltersProps) {
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({});
+
+  // if (!facetValidationSuccess) {
+  //   return <EmptyInbox />;
+  // }
 
   // In drawer mode, keep pending filters in local state; apply only on "Apply filter"
   const [localFilters, setLocalFilters] = useState<OpportunityFilters>({});
@@ -404,7 +411,15 @@ export function OpportunityFilters({
           </HStack>
         </HStack>
 
-        {filterContent}
+        {facetValidationSuccess ? (
+          filterContent
+        ) : (
+          <Box>
+            <EmptyInbox
+              description="No filters available to show"
+            />
+          </Box>
+        )}
 
         {hasFilters && (
           <Box pt={2}>

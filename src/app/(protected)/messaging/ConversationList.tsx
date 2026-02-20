@@ -85,7 +85,10 @@ export const ConversationList = ({
               );
             })
           ) : (
-            <EmptyInbox />
+            <EmptyInbox
+              title="No conversations yet"
+              description="When you start messaging organisations, your conversations will appear here."
+            />
           )}
         </VStack>
       </Box>

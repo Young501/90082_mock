@@ -298,16 +298,17 @@ export default function DiscoveryPage() {
                   flexDirection="column"
                   gap={5}
                 >
-                  {facetValidationSuccess && (
-                    <OpportunityFilters
-                      facets={facets}
-                      filters={filters}
-                      onFilterChange={handleFilterChange}
-                      onReset={handleResetV2}
-                      hasFilters={hasFilters}
-                      isLoading={isLoadingSearch}
-                    />
-                  )}
+                  {/* {facetValidationSuccess && ( */}
+                  <OpportunityFilters
+                    facets={facets}
+                    filters={filters}
+                    onFilterChange={handleFilterChange}
+                    onReset={handleResetV2}
+                    hasFilters={hasFilters}
+                    isLoading={isLoadingSearch}
+                    facetValidationSuccess={facetValidationSuccess}
+                  />
+                  {/* )} */}
                   <DiscoveryFolderCard
                     folders={discoveryFolders}
                     isLoading={isLoadingFolders}

@@ -54,7 +54,7 @@ export function DiscoveryResultBox({
   sortBy,
   onSortChange,
 }: DiscoveryResultBoxProps) {
-  if (!show) return null;
+  // if (!show) return null;
 
   const count = pagination?.count ?? 0;
 
