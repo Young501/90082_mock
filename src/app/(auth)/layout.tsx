@@ -23,53 +23,51 @@ function AuthLayoutContent({ children }: AuthLayoutProps) {
     : false;
 
   const isOrganisationSignupPage =
-    searchParams?.get("user-type") === "organisation" ?? false;
+    searchParams?.get("user-type") === "organisation";
 
   return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          position: "relative",
-          width: "100%",
-        }}
-      >
-        <Header isOnboardingPage={isOnboardingPage} />
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        position: "relative",
+        width: "100%",
+      }}
+    >
+      <Header isOnboardingPage={isOnboardingPage} />
 
-        <Box
-          display="flex"
-          flex={1}
-          w="100%"
-          mt={`${isMobile ? "0" : "76px"}`}
-          gap={6}
-          py={20}
-          px={{ base: 4, lg: 14 }}
-          h="100%"
-          bg={
-            allowedbgwaves
-              ? !isOrganisationSignupPage
-                ? "#0A425F"
-                : "#0F4F4D"
-              : "transparent"
-          }
-          backgroundImage={
-            allowedbgwaves
-              ? "url('/assets/Backgroundwaves.svg')"
-              : "transparent"
-          }
-          backgroundSize="auto"
-          // backgroundPosition="center"
-          backgroundRepeat={allowedbgwaves ? "repeat" : "no-repeat"}
-        >
-          <Container maxW="1440px" mx="auto" px={0} position="relative">
-            {children}
-          </Container>
-        </Box>
-        {!isOnboardingPage && (
-          <Footer isOrganisationSignupPage={isOrganisationSignupPage} />
-        )}
-      </div>
+      <Box
+        display="flex"
+        flex={1}
+        w="100%"
+        mt={`${isMobile ? "0" : "76px"}`}
+        gap={6}
+        py={20}
+        px={{ base: 4, lg: 14 }}
+        h="100%"
+        bg={
+          allowedbgwaves
+            ? !isOrganisationSignupPage
+              ? "#0A425F"
+              : "#0F4F4D"
+            : "transparent"
+        }
+        backgroundImage={
+          allowedbgwaves ? "url('/assets/Backgroundwaves.svg')" : "transparent"
+        }
+        backgroundSize="auto"
+        // backgroundPosition="center"
+        backgroundRepeat={allowedbgwaves ? "repeat" : "no-repeat"}
+      >
+        <Container maxW="1440px" mx="auto" px={0} position="relative">
+          {children}
+        </Container>
+      </Box>
+      {!isOnboardingPage && (
+        <Footer isOrganisationSignupPage={isOrganisationSignupPage} />
+      )}
+    </div>
   );
 }
 
