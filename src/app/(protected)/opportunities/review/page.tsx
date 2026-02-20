@@ -69,9 +69,10 @@ export default function OpportunityReviewPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
-  const { questionnaireAnswers: answers } = useQuestionnaireAnswers(
-    opportunityId?.toString() || ""
-  );
+  const {
+    questionnaireAnswers: answers,
+    clearAnswers,
+  } = useQuestionnaireAnswers(opportunityId?.toString() || "");
 
   const enrollMutation = useEnrollInOpportunity();
 
@@ -104,10 +105,10 @@ export default function OpportunityReviewPage() {
     if (!showSuccessDialog) {
       return;
     }
-    // const timeoutId = setTimeout(() => {
-    //   goToOpportunity();
-    // }, 5000);
-    // return () => clearTimeout(timeoutId);
+    const timeoutId = setTimeout(() => {
+      goToOpportunity();
+    }, 5000);
+    return () => clearTimeout(timeoutId);
   }, [showSuccessDialog, goToOpportunity]);
 
   const handleSubmit = async () => {
@@ -124,10 +125,6 @@ export default function OpportunityReviewPage() {
         questionnaireAnswers: answers,
       });
 
-      // await queryClient.refetchQueries({
-      //   queryKey: ["accessible-opportunities", user?.id],
-      // });
-
       const accessibleOpportunities = queryClient.getQueryData([
         "accessible-opportunities",
         user?.id,
@@ -138,13 +135,9 @@ export default function OpportunityReviewPage() {
           accessibleOpportunities,
           opportunityId?.toString() || ""
         );
-
-        // if (currentOpportunity?.enrollment_status === "enrolled") {
-        //   setCurrentOpportunityId(opportunityId);
-        //   setEnrollmentStatus(true);
-        // }
       }
 
+      clearAnswers();
       setShowSuccessDialog(true);
     } catch (error: unknown) {
       console.error("Enrollment error:", error);
