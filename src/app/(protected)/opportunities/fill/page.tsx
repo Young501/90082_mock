@@ -65,10 +65,25 @@ function OpportunityFillContent() {
 
   const userType = user?.user_types?.[0] || "student";
 
+  const getQuestionnaireKey = (
+    type: string | undefined
+  ): string | undefined => {
+    if (!type) return undefined;
+    if (type === "student") return "student_opportunity_questionnaire";
+    if (type === "organisation")
+      return "organisation_opportunity_questionnaire";
+    return undefined;
+  };
+
   const questions: Question[] = useMemo(() => {
     if (!opportunity?.questionnaire) return [];
-    return opportunity.questionnaire[userType] || [];
+    const questionnaireKey = getQuestionnaireKey(userType);
+    return questionnaireKey
+      ? opportunity.questionnaire[questionnaireKey] || []
+      : [];
   }, [userType, opportunity?.questionnaire]);
+
+  console.log(questions);
 
   const handleAnswersChange = useCallback(
     (newAnswers: Record<string, any>) => {

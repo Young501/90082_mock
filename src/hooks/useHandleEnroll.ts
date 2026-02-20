@@ -45,8 +45,22 @@ export function useHandleEnroll({
   const clickedRef = useRef(false);
 
   const userType = user?.user_types?.[0];
+  
+  // local constant to get the questionnaire key for the user type rather than extract from api response
+  const getQuestionnaireKey = (type: string | undefined): string | undefined => {
+    if (!type) return undefined;
+    if (type === "student") return "student_opportunity_questionnaire";
+    if (type === "organisation") return "organisation_opportunity_questionnaire";
+    return undefined;
+  };
+
   const qForType = useMemo(
-    () => opportunity?.questionnaire?.[userType as string],
+    () => {
+      const questionnaireKey = getQuestionnaireKey(userType);
+      return questionnaireKey 
+        ? opportunity?.questionnaire?.[questionnaireKey]
+        : undefined;
+    },
     [opportunity?.questionnaire, userType]
   );
   const shouldShowQuestionnaire = hasContent(qForType);

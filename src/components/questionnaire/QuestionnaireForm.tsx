@@ -42,25 +42,17 @@ export const QuestionnaireForm = forwardRef<
             acc[question.field] = initialValues[question.field];
           } else {
             switch (question.type) {
-              case "multi-select":
-              case "tag-select":
+              case "taxonomy-multiselect":
                 acc[question.field] = [];
                 break;
-              case "checkbox-group":
-                acc[question.field] = question.max_selection === 1 ? "" : [];
+              case "taxonomy-select":
+                acc[question.field] = "";
                 break;
-              case "card-select":
-                acc[question.field] = question.max_selection === 1 ? "" : [];
-                break;
-              case "boolean-checkbox":
-                acc[question.field] = undefined;
-                break;
-              case "range":
-                acc[question.field] =
-                  question.min !== undefined ? question.min : 0;
+              case "textarea":
+                acc[question.field] = "";
                 break;
               default:
-                acc[question.field] = "";
+                acc[question.field] = undefined;
             }
           }
           return acc;
