@@ -1,17 +1,22 @@
-import React, { useState } from "react";
-import { Box, Text, VStack, Input, Field } from "@chakra-ui/react";
-import Image from "next/image";
-import { useForm } from "react-hook-form";
-import { SelectField } from "@/components/fields/SelectField";
+import React, { useState, useMemo } from "react";
 import {
-  useFolders,
-  useAddMemberToFolder,
-  useCreateFolder,
-} from "@/services/folder";
+  Box,
+  Text,
+  VStack,
+  HStack,
+  Input,
+  SimpleGrid,
+  IconButton,
+} from "@chakra-ui/react";
+import { useFolders, useAddMemberToFolder } from "@/services/folder";
+import { Folder } from "@/types/folder";
 import { toast } from "react-toastify";
-import { Button } from "@/components/ui/Button";
+import { ButtonV2 } from "@/components/ui/ButtonV2";
 import Loader from "@/components/ui/Loader";
-import { FolderPlus } from "lucide-react";
+import { CreateFolderModal } from "@/app/(protected)/discover/CreateFolderModal";
+import { formatRelativeTime } from "@/utils/formatDate";
+import { Search, Plus, X, Folder as FolderIcon } from "lucide-react";
+import Image from "next/image";
 
 interface AddToFolderModalProps {
   isOpen: boolean;
@@ -25,10 +30,6 @@ interface AddToFolderModalProps {
   memberType?: "student" | "organisation";
 }
 
-interface FormData {
-  selectedFolders: string[];
-}
-
 export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
   isOpen,
   onClose,
@@ -38,47 +39,52 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
   organisationId,
   onResetBackground,
   onAddToFolder,
-  memberType,
+  memberType = "organisation",
 }) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFolderIds, setSelectedFolderIds] = useState<Set<number>>(
+    new Set()
+  );
   const [isAdding, setIsAdding] = useState(false);
-  const [isCreatingFolder, setIsCreatingFolder] = useState(false);
-  const [newFolderName, setNewFolderName] = useState("");
-  const [newFolderDescription, setNewFolderDescription] = useState("");
-  const { data: folders, isLoading: foldersLoading } =
+  const [showCreateFolder, setShowCreateFolder] = useState(false);
+
+  const { data: folders = [], isLoading: foldersLoading } =
     useFolders(opportunitySlug);
   const addMemberToFolder = useAddMemberToFolder();
-  const createFolder = useCreateFolder();
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<FormData>({
-    defaultValues: {
-      selectedFolders: [],
-    },
-  });
+  const filteredFolders = useMemo(() => {
+    if (!searchQuery.trim()) return folders;
+    const q = searchQuery.toLowerCase();
+    return folders.filter((f) => f.name.toLowerCase().includes(q));
+  }, [folders, searchQuery]);
 
-  if (!isOpen) return null;
+  const memberLabelPlural =
+    memberType === "organisation" ? "organisations" : "students";
+  const entityLabel =
+    memberType === "organisation" ? "organisation" : "student";
 
-  const folderNames = folders?.map((folder) => folder.name) || [];
+  const toggleFolder = (folderId: number) => {
+    setSelectedFolderIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(folderId)) {
+        next.delete(folderId);
+      } else {
+        next.add(folderId);
+      }
+      return next;
+    });
+  };
 
-  const onSubmit = async (data: FormData) => {
-    if (!data.selectedFolders || data.selectedFolders.length === 0) {
+  const onSubmit = async () => {
+    if (selectedFolderIds.size === 0) {
       toast.error("Please select at least one folder");
       return;
     }
 
     setIsAdding(true);
     try {
-      const selectedFolderIds =
-        folders
-          ?.filter((folder) => data.selectedFolders.includes(folder.name))
-          .map((folder) => folder.id) || [];
-
       await Promise.all(
-        selectedFolderIds.map((folderId) =>
+        Array.from(selectedFolderIds).map((folderId) =>
           addMemberToFolder.mutateAsync({
             folderId: folderId.toString(),
             data:
@@ -90,254 +96,287 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
       );
 
       toast.success(
-        `${userName} has been added to ${data.selectedFolders.length} folder${data.selectedFolders.length > 1 ? "s" : ""} `
+        `${userName} has been added to ${selectedFolderIds.size} folder${selectedFolderIds.size > 1 ? "s" : ""}`
       );
       handleSuccessfulClose();
-    } catch (error: any) {
-      console.error(error.response);
-      toast.error(error.response.data?.detail);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { detail?: string } } };
+      toast.error(err.response?.data?.detail || "Failed to add to folder");
     } finally {
       setIsAdding(false);
     }
   };
 
   const handleClose = () => {
-    reset();
-    setIsCreatingFolder(false);
-    setNewFolderName("");
-    setNewFolderDescription("");
+    setSearchQuery("");
+    setSelectedFolderIds(new Set());
     onClose();
-    if (onResetBackground) {
-      onResetBackground();
-    }
+    onResetBackground?.();
   };
 
   const handleSuccessfulClose = () => {
-    reset();
-    setIsCreatingFolder(false);
-    setNewFolderName("");
-    setNewFolderDescription("");
+    setSearchQuery("");
+    setSelectedFolderIds(new Set());
     onClose();
-    if (onAddToFolder) {
-      onAddToFolder();
-    }
+    onAddToFolder?.();
   };
 
-  const handleCreateFolder = async () => {
-    if (!newFolderName.trim()) {
-      toast.error("Please enter a folder name");
-      return;
-    }
-
-    try {
-      await createFolder.mutateAsync({
-        name: newFolderName.trim(),
-        description: newFolderDescription.trim() || undefined,
-        opportunity: opportunitySlug,
-      });
-      toast.success("Folder created successfully");
-      setNewFolderName("");
-      setNewFolderDescription("");
-      setIsCreatingFolder(false);
-    } catch (error: any) {
-      toast.error(error.response?.data?.name[0] || "Failed to create folder");
-    }
+  const handleCreateFolderSuccess = () => {
+    setShowCreateFolder(false);
   };
+
+  if (!isOpen) return null;
 
   return (
+    <>
+      <Box
+        position="fixed"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        bg="blackAlpha.600"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        zIndex={9999}
+        onClick={handleClose}
+      >
+        <Box
+          bg="white"
+          borderRadius="xl"
+          w={{ base: "95%", lg: "682px" }}
+          maxH="80vh"
+          display="flex"
+          flexDirection="column"
+          overflow="hidden"
+          onClick={(e) => e.stopPropagation()}
+          position="relative"
+          boxShadow="xl"
+        >
+          <Box px={{ base: 4, lg: 5 }} pt={5} pb={4}>
+            <HStack justify="space-between" align="flex-start">
+              <VStack align="stretch" gap={1}>
+                <Text fontSize="xl" fontWeight="600" color="#18181B">
+                  Save {entityLabel} to Folder
+                </Text>
+                <Text fontSize="sm" color="#71717A">
+                  Select folder(s) to save this {entityLabel} to. Folders are
+                  scoped to your current opportunity.
+                </Text>
+              </VStack>
+              <IconButton
+                variant="ghost"
+                size="sm"
+                onClick={handleClose}
+                aria-label="Close"
+              >
+                <X size={20} color="#71717A" />
+              </IconButton>
+            </HStack>
+
+            <Box mt={4}>
+              <Box
+                position="relative"
+                display="flex"
+                alignItems="center"
+                borderRadius="xl"
+                border="1px solid"
+                borderColor="#E4E4E7"
+                bg="#FAFAFA"
+                h="40px"
+                w="100%"
+              >
+                <Box
+                  position="absolute"
+                  left={3}
+                  display="flex"
+                  alignItems="center"
+                  color="#71717A"
+                >
+                  <Search size={18} />
+                </Box>
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={`Search folders...`}
+                  pl={10}
+                  pr={4}
+                  py={3}
+                  border="none"
+                  bg="transparent"
+                  fontSize="sm"
+                  _focus={{ outline: "none" }}
+                />
+              </Box>
+            </Box>
+          </Box>
+
+          <Box flex={1} overflowY="auto" px={{ base: 4, lg: 5 }} py={4}>
+            {foldersLoading ? (
+              <Box display="flex" justifyContent="center" py={12}>
+                <Loader size="lg" />
+              </Box>
+            ) : filteredFolders.length === 0 ? (
+              <Box textAlign="center" py={12}>
+                <Text color="#71717A" fontSize="sm">
+                  {searchQuery
+                    ? "No folders match your search."
+                    : "No folders available. Create a folder first."}
+                </Text>
+              </Box>
+            ) : (
+              <SimpleGrid columns={2} gap={{ base: 4, lg: 5 }}>
+                {filteredFolders.map((folder) => (
+                  <FolderSelectCard
+                    key={folder.id}
+                    folder={folder}
+                    memberLabelPlural={memberLabelPlural}
+                    isSelected={selectedFolderIds.has(folder.id)}
+                    onToggle={() => toggleFolder(folder.id)}
+                  />
+                ))}
+              </SimpleGrid>
+            )}
+          </Box>
+
+          <Box
+            px={{ base: 4, lg: 5 }}
+            py={4}
+            display="flex"
+            flexDirection={{ base: "column", lg: "row" }}
+            justifyContent="space-between"
+            alignItems="center"
+            gap={4}
+            w="100%"
+          >
+            <ButtonV2
+              variant="secondary"
+              fontSize="md"
+              w={{ base: "100%", lg: "fit-content" }}
+              py={3}
+              px={4}
+              h="44px"
+              onClick={() => setShowCreateFolder(true)}
+              icon={<Plus size={16} color="#000000" />}
+              border="1px solid #E4E4E7"
+              bg="white"
+              color="#27272A"
+            >
+              Create a New Folder
+            </ButtonV2>
+            <ButtonV2
+              variant="primary"
+              fontSize="md"
+              w={{ base: "100%", lg: "fit-content" }}
+              py={3}
+              px={6}
+              onClick={onSubmit}
+              isLoading={isAdding}
+              disabled={selectedFolderIds.size === 0}
+              h="44px"
+            >
+              Save to Folder
+            </ButtonV2>
+          </Box>
+        </Box>
+      </Box>
+
+      <CreateFolderModal
+        isOpen={showCreateFolder}
+        onClose={() => setShowCreateFolder(false)}
+        opportunitySlug={opportunitySlug}
+        onSuccess={handleCreateFolderSuccess}
+      />
+    </>
+  );
+};
+
+function FolderSelectCard({
+  folder,
+  memberLabelPlural,
+  isSelected,
+  onToggle,
+}: {
+  folder: Folder;
+  memberLabelPlural: string;
+  isSelected: boolean;
+  onToggle: () => void;
+}) {
+  return (
     <Box
-      position="fixed"
-      top={0}
-      left={0}
-      right={0}
-      bottom={0}
-      bg="blackAlpha.600"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      zIndex={1000}
-      onClick={handleClose}
+      bg="white"
+      borderRadius="lg"
+      border={isSelected ? "2px solid #2AA8E0" : "1px solid #E4E4E7"}
+      w="100%"
+      h="180px"
+      p={4}
+      cursor="pointer"
+      transition="border-color 0.2s, box-shadow 0.2s"
+      _hover={{
+        borderColor: isSelected ? "#2AA8E0" : "#D4D4D8",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+      }}
+      onClick={onToggle}
+      position="relative"
     >
       <Box
-        bg="white"
-        borderRadius="20px"
-        w="90%"
-        maxW="500px"
-        p={6}
-        onClick={(e) => e.stopPropagation()}
-        position="relative"
+        position="absolute"
+        top={3}
+        right={3}
+        w="18px"
+        h="18px"
+        borderRadius="4px"
+        border="1px solid"
+        borderColor={isSelected ? "#2AA8E0" : "#D4D4D8"}
+        bg={isSelected ? "#2AA8E0" : "white"}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
       >
-        <Button
-          position="absolute"
-          top={4}
-          right={4}
-          variant="ghost"
-          size="sm"
-          onClick={handleClose}
-        >
-          <Image src="/assets/cancel.svg" alt="Close" width={25} height={25} />
-        </Button>
-
-        <VStack align="stretch" gap={6}>
-          <Text
-            fontSize="24px"
-            fontWeight="bold"
-            color="#000000"
-            textAlign="left"
+        {isSelected && (
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 12 12"
+            fill="none"
+            stroke="white"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            Add {userName} to Folders
+            <polyline points="2 6 5 9 10 3" />
+          </svg>
+        )}
+      </Box>
+
+      <Box
+        display="flex"
+        flexDirection="column"
+        h="100%"
+        justifyContent="space-between"
+      >
+        <Image
+          src="/assets/grouporg2.png"
+          alt="Folder"
+          width={60}
+          height={32}
+          style={{ objectFit: "contain" }}
+        />
+        <VStack align="stretch" gap={1} minW={0}>
+          <Text fontSize="sm" fontWeight="600" color="#18181B" lineClamp={2}>
+            {folder.name}
           </Text>
-
-          {foldersLoading ? (
-            <Box display="flex" justifyContent="center" py={4}>
-              <Loader size="lg" color="#2CA9DF" />
-            </Box>
-          ) : (
-            <VStack align="stretch" gap={4}>
-              {folderNames.length === 0 && !isCreatingFolder ? (
-                <Box textAlign="center" py={4}>
-                  <Text color="gray.600">
-                    No folders available. Create a folder first to add users.
-                  </Text>
-                </Box>
-              ) : !isCreatingFolder ? (
-                <form onSubmit={handleSubmit(onSubmit)}>
-                  <VStack align="stretch" gap={4}>
-                    <SelectField
-                      name="selectedFolders"
-                      label="Select Folders"
-                      control={control}
-                      options={folderNames}
-                      placeholder="Choose folders to add user to..."
-                      multiple={true}
-                      required={true}
-                      error={errors.selectedFolders?.message}
-                    />
-
-                    <Box
-                      display="flex"
-                      gap={4}
-                      justifyContent="flex-end"
-                      mt={4}
-                    >
-                      <Button
-                        type="submit"
-                        fontSize="14px"
-                        fontWeight="600"
-                        h="40px"
-                        variant="primary"
-                        color="white"
-                        borderRadius="8px"
-                        loading={isAdding}
-                        disabled={isAdding || folderNames.length === 0}
-                        maxW="125px"
-                        w="100%"
-                      >
-                        Add
-                      </Button>
-                    </Box>
-                  </VStack>
-                </form>
-              ) : null}
-
-              {isCreatingFolder ? (
-                <VStack align="stretch" gap={3}>
-                  <Field.Root>
-                    <Field.Label
-                      fontSize="14px"
-                      fontWeight="500"
-                      color="#000000"
-                    >
-                      New Folder Name
-                    </Field.Label>
-                    <Input
-                      value={newFolderName}
-                      onChange={(e) => setNewFolderName(e.target.value)}
-                      placeholder="Enter folder name"
-                      h="45px"
-                      borderRadius="8px"
-                      border="1px solid #2CA9DF"
-                      _focus={{
-                        borderColor: "#2CA9DF",
-                        boxShadow: "0 0 0 1px #2CA9DF",
-                      }}
-                    />
-                  </Field.Root>
-                  <Field.Root>
-                    <Field.Label
-                      fontSize="14px"
-                      fontWeight="500"
-                      color="#000000"
-                    >
-                      Description (optional)
-                    </Field.Label>
-                    <Input
-                      value={newFolderDescription}
-                      onChange={(e) => setNewFolderDescription(e.target.value)}
-                      placeholder="Enter folder description"
-                      h="45px"
-                      borderRadius="8px"
-                      border="1px solid #2CA9DF"
-                      _focus={{
-                        borderColor: "#2CA9DF",
-                        boxShadow: "0 0 0 1px #2CA9DF",
-                      }}
-                    />
-                  </Field.Root>
-                  <Box display="flex" gap={3} justifyContent="flex-end" mt={2}>
-                    <Button
-                      variant="ghost"
-                      bg="gray.200"
-                      color="gray.700"
-                      onClick={() => {
-                        setIsCreatingFolder(false);
-                        setNewFolderName("");
-                        setNewFolderDescription("");
-                      }}
-                      fontSize="14px"
-                      h="40px"
-                      px={6}
-                      borderRadius="15px"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      bg="#2CA9DF"
-                      color="white"
-                      onClick={handleCreateFolder}
-                      loading={createFolder.isPending}
-                      disabled={!newFolderName.trim()}
-                      fontSize="14px"
-                      h="40px"
-                      px={6}
-                      borderRadius="15px"
-                    >
-                      Create
-                    </Button>
-                  </Box>
-                </VStack>
-              ) : (
-                <Box
-                  display="flex"
-                  width="fit-content"
-                  alignItems="center"
-                  gap={2}
-                  cursor="pointer"
-                  onClick={() => setIsCreatingFolder(true)}
-                  color="#4a4a4a"
-                  _hover={{ opacity: 0.8 }}
-                  py={2}
-                >
-                  <FolderPlus size={20} />
-                  <Text fontSize="14px" fontWeight="500">
-                    Create New Folder
-                  </Text>
-                </Box>
-              )}
-            </VStack>
+          <Text fontSize="xs" color="#71717A">
+            {folder.member_count} {memberLabelPlural}
+          </Text>
+          {folder.updated_at && (
+            <Text fontSize="xs" color="#A1A1AA">
+              updated {formatRelativeTime(folder.updated_at)}
+            </Text>
           )}
         </VStack>
       </Box>
     </Box>
   );
-};
+}

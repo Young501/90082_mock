@@ -26,12 +26,12 @@ export const OpportunityDescriptionCard = ({
   currentOpportunity,
   links = [],
 }: OpportunityDescriptionCardProps) => {
-  // Use currentOpportunity if available, otherwise check opportunity directly
   const accessibleOpportunity =
     currentOpportunity || (opportunity as AccessibleOpportunity);
   const enrollmentStatus =
     accessibleOpportunity?.enrollment_status ||
-    (opportunity.is_enrolled ? "enrolled" : "not_enrolled");
+    (currentOpportunity?.is_enrolled ? "enrolled" : "not_enrolled");
+
   const visibilityDisplay =
     accessibleOpportunity?.visibility_display || "Public Opportunity";
 
@@ -124,28 +124,24 @@ export const OpportunityDescriptionCard = ({
           </Flex>
 
           <HStack gap={2} align="center" flexShrink={0}>
-            {isEnrolled && (
-              <Badge
-                bg=""
-                // border="1px solid"
-                boxShadow="0px 0px 1px 0px #116932 inset"
-                fontSize={{ base: "xs", md: "sm" }}
-                px={{ base: "6px", md: 3 }}
-                py={{ base: "2px", md: 1 }}
-                borderRadius="4px"
-                fontWeight="normal"
-                color="#116932"
-              >
-                Enrolled
-              </Badge>
-            )}
-            <IconButton
-              aria-label="More options"
-              variant="ghost"
-              //   size="sm"
-              //   color="gray.600"
-              //   _hover={{ bg: "gray.100" }}
+            <Badge
+              bg="transparent"
+              // border="1px solid"
+              boxShadow={
+                isEnrolled
+                  ? "0px 0px 1px 0px #116932 inset"
+                  : "0px 0px 1px 0px #EA580C inset"
+              }
+              fontSize={{ base: "xs", md: "sm" }}
+              px={{ base: "6px", md: 3 }}
+              py={{ base: "2px", md: 1 }}
+              borderRadius="4px"
+              fontWeight="normal"
+              color={isEnrolled ? "#116932" : "#EA580C"}
             >
+              {isEnrolled ? "Enrolled" : "Pending Enrollment"}
+            </Badge>
+            <IconButton aria-label="More options" variant="ghost">
               <IconMoreEllipsis color="#52525B" />
             </IconButton>
           </HStack>

@@ -1,20 +1,13 @@
 import React, { useState } from "react";
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Card,
-  Avatar,
-  Heading,
-} from "@chakra-ui/react";
+import { Box, VStack, HStack, Text, Avatar } from "@chakra-ui/react";
 import { OrganisationProfile } from "@/types/discovery";
-import Image from "next/image";
 import { FullProfileCard } from "./FullProfileCard";
 import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
 import { DeleteModal } from "../../folders/modals/DeleteModal";
-import { Button } from "@/components/ui/Button";
-import { Globe } from "lucide-react";
+import { ButtonV2 } from "@/components/ui/ButtonV2";
+import { MapPin, MessageCircle, FolderHeart, Dot } from "lucide-react";
+import { Tooltip } from "@/components/ui/tooltip";
+import { ContactPage } from "@/components/ContactPage";
 
 interface OrganisationCardProps {
   organisation: OrganisationProfile;
@@ -31,7 +24,6 @@ interface OrganisationCardProps {
 export function OrganisationCard({
   organisation,
   maxW,
-  profilePictureUrl,
   isInFolder = false,
   onRemoveFromFolder,
   disableViewFullProfile = false,
@@ -41,15 +33,12 @@ export function OrganisationCard({
 }: OrganisationCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
-  const [clickBackground, setClickBackground] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [addedToFolder, setAddedToFolder] = useState(false);
 
   const getCompanyLogo = () => {
-    if (organisation.logo_url) {
-      return organisation.logo_url;
-    } else {
-      return organisation.profile_picture_url;
-    }
+    return organisation.logo_url || organisation.profile_picture_url;
   };
 
   const handleViewFullProfile = () => {
@@ -58,226 +47,222 @@ export function OrganisationCard({
     }
   };
 
-  const handleAddToFolder = () => {
-    setClickBackground(true);
+  const handleContact = () => {
+    if (organisation.allow_contact && organisation.id) {
+      setShowContactModal(true);
+    }
+  };
+
+  const handleAddToFolder = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (organisation.id) {
       if (isInFolder && onRemoveFromFolder) {
         setDeleteModal(true);
       } else {
         setShowAddToFolderModal(true);
       }
-    } else {
-      setClickBackground(false);
     }
   };
+
+  const industryText = organisation.industry || organisation.sector;
+  const matchPercentage = organisation.matchPercentage || 0;
+  const locationText = organisation.location || "";
+  const distanceText =
+    organisation.distance_km != null
+      ? `${organisation.distance_km % 1 === 0 ? organisation.distance_km : organisation.distance_km.toFixed(1)} km`
+      : "";
 
   return (
     <>
       <Box
-        bg={clickBackground ? "#2CA9DF" : "#D1D1D1"}
-        borderRadius="2xl"
+        bg="white"
+        borderRadius="xl"
         border="1px solid"
-        borderColor="gray.200"
-        boxShadow="0px 3.37px 6.74px 3.37px rgba(0, 0, 0, 0.25)"
+        borderColor="#E4E4E7"
         overflow="hidden"
         position="relative"
-        borderTopRightRadius="20px"
         w="100%"
+        h="251px"
+        p={4}
         maxW={maxW}
+        display="flex"
+        flexDirection="column"
+        transition="box-shadow 0.2s, border-color 0.2s"
+        _hover={{
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+          borderColor: "#D4D4D8",
+        }}
       >
-        <Box position="absolute" top={4} right={4} zIndex={1}>
-          <Box
-            w={6}
-            h={6}
-            bg={clickBackground ? "#2CA9DF" : "transparent"}
-            borderRadius="md"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            cursor="pointer"
-            // _focus={{
-            //   outline: "none",
-            //   bg: "#2CA9DF",
-            // }}
-            onClick={disableAddToFolder ? undefined : handleAddToFolder}
-          >
-            {isInFolder ? (
-              <i
-                className="fa-solid fa-trash"
-                style={{ color: "#DC2626", fontSize: "20px" }}
-              />
-            ) : (
-              <Box pos="relative" w="20px" h="20px">
-                <Image
-                  src="/assets/addicon.svg"
-                  alt="add"
-                  fill
-                  style={{ objectFit: "contain" }}
-                />
-              </Box>
-            )}
-          </Box>
-        </Box>
-
-        <Box
-          px="20px"
-          py="40px"
-          bg="white"
-          borderTopRightRadius="150px"
-          display="flex"
-          flexDirection="column"
-          boxShadow="0px 3.37px 6.74px 3.37px rgba(0, 0, 0, 0.25)"
-          w="full"
-          h="full"
+        <HStack
+          align="flex-start"
+          gap={3}
+          mb={4}
+          justifyContent="space-between"
         >
-          <Box display="flex" flexDirection="column" gap={4} flex="1">
-            <Box
-              display="flex"
-              flexDirection="row"
-              gap={2}
-              justifyContent="center"
-              w="full"
+          <VStack align="flex-start" gap={3}>
+            <Avatar.Root
+              w="40px"
+              h="40px"
+              borderRadius="13px"
+              flexShrink={0}
+              bg="#F4F4F5"
             >
-              <Box display="flex" flexDirection="column" gap={6}>
-                <Avatar.Root
-                  w="130px"
-                  h="130px"
-                  borderRadius="full"
-                  border="6px solid #22C45E"
-                >
-                  <Avatar.Fallback
-                    name={
-                      organisation.first_name + " " + organisation.last_name
-                    }
-                    bg="gray.200"
-                    color="gray.800"
-                    fontWeight="bold"
-                    fontSize="2xl"
-                  />
-                  {getCompanyLogo() && (
-                    <Avatar.Image src={getCompanyLogo() || ""} />
-                  )}
-                </Avatar.Root>
+              <Avatar.Fallback
+                name={organisation.name || organisation.first_name}
+                bg="#E4E4E7"
+                color="#71717A"
+                fontWeight="600"
+                fontSize="sm"
+                borderRadius="full"
+              />
+              {getCompanyLogo() && (
+                <Avatar.Image
+                  src={getCompanyLogo() || ""}
+                  w="24px"
+                  h="24px"
+                  borderRadius="13px"
+                />
+              )}
+            </Avatar.Root>
 
-                {organisation.allow_contact && (
-                  <Box
-                    bg="#22C45E"
-                    color="white"
-                    borderRadius="2xl"
-                    py={2}
-                    px={4}
-                    fontSize="12px"
-                    fontWeight="400"
-                    w="100%"
-                    display="flex"
-                    justifyContent="center"
+            <VStack align="stretch" gap={1} flex={1} minW={0}>
+              <HStack alignItems="center" gap={1}>
+                <Tooltip content={organisation.name}>
+                  <Text
+                    fontSize="md"
+                    fontWeight="500"
+                    color="#000000"
+                    lineHeight="tight"
+                    maxW="150px"
+                    truncate
                   >
-                    open to contact
+                    {organisation.name}
+                  </Text>
+                </Tooltip>
+                {organisation.actively_hiring && (
+                  <Box
+                    flexShrink={0}
+                    px={1.5}
+                    py={0.5}
+                    bg="#F4F4F5"
+                    borderRadius="md"
+                    fontSize="xs"
+                    fontWeight="500"
+                    color="#173DA6"
+                    boxShadow="0px 0px 1px 0px #D4D4D8 inset"
+                  >
+                    Actively Hiring
                   </Box>
                 )}
-              </Box>
+              </HStack>
 
-              <Box display="flex" flexDirection="column" gap={3} w="full">
-                <Heading
-                  fontSize={{ base: "16px", md: "20px" }}
-                  textTransform="capitalize"
-                  fontWeight="bold"
-                  color="#000000"
-                  whiteSpace="normal"
-                  wordBreak="break-word"
-                >
-                  {organisation.name || ""}
-                </Heading>
-
-                <Box display="flex" flexDirection="column" gap={2}>
-                  {organisation.location && (
-                    <HStack align="flex-start" gap={2}>
-                      <Box
-                        w="16px"
-                        h="16px"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        flexShrink={0}
-                        mt="3px"
-                      >
-                        <Image
-                          width={12}
-                          height={12}
-                          src="/assets/locationIcon.svg"
-                          alt="location"
-                          style={{ objectFit: "contain" }}
-                        />
-                      </Box>
-
-                      <Box>
-                        <Text
-                          fontSize="sm"
-                          color="gray.600"
-                          whiteSpace="normal"
-                          wordBreak="break-word"
-                        >
-                          {organisation.location}
-                        </Text>
-
-                        {organisation.distance_km !== undefined &&
-                          organisation.distance_km !== null && (
-                            <Text
-                              fontSize="sm"
-                              color="gray.600"
-                              whiteSpace="normal"
-                              wordBreak="break-word"
-                            >
-                              (
-                              <Text as="span" fontWeight="semibold">
-                                {organisation.distance_km} km
-                              </Text>
-                              )
-                            </Text>
-                          )}
-                      </Box>
-                    </HStack>
-                  )}
-
-                  {organisation.website && (
-                    <HStack gap={2} align="start">
-                      <Box
-                        w="16px"
-                        h="16px"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        flexShrink={0}
-                        mt="3px" // tweak until aligned with text
-                      >
-                        <Globe size={16} color="#C3C3C3" />
-                      </Box>
-                      <Text
-                        fontSize="sm"
-                        color="gray.600"
-                        whiteSpace="normal"
-                        wordBreak="break-word"
-                      >
-                        {organisation.website}
+              {(locationText || distanceText) && (
+                <HStack gap={1.5} color="#71717A" fontSize="sm">
+                  <Box flexShrink={0}>
+                    <MapPin size={14} strokeWidth={2} color="#52525B" />
+                  </Box>
+                  <HStack alignItems="center" gap={1}>
+                    <Text whiteSpace="nowrap">{locationText}</Text>
+                    {locationText && distanceText && (
+                      <Dot size={20} color="#A1A1AA" />
+                    )}
+                    {distanceText && (
+                      <Text whiteSpace="nowrap" wordBreak="break-word">
+                        {distanceText}
                       </Text>
-                    </HStack>
-                  )}
-                </Box>
-              </Box>
-            </Box>
-          </Box>
+                    )}
+                  </HStack>
+                </HStack>
+              )}
 
-          <Button
-            variant="partner"
-            w="full"
-            py={6}
-            mt={4}
+              {/* {industryLabel && (
+                <Text fontSize="sm" color="#52525B" lineClamp={1}>
+                  {industryLabel}
+                </Text>
+              )} */}
+            </VStack>
+            <VStack align="stretch" gap={2}>
+              {industryText && (
+                <Box>
+                  <Text color="#52525B" fontSize="sm">
+                    {industryText}
+                  </Text>
+                </Box>
+              )}
+              {organisation.matchPercentage && (
+                <Box
+                  flexShrink={0}
+                  px={1.5}
+                  py={0.5}
+                  bg="#DCFCE7"
+                  borderRadius="md"
+                  fontSize="xs"
+                  fontWeight="500"
+                  color="#116932"
+                  boxShadow="0px 0px 1px 0px #D4D4D8 inset"
+                >
+                  {organisation.matchPercentage}% Match
+                </Box>
+              )}
+            </VStack>
+          </VStack>
+          {!disableAddToFolder && (
+            <Box
+              p={1.5}
+              borderRadius="md"
+              position="absolute"
+              top={4}
+              right={4}
+              cursor="pointer"
+              color={addedToFolder ? "#2AA8E0" : "#71717A"}
+              _hover={{ color: "#2AA8E0" }}
+              onClick={handleAddToFolder}
+              aria-label={isInFolder ? "Remove from folder" : "Add to folder"}
+            >
+              {isInFolder ? (
+                <Box color="#DC2626" fontSize="18px">
+                  <i
+                    className="fa-solid fa-trash"
+                    style={{ fontSize: "16px" }}
+                  />
+                </Box>
+              ) : (
+                <FolderHeart
+                  size={18}
+                  strokeWidth={addedToFolder ? 2.5 : 1.5}
+                />
+              )}
+            </Box>
+          )}
+        </HStack>
+
+        <HStack gap={2} w="100%" mt="auto">
+          <ButtonV2
+            variant="primary"
+            flex={1}
+            size="sm"
+            py={3}
             onClick={handleViewFullProfile}
             disabled={!organisation.id || disableViewFullProfile}
           >
-            View Full Profile
-          </Button>
-        </Box>
+            View Profile
+          </ButtonV2>
+          {organisation.allow_contact && (
+            <ButtonV2
+              variant="secondary"
+              size="sm"
+              flex={1}
+              py={3}
+              px={4}
+              onClick={handleContact}
+              disabled={!organisation.id}
+              icon={<MessageCircle size={16} />}
+            >
+              Contact
+            </ButtonV2>
+          )}
+        </HStack>
+        {/* </Box> */}
       </Box>
 
       {showFullProfile && organisation.id && (
@@ -290,6 +275,24 @@ export function OrganisationCard({
         />
       )}
 
+      {/* we need to find a way to access right organisation ID from here to navigate to the contact modal directly */}
+
+      {/* {showContactModal && organisation.id && (
+        <ContactPage
+          recipientId={organisation.id}
+          organisationId={organisation.id.toString()}
+          acceptedOpportunityId={opportunityId}
+          members={organisation.members}
+          recipientName={
+            organisation.name ||
+            `${organisation.first_name ?? ""} ${organisation.last_name ?? ""}`.trim() ||
+            "Organisation"
+          }
+          profileType="organisation"
+          onBack={() => setShowContactModal(false)}
+        />
+      )} */}
+
       {showAddToFolderModal &&
         organisation.id &&
         !isInFolder &&
@@ -300,8 +303,8 @@ export function OrganisationCard({
             organisationId={organisation.id}
             userName={organisation.name || "Organisation"}
             opportunitySlug={opportunitySlug}
-            onAddToFolder={() => setClickBackground(true)}
-            onResetBackground={() => setClickBackground(false)}
+            onAddToFolder={() => setAddedToFolder(true)}
+            onResetBackground={() => setAddedToFolder(false)}
             memberType="organisation"
           />
         )}
@@ -312,7 +315,7 @@ export function OrganisationCard({
           onClose={() => setDeleteModal(false)}
           onDelete={() => onRemoveFromFolder?.()}
           InFolder={true}
-          onResetBackground={() => setClickBackground(false)}
+          onResetBackground={() => {}}
         />
       )}
     </>

@@ -54,7 +54,7 @@ export function DiscoveryResultBox({
   sortBy,
   onSortChange,
 }: DiscoveryResultBoxProps) {
-  if (!show) return null;
+  // if (!show) return null;
 
   const count = pagination?.count ?? 0;
 
@@ -74,10 +74,20 @@ export function DiscoveryResultBox({
   }, [searchInput, onQueryChange]);
 
   return (
-    <VStack align="stretch" gap={6} w="100%">
+    <VStack
+      align="stretch"
+      gap={6}
+      w="100%"
+      bg="white"
+      borderRadius="xl"
+      border="1px solid"
+      borderColor="#E4E4E7"
+      p={{ base: 4, md: 5 }}
+      // h={{ base: "100%", lg: "calc(100vh - 355px)" }}
+    >
       <VStack align="stretch" gap={3}>
         <HStack justify="space-between" align="center">
-          <Heading size="md">
+          <Heading size="xl">
             {userType === "student"
               ? "Available Students "
               : "Available Organisations"}
@@ -122,7 +132,12 @@ export function DiscoveryResultBox({
         </Box>
       ) : count > 0 ? (
         <>
-          <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
+          <SimpleGrid
+            columns={{ base: 1, md: 2 }}
+            gap={4}
+            h="100%"
+            overflowY="auto"
+          >
             {results.map((user) => {
               const key = user.id || Math.random();
 
