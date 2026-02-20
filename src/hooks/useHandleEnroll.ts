@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useProductPricing } from "@/services/billing";
 import { AccessInfo } from "@/types/opportunities";
+import { getQuestionnaireKey } from "@/utils/opportunityQuestionnaire";
 
 const hasContent = (val: unknown) => {
   if (!val) return false;
@@ -45,10 +46,13 @@ export function useHandleEnroll({
   const clickedRef = useRef(false);
 
   const userType = user?.user_types?.[0];
-  const qForType = useMemo(
-    () => opportunity?.questionnaire?.[userType as string],
-    [opportunity?.questionnaire, userType]
-  );
+
+  const qForType = useMemo(() => {
+    const questionnaireKey = getQuestionnaireKey(userType);
+    return questionnaireKey
+      ? opportunity?.questionnaire?.[questionnaireKey]
+      : undefined;
+  }, [opportunity?.questionnaire, userType]);
   const shouldShowQuestionnaire = hasContent(qForType);
 
   // Keep params, but do not auto-fetch
@@ -116,7 +120,7 @@ export function useHandleEnroll({
 
       // Step 2: If no pricing or free access, proceed to questionnaire or direct enrollment
       if (shouldShowQuestionnaire) {
-        router.push(`/opportunities/start?opp=${opportunitySlug}`);
+        router.push(`/opportunities/fill?opp=${opportunitySlug}`);
         return;
       }
 
