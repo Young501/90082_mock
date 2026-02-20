@@ -9,6 +9,7 @@ import {
   Field,
   Portal,
   IconButton,
+  Dialog,
 } from "@chakra-ui/react";
 import Image from "next/image";
 import { useCreateFolder } from "@/services/folder";
@@ -63,106 +64,105 @@ export function CreateFolderModal({
   if (!isOpen) return null;
 
   return (
-    <Portal>
-      <Box
-        position="fixed"
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
-        bg="blackAlpha.600"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        zIndex={10000}
-        onClick={handleClose}
-      >
-        <Box
-          bg="white"
-          borderRadius="20px"
-          w="90%"
-          maxW="500px"
-          p={6}
-          onClick={(e) => e.stopPropagation()}
-          position="relative"
-        >
-          <IconButton
-            position="absolute"
-            top={4}
-            right={4}
-            variant="ghost"
-            size="sm"
-            onClick={handleClose}
-            aria-label="Close"
+    <Dialog.Root
+      open={isOpen}
+      onOpenChange={(details) => {
+        if (!details.open) {
+          handleClose();
+        }
+      }}
+      placement="center"
+      trapFocus={true}
+    >
+      <Portal>
+        <Dialog.Backdrop bg="blackAlpha.600" style={{ zIndex: 10000 }} />
+        <Dialog.Positioner zIndex={10000}>
+          <Dialog.Content
+            bg="white"
+            borderRadius="20px"
+            w="90%"
+            maxW="500px"
+            p={6}
+            position="relative"
           >
-            <X size={20} color="#52525B" />
-          </IconButton>
-
-          <VStack align="stretch" gap={6}>
-            <Text
-              fontSize="xl"
-              fontWeight="bold"
-              color="#000000"
-              textAlign="left"
+            <IconButton
+              position="absolute"
+              top={4}
+              right={4}
+              variant="ghost"
+              size="sm"
+              onClick={handleClose}
+              aria-label="Close"
             >
-              Create New Folder
-            </Text>
+              <X size={20} color="#52525B" />
+            </IconButton>
 
-            <VStack align="stretch" gap={3}>
-              <Field.Root>
-                <Input
-                  value={newFolderName}
-                  onChange={(e) => setNewFolderName(e.target.value)}
-                  placeholder="Folder name"
-                  h="45px"
-                  borderRadius="xl"
+            <VStack align="stretch" gap={6}>
+              <Text
+                fontSize="xl"
+                fontWeight="bold"
+                color="#000000"
+                textAlign="left"
+              >
+                Create New Folder
+              </Text>
+
+              <VStack align="stretch" gap={3}>
+                <Field.Root>
+                  <Input
+                    value={newFolderName}
+                    onChange={(e) => setNewFolderName(e.target.value)}
+                    placeholder="Folder name"
+                    h="45px"
+                    borderRadius="xl"
+                    border="1px solid #E4E4E7"
+                  />
+                </Field.Root>
+                <Field.Root>
+                  <Input
+                    value={newFolderDescription}
+                    onChange={(e) => setNewFolderDescription(e.target.value)}
+                    placeholder="Folder description"
+                    h="45px"
+                    borderRadius="xl"
+                    border="1px solid #E4E4E7"
+                  />
+                </Field.Root>
+              </VStack>
+              <Box display="flex" gap={3} justifyContent="flex-start" mt={2}>
+                <ButtonV2
+                  variant="ghost"
+                  bg="transparent"
+                  color="black"
+                  onClick={handleClose}
+                  fontSize="14px"
                   border="1px solid #E4E4E7"
-                />
-              </Field.Root>
-              <Field.Root>
-                <Input
-                  value={newFolderDescription}
-                  onChange={(e) => setNewFolderDescription(e.target.value)}
-                  placeholder="Folder description"
-                  h="45px"
+                  h="40px"
+                  px={6}
                   borderRadius="xl"
-                  border="1px solid #E4E4E7"
-                />
-              </Field.Root>
+                  w="155px"
+                >
+                  Cancel
+                </ButtonV2>
+                <ButtonV2
+                  bg="#2AA8E0"
+                  color="white"
+                  flex={1}
+                  onClick={handleCreateFolder}
+                  isLoading={createFolder.isPending}
+                  disabled={!newFolderName.trim()}
+                  fontSize="14px"
+                  h="40px"
+                  px={6}
+                  borderRadius="xl"
+                >
+                  Create
+                </ButtonV2>
+              </Box>
             </VStack>
-            <Box display="flex" gap={3} justifyContent="flex-start" mt={2}>
-              <ButtonV2
-                variant="ghost"
-                bg="transparent"
-                color="black"
-                onClick={handleClose}
-                fontSize="14px"
-                border="1px solid #E4E4E7"
-                h="40px"
-                px={6}
-                borderRadius="xl"
-                w="155px"
-              >
-                Cancel
-              </ButtonV2>
-              <ButtonV2
-                bg="#2AA8E0"
-                color="white"
-                flex={1}
-                onClick={handleCreateFolder}
-                isLoading={createFolder.isPending}
-                disabled={!newFolderName.trim()}
-                fontSize="14px"
-                h="40px"
-                px={6}
-                borderRadius="xl"
-              >
-                Create
-              </ButtonV2>
-            </Box>
-          </VStack>
-        </Box>
-      </Box>
-    </Portal>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Portal>
+    </Dialog.Root>
   );
 }
