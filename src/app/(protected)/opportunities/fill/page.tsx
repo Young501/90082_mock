@@ -26,11 +26,15 @@ import {
   QuestionnaireForm,
   QuestionnaireFormRef,
 } from "@/components/questionnaire/QuestionnaireForm";
-import { Button } from "@/components/ui/Button";
 import { Loader } from "lucide-react";
 import { useQuestionnaireAnswers } from "@/hooks/useQuestionnaireAnswers";
 import { Question } from "@/types/onboarding";
 import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
+import { ButtonV2 } from "@/components/ui/ButtonV2";
+import {
+  QuestionnaireSection,
+  getQuestionnaireSections,
+} from "@/utils/opportunityQuestionnaire";
 
 function OpportunityFillContent() {
   const sp = useSearchParams();
@@ -65,25 +69,14 @@ function OpportunityFillContent() {
 
   const userType = user?.user_types?.[0] || "student";
 
-  const getQuestionnaireKey = (
-    type: string | undefined
-  ): string | undefined => {
-    if (!type) return undefined;
-    if (type === "student") return "student_opportunity_questionnaire";
-    if (type === "organisation")
-      return "organisation_opportunity_questionnaire";
-    return undefined;
-  };
+  const sections: QuestionnaireSection[] = useMemo(
+    () => getQuestionnaireSections(opportunity?.questionnaire, userType),
+    [opportunity?.questionnaire, userType]
+  );
 
-  const questions: Question[] = useMemo(() => {
-    if (!opportunity?.questionnaire) return [];
-    const questionnaireKey = getQuestionnaireKey(userType);
-    return questionnaireKey
-      ? opportunity.questionnaire[questionnaireKey] || []
-      : [];
-  }, [userType, opportunity?.questionnaire]);
-
-  console.log(questions);
+  const allQuestions: Question[] = useMemo(() => {
+    return sections.flatMap((section) => section.questions);
+  }, [sections]);
 
   const handleAnswersChange = useCallback(
     (newAnswers: Record<string, any>) => {
@@ -95,10 +88,8 @@ function OpportunityFillContent() {
     [updateAnswers, hasValidationError]
   );
 
-  // Handle scrolling to specific field when edit parameter is present
   useEffect(() => {
-    if (editField && questions.length > 0) {
-      // Small delay to ensure the form is rendered
+    if (editField && allQuestions.length > 0) {
       setTimeout(() => {
         const fieldElement = document.querySelector(`[name="${editField}"]`);
         if (fieldElement) {
@@ -106,17 +97,16 @@ function OpportunityFillContent() {
             behavior: "smooth",
             block: "center",
           });
-          // Focus the field if it's focusable
           if (fieldElement instanceof HTMLElement && fieldElement.focus) {
             fieldElement.focus();
           }
         }
       }, 100);
     }
-  }, [editField, questions]);
+  }, [editField, allQuestions]);
 
   const handleBack = () => {
-    router.push(`/opportunities/start?opp=${opportunitySlug}`);
+    router.push(`/discover?opp=${opportunitySlug}`);
   };
 
   const handleNext = async () => {
@@ -177,36 +167,19 @@ function OpportunityFillContent() {
   }
 
   return (
-    <Box maxW="800px" mx="auto" p={6} pt={{ base: "90px", lg: "140px" }}>
+    <Box mx="auto">
       <VStack gap={6} align="stretch">
-        {/* Progress Tracker */}
-        <ProgressTrack progressPercent={50} totalSteps={4} />
-
-        {/* Header */}
         <Box>
-          <HStack gap={3} mb={4}>
-            <Button variant="ghost" onClick={handleBack} size="sm" p={2}>
-              ← Back
-            </Button>
-          </HStack>
-
-          <Heading
-            fontSize={{ base: "2xl", md: "3xl" }}
-            fontWeight="700"
-            color="gray.900"
-            mb={2}
-          >
-            Opportunity Enrollment
+          <Heading fontSize="2xl" fontWeight="600" color="#18181B" mb={1}>
+            Opportunity Enrollment Questions
           </Heading>
-          <Text fontSize="md" color="gray.600" mb={4}>
+          <Text fontSize="lg" color="#52525B">
             Fill out the questionnaire for:{" "}
-            <Text as="span" fontWeight="600">
-              {opportunity.title}
-            </Text>
+            <Text as="span">{opportunity.title}</Text>
           </Text>
         </Box>
 
-        <Text fontSize="sm" color="gray.600" mb={4}>
+        <Text fontSize="sm" color="gray.600">
           Required fields are marked with{" "}
           <Text as="span" color="red.500">
             *
@@ -227,11 +200,10 @@ function OpportunityFillContent() {
           </Alert.Root>
         )}
 
-        {/* Questionnaire Form */}
-        {questions.length > 0 ? (
+        {sections.length > 0 ? (
           <QuestionnaireForm
             ref={questionnaireRef}
-            questions={questions}
+            sections={sections}
             onAnswersChange={handleAnswersChange}
             initialValues={answers}
           />
@@ -246,47 +218,42 @@ function OpportunityFillContent() {
           </Alert.Root>
         )}
 
-        {/* Navigation Buttons */}
-        <Stack
-          direction={{ base: "column", md: "row" }}
-          justify={{ base: "stretch", md: "space-between" }}
-          align="stretch"
+        <HStack
+          justify="flex-end"
+          align="flex-end"
           w="100%"
           pt={6}
           pb={4}
+          alignSelf="flex-end"
+          gap={4}
         >
-          <Button
-            variant="secondary"
+          <ButtonV2
+            variant="ghost"
             borderRadius="xl"
-            h="50px"
+            border="1px solid #D6EDFB"
+            color="#1679AB"
+            h="48px"
             fontSize={"md"}
-            maxW={{ base: "100%", md: "350px" }}
-            w="100%"
+            px={5}
+            py={4}
+            w="fit-content"
             onClick={handleBack}
           >
-            ← Back
-          </Button>
+            Back
+          </ButtonV2>
 
-          <Button
+          <ButtonV2
             onClick={handleNext}
-            bg="blue.500"
-            color="white"
-            borderRadius="xl"
-            h="50px"
+            variant="primary"
+            h="48px"
+            maxW="246px"
             fontSize={"md"}
             w="100%"
-            maxW={{ base: "100%", md: "350px" }}
-            _hover={{ bg: "blue.600" }}
-            disabled={questions.length === 0}
+            disabled={sections.length === 0}
           >
-            Review Answers →
-          </Button>
-        </Stack>
-
-        {/* Auto-save indicator */}
-        <Text fontSize="xs" color="gray.500" textAlign="center">
-          Your answers are automatically saved as you type
-        </Text>
+            Review Answers
+          </ButtonV2>
+        </HStack>
       </VStack>
     </Box>
   );

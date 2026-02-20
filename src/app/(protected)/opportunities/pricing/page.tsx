@@ -65,7 +65,7 @@ export default function OpportunityPricingPage() {
       });
 
       if (nextStep === "questionnaire") {
-        router.push(`/opportunities/start?opp=${opportunitySlug}`);
+        router.push(`/opportunities/fill?opp=${opportunitySlug}`);
       } else {
         router.push(
           currentOpportunity?.slug

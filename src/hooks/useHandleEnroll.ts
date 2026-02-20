@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useProductPricing } from "@/services/billing";
 import { AccessInfo } from "@/types/opportunities";
+import { getQuestionnaireKey } from "@/utils/opportunityQuestionnaire";
 
 const hasContent = (val: unknown) => {
   if (!val) return false;
@@ -45,24 +46,13 @@ export function useHandleEnroll({
   const clickedRef = useRef(false);
 
   const userType = user?.user_types?.[0];
-  
-  // local constant to get the questionnaire key for the user type rather than extract from api response
-  const getQuestionnaireKey = (type: string | undefined): string | undefined => {
-    if (!type) return undefined;
-    if (type === "student") return "student_opportunity_questionnaire";
-    if (type === "organisation") return "organisation_opportunity_questionnaire";
-    return undefined;
-  };
 
-  const qForType = useMemo(
-    () => {
-      const questionnaireKey = getQuestionnaireKey(userType);
-      return questionnaireKey 
-        ? opportunity?.questionnaire?.[questionnaireKey]
-        : undefined;
-    },
-    [opportunity?.questionnaire, userType]
-  );
+  const qForType = useMemo(() => {
+    const questionnaireKey = getQuestionnaireKey(userType);
+    return questionnaireKey
+      ? opportunity?.questionnaire?.[questionnaireKey]
+      : undefined;
+  }, [opportunity?.questionnaire, userType]);
   const shouldShowQuestionnaire = hasContent(qForType);
 
   // Keep params, but do not auto-fetch
@@ -130,7 +120,7 @@ export function useHandleEnroll({
 
       // Step 2: If no pricing or free access, proceed to questionnaire or direct enrollment
       if (shouldShowQuestionnaire) {
-        router.push(`/opportunities/start?opp=${opportunitySlug}`);
+        router.push(`/opportunities/fill?opp=${opportunitySlug}`);
         return;
       }
 
