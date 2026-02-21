@@ -34,6 +34,7 @@ export function useProfilePictureUpload() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-profile"] });
       queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["user-me-v2"] });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
@@ -50,6 +51,7 @@ export function useProfilePictureDelete() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-profile"] });
       queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["user-me-v2"] });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
