@@ -192,7 +192,7 @@ export const API_ENDPOINTS = {
   },
   RESUME_UPLOAD: {
     method: "POST",
-    url: `/api/v2/profiles/student/me/upload-resume/`,
+    url: `/api/v2/profiles/student/me/resume/`,
   },
   USER_ME_V2: {
     method: "GET",

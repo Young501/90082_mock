@@ -70,7 +70,8 @@ export const createPageSchema = (
             "Please enter a valid email address"
           );
       } else if (question.type === "location_geocode_lookup") {
-        fieldSchema = yup.string().transform((value: any) => {
+        // Location is sent to a dedicated endpoint — accept string or object
+        fieldSchema = yup.mixed().transform((value: any) => {
           if (value === "" || value === null || value === undefined) {
             return undefined;
           }
@@ -94,6 +95,10 @@ export const createPageSchema = (
           if (value === "" || value === null || value === undefined) {
             return undefined;
           }
+          // API may return an object — extract the code/value string
+          if (typeof value === "object") {
+            return value.value ?? value.code ?? value.id ?? undefined;
+          }
           return value;
         });
       } else if (
@@ -102,6 +107,19 @@ export const createPageSchema = (
       ) {
         fieldSchema = yup
           .array()
+          // Normalize object items (e.g. { id, code, label }) to strings
+          .transform((value: any) => {
+            if (!Array.isArray(value)) return value;
+            return value
+              .map((v: any) => {
+                if (typeof v === "string") return v;
+                if (v && typeof v === "object") {
+                  return v.value ?? v.code ?? v.id ?? null;
+                }
+                return null;
+              })
+              .filter(Boolean);
+          })
           .of(yup.string())
           .max(
             question.max_selection || Infinity,
@@ -116,6 +134,19 @@ export const createPageSchema = (
       } else if (question.type === "tag-select") {
         fieldSchema = yup
           .array()
+          // Normalize object items to strings
+          .transform((value: any) => {
+            if (!Array.isArray(value)) return value;
+            return value
+              .map((v: any) => {
+                if (typeof v === "string") return v;
+                if (v && typeof v === "object") {
+                  return v.value ?? v.code ?? v.id ?? null;
+                }
+                return null;
+              })
+              .filter(Boolean);
+          })
           .of(yup.string())
           .transform((value: any) => {
             if (Array.isArray(value) && value.length === 0) {

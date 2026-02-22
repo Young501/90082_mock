@@ -110,8 +110,16 @@ export const TaxonomyMultiselectField = ({
         control={control}
         defaultValue={[]}
         render={({ field }) => {
+          const normalizeValue = (v: any): string => {
+            if (typeof v === "string") return v;
+            if (v && typeof v === "object") {
+              return v.value ?? v.code ?? v.id ?? String(v);
+            }
+            return String(v ?? "");
+          };
+
           const selectedValues: string[] = Array.isArray(field.value)
-            ? field.value
+            ? field.value.map(normalizeValue).filter(Boolean)
             : [];
 
           const handleCheckChange = (optValue: string, checked: boolean) => {

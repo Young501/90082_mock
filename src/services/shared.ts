@@ -213,11 +213,11 @@ export function useStudentProfileV2(enabled: boolean = true) {
   });
 }
 
-export function useUserMeV2() {
+export function useUserMeV2(enabled: boolean = true) {
   return useQuery({
     queryKey: ["user-me-v2"],
     queryFn: () => apiRequest({ endpoint: API_ENDPOINTS.USER_ME_V2 }),
-    enabled: true,
+    enabled,
     staleTime: 5 * 60 * 1000,
   });
 }

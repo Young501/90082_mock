@@ -10,16 +10,7 @@ import {
   useLogoUpload,
   useLogoDelete,
 } from "@/services/shared";
-import {
-  Box,
-  Text,
-  Button,
-  Flex,
-  Avatar,
-  Progress,
-  VStack,
-  Alert,
-} from "@chakra-ui/react";
+import { Box, Text, Button, Flex, VStack, Alert, Tabs } from "@chakra-ui/react";
 import { StudentCard } from "../discover/cards/studentCard";
 import { OrganisationCard } from "../discover/cards";
 import { useForm } from "react-hook-form";
@@ -45,6 +36,12 @@ import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { OrganisationProfile } from "@/types/discovery";
 import MyOpportunities from "@/components/MyOpportunities";
+import { ProfileSummaryCard } from "@/app/(protected)/profile/components/ProfileSummaryCard";
+import { ProfileSectionCard } from "@/app/(protected)/profile/components/ProfileSectionCard";
+import { ProfileEditDialog } from "@/app/(protected)/profile/components/ProfileEditDialog";
+import { DocumentsAndLinksSection } from "@/app/(protected)/profile/components/DocumentsAndLinksSection";
+import { ChangePasswordSection } from "@/app/(protected)/profile/components/ChangePasswordSection";
+import { toProfileDisplayString } from "@/utils/profileDisplay";
 
 const Profile = () => {
   const {
@@ -59,6 +56,11 @@ const Profile = () => {
   const userProfile: UserProfile | null = getUserProfile();
   const [activeTab, setActiveTab] = useState<number>(0);
   const [activeOpportunityTab, setActiveOpportunityTab] = useState<number>(0);
+  const [editingPage, setEditingPage] = useState<{
+    id: number;
+    title: string;
+    questions: OnboardingPage["questions"];
+  } | null>(null);
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
   const [updatedProfilePicture, setUpdatedProfilePicture] = useState<
     string | null
@@ -85,14 +87,15 @@ const Profile = () => {
     reset: changePasswordReset,
   } = changePasswordForm;
 
-  const userType: string = user?.user_types?.[0] || "";
+  const userType: string = useAuthStore((s) => s.getUserType()) ?? "";
   const isCoordinator = userType === "coordinator";
 
   const {
     userProfile: fetchedUserProfile,
     isLoading: isProfileLoading,
     handleOnboardingRedirect,
-  } = useProfile(userType === "coordinator" ? "" : userType);
+    university,
+  } = useProfile(isCoordinator ? "" : userType);
 
   const { data: onboardingData, isLoading: isOnboardingLoading } =
     useOnboardingPages(userType);
@@ -105,9 +108,13 @@ const Profile = () => {
 
   const pages = useMemo(() => {
     if (!onboardingData?.onboarding_pages) return [];
+    const nestedPages = onboardingData.onboarding_pages;
+
+    if (userType === "student") {
+      return nestedPages.student_onboarding ?? nestedPages.user ?? [];
+    }
 
     if (userType === "organisation") {
-      const nestedPages = onboardingData.onboarding_pages;
       if (nestedPages) {
         const userPages = nestedPages.user || [];
         const organisationPages = nestedPages.organisation || [];
@@ -138,7 +145,7 @@ const Profile = () => {
       }
     }
 
-    return onboardingData.onboarding_pages.user || [];
+    return nestedPages.user ?? [];
   }, [onboardingData?.onboarding_pages, userType, profileData]);
 
   const activePage = useMemo(() => pages[activeTab], [pages, activeTab]);
@@ -254,7 +261,7 @@ const Profile = () => {
 
   useEffect(() => {
     setAbnStatus("idle");
-  }, [activePage?.id]);
+  }, [activeTab]);
 
   useEffect(() => {
     if (fetchedUserProfile) {
@@ -317,38 +324,82 @@ const Profile = () => {
   const tabs: Tab[] = useMemo(() => {
     const allTabs: Tab[] = [];
 
-    // Add onboarding pages and insert My Opportunities after education-related pages
-    pages.forEach((page: OnboardingPage) => {
-      allTabs.push({
-        title: page.short_title || page.title,
-        icon: page.title_icon,
-      });
-    });
-
-    // Add My Opportunities after all onboarding pages if not already inserted (only for non-coordinators)
     if (!isCoordinator) {
+      allTabs.push({ title: "My Information", icon: "fa-solid fa-user" });
       allTabs.push({
         title: "My Opportunities",
         icon: "fa-solid fa-folder-closed",
       });
-    }
-
-    // Add Profile Preview for non-coordinators
-    if (!isCoordinator) {
       allTabs.push({
-        title: "Profile Preview",
-        icon: "fa-solid fa-eye",
+        title: "Documents & Links",
+        icon: "fa-solid fa-file-lines",
       });
     }
 
-    // Add Change Password for all users
     allTabs.push({
-      title: "Change Password",
+      title: "Security Settings",
       icon: "fa-solid fa-key",
     });
 
     return allTabs;
-  }, [pages, isCoordinator]);
+  }, [isCoordinator]);
+
+  const isDocumentsPage = (p: OnboardingPage) =>
+    p.questions?.some((q: any) =>
+      ["resume", "homepage", "linkedin", "instagram", "bluesky"].includes(
+        q.field
+      )
+    );
+
+  const infoPages = useMemo(
+    () => pages.filter((p: OnboardingPage) => !isDocumentsPage(p)),
+    [pages]
+  );
+
+  const documentsPage = useMemo(
+    () => pages.find((p: OnboardingPage) => isDocumentsPage(p)) ?? null,
+    [pages]
+  );
+
+  const displayFormData = useMemo(() => {
+    const p = (profileData || userProfile || fetchedUserProfile) as Record<
+      string,
+      unknown
+    > | null;
+    if (!p) return {};
+    const base = { ...p };
+    if (
+      userType === "organisation" &&
+      p.organisation &&
+      typeof p.organisation === "object"
+    ) {
+      const org = p.organisation as Record<string, unknown>;
+      Object.entries(org).forEach(([key, value]) => {
+        if (key !== "organisation" && key !== "members" && value != null) {
+          base[key] = value;
+        }
+      });
+    }
+    return base;
+  }, [profileData, userProfile, fetchedUserProfile, userType]);
+
+  const profileSummaryDisplay = useMemo(() => {
+    const p = (userProfile || fetchedUserProfile) as Record<
+      string,
+      unknown
+    > | null;
+    if (!p) return {};
+    return {
+      userId:
+        toProfileDisplayString(p.student_number) ??
+        toProfileDisplayString(p.user) ??
+        toProfileDisplayString(p.id),
+      email: toProfileDisplayString(p.email),
+      university: toProfileDisplayString(p.university),
+      course: toProfileDisplayString(p.course_stream ?? p.course),
+      yearOfStudy: toProfileDisplayString(p.progression ?? p.year_of_study),
+    };
+  }, [userProfile, fetchedUserProfile]);
 
   const calculateProfileCompletion = (): number => {
     if (!userProfile) return 0;
@@ -603,369 +654,161 @@ const Profile = () => {
     }
   };
 
+  const fullName = useMemo(() => {
+    const p = (userProfile || fetchedUserProfile) as Record<
+      string,
+      unknown
+    > | null;
+    if (!p) return "";
+    const first = toProfileDisplayString(p.first_name) ?? "";
+    const last = toProfileDisplayString(p.last_name) ?? "";
+    const name = `${first} ${last}`.trim();
+    if (name) return name;
+    const org = p.organisation as Record<string, unknown> | undefined;
+    return (
+      toProfileDisplayString(p.name) ?? toProfileDisplayString(org?.name) ?? ""
+    );
+  }, [userProfile, fetchedUserProfile]);
+
   return (
     <>
       <PageTitle title={PAGE_TITLES.PROFILE} />
       <Box maxW="1512px" mx="auto" w="100%" overflow="hidden">
-        <Flex
-          w="100%"
-          direction={{ base: "column", md: "row" }}
-          gap={{ base: 4, lg: 20 }}
-          overflow="hidden"
-        >
+        <VStack align="stretch" gap={5}>
+          {!isCoordinator && (
+            <ProfileSummaryCard
+              profilePictureUrl={getUserProfilePictureUrl() ?? undefined}
+              fullName={fullName || "—"}
+              userId={profileSummaryDisplay.userId}
+              email={profileSummaryDisplay.email}
+              university={profileSummaryDisplay.university}
+              course={profileSummaryDisplay.course}
+              yearOfStudy={profileSummaryDisplay.yearOfStudy}
+              // onPreviewProfile={() => {
+              //   router.push(`/profile/${userProfile?.id}`);
+              // }}
+            />
+          )}
+
+          {/* Content Card - Tabs on top, content below */}
           <Box
-            bg="white"
-            borderRadius="22px"
-            p={6}
-            maxW={{ base: "100%", md: "350px", lg: "444px" }}
-            w="100%"
-            h="fit-content"
-            boxShadow="0px 2.65px 5.3px 1.99px rgba(0, 0, 0, 0.25)"
-            background={
-              userType === "student"
-                ? "linear-gradient(180deg, #F87C7C 0%, #FFFFFF 23.56%, #FFFFFF 37.02%, #FFFFFF 69.71%);"
-                : "linear-gradient(180deg, #089C3F 0%, #FFFFFF 23.56%, #FFFFFF 37.02%, #FFFFFF 69.71%);"
-            }
-          >
-            <Box mb={6}>
-              <Flex align="center" gap={6} mb={6}>
-                <Avatar.Root
-                  w={105}
-                  h={105}
-                  borderRadius="full"
-                  border={
-                    userType === "student"
-                      ? "4px solid #DC2626"
-                      : "4px solid #089C3F"
-                  }
-                >
-                  {(updatedProfilePicture ||
-                    (userType === "student"
-                      ? getUserProfilePictureUrl()
-                      : getLogoUrl())) && (
-                    <Avatar.Image
-                      src={
-                        updatedProfilePicture ||
-                        (userType === "student"
-                          ? getUserProfilePictureUrl()
-                          : getLogoUrl()) ||
-                        undefined
-                      }
-                    />
-                  )}
-                  <Avatar.Fallback
-                    name={
-                      userType === "organisation" &&
-                      userProfile?.organisation?.name
-                        ? userProfile.organisation.name
-                        : isCoordinator
-                          ? "Coordinator"
-                          : `${userProfile?.first_name} ${userProfile?.last_name}`
-                    }
-                    bg="gray.200"
-                    color="gray.800"
-                    fontWeight="bold"
-                    fontSize="2xl"
-                  />
-                </Avatar.Root>
-                <Box>
-                  <Text
-                    fontSize="25px"
-                    fontWeight="bold"
-                    color="#000000"
-                    display={isCoordinator ? "none" : "block"}
-                  >
-                    {userType === "organisation" && userProfile?.name
-                      ? userProfile.name
-                      : `${userProfile?.first_name} ${userProfile?.last_name}`}
-                  </Text>
-                  <Text
-                    fontSize="20px"
-                    color="#000000"
-                    textTransform="capitalize"
-                  >
-                    {/* capitalizing  */}
-                    {userType === "organisation" ? "Organisation" : userType}
-                  </Text>
-                </Box>
-              </Flex>
-
-              <Box display={isCoordinator ? "none" : "block"}>
-                <Progress.Root
-                  value={completionPercentage}
-                  max={100}
-                  size="lg"
-                  borderRadius="full"
-                  mb={2}
-                >
-                  <Progress.Track borderRadius="full">
-                    <Progress.Range
-                      borderRadius="full"
-                      style={{
-                        background:
-                          "radial-gradient(50% 50% at 50% 50%, #2CA9DF 0%, #167BB3 58.17%, #002157 100%)",
-                      }}
-                    />
-                  </Progress.Track>
-                </Progress.Root>
-                <Flex justify="space-between" align="center">
-                  <Text fontSize="16px" color="#000000">
-                    Profile Completion
-                  </Text>
-                  <Text fontSize="16px">{completionPercentage}%</Text>
-                </Flex>
-              </Box>
-            </Box>
-
-            <Box display="flex" flexDirection="column" gap={3} mb={6} pl="20px">
-              {tabs.map((tab: Tab, index: number) => {
-                return (
-                  <Button
-                    key={index}
-                    variant="ghost"
-                    justifyContent="flex-start"
-                    onClick={() => handleTabChange(index)}
-                    borderLeft={
-                      activeTab === index && userType === "student"
-                        ? "4px solid #DC2626"
-                        : activeTab === index &&
-                            (userType === "organisation" || isCoordinator)
-                          ? "4px solid #089C3F"
-                          : ""
-                    }
-                    fontWeight="600"
-                    w="full"
-                    py={5}
-                    px={3}
-                  >
-                    <i
-                      className={tab.icon}
-                      style={{
-                        color: "#000000",
-                        fontSize: "18px",
-                      }}
-                    />
-                    <Text fontSize="16px" fontWeight="600" color="#000000">
-                      {tab.title}
-                    </Text>
-                  </Button>
-                );
-              })}
-            </Box>
-          </Box>
-
-          <Box
-            maxW={{ base: "100%" }}
             w="100%"
             bg="white"
-            p={6}
-            flex={1}
+            borderRadius="12px"
+            border="1px solid"
+            borderColor="#E4E4E7"
             overflow="hidden"
+            p={{ base: 4, md: 5 }}
           >
-            <Text fontSize="25px" fontWeight="bold" mb={6} color="#000000">
-              {tabs[activeTab]?.title || "Tab Details"}
-            </Text>
-
-            {tabs[activeTab]?.title === "Profile Preview" ? (
-              <Box>
-                {userProfile &&
-                  (userType === "student" ? (
-                    <VStack gap={10} w="full" align="flex-start">
-                      <StudentCard
-                        student={userProfile}
-                        profilePictureUrl={getUserProfilePictureUrl()}
-                        userType={userType}
-                        maxW="500px"
-                        disableViewFullProfile={true}
-                        disableAddToFolder={true}
-                      />
-                      <FullProfileCard
-                        profileId={userProfile.id?.toString() || ""}
-                        profileType="student"
-                        isModal={false}
-                        studentProfile={userProfile}
-                        disableBtns={true}
-                      />
-                    </VStack>
-                  ) : userType === "organisation" ? (
-                    <VStack gap={10} w="full" align="flex-start">
-                      <OrganisationCard
-                        organisation={userProfile?.organisation || userProfile}
-                        profilePictureUrl={getUserProfilePictureUrl()}
-                        maxW="500px"
-                        disableViewFullProfile={true}
-                        disableAddToFolder={true}
-                      />
-                      <FullProfileCard
-                        profileId={userProfile.id?.toString() || ""}
-                        profileType="organisation"
-                        isModal={false}
-                        organisationProfile={
-                          userProfile?.organisation || userProfile
-                        }
-                        disableBtns={true}
-                      />
-                    </VStack>
-                  ) : null)}
-              </Box>
-            ) : tabs[activeTab]?.title === "My Opportunities" ? (
-              <MyOpportunities userType={userType} />
-            ) : tabs[activeTab]?.title === "Change Password" ? (
-              <Box
-                maxW="500px"
-                mx="auto"
-                mt={8}
-                p={8}
-                borderRadius="16px"
-                boxShadow="0 2px 8px rgba(0,0,0,0.08)"
-                bg="#F9FAFB"
+            <Tabs.Root
+              value={String(activeTab)}
+              onValueChange={(details) => setActiveTab(Number(details.value))}
+              variant="plain"
+            >
+              <Tabs.List
+                p={4}
+                w="100%"
+                flexWrap="wrap"
+                gap={2}
+                justifyContent={{ base: "center", md: "space-between" }}
+                border="1px solid"
+                borderColor="#E4E4E7"
+                borderRadius="12px"
               >
-                <form
-                  onSubmit={changePasswordHandleSubmit(async (data) => {
-                    setChangePasswordSuccess(false);
-                    setChangePasswordError("");
-                    try {
-                      await handleChangePassword({
-                        old_password: data.old_password,
-                        new_password: data.new_password,
-                      });
-                      setChangePasswordSuccess(true);
-                      changePasswordReset();
-                    } catch (err: any) {
-                      setChangePasswordError(
-                        err?.message || "Failed to change password"
-                      );
-                    }
-                  })}
-                >
-                  <VStack gap={6} align="stretch">
-                    <Box>
-                      <InputField
-                        type="password"
-                        label="OLD PASSWORD"
-                        showPasswordToggle
-                        showPassword={showOldPassword}
-                        onTogglePassword={() =>
-                          setShowOldPassword(!showOldPassword)
-                        }
-                        {...changePasswordRegister("old_password")}
-                        error={changePasswordErrors.old_password?.message}
-                      />
-                    </Box>
-                    <Box>
-                      <InputField
-                        type="password"
-                        label="NEW PASSWORD"
-                        showPasswordToggle
-                        showPassword={showNewPassword}
-                        onTogglePassword={() =>
-                          setShowNewPassword(!showNewPassword)
-                        }
-                        {...changePasswordRegister("new_password")}
-                        error={changePasswordErrors.new_password?.message}
-                      />
-                    </Box>
-                    <Box>
-                      <InputField
-                        type="password"
-                        label="CONFIRM NEW PASSWORD"
-                        showPasswordToggle
-                        showPassword={showConfirmNewPassword}
-                        onTogglePassword={() =>
-                          setShowConfirmNewPassword(!showConfirmNewPassword)
-                        }
-                        {...changePasswordRegister("confirm_new_password")}
-                        error={
-                          changePasswordErrors.confirm_new_password?.message
-                        }
-                      />
-                    </Box>
-                    <Button
-                      type="submit"
-                      mt={4}
-                      borderRadius="8px"
-                      py={3}
-                      px={6}
-                      bg="#CFF3FF"
-                      height="60px"
-                      color="#000000"
-                      fontWeight="600"
-                      fontSize="16px"
-                      loading={changePasswordMutation.isPending}
-                    >
-                      Change Password
-                    </Button>
-                  </VStack>
-                </form>
-              </Box>
-            ) : (
-              <form onSubmit={handleSubmit(handleUpdate)}>
-                {showValidationError &&
-                  hasAttemptedSubmit &&
-                  Object.keys(errors).length > 0 && (
-                    <Alert.Root status="error" mb={4}>
-                      <Alert.Indicator />
-                      <Alert.Title>
-                        Please follow the instructions to fill the form.
-                      </Alert.Title>
-                    </Alert.Root>
-                  )}
-                {activePage?.questions?.map((question: Question) => (
-                  <FieldRenderer
-                    key={question.field}
-                    question={question}
-                    register={register}
-                    control={control}
-                    errors={errors}
-                    setError={setError}
-                    clearErrors={clearErrors}
-                    unregister={unregister}
-                    fileUploadKey={fileUploadKey}
-                    organisationName={organisationNameValue}
-                    onAbnValidationChange={setAbnStatus}
-                    onFileRemove={(fieldName: string) =>
-                      handleFileRemoval(fieldName)
-                    }
-                    removedFiles={removedFiles}
-                  />
+                {tabs.map((tab, index) => (
+                  <Tabs.Trigger
+                    key={tab.title}
+                    value={String(index)}
+                    bg={activeTab === index ? "#EAF6FD" : "transparent"}
+                    color={activeTab === index ? "#1679AB" : "#27272A"}
+                    h="36px"
+                    borderRadius="xl"
+                    fontSize="sm"
+                    fontWeight="500"
+                    textDecoration="none"
+                    borderBottom="none"
+                    border={activeTab === index ? "1px solid #D6EDFB" : "none"}
+                  >
+                    {tab.title}
+                  </Tabs.Trigger>
                 ))}
-                {isAbnBlocking && (
-                  <Alert.Root status="error" mb={4}>
-                    <Alert.Indicator />
-                    <Alert.Title>
-                      Please verify your ABN before saving changes.
-                    </Alert.Title>
-                  </Alert.Root>
+              </Tabs.List>
+
+              <Box mt={6}>
+                {tabs[activeTab]?.title === "My Information" && (
+                  <VStack align="stretch" gap={6}>
+                    {infoPages.map((page: OnboardingPage) => (
+                      <ProfileSectionCard
+                        key={page.id}
+                        page={{
+                          id: page.id,
+                          title: page.title,
+                          questions: page.questions ?? [],
+                        }}
+                        formData={displayFormData}
+                        onEdit={() =>
+                          setEditingPage({
+                            id: page.id,
+                            title: page.title,
+                            questions: page.questions ?? [],
+                          })
+                        }
+                        university={
+                          userType === "student"
+                            ? (university ?? undefined)
+                            : undefined
+                        }
+                      />
+                    ))}
+                    {infoPages.length === 0 && (
+                      <Text color="#71717A" fontSize="sm">
+                        No information to display yet.
+                      </Text>
+                    )}
+                  </VStack>
                 )}
-                <Button
-                  type="submit"
-                  mt={10}
-                  display="flex"
-                  alignItems="center"
-                  justifySelf="flex-end"
-                  borderRadius="8px"
-                  gap={2}
-                  py={3}
-                  px={6}
-                  bg="#CFF3FF"
-                  loading={profileUpdateMutation.isPending}
-                  disabled={profileUpdateMutation.isPending || isAbnBlocking}
-                >
-                  <Image
-                    src="/assets/saveicon.svg"
-                    alt="save"
-                    width={15}
-                    height={20}
+
+                {tabs[activeTab]?.title === "My Opportunities" && (
+                  <MyOpportunities userType={userType} />
+                )}
+
+                {tabs[activeTab]?.title === "Documents & Links" && (
+                  <DocumentsAndLinksSection
+                    profile={displayFormData}
+                    onEdit={
+                      documentsPage
+                        ? () =>
+                            setEditingPage({
+                              id: documentsPage.id,
+                              title: documentsPage.title,
+                              questions: documentsPage.questions ?? [],
+                            })
+                        : undefined
+                    }
                   />
-                  <Text fontWeight="600" fontSize="15px" color="#000000">
-                    Save Changes
-                  </Text>
-                </Button>
-              </form>
-            )}
+                )}
+
+                {tabs[activeTab]?.title === "Security Settings" && (
+                  <ChangePasswordSection />
+                )}
+              </Box>
+            </Tabs.Root>
           </Box>
-        </Flex>
+        </VStack>
       </Box>
+
+      {editingPage && (
+        <ProfileEditDialog
+          isOpen={!!editingPage}
+          onClose={() => setEditingPage(null)}
+          page={editingPage}
+          initialValues={displayFormData}
+          university={
+            userType === "student" ? (university ?? undefined) : undefined
+          }
+          onSuccess={() => setEditingPage(null)}
+        />
+      )}
     </>
   );
 };

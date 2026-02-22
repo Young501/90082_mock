@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { User } from "@/types/user";
+import { User, UserDetailsV2 } from "@/types/user";
 import {
   UserProfile,
   Organisation,
@@ -22,6 +22,7 @@ export interface AuthState {
   isOrganisationMemberOnboarding: boolean;
   accessibleOpportunities: AccessibleOpportunity[] | null;
   setAuthData: (token: string, user: User) => void;
+  setUserDetailsV2: (details: UserDetailsV2) => void;
   logout: () => void;
   setUserType: (userType: string) => void;
   getCurrentUser: () => User | null;
@@ -80,6 +81,12 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
+      setUserDetailsV2: (userDetailsV2: UserDetailsV2) => {
+        const { user } = get();
+        if (!user) return;
+        set({ user: { ...user, userDetailsV2 } });
+      },
+
       logout: () => {
         set({
           user: null,
@@ -110,7 +117,13 @@ export const useAuthStore = create<AuthState>()(
 
       getCurrentUser: () => get().user,
       getCurrentToken: () => get().token,
-      getUserType: () => get().user?.user_types?.[0],
+      getUserType: () => {
+        const user = get().user;
+        const v2 = user?.userDetailsV2;
+        if (v2?.user_types?.[0]?.key) return v2.user_types[0].key;
+        const firstType = user?.user_types?.[0];
+        return typeof firstType === "string" ? firstType : undefined;
+      },
 
       setLogoUrl: (url: string) => {
         set({ logoUrl: url });
@@ -124,18 +137,22 @@ export const useAuthStore = create<AuthState>()(
       getUserProfile: () => get().userProfile,
       getUserFullName: () => {
         const { user } = get();
+        const v2 = user?.userDetailsV2;
+        if (v2?.first_name || v2?.last_name) {
+          return `${v2.first_name || ""} ${v2.last_name || ""}`.trim();
+        }
         if (!user?.first_name || !user?.last_name) return "";
         return `${user.first_name} ${user.last_name}`.trim();
       },
 
       getUserFirstName: () => {
         const { user } = get();
-        return user?.first_name || "";
+        return user?.userDetailsV2?.first_name || user?.first_name || "";
       },
 
       getUserLastName: () => {
         const { user } = get();
-        return user?.last_name || "";
+        return user?.userDetailsV2?.last_name || user?.last_name || "";
       },
 
       setUserFirstName: (firstName: string) => {
@@ -151,8 +168,15 @@ export const useAuthStore = create<AuthState>()(
       },
 
       getUserProfilePictureUrl: () => {
+        const { userProfilePictureUrl, user, userProfile } = get();
+        const v2 = user?.userDetailsV2;
         return (
-          get().userProfilePictureUrl || get().user?.profile_picture_url || get().userProfile?.profile_picture_url || null
+          userProfilePictureUrl ||
+          v2?.profile_picture_url ||
+          v2?.profile_picture ||
+          user?.profile_picture_url ||
+          userProfile?.profile_picture_url ||
+          null
         );
       },
 

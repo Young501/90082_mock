@@ -15,6 +15,7 @@ export interface Opportunity {
   allowed_student_email_domains?: string[];
   is_enrolled?: boolean;
   participant_record?: ParticipantRecord | null;
+  enrollment_status?: "enrolled" | "not_enrolled" | string;
 }
 
 export interface ParticipantRecord {
