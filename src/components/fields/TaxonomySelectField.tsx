@@ -71,7 +71,7 @@ export const TaxonomySelectField = ({
       : String(initialValueRef.current ?? "");
 
     if (!v) return;
-    if (options.some((o) => o.value === v)) return; // already a valid code
+    if (options.some((o) => o.value === v)) return; 
 
     const byLabel = options.find(
       (o) =>

@@ -71,15 +71,12 @@ export const TaxonomyMultiselectField = ({
     }));
   }, [nodes]);
 
-  // Access the field so we can normalise label→code values once options load.
   const { field: controllerField } = useController({
     name,
     control,
     defaultValue: [],
   });
 
-  // Capture the value present at mount so we only normalise the pre-populated
-  // initialValues, not every subsequent user interaction.
   const initialValueRef = useRef<any>(controllerField.value);
   const normalisedRef = useRef(false);
 
@@ -100,9 +97,7 @@ export const TaxonomyMultiselectField = ({
     const asStrings = raw.map(coerceToString).filter(Boolean);
 
     const normalised = asStrings.map((v) => {
-      // Already a valid code — keep as-is.
       if (options.some((o) => o.value === v)) return v;
-      // Try a case-insensitive label match and return its code.
       const byLabel = options.find(
         (o) =>
           typeof o.label === "string" &&
@@ -137,14 +132,14 @@ export const TaxonomyMultiselectField = ({
 
   return (
     <Field.Root invalid={!!error}>
-      {( label || filterLabel) && (
+      {(label || filterLabel) && (
         <Field.Label
           fontSize="sm"
           fontWeight="500"
           color="black"
           display="block"
         >
-          { label || filterLabel}
+          {label || filterLabel}
           {required && (
             <span style={{ color: "red", marginLeft: "4px" }}>*</span>
           )}
