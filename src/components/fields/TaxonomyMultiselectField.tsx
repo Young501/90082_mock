@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import {
   Box,
   Field,
@@ -13,7 +13,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { ChevronDown } from "lucide-react";
-import { Control, Controller } from "react-hook-form";
+import { Control, Controller, useController } from "react-hook-form";
 import { useTaxonomy } from "@/services/shared";
 import { TaxonomyNode } from "@/types/shared";
 import { TaxonomyQueryParams } from "@/types/shared";
@@ -71,6 +71,51 @@ export const TaxonomyMultiselectField = ({
     }));
   }, [nodes]);
 
+  // Access the field so we can normalise label→code values once options load.
+  const { field: controllerField } = useController({
+    name,
+    control,
+    defaultValue: [],
+  });
+
+  // Capture the value present at mount so we only normalise the pre-populated
+  // initialValues, not every subsequent user interaction.
+  const initialValueRef = useRef<any>(controllerField.value);
+  const normalisedRef = useRef(false);
+
+  useEffect(() => {
+    if (options.length === 0 || normalisedRef.current) return;
+    normalisedRef.current = true;
+
+    const raw: any[] = Array.isArray(initialValueRef.current)
+      ? initialValueRef.current
+      : [];
+    if (raw.length === 0) return;
+
+    const coerceToString = (v: any): string => {
+      if (typeof v === "string") return v;
+      return String(v?.value ?? v?.code ?? v?.id ?? v ?? "");
+    };
+
+    const asStrings = raw.map(coerceToString).filter(Boolean);
+
+    const normalised = asStrings.map((v) => {
+      // Already a valid code — keep as-is.
+      if (options.some((o) => o.value === v)) return v;
+      // Try a case-insensitive label match and return its code.
+      const byLabel = options.find(
+        (o) =>
+          typeof o.label === "string" &&
+          o.label.toLowerCase() === v.toLowerCase()
+      );
+      return byLabel ? byLabel.value : v;
+    });
+
+    if (JSON.stringify(normalised) !== JSON.stringify(asStrings)) {
+      controllerField.onChange(normalised);
+    }
+  }, [options]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const filteredOptions = useMemo(() => {
     if (!search.trim()) return options;
     const lower = search.toLowerCase();
@@ -92,14 +137,14 @@ export const TaxonomyMultiselectField = ({
 
   return (
     <Field.Root invalid={!!error}>
-      {(filterLabel || label) && (
+      {( label || filterLabel) && (
         <Field.Label
           fontSize="sm"
           fontWeight="500"
           color="black"
           display="block"
         >
-          {filterLabel || label}
+          { label || filterLabel}
           {required && (
             <span style={{ color: "red", marginLeft: "4px" }}>*</span>
           )}

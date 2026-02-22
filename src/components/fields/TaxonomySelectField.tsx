@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { Control } from "react-hook-form";
+import { useMemo, useEffect, useRef } from "react";
+import { Control, useController } from "react-hook-form";
 import { useTaxonomy } from "@/services/shared";
 import { TaxonomyNode } from "@/types/shared";
 import { TaxonomyQueryParams } from "@/types/shared";
@@ -53,6 +53,36 @@ export const TaxonomySelectField = ({
     }));
   }, [nodes]);
 
+  const { field: controllerField } = useController({
+    name,
+    control,
+    defaultValue: "",
+  });
+
+  const initialValueRef = useRef<any>(controllerField.value);
+  const normalisedRef = useRef(false);
+
+  useEffect(() => {
+    if (options.length === 0 || normalisedRef.current) return;
+    normalisedRef.current = true;
+
+    const v = typeof initialValueRef.current === "string"
+      ? initialValueRef.current
+      : String(initialValueRef.current ?? "");
+
+    if (!v) return;
+    if (options.some((o) => o.value === v)) return; // already a valid code
+
+    const byLabel = options.find(
+      (o) =>
+        typeof o.label === "string" &&
+        o.label.toLowerCase() === v.toLowerCase()
+    );
+    if (byLabel) {
+      controllerField.onChange(byLabel.value);
+    }
+  }, [options]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (isLoading) {
     return (
       <div style={{ padding: "12px", color: "#666" }}>Loading options...</div>
@@ -66,7 +96,7 @@ export const TaxonomySelectField = ({
   return (
     <SelectField
       name={name}
-      label={filterLabel || label}
+      label={label || filterLabel}
       control={control}
       options={options}
       error={error}
