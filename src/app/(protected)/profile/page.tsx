@@ -390,123 +390,19 @@ const Profile = () => {
     > | null;
     if (!p) return {};
     return {
-      userId:
-        toProfileDisplayString(p.student_number) ??
-        toProfileDisplayString(p.user) ??
-        toProfileDisplayString(p.id),
+      userId: toProfileDisplayString(p.id),
       email: toProfileDisplayString(p.email),
       university: toProfileDisplayString(p.university),
-      course: toProfileDisplayString(p.course_stream ?? p.course),
-      yearOfStudy: toProfileDisplayString(p.progression ?? p.year_of_study),
+      course: toProfileDisplayString(p.course_stream),
+      yearOfStudy: toProfileDisplayString(p.progression),
     };
   }, [userProfile, fetchedUserProfile]);
 
-  const calculateProfileCompletion = (): number => {
-    if (!userProfile) return 0;
-
-    // For users who have completed onboarding (no pages), return 100%
-    if (!pages.length) return 100;
-
-    const getAllFieldsFromPages = (
-      pages: OnboardingPage[],
-      userProfile: UserProfile
-    ): string[] => {
-      const fields: string[] = [];
-
-      const extractFieldsFromQuestion = (
-        question: Question,
-        userProfile: UserProfile
-      ): string[] => {
-        const questionFields = [question.field];
-        let userAnswer: unknown;
-
-        if (userType === "organisation") {
-          const orgField = question.field as keyof NonNullable<
-            UserProfile["organisation"]
-          >;
-          userAnswer = userProfile.organisation?.[orgField]; // fixed indexing
-        } else {
-          userAnswer = (userProfile as any)[question.field];
-        }
-
-        if (
-          question.followup_question &&
-          userAnswer &&
-          question.followup_question[
-            userAnswer as keyof typeof question.followup_question
-          ]
-        ) {
-          const followup =
-            question.followup_question[
-              userAnswer as keyof typeof question.followup_question
-            ];
-          questionFields.push(
-            ...extractFieldsFromQuestion(followup, userProfile)
-          );
-        }
-
-        return questionFields;
-      };
-
-      pages.forEach((page) => {
-        page.questions.forEach((question: Question) => {
-          fields.push(...extractFieldsFromQuestion(question, userProfile));
-        });
-      });
-
-      return [...new Set(fields)];
-    };
-
-    const allOnboardingFields = getAllFieldsFromPages(pages, userProfile);
-
-    const coreMemberFields =
-      userType === "organisation"
-        ? ["first_name", "last_name", "role", "profile_picture_url"]
-        : [];
-
-    // Exclude socials for student
-    const EXCLUDED_FOR_STUDENT = new Set([
-      "instagram",
-      "bluesky",
-      "linkedin",
-      "homepage",
-    ]);
-
-    const allFields = [
-      ...new Set([...allOnboardingFields, ...coreMemberFields]),
-    ];
-    const requiredFields =
-      userType === "student"
-        ? allFields.filter((f) => !EXCLUDED_FOR_STUDENT.has(f))
-        : allFields;
-
-    // If nothing is required after filtering, consider completion 100%
-    if (requiredFields.length === 0) return 100;
-
-    const filledFields = requiredFields.filter((field) => {
-      let value: unknown;
-
-      if (userType === "organisation") {
-        if (coreMemberFields.includes(field)) {
-          value = (userProfile as any)[field];
-        } else {
-          const orgField = field as keyof NonNullable<
-            UserProfile["organisation"]
-          >;
-          value = userProfile.organisation?.[orgField];
-        }
-      } else {
-        value = (userProfile as any)[field];
-      }
-
-      if (value === undefined || value === null) return false;
-      return Array.isArray(value)
-        ? value.length > 0
-        : value.toString().trim() !== "";
-    });
-
-    return Math.round((filledFields.length / requiredFields.length) * 100);
-  };
+  const fullName = useMemo(() => {
+    const name =
+      user?.userDetailsV2?.first_name + " " + user?.userDetailsV2?.last_name;
+    if (name) return name;
+  }, [user]);
 
   // For organisation users who have completed onboarding, show profile even if no pages
   const shouldShowLoading =
@@ -524,8 +420,6 @@ const Profile = () => {
       </Box>
     );
   }
-
-  const completionPercentage = calculateProfileCompletion();
 
   const handleTabChange = (newIndex: number) => {
     const currentValues = getValues();
@@ -653,22 +547,6 @@ const Profile = () => {
       toast.error(errorMessage);
     }
   };
-
-  const fullName = useMemo(() => {
-    const p = (userProfile || fetchedUserProfile) as Record<
-      string,
-      unknown
-    > | null;
-    if (!p) return "";
-    const first = toProfileDisplayString(p.first_name) ?? "";
-    const last = toProfileDisplayString(p.last_name) ?? "";
-    const name = `${first} ${last}`.trim();
-    if (name) return name;
-    const org = p.organisation as Record<string, unknown> | undefined;
-    return (
-      toProfileDisplayString(p.name) ?? toProfileDisplayString(org?.name) ?? ""
-    );
-  }, [userProfile, fetchedUserProfile]);
 
   return (
     <>

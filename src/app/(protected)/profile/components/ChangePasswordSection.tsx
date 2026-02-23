@@ -152,11 +152,6 @@ function ChangePasswordDialog({
                     Password changed successfully.
                   </Text>
                 )}
-                {error && (
-                  <Text color="red.600" fontSize="sm">
-                    {error}
-                  </Text>
-                )}
 
                 <Flex
                   justify={{ base: "space-between", sm: "flex-end" }}
