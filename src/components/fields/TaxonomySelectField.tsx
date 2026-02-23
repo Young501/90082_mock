@@ -5,6 +5,7 @@ import { Control, useController } from "react-hook-form";
 import { useTaxonomy } from "@/services/shared";
 import { TaxonomyNode } from "@/types/shared";
 import { TaxonomyQueryParams } from "@/types/shared";
+import { findOptionByValueOrLabel } from "@/utils/taxonomyLabelMatch";
 import { SelectField } from "./SelectField";
 
 interface TaxonomySelectFieldProps {
@@ -71,15 +72,11 @@ export const TaxonomySelectField = ({
       : String(initialValueRef.current ?? "");
 
     if (!v) return;
-    if (options.some((o) => o.value === v)) return; 
+    if (options.some((o) => o.value === v)) return;
 
-    const byLabel = options.find(
-      (o) =>
-        typeof o.label === "string" &&
-        o.label.toLowerCase() === v.toLowerCase()
-    );
-    if (byLabel) {
-      controllerField.onChange(byLabel.value);
+    const matched = findOptionByValueOrLabel(options, v);
+    if (matched) {
+      controllerField.onChange(matched.value);
     }
   }, [options]); // eslint-disable-line react-hooks/exhaustive-deps
 

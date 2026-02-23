@@ -17,6 +17,7 @@ import { Control, Controller, useController } from "react-hook-form";
 import { useTaxonomy } from "@/services/shared";
 import { TaxonomyNode } from "@/types/shared";
 import { TaxonomyQueryParams } from "@/types/shared";
+import { findOptionByValueOrLabel } from "@/utils/taxonomyLabelMatch";
 
 interface TaxonomyMultiselectFieldProps {
   name: string;
@@ -98,12 +99,8 @@ export const TaxonomyMultiselectField = ({
 
     const normalised = asStrings.map((v) => {
       if (options.some((o) => o.value === v)) return v;
-      const byLabel = options.find(
-        (o) =>
-          typeof o.label === "string" &&
-          o.label.toLowerCase() === v.toLowerCase()
-      );
-      return byLabel ? byLabel.value : v;
+      const matched = findOptionByValueOrLabel(options, v);
+      return matched ? matched.value : v;
     });
 
     if (JSON.stringify(normalised) !== JSON.stringify(asStrings)) {
@@ -201,13 +198,22 @@ export const TaxonomyMultiselectField = ({
                       style={{
                         flex: 1,
                         fontSize: "14px",
-                        color: "#9CA3AF",
+                        color:
+                          selectedValues.length > 0 ? "#27272A" : "#9CA3AF",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {placeholder}
+                      {selectedValues.length > 0
+                        ? selectedValues
+                            .map(
+                              (val) =>
+                                options.find((o) => o.value === val)?.label ??
+                                val
+                            )
+                            .join(", ")
+                        : placeholder}
                     </span>
                     <ChevronDown
                       size={20}

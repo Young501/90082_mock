@@ -46,6 +46,7 @@ import {
   QuestionnaireFormRef,
 } from "@/components/questionnaire/QuestionnaireForm";
 import { getQuestionnaireSections } from "@/utils/opportunityQuestionnaire";
+import { useResolveTaxonomyLabelsToCodes } from "@/hooks/useResolveTaxonomyLabelsToCodes";
 import { Question } from "@/types/onboarding";
 import { toast } from "react-toastify";
 import { formatAnswerForDisplay } from "@/utils/formatAnswer";
@@ -153,9 +154,33 @@ const OpportunityCard = ({
     [opportunity.questionnaire, userType]
   );
 
+  const { resolve: resolveTaxonomyLabelsToCodes, isResolving: isResolvingEditAnswers } =
+    useResolveTaxonomyLabelsToCodes();
+
   const handleAnswersChange = useCallback((values: Record<string, any>) => {
     setEditAnswers(values);
   }, []);
+
+  const handleOpenEditEnrollment = useCallback(async () => {
+    const rawAnswers =
+      participantRecord?.data?.questionnaire_answers ?? {};
+    try {
+      const resolved = await resolveTaxonomyLabelsToCodes(
+        questionnaireSections,
+        rawAnswers,
+        null
+      );
+      setEditAnswers(resolved);
+    } catch {
+      // Fallback: use raw answers; taxonomy fields will attempt label→code normalization
+      setEditAnswers(rawAnswers);
+    }
+    setIsEditEnrollmentOpen(true);
+  }, [
+    participantRecord?.data?.questionnaire_answers,
+    questionnaireSections,
+    resolveTaxonomyLabelsToCodes,
+  ]);
 
   const handleSaveEnrollmentAnswers = async () => {
     if (!editFormRef.current) return;
@@ -366,13 +391,20 @@ const OpportunityCard = ({
                     borderRadius="md"
                     _hover={{ bg: "#F3F4F6" }}
                     onClick={() => {
-                      setEditAnswers(
-                        participantRecord?.data?.questionnaire_answers ?? {}
-                      );
-                      setIsEditEnrollmentOpen(true);
+                      if (!isResolvingEditAnswers) handleOpenEditEnrollment();
                     }}
+                    opacity={isResolvingEditAnswers ? 0.6 : 1}
+                    cursor={isResolvingEditAnswers ? "not-allowed" : "pointer"}
+                    pointerEvents={isResolvingEditAnswers ? "none" : "auto"}
                   >
-                    Edit Enrollment Answers
+                    {isResolvingEditAnswers ? (
+                      <HStack gap={2}>
+                        <Spinner size="sm" />
+                        <span>Preparing form...</span>
+                      </HStack>
+                    ) : (
+                      "Edit Enrollment Answers"
+                    )}
                   </Box>
                 )}
                 {(() => {
