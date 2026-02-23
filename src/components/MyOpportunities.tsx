@@ -188,14 +188,10 @@ const OpportunityCard = ({
 
     const data = editFormRef.current.getValues();
     try {
-      const updated = await updateParticipantMutation.mutateAsync({
+      await updateParticipantMutation.mutateAsync({
         opportunityId: opportunity.id,
         questionnaireAnswers: data,
       });
-      queryClient.setQueryData(
-        ["opportunity-participant", opportunity.id],
-        updated
-      );
       toast.success("Enrollment answers saved!");
       setIsEditEnrollmentOpen(false);
     } catch (err: any) {
@@ -285,21 +281,9 @@ const OpportunityCard = ({
       });
 
       toast.success("Successfully cancelled enrollment!");
-      queryClient.removeQueries({
-        queryKey: ["opportunity-participant", opportunity.id],
-      });
-      queryClient.setQueryData(
-        ["opportunity-participant", opportunity.id],
-        null
-      );
-
       setIsCancelled(true);
       setIsExpanded(false);
       setIsCancelDialogOpen(false);
-
-      queryClient.invalidateQueries({
-        queryKey: ["accessible-opportunities", user?.id],
-      });
     } catch (error: any) {
       // console.error("Cancel enrollment failed:", error);
       const errorMessage =
