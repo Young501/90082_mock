@@ -318,23 +318,6 @@ export function usePartnerProfile(id: string, opportunityId: string) {
   });
 }
 
-export function useAcceptedOpportunities() {
-  const { user } = useAuthStore();
-  return useQuery({
-    queryKey: ["accepted-opportunities"],
-    queryFn: () =>
-      apiRequest({ endpoint: API_ENDPOINTS.ACCEPTED_OPPORTUNITIES }),
-    enabled: !!user,
-    staleTime: 5 * 60 * 1000,
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 404) {
-        return false;
-      }
-      return failureCount < 2;
-    },
-  });
-}
-
 // UC-314: All accessible opportunities for current user
 
 export function useAccessibleOpportunities() {
@@ -408,51 +391,6 @@ export function useAccessibleOpportunities() {
     },
     enabled: !!user,
     staleTime: 2 * 60 * 1000,
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 404) {
-        return false;
-      }
-      return failureCount < 2;
-    },
-  });
-}
-
-export function useContactUser() {
-  return useMutation({
-    mutationFn: async (data: {
-      opportunityId: string;
-      user_id?: number;
-      reply_to: string;
-      subject?: string;
-      message: string;
-      organisation_id?: string;
-    }) => {
-      return apiRequest({
-        endpoint: API_ENDPOINTS.CONTACT_USER(data.opportunityId),
-        body: {
-          reply_to: data.reply_to,
-          subject: data.subject || "",
-          message: data.message,
-          user_id: data.user_id,
-          organisation_id: data.organisation_id,
-        },
-      });
-    },
-  });
-}
-
-export function useQuestionnaireFilters(
-  opportunityId: string,
-  userType: string
-) {
-  return useQuery({
-    queryKey: ["questionnaire-filters", opportunityId, userType],
-    queryFn: () =>
-      apiRequest({
-        endpoint: API_ENDPOINTS.QUESTIONNAIRE_FILTERS(opportunityId, userType),
-      }),
-    enabled: !!opportunityId && !!userType,
-    staleTime: 5 * 60 * 1000,
     retry: (failureCount, error: any) => {
       if (error?.response?.status === 404) {
         return false;
