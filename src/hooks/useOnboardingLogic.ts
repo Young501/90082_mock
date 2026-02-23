@@ -1,7 +1,17 @@
 import { useState, useMemo, useCallback } from "react";
-import { useOnboardingPages } from "@/services/shared";
+import { useOnboardingPages, useStudentProfileV2 } from "@/services/shared";
 import { Page } from "@/types/onboarding";
 import { useAuthStore } from "@/store/authStore";
+import { isStudentOnboardingComplete } from "@/hooks/auth";
+
+const normalizePages = (rawPages: any[]): Page[] => {
+  if (!Array.isArray(rawPages) || rawPages.length === 0) return [];
+  return rawPages.map((p, i) => ({
+    id: p.id,
+    title: p.title,
+    questions: p.questions ?? [],
+  }));
+};
 
 export const useOnboardingLogic = (userType: string) => {
   const [currentPageId, setCurrentPageId] = useState<number>(1);
@@ -9,16 +19,34 @@ export const useOnboardingLogic = (userType: string) => {
     "user"
   );
   const { getIsOrganisationMemberOnboarding } = useAuthStore();
+  const { data: studentProfileV2, isLoading: isProfileLoading } =
+    useStudentProfileV2(userType === "student");
+
+  const shouldFetchOnboardingPages =
+    userType !== "student" ||
+    (studentProfileV2 !== undefined &&
+      !isStudentOnboardingComplete(studentProfileV2));
 
   const {
     data: pagesData,
-    isLoading,
+    isLoading: isPagesLoading,
     error: queryError,
-  } = useOnboardingPages(userType || "");
+  } = useOnboardingPages(userType || "", shouldFetchOnboardingPages);
+
+  const isLoading =
+    (userType === "student" && isProfileLoading) ||
+    (userType === "student" && shouldFetchOnboardingPages && isPagesLoading) ||
+    (userType !== "student" && isPagesLoading);
 
   const pages: Page[] = useMemo(() => {
     const onboarding = pagesData?.onboarding_pages;
     if (!onboarding) return [];
+
+    console.log("onboarding", onboarding);
+
+    if (userType === "student" && onboarding.student_onboarding) {
+      return normalizePages(onboarding.student_onboarding);
+    }
 
     const userPages = onboarding.user ?? [];
     const organisationPages = onboarding.organisation ?? [];
@@ -30,9 +58,11 @@ export const useOnboardingLogic = (userType: string) => {
     return showOrgPages ? organisationPages : userPages;
   }, [userType, currentPhase, pagesData, getIsOrganisationMemberOnboarding]);
 
+
   const currentPage = useMemo(() => {
     return pages.find((p: Page) => p.id === currentPageId);
   }, [pages, currentPageId]);
+
 
   const error = queryError?.message || null;
 
@@ -49,13 +79,14 @@ export const useOnboardingLogic = (userType: string) => {
 
   const navigationInfo = useMemo(() => {
     const isFirstPage = currentPage?.id === 1;
-    const isLastPage = !currentPage?.follow_by;
+    const isLastPage = currentPage?.id === pages[pages.length - 1]?.id;
+
 
     return {
       isFirstPage,
       isLastPage,
     };
-  }, [currentPage]);
+  }, [currentPage, pages]);
 
   const goToPreviousPage = useCallback(() => {
     const currentIndex = pages.findIndex((p: Page) => p.id === currentPageId);
@@ -65,13 +96,21 @@ export const useOnboardingLogic = (userType: string) => {
   }, [pages, currentPageId]);
 
   const goToNextPage = useCallback(() => {
-    const nextPageId = pages.find(
-      (p: Page) => p.id === currentPageId
-    )?.follow_by;
-    if (nextPageId) {
-      setCurrentPageId(nextPageId);
+    const currentIndex = pages.findIndex((p: Page) => p.id === currentPageId);
+    if (currentIndex >= 0 && currentIndex < pages.length - 1) {
+      setCurrentPageId(pages[currentIndex + 1].id);
     }
   }, [pages, currentPageId]);
+
+  const goToPage = useCallback(
+    (pageId: number) => {
+      const page = pages.find((p: Page) => p.id === pageId);
+      if (page) {
+        setCurrentPageId(pageId);
+      }
+    },
+    [pages]
+  );
 
   const startOrganisationPhase = useCallback(() => {
     if (userType === "organisation") {
@@ -99,6 +138,7 @@ export const useOnboardingLogic = (userType: string) => {
     ...navigationInfo,
     goToPreviousPage,
     goToNextPage,
+    goToPage,
     startOrganisationPhase,
   };
 };

@@ -49,16 +49,38 @@ export function formatAnswerForDisplay(
     return `${answer}${unit}`;
   }
 
-  // File fields — show a friendly filename if it looks like a URL
-  if (question.type === "file") {
+  if (
+    question.type === "file" ||
+    question.type === "file-document" ||
+    question.type === "file-image"
+  ) {
+    if (answer instanceof File) {
+      const sizeKb = Math.round(answer.size / 1024);
+      return question.type === "file-document"
+        ? `${answer.name} (${sizeKb} KB)`
+        : answer.name;
+    }
     try {
       const url = new URL(String(answer));
       const fileName = decodeURIComponent(url.pathname.split("/").pop() || "");
       return fileName || "Uploaded file";
     } catch {
-      // not a URL, just show the raw value
       return String(answer);
     }
+  }
+
+  if (
+    question.type === "taxonomy-select" ||
+    question.type === "taxonomy-multiselect"
+  ) {
+    if (Array.isArray(answer)) {
+      return answer.map((v) => (typeof v === "string" ? v : String(v))).join(", ");
+    }
+    return String(answer);
+  }
+
+  if (question.type === "url") {
+    return String(answer);
   }
 
   // Location/geocode answers may be an object (depends on your component wiring)

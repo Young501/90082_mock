@@ -8,5 +8,5 @@ export type ApiRequestParams = {
   body?: object | FormData;
   token?: string;
   headers?: Record<string, string>;
-  params?: Record<string, string | number>;
+  params?: Record<string, string | number | boolean | undefined>;
 };

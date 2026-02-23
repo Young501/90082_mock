@@ -21,7 +21,7 @@ import {
   Alert,
 } from "@chakra-ui/react";
 import { StudentCard } from "../discover/cards/studentCard";
-import { PartnerCard } from "../discover/cards/partnerCard";
+import { OrganisationCard } from "../discover/cards";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -99,7 +99,7 @@ const Profile = () => {
   const profileUpdateMutation = useProfileUpdate(userType);
   const profilePictureUpload = useProfilePictureUpload();
   const profilePictureDelete = useProfilePictureDelete();
-  const resumeUpload = useResumeUpload(userType);
+  const resumeUpload = useResumeUpload();
   const logoUpload = useLogoUpload(userType);
   const logoDelete = useLogoDelete(userType);
 
@@ -468,7 +468,7 @@ const Profile = () => {
 
   if (shouldShowLoading && !hasCompletedOnboarding) {
     return (
-      <Box p={6} maxW="1280px" mx="auto" mt={{ base: "80px", lg: "126px" }}>
+      <Box maxW="1280px" mx="auto">
         <Loader size="lg" />
       </Box>
     );
@@ -606,15 +606,7 @@ const Profile = () => {
   return (
     <>
       <PageTitle title={PAGE_TITLES.PROFILE} />
-      <Box
-        py={6}
-        px={{ base: 4, lg: "72px" }}
-        maxW="1512px"
-        mx="auto"
-        mt={{ base: "80px", lg: "126px" }}
-        w="100%"
-        overflow="hidden"
-      >
+      <Box maxW="1512px" mx="auto" w="100%" overflow="hidden">
         <Flex
           w="100%"
           direction={{ base: "column", md: "row" }}
@@ -797,7 +789,7 @@ const Profile = () => {
                     </VStack>
                   ) : userType === "organisation" ? (
                     <VStack gap={10} w="full" align="flex-start">
-                      <PartnerCard
+                      <OrganisationCard
                         organisation={userProfile?.organisation || userProfile}
                         profilePictureUrl={getUserProfilePictureUrl()}
                         maxW="500px"

@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useProductPricing } from "@/services/billing";
 import { AccessInfo } from "@/types/opportunities";
+import { getQuestionnaireKey } from "@/utils/opportunityQuestionnaire";
 
 const hasContent = (val: unknown) => {
   if (!val) return false;
@@ -25,6 +26,10 @@ type Props = {
   opportunitySlug?: string;
 };
 
+const STRIPE_PRICING_ENABLED = false; // [BJ] use this flag to turn back on stripe pricing flow
+const UNIMELB_SUBSCRIPTION_URL =
+  "https://ecommerce.unimelb.edu.au/uniconnected-subscription";
+
 export function useHandleEnroll({
   isEligible,
   opportunityId,
@@ -41,10 +46,13 @@ export function useHandleEnroll({
   const clickedRef = useRef(false);
 
   const userType = user?.user_types?.[0];
-  const qForType = useMemo(
-    () => opportunity?.questionnaire?.[userType as string],
-    [opportunity?.questionnaire, userType]
-  );
+
+  const qForType = useMemo(() => {
+    const questionnaireKey = getQuestionnaireKey(userType);
+    return questionnaireKey
+      ? opportunity?.questionnaire?.[questionnaireKey]
+      : undefined;
+  }, [opportunity?.questionnaire, userType]);
   const shouldShowQuestionnaire = hasContent(qForType);
 
   // Keep params, but do not auto-fetch
@@ -73,6 +81,11 @@ export function useHandleEnroll({
       }
 
       if (accessInfo?.next_action === "subscribe") {
+        if (!STRIPE_PRICING_ENABLED) {
+          window.location.href = UNIMELB_SUBSCRIPTION_URL;
+          return;
+        }
+
         // Step 1: Check for pricing
         setIsCheckingPricing(true);
         let hasPaidPricing = false;
@@ -107,7 +120,7 @@ export function useHandleEnroll({
 
       // Step 2: If no pricing or free access, proceed to questionnaire or direct enrollment
       if (shouldShowQuestionnaire) {
-        router.push(`/opportunities/start?opp=${opportunitySlug}`);
+        router.push(`/opportunities/fill?opp=${opportunitySlug}`);
         return;
       }
 

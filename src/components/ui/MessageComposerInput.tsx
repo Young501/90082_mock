@@ -1,0 +1,183 @@
+"use client";
+
+import {
+  Box,
+  Input as ChakraInput,
+  type InputProps as ChakraInputProps,
+  VStack,
+  HStack,
+  Text,
+  IconButton,
+} from "@chakra-ui/react";
+import { Paperclip, FileText, Images } from "lucide-react";
+import { useRef } from "react";
+import { MenuPopover } from "./MenuPopover";
+
+export interface MessageComposerInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  attachmentDrawer?: boolean;
+  attachmentOpen?: boolean;
+  onAttachmentOpenChange?: (open: boolean) => void;
+  onFilesSelected?: (files: File[]) => void;
+  inputProps?: Omit<
+    ChakraInputProps,
+    "value" | "onChange" | "placeholder" | "onKeyDown"
+  >;
+  paddingX?: number;
+  paddingY?: number;
+}
+
+const defaultAttachmentOptions = (
+  onOptionSelect?: () => void,
+  onFileSelect?: (files: File[]) => void,
+  fileInputRef?: React.RefObject<HTMLInputElement | null>
+) => (
+  <VStack align="stretch" gap={2}>
+    <input
+      ref={fileInputRef}
+      type="file"
+      multiple
+      accept="image/*,video/*,.pdf,.doc,.docx,.txt"
+      style={{ display: "none" }}
+      onChange={(e) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length > 0 && onFileSelect) {
+          onFileSelect(files);
+        }
+        if (fileInputRef?.current) {
+          fileInputRef.current.value = "";
+        }
+        onOptionSelect?.();
+      }}
+    />
+    <HStack
+      gap={1.5}
+      cursor="pointer"
+      px={2}
+      py={1.5}
+      onClick={() => {
+        fileInputRef?.current?.click();
+      }}
+    >
+      <Box
+        borderRadius="full"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        minH="fit-content"
+        w="fit-content"
+      >
+        <FileText size={16} color="black" />
+      </Box>
+      <Text fontSize="sm" color="#111827">
+        Documents
+      </Text>
+    </HStack>
+    <HStack
+      gap={1.5}
+      cursor="pointer"
+      px={2}
+      py={1.5}
+      onClick={() => {
+        fileInputRef?.current?.click();
+      }}
+    >
+      <Box
+        borderRadius="full"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        minH="fit-content"
+        w="fit-content"
+      >
+        <Images size={16} color="black" />
+      </Box>
+      <Text fontSize="sm" color="#111827">
+        Photos and Videos
+      </Text>
+    </HStack>
+  </VStack>
+);
+
+export function MessageComposerInput({
+  value,
+  onChange,
+  placeholder = "Type your message...",
+  onKeyDown,
+  attachmentDrawer = false,
+  attachmentOpen = false,
+  onAttachmentOpenChange,
+  onFilesSelected,
+  inputProps,
+  paddingX = 4,
+  paddingY = 2.5,
+}: MessageComposerInputProps) {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const closeAttachment = () =>
+    attachmentDrawer && onAttachmentOpenChange?.(false);
+
+  return (
+    <Box
+      flex={1}
+      minW={0}
+      borderRadius="xl"
+      borderWidth="1px"
+      borderColor="#D4D4D8"
+      bg="white"
+      px={paddingX}
+      h="40px"
+      py={paddingY}
+      display="flex"
+      alignItems="center"
+      gap={2}
+    >
+      <ChakraInput
+        {...inputProps}
+        flex={1}
+        minW={0}
+        border="none"
+        outline="none"
+        background="transparent"
+        fontSize="sm"
+        px={0}
+        py={0}
+        color="#111827"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={onKeyDown}
+        _placeholder={{ color: "#A1A1AA" }}
+      />
+      <MenuPopover
+        variant={attachmentDrawer ? "drawer" : "popover"}
+        placement="top-start"
+        title="Attach"
+        open={attachmentDrawer ? attachmentOpen : undefined}
+        onOpenChange={attachmentDrawer ? onAttachmentOpenChange : undefined}
+        trigger={
+          <IconButton
+            aria-label="Attach file"
+            variant="ghost"
+            size="sm"
+            flexShrink={0}
+            onClick={() =>
+              attachmentDrawer ? onAttachmentOpenChange?.(true) : undefined
+            }
+          >
+            <Paperclip size={18} color="#52525B" />
+          </IconButton>
+        }
+        contentProps={attachmentDrawer ? { p: 4 } : { p: 3 }}
+      >
+        {defaultAttachmentOptions(
+          closeAttachment,
+          onFilesSelected,
+          fileInputRef
+        )}
+      </MenuPopover>
+    </Box>
+  );
+}

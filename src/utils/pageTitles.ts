@@ -8,11 +8,12 @@ export const getPageTitle = (
 export const PAGE_TITLES = {
   LOGIN: "Login | Uniconnected",
   SIGNUP: "Signup | Uniconnected",
+  HOME: "Home | Uniconnected",
   DASHBOARD: "Dashboard | Uniconnected",
   DISCOVER: "Discover | Uniconnected",
   PROFILE: "Profile | Uniconnected",
   FOLDERS: "Folders | Uniconnected",
-  INBOX: "Inbox | Uniconnected",
+  MESSAGING: "Messaging | Uniconnected",
   USER_TYPE: "User Type | Uniconnected",
   ONBOARDING: "Onboarding | Uniconnected",
   VERIFY_EMAIL: "Verify Email | Uniconnected",

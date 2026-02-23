@@ -1,0 +1,295 @@
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Box,
+  Text,
+  HStack,
+  VStack,
+  Checkbox,
+  Slider,
+  RadioGroup,
+} from "@chakra-ui/react";
+import {
+  FacetField,
+  FacetOption,
+  FilterValue,
+  ArrayFilterValue,
+} from "@/types/opportunity";
+
+interface FilterFieldV2Props {
+  facet: FacetField;
+  value: FilterValue | undefined;
+  onChange: (value: FilterValue | undefined) => void;
+}
+
+export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
+  facet,
+  value,
+  onChange,
+}) => {
+  const [arrayMode, setArrayMode] = useState<"and" | "or">("or");
+
+  const renderScalarFilter = () => {
+    const selectedValues = Array.isArray(value) ? value : [];
+    // Filter out options with 0 count
+    const availableOptions = facet.options.filter((option) => option.count > 0);
+
+    return (
+      <VStack align="stretch" gap={3} w="100%">
+        {availableOptions.map((option) => {
+          const isChecked = selectedValues.includes(option.value);
+
+          return (
+            <HStack key={option.value} w="100%" justify="space-between">
+              <Checkbox.Root
+                checked={isChecked}
+                onCheckedChange={(details) => {
+                  const checked = !!details.checked;
+                  const newValues = checked
+                    ? [...selectedValues, option.value]
+                    : selectedValues.filter((v) => v !== option.value);
+
+                  onChange(newValues.length > 0 ? newValues : undefined);
+                }}
+                size="sm"
+                colorPalette="profile.500"
+              >
+                <Checkbox.HiddenInput />
+                <Checkbox.Control
+                  bg={isChecked ? "profile.500" : "transparent"}
+                  border={
+                    isChecked
+                      ? "1px solid var(--border-100)"
+                      : "1px solid #E4E4E7"
+                  }
+                />
+                <Checkbox.Label fontSize="xs" color="#3F3F46">
+                  {option.label}
+                </Checkbox.Label>
+              </Checkbox.Root>
+              <Text fontSize="xs" color="#52525B">
+                ({option.count})
+              </Text>
+            </HStack>
+          );
+        })}
+      </VStack>
+    );
+  };
+
+  const renderArrayFilter = () => {
+    const isArrayValue =
+      value && typeof value === "object" && "values" in value;
+    const selectedValues = isArrayValue
+      ? (value as ArrayFilterValue).values
+      : [];
+    const currentMode = isArrayValue
+      ? (value as ArrayFilterValue).mode
+      : arrayMode;
+
+    return (
+      <VStack align="stretch" gap={4} w="100%">
+        {/* Mode selector */}
+        <Box
+          bg="gray.50"
+          p={3}
+          borderRadius="md"
+          border="1px solid"
+          borderColor="gray.200"
+        >
+          <Text fontSize="12px" fontWeight="600" color="#4A4A4A" mb={2}>
+            Match mode:
+          </Text>
+          <RadioGroup.Root
+            value={currentMode}
+            onValueChange={(details) => {
+              const newMode = details.value as "and" | "or";
+              setArrayMode(newMode);
+              if (selectedValues.length > 0) {
+                onChange({
+                  values: selectedValues,
+                  mode: newMode,
+                });
+              }
+            }}
+            size="sm"
+            colorPalette="profile.500"
+          >
+            <HStack gap={4}>
+              <RadioGroup.Item value="or">
+                <RadioGroup.ItemHiddenInput />
+                <RadioGroup.ItemControl
+                  bg={currentMode === "or" ? "profile.500" : "transparent"}
+                  border="1px solid #E4E4E7"
+                />
+                <RadioGroup.ItemText fontSize="xs" color="#3F3F46">
+                  Any (OR)
+                </RadioGroup.ItemText>
+              </RadioGroup.Item>
+              <RadioGroup.Item value="and">
+                <RadioGroup.ItemHiddenInput />
+                <RadioGroup.ItemControl
+                  bg={currentMode === "and" ? "profile.500" : "transparent"}
+                  border="1px solid #E4E4E7"
+                />
+                <RadioGroup.ItemText fontSize="xs" color="#3F3F46">
+                  All (AND)
+                </RadioGroup.ItemText>
+              </RadioGroup.Item>
+            </HStack>
+          </RadioGroup.Root>
+        </Box>
+
+        {/* Options */}
+        <VStack align="stretch" gap={3} w="100%">
+          {facet.options
+            .filter((option) => option.count > 0)
+            .map((option) => {
+              const isChecked = selectedValues.includes(option.value);
+
+              return (
+                <HStack key={option.value} w="100%" justify="space-between">
+                  <Checkbox.Root
+                    checked={isChecked}
+                    onCheckedChange={(details) => {
+                      const checked = !!details.checked;
+                      const newValues = checked
+                        ? [...selectedValues, option.value]
+                        : selectedValues.filter((v) => v !== option.value);
+
+                      onChange(
+                        newValues.length > 0
+                          ? { values: newValues, mode: currentMode }
+                          : undefined
+                      );
+                    }}
+                    size="sm"
+                    colorPalette="profile.500"
+                  >
+                    <Checkbox.HiddenInput />
+                    <Checkbox.Control
+                      bg={isChecked ? "profile.500" : "transparent"}
+                      border={
+                        isChecked
+                          ? "1px solid var(--border-100)"
+                          : "1px solid #E4E4E7"
+                      }
+                    />
+                    <Checkbox.Label fontSize="xs" color="#3F3F46">
+                      {option.label}
+                    </Checkbox.Label>
+                  </Checkbox.Root>
+                  <Text fontSize="xs" color="#52525B">
+                    ({option.count})
+                  </Text>
+                </HStack>
+              );
+            })}
+        </VStack>
+      </VStack>
+    );
+  };
+
+  const renderBooleanFilter = () => {
+    const isChecked = value === true;
+
+    return (
+      <Checkbox.Root
+        checked={isChecked}
+        onCheckedChange={(details) => {
+          const checked = !!details.checked;
+          onChange(checked ? true : undefined);
+        }}
+        size="sm"
+        colorPalette="profile.500"
+      >
+        <Checkbox.HiddenInput />
+        <Checkbox.Control
+          bg={isChecked ? "profile.500" : "transparent"}
+          border="1px solid #E4E4E7"
+        />
+        <Checkbox.Label fontSize="xs" color="#3F3F46">
+          Yes
+        </Checkbox.Label>
+      </Checkbox.Root>
+    );
+  };
+
+  const renderRangeFilter = () => {
+    const [rangeValue, setRangeValue] = useState<number>(
+      typeof value === "number" ? value : 50
+    );
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+      if (typeof value === "number") {
+        setRangeValue(value);
+      } else if (value === undefined) {
+        setRangeValue(50);
+      }
+    }, [value]);
+
+    const handleRangeChange = (newValue: number) => {
+      setRangeValue(newValue);
+
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+
+      debounceRef.current = setTimeout(() => {
+        onChange(newValue);
+      }, 500);
+    };
+
+    return (
+      <VStack align="stretch" gap={3} w="100%">
+        <HStack justify="space-between">
+          <Text fontSize="xs" color="#3F3F46">
+            Distance:
+          </Text>
+          <Text fontSize="16px" fontWeight="600" color="#3F3F46">
+            {rangeValue} km
+          </Text>
+        </HStack>
+        <Slider.Root
+          value={[rangeValue]}
+          onValueChange={(details) => {
+            const newValue = details.value[0];
+            handleRangeChange(newValue);
+          }}
+          min={1}
+          max={200}
+          step={1}
+          width="100%"
+        >
+          <Slider.Control>
+            <Slider.Track bg="#F4F4F5">
+              <Slider.Range bg="profile.500" />
+            </Slider.Track>
+            <Slider.Thumb
+              index={0}
+              bg="profile.500"
+              border="2px solid var(--border-100)"
+            />
+          </Slider.Control>
+        </Slider.Root>
+      </VStack>
+    );
+  };
+
+  const renderFilter = () => {
+    switch (facet.kind) {
+      case "scalar":
+        return renderScalarFilter();
+      case "array":
+        return renderArrayFilter();
+      case "boolean":
+        return renderBooleanFilter();
+      case "range":
+        return renderRangeFilter();
+      default:
+        return null;
+    }
+  };
+
+  return <Box w="100%">{renderFilter()}</Box>;
+};

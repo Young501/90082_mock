@@ -153,15 +153,6 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: "/api/v1/user-types",
   },
-  ACCEPTED_OPPORTUNITIES: {
-    method: "GET",
-    url: "/api/v1/opportunities/accepted/",
-  },
-  USERS_SEARCH: {
-    method: "GET",
-    url: "/api/v1/users/search/",
-    auth: true,
-  },
   PROFILE_PICTURE_UPLOAD: {
     method: "POST",
     url: "/api/v1/user/profile-picture",
@@ -186,10 +177,31 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v1/${userType}`,
   }),
-  RESUME_UPLOAD: (userType: string): ApiEndpoint => ({
+  // v2 Profiles & User APIs (Schema 2.0.0)
+  STUDENT_PROFILE_V2: {
+    method: "GET",
+    url: "/api/v2/profiles/student/me/",
+  },
+  STUDENT_PROFILE_UPDATE_V2: {
+    method: "PATCH",
+    url: "/api/v2/profiles/student/me/",
+  },
+  RESUME_UPLOAD: {
     method: "POST",
-    url: `/api/v1/${userType}/upload-resume`,
-  }),
+    url: `/api/v2/profiles/student/me/resume/`,
+  },
+  USER_ME_V2: {
+    method: "GET",
+    url: "/api/v2/users/me/",
+  },
+  USER_ME_UPDATE_V2: {
+    method: "PATCH",
+    url: "/api/v2/users/me/",
+  },
+  TAXONOMY: {
+    method: "GET",
+    url: "/api/v2/taxonomy/",
+  },
   LOGO_UPLOAD: (userType: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/${userType}/upload-logo`,
@@ -279,21 +291,14 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v2/opportunities/${opportunityId}/participant/`,
   }),
-  CONTACT_USER: (opportunityId: string): ApiEndpoint => ({
-    method: "POST",
-    url: `/api/v1/opportunities/${opportunityId}/contact/`,
-  }),
-  QUESTIONNAIRE_FILTERS: (
-    opportunityId: string,
-    userType: string
-  ): ApiEndpoint => ({
-    method: "GET",
-    url: `/api/v1/opportunities/${opportunityId}/questionnaire-filters/?user_type=${userType}`,
-  }),
   OPPORTUNITY_DASHBOARD: (opportunityId: string): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/opportunities/${opportunityId}/dashboard/`,
   }),
+  HOMEPAGE: {
+    method: "GET",
+    url: "/api/v2/ui/homepage",
+  },
   OPPORTUNITY_PARTICIPANTS: (opportunityId: string): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/opportunities/${opportunityId}/participants/`,
@@ -346,6 +351,36 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: "/api/v1/subscriptions/checkout-session/",
   },
+  // V2 Discovery endpoints
+  OPPORTUNITY_FACETS: (opportunityId: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v2/opportunities/${opportunityId}/participants/facets`,
+  }),
+  OPPORTUNITY_SEARCH: (opportunityId: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v2/opportunities/${opportunityId}/participants/search`,
+  }),
+  // Messaging
+  LIST_CONVERSATIONS: (): ApiEndpoint => ({
+    method: "GET",
+    url: "/api/v1/messaging/conversations/",
+  }),
+  LIST_MESSAGES: (conversationId: number): ApiEndpoint => ({
+    method: "GET",
+    url: `/api/v1/messaging/conversations/${conversationId}/messages/`,
+  }),
+  GET_OR_CREATE_CONVERSATION: (): ApiEndpoint => ({
+    method: "POST",
+    url: "/api/v1/messaging/conversations/get-or-create/",
+  }),
+  SEND_MESSAGE: (conversationId: string | number): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v1/messaging/conversations/${conversationId}/messages/`,
+  }),
+  UPDATE_CONVERSATION_STATE: (conversationId: number): ApiEndpoint => ({
+    method: "PATCH",
+    url: `/api/v1/messaging/conversations/${conversationId}/state/`,
+  }),
 };
 
 /*********
@@ -360,7 +395,7 @@ export async function apiRequest<T = any>({
   const { method, url } = endpoint;
 
   const config = {
-    method: method.toLowerCase() as "get" | "post" | "put" | "delete",
+    method: method.toLowerCase() as "get" | "post" | "put" | "delete" | "patch",
     url,
     headers: {
       ...headers,

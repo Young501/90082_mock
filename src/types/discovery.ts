@@ -22,6 +22,11 @@ export interface DependencyCondition {
   operator?: "equals" | "contains" | "not_equals";
 }
 
+export interface UniversityLink {
+  label: string;
+  url: string;
+}
+
 export interface StudentProfile {
   id?: number;
   first_name?: string;
@@ -29,10 +34,10 @@ export interface StudentProfile {
   location?: string;
   distance_km?: number;
   profile_picture_url?: string | null;
-  course_name?: string;
+  degree?: string;
   course_stream?: string;
-  specialization?: string[] | string;
-  course_progression?: string;
+  specialisations?: string[] | string;
+  progression?: string;
   skills?: string[];
   credentials?: string[];
   preferred_location?: string[];
@@ -49,6 +54,12 @@ export interface StudentProfile {
   resume_url?: string;
   questionnaire_answers?: Record<string, any>;
   matched?: boolean;
+  university?: {
+    id?: number;
+    name?: string;
+    logo_url?: string;
+    links?: UniversityLink[];
+  };
 }
 
 export interface OrganisationProfile {
@@ -84,6 +95,8 @@ export interface OrganisationProfile {
   allow_contact?: boolean;
   contact_email?: string;
   description?: string;
+  actively_hiring?: boolean;
+  matchPercentage?: number;
   members?: {
     id?: number;
     first_name?: string;
@@ -91,13 +104,4 @@ export interface OrganisationProfile {
     profile_picture_url?: string | null;
     role?: string;
   }[];
-}
-
-export interface UserSearchParams {
-  user_type: string;
-  opportunity_id: string;
-  sort_by?: string;
-  page?: number;
-  page_size?: number;
-  [key: string]: any;
 }

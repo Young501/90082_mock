@@ -5,4 +5,10 @@ export type User = {
   first_name?: string;
   last_name?: string;
   profile_picture_url?: string;
+  university?: {
+    name?: string;
+    slug?: string;
+    logo_url?: string;
+    links?: Record<string, string>;
+  };
 };

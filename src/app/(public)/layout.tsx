@@ -27,17 +27,16 @@ export default function Layout({ children }: AuthLayoutProps) {
         <Header />
 
         <Box
-          flex="1"
           display="flex"
-          flexDirection="column"
-          mt={{ base: "80px", lg: "126px" }}
-          minH="calc(100vh - 305px)"
-          overflow="auto"
-          overflowX="hidden"
-          justifyContent="center"
-          pt="0"
-          pb="0"
-          px={{ base: "16px", md: "48px", lg: "130px" }}
+          flex={1}
+          w="100%"
+          maxW="1440px"
+          mx="auto"
+          mt={`${isMobile ? "0" : "76px"}`}
+          gap={6}
+          py={20}
+          px={{ base: 4, lg: 14 }}
+          h="100%"
         >
           <Container maxW={containerMaxW} px={0} position="relative">
             {children}

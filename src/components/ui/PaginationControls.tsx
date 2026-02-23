@@ -10,6 +10,8 @@ interface PaginationControlsProps {
   totalPages: number;
   pageSize: number;
   totalCount: number;
+  hasNext?: boolean;
+  hasPrevious?: boolean;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
   isLoading?: boolean;
@@ -50,6 +52,8 @@ export function PaginationControls({
   totalPages,
   pageSize,
   totalCount,
+  hasNext,
+  hasPrevious,
   onPageChange,
   onPageSizeChange,
   isLoading = false,
@@ -213,8 +217,8 @@ export function PaginationControls({
         <Button
           size="sm"
           variant="outline"
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage <= 1 || isLoading}
+          onClick={() => hasPrevious && onPageChange(currentPage - 1)}
+          disabled={currentPage <= 1 || isLoading || !hasPrevious}
         >
           <ChevronLeft size={16} />
           Previous
@@ -227,7 +231,7 @@ export function PaginationControls({
                 size="sm"
                 variant="outline"
                 onClick={() => onPageChange(1)}
-                disabled={isLoading}
+                disabled={isLoading || !hasPrevious}
               >
                 1
               </Button>
@@ -250,7 +254,7 @@ export function PaginationControls({
                 variant={page === currentPage ? "solid" : "outline"}
                 bg={page === currentPage ? "#282F68" : undefined}
                 color={page === currentPage ? "white" : undefined}
-                onClick={() => onPageChange(page)}
+                onClick={() => hasPrevious && onPageChange(page)}
                 disabled={isLoading}
               >
                 {page}
@@ -263,7 +267,7 @@ export function PaginationControls({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => onPageChange(totalPages)}
+                onClick={() => hasPrevious && onPageChange(totalPages)}
                 disabled={isLoading}
               >
                 {totalPages}
@@ -275,7 +279,7 @@ export function PaginationControls({
         <Button
           size="sm"
           variant="outline"
-          onClick={() => onPageChange(currentPage + 1)}
+          onClick={() => hasNext && onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages || isLoading}
         >
           Next

@@ -2,29 +2,26 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import {
-  Box,
-  Container,
-  Text,
-  VStack,
-  Heading,
-  useBreakpointValue,
-} from "@chakra-ui/react";
+import { Box, Heading, VStack, Text, Flex } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useAuth } from "@/hooks/auth";
 import { passwordResetFormSchema } from "@/utils/validationSchemas";
-import { InputField, Button } from "@/components/ui";
+import { InputField, ButtonV2 } from "@/components/ui";
+import { PageTitle } from "@/components/PageTitle";
+import { PAGE_TITLES } from "@/utils/pageTitles";
+import { motion } from "framer-motion";
 
 interface FormData {
   new_password: string;
   confirm_password: string;
 }
 
+const MotionBox = motion.create(Box);
+
 function ResetPasswordFormContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const containerMaxW = useBreakpointValue({ base: "100%", lg: "1512px" });
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [token, setToken] = useState<string | null>(null);
@@ -86,98 +83,133 @@ function ResetPasswordFormContent() {
   };
 
   if (!token) {
-    return null; // Will redirect in useEffect
+    return null;
   }
 
   return (
-    <Container maxW={containerMaxW} p={0} h="100%">
-      <Box
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        justifyContent="center"
-        minHeight="60vh"
-        textAlign="center"
-        px={{ base: 4, md: 6, lg: 8 }}
-        py={{ base: 8, md: 12, lg: 16 }}
-      >
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          style={{ width: "100%", maxWidth: "500px" }}
+    <>
+      <PageTitle title={PAGE_TITLES.RESET_PASSWORD} />
+      <Box w="100%" display="flex" alignItems="center" justifyContent="center">
+        <MotionBox
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          w="100%"
+          maxW="640px"
+          bg="white"
+          borderRadius="2xl"
+          p={{ base: 6, md: 10 }}
+          boxShadow="xl"
         >
-          <VStack gap={{ base: 6, md: 8 }}>
-            <Heading
-              fontSize={{ base: "24px", md: "32px", lg: "42px" }}
-              fontWeight="700"
-              color="black"
-              lineHeight="1.21"
-            >
-              Reset Your Password
-            </Heading>
+          <form onSubmit={handleSubmit(onSubmit)} autoComplete="on">
+            <VStack align="stretch" gap={6}>
+              <VStack align="stretch" gap={1} textAlign="left">
+                <Heading
+                  fontSize={{ base: "2xl", md: "4xl" }}
+                  fontWeight="600"
+                  color="#18181B"
+                  lineHeight="1.2"
+                >
+                  Reset your password
+                </Heading>
+                <Text fontSize="md" color="#71717A" lineHeight="1.5">
+                  Please enter your new password below
+                </Text>
+              </VStack>
 
-            <Text
-              fontSize={{ base: "14px", md: "18px", lg: "20px" }}
-              color="black"
-              maxWidth={{ base: "100%", md: "400px" }}
-              lineHeight="1.4"
-              px={{ base: 2, md: 0 }}
-            >
-              Please enter your new password below
-            </Text>
-
-            <VStack gap={4} width="100%">
-              <InputField
-                label="NEW PASSWORD"
-                type="password"
-                autoComplete="new-password"
-                error={errors.new_password?.message}
-                showPasswordToggle
-                showPassword={showNewPassword}
-                onTogglePassword={() => setShowNewPassword(!showNewPassword)}
-                labelStyle="floating"
-                {...register("new_password")}
-                value={newPasswordValue || ""}
-              />
-
-              <InputField
-                label="CONFIRM PASSWORD"
-                type="password"
-                autoComplete="new-password"
-                error={errors.confirm_password?.message}
-                showPasswordToggle
-                showPassword={showConfirmPassword}
-                onTogglePassword={() =>
-                  setShowConfirmPassword(!showConfirmPassword)
-                }
-                labelStyle="floating"
-                {...register("confirm_password")}
-                value={confirmPasswordValue || ""}
-              />
-
-              <Button
-                type="submit"
-                w={{ base: "280px", md: "320px", lg: "400px" }}
-                h={{ base: "45px", md: "50px" }}
-                bg="#002157"
-                color="white"
-                borderRadius="25px"
-                fontSize={{ base: "16px", md: "18px", lg: "20px" }}
-                fontWeight="500"
-                disabled={isPasswordResetConfirmLoading}
-                isLoading={isPasswordResetConfirmLoading}
-                _hover={{ opacity: 0.8 }}
-                _active={{ transform: "scale(0.98)" }}
-                boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
-                transition="all 0.2s ease"
-                mt={{ base: 4, md: 6 }}
+              <VStack
+                align="stretch"
+                gap={8}
+                border={{ base: "none", md: "1px solid #E4E4E7" }}
+                borderRadius="3xl"
+                w="100%"
+                p={{ base: 0, md: 8 }}
               >
-                Reset Password
-              </Button>
+                <VStack align="stretch" gap={6}>
+                  <InputField
+                    label="New password"
+                    type={showNewPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    error={errors.new_password?.message as string}
+                    showPasswordToggle
+                    showPassword={showNewPassword}
+                    onTogglePassword={() => setShowNewPassword(!showNewPassword)}
+                    labelStyle="top"
+                    placeholder="Enter new password"
+                    variant="signup"
+                    {...register("new_password")}
+                    value={newPasswordValue || ""}
+                    inputStyles={{
+                      borderRadius: "sm",
+                      h: "48px",
+                      _focus: { outline: "none" },
+                    }}
+                  />
+
+                  <InputField
+                    label="Confirm password"
+                    type={showConfirmPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    error={errors.confirm_password?.message as string}
+                    showPasswordToggle
+                    showPassword={showConfirmPassword}
+                    onTogglePassword={() =>
+                      setShowConfirmPassword(!showConfirmPassword)
+                    }
+                    labelStyle="top"
+                    placeholder="Confirm password"
+                    variant="signup"
+                    {...register("confirm_password")}
+                    value={confirmPasswordValue || ""}
+                    inputStyles={{
+                      borderRadius: "sm",
+                      h: "48px",
+                      _focus: { outline: "none" },
+                    }}
+                  />
+
+                  <ButtonV2
+                    type="submit"
+                    variant="primary"
+                    bg="#2AA8E0"
+                    color="white"
+                    disabled={isPasswordResetConfirmLoading}
+                    isLoading={isPasswordResetConfirmLoading}
+                    w="100%"
+                    fontSize="lg"
+                    fontWeight="600"
+                    h={{ base: "48px", md: "64px" }}
+                    borderRadius="xl"
+                  >
+                    Reset password
+                  </ButtonV2>
+                </VStack>
+              </VStack>
+
+              <Flex justify="center" align="center" gap={2} pt={2}>
+                <Text fontSize="sm" color="black" fontWeight="500">
+                  Remember your password?
+                </Text>
+                <ButtonV2
+                  variant="ghost"
+                  onClick={() => router.push("/login/")}
+                  border="1px solid #D6EDFB"
+                  h="40px"
+                  borderRadius="xl"
+                  fontSize="xs"
+                  color="#1679AB"
+                  py={2.5}
+                  px={4}
+                  _hover={{ textDecoration: "none" }}
+                >
+                  Log in
+                </ButtonV2>
+              </Flex>
             </VStack>
-          </VStack>
-        </form>
+          </form>
+        </MotionBox>
       </Box>
-    </Container>
+    </>
   );
 }
 

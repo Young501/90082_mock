@@ -4,6 +4,7 @@ export interface Opportunity {
   id: number;
   title: string;
   description: string;
+  logo_url?: string;
   start_date: string;
   end_date: string;
   created_by: number;

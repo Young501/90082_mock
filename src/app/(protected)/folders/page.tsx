@@ -25,7 +25,7 @@ import {
   useRemoveMemberFromFolder,
 } from "@/services/folder";
 import { StudentCard } from "@/app/(protected)/discover/cards/studentCard";
-import { PartnerCard } from "@/app/(protected)/discover/cards/partnerCard";
+import { OrganisationCard } from "@/app/(protected)/discover/cards";
 import { toast } from "react-toastify";
 import { Folder as FolderType } from "@/types/folder";
 import { useAuthStore } from "@/store";
@@ -107,13 +107,7 @@ const Folder = () => {
 
   if (folderId) {
     return (
-      <Box
-        py={6}
-        px={{ base: 4, lg: "72px" }}
-        maxW="1512px"
-        mx="auto"
-        mt={{ base: "80px", lg: "126px" }}
-      >
+      <Box maxW="1512px" mx="auto">
         <VStack align="stretch" gap={{ base: 6, md: 10, lg: 20 }}>
           <HStack gap={6} align="center">
             <Button
@@ -306,7 +300,7 @@ const Folder = () => {
                         );
                       } else if (userType === "organisation") {
                         return (
-                          <PartnerCard
+                          <OrganisationCard
                             key={userId}
                             organisation={userData}
                             profilePictureUrl={
@@ -356,13 +350,7 @@ const Folder = () => {
     return (
       <>
         <PageTitle title={PAGE_TITLES.FOLDERS} />
-        <Box
-          py={6}
-          px={{ base: 4, lg: "72px" }}
-          maxW="1512px"
-          mx="auto"
-          mt="126px"
-        >
+        <Box maxW="1512px" mx="auto">
           <VStack align="center" justify="center" minH="400px" gap={6}>
             <Text fontSize="16px" color="#666" textAlign="center" maxW="500px">
               Please access folders from the Discover page for a specific
@@ -389,13 +377,7 @@ const Folder = () => {
   return (
     <>
       <PageTitle title={PAGE_TITLES.FOLDERS} />
-      <Box
-        py={6}
-        px={{ base: 4, lg: "72px" }}
-        maxW="1512px"
-        mx="auto"
-        mt="126px"
-      >
+      <Box maxW="1512px" mx="auto">
         <VStack align="stretch" gap={{ base: 6, md: 10, lg: 20 }}>
           <HStack gap={4}>
             <Button

@@ -4,6 +4,8 @@ import { useAuthStore } from "@/store";
 
 // UC-310: Update participant record for a specific opportunity
 export function useUpdateOpportunityParticipant() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({
       opportunityId,
@@ -31,6 +33,9 @@ export function useUpdateOpportunityParticipant() {
       });
 
       return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
 }
@@ -69,6 +74,7 @@ export function useEnrollInOpportunity() {
       });
       // Also invalidate opportunity participant query
       queryClient.invalidateQueries({ queryKey: ["opportunity-participant"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
 }

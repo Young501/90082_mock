@@ -44,11 +44,8 @@ const ManagePageContent = () => {
   if (error) {
     return (
       <Box
-        py={6}
-        px={{ base: 4, lg: "72px" }}
         maxW="1512px"
         mx="auto"
-        mt={{ base: "80px", lg: "126px" }}
       >
         <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
           <Text
@@ -135,11 +132,8 @@ const ManagePage = () => {
     <Suspense
       fallback={
         <Box
-          py={6}
-          px={{ base: 4, lg: "72px" }}
           maxW="1512px"
           mx="auto"
-          mt={{ base: "80px", lg: "126px" }}
           display="flex"
           justifyContent="center"
           alignItems="center"
@@ -188,11 +182,8 @@ const StudentPage = ({
   const router = useRouter();
   return (
     <Box
-      py={6}
-      px={{ base: 4, lg: "48px", xl: "72px" }}
       maxW="1512px"
       mx="auto"
-      mt={{ base: "80px", lg: "126px" }}
     >
       <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
         <Box
@@ -378,11 +369,8 @@ const PartnerPage = ({
   const router = useRouter();
   return (
     <Box
-      py={6}
-      px={{ base: 4, lg: "48px", xl: "72px" }}
       maxW="1512px"
       mx="auto"
-      mt={{ base: "80px", lg: "126px" }}
     >
       <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
         <Box
@@ -553,12 +541,9 @@ const ManageDefault = () => {
   }, [router]);
   return (
     <Box
-      py={6}
-      px={{ base: 4, lg: "72px" }}
       maxW="1512px"
       mx="auto"
       h={{ base: `calc(100vh - 72px)`, lg: "calc(100vh - 126px)" }}
-      mt={{ base: "72px", lg: "126px" }}
       display="flex"
       alignItems="center"
       justifyContent="center"

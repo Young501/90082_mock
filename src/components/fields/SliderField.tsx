@@ -1,6 +1,9 @@
 import { Box, Text, Slider, HStack } from "@chakra-ui/react";
 import { Control, useController } from "react-hook-form";
 
+const SLIDER_ACTIVE_COLOR = "#2AA8E0";
+const SLIDER_TRACK_COLOR = "#D6EDFB";
+
 interface SliderFieldProps {
   name: string;
   label: string;
@@ -58,19 +61,23 @@ export const SliderField = ({
               </Text>
             )}
           </Text>
-          <Text fontSize="16px" fontWeight="medium" color="blue.500">
+          <Text fontSize="16px" fontWeight="medium" color={SLIDER_ACTIVE_COLOR}>
             {currentValue} {unit}
           </Text>
         </HStack>
 
-        <Box px={4}>
+        <Box>
           <Slider.Control>
-            <Slider.Track bg="gray.200" height="8px" borderRadius="full">
-              <Slider.Range bg="blue.500" />
+            <Slider.Track
+              bg={SLIDER_TRACK_COLOR}
+              height="8px"
+              borderRadius="full"
+            >
+              <Slider.Range bg={SLIDER_ACTIVE_COLOR} borderRadius="full" />
             </Slider.Track>
             <Slider.Thumbs
               boxSize="20px"
-              bg="blue.500"
+              bg={SLIDER_ACTIVE_COLOR}
               border="2px solid white"
               boxShadow="md"
               rounded="full"

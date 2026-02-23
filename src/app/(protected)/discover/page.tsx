@@ -4,20 +4,20 @@ import React, { useEffect, useMemo, useCallback, useState } from "react";
 import {
   Box,
   VStack,
-  Heading,
   Text,
-  Separator,
   Flex,
   Spinner,
   Alert,
   Button,
-  Image,
-  Icon,
+  HStack,
+  Portal,
+  IconButton,
 } from "@chakra-ui/react";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { LockIcon, FolderHeart } from "lucide-react";
-import { useDiscovery } from "@/hooks/useDiscovery";
-import { DiscoveryFilterBox } from "./DiscoveryFilterBox";
+import { MessageCircleX } from "lucide-react";
+import { useOpportunityFilter } from "@/hooks/useOpportunityFilter";
+import { OpportunityFilters } from "./OpportunityFilters";
 import { DiscoveryResultBox } from "./DiscoveryResultBox";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
@@ -32,13 +32,21 @@ import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 import { useHandleEnroll } from "@/hooks/useHandleEnroll";
 import { AccessInfo } from "@/types/opportunities";
 import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
+import { useFolders } from "@/services/folder";
+import { OpportunityDescriptionCard } from "./cards/OpportunityDescriptionCard";
+import { OpportunityNotEnrolledCard } from "./cards/OpportunityNotEnrolledCard";
+import DiscoveryFolderCard from "./DiscoveryFolderCard";
+import { CreateFolderModal } from "./CreateFolderModal";
+import type { DiscoveryFolderItem } from "./DiscoveryFolderCard";
+import { IconFolder, IconArrowRight } from "@/components/Icons";
+import { FilterButton } from "@/components/ui/FilterButton";
 
 export default function DiscoveryPage() {
   const sp = useSearchParams();
   const router = useRouter();
   const opportunitySlug = sp.get("opp") || undefined;
 
-  const { user, setAccessibleOpportunities } = useAuthStore();
+  const { user } = useAuthStore();
   const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
   const [isUserEligible, setIsUserEligible] = useState<boolean | null>(null);
 
@@ -60,12 +68,28 @@ export default function DiscoveryPage() {
 
   const userType = user?.user_types?.[0];
   const [accessInfo, setAccessInfo] = useState<AccessInfo | null>(null);
+  const [createFolderModalOpen, setCreateFolderModalOpen] = useState(false);
+  const [folderSheetOpen, setFolderSheetOpen] = useState(false);
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
 
-  useEffect(() => {
-    if (accessibleOpportunities) {
-      setAccessibleOpportunities(accessibleOpportunities);
-    }
-  }, [accessibleOpportunities, setAccessibleOpportunities]);
+  const { data: foldersData, isLoading: isLoadingFolders } =
+    useFolders(opportunitySlug);
+  const discoveryFolders: DiscoveryFolderItem[] = useMemo(
+    () =>
+      (foldersData ?? []).map((f) => ({
+        id: String(f.id),
+        name: f.name,
+        count: f.member_count,
+      })),
+    [foldersData]
+  );
+  const handleFolderClick = useCallback(
+    (folder: DiscoveryFolderItem) => {
+      const oppParam = opportunitySlug ? `&opp=${opportunitySlug}` : "";
+      router.push(`/folders?id=${folder.id}${oppParam}`);
+    },
+    [opportunitySlug, router]
+  );
 
   // Compute and cache enrollment status
   useEffect(() => {
@@ -82,11 +106,6 @@ export default function DiscoveryPage() {
     }
     setAccessInfo(currentOpportunity?.access || null);
   }, [opportunityId, accessibleOpportunities, isEnrolled, opportunitySlug]);
-
-  // useEffect(() => {
-  //   setIsUserEligible(null);
-  //   setIsEnrolled(null);
-  // }, [opportunityId]);
 
   useEffect(() => {
     if (!opportunity || !user?.email || isUserEligible !== null) return;
@@ -133,31 +152,65 @@ export default function DiscoveryPage() {
   const isEligible = isUserEligible ?? false;
 
   const {
+    participantType,
+    filters,
+    query,
+    sort,
+    facets,
     searchResults,
-    hasSearched,
-    filterableFields,
-    filterOptions,
-    targetUserType,
-    isLoading,
-    isSearching,
-    form,
-    handleSearch,
-    handleReset,
-    checkDependencies,
-    resultsCount,
-    showResults,
     currentPage,
     pageSize,
-    totalPages,
-    handlePageChange,
-    handlePageSizeChange,
-  } = useDiscovery(opportunityId?.toString() || "", {
+    hasNext,
+    hasPrevious,
+    isLoadingFacets,
+    isLoadingSearch,
+    isLoading: isLoadingV2,
+    handleFilterChange,
+    handlePageChange: handlePageChangeV2,
+    handlePageSizeChange: handlePageSizeChangeV2,
+    handleQueryChange,
+    handleSortChange,
+    handleReset: handleResetV2,
+    totalPages: totalPagesV2,
+    hasFilters,
+    resultsCount: resultsCountV2,
+  } = useOpportunityFilter(opportunityId?.toString() || "", {
     isEnrolled: isEnrolled === null ? undefined : isEnrolled,
     isEnrollmentReady,
   });
 
-  const { control, watch } = form;
-  const watchedValues = watch();
+  useEffect(() => {
+    if (!sort?.by) {
+      handleSortChange("distance");
+    }
+  }, [sort?.by, handleSortChange]);
+
+  const facetValidationSuccess = useMemo(() => {
+    const hasOnboardingWithCounts = Object.keys(
+      facets?.facets?.onboarding || {}
+    ).some((key) =>
+      facets?.facets?.onboarding?.[key]?.options?.some(
+        (option: { count: number }) => option.count > 0
+      )
+    );
+    const hasQuestionnaireWithCounts = Object.keys(
+      facets?.facets?.questionnaire || {}
+    ).some((key) =>
+      facets?.facets?.questionnaire?.[key]?.options?.some(
+        (option: { count: number }) => option.count > 0
+      )
+    );
+
+    const hasAnyFacets = hasOnboardingWithCounts || hasQuestionnaireWithCounts;
+
+    if (hasAnyFacets || isLoadingSearch) {
+      return true;
+    }
+
+    return false;
+  }, [facets, isLoadingSearch]);
+
+  console.log("facetValidationSuccess", facetValidationSuccess);
 
   const { handleEnroll, isSubmitting } = useHandleEnroll({
     isEligible,
@@ -180,12 +233,7 @@ export default function DiscoveryPage() {
           overflow="hidden"
         >
           <PageTitle title={PAGE_TITLES.DISCOVER} />
-          <Flex
-            justify="center"
-            align="center"
-            minH="400px"
-            mt={{ base: "80px", lg: "126px" }}
-          >
+          <Flex justify="center" align="center" minH="400px">
             <VStack gap={4} align="center">
               <Spinner size="xl" color="blue.500" />
               <Text>Loading opportunity details...</Text>
@@ -207,7 +255,7 @@ export default function DiscoveryPage() {
           <PageTitle title={PAGE_TITLES.DISCOVER} />
           <Box
             px={{ base: 4, md: 8, lg: 16 }}
-            mt={{ base: "80px", lg: "126px" }}
+            // mt={{ base: "80px", lg: "126px" }}
           >
             <Alert.Root status="error" mb={8}>
               <Alert.Indicator />
@@ -229,178 +277,203 @@ export default function DiscoveryPage() {
         overflow="hidden"
       >
         <PageTitle title={PAGE_TITLES.DISCOVER} />
-        <Box
-          flex="1"
-          px={{ base: 4, md: 8, lg: 16 }}
-          mt={{ base: "80px", lg: "126px" }}
-          pb={{ base: 8, lg: 12 }}
-          w="100%"
-          maxW="100vw"
-          overflow="hidden"
-        >
-          {/* Title */}
-          <Heading
-            as="h1"
-            fontSize={{ base: "2xl", md: "4xl" }}
-            textAlign="center"
-            mt={{ base: 8, md: 12 }}
-            mb={{ base: 8, md: 12 }}
-            lineHeight="1.3"
-          >
-            You are exploring the{" "}
-            <Box
-              as="span"
-              bg="blue.600"
-              color="white"
-              px={4}
-              py={2}
-              borderRadius="2xl"
-              display="inline-block"
-            >
-              {opportunity.title}
-            </Box>{" "}
-            opportunity
-          </Heading>
+        <VStack w="100%" overflow="hidden" gap={{ base: 5, lg: 6 }}>
+          <OpportunityDescriptionCard
+            opportunity={opportunity}
+            currentOpportunity={currentOpportunity}
+          />
           {/* Enrolled user and eligible - show discovery interface */}
           {isEnrolled && accessInfo?.has_access && !isSubmitting ? (
-            <Box maxW="1280px" mx="auto" w="100%" overflow="hidden">
-              <Flex justify="space-between" align="center" mb={4}>
-                <VStack align="stretch">
-                  <Heading size="lg" color="#313238ff">
-                    Discover{" "}
-                    {targetUserType === "student" ? "Students" : "Partners"}
-                  </Heading>
-                  <Text color="gray.600">
-                    Search and filter{" "}
-                    {targetUserType === "student" ? "students" : "partners"}{" "}
-                    based on your criteria
-                  </Text>
-                </VStack>
-                <Button
-                  onClick={() =>
-                    router.push(`/folders/?opp=${opportunitySlug}`)
-                  }
-                  bg="#2CA9DF"
-                  borderRadius="15px"
-                  px={6}
-                  py={5}
-                  maxW="200px"
-                  // boxShadow="0px 4px 4px 0px #00000040"
-                  // h="auto"
-                  fontSize="16px"
-                  fontWeight="600"
-                  display="flex"
-                  alignItems="center"
-                  gap={4}
-                  _hover={{ bg: "#002157" }}
-                >
-                  <FolderHeart size="60px" color="white" />
-                  Folders
-                </Button>
-              </Flex>
-              <Box borderRadius="md" mb={8} w="100%">
-                <DiscoveryFilterBox
-                  fields={filterableFields}
-                  control={control}
-                  watchedValues={watchedValues}
-                  checkDependencies={checkDependencies}
-                  hasSearched={hasSearched}
-                  isSearching={isSearching}
-                  onSubmit={handleSearch}
-                  onReset={handleReset}
-                  filterOptions={filterOptions}
-                />
-              </Box>
-              <Separator my={6} />
-              <DiscoveryResultBox
-                results={searchResults}
-                count={resultsCount}
-                isLoading={isSearching}
-                hasSearched={hasSearched}
-                show={showResults}
-                userType={targetUserType!}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                pageSize={pageSize}
-                onPageChange={handlePageChange}
-                onPageSizeChange={handlePageSizeChange}
-                opportunityId={opportunityId?.toString() || ""}
-                opportunitySlug={opportunitySlug}
-              />
-            </Box>
-          ) : (
-            /* Not enrolled user - show enrollment interface */
-            <Box maxW="800px" mx="auto" w="100%" overflow="hidden">
-              <Flex
-                direction={{ base: "column", md: "row" }}
-                align="center"
-                justify="center"
-                gap={{ base: 8, lg: 16 }}
+            <Box w="100%" overflow="hidden">
+              <Box
+                display="flex"
+                flexDirection={{ base: "column", lg: "row" }}
+                gap={8}
+                alignItems="start"
+                justifyContent="start"
+                w="100%"
               >
-                <Box flexShrink={0}>
-                  <Image
-                    src="/assets/discoverNothing.png"
-                    alt="Discover"
-                    width={400}
-                    height={300}
-                    style={{
-                      height: "auto",
-                      width: "100%",
-                      maxWidth: "300px",
-                    }}
+                <Box
+                  display={{ base: "none", lg: "flex" }}
+                  flexDirection="column"
+                  gap={5}
+                >
+                  {/* {facetValidationSuccess && ( */}
+                  <OpportunityFilters
+                    facets={facets}
+                    filters={filters}
+                    onFilterChange={handleFilterChange}
+                    onReset={handleResetV2}
+                    hasFilters={hasFilters}
+                    isLoading={isLoadingSearch}
+                    facetValidationSuccess={facetValidationSuccess}
+                  />
+                  {/* )} */}
+                  <DiscoveryFolderCard
+                    folders={discoveryFolders}
+                    isLoading={isLoadingFolders}
+                    onCreateNewFolder={() => setCreateFolderModalOpen(true)}
+                    onFolderClick={handleFolderClick}
                   />
                 </Box>
 
-                <VStack align="flex-start" gap={6} maxW="500px" w="100%">
-                  <Text fontSize="lg" color="gray.600">
-                    {opportunity.description ||
-                      "Ready to connect with industry partners seeking university talent? Join the Opportunity to access part-time, casual, and graduate roles within your university community."}
-                  </Text>
-
-                  {(opportunity.start_date || opportunity.end_date) && (
-                    <VStack align="flex-start" gap={2} w="100%">
-                      {opportunity.start_date && (
-                        <Text fontSize="sm" color="gray.500">
-                          <strong>Start Date:</strong>{" "}
-                          {new Date(
-                            opportunity.start_date
-                          ).toLocaleDateString()}
-                        </Text>
-                      )}
-                      {opportunity.end_date && (
-                        <Text fontSize="sm" color="gray.500">
-                          <strong>End Date:</strong>{" "}
-                          {new Date(opportunity.end_date).toLocaleDateString()}
-                        </Text>
-                      )}
-                    </VStack>
-                  )}
-
+                <HStack
+                  display={{ base: "flex", lg: "none" }}
+                  w="100%"
+                  gap={3}
+                  flexShrink={0}
+                >
                   <Button
-                    colorScheme="green"
-                    bg="green.600"
-                    color="white"
-                    _hover={{ bg: "green.700" }}
-                    size="lg"
+                    variant="outline"
+                    flex={1}
+                    justifyContent="flex-start"
+                    gap={2}
+                    py="14px"
+                    px={4}
                     borderRadius="xl"
-                    h="50px"
-                    w={{ base: "full", md: "160px" }}
-                    onClick={handleEnroll}
-                    loading={isSubmitting}
-                    disabled={isSubmitting}
+                    borderColor="#E4E4E7"
+                    borderWidth="1px"
+                    bg="white"
+                    color="#27272A"
+                    fontWeight="normal"
+                    fontSize="md"
+                    onClick={() => setFolderSheetOpen(true)}
                   >
-                    {accessInfo?.next_action === "subscribe" && (
-                      <Icon as={LockIcon} />
-                    )}
-                    {accessInfo?.next_action === "subscribe"
-                      ? "Subscribe"
-                      : "Enroll"}
+                    <IconFolder color="#3F3F46" />
+                    My Folder
+                    <Box ml="auto">
+                      <ChevronRight size={20} color="#3F3F46" />
+                    </Box>
                   </Button>
-                </VStack>
-              </Flex>
+                  {facetValidationSuccess && (
+                    <FilterButton
+                      flex={1}
+                      label="Filter"
+                      onClick={() => setFilterSheetOpen(true)}
+                    />
+                  )}
+                </HStack>
+
+                {folderSheetOpen && (
+                  <Portal>
+                    <Box
+                      position="fixed"
+                      inset={0}
+                      bg="blackAlpha.600"
+                      boxShadow="0px 4px 6px -4px #0000001A"
+                      zIndex={9998}
+                      onClick={() => setFolderSheetOpen(false)}
+                    />
+                    <Box
+                      position="fixed"
+                      bottom={4}
+                      left={4}
+                      right={4}
+                      maxH="85vh"
+                      overflowY="auto"
+                      bg="white"
+                      borderRadius="10px"
+                      zIndex={9999}
+                    >
+                      <DiscoveryFolderCard
+                        inDrawer
+                        folders={discoveryFolders}
+                        isLoading={isLoadingFolders}
+                        onCreateNewFolder={() => {
+                          setFolderSheetOpen(false);
+                          setCreateFolderModalOpen(true);
+                        }}
+                        onFolderClick={(folder) => {
+                          handleFolderClick(folder);
+                          setFolderSheetOpen(false);
+                        }}
+                        onClose={() => setFolderSheetOpen(false)}
+                      />
+                    </Box>
+                  </Portal>
+                )}
+
+                {filterSheetOpen && (
+                  <Portal>
+                    <Box
+                      position="fixed"
+                      inset={0}
+                      bg="blackAlpha.600"
+                      boxShadow="0px 4px 6px -4px #0000001A"
+                      zIndex={9998}
+                      onClick={() => setFilterSheetOpen(false)}
+                    />
+                    <Box
+                      position="fixed"
+                      bottom={4}
+                      left={4}
+                      right={4}
+                      maxH="85vh"
+                      overflowY="auto"
+                      bg="white"
+                      borderRadius="10px"
+                      zIndex={9999}
+                    >
+                      <OpportunityFilters
+                        inDrawer
+                        facets={facets}
+                        filters={filters}
+                        onFilterChange={handleFilterChange}
+                        onReset={handleResetV2}
+                        hasFilters={hasFilters}
+                        isLoading={isLoadingSearch}
+                        onApply={() => setFilterSheetOpen(false)}
+                        onClose={() => setFilterSheetOpen(false)}
+                      />
+                    </Box>
+                  </Portal>
+                )}
+
+                {opportunitySlug && (
+                  <CreateFolderModal
+                    isOpen={createFolderModalOpen}
+                    onClose={() => setCreateFolderModalOpen(false)}
+                    opportunitySlug={opportunitySlug}
+                    onSuccess={() => setCreateFolderModalOpen(false)}
+                  />
+                )}
+
+                <DiscoveryResultBox
+                  results={searchResults}
+                  isLoading={isLoadingSearch}
+                  hasSearched={hasFilters}
+                  show={
+                    searchResults.length > 0 || hasFilters || isLoadingSearch
+                  }
+                  userType={participantType!}
+                  query={query ?? ""}
+                  onQueryChange={handleQueryChange}
+                  sortBy={sort?.by ?? undefined}
+                  onSortChange={handleSortChange}
+                  pagination={{
+                    currentPage,
+                    totalPages: totalPagesV2,
+                    pageSize,
+                    count: resultsCountV2,
+                    hasNext,
+                    hasPrevious,
+                    onPageChange: handlePageChangeV2,
+                    onPageSizeChange: handlePageSizeChangeV2,
+                  }}
+                  opportunityId={opportunityId?.toString() || ""}
+                  opportunitySlug={opportunitySlug}
+                />
+              </Box>
             </Box>
+          ) : (
+            <OpportunityNotEnrolledCard
+              opportunity={opportunity}
+              accessInfo={accessInfo}
+              onEnroll={handleEnroll}
+              isSubmitting={isSubmitting}
+            />
           )}
-        </Box>
+        </VStack>
       </Box>
     );
   }
@@ -413,7 +486,6 @@ export default function DiscoveryPage() {
         p={{ base: 4, md: 6 }}
         maxW="1280px"
         mx="auto"
-        mt={{ base: "80px", lg: "126px" }}
         w="100%"
         overflow="hidden"
       >
@@ -427,25 +499,37 @@ export default function DiscoveryPage() {
           </Flex>
         ) : !accessibleOpportunities || accessibleOpportunities.length === 0 ? (
           // No opportunities available
-          <Flex justify="center" align="center" minH="400px">
-            <VStack gap={6} align="center" textAlign="center">
-              <Image
-                src="/assets/discoverNothing.png"
-                alt="No opportunities"
-                width={300}
-                height={200}
-                style={{ height: "auto", width: "100%", maxWidth: "200px" }}
-              />
-              <VStack gap={4} align="center">
-                <Heading size="lg" color="#282F68">
-                  You haven&apos;t added any opportunities yet.
-                </Heading>
-                <Text color="gray.600" fontSize="lg" maxW="500px">
-                  Please accept an opportunity invitation first, and then
-                  you&apos;ll be able to start discovering and connecting with
-                  other users.
-                </Text>
-              </VStack>
+          <Flex
+            justify="center"
+            align="center"
+            h="100%"
+            // minH="400px"
+            minH="calc(100vh - 200px)"
+          >
+            <VStack
+              h="100%"
+              align="center"
+              justify="center"
+              gap={6}
+              w="100%"
+              maxW="374px"
+              mx="auto"
+              my="auto"
+            >
+              <Box display="flex" alignItems="center" justifyContent="center">
+                <MessageCircleX size={64} color="#52525B" />
+              </Box>
+              <Text fontWeight="semibold" fontSize="xl">
+                No opportunities found yet
+              </Text>
+              <Text
+                fontSize="lg"
+                color="#52525B"
+                textAlign="center"
+                maxW="310px"
+              >
+                No opportunities found. Please check back later.
+              </Text>
             </VStack>
           </Flex>
         ) : null}

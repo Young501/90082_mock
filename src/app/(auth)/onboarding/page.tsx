@@ -16,25 +16,8 @@ export default function OnboardingPage() {
   }
 
   return (
-    <Box w="100%" mx="auto" mt={10}>
+    <Box w="100%" mx="auto" maxW="1040px">
       <OnboardingSteps userType={userType} />
-      {/* {!isMobile && (
-        <Box
-          w="100%"
-          position="absolute"
-          top={0}
-          right={{
-            base: "0",
-            lg: "-70vw",
-          }}
-        >
-          <Image
-            src="/assets/background-image.png"
-            alt="onboarding"
-            style={{ position: "unset", width: "fit-content", height: "auto" }}
-          />
-        </Box>
-      )} */}
     </Box>
   );
 }

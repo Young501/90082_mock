@@ -1,4 +1,4 @@
-import { Box, Field, Text, Textarea } from "@chakra-ui/react";
+import { Box, Field, Text, Textarea, VStack } from "@chakra-ui/react";
 import { UseFormRegisterReturn } from "react-hook-form";
 import { forwardRef } from "react";
 
@@ -10,6 +10,7 @@ interface TextAreaFieldProps {
   required?: boolean;
   inputProps?: any;
   icon?: string;
+  maxLength?: number;
 }
 
 export const TextAreaField = forwardRef<
@@ -25,49 +26,47 @@ export const TextAreaField = forwardRef<
       placeholder,
       inputProps,
       icon,
+      maxLength,
       ...props
     },
     _ref
   ) => {
     return (
-      <Box>
-        {label && (
-          <Box mb={4}>
-            <Text fontSize="18px" fontWeight="medium" mb={2}>
+      <Field.Root invalid={!!error}>
+        <VStack align="stretch" gap={1.5} w="100%">
+          {label && (
+            <Field.Label fontSize="sm" fontWeight="500" color="black">
               {label}
               {required && (
                 <span style={{ color: "red", marginLeft: "4px" }}>*</span>
               )}
+            </Field.Label>
+          )}
+          <Box style={{ width: "100%" }}>
+            <Box position="relative" width="100%">
+              <Textarea
+                placeholder={placeholder}
+                h="80px"
+                bg="white"
+                fontSize="sm"
+                px={4}
+                pl={icon ? "40px" : "16px"}
+                style={{ border: "1px solid #E4E4E7", borderRadius: "4px" }}
+                {...register}
+                {...props}
+                {...inputProps}
+                maxLength={maxLength}
+              />
+            </Box>
+          </Box>
+          {maxLength && (
+            <Text fontSize="xs" color="#71717A">
+              Maximum {maxLength} characters
             </Text>
-          </Box>
-        )}
-        <Box style={{ width: "100%" }}>
-          <Box position="relative" width="100%">
-            <Textarea
-              placeholder={placeholder}
-              h="120px"
-              bg="white"
-              fontSize="16px"
-              px={6}
-              pl={icon ? "48px" : "24px"}
-              style={{ border: "1px solid #A2DDF0", borderRadius: "8px" }}
-              _focus={{
-                borderColor: "#A2DDF0",
-                boxShadow: "0 0 0 1px #A2DDF0",
-              }}
-              _hover={{ borderColor: "#A2DDF0" }}
-              {...register}
-              {...props}
-              {...inputProps}
-            />
-          </Box>
-        </Box>
-        {error && (
-          <Text mt={3} color="red.500">
-            {error}
-          </Text>
-        )}
-      </Box>
+          )}
+          {error && <Field.ErrorText>{error}</Field.ErrorText>}
+        </VStack>
+      </Field.Root>
     );
   }
 );

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Box,
   VStack,
@@ -13,6 +13,8 @@ import {
   IconButton,
   Card,
   Flex,
+  Dialog,
+  Portal,
 } from "@chakra-ui/react";
 import ProgressTrack from "@/components/ProgressTrack";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -37,6 +39,16 @@ import {
 } from "@/utils/apiErrorHandling";
 import { parseQuestionnaireOptions } from "@/utils/questionnaireParser";
 import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
+import { useTaxonomyLabels } from "@/hooks/useTaxonomyLabels";
+import { formatAnswerForDisplay } from "@/utils/formatAnswer";
+import { PenLine } from "lucide-react";
+import { ButtonV2 } from "@/components/ui/ButtonV2";
+import { Tag } from "@chakra-ui/react";
+import SuccessBubbles from "@/components/Icons/SuccessBubbles";
+import {
+  QuestionnaireSection,
+  getQuestionnaireSections,
+} from "@/utils/opportunityQuestionnaire";
 
 export default function OpportunityReviewPage() {
   const sp = useSearchParams();
@@ -55,10 +67,12 @@ export default function OpportunityReviewPage() {
   const queryClient = useQueryClient();
 
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
-  const { questionnaireAnswers: answers } = useQuestionnaireAnswers(
-    opportunityId?.toString() || ""
-  );
+  const {
+    questionnaireAnswers: answers,
+    clearAnswers,
+  } = useQuestionnaireAnswers(opportunityId?.toString() || "");
 
   const enrollMutation = useEnrollInOpportunity();
 
@@ -70,19 +84,32 @@ export default function OpportunityReviewPage() {
 
   const userType = user?.user_types?.[0] || "student";
 
-  const questions: Question[] = useMemo(() => {
-    if (!opportunity?.questionnaire) return [];
-    return opportunity.questionnaire[userType] || [];
-  }, [userType, opportunity?.questionnaire]);
+  const sections: QuestionnaireSection[] = useMemo(
+    () => getQuestionnaireSections(opportunity?.questionnaire, userType),
+    [opportunity?.questionnaire, userType]
+  );
 
   const handleBack = () => {
     router.push(`/opportunities/fill?opp=${opportunitySlug}`);
   };
 
   const handleEdit = (fieldName: string) => {
-    // Navigate back to fill page and scroll to the specific field
     router.push(`/opportunities/fill?opp=${opportunitySlug}&edit=${fieldName}`);
   };
+
+  const goToOpportunity = useCallback(() => {
+    router.push(`/discover?opp=${opportunitySlug}`);
+  }, [router, opportunitySlug]);
+
+  useEffect(() => {
+    if (!showSuccessDialog) {
+      return;
+    }
+    const timeoutId = setTimeout(() => {
+      goToOpportunity();
+    }, 5000);
+    return () => clearTimeout(timeoutId);
+  }, [showSuccessDialog, goToOpportunity]);
 
   const handleSubmit = async () => {
     if (!user?.email) {
@@ -98,10 +125,6 @@ export default function OpportunityReviewPage() {
         questionnaireAnswers: answers,
       });
 
-      // await queryClient.refetchQueries({
-      //   queryKey: ["accessible-opportunities", user?.id],
-      // });
-
       const accessibleOpportunities = queryClient.getQueryData([
         "accessible-opportunities",
         user?.id,
@@ -112,14 +135,10 @@ export default function OpportunityReviewPage() {
           accessibleOpportunities,
           opportunityId?.toString() || ""
         );
-
-        // if (currentOpportunity?.enrollment_status === "enrolled") {
-        //   setCurrentOpportunityId(opportunityId);
-        //   setEnrollmentStatus(true);
-        // }
       }
 
-      router.push(`/opportunities/complete?opp=${opportunitySlug}`);
+      clearAnswers();
+      setShowSuccessDialog(true);
     } catch (error: unknown) {
       console.error("Enrollment error:", error);
 
@@ -133,68 +152,80 @@ export default function OpportunityReviewPage() {
     }
   };
 
-  const formatAnswerValue = (value: any, question: Question): string => {
-    if (Array.isArray(value)) {
-      // For multi-select values, convert each slug to its label
-      if (question.options || question.option) {
-        const rawOptions = question.options || question.option || [];
-        const processedOptions = parseQuestionnaireOptions(rawOptions).map(
-          (opt) => ({
-            label: opt.label || opt.value,
-            value: opt.value,
-          })
-        );
-
-        return value
-          .map((val: string) => {
-            const option = processedOptions.find((opt) => opt.value === val);
-            return option ? option.label : val;
-          })
-          .join(", ");
-      } else {
-        return value.join(", ");
-      }
-    }
-    if (typeof value === "boolean") {
-      return value ? "Yes" : "No";
-    }
-
-    // For single-select values, convert slug to label
-    if (question.options || question.option) {
-      const rawOptions = question.options || question.option || [];
-      const processedOptions = parseQuestionnaireOptions(rawOptions).map(
-        (opt) => ({
-          label: opt.label || opt.value,
-          value: opt.value,
-        })
-      );
-
-      const option = processedOptions.find((opt) => opt.value === value);
-      if (option) {
-        return option.label;
-      }
-    }
-
-    return String(value || "Not specified");
-  };
-
-  // Calculate progress based on answered required questions
-  const progressPercentage = useMemo(() => {
-    const requiredQuestions = questions.filter((q) => q.required);
-    if (requiredQuestions.length === 0) return 100;
-
-    const answeredRequired = requiredQuestions.filter((q) => {
-      const answer = answers[q.field];
-      if (Array.isArray(answer)) {
-        return answer.length > 0;
-      }
-      return answer !== undefined && answer !== null && answer !== "";
-    });
-
-    return Math.round(
-      (answeredRequired.length / requiredQuestions.length) * 100
+  function TaxonomyLabelsDisplay({
+    question,
+    value,
+  }: {
+    question: Question;
+    value: string | string[];
+  }) {
+    const labels = useTaxonomyLabels(
+      question,
+      value,
+      answers,
+      user?.university
     );
-  }, [questions, answers]);
+    if (labels.length === 0) return <Text color="#A1A1AA">—</Text>;
+    return (
+      <Flex wrap="wrap" gap={2}>
+        {labels.map((label, i) => (
+          <Tag.Root
+            key={`${question.field}-${i}`}
+            variant="subtle"
+            borderRadius="md"
+            px={2}
+            py="4px"
+            h="26px"
+            bg="#F4F4F5"
+            boxShadow="0px 0px 1px 0px #27272A inset"
+          >
+            <Tag.Label fontSize="sm" lineHeight="unset" color="#27272A">
+              {label}
+            </Tag.Label>
+          </Tag.Root>
+        ))}
+      </Flex>
+    );
+  }
+
+  const renderFieldValue = (question: Question, value: any) => {
+    const isEmpty =
+      value === undefined ||
+      value === null ||
+      value === "" ||
+      (Array.isArray(value) && value.length === 0);
+    if (isEmpty) {
+      return <Text color="#A1A1AA">—</Text>;
+    }
+
+    if (
+      question.type === "taxonomy-multiselect" ||
+      question.type === "taxonomy-select"
+    ) {
+      return <TaxonomyLabelsDisplay question={question} value={value} />;
+    }
+
+    if (question.type === "textarea") {
+      const display = formatAnswerForDisplay(question, value);
+      return (
+        <Text
+          fontSize="sm"
+          color="#3F3F46"
+          lineClamp={3}
+          title={typeof display === "string" ? display : undefined}
+        >
+          {display}
+        </Text>
+      );
+    }
+
+    const display = formatAnswerForDisplay(question, value);
+    return (
+      <Text fontSize="sm" color="#3F3F46">
+        {display}
+      </Text>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -239,32 +270,16 @@ export default function OpportunityReviewPage() {
   }
 
   return (
-    <Box maxW="800px" mx="auto" p={6} pt={{ base: "90px", lg: "140px" }}>
+    <Box mx="auto">
       <VStack gap={6} align="stretch">
-        {/* Progress Tracker */}
-        <ProgressTrack progressPercent={75} totalSteps={4} />
-
         {/* Header */}
         <Box>
-          <HStack gap={3} mb={4}>
-            <Button variant="ghost" onClick={handleBack} size="sm" p={2}>
-              ← Back
-            </Button>
-          </HStack>
-
-          <Heading
-            fontSize={{ base: "2xl", md: "3xl" }}
-            fontWeight="700"
-            color="gray.900"
-            mb={2}
-          >
+          <Heading fontSize="2xl" fontWeight="600" color="#18181B">
             Review Your Enrollment
           </Heading>
-          <Text fontSize="md" color="gray.600" mb={4}>
+          <Text fontSize="lg" color="#52525B">
             Please review your answers for:{" "}
-            <Text as="span" fontWeight="600">
-              {opportunity.title}
-            </Text>
+            <Text as="span">{opportunity.title}</Text>
           </Text>
         </Box>
 
@@ -277,92 +292,184 @@ export default function OpportunityReviewPage() {
           </Alert.Root>
         )}
 
-        {/* Answers Review */}
-        <Box
-          bg="white"
-          borderRadius="16px"
-          p={{ base: 6, md: 8 }}
-          border="1px solid"
-          borderColor="gray.200"
-          shadow="sm"
-        >
-          <VStack gap={6} align="stretch">
-            <Heading fontSize="lg" fontWeight="600" color="gray.900" mb={2}>
-              Your Answers
-            </Heading>
+        <VStack align="stretch" gap={6}>
+          {sections.map((section) => {
+            const sectionQuestions = section.questions.filter(
+              (q) => q.type !== "display"
+            );
+            if (sectionQuestions.length === 0) return null;
 
-            {questions.map((question) => {
-              const answer = answers[question.field];
-              const hasAnswer =
-                answer !== undefined && answer !== null && answer !== "";
-
-              return (
-                <Box
-                  key={question.field}
+            return (
+              <Box
+                key={section.id}
+                borderRadius="12px"
+                border="1px solid"
+                borderColor="#E4E4E7"
+              >
+                <Flex
+                  justify="space-between"
+                  align="center"
                   p={4}
-                  bg="gray.50"
-                  borderRadius="12px"
-                  border="1px solid"
-                  borderColor="gray.200"
+                  borderBottom="1px solid"
+                  borderColor="#E4E4E7"
                 >
-                  <HStack justify="space-between" align="start" mb={3}>
-                    <Box flex={1}>
-                      <Text
-                        fontSize="sm"
-                        fontWeight="600"
-                        color="gray.900"
-                        mb={1}
-                      >
-                        {question.label}
-                        {question.required && (
-                          <Text as="span" color="red.500" ml={1}>
-                            *
-                          </Text>
-                        )}
+                  <HStack gap={2}>
+                    {section.title_icon && (
+                      <Text fontSize="lg">
+                        <i className={section.title_icon} />
                       </Text>
-                      <Text
-                        fontSize="md"
-                        color={hasAnswer ? "gray.700" : "gray.500"}
-                        fontStyle={hasAnswer ? "normal" : "italic"}
-                      >
-                        {hasAnswer
-                          ? formatAnswerValue(answer, question)
-                          : "Not answered"}
-                      </Text>
-                    </Box>
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleEdit(question.field)}
-                      size="sm"
-                      p={2}
-                      minW="auto"
-                    >
-                      Edit
-                    </Button>
+                    )}
+                    <Heading fontSize="md" fontWeight="400" color="black">
+                      {section.title}
+                    </Heading>
                   </HStack>
-                </Box>
-              );
-            })}
-          </VStack>
-        </Box>
+                  <ButtonV2
+                    size="sm"
+                    borderRadius="xl"
+                    variant="ghost"
+                    border="1px solid"
+                    borderColor="#D6EDFB"
+                    px={4}
+                    py={3}
+                    fontSize="sm"
+                    color="#1679AB"
+                    onClick={() => handleEdit(sectionQuestions[0].field)}
+                  >
+                    <PenLine
+                      size={14}
+                      style={{ marginRight: 6 }}
+                      color="#1679AB"
+                    />
+                    Edit
+                  </ButtonV2>
+                </Flex>
 
-        <Flex justify="center" pb={8} pt={2}>
-          <Button
-            onClick={handleSubmit}
-            bg="green.500"
-            color="white"
+                <Box
+                  display="grid"
+                  gridTemplateColumns={{
+                    base: "1fr",
+                    md: "repeat(auto-fill, minmax(200px, 1fr))",
+                  }}
+                  gap={4}
+                  p={4}
+                  bg="#FAFAFA"
+                >
+                  {sectionQuestions.map((question) => {
+                    const value = answers[question.field];
+
+                    return (
+                      <Box key={question.field}>
+                        <Text
+                          fontSize="xs"
+                          fontWeight="500"
+                          color="#71717A"
+                          mb={1}
+                          textTransform="uppercase"
+                          letterSpacing="wider"
+                        >
+                          {question.filter_label || question.label}
+                        </Text>
+                        {renderFieldValue(question, value)}
+                      </Box>
+                    );
+                  })}
+                </Box>
+              </Box>
+            );
+          })}
+        </VStack>
+
+        <HStack
+          justify="flex-end"
+          align="flex-end"
+          w="100%"
+          pt={6}
+          pb={4}
+          alignSelf="flex-end"
+          gap={4}
+        >
+          <ButtonV2
+            variant="ghost"
             borderRadius="xl"
-            h="50px"
-            fontSize="lg"
-            w={{ base: "full", md: "200px" }}
-            _hover={{ bg: "green.600" }}
-            loading={enrollMutation.isPending}
-            disabled={enrollMutation.isPending}
+            border="1px solid #D6EDFB"
+            color="#1679AB"
+            h="48px"
+            fontSize={"md"}
+            px={5}
+            py={4}
+            w="fit-content"
+            onClick={handleBack}
+          >
+            Back
+          </ButtonV2>
+
+          <ButtonV2
+            onClick={handleSubmit}
+            variant="primary"
+            h="48px"
+            maxW="246px"
+            fontSize={"md"}
+            w="100%"
+            disabled={sections.length === 0}
           >
             Submit
-          </Button>
-        </Flex>
+          </ButtonV2>
+        </HStack>
       </VStack>
+      {showSuccessDialog && (
+        <Dialog.Root
+          open={showSuccessDialog}
+          onOpenChange={(details) => {
+            if (!details.open) {
+              goToOpportunity();
+            }
+          }}
+          placement="center"
+          trapFocus={true}
+        >
+          <Portal>
+            <Dialog.Backdrop bg="blackAlpha.600" style={{ zIndex: 10000 }} />
+            <Dialog.Positioner zIndex={10000}>
+              <Dialog.Content
+                bg="white"
+                borderRadius="24px"
+                w="90%"
+                maxW="682px"
+                p={{ base: 4, md: 8 }}
+                boxShadow="0px 4px 6px -4px #0000001A, 0px 10px 15px -3px #0000001A"
+              >
+                <VStack gap={6} align="center" textAlign="center">
+                  <SuccessBubbles />
+
+                  <VStack gap={{ base: 3, md: 4 }} maxW="500px">
+                    <Heading fontSize="4xl" fontWeight="700" color="#18181B">
+                      You&apos;re enrolled!
+                    </Heading>
+                    <Text fontSize="sm" color="#52525B">
+                      You have successfully enrolled in this opportunity. You
+                      are now visible to organisations and can start receiving
+                      updates and messages.
+                    </Text>
+                    <Text fontSize="sm" color="#6B7280">
+                      You will be redirected back to opportunities shortly.
+                    </Text>
+                    <ButtonV2
+                      onClick={goToOpportunity}
+                      variant="primary"
+                      h="48px"
+                      maxW="260px"
+                      w="100%"
+                      fontSize="md"
+                    >
+                      Explore opportunity
+                    </ButtonV2>
+                  </VStack>
+                </VStack>
+              </Dialog.Content>
+            </Dialog.Positioner>
+          </Portal>
+        </Dialog.Root>
+      )}
     </Box>
   );
 }

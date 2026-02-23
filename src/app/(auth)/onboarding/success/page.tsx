@@ -12,12 +12,13 @@ import {
 } from "@chakra-ui/react";
 import { CheckCircle } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
-import { Button } from "@/components/ui/Button";
+import { ButtonV2 } from "@/components/ui/ButtonV2";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getInitials } from "@/utils/getInitials";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
+import SuccessBubbles from "@/components/Icons/SuccessBubbles";
 
 export default function OnboardingSuccessPage() {
   const router = useRouter();
@@ -43,47 +44,46 @@ export default function OnboardingSuccessPage() {
   }, [getUserType, getUserProfilePictureUrl, getLogoUrl]);
 
   const handleRouting = () => {
-    router.push("/discover/");
+    router.push("/home");
   };
 
   return (
     <>
       <PageTitle title={PAGE_TITLES.ONBOARDING_SUCCESS} />
-      <Container maxW={containerMaxW} pb={10} h="100%">
+      <Container maxW={containerMaxW} p={0} h="100%">
         <Box
           display="flex"
           flexDirection="column"
-          alignItems="space-between"
+          alignItems="center"
           textAlign="center"
+          justifyContent="center"
           h="100%"
         >
-          <Box>
-            <Icon
-              as={CheckCircle}
-              boxSize={{ base: 12, md: 16 }}
-              color="green.500"
-            />
+          <VStack gap={{ base: 6, md: 8 }} maxW={{ base: "100%", md: "625px" }}>
+            <SuccessBubbles />
+
+            <VStack maxW="497px" gap={{ base: 3, md: 4 }}>
+              <Text
+                fontSize={{ base: "24px", md: "36px" }}
+                fontWeight="600"
+                color="#18181B"
+                lineHeight="1.21"
+              >
+                Congratulations!
+              </Text>
+            </VStack>
 
             <Text
-              fontSize={{ base: "24px", md: "32px" }}
-              fontWeight="700"
-              color="black"
-              lineHeight="1.21"
+              fontSize={{ base: "sm", md: "md" }}
+              fontWeight="500"
+              color="#52525B"
+              lineHeight="1.4"
             >
-              Congratulations!
+              {userType === "student"
+                ? "You have successfully completed your Profile"
+                : "You have successfully completed your Organisation Profile"}
             </Text>
-          </Box>
-
-          <Text
-            fontSize={{ base: "18px", md: "24px" }}
-            fontWeight="500"
-            color="black"
-            lineHeight="1.3"
-          >
-            {userType === "student"
-              ? "You have successfully completed your Profile"
-              : "You have successfully completed your Organisation Profile"}
-          </Text>
+          </VStack>
           <Box
             display="flex"
             flexDirection="row"
@@ -108,7 +108,7 @@ export default function OnboardingSuccessPage() {
                   borderRadius="full"
                   border={
                     userType === "student"
-                      ? "10px solid #DC2626"
+                      ? "10px solid #2AA8E0"
                       : "10px solid #089C3F"
                   }
                 >
@@ -137,19 +137,18 @@ export default function OnboardingSuccessPage() {
                 w="100%"
                 maxW="400px"
               >
-                <Button
+                <ButtonV2
                   variant="primary"
                   onClick={handleRouting}
-                  style={{
-                    borderRadius: "50px",
-                    maxWidth: "372x",
-                    width: "100%",
-                  }}
-                  bg="#282F68"
-                  color="white"
+                  h={{ base: "48px", md: "64px" }}
+                  fontSize="md"
+                  fontWeight="500"
+                  w="100%"
+                  px={{ base: 4, md: 7 }}
+                  py={{ base: 4, md: 4.5 }}
                 >
                   Go to Home
-                </Button>
+                </ButtonV2>
               </Box>
             </Box>
           </Box>
