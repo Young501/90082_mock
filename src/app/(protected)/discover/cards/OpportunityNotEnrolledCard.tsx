@@ -45,16 +45,6 @@ export function OpportunityNotEnrolledCard({
         borderColor="#E4E4E7"
       >
         <VStack align="flex-start" gap={2} w="100%">
-          <Text fontSize={{ base: "xl" }} fontWeight="semibold" color="#27272A">
-            About the {opportunity.title} opportunity
-          </Text>
-
-          <Text fontSize="sm" color="#52525B" lineHeight="20px" maxW="594px">
-            {opportunity.description || DEFAULT_DESCRIPTION}
-          </Text>
-        </VStack>
-
-        <VStack align="flex-start" gap={2} w="100%">
           <Text fontSize="lg" fontWeight="semibold" color="#27272A">
             As an invited participant, you&apos;ll have access to:
           </Text>

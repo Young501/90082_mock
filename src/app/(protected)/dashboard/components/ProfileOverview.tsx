@@ -119,13 +119,6 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
                       </Box>
                     </Tooltip>
                   )}
-                  {profile.course_name && profile.course_progression && (
-                    <Separator
-                      orientation="vertical"
-                      height="4"
-                      flexShrink={0}
-                    />
-                  )}
                   {profile.course_progression && (
                     <Tooltip content={profile.course_progression}>
                       <Box
