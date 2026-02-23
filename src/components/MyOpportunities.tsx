@@ -42,10 +42,8 @@ import {
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { MenuPopover } from "@/components/ui/MenuPopover";
 import { UnenrollDialog } from "@/components/ui/UnenrollDialog";
-import {
-  QuestionnaireForm,
-  QuestionnaireFormRef,
-} from "@/components/questionnaire/QuestionnaireForm";
+import { EditEnrollmentDialog } from "@/components/ui/EditEnrollmentDialog";
+import { QuestionnaireFormRef } from "@/components/questionnaire/QuestionnaireForm";
 import { getQuestionnaireSections } from "@/utils/opportunityQuestionnaire";
 import { useResolveTaxonomyLabelsToCodes } from "@/hooks/useResolveTaxonomyLabelsToCodes";
 import { Question } from "@/types/onboarding";
@@ -794,89 +792,16 @@ const OpportunityCard = ({
         </Portal>
       </Dialog.Root>
 
-      {/* Edit Enrollment Answers dialog */}
-      <Dialog.Root
+      <EditEnrollmentDialog
         open={isEditEnrollmentOpen}
         onOpenChange={(details) => setIsEditEnrollmentOpen(details.open)}
-        placement="center"
-      >
-        <Portal>
-          <Dialog.Backdrop bg="blackAlpha.600" style={{ zIndex: 10000 }} />
-
-          <Dialog.Positioner zIndex={10000}>
-            <Dialog.Content
-              maxW="682px"
-              maxH="90vh"
-              overflow="hidden"
-              display="flex"
-              flexDirection="column"
-              zIndex={10000}
-            >
-              <Dialog.Header borderBottom="1px solid #E5E7EB" pb={4}>
-                <Flex justify="space-between" align="center" w="full">
-                  <Dialog.Title fontSize="2xl" fontWeight="600" color="#111827">
-                    Edit Enrollment Answers
-                  </Dialog.Title>
-                  <IconButton
-                    aria-label="Close"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsEditEnrollmentOpen(false)}
-                  >
-                    <X size={16} color="#6B7280" />
-                  </IconButton>
-                </Flex>
-              </Dialog.Header>
-
-              <Dialog.Body overflowY="auto" py={4}>
-                {questionnaireSections.length > 0 ? (
-                  <QuestionnaireForm
-                    ref={editFormRef}
-                    sections={questionnaireSections}
-                    initialValues={editAnswers}
-                    onAnswersChange={handleAnswersChange}
-                    props={{
-                      p: 0,
-                      border: "none",
-                    }}
-                  />
-                ) : (
-                  <Text fontSize="sm" color="#6B7280" textAlign="center" py={6}>
-                    No questionnaire available for this opportunity.
-                  </Text>
-                )}
-              </Dialog.Body>
-
-              <Dialog.Footer borderTop="1px solid #E5E7EB" pt={4}>
-                <HStack gap={3} w="full" justify="flex-end">
-                  <ButtonV2
-                    variant="ghost"
-                    color="#6B7280"
-                    border="1px solid #E5E7EB"
-                    borderRadius="xl"
-                    h="44px"
-                    fontSize="sm"
-                    px={4}
-                    onClick={() => setIsEditEnrollmentOpen(false)}
-                  >
-                    Cancel
-                  </ButtonV2>
-                  <ButtonV2
-                    variant="secondary"
-                    h="44px"
-                    fontSize="sm"
-                    px={5}
-                    isLoading={updateParticipantMutation.isPending}
-                    onClick={handleSaveEnrollmentAnswers}
-                  >
-                    Save and Update
-                  </ButtonV2>
-                </HStack>
-              </Dialog.Footer>
-            </Dialog.Content>
-          </Dialog.Positioner>
-        </Portal>
-      </Dialog.Root>
+        sections={questionnaireSections}
+        initialValues={editAnswers}
+        onAnswersChange={handleAnswersChange}
+        onSave={handleSaveEnrollmentAnswers}
+        isSaving={updateParticipantMutation.isPending}
+        formRef={editFormRef}
+      />
     </>
   );
 };
