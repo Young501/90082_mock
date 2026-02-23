@@ -70,6 +70,7 @@ export function useResumeUpload() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-profile", "student"] });
+      queryClient.invalidateQueries({ queryKey: ["student-profile-v2"] });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });

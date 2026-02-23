@@ -69,12 +69,7 @@ const Profile = () => {
   const [showValidationError, setShowValidationError] = useState(false);
   const [abnStatus, setAbnStatus] = useState<AbnValidationStatus>("idle");
   const [fileUploadKey, setFileUploadKey] = useState(0);
-  const { handleChangePassword, changePasswordMutation } = useAuth();
-  const [changePasswordSuccess, setChangePasswordSuccess] = useState(false);
-  const [changePasswordError, setChangePasswordError] = useState("");
-  const [showOldPassword, setShowOldPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+ 
   const [removedFiles, setRemovedFiles] = useState<Set<string>>(new Set());
   const changePasswordForm = useForm({
     resolver: yupResolver(changePasswordSchema),
@@ -96,6 +91,8 @@ const Profile = () => {
     handleOnboardingRedirect,
     university,
   } = useProfile(isCoordinator ? "" : userType);
+
+  console.log("fetchedUserProfile", fetchedUserProfile);
 
   const { data: onboardingData, isLoading: isOnboardingLoading } =
     useOnboardingPages(userType);
@@ -227,38 +224,6 @@ const Profile = () => {
     }
   }, [logoValue]);
 
-  const handleFileRemoval = async (fieldName: string) => {
-    // Add field to removed files set for tracking
-    setRemovedFiles((prev) => new Set(prev).add(fieldName));
-
-    if (fieldName === "profile_picture_url") {
-      setValue("profile_picture_url", null);
-      if (profilePictureValue && typeof profilePictureValue === "string") {
-        try {
-          const response = await profilePictureDelete.mutateAsync();
-          // if (response.success) {
-          setUpdatedProfilePicture(null);
-          setUserProfilePictureUrl("");
-          toast.success(response.detail);
-        } catch (error: any) {
-          toast.error(error.message);
-        }
-      }
-    } else if (fieldName === "logo_url") {
-      setValue("logo_url", null);
-      if (logoValue && typeof logoValue === "string") {
-        try {
-          const response = await logoDelete.mutateAsync();
-          setUpdatedProfilePicture(null);
-          setLogoUrl("");
-          toast.success(response.detail);
-        } catch (error: any) {
-          toast.error(error.message);
-        }
-      }
-    }
-  };
-
   useEffect(() => {
     setAbnStatus("idle");
   }, [activeTab]);
@@ -360,6 +325,7 @@ const Profile = () => {
     () => pages.find((p: OnboardingPage) => isDocumentsPage(p)) ?? null,
     [pages]
   );
+
 
   const displayFormData = useMemo(() => {
     const p = (profileData || userProfile || fetchedUserProfile) as Record<
