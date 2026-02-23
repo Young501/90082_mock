@@ -153,10 +153,6 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: "/api/v1/user-types",
   },
-  ACCEPTED_OPPORTUNITIES: {
-    method: "GET",
-    url: "/api/v1/opportunities/accepted/",
-  },
   PROFILE_PICTURE_UPLOAD: {
     method: "POST",
     url: "/api/v1/user/profile-picture",
@@ -294,17 +290,6 @@ export const API_ENDPOINTS = {
   OPPORTUNITY_ENROLLMENT: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v2/opportunities/${opportunityId}/participant/`,
-  }),
-  CONTACT_USER: (opportunityId: string): ApiEndpoint => ({
-    method: "POST",
-    url: `/api/v1/opportunities/${opportunityId}/contact/`,
-  }),
-  QUESTIONNAIRE_FILTERS: (
-    opportunityId: string,
-    userType: string
-  ): ApiEndpoint => ({
-    method: "GET",
-    url: `/api/v1/opportunities/${opportunityId}/questionnaire-filters/?user_type=${userType}`,
   }),
   OPPORTUNITY_DASHBOARD: (opportunityId: string): ApiEndpoint => ({
     method: "GET",
