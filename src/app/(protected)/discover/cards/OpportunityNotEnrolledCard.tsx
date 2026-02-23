@@ -46,7 +46,7 @@ export function OpportunityNotEnrolledCard({
       >
         <VStack align="flex-start" gap={2} w="100%">
           <Text fontSize={{ base: "xl" }} fontWeight="semibold" color="#27272A">
-            About the {opportunity.title} Program
+            About the {opportunity.title} opportunity
           </Text>
 
           <Text fontSize="sm" color="#52525B" lineHeight="20px" maxW="594px">
