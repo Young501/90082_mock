@@ -281,6 +281,7 @@ export default function DiscoveryPage() {
           <OpportunityDescriptionCard
             opportunity={opportunity}
             currentOpportunity={currentOpportunity}
+            userType={userType}
           />
           {/* Enrolled user and eligible - show discovery interface */}
           {isEnrolled && accessInfo?.has_access && !isSubmitting ? (
