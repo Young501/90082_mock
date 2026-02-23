@@ -20,6 +20,7 @@ import Image from "next/image";
 import IconExternalLink from "@/components/Icons/IconExternalLink";
 import { MenuPopover } from "@/components/ui/MenuPopover";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
+import { UnenrollDialog } from "@/components/ui/UnenrollDialog";
 import {
   QuestionnaireForm,
   QuestionnaireFormRef,
@@ -423,73 +424,12 @@ export const OpportunityDescriptionCard = ({
         </Portal>
       </Dialog.Root>
 
-      {/* Unenroll confirmation dialog */}
-      <Dialog.Root
+      <UnenrollDialog
         open={isUnenrollDialogOpen}
         onOpenChange={(details) => setIsUnenrollDialogOpen(details.open)}
-        placement="center"
-      >
-        <Portal>
-          <Dialog.Positioner zIndex={9999} style={{ backdropFilter: "blur(4px)" }}>
-            <Dialog.Content maxW="512px" zIndex={10000}>
-              <Dialog.Header>
-                <Flex justify="space-between" w="full" align="center">
-                  <Dialog.Title fontSize="lg" fontWeight="bold">
-                    Unenroll from Opportunity
-                  </Dialog.Title>
-                  <IconButton
-                    aria-label="Close"
-                    variant="ghost"
-                    onClick={() => setIsUnenrollDialogOpen(false)}
-                  >
-                    <X size={16} color="#52525B" />
-                  </IconButton>
-                </Flex>
-              </Dialog.Header>
-              <Dialog.Body>
-                <Text fontSize="sm" color="#52525B">
-                  Are you sure you want to unenroll from this opportunity?
-                  Unenrolling removes your access to opportunities under this
-                  demo.
-                </Text>
-              </Dialog.Body>
-              <Dialog.Footer>
-                <HStack gap={3} w="full">
-                  <ButtonV2
-                    variant="ghost"
-                    borderRadius="xl"
-                    border="1px solid #E5E7EB"
-                    h="40px"
-                    color="#27272A"
-                    fontSize="sm"
-                    fontWeight="500"
-                    px={4}
-                    _hover={{ bg: "#F9FAFB", textDecoration: "none" }}
-                    onClick={() => setIsUnenrollDialogOpen(false)}
-                    flex={1}
-                  >
-                    Go Back
-                  </ButtonV2>
-                  <ButtonV2
-                    bg="#DC2626"
-                    borderRadius="xl"
-                    h="40px"
-                    fontSize="sm"
-                    fontWeight="500"
-                    px={4}
-                    color="white"
-                    onClick={confirmUnenroll}
-                    loading={updateParticipantMutation.isPending}
-                    flex={1}
-                  >
-                    Yes, Unenroll
-                  </ButtonV2>
-                </HStack>
-              </Dialog.Footer>
-            </Dialog.Content>
-          </Dialog.Positioner>
-        </Portal>
-      </Dialog.Root>
+        onConfirm={confirmUnenroll}
+        isLoading={updateParticipantMutation.isPending}
+      />
     </>
   );
 };

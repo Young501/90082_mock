@@ -41,6 +41,7 @@ import {
 } from "@/types/opportunities";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { MenuPopover } from "@/components/ui/MenuPopover";
+import { UnenrollDialog } from "@/components/ui/UnenrollDialog";
 import {
   QuestionnaireForm,
   QuestionnaireFormRef,
@@ -719,75 +720,12 @@ const OpportunityCard = ({
         )}
       </Box>
 
-      <Dialog.Root
+      <UnenrollDialog
         open={isCancelDialogOpen}
         onOpenChange={(details) => setIsCancelDialogOpen(details.open)}
-        placement="center"
-        // trapFocus={true}
-      >
-        <Portal>
-          <Dialog.Positioner
-            zIndex={9999}
-            style={{ backdropFilter: "blur(4px)" }}
-          >
-            <Dialog.Content maxW="512px" zIndex={10000}>
-              <Dialog.Header>
-                <Flex justify="space-between" w="full" align="center">
-                  <Dialog.Title fontSize="lg" fontWeight="bold">
-                    Unenroll from Opportunity
-                  </Dialog.Title>
-                  <IconButton
-                    aria-label="Close"
-                    variant="ghost"
-                    onClick={() => setIsCancelDialogOpen(false)}
-                  >
-                    <X size={16} color="#52525B" />
-                  </IconButton>
-                </Flex>
-              </Dialog.Header>
-              <Dialog.Body>
-                <Text fontSize="sm" color="#52525B">
-                  Unenrolling from this opportunity removes your access to
-                  opportunities under this demo
-                </Text>
-              </Dialog.Body>
-              <Dialog.Footer>
-                <HStack gap={3} w="full">
-                  <ButtonV2
-                    variant="ghost"
-                    borderRadius="xl"
-                    border="1px solid #E5E7EB"
-                    h="40px"
-                    color="#27272A"
-                    fontSize="sm"
-                    fontWeight="500"
-                    px={4}
-                    _hover={{ bg: "#F9FAFB", textDecoration: "none" }}
-                    onClick={() => setIsCancelDialogOpen(false)}
-                    flex={1}
-                  >
-                    Go Back
-                  </ButtonV2>
-                  <ButtonV2
-                    bg="#DC2626"
-                    borderRadius="xl"
-                    h="40px"
-                    fontSize="sm"
-                    fontWeight="500"
-                    px={4}
-                    color="white"
-                    onClick={confirmCancelEnrollment}
-                    loading={updateParticipantMutation.isPending}
-                    flex={1}
-                  >
-                    Yes, Unenroll
-                  </ButtonV2>
-                </HStack>
-              </Dialog.Footer>
-            </Dialog.Content>
-          </Dialog.Positioner>
-        </Portal>
-      </Dialog.Root>
+        onConfirm={confirmCancelEnrollment}
+        isLoading={updateParticipantMutation.isPending}
+      />
 
       <Dialog.Root
         open={isCancelSubscriptionDialogOpen}
@@ -931,7 +869,7 @@ const OpportunityCard = ({
                     isLoading={updateParticipantMutation.isPending}
                     onClick={handleSaveEnrollmentAnswers}
                   >
-                    Save an Update
+                    Save and Update
                   </ButtonV2>
                 </HStack>
               </Dialog.Footer>
