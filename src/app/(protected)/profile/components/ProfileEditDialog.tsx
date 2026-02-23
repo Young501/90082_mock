@@ -446,10 +446,16 @@ export function ProfileEditDialog({
                       color="white"
                       type="submit"
                       isLoading={
-                        studentProfileUpdate.isPending || userUpdate.isPending
+                        profilePictureUpload.isPending ||
+                        resumeUpload.isPending ||
+                        studentProfileUpdate.isPending ||
+                        userUpdate.isPending
                       }
                       disabled={
-                        studentProfileUpdate.isPending || userUpdate.isPending
+                        profilePictureUpload.isPending ||
+                        resumeUpload.isPending ||
+                        studentProfileUpdate.isPending ||
+                        userUpdate.isPending
                       }
                       h="44px"
                       maxW={{ base: "55%", sm: "175px" }}
