@@ -1,4 +1,5 @@
 import { API_ENDPOINTS, apiRequest } from "@/api";
+import { getErrorMessage, getSuccessMessage } from "@/utils/apiErrorHandling";
 import { useAuthStore } from "@/store";
 import {
   LoginData,
@@ -406,53 +407,3 @@ export const useAuth = () => {
   };
 };
 
-const getErrorMessage = (error: any, defaultMessage: string): string => {
-  if (!error?.response?.data) {
-    return error?.message || defaultMessage;
-  }
-
-  const data = error.response.data;
-
-  if (data.non_field_errors && Array.isArray(data.non_field_errors)) {
-    return data.non_field_errors[0];
-  }
-
-  if (data.error) {
-    return data.error;
-  }
-
-  if (data.detail) {
-    return Array.isArray(data.detail) ? data.detail[0] : data.detail;
-  }
-
-  if (data.message) {
-    return data.message;
-  }
-
-  if (data.password && Array.isArray(data.password)) {
-    return data.password[0];
-  }
-
-  if (data.email && Array.isArray(data.email)) {
-    return data.email[0];
-  }
-
-  if (typeof data === "object") {
-    const firstKey = Object.keys(data)[0];
-    if (firstKey && data[firstKey]) {
-      const value = data[firstKey];
-      return Array.isArray(value) ? value[0] : value;
-    }
-  }
-
-  return defaultMessage;
-};
-
-const getSuccessMessage = (response: any, defaultMessage: string): string => {
-  return (
-    response?.message ||
-    response?.data?.detail ||
-    response?.detail ||
-    defaultMessage
-  );
-};

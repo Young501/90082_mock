@@ -1,11 +1,5 @@
 "use client";
-import React, {
-  useState,
-  useMemo,
-  useEffect,
-  useRef,
-  useCallback,
-} from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   Box,
   Text,
@@ -23,12 +17,8 @@ import {
 import {
   useAccessibleOpportunities,
   categorizeOpportunities,
-  useOpportunityParticipant,
 } from "@/services/shared";
-import {
-  useUpdateOpportunityParticipant,
-  useEnrollInOpportunity,
-} from "@/services/updateParticipant";
+import { useEnrollInOpportunity } from "@/services/updateParticipant";
 import { useCancelSubscription } from "@/services/subscription";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store";
@@ -43,16 +33,13 @@ import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { MenuPopover } from "@/components/ui/MenuPopover";
 import { UnenrollDialog } from "@/components/ui/UnenrollDialog";
 import { EditEnrollmentDialog } from "@/components/ui/EditEnrollmentDialog";
-import { QuestionnaireFormRef } from "@/components/questionnaire/QuestionnaireForm";
-import { getQuestionnaireSections } from "@/utils/opportunityQuestionnaire";
-import { useResolveTaxonomyLabelsToCodes } from "@/hooks/useResolveTaxonomyLabelsToCodes";
+import { useEnrollmentActions } from "@/hooks/useEnrollmentActions";
 import { Question } from "@/types/onboarding";
 import { toast } from "react-toastify";
 import { formatAnswerForDisplay } from "@/utils/formatAnswer";
 import OpportunityCardSkeleton from "./ui/OpportunityCardSkeleton";
-import { getSubscriptionStatusDisplay } from "@/utils/subscriptionPermissions";
 import { formatDate, formatShortDate } from "@/utils/formatDate";
-import { ChevronDown, ChevronUp, MoreVertical, X } from "lucide-react";
+import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface OpportunityCardProps {
@@ -71,24 +58,29 @@ const OpportunityCard = ({
   const [isAnswersExpanded, setIsAnswersExpanded] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isCancelled, setIsCancelled] = useState(false);
-  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [isCancelSubscriptionDialogOpen, setIsCancelSubscriptionDialogOpen] =
     useState(false);
-  const [isEditEnrollmentOpen, setIsEditEnrollmentOpen] = useState(false);
-  const [editAnswers, setEditAnswers] = useState<Record<string, any>>({});
-  const editFormRef = useRef<QuestionnaireFormRef>(null);
 
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
-  const {
-    data: participantRecord,
-    isLoading: isParticipantLoading,
-    error: participantError,
-  } = useOpportunityParticipant(
-    opportunity.id,
-    type === "enrolled" && !isCancelled
-  );
+  const opportunityIsEnrolled = (opportunity as any)?.is_enrolled === true;
+  const enrollmentFetchEnabled =
+    (type === "enrolled" && !isCancelled) ||
+    (type === "closed" && opportunityIsEnrolled);
+
+  const enrollment = useEnrollmentActions({
+    opportunityId: opportunity.id,
+    questionnaire: opportunity.questionnaire,
+    userType,
+    isEnrolled: enrollmentFetchEnabled,
+    onUnenrollSuccess: () => {
+      setIsCancelled(true);
+      setIsExpanded(false);
+    },
+  });
+
+  const { participantRecord } = enrollment;
 
   const getAccessInfo = (): AccessInfo | null => {
     if (participantRecord?.access) return participantRecord.access;
@@ -96,18 +88,12 @@ const OpportunityCard = ({
     return null;
   };
 
-  // Update mutation
-  const updateParticipantMutation = useUpdateOpportunityParticipant();
-
-  // Re-enroll mutation
   const reEnrollMutation = useEnrollInOpportunity();
-
   const cancelSubscriptionMutation = useCancelSubscription();
 
   const questionnaire = useMemo(() => {
     if (!opportunity.questionnaire) return [];
 
-    // Convert questionnaire object to array of questions
     const questions: Question[] = [];
     Object.values(opportunity.questionnaire).forEach((pageQuestions: any) => {
       if (Array.isArray(pageQuestions)) {
@@ -117,15 +103,6 @@ const OpportunityCard = ({
     return questions;
   }, [opportunity.questionnaire]);
 
-  // Check if questionnaire itself is empty
-  const hasQuestionnaire = useMemo(() => {
-    return questionnaire.length > 0;
-  }, [questionnaire]);
-
-  // Merge saved answers with questionnaire definitions for display.
-  // Iterates the actual saved answer keys so nothing is skipped.
-  // If a matching question definition exists it is used for type-aware
-  // formatting; otherwise a smart fallback is applied.
   const answersToDisplay = useMemo(() => {
     const saved = participantRecord?.data?.questionnaire_answers;
     if (!saved) return [];
@@ -148,67 +125,12 @@ const OpportunityCard = ({
       });
   }, [questionnaire, participantRecord?.data?.questionnaire_answers]);
 
-  const questionnaireSections = useMemo(
-    () => getQuestionnaireSections(opportunity.questionnaire, userType),
-    [opportunity.questionnaire, userType]
-  );
-
-  const { resolve: resolveTaxonomyLabelsToCodes, isResolving: isResolvingEditAnswers } =
-    useResolveTaxonomyLabelsToCodes();
-
-  const handleAnswersChange = useCallback((values: Record<string, any>) => {
-    setEditAnswers(values);
-  }, []);
-
-  const handleOpenEditEnrollment = useCallback(async () => {
-    const rawAnswers =
-      participantRecord?.data?.questionnaire_answers ?? {};
-    try {
-      const resolved = await resolveTaxonomyLabelsToCodes(
-        questionnaireSections,
-        rawAnswers,
-        null
-      );
-      setEditAnswers(resolved);
-    } catch {
-      // Fallback: use raw answers; taxonomy fields will attempt label→code normalization
-      setEditAnswers(rawAnswers);
-    }
-    setIsEditEnrollmentOpen(true);
-  }, [
-    participantRecord?.data?.questionnaire_answers,
-    questionnaireSections,
-    resolveTaxonomyLabelsToCodes,
-  ]);
-
-  const handleSaveEnrollmentAnswers = async () => {
-    if (!editFormRef.current) return;
-    const isValid = await editFormRef.current.validate();
-    if (!isValid) return;
-
-    const data = editFormRef.current.getValues();
-    try {
-      await updateParticipantMutation.mutateAsync({
-        opportunityId: opportunity.id,
-        questionnaireAnswers: data,
-      });
-      toast.success("Enrollment answers saved!");
-      setIsEditEnrollmentOpen(false);
-    } catch (err: any) {
-      const msg =
-        err?.response?.data?.error ||
-        err?.response?.data?.detail ||
-        "Failed to save answers";
-      toast.error(msg);
-    }
-  };
-
   const handleExpand = () => {
     setIsExpanded(!isExpanded);
   };
 
   const handleReEnroll = async (data?: any) => {
-    if (questionnaireSections.length > 0) {
+    if (enrollment.questionnaireSections.length > 0) {
       const dest = slug || String(opportunity.id);
       router.push(`/opportunities/fill?opp=${dest}`);
       return;
@@ -241,10 +163,6 @@ const OpportunityCard = ({
     }
   };
 
-  const handleCancelEnrollment = () => {
-    setIsCancelDialogOpen(true);
-  };
-
   const handleCancelSubscription = () => {
     setIsCancelSubscriptionDialogOpen(true);
   };
@@ -273,29 +191,6 @@ const OpportunityCard = ({
     }
   };
 
-  const confirmCancelEnrollment = async () => {
-    try {
-      await updateParticipantMutation.mutateAsync({
-        opportunityId: opportunity.id,
-        accepted: false,
-      });
-
-      toast.success("Successfully cancelled enrollment!");
-      setIsCancelled(true);
-      setIsExpanded(false);
-      setIsCancelDialogOpen(false);
-    } catch (error: any) {
-      // console.error("Cancel enrollment failed:", error);
-      const errorMessage =
-        error?.response?.data?.error ||
-        error?.response?.data?.detail ||
-        error?.response?.data?.message ||
-        "Failed to cancel enrollment";
-      toast.error(errorMessage);
-    }
-  };
-
-  const opportunityIsEnrolled = (opportunity as any)?.is_enrolled === true;
   const isEnrolled = useMemo(
     () =>
       !isCancelled &&
@@ -350,7 +245,7 @@ const OpportunityCard = ({
                 </Badge>
                 {/* )} */}
               </HStack>
-             {questionnaireSections.length > 0 && <MenuPopover
+            <MenuPopover
                 placement="bottom-end"
                 trigger={
                   <IconButton
@@ -362,7 +257,7 @@ const OpportunityCard = ({
                   </IconButton>
                 }
               >
-                {questionnaireSections.length > 0 && (
+                {enrollment.hasQuestionnaire && (
                   <Box
                     as="button"
                     w="full"
@@ -374,13 +269,20 @@ const OpportunityCard = ({
                     borderRadius="md"
                     _hover={{ bg: "#F3F4F6" }}
                     onClick={() => {
-                      if (!isResolvingEditAnswers) handleOpenEditEnrollment();
+                      if (!enrollment.isResolvingEditAnswers)
+                        enrollment.handleOpenEditEnrollment();
                     }}
-                    opacity={isResolvingEditAnswers ? 0.6 : 1}
-                    cursor={isResolvingEditAnswers ? "not-allowed" : "pointer"}
-                    pointerEvents={isResolvingEditAnswers ? "none" : "auto"}
+                    opacity={enrollment.isResolvingEditAnswers ? 0.6 : 1}
+                    cursor={
+                      enrollment.isResolvingEditAnswers
+                        ? "not-allowed"
+                        : "pointer"
+                    }
+                    pointerEvents={
+                      enrollment.isResolvingEditAnswers ? "none" : "auto"
+                    }
                   >
-                    {isResolvingEditAnswers ? (
+                    {enrollment.isResolvingEditAnswers ? (
                       <HStack gap={2}>
                         <Spinner size="sm" />
                         <span>Preparing form...</span>
@@ -418,7 +320,21 @@ const OpportunityCard = ({
                   }
                   return null;
                 })()}
-              </MenuPopover>}
+                <Box
+                  as="button"
+                  w="full"
+                  textAlign="left"
+                  px={3}
+                  py={2}
+                  fontSize="sm"
+                  color="#DC2626"
+                  borderRadius="md"
+                  _hover={{ bg: "#FEF2F2" }}
+                  onClick={enrollment.handleUnenrollClick}
+                >
+                  Unenroll from Opportunity
+                </Box>
+              </MenuPopover>
             </Flex>
 
             {/* Metadata row */}
@@ -451,7 +367,7 @@ const OpportunityCard = ({
             </HStack>
 
             {/* Collapsible Enrollment Answers */}
-            {(isParticipantLoading ||
+            {(enrollment.isParticipantLoading ||
               (participantRecord?.data?.questionnaire_answers &&
                 Object.keys(participantRecord.data.questionnaire_answers)
                   .length > 0)) && (
@@ -480,14 +396,14 @@ const OpportunityCard = ({
 
                 {isAnswersExpanded && (
                   <Box mt={0} py={3} px={4} bg="#FAFAFA">
-                    {isParticipantLoading ? (
+                    {enrollment.isParticipantLoading ? (
                       <HStack py={3} justify="center" gap={2}>
                         <Spinner size="sm" color="#9CA3AF" />
                         <Text fontSize="sm" color="#9CA3AF">
                           Loading answers...
                         </Text>
                       </HStack>
-                    ) : participantError ? (
+                    ) : enrollment.participantError ? (
                       <Text fontSize="sm" color="#9CA3AF" py={2}>
                         Unable to load enrollment answers.
                       </Text>
@@ -532,8 +448,8 @@ const OpportunityCard = ({
                 fontSize="xs"
                 fontWeight="500"
                 px={4}
-                isLoading={updateParticipantMutation.isPending}
-                onClick={handleCancelEnrollment}
+                isLoading={enrollment.updateParticipantMutation.isPending}
+                onClick={enrollment.handleUnenrollClick}
               >
                 Unenroll
               </ButtonV2>
@@ -615,7 +531,7 @@ const OpportunityCard = ({
                           color="#DC2626"
                           borderRadius="md"
                           _hover={{ bg: "#FEF2F2" }}
-                          onClick={handleCancelEnrollment}
+                          onClick={enrollment.handleUnenrollClick}
                         >
                           Unenroll
                         </Box>
@@ -703,10 +619,12 @@ const OpportunityCard = ({
       </Box>
 
       <UnenrollDialog
-        open={isCancelDialogOpen}
-        onOpenChange={(details) => setIsCancelDialogOpen(details.open)}
-        onConfirm={confirmCancelEnrollment}
-        isLoading={updateParticipantMutation.isPending}
+        open={enrollment.isUnenrollDialogOpen}
+        onOpenChange={(details) =>
+          enrollment.setIsUnenrollDialogOpen(details.open)
+        }
+        onConfirm={enrollment.confirmUnenroll}
+        isLoading={enrollment.updateParticipantMutation.isPending}
       />
 
       <Dialog.Root
@@ -777,14 +695,16 @@ const OpportunityCard = ({
       </Dialog.Root>
 
       <EditEnrollmentDialog
-        open={isEditEnrollmentOpen}
-        onOpenChange={(details) => setIsEditEnrollmentOpen(details.open)}
-        sections={questionnaireSections}
-        initialValues={editAnswers}
-        onAnswersChange={handleAnswersChange}
-        onSave={handleSaveEnrollmentAnswers}
-        isSaving={updateParticipantMutation.isPending}
-        formRef={editFormRef}
+        open={enrollment.isEditEnrollmentOpen}
+        onOpenChange={(details) =>
+          enrollment.setIsEditEnrollmentOpen(details.open)
+        }
+        sections={enrollment.questionnaireSections}
+        initialValues={enrollment.editAnswers}
+        onAnswersChange={enrollment.handleAnswersChange}
+        onSave={enrollment.handleSaveEnrollmentAnswers}
+        isSaving={enrollment.updateParticipantMutation.isPending}
+        formRef={enrollment.editFormRef}
       />
     </>
   );

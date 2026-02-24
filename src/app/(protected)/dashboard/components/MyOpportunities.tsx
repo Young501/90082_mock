@@ -6,23 +6,275 @@ import {
   VStack,
   HStack,
   Text,
-  Flex,
-  Avatar,
   Badge,
   IconButton,
+  Spinner,
 } from "@chakra-ui/react";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { useRouter } from "next/navigation";
-import { EllipsisVertical } from "lucide-react";
 import type { HomepageOpportunity } from "@/types/homepage";
-
 import Image from "next/image";
+import IconMoreEllipsis from "@/components/Icons/IconMoreEllipsis";
+import { MenuPopover } from "@/components/ui/MenuPopover";
+import { UnenrollDialog } from "@/components/ui/UnenrollDialog";
+import { EditEnrollmentDialog } from "@/components/ui/EditEnrollmentDialog";
+import { useEnrollmentActions } from "@/hooks/useEnrollmentActions";
 
 interface MyOpportunitiesProps {
   opportunities: HomepageOpportunity[];
   userType: string;
   height?: string;
   maxH?: string;
+}
+
+function getStatusLabel(opp: HomepageOpportunity) {
+  if (opp.visibility_display === "Public") {
+    return "Public Opportunity";
+  }
+  if (opp.visibility_display === "Invite only") {
+    return "Invite only";
+  }
+  return opp.visibility_display ?? "Opportunity";
+}
+
+function isEnrolled(opp: HomepageOpportunity) {
+  return opp.enrollment_status === "enrolled";
+}
+
+interface DashboardOpportunityCardProps {
+  opp: HomepageOpportunity;
+  userType: string;
+  onNavigate: (slug: string) => void;
+}
+
+function DashboardOpportunityCard({
+  opp,
+  userType,
+  onNavigate,
+}: DashboardOpportunityCardProps) {
+  const enrolled = isEnrolled(opp);
+
+  const enrollment = useEnrollmentActions({
+    opportunityId: opp.id,
+    questionnaire: (opp as { questionnaire?: unknown }).questionnaire,
+    userType,
+    isEnrolled: enrolled,
+  });
+
+  return (
+    <>
+      <VStack
+        p={3}
+        borderRadius="12px"
+        border="1px solid #E4E4E7"
+        w="full"
+        align="stretch"
+        gap={6}
+      >
+        <VStack align="stretch" gap={2}>
+          <HStack align="flex-start" gap={3} flex={1} minW={0}>
+            <Box
+              flexShrink={0}
+              w="48px"
+              h="48px"
+              bg="#F4F4F5"
+              borderRadius="16px"
+              p={2}
+            >
+              {opp.logo_url ? (
+                <Image
+                  src={opp.logo_url as string}
+                  alt={opp.title}
+                  width={32}
+                  height={32}
+                />
+              ) : (
+                <Image
+                  src="/assets/opportunityLogoPlaceholder.svg"
+                  alt="Placeholder"
+                  width={32}
+                  height={32}
+                  style={{ objectFit: "contain" }}
+                />
+              )}
+            </Box>
+
+            <VStack align="stretch" gap={1} flex={1} minW={0}>
+              <Text fontSize="md" fontWeight="600" color="black">
+                {opp.title}
+              </Text>
+              <HStack>
+                <Text fontSize="xs" color="#173DA6">
+                  {getStatusLabel(opp)}
+                </Text>
+                {opp.visibility_display === "Public" && (
+                  <Badge
+                    bg="#F4F4F5"
+                    color="#27272A"
+                    fontSize={{ base: "2xs", md: "xs" }}
+                    px={2}
+                    py={0.5}
+                    borderRadius="4px"
+                    fontWeight="normal"
+                  >
+                    Default
+                  </Badge>
+                )}
+              </HStack>
+            </VStack>
+
+            <HStack gap={4} flexShrink={0}>
+              {enrolled && (
+                <Badge
+                  bg=""
+                  boxShadow="0px 0px 1px 0px #116932 inset"
+                  fontSize={{ base: "xs", md: "sm" }}
+                  px={{ base: "6px", md: 3 }}
+                  py={{ base: "2px", md: 1 }}
+                  borderRadius="4px"
+                  fontWeight="normal"
+                  color="#116932"
+                >
+                  Enrolled
+                </Badge>
+              )}
+              {enrolled ? (
+                <MenuPopover
+                  placement="bottom-end"
+                  trigger={
+                    <IconButton aria-label="More options" variant="ghost">
+                      <IconMoreEllipsis color="#52525B" />
+                    </IconButton>
+                  }
+                >
+                  {enrollment.hasQuestionnaire && (
+                    <Box
+                      as="button"
+                      w="full"
+                      textAlign="left"
+                      px={3}
+                      py={2}
+                      fontSize="sm"
+                      color="#374151"
+                      borderRadius="md"
+                      _hover={{ bg: "#F3F4F6" }}
+                      onClick={() => {
+                        if (!enrollment.isResolvingEditAnswers)
+                          enrollment.handleOpenEditEnrollment();
+                      }}
+                      opacity={enrollment.isResolvingEditAnswers ? 0.6 : 1}
+                      cursor={
+                        enrollment.isResolvingEditAnswers
+                          ? "not-allowed"
+                          : "pointer"
+                      }
+                      pointerEvents={
+                        enrollment.isResolvingEditAnswers ? "none" : "auto"
+                      }
+                    >
+                      {enrollment.isResolvingEditAnswers ? (
+                        <HStack gap={2}>
+                          <Spinner size="sm" />
+                          <span>Preparing form...</span>
+                        </HStack>
+                      ) : (
+                        "Edit Enrollment Answers"
+                      )}
+                    </Box>
+                  )}
+                  <Box
+                    as="button"
+                    w="full"
+                    textAlign="left"
+                    px={3}
+                    py={2}
+                    fontSize="sm"
+                    color="#DC2626"
+                    borderRadius="md"
+                    _hover={{ bg: "#FEF2F2" }}
+                    onClick={enrollment.handleUnenrollClick}
+                  >
+                    Unenroll from Opportunity
+                  </Box>
+                </MenuPopover>
+              ) : null}
+            </HStack>
+          </HStack>
+
+          {userType === "student" && !enrolled && (
+            <Text fontSize="sm" color="#A1A1AA">
+              You&apos;re required to enroll first in order to access
+              opportunities from this program
+            </Text>
+          )}
+
+          <Text fontSize="xs" color="#52525B">
+            {opp.description}
+          </Text>
+        </VStack>
+
+        <VStack gap={2} flexShrink={0} w="full" align="stretch">
+          <ButtonV2
+            bg={
+              userType === "organisation"
+                ? enrolled
+                  ? "#E9F7F6"
+                  : "#3AADA8"
+                : enrolled
+                  ? "#EAF6FD"
+                  : "#2AA8E0"
+            }
+            w="full"
+            color={
+              userType === "organisation"
+                ? enrolled
+                  ? "#1F7F7B"
+                  : "#FFFFFF"
+                : enrolled
+                  ? "#1679AB"
+                  : "#FFFFFF"
+            }
+            h="36px"
+            border={
+              userType === "organisation"
+                ? enrolled
+                  ? "1px solid #D3EFEA"
+                  : "1px solid #3AADA8"
+                : enrolled
+                  ? "1px solid #D6EDFB"
+                  : "1px solid #2AA8E0"
+            }
+            size="sm"
+            onClick={() => onNavigate(opp.slug)}
+          >
+            {enrolled ? "Explore Opportunity" : "Enroll"}
+          </ButtonV2>
+        </VStack>
+      </VStack>
+
+      <EditEnrollmentDialog
+        open={enrollment.isEditEnrollmentOpen}
+        onOpenChange={(details) =>
+          enrollment.setIsEditEnrollmentOpen(details.open)
+        }
+        sections={enrollment.questionnaireSections}
+        initialValues={enrollment.editAnswers}
+        onAnswersChange={enrollment.handleAnswersChange}
+        onSave={enrollment.handleSaveEnrollmentAnswers}
+        isSaving={enrollment.updateParticipantMutation.isPending}
+        formRef={enrollment.editFormRef}
+      />
+
+      <UnenrollDialog
+        open={enrollment.isUnenrollDialogOpen}
+        onOpenChange={(details) =>
+          enrollment.setIsUnenrollDialogOpen(details.open)
+        }
+        onConfirm={enrollment.confirmUnenroll}
+        isLoading={enrollment.updateParticipantMutation.isPending}
+      />
+    </>
+  );
 }
 
 // TODO: Add opportunity summary
@@ -34,19 +286,6 @@ export function MyOpportunities({
   maxH = "551px",
 }: MyOpportunitiesProps) {
   const router = useRouter();
-
-  const getStatusLabel = (opp: HomepageOpportunity) => {
-    if (opp.visibility_display === "Public") {
-      return "Public Opportunity";
-    }
-    if (opp.visibility_display === "Invite only") {
-      return "Invite only";
-    }
-    return opp.visibility_display ?? "Opportunity";
-  };
-
-  const isEnrolled = (opp: HomepageOpportunity) =>
-    opp.enrollment_status === "enrolled";
 
   return (
     <Box
@@ -72,150 +311,13 @@ export function MyOpportunities({
             No opportunities yet. Discover opportunities to get started.
           </Text>
         ) : (
-          opportunities.map((opp, index) => (
-            <VStack
+          opportunities.map((opp) => (
+            <DashboardOpportunityCard
               key={opp.id}
-              p={3}
-              borderRadius="12px"
-              border="1px solid #E4E4E7"
-              w="full"
-              align="stretch"
-              gap={6}
-            >
-              <VStack align="stretch" gap={2}>
-                <HStack align="flex-start" gap={3} flex={1} minW={0}>
-                  <Box
-                    flexShrink={0}
-                    w="48px"
-                    h="48px"
-                    bg="#F4F4F5"
-                    borderRadius="16px"
-                    p={2}
-                  >
-                    {opp.logo_url ? (
-                      <Image
-                        src={opp.logo_url as string}
-                        alt={opp.title}
-                        width={32}
-                        height={32}
-                      />
-                    ) : (
-                      <Image
-                        src="/assets/opportunityLogoPlaceholder.svg"
-                        alt="Placeholder"
-                        width={32}
-                        height={32}
-                        style={{
-                          objectFit: "contain",
-                        }}
-                      />
-                    )}
-                  </Box>
-
-                  <VStack align="stretch" gap={1} flex={1} minW={0}>
-                    <Text fontSize="md" fontWeight="600" color="black">
-                      {opp.title}
-                    </Text>
-                    <HStack>
-                      <Text fontSize="xs" color="#173DA6">
-                        {getStatusLabel(opp)}
-                      </Text>
-                      {opp.visibility_display === "Public" && (
-                        <Badge
-                          bg="#F4F4F5"
-                          color="#27272A"
-                          fontSize={{ base: "2xs", md: "xs" }}
-                          px={2}
-                          py={0.5}
-                          borderRadius="4px"
-                          fontWeight="normal"
-                        >
-                          Default
-                        </Badge>
-                      )}
-                    </HStack>
-                  </VStack>
-
-                  <HStack gap={4} flexShrink={0}>
-                    {" "}
-                    {isEnrolled(opp) && (
-                      <Badge
-                        bg=""
-                        // border="1px solid"
-                        boxShadow="0px 0px 1px 0px #116932 inset"
-                        fontSize={{ base: "xs", md: "sm" }}
-                        px={{ base: "6px", md: 3 }}
-                        py={{ base: "2px", md: 1 }}
-                        borderRadius="4px"
-                        fontWeight="normal"
-                        color="#116932"
-                      >
-                        Enrolled
-                      </Badge>
-                    )}
-                    <IconButton
-                      aria-label="More options"
-                      variant="ghost"
-                      w="fit-content"
-                      h="fit-content"
-                    >
-                      <EllipsisVertical size={20} color="#52525B" />
-                    </IconButton>
-                  </HStack>
-                </HStack>
-
-                {userType === "student" && !isEnrolled(opp) && (
-                  <Text fontSize="sm" color="#A1A1AA">
-                    You&apos;re required to enroll first in order to access
-                    opportunities from this program
-                  </Text>
-                )}
-
-                <Text fontSize="xs" color="#52525B">
-                  {opp.description}
-                </Text>
-              </VStack>
-
-              <VStack gap={2} flexShrink={0} w="full" align="stretch">
-                {/* {MISSING OPPORTUNITY SUMMARY} */}
-
-                <ButtonV2
-                  bg={
-                    userType === "organisation"
-                      ? isEnrolled(opp)
-                        ? "#E9F7F6"
-                        : "#3AADA8"
-                      : isEnrolled(opp)
-                        ? "#EAF6FD"
-                        : "#2AA8E0"
-                  }
-                  w="full"
-                  color={
-                    userType === "organisation"
-                      ? isEnrolled(opp)
-                        ? "#1F7F7B"
-                        : "#FFFFFF"
-                      : isEnrolled(opp)
-                        ? "#1679AB"
-                        : "#FFFFFF"
-                  }
-                  h="36px"
-                  border={
-                    userType === "organisation"
-                      ? isEnrolled(opp)
-                        ? "1px solid #D3EFEA"
-                        : "1px solid #3AADA8"
-                      : isEnrolled(opp)
-                        ? "1px solid #D6EDFB"
-                        : "1px solid #2AA8E0"
-                  }
-                  size="sm"
-                  onClick={() => router.push(`/discover/?opp=${opp.slug}`)}
-                >
-                  {isEnrolled(opp) ? "Explore Opportunity" : "Enroll"}
-                </ButtonV2>
-              </VStack>
-            </VStack>
+              opp={opp}
+              userType={userType}
+              onNavigate={(slug) => router.push(`/discover/?opp=${slug}`)}
+            />
           ))
         )}
       </VStack>
