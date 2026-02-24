@@ -1,5 +1,11 @@
 "use client";
-import React, { useState, useMemo, useEffect } from "react";
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
 import {
   Box,
   Text,
@@ -12,6 +18,7 @@ import {
   Dialog,
   Portal,
   Badge,
+  IconButton,
 } from "@chakra-ui/react";
 import {
   useAccessibleOpportunities,
@@ -25,21 +32,29 @@ import {
 import { useCancelSubscription } from "@/services/subscription";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store";
+import IconMoreEllipsis from "@/components/Icons/IconMoreEllipsis";
+
 import {
   Opportunity,
   AccessibleOpportunity,
   AccessInfo,
 } from "@/types/opportunities";
-import { FieldRenderer } from "@/app/(auth)/onboarding/FieldRenderer";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { createPageSchema } from "@/utils/validationSchemas";
+import { ButtonV2 } from "@/components/ui/ButtonV2";
+import { MenuPopover } from "@/components/ui/MenuPopover";
+import {
+  QuestionnaireForm,
+  QuestionnaireFormRef,
+} from "@/components/questionnaire/QuestionnaireForm";
+import { getQuestionnaireSections } from "@/utils/opportunityQuestionnaire";
+import { useResolveTaxonomyLabelsToCodes } from "@/hooks/useResolveTaxonomyLabelsToCodes";
 import { Question } from "@/types/onboarding";
 import { toast } from "react-toastify";
 import { formatAnswerForDisplay } from "@/utils/formatAnswer";
 import OpportunityCardSkeleton from "./ui/OpportunityCardSkeleton";
 import { getSubscriptionStatusDisplay } from "@/utils/subscriptionPermissions";
-import { formatDate } from "@/utils/formatDate";
+import { formatDate, formatShortDate } from "@/utils/formatDate";
+import { ChevronDown, ChevronUp, MoreVertical, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface OpportunityCardProps {
   opportunity: Opportunity | AccessibleOpportunity;
@@ -47,33 +62,25 @@ interface OpportunityCardProps {
   type: "enrolled" | "closed";
 }
 
-const OpportunityCard: React.FC<OpportunityCardProps> = ({
+const OpportunityCard = ({
   opportunity,
   userType,
   type,
-}) => {
+}: OpportunityCardProps) => {
+  const router = useRouter();
   const accessibleOpportunity = opportunity as AccessibleOpportunity;
+  const [isAnswersExpanded, setIsAnswersExpanded] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [originalAnswers, setOriginalAnswers] = useState<Record<string, any>>(
-    {}
-  );
   const [isCancelled, setIsCancelled] = useState(false);
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [isCancelSubscriptionDialogOpen, setIsCancelSubscriptionDialogOpen] =
     useState(false);
+  const [isEditEnrollmentOpen, setIsEditEnrollmentOpen] = useState(false);
+  const [editAnswers, setEditAnswers] = useState<Record<string, any>>({});
+  const editFormRef = useRef<QuestionnaireFormRef>(null);
+
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
-
-  const getAccessInfo = (): AccessInfo | null => {
-    if (participantRecord?.access) {
-      return participantRecord.access;
-    }
-    if (accessibleOpportunity?.access) {
-      return accessibleOpportunity.access;
-    }
-    return null;
-  };
 
   const {
     data: participantRecord,
@@ -83,6 +90,12 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     opportunity.id,
     type === "enrolled" && !isCancelled
   );
+
+  const getAccessInfo = (): AccessInfo | null => {
+    if (participantRecord?.access) return participantRecord.access;
+    if (accessibleOpportunity?.access) return accessibleOpportunity.access;
+    return null;
+  };
 
   // Update mutation
   const updateParticipantMutation = useUpdateOpportunityParticipant();
@@ -110,83 +123,120 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     return questionnaire.length > 0;
   }, [questionnaire]);
 
-  // Form setup for editing
-  const schema = useMemo(
-    () => createPageSchema(questionnaire, true),
-    [questionnaire]
-  );
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    getValues,
-    clearErrors,
-    setError,
-    watch,
-    unregister,
-  } = useForm({
-    resolver: yupResolver(schema),
-    mode: "onChange",
-  });
-  const organisationNameValue = watch("name");
+  // Merge saved answers with questionnaire definitions for display.
+  // Iterates the actual saved answer keys so nothing is skipped.
+  // If a matching question definition exists it is used for type-aware
+  // formatting; otherwise a smart fallback is applied.
+  const answersToDisplay = useMemo(() => {
+    const saved = participantRecord?.data?.questionnaire_answers;
+    if (!saved) return [];
 
-  // Reset form when participant record loads
-  useEffect(() => {
-    if (participantRecord?.data?.questionnaire_answers) {
-      const answers = participantRecord.data.questionnaire_answers;
-      reset(answers);
-      setOriginalAnswers(answers);
+    return Object.entries(saved)
+      .filter(
+        ([, value]) => value !== null && value !== undefined && value !== ""
+      )
+      .map(([key, value]) => {
+        const question = questionnaire.find((q) => q.field === key);
+        const label =
+          question?.label ||
+          key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+        const display = question
+          ? formatAnswerForDisplay(question, value)
+          : Array.isArray(value)
+            ? (value as any[]).join(", ")
+            : String(value);
+        return { key, label, display };
+      });
+  }, [questionnaire, participantRecord?.data?.questionnaire_answers]);
+
+  const questionnaireSections = useMemo(
+    () => getQuestionnaireSections(opportunity.questionnaire, userType),
+    [opportunity.questionnaire, userType]
+  );
+
+  const { resolve: resolveTaxonomyLabelsToCodes, isResolving: isResolvingEditAnswers } =
+    useResolveTaxonomyLabelsToCodes();
+
+  const handleAnswersChange = useCallback((values: Record<string, any>) => {
+    setEditAnswers(values);
+  }, []);
+
+  const handleOpenEditEnrollment = useCallback(async () => {
+    const rawAnswers =
+      participantRecord?.data?.questionnaire_answers ?? {};
+    try {
+      const resolved = await resolveTaxonomyLabelsToCodes(
+        questionnaireSections,
+        rawAnswers,
+        null
+      );
+      setEditAnswers(resolved);
+    } catch {
+      // Fallback: use raw answers; taxonomy fields will attempt label→code normalization
+      setEditAnswers(rawAnswers);
     }
-  }, [participantRecord, reset]);
+    setIsEditEnrollmentOpen(true);
+  }, [
+    participantRecord?.data?.questionnaire_answers,
+    questionnaireSections,
+    resolveTaxonomyLabelsToCodes,
+  ]);
+
+  const handleSaveEnrollmentAnswers = async () => {
+    if (!editFormRef.current) return;
+    const isValid = await editFormRef.current.validate();
+    if (!isValid) return;
+
+    const data = editFormRef.current.getValues();
+    try {
+      const updated = await updateParticipantMutation.mutateAsync({
+        opportunityId: opportunity.id,
+        questionnaireAnswers: data,
+      });
+      queryClient.setQueryData(
+        ["opportunity-participant", opportunity.id],
+        updated
+      );
+      toast.success("Enrollment answers saved!");
+      setIsEditEnrollmentOpen(false);
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.error ||
+        err?.response?.data?.detail ||
+        "Failed to save answers";
+      toast.error(msg);
+    }
+  };
 
   const handleExpand = () => {
     setIsExpanded(!isExpanded);
-    if (!isExpanded) {
-      setIsEditMode(false);
-    }
-  };
-
-  const handleEdit = () => {
-    const participantAnswers = participantRecord?.data?.questionnaire_answers;
-    if (!isEditMode && participantAnswers) {
-      // When entering edit mode, reset form to current participant answers
-      // This ensures we start with the latest data, not stale originalAnswers
-      reset(participantAnswers);
-      setOriginalAnswers(participantAnswers);
-    } else {
-      // When canceling edit mode, reset form back to original answers
-      reset(originalAnswers);
-    }
-    setIsEditMode(!isEditMode);
   };
 
   const handleReEnroll = async (data?: any) => {
+    if (questionnaireSections.length > 0) {
+      const dest = slug || String(opportunity.id);
+      router.push(`/opportunities/fill?opp=${dest}`);
+      return;
+    }
+
     try {
-      // Re-enrollment no longer requires questionnaire answers
       await reEnrollMutation.mutateAsync({
         opportunityId: opportunity.id,
-        // No questionnaire answers needed for re-enrollment
       });
 
       toast.success("Successfully re-enrolled in opportunity!");
 
-      // Close expanded view after successful re-enrollment
       setIsExpanded(false);
-      setIsEditMode(false);
 
-      // Invalidate caches to trigger UI updates
       queryClient.invalidateQueries({
         queryKey: ["accessible-opportunities", user?.id],
       });
 
-      // Invalidate all opportunities to update enrollment status
       queryClient.invalidateQueries({
         queryKey: ["all-opportunities", user?.id],
       });
     } catch (error: any) {
-      console.error("Re-enroll failed:", error);
+      // console.error("Re-enroll failed:", error);
       const errorMessage =
         error?.response?.data?.error ||
         error?.response?.data?.detail ||
@@ -197,7 +247,6 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
   };
 
   const handleCancelEnrollment = () => {
-    // Open confirmation dialog
     setIsCancelDialogOpen(true);
   };
 
@@ -219,7 +268,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
       setIsCancelSubscriptionDialogOpen(false);
     } catch (error: any) {
-      console.error("Cancel subscription failed:", error);
+      // console.error("Cancel subscription failed:", error);
       const errorMessage =
         error?.response?.data?.error ||
         error?.response?.data?.detail ||
@@ -237,25 +286,23 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
       });
 
       toast.success("Successfully cancelled enrollment!");
+      queryClient.removeQueries({
+        queryKey: ["opportunity-participant", opportunity.id],
+      });
+      queryClient.setQueryData(
+        ["opportunity-participant", opportunity.id],
+        null
+      );
 
-      // Mark as cancelled to stop fetching participant record
       setIsCancelled(true);
-
       setIsExpanded(false);
-      setIsEditMode(false);
-
       setIsCancelDialogOpen(false);
 
       queryClient.invalidateQueries({
         queryKey: ["accessible-opportunities", user?.id],
       });
-
-      // Remove participant record cache for this opportunity
-      queryClient.removeQueries({
-        queryKey: ["opportunity-participant", opportunity.id, user?.id],
-      });
     } catch (error: any) {
-      console.error("Cancel enrollment failed:", error);
+      // console.error("Cancel enrollment failed:", error);
       const errorMessage =
         error?.response?.data?.error ||
         error?.response?.data?.detail ||
@@ -265,408 +312,476 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     }
   };
 
-  const handleSave = async (data: any) => {
-    if (!participantRecord?.participant_id) {
-      toast.error("No participant record found");
-      return;
-    }
-
-    try {
-      // Check if there are any changes
-      let hasChanges = false;
-      Object.keys(data).forEach((key) => {
-        const originalValue = originalAnswers[key];
-        const newValue = data[key];
-        if (JSON.stringify(originalValue) !== JSON.stringify(newValue)) {
-          hasChanges = true;
-        }
-      });
-
-      if (!hasChanges) {
-        toast.info("No changes to save");
-        setIsEditMode(false);
-        return;
-      }
-
-      const updatedParticipant = await updateParticipantMutation.mutateAsync({
-        opportunityId: opportunity.id,
-        questionnaireAnswers: data,
-      });
-
-      queryClient.setQueryData(
-        ["opportunity-participant", opportunity.id],
-        updatedParticipant
-      );
-
-      setOriginalAnswers(
-        updatedParticipant?.data?.questionnaire_answers || data
-      );
-
-      toast.success("All changes have been saved!");
-      setIsEditMode(false);
-    } catch (error: any) {
-      console.error("Save failed:", error);
-      const errorMessage =
-        error?.response?.data?.error ||
-        error?.response?.data?.detail ||
-        "Failed to save changes";
-      toast.error(errorMessage);
-    }
-  };
+  const opportunityIsEnrolled = (opportunity as any)?.is_enrolled === true;
+  const isEnrolled = useMemo(
+    () =>
+      !isCancelled &&
+      (participantRecord?.accepted === true || opportunityIsEnrolled),
+    [isCancelled, participantRecord?.accepted, opportunityIsEnrolled]
+  );
+  const enrolledDate =
+    (participantRecord?.data as any)?.created_at || opportunity.start_date;
+  const slug = "slug" in opportunity && opportunity.slug;
 
   return (
     <>
       <Box
         borderRadius="12px"
         bg="white"
-        border="1px solid #E2E8F0"
-        boxShadow="0 1px 3px rgba(0,0,0,0.1)"
+        border="1px solid #E4E4E7"
+        boxShadow="0 1px 3px rgba(0,0,0,0.06)"
         overflow="hidden"
         w="100%"
         maxW="100%"
       >
-        {/* Main card content */}
-        <Box
-          p={4}
-          _hover={{
-            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-            transform: "translateY(-2px)",
-          }}
-          transition="all 0.2s ease"
-        >
-          <Flex justify="space-between" align="start" gap={4}>
-            <Box flex={1} minW={0}>
-              <Text
-                fontSize="18px"
-                fontWeight="600"
-                color="#1F2937"
-                mb={2}
-                wordBreak="break-word"
-              >
-                {opportunity.title}
-              </Text>
-              <Text
-                fontSize="14px"
-                color="#6B7280"
-                mb={3}
-                wordBreak="break-word"
-              >
-                {opportunity.description}
-              </Text>
-              <HStack gap={4} fontSize="12px" color="#9CA3AF" flexWrap="wrap">
-                <Text>
-                  Start: {new Date(opportunity.start_date).toLocaleDateString()}
+        {type === "enrolled" ? (
+          <Box p={5}>
+            <Flex justify="space-between" align="flex-start" gap={3} mb={5}>
+              <HStack gap={3} flex={1} minW={0} flexWrap="wrap" align="center">
+                <Text
+                  fontSize="xl"
+                  fontWeight="700"
+                  color="#111827"
+                  wordBreak="break-word"
+                  lineHeight="short"
+                >
+                  {opportunity.title}
                 </Text>
-                <Text>
-                  End: {new Date(opportunity.end_date).toLocaleDateString()}
-                </Text>
+                {/* {(!isParticipantLoading && participantRecord) ( */}
+                <Badge
+                  bg="transparent"
+                  // border="1px solid"
+                  boxShadow={
+                    isEnrolled
+                      ? "0px 0px 1px 0px #116932 inset"
+                      : "0px 0px 1px 0px #EA580C inset"
+                  }
+                  fontSize={{ base: "xs", md: "sm" }}
+                  px={{ base: "6px", md: 3 }}
+                  py={{ base: "2px", md: 1 }}
+                  borderRadius="4px"
+                  fontWeight="normal"
+                  color={isEnrolled ? "#116932" : "#EA580C"}
+                >
+                  {isEnrolled ? "Enrolled" : "Pending Enrollment"}
+                </Badge>
+                {/* )} */}
               </HStack>
-              {(() => {
-                const accessInfo = getAccessInfo();
-                if (!accessInfo) return null;
-
-                const subStatus = getSubscriptionStatusDisplay(
-                  accessInfo?.has_access,
-                  accessInfo?.access_source,
-                  accessInfo?.active_override,
-                  accessInfo?.subscription?.status,
-                  accessInfo?.subscription?.cancel_at_period_end,
-                  accessInfo?.subscription?.current_period_end,
-                  accessInfo?.subscription?.trial_end
-                );
-
-                const canCancel =
-                  (accessInfo.subscription?.status === "active" ||
-                    accessInfo.subscription?.status === "trialing") &&
-                  !accessInfo.subscription?.cancel_at_period_end;
-
-                if (!subStatus) return null;
-
-                return (
-                  <Box
-                    mt={3}
-                    mb={2}
-                    display="inline-flex"
-                    flexDirection="column"
-                    alignItems="center"
+             {questionnaireSections.length > 0 && <MenuPopover
+                placement="bottom-end"
+                trigger={
+                  <IconButton
+                    aria-label="More options"
+                    variant="ghost"
+                    size="sm"
                   >
-                    <Badge
-                      colorScheme={subStatus.colorScheme}
-                      fontSize="12px"
-                      px={2}
-                      py={1}
-                      textAlign="center"
-                    >
-                      {subStatus.icon} {subStatus.label}
-                    </Badge>
-                    {type === "enrolled" && canCancel && (
-                      <Button
-                        fontSize="12px"
-                        mt={2}
-                        bg="red.500"
-                        size="xs"
-                        px={2}
-                        onClick={handleCancelSubscription}
-                        loading={cancelSubscriptionMutation.isPending}
-                        alignSelf="stretch"
-                      >
-                        Cancel Subscription
-                      </Button>
+                    <IconMoreEllipsis color="#9CA3AF" />
+                  </IconButton>
+                }
+              >
+                {questionnaireSections.length > 0 && (
+                  <Box
+                    as="button"
+                    w="full"
+                    textAlign="left"
+                    px={3}
+                    py={2}
+                    fontSize="sm"
+                    color="#374151"
+                    borderRadius="md"
+                    _hover={{ bg: "#F3F4F6" }}
+                    onClick={() => {
+                      if (!isResolvingEditAnswers) handleOpenEditEnrollment();
+                    }}
+                    opacity={isResolvingEditAnswers ? 0.6 : 1}
+                    cursor={isResolvingEditAnswers ? "not-allowed" : "pointer"}
+                    pointerEvents={isResolvingEditAnswers ? "none" : "auto"}
+                  >
+                    {isResolvingEditAnswers ? (
+                      <HStack gap={2}>
+                        <Spinner size="sm" />
+                        <span>Preparing form...</span>
+                      </HStack>
+                    ) : (
+                      "Edit Enrollment Answers"
                     )}
                   </Box>
-                );
-              })()}
-            </Box>
-            <Box flexShrink={0}>
-              <Button
-                size="sm"
-                variant="outline"
-                colorScheme={userType === "student" ? "red" : "green"}
-                onClick={handleExpand}
-                minW="fit-content"
-              >
-                {isExpanded ? "Collapse" : "View Details"}
-              </Button>
-            </Box>
-          </Flex>
-        </Box>
+                )}
+                {(() => {
+                  const accessInfo = getAccessInfo();
+                  const canCancel =
+                    accessInfo?.subscription?.status === "active" ||
+                    accessInfo?.subscription?.status === "trialing";
+                  if (
+                    canCancel &&
+                    !accessInfo?.subscription?.cancel_at_period_end
+                  ) {
+                    return (
+                      <Box
+                        as="button"
+                        w="full"
+                        textAlign="left"
+                        px={3}
+                        py={2}
+                        fontSize="sm"
+                        color="#DC2626"
+                        borderRadius="md"
+                        _hover={{ bg: "#FEF2F2" }}
+                        onClick={handleCancelSubscription}
+                      >
+                        Cancel Subscription
+                      </Box>
+                    );
+                  }
+                  return null;
+                })()}
+              </MenuPopover>}
+            </Flex>
 
-        {/* Expanded content */}
-        {isExpanded && (
-          <Box borderTop="1px solid #E2E8F0" bg="#F8F9FA" p={4}>
-            {type === "closed" ? (
-              // For cancelled opportunities, show re-enroll option directly
-              <VStack gap={4} align="stretch">
-                <Alert.Root status="info" mb={4}>
-                  <Alert.Indicator />
-                  <Alert.Title>
-                    You are not currently enrolled in this opportunity
-                  </Alert.Title>
-                </Alert.Root>
-
-                {/* Re-enroll button - no questionnaire required */}
-                <Box>
-                  <Button
-                    size="md"
-                    colorScheme={userType === "student" ? "red" : "green"}
-                    onClick={handleReEnroll}
-                    loading={reEnrollMutation.isPending}
-                    w="full"
-                  >
-                    Re-enroll in Opportunity
-                  </Button>
-                </Box>
-              </VStack>
-            ) : isParticipantLoading ? (
-              <VStack gap={4}>
-                <Spinner
-                  size="md"
-                  color={userType === "student" ? "#DC2626" : "#089C3F"}
-                />
-                <Text fontSize="14px" color="#6B7280">
-                  Loading participant details...
+            {/* Metadata row */}
+            <HStack gap={8} flexWrap="wrap" mb={5} justify="space-between">
+              <Box>
+                <Text color="#A1A1AA" fontSize="sm" fontWeight="400" mb={1}>
+                  Opportunity Type
                 </Text>
-              </VStack>
-            ) : participantError ? (
-              <VStack gap={4} align="stretch">
-                {/* Show error message for enrolled opportunities */}
-                {type === "enrolled" && (
-                  <Alert.Root status="warning">
-                    <Alert.Indicator />
-                    <Alert.Title>
-                      Unable to load participant details
-                    </Alert.Title>
-                  </Alert.Root>
-                )}
-              </VStack>
-            ) : (
-              <VStack gap={4} align="stretch">
-                {/* Participant info */}
-                {participantRecord && (
-                  <Box>
-                    <HStack justify="space-between" mb={3}>
-                      <Text fontSize="16px" fontWeight="600" color="#1F2937">
-                        Participant Information
-                      </Text>
-                      {type === "enrolled" && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          colorScheme={userType === "student" ? "red" : "green"}
-                          onClick={handleEdit}
-                        >
-                          {isEditMode ? "Cancel" : "Edit"}
-                        </Button>
-                      )}
-                    </HStack>
+                <Text color="#52525B" fontSize="sm" fontWeight="400">
+                  {accessibleOpportunity?.visibility_display || "Open Public"}
+                </Text>
+              </Box>
+              <Box>
+                <Text color="#A1A1AA" fontSize="sm" fontWeight="400" mb={1}>
+                  Enrolled Date
+                </Text>
+                <Text color="#52525B" fontSize="sm" fontWeight="400">
+                  {formatShortDate(enrolledDate)}
+                </Text>
+              </Box>
+              <Box>
+                <Text color="#A1A1AA" fontSize="sm" fontWeight="400" mb={1}>
+                  Duration
+                </Text>
+                <Text color="#52525B" fontSize="sm" fontWeight="400">
+                  {formatShortDate(opportunity.start_date)} –{" "}
+                  {formatShortDate(opportunity.end_date)}
+                </Text>
+              </Box>
+            </HStack>
 
-                    <HStack gap={4} fontSize="14px" color="#6B7280" mb={4}>
-                      <Text>
-                        Status:{" "}
-                        <Text as="span" fontWeight="600" color="#1F2937">
-                          {participantRecord.accepted ? "Accepted" : "Pending"}
-                        </Text>
-                      </Text>
-                      <Text>
-                        Type:{" "}
-                        <Text as="span" fontWeight="600" color="#1F2937">
-                          {participantRecord.type || "Unknown"}
-                        </Text>
-                      </Text>
-                      <Text>
-                        Email:{" "}
-                        <Text as="span" fontWeight="600" color="#1F2937">
-                          {participantRecord.email || "Unknown"}
-                        </Text>
-                      </Text>
-                    </HStack>
-                  </Box>
-                )}
+            {/* Collapsible Enrollment Answers */}
+            {(isParticipantLoading ||
+              (participantRecord?.data?.questionnaire_answers &&
+                Object.keys(participantRecord.data.questionnaire_answers)
+                  .length > 0)) && (
+              <Box border="1px solid #E5E7EB" borderRadius="12px" mb={5}>
+                <Flex
+                  align="center"
+                  justify="space-between"
+                  cursor="pointer"
+                  py={3}
+                  px={4}
+                  borderBottom={
+                    isAnswersExpanded ? "1px solid #E5E7EB" : "none"
+                  }
+                  onClick={() => setIsAnswersExpanded(!isAnswersExpanded)}
+                  transition="background 0.15s"
+                >
+                  <Text fontSize="sm" fontWeight="500" color="#374151">
+                    Enrollment Answers
+                  </Text>
+                  {isAnswersExpanded ? (
+                    <ChevronUp size={16} color="#9CA3AF" />
+                  ) : (
+                    <ChevronDown size={16} color="#9CA3AF" />
+                  )}
+                </Flex>
 
-                {hasQuestionnaire && userType !== "organisation" && (
-                  <Box>
-                    <Text
-                      fontSize="16px"
-                      fontWeight="600"
-                      color="#1F2937"
-                      mb={3}
-                    >
-                      Questionnaire Answers
-                    </Text>
-
-                    {isEditMode ? (
-                      <form onSubmit={handleSubmit(handleSave)}>
-                        <VStack gap={4} align="stretch">
-                          {questionnaire.map((question: Question) => (
-                            <FieldRenderer
-                              key={question.field}
-                              question={question}
-                              register={register}
-                              control={control}
-                              errors={errors}
-                              setError={setError}
-                              clearErrors={clearErrors}
-                              unregister={unregister}
-                              organisationName={organisationNameValue}
-                            />
-                          ))}
-                          <HStack gap={2} justify="flex-end">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setIsEditMode(false)}
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              size="sm"
-                              type="submit"
-                              colorScheme={
-                                userType === "student" ? "red" : "green"
-                              }
-                              loading={updateParticipantMutation.isPending}
-                            >
-                              Save Changes
-                            </Button>
-                          </HStack>
-                        </VStack>
-                      </form>
+                {isAnswersExpanded && (
+                  <Box mt={0} py={3} px={4} bg="#FAFAFA">
+                    {isParticipantLoading ? (
+                      <HStack py={3} justify="center" gap={2}>
+                        <Spinner size="sm" color="#9CA3AF" />
+                        <Text fontSize="sm" color="#9CA3AF">
+                          Loading answers...
+                        </Text>
+                      </HStack>
+                    ) : participantError ? (
+                      <Text fontSize="sm" color="#9CA3AF" py={2}>
+                        Unable to load enrollment answers.
+                      </Text>
+                    ) : answersToDisplay.length === 0 ? (
+                      <Text fontSize="sm" color="#9CA3AF" py={2}>
+                        No answers recorded.
+                      </Text>
                     ) : (
-                      <VStack gap={3} align="stretch">
-                        {questionnaire.map((question: Question) => {
-                          const answer =
-                            participantRecord?.data?.questionnaire_answers?.[
-                              question.field
-                            ];
-                          return (
+                      <VStack align="stretch" gap={4}>
+                        {answersToDisplay.map(({ key, label, display }) => (
+                          <Box key={key}>
+                            <Text fontSize="sm" color="#52525B" mb={1.5}>
+                              {label}
+                            </Text>
                             <Box
-                              key={question.field}
-                              p={3}
-                              bg="white"
-                              borderRadius="8px"
-                              border="1px solid #E2E8F0"
+                              px={2.5}
+                              py={2}
+                              bg="#F4F4F5"
+                              borderRadius="4px"
                             >
-                              <Text
-                                fontSize="14px"
-                                fontWeight="600"
-                                color="#374151"
-                                mb={1}
-                              >
-                                {question.label}
-                              </Text>
-                              <Text fontSize="14px" color="#6B7280">
-                                {formatAnswerForDisplay(question, answer)}
+                              <Text fontSize="sm" color="black">
+                                {display}
                               </Text>
                             </Box>
-                          );
-                        })}
+                          </Box>
+                        ))}
                       </VStack>
                     )}
                   </Box>
                 )}
-
-                {type === "enrolled" && (
-                  <Box>
-                    <Button
-                      size="md"
-                      variant="outline"
-                      colorScheme="red"
-                      onClick={handleCancelEnrollment}
-                      loading={updateParticipantMutation.isPending}
-                      w="full"
-                    >
-                      Cancel Enrollment
-                    </Button>
-                  </Box>
-                )}
-              </VStack>
+              </Box>
             )}
+
+            {/* Action buttons */}
+            <Flex justify="flex-end" gap={2.5} flexWrap="wrap">
+              <ButtonV2
+                variant="ghost"
+                color="#6B7280"
+                bg="#F4F4F5"
+                borderRadius="xl"
+                h="32px"
+                fontSize="xs"
+                fontWeight="500"
+                px={4}
+                isLoading={updateParticipantMutation.isPending}
+                onClick={handleCancelEnrollment}
+              >
+                Unenroll
+              </ButtonV2>
+              <ButtonV2
+                variant="secondary"
+                onClick={() => router.push(`/discover/?opp=${slug}`)}
+              >
+                View Opportunity
+              </ButtonV2>
+            </Flex>
           </Box>
+        ) : (
+          <>
+            <Box
+              p={4}
+              _hover={{
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                transform: "translateY(-2px)",
+              }}
+              transition="all 0.2s ease"
+            >
+              <Flex justify="space-between" align="start" gap={4}>
+                <Box flex={1} minW={0}>
+                  <Flex justify="space-between" align="start" gap={4}>
+                    <HStack
+                      gap={3}
+                      flex={1}
+                      minW={0}
+                      flexWrap="wrap"
+                      align="center"
+                      mb={{ base: 2, md: 5 }}
+                    >
+                      <Text
+                        fontSize="18px"
+                        fontWeight="600"
+                        color="#1F2937"
+                        wordBreak="break-word"
+                      >
+                        {opportunity.title}
+                      </Text>
+                      <Badge
+                        bg="transparent"
+                        // border="1px solid"
+                        boxShadow={
+                          isEnrolled
+                            ? "0px 0px 1px 0px #116932 inset"
+                            : "0px 0px 1px 0px #EA580C inset"
+                        }
+                        fontSize={{ base: "xs", md: "sm" }}
+                        px={{ base: "6px", md: 3 }}
+                        py={{ base: "2px", md: 1 }}
+                        borderRadius="4px"
+                        fontWeight="normal"
+                        color={isEnrolled ? "#116932" : "#EA580C"}
+                      >
+                        {isEnrolled ? "Enrolled" : "Pending Enrollment"}
+                      </Badge>
+                    </HStack>
+                    <MenuPopover
+                      placement="bottom-end"
+                      trigger={
+                        <IconButton
+                          aria-label="More options"
+                          variant="ghost"
+                          size="sm"
+                        >
+                          <IconMoreEllipsis color="#9CA3AF" />
+                        </IconButton>
+                      }
+                    >
+                      {isEnrolled ? (
+                        <Box
+                          as="button"
+                          w="full"
+                          textAlign="left"
+                          px={3}
+                          py={2}
+                          fontSize="sm"
+                          color="#DC2626"
+                          borderRadius="md"
+                          _hover={{ bg: "#FEF2F2" }}
+                          onClick={handleCancelEnrollment}
+                        >
+                          Unenroll
+                        </Box>
+                      ) : (
+                        <Box
+                          as="button"
+                          w="full"
+                          textAlign="left"
+                          px={3}
+                          py={2}
+                          fontSize="sm"
+                          color="#374151"
+                          borderRadius="md"
+                          _hover={{ bg: "#F3F4F6" }}
+                          onClick={handleReEnroll}
+                        >
+                          {reEnrollMutation.isPending
+                            ? "Re-enrolling…"
+                            : "Re-enroll in Opportunity"}
+                        </Box>
+                      )}
+                    </MenuPopover>
+                  </Flex>
+                  <Text
+                    fontSize="14px"
+                    color="#6B7280"
+                    mb={3}
+                    wordBreak="break-word"
+                  >
+                    {opportunity.description}
+                  </Text>
+                  <HStack
+                    gap={8}
+                    flexWrap="wrap"
+                    mb={5}
+                    justify="space-between"
+                  >
+                    <Box>
+                      <Text
+                        color="#A1A1AA"
+                        fontSize="sm"
+                        fontWeight="400"
+                        mb={1}
+                      >
+                        Opportunity Type
+                      </Text>
+                      <Text color="#52525B" fontSize="sm" fontWeight="400">
+                        {accessibleOpportunity?.visibility_display ||
+                          "Open Public"}
+                      </Text>
+                    </Box>
+                    <Box>
+                      <Text
+                        color="#A1A1AA"
+                        fontSize="sm"
+                        fontWeight="400"
+                        mb={1}
+                      >
+                        Enrolled Date
+                      </Text>
+                      <Text color="#52525B" fontSize="sm" fontWeight="400">
+                        {formatShortDate(enrolledDate)}
+                      </Text>
+                    </Box>
+                    <Box>
+                      <Text
+                        color="#A1A1AA"
+                        fontSize="sm"
+                        fontWeight="400"
+                        mb={1}
+                      >
+                        Duration
+                      </Text>
+                      <Text color="#52525B" fontSize="sm" fontWeight="400">
+                        {formatShortDate(opportunity.start_date)} –{" "}
+                        {formatShortDate(opportunity.end_date)}
+                      </Text>
+                    </Box>
+                  </HStack>
+                </Box>
+              </Flex>
+            </Box>
+          </>
         )}
       </Box>
 
       <Dialog.Root
         open={isCancelDialogOpen}
         onOpenChange={(details) => setIsCancelDialogOpen(details.open)}
-        placement="top"
-        trapFocus={true}
+        placement="center"
+        // trapFocus={true}
       >
         <Portal>
           <Dialog.Positioner
             zIndex={9999}
             style={{ backdropFilter: "blur(4px)" }}
           >
-            <Dialog.Content maxW="400px" zIndex={10000}>
+            <Dialog.Content maxW="512px" zIndex={10000}>
               <Dialog.Header>
-                <Dialog.Title fontSize="lg" fontWeight="bold">
-                  Cancel Enrolment
-                </Dialog.Title>
+                <Flex justify="space-between" w="full" align="center">
+                  <Dialog.Title fontSize="lg" fontWeight="bold">
+                    Unenroll from Opportunity
+                  </Dialog.Title>
+                  <IconButton
+                    aria-label="Close"
+                    variant="ghost"
+                    onClick={() => setIsCancelDialogOpen(false)}
+                  >
+                    <X size={16} color="#52525B" />
+                  </IconButton>
+                </Flex>
               </Dialog.Header>
               <Dialog.Body>
-                <Text fontSize="md">
-                  Do you really want to cancel your enrolment?
+                <Text fontSize="sm" color="#52525B">
+                  Unenrolling from this opportunity removes your access to
+                  opportunities under this demo
                 </Text>
               </Dialog.Body>
               <Dialog.Footer>
                 <HStack gap={3} w="full">
-                  <Button
-                    bg="red.500"
-                    color="white"
-                    _hover={{ bg: "red.600" }}
-                    onClick={confirmCancelEnrollment}
-                    loading={updateParticipantMutation.isPending}
-                    flex={1}
-                  >
-                    Confirm
-                  </Button>
-                  <Button
-                    variant="outline"
-                    colorScheme="gray"
+                  <ButtonV2
+                    variant="ghost"
+                    borderRadius="xl"
+                    border="1px solid #E5E7EB"
+                    h="40px"
+                    color="#27272A"
+                    fontSize="sm"
+                    fontWeight="500"
+                    px={4}
+                    _hover={{ bg: "#F9FAFB", textDecoration: "none" }}
                     onClick={() => setIsCancelDialogOpen(false)}
                     flex={1}
                   >
                     Go Back
-                  </Button>
+                  </ButtonV2>
+                  <ButtonV2
+                    bg="#DC2626"
+                    borderRadius="xl"
+                    h="40px"
+                    fontSize="sm"
+                    fontWeight="500"
+                    px={4}
+                    color="white"
+                    onClick={confirmCancelEnrollment}
+                    loading={updateParticipantMutation.isPending}
+                    flex={1}
+                  >
+                    Yes, Unenroll
+                  </ButtonV2>
                 </HStack>
               </Dialog.Footer>
             </Dialog.Content>
@@ -740,6 +855,90 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
           </Dialog.Positioner>
         </Portal>
       </Dialog.Root>
+
+      {/* Edit Enrollment Answers dialog */}
+      <Dialog.Root
+        open={isEditEnrollmentOpen}
+        onOpenChange={(details) => setIsEditEnrollmentOpen(details.open)}
+        placement="center"
+      >
+        <Portal>
+          <Dialog.Backdrop bg="blackAlpha.600" style={{ zIndex: 10000 }} />
+
+          <Dialog.Positioner zIndex={10000}>
+            <Dialog.Content
+              maxW="682px"
+              maxH="90vh"
+              overflow="hidden"
+              display="flex"
+              flexDirection="column"
+              zIndex={10000}
+            >
+              <Dialog.Header borderBottom="1px solid #E5E7EB" pb={4}>
+                <Flex justify="space-between" align="center" w="full">
+                  <Dialog.Title fontSize="2xl" fontWeight="600" color="#111827">
+                    Edit Enrollment Answers
+                  </Dialog.Title>
+                  <IconButton
+                    aria-label="Close"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditEnrollmentOpen(false)}
+                  >
+                    <X size={16} color="#6B7280" />
+                  </IconButton>
+                </Flex>
+              </Dialog.Header>
+
+              <Dialog.Body overflowY="auto" py={4}>
+                {questionnaireSections.length > 0 ? (
+                  <QuestionnaireForm
+                    ref={editFormRef}
+                    sections={questionnaireSections}
+                    initialValues={editAnswers}
+                    onAnswersChange={handleAnswersChange}
+                    props={{
+                      p: 0,
+                      border: "none",
+                    }}
+                  />
+                ) : (
+                  <Text fontSize="sm" color="#6B7280" textAlign="center" py={6}>
+                    No questionnaire available for this opportunity.
+                  </Text>
+                )}
+              </Dialog.Body>
+
+              <Dialog.Footer borderTop="1px solid #E5E7EB" pt={4}>
+                <HStack gap={3} w="full" justify="flex-end">
+                  <ButtonV2
+                    variant="ghost"
+                    color="#6B7280"
+                    border="1px solid #E5E7EB"
+                    borderRadius="xl"
+                    h="44px"
+                    fontSize="sm"
+                    px={4}
+                    onClick={() => setIsEditEnrollmentOpen(false)}
+                  >
+                    Cancel
+                  </ButtonV2>
+                  <ButtonV2
+                    variant="secondary"
+                    h="44px"
+                    fontSize="sm"
+                    px={5}
+                    isLoading={updateParticipantMutation.isPending}
+                    onClick={handleSaveEnrollmentAnswers}
+                  >
+                    Save an Update
+                  </ButtonV2>
+                </HStack>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
     </>
   );
 };
@@ -749,7 +948,6 @@ interface MyOpportunitiesProps {
 }
 
 const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
-  const [activeSubTab, setActiveSubTab] = useState<number>(0);
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
@@ -764,191 +962,79 @@ const MyOpportunities: React.FC<MyOpportunitiesProps> = ({ userType }) => {
     return categorizeOpportunities(opportunities);
   }, [opportunities]);
 
-  const opportunityTabs = [
-    {
-      title: "Enrolled Opportunities",
-      icon: "fa-solid fa-circle-check",
-      count: categorizedOpportunities.enrolled.length,
-    },
-    {
-      title: "Cancelled Opportunities",
-      icon: "fa-solid fa-times-circle",
-      count: categorizedOpportunities.closed.length,
-    },
-  ];
-
   return (
     <Box w="100%" overflow="hidden">
-      <Flex
-        gap={0}
-        mb={6}
-        borderBottom="2px solid #E2E8F0"
-        w="100%"
-        overflow="auto"
-      >
-        {opportunityTabs.map((tab, index) => (
-          <Button
-            key={index}
-            variant="ghost"
-            onClick={() => setActiveSubTab(index)}
-            borderRadius="0"
-            borderBottom={
-              activeSubTab === index
-                ? `3px solid ${index === 0 ? "#089C3F" : "#DC2626"}`
-                : "3px solid transparent"
-            }
-            color={index === 0 ? "#089C3F" : "#DC2626"}
-            fontWeight="600"
-            px={{ base: 4, md: 6 }}
-            py={3}
-            minW="fit-content"
-            flexShrink={0}
-          >
-            <HStack gap={2}>
-              <i
-                className={tab.icon}
-                style={{
-                  fontSize: "16px",
-                }}
-              />
-              <Text>{tab.title}</Text>
-              {tab.count !== undefined && (
-                <Box
-                  bg={index === 0 ? "#089C3F" : "#DC2626"}
-                  color="white"
-                  borderRadius="50%"
-                  width="20px"
-                  height="20px"
-                  fontSize="12px"
-                  fontWeight="600"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  {tab.count}
-                </Box>
+      {/* Loading state with skeletons */}
+      {isLoading && (
+        <VStack gap={4} align="stretch">
+          <OpportunityCardSkeleton />
+          <OpportunityCardSkeleton />
+          <OpportunityCardSkeleton />
+        </VStack>
+      )}
+
+      {/* Error state */}
+      {error && (
+        <Box p={8} borderRadius="12px" bg="#F8F9FA" border="1px solid #E2E8F0">
+          <Alert.Root status="error">
+            <Alert.Indicator />
+            <Alert.Title>
+              Failed to load opportunities. Please try again later.
+            </Alert.Title>
+          </Alert.Root>
+        </Box>
+      )}
+
+      {!isLoading && !error && (
+        <VStack gap={4} align="stretch">
+          {categorizedOpportunities.enrolled.length === 0 &&
+          categorizedOpportunities.closed.length === 0 ? (
+            <Box
+              p={8}
+              borderRadius="12px"
+              bg="#F8F9FA"
+              border="1px solid #E2E8F0"
+              textAlign="center"
+            >
+              <VStack gap={4}>
+                <i
+                  className="fa-solid fa-folder-closed"
+                  style={{ fontSize: "48px", color: "#9CA3AF" }}
+                />
+                <Text fontSize="18px" fontWeight="600" color="#374151">
+                  No Opportunities Yet
+                </Text>
+                <Text fontSize="14px" color="#6B7280" maxW="400px">
+                  You&apos;re not enrolled in any opportunities yet.
+                </Text>
+              </VStack>
+            </Box>
+          ) : (
+            <>
+              {categorizedOpportunities.enrolled.map(
+                (opportunity: Opportunity) => (
+                  <OpportunityCard
+                    key={opportunity.id}
+                    opportunity={opportunity}
+                    userType={userType}
+                    type="enrolled"
+                  />
+                )
               )}
-            </HStack>
-          </Button>
-        ))}
-      </Flex>
-
-      {/* Tab content */}
-      <Box>
-        {/* Loading state with skeletons */}
-        {isLoading && (
-          <VStack gap={4} align="stretch">
-            <OpportunityCardSkeleton />
-            <OpportunityCardSkeleton />
-            <OpportunityCardSkeleton />
-          </VStack>
-        )}
-
-        {/* Error state */}
-        {error && (
-          <Box
-            p={8}
-            borderRadius="12px"
-            bg="#F8F9FA"
-            border="1px solid #E2E8F0"
-          >
-            <Alert.Root status="error">
-              <Alert.Indicator />
-              <Alert.Title>
-                Failed to load opportunities. Please try again later.
-              </Alert.Title>
-            </Alert.Root>
-          </Box>
-        )}
-
-        {/* Enrolled Opportunities */}
-        {!isLoading && !error && activeSubTab === 0 && (
-          <Box>
-            {categorizedOpportunities.enrolled.length > 0 ? (
-              <VStack gap={4} align="stretch">
-                {categorizedOpportunities.enrolled.map(
-                  (opportunity: Opportunity) => (
-                    <OpportunityCard
-                      key={opportunity.id}
-                      opportunity={opportunity}
-                      userType={userType}
-                      type="enrolled"
-                    />
-                  )
-                )}
-              </VStack>
-            ) : (
-              <Box
-                p={8}
-                borderRadius="12px"
-                bg="#F8F9FA"
-                border="1px solid #E2E8F0"
-                textAlign="center"
-              >
-                <VStack gap={4}>
-                  <i
-                    className="fa-solid fa-folder-closed"
-                    style={{
-                      fontSize: "48px",
-                      color: "#9CA3AF",
-                    }}
+              {categorizedOpportunities.closed.map(
+                (opportunity: Opportunity) => (
+                  <OpportunityCard
+                    key={opportunity.id}
+                    opportunity={opportunity}
+                    userType={userType}
+                    type="closed"
                   />
-                  <Text fontSize="18px" fontWeight="600" color="#374151">
-                    Enrolled Opportunities
-                  </Text>
-                  <Text fontSize="14px" color="#6B7280" maxW="400px">
-                    You&apos;re not enrolled in any opportunities yet.
-                  </Text>
-                </VStack>
-              </Box>
-            )}
-          </Box>
-        )}
-
-        {/* Cancelled Opportunities */}
-        {!isLoading && !error && activeSubTab === 1 && (
-          <Box>
-            {categorizedOpportunities.closed.length > 0 ? (
-              <VStack gap={4} align="stretch">
-                {categorizedOpportunities.closed.map(
-                  (opportunity: Opportunity) => (
-                    <OpportunityCard
-                      key={opportunity.id}
-                      opportunity={opportunity}
-                      userType={userType}
-                      type="closed"
-                    />
-                  )
-                )}
-              </VStack>
-            ) : (
-              <Box
-                p={8}
-                borderRadius="12px"
-                bg="#F8F9FA"
-                border="1px solid #E2E8F0"
-                textAlign="center"
-              >
-                <VStack gap={4}>
-                  <i
-                    className="fa-solid fa-archive"
-                    style={{
-                      fontSize: "48px",
-                      color: "#9CA3AF",
-                    }}
-                  />
-                  <Text fontSize="18px" fontWeight="600" color="#374151">
-                    Cancelled Opportunities
-                  </Text>
-                  <Text fontSize="14px" color="#6B7280" maxW="400px">
-                    No cancelled opportunities.
-                  </Text>
-                </VStack>
-              </Box>
-            )}
-          </Box>
-        )}
-      </Box>
+                )
+              )}
+            </>
+          )}
+        </VStack>
+      )}
     </Box>
   );
 };

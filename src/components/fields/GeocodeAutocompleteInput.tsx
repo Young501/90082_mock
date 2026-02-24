@@ -39,10 +39,14 @@ export const GeocodeAutocompleteInput = memo(
     control,
     icon,
   }: GeocodeAutocompleteInputProps) => {
-    const [inputValue, setInputValue] = useState(value || "");
+    const normalizeToString = (v: unknown): string =>
+      typeof v === "string" ? v : (v as any)?.formatted_address != null ? String((v as any).formatted_address) : "";
+
+    const [inputValue, setInputValue] = useState(() => normalizeToString(value));
     const [isOpen, setIsOpen] = useState(false);
     const [results, setResults] = useState<GeocodeResult[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const userHasInteractedRef = useRef(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const isLoadingRef = useRef(false);
@@ -67,12 +71,16 @@ export const GeocodeAutocompleteInput = memo(
     }, [geocodeMutation.mutateAsync]);
 
     useEffect(() => {
+      if (!userHasInteractedRef.current) return;
+
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
 
-      if (debouncedInputValue && debouncedInputValue.trim().length >= 2) {
-        const trimmedAddress = debouncedInputValue.trim();
+      const searchValue = normalizeToString(debouncedInputValue);
+
+      if (searchValue && searchValue.trim().length >= 2) {
+        const trimmedAddress = searchValue.trim();
         if (!trimmedAddress || trimmedAddress.length < 2) {
           setResults([]);
           setIsLoading(false);
@@ -136,6 +144,7 @@ export const GeocodeAutocompleteInput = memo(
 
     const handleInputChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
+        userHasInteractedRef.current = true;
         const newValue = e.target.value;
         setInputValue(newValue);
         onChange(newValue);
@@ -177,9 +186,10 @@ export const GeocodeAutocompleteInput = memo(
     );
 
     useEffect(() => {
-      setInputValue(value || "");
+      const str = normalizeToString(value);
+      setInputValue(str);
       if (controller && controller.field.value !== value) {
-        controller.field.onChange(value || "");
+        controller.field.onChange(str);
       }
     }, [value, controller]);
 
@@ -227,7 +237,7 @@ export const GeocodeAutocompleteInput = memo(
               {...(controller ? controller.field : {})}
               value={
                 controller
-                  ? (controller.field.value ?? "")
+                  ? normalizeToString(controller.field.value)
                   : (inputValue ?? "")
               }
               onChange={handleInputChange}

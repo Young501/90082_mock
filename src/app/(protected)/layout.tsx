@@ -10,15 +10,25 @@ import { usePathname, useSearchParams } from "next/navigation";
 import Sidebar from "@/components/Layouts/Sidebar";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuthStore } from "@/store/authStore";
-import { useAccessibleOpportunities } from "@/services/shared";
+import { useAccessibleOpportunities, useUserMeV2 } from "@/services/shared";
+import type { UserDetailsV2 } from "@/types/user";
 
 function LayoutContent({ children }: { children: ReactNode }) {
   const userType = useAuthStore((s) => s.getUserType()) ?? "";
   const setAccessibleOpportunities = useAuthStore(
     (s) => s.setAccessibleOpportunities
   );
+  const setUserDetailsV2 = useAuthStore((s) => s.setUserDetailsV2);
+
+  const { data: userDetailsV2Data } = useUserMeV2();
   useProfile(userType === "coordinator" ? "" : userType);
   const { data: accessibleOpportunities } = useAccessibleOpportunities();
+
+  useEffect(() => {
+    if (userDetailsV2Data) {
+      setUserDetailsV2(userDetailsV2Data as UserDetailsV2);
+    }
+  }, [userDetailsV2Data, setUserDetailsV2]);
 
   useEffect(() => {
     if (accessibleOpportunities) {

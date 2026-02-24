@@ -8,6 +8,7 @@ export interface OnboardingData {
   onboarding_pages: {
     user?: OnboardingPage[];
     organisation?: OnboardingPage[];
+    student_onboarding?: OnboardingPage[];
   };
 }
 

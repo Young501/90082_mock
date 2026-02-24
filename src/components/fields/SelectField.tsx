@@ -1,5 +1,4 @@
 import {
-  Portal,
   Select,
   createListCollection,
   Field,
@@ -43,8 +42,14 @@ export const SelectField = ({
   const optionItems = useMemo(
     () =>
       options.map((option) => {
-        const label = typeof option === "string" ? option : option.label;
-        const value = typeof option === "string" ? option : option.value;
+        const label =
+          typeof option === "string"
+            ? option
+            : String(option.label ?? option.value ?? "");
+        const value =
+          typeof option === "string"
+            ? option
+            : String(option.value ?? option.label ?? "");
         const key =
           typeof option === "object" && "key" in option
             ? option.key
@@ -72,6 +77,37 @@ export const SelectField = ({
   const defaultPlaceholder = multiple
     ? "Select option(s)"
     : "-- Select an option --";
+
+  const toDisplayString = (val: unknown): string => {
+    if (val == null || val === "") return "";
+    if (typeof val === "string") return val;
+    if (
+      typeof val === "object" &&
+      "label" in val &&
+      typeof (val as any).label === "string"
+    )
+      return (val as any).label;
+    if (
+      typeof val === "object" &&
+      "code" in val &&
+      typeof (val as any).code === "string"
+    )
+      return (val as any).code;
+    return String(val);
+  };
+
+  const toOptionValue = (val: unknown): string => {
+    if (val == null || val === "") return "";
+    if (typeof val === "string") return val;
+    if (
+      typeof val === "object" &&
+      "code" in val &&
+      typeof (val as any).code === "string"
+    )
+      return (val as any).code;
+    if (typeof val === "object" && "id" in val) return String((val as any).id);
+    return String(val);
+  };
 
   const handleValueChange = (details: any, field: any) => {
     if (multiple && maxSelection) {
@@ -114,13 +150,22 @@ export const SelectField = ({
             multiple={multiple}
             collection={collection}
             value={
-              multiple ? field.value || [] : field.value ? [field.value] : [""]
+              multiple
+                ? (Array.isArray(field.value)
+                    ? field.value
+                    : field.value
+                      ? [field.value]
+                      : []
+                  ).map((v: unknown) => toOptionValue(v))
+                : field.value
+                  ? [toOptionValue(field.value)]
+                  : [""]
             }
             onValueChange={(details) => handleValueChange(details, field)}
             onBlur={field.onBlur}
             width="100%"
             size="md"
-            // h="48px"
+            positioning={{ strategy: "fixed" }}
           >
             <Select.HiddenSelect />
             <Select.Control>
@@ -134,19 +179,26 @@ export const SelectField = ({
                 <Select.ValueText>
                   {field.value
                     ? multiple
-                      ? field.value
-                          .map((val: string) => {
+                      ? (Array.isArray(field.value)
+                          ? field.value
+                          : [field.value]
+                        )
+                          .map((val: unknown) => {
+                            const code = toOptionValue(val);
                             const option = optionItems.find(
-                              (opt) => opt.value === val
+                              (opt) => opt.value === code
                             );
-                            return option ? option.label : val;
+                            return option ? option.label : toDisplayString(val);
                           })
                           .join(", ")
                       : (() => {
+                          const code = toOptionValue(field.value);
                           const option = optionItems.find(
-                            (opt) => opt.value === field.value
+                            (opt) => opt.value === code
                           );
-                          return option ? option.label : field.value;
+                          return option
+                            ? option.label
+                            : toDisplayString(field.value);
                         })()
                     : placeholder || defaultPlaceholder}
                 </Select.ValueText>
@@ -155,42 +207,43 @@ export const SelectField = ({
                 <Select.Indicator />
               </Select.IndicatorGroup>
             </Select.Control>
-            <Portal>
-              <Select.Positioner>
-                <Select.Content>
-                  <VStack px={2} py={2} gap={2} align="stretch">
-                    <Input
-                      autoFocus
-                      placeholder="Type to filter..."
-                      value={filter}
-                      onChange={(e) => setFilter(e.target.value)}
-                      size="sm"
-                      borderRadius="md"
-                      bg="gray.50"
-                      onKeyDown={(e) => {
-                        if (e.key === " ") {
-                          e.stopPropagation();
-                        }
+            <Select.Positioner>
+              <Select.Content>
+                <VStack px={2} py={2} gap={2} align="stretch">
+                  <Input
+                    autoFocus
+                    placeholder="Type to filter..."
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value)}
+                    size="sm"
+                    borderRadius="md"
+                    bg="gray.50"
+                    onKeyDown={(e) => {
+                      if (e.key === " ") {
+                        e.stopPropagation();
+                      }
+                    }}
+                  />
+                  {filteredItems.length === 0 && (
+                    <span style={{ color: "#888", padding: "8px" }}>
+                      No options
+                    </span>
+                  )}
+                  {filteredItems.map((opt) => (
+                    <Select.Item
+                      item={{
+                        label: String(opt.label),
+                        value: String(opt.value),
                       }}
-                    />
-                    {filteredItems.length === 0 && (
-                      <span style={{ color: "#888", padding: "8px" }}>
-                        No options
-                      </span>
-                    )}
-                    {filteredItems.map((opt) => (
-                      <Select.Item
-                        item={{ label: opt.label, value: opt.value }}
-                        key={String(opt.key ?? opt.value)}
-                      >
-                        {opt.label}
-                        <Select.ItemIndicator />
-                      </Select.Item>
-                    ))}
-                  </VStack>
-                </Select.Content>
-              </Select.Positioner>
-            </Portal>
+                      key={String(opt.key ?? opt.value)}
+                    >
+                      {String(opt.label)}
+                      <Select.ItemIndicator />
+                    </Select.Item>
+                  ))}
+                </VStack>
+              </Select.Content>
+            </Select.Positioner>
           </Select.Root>
         )}
       />

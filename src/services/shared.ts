@@ -34,6 +34,7 @@ export function useProfilePictureUpload() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-profile"] });
       queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["user-me-v2"] });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
@@ -50,6 +51,7 @@ export function useProfilePictureDelete() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-profile"] });
       queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["user-me-v2"] });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
@@ -68,6 +70,7 @@ export function useResumeUpload() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-profile", "student"] });
+      queryClient.invalidateQueries({ queryKey: ["student-profile-v2"] });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
@@ -211,11 +214,11 @@ export function useStudentProfileV2(enabled: boolean = true) {
   });
 }
 
-export function useUserMeV2() {
+export function useUserMeV2(enabled: boolean = true) {
   return useQuery({
     queryKey: ["user-me-v2"],
     queryFn: () => apiRequest({ endpoint: API_ENDPOINTS.USER_ME_V2 }),
-    enabled: true,
+    enabled,
     staleTime: 5 * 60 * 1000,
   });
 }
