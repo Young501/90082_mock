@@ -39,8 +39,6 @@ export function useUpdateOpportunityParticipant() {
       const { opportunityId, questionnaireAnswers, accepted } = variables;
 
       if (questionnaireAnswers !== undefined) {
-        // Edit enrollment answers: update participant cache so both MyOpportunities
-        // and OpportunityDescriptionCard get fresh data when reopening the dialog
         queryClient.setQueryData(
           ["opportunity-participant", opportunityId],
           response
@@ -48,7 +46,6 @@ export function useUpdateOpportunityParticipant() {
       }
 
       if (accepted === false) {
-        // Unenroll: clear participant cache and refresh opportunity lists
         queryClient.removeQueries({
           queryKey: ["opportunity-participant", opportunityId],
         });
