@@ -197,7 +197,7 @@ export const createPageSchema = (
             }
           );
       } else if (question.type === "display") {
-        fieldSchema = yup.string().optional();
+        fieldSchema = yup.mixed().transform(() => undefined).optional();
       } else if (question.type === "card-select") {
         const maxSelections = question.max_selection;
         if (maxSelections === 1) {
