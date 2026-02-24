@@ -262,6 +262,8 @@ export function ProfileEditDialog({
     const studentFields: Record<string, any> = {};
 
     for (const q of page.questions) {
+      if (q.type === "display") continue;
+
       const model = q.model ?? "student_profile";
       const value = data[q.field];
       if (value === undefined) continue;
@@ -272,8 +274,7 @@ export function ProfileEditDialog({
       payload[q.field] = value;
     }
 
-    // Strip dedicated-endpoint fields from both payloads before PATCH calls
-    DEDICATED_ENDPOINT_FIELDS.forEach((f) => {
+    [...DEDICATED_ENDPOINT_FIELDS].forEach((f) => {
       delete userFields[f];
       delete studentFields[f];
     });
@@ -445,10 +446,16 @@ export function ProfileEditDialog({
                       color="white"
                       type="submit"
                       isLoading={
-                        studentProfileUpdate.isPending || userUpdate.isPending
+                        profilePictureUpload.isPending ||
+                        resumeUpload.isPending ||
+                        studentProfileUpdate.isPending ||
+                        userUpdate.isPending
                       }
                       disabled={
-                        studentProfileUpdate.isPending || userUpdate.isPending
+                        profilePictureUpload.isPending ||
+                        resumeUpload.isPending ||
+                        studentProfileUpdate.isPending ||
+                        userUpdate.isPending
                       }
                       h="44px"
                       maxW={{ base: "55%", sm: "175px" }}
