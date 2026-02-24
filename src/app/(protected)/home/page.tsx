@@ -1,12 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  Box,
-  Container,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Container, Text, VStack } from "@chakra-ui/react";
 import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
@@ -14,11 +9,8 @@ import { useHomepage } from "@/hooks/useHomepage";
 import { HomepageDashboard } from "@/app/(protected)/dashboard/components/HomepageDashboard";
 
 const HomePage = () => {
-  const {
-    homepageStats,
-    isLoading,
-    error,
-  } = useHomepage();
+  const { homepageStats, isLoading, error } = useHomepage();
+
 
   if (isLoading) {
     return (
@@ -54,9 +46,7 @@ const HomePage = () => {
           <Text fontSize="lg" fontWeight="bold" color="#000000" mb={2}>
             Error loading home
           </Text>
-          <Text color="#000000">
-            Failed to load. Please try again later.
-          </Text>
+          <Text color="#000000">Failed to load. Please try again later.</Text>
         </Box>
       </Container>
     );

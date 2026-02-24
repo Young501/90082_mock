@@ -1,4 +1,4 @@
-import { Box, VStack, Heading, Text, HStack } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, HStack, BoxProps } from "@chakra-ui/react";
 import { useForm, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -24,6 +24,7 @@ export interface QuestionnaireFormProps {
   sections: QuestionnaireSection[];
   onAnswersChange: (answers: Record<string, any>) => void;
   initialValues?: Record<string, any>;
+  props?: BoxProps;
 }
 
 export interface QuestionnaireFormRef {
@@ -34,7 +35,7 @@ export interface QuestionnaireFormRef {
 export const QuestionnaireForm = forwardRef<
   QuestionnaireFormRef,
   QuestionnaireFormProps
->(({ sections, onAnswersChange, initialValues = {} }, ref) => {
+>(({ sections, onAnswersChange, initialValues = {}, props }, ref) => {
   const allQuestions = useMemo(
     () => sections.flatMap((section) => section.questions),
     [sections]
@@ -149,6 +150,7 @@ export const QuestionnaireForm = forwardRef<
       borderRadius="3xl"
       p={{ base: 4, md: 8 }}
       bg="white"
+      {...props}
     >
       <VStack gap={4} align="stretch">
         {sections.map((section) => (

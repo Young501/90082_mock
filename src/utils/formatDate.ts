@@ -7,6 +7,15 @@ export const formatDate = (dateString: string) => {
   });
 };
 
+export const formatShortDate = (dateString: string) => {
+  if (!dateString) return "—";
+  return new Date(dateString).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
 export const formatDateTimeToReadable = (iso: string) => {
   if (!iso) return "No date available";
 
