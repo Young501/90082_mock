@@ -297,14 +297,20 @@ export function ProfileEditDialog({
       }
 
       if (Object.keys(studentFields).length > 0) {
-        const cleanedStudent = Object.fromEntries(
-          Object.entries(studentFields).filter(
-            ([_, v]) => v !== null && v !== undefined && v !== ""
-          )
-        );
-        if (Object.keys(cleanedStudent).length > 0) {
-          await studentProfileUpdate.mutateAsync(cleanedStudent);
+        // Empty values are bundled in payload for student profile update.
+        const allStudentFields: Record<string, any> = { ...studentFields };
+        for (const q of page.questions) {
+          if (q.type === "display") continue;
+          const model = q.model ?? "student_profile";
+          if (model !== "student_profile") continue;
+          if (DEDICATED_ENDPOINT_FIELDS.includes(q.field)) continue;
+          if (q.field in allStudentFields) continue;
+          allStudentFields[q.field] =
+            q.type === "taxonomy-multiselect" || q.type === "multi-select"
+              ? []
+              : "";
         }
+        await studentProfileUpdate.mutateAsync(allStudentFields);
       }
 
       // Handle dedicated-endpoint uploads after PATCH calls succeed
