@@ -372,6 +372,7 @@ function MessageAttachments({
               whiteSpace="nowrap"
               w="100%"
               minW={0}
+              textAlign="center"
             >
               {att.original_filename}
             </Text>
@@ -383,6 +384,7 @@ function MessageAttachments({
               whiteSpace="nowrap"
               w="100%"
               minW={0}
+              textAlign="center"
             >
               {att.file_size}
             </Text>

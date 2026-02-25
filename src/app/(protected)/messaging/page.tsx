@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Box, Flex, Spinner, Text, useBreakpointValue } from "@chakra-ui/react";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
@@ -22,7 +23,16 @@ import {
 import { useAuthStore } from "@/store";
 
 const Inbox = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const isSinglePane = useBreakpointValue({ base: true, md: true, lg: false });
+
+  const deepLinkConversationId = useMemo(() => {
+    const id = searchParams.get("conversation") ?? searchParams.get("id");
+    if (!id) return null;
+    const num = Number(id);
+    return num;
+  }, [searchParams]);
 
   const [selectedConversationId, setSelectedConversationId] =
     useState<ConversationId | null>(null);
@@ -158,8 +168,13 @@ const Inbox = () => {
       filteredConversations.length > 0 &&
       selectedConversationId == null
     ) {
-      const firstId = filteredConversations[0].id;
-      setSelectedConversationId(firstId);
+      const deepLinkExists =
+        deepLinkConversationId != null &&
+        filteredConversations.some((c) => c.id === deepLinkConversationId);
+      const idToSelect = deepLinkExists
+        ? deepLinkConversationId!
+        : filteredConversations[0].id;
+      setSelectedConversationId(idToSelect);
       if (isSinglePane) setIsShowingThreadOnSinglePane(true);
     }
   }, [
@@ -167,11 +182,20 @@ const Inbox = () => {
     filteredConversations,
     selectedConversationId,
     isSinglePane,
+    deepLinkConversationId,
   ]);
 
   const handleSelectConversation = (conversationId: ConversationId) => {
     setSelectedConversationId(conversationId);
     if (isSinglePane) setIsShowingThreadOnSinglePane(true);
+    router.replace(`/messaging/?conversation=${conversationId}`, {
+      scroll: false,
+    });
+  };
+
+  const handleBackToList = () => {
+    setIsShowingThreadOnSinglePane(false);
+    router.replace("/messaging/", { scroll: false });
   };
 
   const handleToggleArchive = (conversationId: ConversationId) => {
@@ -238,7 +262,7 @@ const Inbox = () => {
               composerText={composerText}
               onComposerTextChange={setComposerText}
               onSendMessage={handleSendMessage}
-              onBackToList={() => setIsShowingThreadOnSinglePane(false)}
+              onBackToList={handleBackToList}
               onToggleArchive={handleToggleArchive}
               messagesLoading={messagesLoading && !messagesCursor}
               profileType={profileType}
@@ -291,7 +315,7 @@ const Inbox = () => {
             composerText={composerText}
             onComposerTextChange={setComposerText}
             onSendMessage={handleSendMessage}
-            onBackToList={() => setIsShowingThreadOnSinglePane(false)}
+            onBackToList={handleBackToList}
             onToggleArchive={handleToggleArchive}
             messagesLoading={messagesLoading && !messagesCursor}
             profileType={profileType}
