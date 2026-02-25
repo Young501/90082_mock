@@ -381,6 +381,10 @@ export const API_ENDPOINTS = {
     method: "PATCH",
     url: `/api/v1/messaging/conversations/${conversationId}/state/`,
   }),
+  MARK_CONVERSATION_READ: (conversationId: number): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v1/messaging/conversations/${conversationId}/read/`,
+  }),
 };
 
 /*********

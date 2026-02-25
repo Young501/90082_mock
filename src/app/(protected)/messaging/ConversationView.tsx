@@ -15,6 +15,7 @@ import {
 } from "@/types/messaging";
 import { useAuthStore } from "@/store";
 import { Loader, Send } from "lucide-react";
+import { profile } from "console";
 
 interface ConversationViewProps {
   isSinglePane: boolean | undefined;

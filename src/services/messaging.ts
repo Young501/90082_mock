@@ -149,6 +149,27 @@ export function updateConversationArchiveState(
   });
 }
 
+export function markConversationAsRead(
+  conversationId: number
+): Promise<ConversationResponse> {
+  return apiRequest({
+    endpoint: API_ENDPOINTS.MARK_CONVERSATION_READ(conversationId),
+  });
+}
+
+export function useMarkConversationAsRead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (conversationId: number) =>
+      markConversationAsRead(conversationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CONVERSATIONS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
+    },
+  });
+}
+
 export function useToggleConversationArchive() {
   const queryClient = useQueryClient();
 

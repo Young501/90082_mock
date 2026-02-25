@@ -9,6 +9,7 @@ import { ConversationView } from "./ConversationView";
 import {
   useConversationsList,
   useConversationMessages,
+  useMarkConversationAsRead,
   useSendMessage,
   useToggleConversationArchive,
 } from "@/services/messaging";
@@ -105,6 +106,15 @@ const Inbox = () => {
 
   const sendMessageMutation = useSendMessage();
   const toggleArchiveMutation = useToggleConversationArchive();
+  const markReadMutation = useMarkConversationAsRead();
+  const markReadMutateRef = React.useRef(markReadMutation.mutate);
+  markReadMutateRef.current = markReadMutation.mutate;
+
+  useEffect(() => {
+    if (selectedConversationId != null) {
+      markReadMutateRef.current(selectedConversationId);
+    }
+  }, [selectedConversationId]);
 
   const filteredConversations = useMemo(() => {
     if (!searchTerm.trim()) return conversations;
