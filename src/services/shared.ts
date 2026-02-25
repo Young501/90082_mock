@@ -476,6 +476,12 @@ export function useOpportunityParticipant(
     enabled:
       enabled !== undefined ? enabled && !!opportunityId : !!opportunityId,
     staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
   });
 }
 
