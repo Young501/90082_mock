@@ -92,7 +92,6 @@ const Profile = () => {
     university,
   } = useProfile(isCoordinator ? "" : userType);
 
-  console.log("fetchedUserProfile", fetchedUserProfile);
 
   const { data: onboardingData, isLoading: isOnboardingLoading } =
     useOnboardingPages(userType);

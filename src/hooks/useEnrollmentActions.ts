@@ -1,0 +1,127 @@
+"use client";
+
+import { useState, useMemo, useCallback, useRef } from "react";
+import { toast } from "react-toastify";
+import { QuestionnaireFormRef } from "@/components/questionnaire/QuestionnaireForm";
+import { getErrorMessage } from "@/utils/apiErrorHandling";
+import { getQuestionnaireSections } from "@/utils/opportunityQuestionnaire";
+import { useResolveTaxonomyLabelsToCodes } from "@/hooks/useResolveTaxonomyLabelsToCodes";
+import { useOpportunityParticipant } from "@/services/shared";
+import { useUpdateOpportunityParticipant } from "@/services/updateParticipant";
+
+export interface UseEnrollmentActionsParams {
+  opportunityId: number;
+  questionnaire?: unknown;
+  userType?: string;
+  isEnrolled: boolean;
+  onUnenrollSuccess?: () => void;
+}
+
+export function useEnrollmentActions({
+  opportunityId,
+  questionnaire,
+  userType,
+  isEnrolled,
+  onUnenrollSuccess,
+}: UseEnrollmentActionsParams) {
+  const [isEditEnrollmentOpen, setIsEditEnrollmentOpen] = useState(false);
+  const [isUnenrollDialogOpen, setIsUnenrollDialogOpen] = useState(false);
+  const [editAnswers, setEditAnswers] = useState<Record<string, any>>({});
+  const editFormRef = useRef<QuestionnaireFormRef>(null);
+
+  const {
+    data: participantRecord,
+    isLoading: isParticipantLoading,
+    error: participantError,
+  } = useOpportunityParticipant(opportunityId, isEnrolled);
+  const updateParticipantMutation = useUpdateOpportunityParticipant();
+  const { resolve: resolveTaxonomyLabelsToCodes, isResolving: isResolvingEditAnswers } =
+    useResolveTaxonomyLabelsToCodes();
+
+  const questionnaireSections = useMemo(
+    () => getQuestionnaireSections(questionnaire, userType),
+    [questionnaire, userType]
+  );
+  const hasQuestionnaire = questionnaireSections.length > 0;
+
+  const handleAnswersChange = useCallback((values: Record<string, any>) => {
+    setEditAnswers(values);
+  }, []);
+
+  const handleOpenEditEnrollment = useCallback(async () => {
+    const rawAnswers = participantRecord?.data?.questionnaire_answers ?? {};
+    try {
+      const resolved = await resolveTaxonomyLabelsToCodes(
+        questionnaireSections,
+        rawAnswers,
+        null
+      );
+      setEditAnswers(resolved);
+    } catch {
+      setEditAnswers(rawAnswers);
+    }
+    setIsEditEnrollmentOpen(true);
+  }, [
+    participantRecord?.data?.questionnaire_answers,
+    questionnaireSections,
+    resolveTaxonomyLabelsToCodes,
+  ]);
+
+  const handleSaveEnrollmentAnswers = useCallback(async () => {
+    if (!editFormRef.current) return;
+    const isValid = await editFormRef.current.validate();
+    if (!isValid) return;
+
+    const data = editFormRef.current.getValues();
+    try {
+      await updateParticipantMutation.mutateAsync({
+        opportunityId,
+        questionnaireAnswers: data,
+      });
+      toast.success("Enrollment answers saved!");
+      setIsEditEnrollmentOpen(false);
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Failed to save answers"));
+    }
+  }, [opportunityId, updateParticipantMutation]);
+
+  const handleUnenrollClick = useCallback(
+    () => setIsUnenrollDialogOpen(true),
+    []
+  );
+
+  const confirmUnenroll = useCallback(async () => {
+    try {
+      await updateParticipantMutation.mutateAsync({
+        opportunityId,
+        accepted: false,
+      });
+      toast.success("Successfully unenrolled from opportunity!");
+      setIsUnenrollDialogOpen(false);
+      onUnenrollSuccess?.();
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Failed to unenroll"));
+    }
+  }, [opportunityId, updateParticipantMutation, onUnenrollSuccess]);
+
+  return {
+    participantRecord,
+    isParticipantLoading,
+    participantError,
+    isEditEnrollmentOpen,
+    setIsEditEnrollmentOpen,
+    isUnenrollDialogOpen,
+    setIsUnenrollDialogOpen,
+    editAnswers,
+    handleAnswersChange,
+    editFormRef,
+    questionnaireSections,
+    hasQuestionnaire,
+    isResolvingEditAnswers,
+    updateParticipantMutation,
+    handleOpenEditEnrollment,
+    handleSaveEnrollmentAnswers,
+    handleUnenrollClick,
+    confirmUnenroll,
+  };
+}

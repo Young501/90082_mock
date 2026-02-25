@@ -44,6 +44,72 @@ export function formatValidationErrors(errorData: unknown): string {
   return "Please check your answers and try again.";
 }
 
+export function getErrorMessage(error: unknown, defaultMessage: string): string {
+  if (!error || typeof error !== "object") {
+    return defaultMessage;
+  }
+
+  const e = error as {
+    message?: string;
+    response?: { data?: Record<string, unknown> };
+  };
+
+  if (!e?.response?.data) {
+    return e?.message || defaultMessage;
+  }
+
+  const data = e.response.data as Record<string, unknown>;
+
+  if (data.non_field_errors && Array.isArray(data.non_field_errors)) {
+    return String(data.non_field_errors[0]);
+  }
+
+  if (data.error) {
+    return String(data.error);
+  }
+
+  if (data.detail) {
+    return Array.isArray(data.detail) ? String(data.detail[0]) : String(data.detail);
+  }
+
+  if (data.message) {
+    return String(data.message);
+  }
+
+  if (data.password && Array.isArray(data.password)) {
+    return String(data.password[0]);
+  }
+
+  if (data.email && Array.isArray(data.email)) {
+    return String(data.email[0]);
+  }
+
+  if (typeof data === "object") {
+    const firstKey = Object.keys(data)[0];
+    if (firstKey && data[firstKey]) {
+      const value = data[firstKey];
+      return Array.isArray(value) ? String(value[0]) : String(value);
+    }
+  }
+
+  return defaultMessage;
+}
+
+/**
+ * Extract a success message from API response.
+ */
+export function getSuccessMessage(
+  response: { message?: string; data?: { detail?: string }; detail?: string },
+  defaultMessage: string
+): string {
+  return (
+    response?.message ||
+    response?.data?.detail ||
+    response?.detail ||
+    defaultMessage
+  );
+}
+
 // Handle enrollment-specific errors
 export function getEnrollmentErrorMessage(error: unknown): string {
   const status = getErrorStatus(error);
