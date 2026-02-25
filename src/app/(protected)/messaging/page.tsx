@@ -152,6 +152,23 @@ const Inbox = () => {
     }
   }, [filteredConversations, selectedConversationId]);
 
+  useEffect(() => {
+    if (
+      !conversationsLoading &&
+      filteredConversations.length > 0 &&
+      selectedConversationId == null
+    ) {
+      const firstId = filteredConversations[0].id;
+      setSelectedConversationId(firstId);
+      if (isSinglePane) setIsShowingThreadOnSinglePane(true);
+    }
+  }, [
+    conversationsLoading,
+    filteredConversations,
+    selectedConversationId,
+    isSinglePane,
+  ]);
+
   const handleSelectConversation = (conversationId: ConversationId) => {
     setSelectedConversationId(conversationId);
     if (isSinglePane) setIsShowingThreadOnSinglePane(true);
