@@ -67,8 +67,6 @@ export const ConversationView = ({
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   );
 
-  console.log("selectedconversation", conversation);
-
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -314,7 +312,7 @@ export const ConversationView = ({
             fontSize="sm"
             px={{ base: 2.5, md: 4 }}
             iconPosition="end"
-            icon={isSending ? <Loader size="sm" /> : <Send size={18} />}
+            icon={<Send size={18} />}
             isLoading={isSending}
             profileType={profileType}
           >
