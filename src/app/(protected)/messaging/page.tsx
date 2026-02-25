@@ -119,7 +119,7 @@ const Inbox = () => {
     );
   }, [conversations, searchTerm]);
 
-  console.log("filteredConversations", filteredConversations);
+  // console.log("filteredConversations", filteredConversations);
 
   const selectedConversation = useMemo(
     () =>
@@ -198,6 +198,8 @@ const Inbox = () => {
       );
     }
 
+    console.log("allMessages", allMessages);
+
     if (isSinglePane) {
       return (
         <Box w="100%" h="100%">
@@ -216,6 +218,7 @@ const Inbox = () => {
               hasMoreMessages={hasMoreMessages}
               onLoadMoreMessages={handleLoadMoreMessages}
               isLoadingMoreMessages={isLoadingMoreMessages}
+              isSending={sendMessageMutation.isPending}
             />
           ) : (
             <Box p={4} h="100%">
@@ -268,6 +271,7 @@ const Inbox = () => {
             hasMoreMessages={hasMoreMessages}
             onLoadMoreMessages={handleLoadMoreMessages}
             isLoadingMoreMessages={isLoadingMoreMessages}
+            isSending={sendMessageMutation.isPending}
           />
         </Box>
       </Flex>

@@ -52,6 +52,9 @@ export interface MessageListItemApi {
   created_at: string;
   is_soft_deleted: boolean;
   reply_to_preview?: ReplyToPreviewApi | null;
+  attachments?: MessageAttachment[];
+  is_edited: boolean;
+  edited_at: string | null;
 }
 
 export type MessageListResponseApi = PaginatedResponse<MessageListItemApi>;
@@ -86,12 +89,19 @@ export interface ConversationSummary {
   isArchived: boolean;
   opportunityId?: number | null;
   avatar?: string | null;
+  organisationLogo?: string | null;
+  organisationMemberName?: string | null;
+  opportunityTitle?: string | null;
 }
 
 export interface MessageAttachment {
   id: string;
-  name: string;
-  type: string;
+  original_filename: string;
+  type: string
+  file_url: string;
+  file_size: number;
+  content_type: string;
+  created_at: string;
 }
 
 export interface ReplyToPreview {
@@ -150,6 +160,9 @@ export function conversationListItemToSummary(
     isArchived: item.is_archived,
     opportunityId: item.opportunity_id,
     avatar: item.other_user.profile_picture_url ?? null,
+    organisationLogo: item.other_user.organisation_logo_url ?? null,
+    organisationMemberName: item.other_user.full_name ?? null,
+    opportunityTitle: item.opportunity_title ?? null,
   };
 }
 
@@ -166,6 +179,15 @@ export function messageListItemToMessage(
     text: item.is_soft_deleted ? undefined : item.content,
     createdAt: item.created_at,
     messanger: item.sender,
+    attachments: item.attachments?.map((att) => ({
+      id: att.id,
+      original_filename: att.original_filename,
+      type: att.type,
+      file_url: att.file_url,
+      file_size: att.file_size,
+      content_type: att.content_type,
+      created_at: att.created_at,
+    })),
     replyToPreview: item.reply_to_preview
       ? {
           id: item.reply_to_preview.id,

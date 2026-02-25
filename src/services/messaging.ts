@@ -111,21 +111,18 @@ export function useSendMessage() {
       files?: File[];
       replyToId?: number;
     }) => {
-      // If sending files (optionally with text), send multipart/form-data
       if (data.files?.length) {
         const formData = new FormData();
         formData.append("content", data.content || "");
         if (data.replyToId != null) {
           formData.append("reply_to_id", String(data.replyToId));
         }
-        // Append each file with "files" key - API expects multipart with same key for array
         data.files.forEach((file) => formData.append("files", file));
         return apiRequest({
           endpoint: API_ENDPOINTS.SEND_MESSAGE(data.conversationId),
           body: formData,
         });
       }
-      // If no files, send regular JSON
       return apiRequest({
         endpoint: API_ENDPOINTS.SEND_MESSAGE(data.conversationId),
         body: {
