@@ -16,6 +16,7 @@ import { Message, MessageAttachment } from "@/types/messaging";
 import { formatDateTimeToReadable } from "@/utils/formatDate";
 import { File, MoreHorizontal, Paperclip, Reply } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export interface MessageBoxProps {
   message: Message;
@@ -332,64 +333,84 @@ function MessageAttachments({
   isMine: boolean;
 }) {
   return (
-    <VStack align="center" gap={1} mt={2} justify="center">
+    <VStack
+      align="center"
+      gap={1}
+      mt={2}
+      justify="center"
+      alignItems="center"
+      w="100%"
+    >
       {attachments.map((att) => (
-        <Tooltip
+        <Link
+          href={att.file_url}
+          target="_blank"
           key={att.id}
-          content={att.original_filename}
-          contentProps={{ maxW: "240px" }}
+          style={{
+            cursor: "pointer",
+            width: "100%",
+            margin: "0 auto",
+            display: "flex",
+            justifyContent: "center",
+          }}
         >
-          <VStack
-            gap={2}
-            justify="center"
-            align="center"
-            bg="#FAFAFA"
-            p={2}
-            h="162px"
-            w="100%"
-            borderRadius="md"
-            borderWidth="1px"
-            borderColor="#E4E4E7"
-            maxW={{ base: "160px", md: "198px" }}
-            minW={0}
-            cursor="default"
+          <Tooltip
+            key={att.id}
+            content={att.original_filename}
+            contentProps={{ maxW: "240px" }}
           >
-            <Image
-              src="/assets/file.png"
-              alt={att.original_filename}
-              width={53}
-              height={93}
-              style={{
-                objectFit: "cover",
-                borderRadius: "md",
-              }}
-            />
-            <Text
-              fontSize="xs"
-              color="black"
-              overflow="hidden"
-              textOverflow="ellipsis"
-              whiteSpace="nowrap"
+            <VStack
+              gap={2}
+              justify="center"
+              align="center"
+              bg="#FAFAFA"
+              p={2}
+              h="162px"
               w="100%"
+              borderRadius="md"
+              borderWidth="1px"
+              borderColor="#E4E4E7"
+              maxW={{ base: "160px", md: "198px" }}
               minW={0}
-              textAlign="center"
+              cursor="default"
             >
-              {att.original_filename}
-            </Text>
-            <Text
-              fontSize="xs"
-              color="#71717A"
-              overflow="hidden"
-              textOverflow="ellipsis"
-              whiteSpace="nowrap"
-              w="100%"
-              minW={0}
-              textAlign="center"
-            >
-              {att.file_size}
-            </Text>
-          </VStack>
-        </Tooltip>
+              <Image
+                src="/assets/file.png"
+                alt={att.original_filename}
+                width={53}
+                height={93}
+                style={{
+                  objectFit: "cover",
+                  borderRadius: "md",
+                }}
+              />
+              <Text
+                fontSize="xs"
+                color="black"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                whiteSpace="nowrap"
+                w="100%"
+                minW={0}
+                textAlign="center"
+              >
+                {att.original_filename}
+              </Text>
+              <Text
+                fontSize="xs"
+                color="#71717A"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                whiteSpace="nowrap"
+                w="100%"
+                minW={0}
+                textAlign="center"
+              >
+                {att.file_size}
+              </Text>
+            </VStack>
+          </Tooltip>
+        </Link>
       ))}
     </VStack>
   );
