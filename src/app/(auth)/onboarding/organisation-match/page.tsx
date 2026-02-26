@@ -66,9 +66,18 @@ export default function OrganisationMatchPageRoute() {
   }
 
   return (
-    <OrganisationMatchPage
-      organisation={organisation}
-      onConfirm={handleConfirm}
-    />
+    <Box
+      h="100%"
+      w="100%"
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+    >
+      <OrganisationMatchPage
+        organisation={organisation}
+        onConfirm={handleConfirm}
+      />
+    </Box>
   );
 }

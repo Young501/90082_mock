@@ -182,6 +182,14 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: "/api/v2/profiles/student/me/",
   },
+  ORGANISATION_PROFILE_V2: {
+    method: "GET",
+    url: "/api/v2/profiles/organisation/me/",
+  },
+  ORGANISATION_PROFILE_UPDATE_V2: {
+    method: "PATCH",
+    url: "/api/v2/profiles/organisation/me/",
+  },
   STUDENT_PROFILE_UPDATE_V2: {
     method: "PATCH",
     url: "/api/v2/profiles/student/me/",

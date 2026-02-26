@@ -85,7 +85,7 @@ export const checkOnboardingStatus = async ({
 
   try {
     const response = await apiRequest({
-      endpoint: API_ENDPOINTS.USER_PROFILE(userType),
+      endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_V2,
     });
     setUserProfile(response);
     if (redirectOnSuccess) {
