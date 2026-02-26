@@ -41,22 +41,21 @@ interface SidebarMenuItem {
   isStudent: boolean;
   isProtected: boolean;
   hasDropdown?: boolean;
-  badge?: number | null;
+  badge?: boolean;
 }
 
 interface SidebarProps {
   isProtected?: boolean;
-  unreadMessageCount?: number;
   isMobileMenuOpen?: boolean;
   setIsMobileMenuOpen?: (open: boolean) => void;
 }
 
 const Sidebar = ({
   isProtected = true,
-  unreadMessageCount = 0,
   isMobileMenuOpen = false,
   setIsMobileMenuOpen = () => {},
 }: SidebarProps) => {
+  const hasUnreadMessages = useAuthStore((s) => s.hasUnreadMessages);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { getUserType, accessibleOpportunities, userProfile } = useAuthStore();
@@ -128,7 +127,7 @@ const Sidebar = ({
       isOrganisation: true,
       isStudent: true,
       isProtected: true,
-      badge: unreadMessageCount,
+      badge: hasUnreadMessages,
     },
     {
       key: "support",
@@ -171,6 +170,7 @@ const Sidebar = ({
       return pathname === "/dashboard" || pathname === "/dashboard/";
     if (href === "/discover/") return pathname?.startsWith("/discover");
     if (href === "/inbox/") return pathname?.startsWith("/inbox");
+    if (href === "/messaging/") return pathname?.startsWith("/messaging");
     if (href === "/contact/") return pathname?.startsWith("/contact");
     if (href === "/profile/") return pathname?.startsWith("/profile");
     return pathname === href || pathname === href.replace(/\/$/, "");
@@ -204,17 +204,20 @@ const Sidebar = ({
         >
           {item.label}
         </Text>
-        {item.badge != null && item.badge > 0 && (
+        {item.badge && (
           <Box
-            bg={active ? "white" : "#F4F4F5"}
-            color={active ? "white" : ACTIVE_BG}
-            fontSize="xs"
-            fontWeight={600}
-            px={2}
-            py={0.5}
-            borderRadius="md"
+            bg="white"
+            borderWidth="1px"
+            borderColor={active ? "white" : "#E4E4E7"}
+            borderRadius="6px"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            w="20px"
+            h="20px"
+            flexShrink={0}
           >
-            {item.badge}
+            <Box w="6px" h="6px" borderRadius="full" bg="profile.500" />
           </Box>
         )}
       </HStack>

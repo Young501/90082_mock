@@ -1,15 +1,25 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Box, Container, Text, VStack } from "@chakra-ui/react";
 import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { useHomepage } from "@/hooks/useHomepage";
 import { HomepageDashboard } from "@/app/(protected)/dashboard/components/HomepageDashboard";
+import { useAuthStore } from "@/store/authStore";
 
 const HomePage = () => {
   const { homepageStats, isLoading, error } = useHomepage();
+  const setHasUnreadMessages = useAuthStore((s) => s.setHasUnreadMessages);
+
+  useEffect(() => {
+    if (!homepageStats?.recent_messages) return;
+    const hasUnread = homepageStats.recent_messages.some(
+      (msg) => msg.unread_count > 0 || msg.has_unread
+    );
+    setHasUnreadMessages(hasUnread);
+  }, [homepageStats?.recent_messages, setHasUnreadMessages]);
 
 
   if (isLoading) {

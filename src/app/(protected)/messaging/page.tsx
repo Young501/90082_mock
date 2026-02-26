@@ -60,6 +60,17 @@ const Inbox = () => {
     page_size: 50,
   });
 
+  const setHasUnreadMessages = useAuthStore((s) => s.setHasUnreadMessages);
+
+  useEffect(() => {
+    if (!showArchived) {
+      const hasUnread =
+        conversations.length > 0 &&
+        conversations.some((c) => c.unreadCount > 0 || c.hasUnread);
+      setHasUnreadMessages(hasUnread);
+    }
+  }, [conversations, showArchived, setHasUnreadMessages]);
+
   const [messagesCursor, setMessagesCursor] = useState<string | null>(null);
   const [allMessages, setAllMessages] = useState<Message[]>([]);
 
@@ -248,8 +259,6 @@ const Inbox = () => {
         </Flex>
       );
     }
-
-    console.log("allMessages", allMessages);
 
     if (isSinglePane) {
       return (
