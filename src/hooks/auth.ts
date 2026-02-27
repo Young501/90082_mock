@@ -89,7 +89,7 @@ export const checkOnboardingStatus = async ({
     });
     setUserProfile(response);
     if (redirectOnSuccess) {
-      router.push("/discover/");
+      router.push("/home/");
     }
   } catch (error: any) {
     if (error?.response?.status === 404 && userType === "organisation") {

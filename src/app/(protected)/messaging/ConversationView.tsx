@@ -14,7 +14,8 @@ import {
   Message,
 } from "@/types/messaging";
 import { useAuthStore } from "@/store";
-import { Send } from "lucide-react";
+import { Loader, Send } from "lucide-react";
+import { profile } from "console";
 
 interface ConversationViewProps {
   isSinglePane: boolean | undefined;
@@ -30,6 +31,7 @@ interface ConversationViewProps {
   hasMoreMessages?: boolean;
   onLoadMoreMessages?: () => void;
   isLoadingMoreMessages?: boolean;
+  isSending?: boolean;
 }
 
 export const ConversationView = ({
@@ -46,6 +48,7 @@ export const ConversationView = ({
   hasMoreMessages = false,
   onLoadMoreMessages,
   isLoadingMoreMessages = false,
+  isSending = false,
 }: ConversationViewProps) => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -276,7 +279,7 @@ export const ConversationView = ({
         borderColor="#E4E4E7"
         h="fit-content"
       >
-        <HStack gap={2} align="stretch">
+        <HStack gap={2} align="flex-end">
           <MessageComposerInput
             value={composerText}
             onChange={onComposerTextChange}
@@ -298,9 +301,10 @@ export const ConversationView = ({
             aria-label="Send message"
             colorScheme="blue"
             disabled={
-              !composerText.trim() &&
-              selectedFiles.length === 0 &&
-              !replyToMessage
+              isSending ||
+              (!composerText.trim() &&
+                selectedFiles.length === 0 &&
+                !replyToMessage)
             }
             onClick={handleSendWithFiles}
             flexShrink={0}
@@ -309,6 +313,7 @@ export const ConversationView = ({
             px={{ base: 2.5, md: 4 }}
             iconPosition="end"
             icon={<Send size={18} />}
+            isLoading={isSending}
             profileType={profileType}
           >
             <Text fontSize="sm" display={{ base: "none", md: "inline-block" }}>

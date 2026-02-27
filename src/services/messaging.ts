@@ -111,21 +111,18 @@ export function useSendMessage() {
       files?: File[];
       replyToId?: number;
     }) => {
-      // If sending files (optionally with text), send multipart/form-data
       if (data.files?.length) {
         const formData = new FormData();
         formData.append("content", data.content || "");
         if (data.replyToId != null) {
           formData.append("reply_to_id", String(data.replyToId));
         }
-        // Append each file with "files" key - API expects multipart with same key for array
         data.files.forEach((file) => formData.append("files", file));
         return apiRequest({
           endpoint: API_ENDPOINTS.SEND_MESSAGE(data.conversationId),
           body: formData,
         });
       }
-      // If no files, send regular JSON
       return apiRequest({
         endpoint: API_ENDPOINTS.SEND_MESSAGE(data.conversationId),
         body: {
@@ -149,6 +146,27 @@ export function updateConversationArchiveState(
   return apiRequest({
     endpoint: API_ENDPOINTS.UPDATE_CONVERSATION_STATE(conversationId),
     body: { is_archived: isArchived },
+  });
+}
+
+export function markConversationAsRead(
+  conversationId: number
+): Promise<ConversationResponse> {
+  return apiRequest({
+    endpoint: API_ENDPOINTS.MARK_CONVERSATION_READ(conversationId),
+  });
+}
+
+export function useMarkConversationAsRead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (conversationId: number) =>
+      markConversationAsRead(conversationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CONVERSATIONS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
+    },
   });
 }
 

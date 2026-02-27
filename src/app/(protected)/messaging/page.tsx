@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Box, Flex, Spinner, Text, useBreakpointValue } from "@chakra-ui/react";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
@@ -9,6 +10,7 @@ import { ConversationView } from "./ConversationView";
 import {
   useConversationsList,
   useConversationMessages,
+  useMarkConversationAsRead,
   useSendMessage,
   useToggleConversationArchive,
 } from "@/services/messaging";
@@ -21,7 +23,16 @@ import {
 import { useAuthStore } from "@/store";
 
 const Inbox = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const isSinglePane = useBreakpointValue({ base: true, md: true, lg: false });
+
+  const deepLinkConversationId = useMemo(() => {
+    const id = searchParams.get("conversation") ?? searchParams.get("id");
+    if (!id) return null;
+    const num = Number(id);
+    return num;
+  }, [searchParams]);
 
   const [selectedConversationId, setSelectedConversationId] =
     useState<ConversationId | null>(null);
@@ -48,6 +59,17 @@ const Inbox = () => {
     archived: showArchived,
     page_size: 50,
   });
+
+  const setHasUnreadMessages = useAuthStore((s) => s.setHasUnreadMessages);
+
+  useEffect(() => {
+    if (!showArchived) {
+      const hasUnread =
+        conversations.length > 0 &&
+        conversations.some((c) => c.unreadCount > 0 || c.hasUnread);
+      setHasUnreadMessages(hasUnread);
+    }
+  }, [conversations, showArchived, setHasUnreadMessages]);
 
   const [messagesCursor, setMessagesCursor] = useState<string | null>(null);
   const [allMessages, setAllMessages] = useState<Message[]>([]);
@@ -105,6 +127,15 @@ const Inbox = () => {
 
   const sendMessageMutation = useSendMessage();
   const toggleArchiveMutation = useToggleConversationArchive();
+  const markReadMutation = useMarkConversationAsRead();
+  const markReadMutateRef = React.useRef(markReadMutation.mutate);
+  markReadMutateRef.current = markReadMutation.mutate;
+
+  useEffect(() => {
+    if (selectedConversationId != null) {
+      markReadMutateRef.current(selectedConversationId);
+    }
+  }, [selectedConversationId]);
 
   const filteredConversations = useMemo(() => {
     if (!searchTerm.trim()) return conversations;
@@ -119,7 +150,7 @@ const Inbox = () => {
     );
   }, [conversations, searchTerm]);
 
-  console.log("filteredConversations", filteredConversations);
+  // console.log("filteredConversations", filteredConversations);
 
   const selectedConversation = useMemo(
     () =>
@@ -142,9 +173,40 @@ const Inbox = () => {
     }
   }, [filteredConversations, selectedConversationId]);
 
+  useEffect(() => {
+    if (
+      !conversationsLoading &&
+      filteredConversations.length > 0 &&
+      selectedConversationId == null
+    ) {
+      const deepLinkExists =
+        deepLinkConversationId != null &&
+        filteredConversations.some((c) => c.id === deepLinkConversationId);
+      const idToSelect = deepLinkExists
+        ? deepLinkConversationId!
+        : filteredConversations[0].id;
+      setSelectedConversationId(idToSelect);
+      if (isSinglePane) setIsShowingThreadOnSinglePane(true);
+    }
+  }, [
+    conversationsLoading,
+    filteredConversations,
+    selectedConversationId,
+    isSinglePane,
+    deepLinkConversationId,
+  ]);
+
   const handleSelectConversation = (conversationId: ConversationId) => {
     setSelectedConversationId(conversationId);
     if (isSinglePane) setIsShowingThreadOnSinglePane(true);
+    router.replace(`/messaging/?conversation=${conversationId}`, {
+      scroll: false,
+    });
+  };
+
+  const handleBackToList = () => {
+    setIsShowingThreadOnSinglePane(false);
+    router.replace("/messaging/", { scroll: false });
   };
 
   const handleToggleArchive = (conversationId: ConversationId) => {
@@ -209,13 +271,14 @@ const Inbox = () => {
               composerText={composerText}
               onComposerTextChange={setComposerText}
               onSendMessage={handleSendMessage}
-              onBackToList={() => setIsShowingThreadOnSinglePane(false)}
+              onBackToList={handleBackToList}
               onToggleArchive={handleToggleArchive}
               messagesLoading={messagesLoading && !messagesCursor}
               profileType={profileType}
               hasMoreMessages={hasMoreMessages}
               onLoadMoreMessages={handleLoadMoreMessages}
               isLoadingMoreMessages={isLoadingMoreMessages}
+              isSending={sendMessageMutation.isPending}
             />
           ) : (
             <Box p={4} h="100%">
@@ -261,13 +324,14 @@ const Inbox = () => {
             composerText={composerText}
             onComposerTextChange={setComposerText}
             onSendMessage={handleSendMessage}
-            onBackToList={() => setIsShowingThreadOnSinglePane(false)}
+            onBackToList={handleBackToList}
             onToggleArchive={handleToggleArchive}
             messagesLoading={messagesLoading && !messagesCursor}
             profileType={profileType}
             hasMoreMessages={hasMoreMessages}
             onLoadMoreMessages={handleLoadMoreMessages}
             isLoadingMoreMessages={isLoadingMoreMessages}
+            isSending={sendMessageMutation.isPending}
           />
         </Box>
       </Flex>

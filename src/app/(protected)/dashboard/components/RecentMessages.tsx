@@ -2,6 +2,7 @@
 
 import React from "react";
 import {
+  Badge,
   Box,
   VStack,
   HStack,
@@ -133,18 +134,44 @@ export function RecentMessages({ messages, userType }: RecentMessagesProps) {
                   flex={2}
                   minW={0}
                 >
-                  <VStack
-                    align="flex-start"
-                    justifyContent="flex-start"
-                    gap={1}
+                  <HStack
+                    justify="space-between"
+                    align="center"
+                    w="100%"
+                    gap={2}
                   >
-                    <Text fontSize="sm" fontWeight="600" color="black">
-                      {displayName(msg)}
-                    </Text>
-                    <Text fontSize="xs" color="#52525B" lineHeight="1.4">
-                      {truncateToWords(msg.last_message.content)}
-                    </Text>
-                  </VStack>
+                    <VStack
+                      align="flex-start"
+                      justifyContent="flex-start"
+                      gap={1}
+                      flex={1}
+                    >
+                      <Text fontSize="sm" fontWeight="600" color="black">
+                        {displayName(msg)}
+                      </Text>
+                      <Text fontSize="xs" color="#52525B" lineHeight="1.4">
+                        {truncateToWords(msg.last_message.content)}
+                      </Text>
+                    </VStack>
+                    {msg.unread_count > 0 && (
+                      <Badge
+                        borderRadius="6px"
+                        bg={userType === "organisation" ? "#1F7F7B" : "#1679AB"}
+                        color="white"
+                        fontSize="10px"
+                        textAlign="center"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        px={1}
+                        py={0.5}
+                        flexShrink={0}
+                        minW="20px"
+                      >
+                        {msg.unread_count}
+                      </Badge>
+                    )}
+                  </HStack>
                   <Text fontSize="2xs" color="#A1A1AA">
                     {formatRelativeTime(msg.last_message_at)}
                   </Text>

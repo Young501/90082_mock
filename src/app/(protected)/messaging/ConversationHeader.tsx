@@ -51,14 +51,16 @@ export const ConversationHeader = ({
         </IconButton>
       )}
       <Box
-        w="32px"
-        h="32px"
+        // w="32px"
+        // h="32px"
         borderRadius="full"
         display="flex"
         alignItems="center"
         justifyContent="center"
         fontWeight="semibold"
         flexShrink={0}
+        position="relative"
+        w="fit-content"
       >
         {conversation?.avatar && profileType === "organisation" ? (
           <Avatar.Root size="sm">
@@ -75,13 +77,36 @@ export const ConversationHeader = ({
         ) : (
           <Avatar.Root size="sm">
             <Avatar.Image
-              src={conversation?.avatar ?? ""}
+              src={conversation?.organisationLogo ?? ""}
               alt={conversation?.organisationTitle ?? ""}
               w="32px"
               h="32px"
             />
             <Avatar.Fallback bg="#E4E4E7" color="black">
               {conversation?.organisationTitle?.slice(0, 2).toUpperCase()}
+            </Avatar.Fallback>
+          </Avatar.Root>
+        )}
+        {profileType !== "organisation" && (
+          <Avatar.Root
+            size="sm"
+            borderRadius="6px"
+            position="absolute"
+            right={-1}
+            bottom={-1}
+            bg="transparent"
+            w="fit-content"
+            h="fit-content"
+          >
+            <Avatar.Image
+              src={conversation?.avatar ?? ""}
+              alt={conversation?.organisationMemberName ?? ""}
+              w="20px"
+              h="20px"
+              borderRadius="6px"
+            />
+            <Avatar.Fallback bg="#E4E4E7" color="black">
+              {conversation?.organisationMemberName?.slice(0, 2).toUpperCase()}
             </Avatar.Fallback>
           </Avatar.Root>
         )}
@@ -100,14 +125,20 @@ export const ConversationHeader = ({
               </Tag.Label>
             </Tag.Root>
           )}
+
           {profileType === "student" &&
-            conversation?.organisationSubtitle && (
-              <Tag.Root>
-                <Tag.Label fontSize="xs" color="black" truncate>
-                  {conversation?.organisationSubtitle}
-                </Tag.Label>
-              </Tag.Root>
+            conversation?.organisationMemberName && (
+              <Text fontSize="xs" truncate color="#2563EB">
+                {conversation?.organisationMemberName}
+              </Text>
             )}
+          {profileType === "student" && conversation?.opportunityTitle && (
+            <Tag.Root>
+              <Tag.Label fontSize="xs" color="black" truncate>
+                {conversation?.opportunityTitle}
+              </Tag.Label>
+            </Tag.Root>
+          )}
         </HStack>
       </VStack>
 
