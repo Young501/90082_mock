@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   HStack,
@@ -11,9 +11,12 @@ import {
 } from "@chakra-ui/react";
 import { MenuPopover } from "@/components/ui/MenuPopover";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
+import { Tooltip } from "@/components/ui/tooltip";
 import { Message, MessageAttachment } from "@/types/messaging";
 import { formatDateTimeToReadable } from "@/utils/formatDate";
-import { MoreHorizontal, Paperclip, Reply } from "lucide-react";
+import { File, MoreHorizontal, Paperclip, Reply } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 export interface MessageBoxProps {
   message: Message;
@@ -55,6 +58,23 @@ export const MessageBox = ({
   const bubbleBorderRadius = isMine
     ? "12px 0px 12px 12px"
     : "0px 12px 12px 12px";
+
+  const isAttachmentOnly =
+    !message.text?.trim() && (message.attachments?.length ?? 0) > 0;
+  const showCopy = !isAttachmentOnly;
+
+  const hasAttachments = !!(
+    message.attachments && message.attachments?.length > 0
+  );
+
+  const [isTextExpanded, setIsTextExpanded] = useState(false);
+  const TRUNCATE_LENGTH = 180;
+  const text = message.text ?? "";
+  const shouldTruncate = text.length > TRUNCATE_LENGTH;
+  const displayText =
+    shouldTruncate && !isTextExpanded
+      ? text.slice(0, TRUNCATE_LENGTH).trim() + "…"
+      : text;
 
   return (
     <Box
@@ -100,6 +120,7 @@ export const MessageBox = ({
                       isSinglePane={isSinglePane}
                       onCopy={onCopy}
                       isCopied={isCopied}
+                      showCopy={showCopy}
                       profileType={profileType}
                       onMessageClick={onMessageClick}
                       onCloseActions={onCloseActions}
@@ -111,8 +132,12 @@ export const MessageBox = ({
                     py={3}
                     bg={bubbleBg}
                     color={isMine ? "white" : "#18181B"}
-                    maxW="396px"
-                    w="100%"
+                    maxW={`${hasAttachments ? "317px" : "396px"}`}
+                    w={
+                      hasAttachments
+                        ? { base: "100%", md: "317px" }
+                        : { base: "100%" }
+                    }
                     borderWidth="1px"
                     borderColor={bubbleBorder}
                     style={{ borderRadius: bubbleBorderRadius }}
@@ -126,12 +151,40 @@ export const MessageBox = ({
                         onScrollToMessage={onScrollToMessage}
                       />
                     )}
-                    {message.text && (
-                      <Text fontSize="sm" whiteSpace="pre-wrap">
-                        {message.text}
-                      </Text>
+                    {text && (
+                      <VStack align="flex-start" gap={0}>
+                        <Text fontSize="sm" whiteSpace="pre-wrap">
+                          {displayText}
+                        </Text>
+                        {shouldTruncate && (
+                          <Box
+                            as="span"
+                            role="button"
+                            tabIndex={0}
+                            fontSize="sm"
+                            fontWeight="semibold"
+                            mt={1}
+                            cursor="pointer"
+                            opacity={0.9}
+                            color="inherit"
+                            _hover={{ opacity: 1, textDecoration: "underline" }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                setIsTextExpanded((prev) => !prev);
+                              }
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsTextExpanded((prev) => !prev);
+                            }}
+                          >
+                            {isTextExpanded ? "Show less" : "Read more"}
+                          </Box>
+                        )}
+                      </VStack>
                     )}
-                    {message.attachments && message.attachments.length > 0 && (
+                    {hasAttachments && message.attachments && (
                       <MessageAttachments
                         attachments={message.attachments}
                         isMine={isMine}
@@ -145,6 +198,7 @@ export const MessageBox = ({
                       isSinglePane={isSinglePane}
                       onCopy={onCopy}
                       isCopied={isCopied}
+                      showCopy={showCopy}
                       profileType={profileType}
                       onMessageClick={onMessageClick}
                       onCloseActions={onCloseActions}
@@ -279,14 +333,84 @@ function MessageAttachments({
   isMine: boolean;
 }) {
   return (
-    <VStack align="flex-start" gap={1} mt={2}>
+    <VStack
+      align="center"
+      gap={1}
+      mt={2}
+      justify="center"
+      alignItems="center"
+      w="100%"
+    >
       {attachments.map((att) => (
-        <HStack key={att.id} gap={2}>
-          <Paperclip size={14} color={isMine ? "white" : "#4B5563"} />
-          <Text fontSize="xs" textDecoration="underline">
-            {att.name}
-          </Text>
-        </HStack>
+        <Link
+          href={att.file_url}
+          target="_blank"
+          key={att.id}
+          style={{
+            cursor: "pointer",
+            width: "100%",
+            margin: "0 auto",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <Tooltip
+            key={att.id}
+            content={att.original_filename}
+            contentProps={{ maxW: "240px" }}
+          >
+            <VStack
+              gap={2}
+              justify="center"
+              align="center"
+              bg="#FAFAFA"
+              p={2}
+              h="162px"
+              w="100%"
+              borderRadius="md"
+              borderWidth="1px"
+              borderColor="#E4E4E7"
+              maxW={{ base: "160px", md: "198px" }}
+              minW={0}
+              cursor="default"
+            >
+              <Image
+                src="/assets/file.png"
+                alt={att.original_filename}
+                width={53}
+                height={93}
+                style={{
+                  objectFit: "cover",
+                  borderRadius: "md",
+                }}
+              />
+              <Text
+                fontSize="xs"
+                color="black"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                whiteSpace="nowrap"
+                w="100%"
+                minW={0}
+                textAlign="center"
+              >
+                {att.original_filename}
+              </Text>
+              <Text
+                fontSize="xs"
+                color="#71717A"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                whiteSpace="nowrap"
+                w="100%"
+                minW={0}
+                textAlign="center"
+              >
+                {att.file_size}
+              </Text>
+            </VStack>
+          </Tooltip>
+        </Link>
       ))}
     </VStack>
   );
@@ -298,6 +422,7 @@ interface MessageActionsMenuProps {
   isSinglePane: boolean | undefined;
   onCopy: () => void;
   isCopied: boolean;
+  showCopy: boolean;
   profileType: "coordinator" | "organisation" | "student";
   onMessageClick: () => void;
   onCloseActions: () => void;
@@ -310,6 +435,7 @@ function MessageActionsMenu({
   isSinglePane,
   onCopy,
   isCopied,
+  showCopy,
   profileType,
   onMessageClick,
   onCloseActions,
@@ -361,29 +487,31 @@ function MessageActionsMenu({
             <Text fontSize="sm">Reply</Text>
           </ButtonV2>
         )}
-        <ButtonV2
-          variant="ghost"
-          minW="fit-content"
-          h="fit-content"
-          display="flex"
-          alignItems="start"
-          justifyContent="start"
-          aria-label="Copy message"
-          px={2}
-          py={0}
-          color="black"
-          textDecoration="none"
-          _hover={{ textDecoration: "none" }}
-          onClick={onCopy}
-        >
-          {          isCopied ? (
-            <Text fontSize="sm" fontWeight="semibold" color="profile.500">
-              Copied
-            </Text>
-          ) : (
-            <Text fontSize="sm">Copy</Text>
-          )}
-        </ButtonV2>
+        {showCopy && (
+          <ButtonV2
+            variant="ghost"
+            minW="fit-content"
+            h="fit-content"
+            display="flex"
+            alignItems="start"
+            justifyContent="start"
+            aria-label="Copy message"
+            px={2}
+            py={0}
+            color="black"
+            textDecoration="none"
+            _hover={{ textDecoration: "none" }}
+            onClick={onCopy}
+          >
+            {isCopied ? (
+              <Text fontSize="sm" fontWeight="semibold" color="profile.500">
+                Copied
+              </Text>
+            ) : (
+              <Text fontSize="sm">Copy</Text>
+            )}
+          </ButtonV2>
+        )}
         <Box mt={1} borderTopWidth="1px" borderTopColor="#E4E4E7" />
         <HStack gap={2} cursor="pointer" px={2} py={1}>
           <Text fontSize="sm" color="red.500">

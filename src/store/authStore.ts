@@ -52,6 +52,8 @@ export interface AuthState {
   setIsAuthenticated: (isAuthenticated: boolean) => void;
   getIsAuthenticated: () => boolean;
   setAccessibleOpportunities: (opportunities: AccessibleOpportunity[]) => void;
+  hasUnreadMessages: boolean;
+  setHasUnreadMessages: (hasUnread: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -68,6 +70,7 @@ export const useAuthStore = create<AuthState>()(
       tempOrganisationUser: null,
       isOrganisationMemberOnboarding: false,
       accessibleOpportunities: null,
+      hasUnreadMessages: false,
       setIsAuthenticated: (isAuthenticated: boolean) => {
         set({ isAuthenticated });
       },
@@ -100,6 +103,7 @@ export const useAuthStore = create<AuthState>()(
           tempOrganisationUser: null,
           isOrganisationMemberOnboarding: false,
           accessibleOpportunities: null,
+          hasUnreadMessages: false,
         });
       },
 
@@ -227,6 +231,11 @@ export const useAuthStore = create<AuthState>()(
       setAccessibleOpportunities: (opportunities: AccessibleOpportunity[]) => {
         set({ accessibleOpportunities: opportunities });
       },
+      setHasUnreadMessages: (hasUnread: boolean) => {
+        if (get().hasUnreadMessages !== hasUnread) {
+          set({ hasUnreadMessages: hasUnread });
+        }
+      },
     }),
     {
       name: "auth-storage",
@@ -242,6 +251,7 @@ export const useAuthStore = create<AuthState>()(
         tempOrganisationUser: state.tempOrganisationUser,
         isOrganisationMemberOnboarding: state.isOrganisationMemberOnboarding,
         accessibleOpportunities: state.accessibleOpportunities,
+        hasUnreadMessages: state.hasUnreadMessages,
       }),
     }
   )
