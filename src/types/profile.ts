@@ -10,9 +10,6 @@ export interface OnboardingData {
     student_onboarding?: OnboardingPage[];
     organisation_onboarding?: OnboardingPage[];
     organisation_member_onboarding?: OnboardingPage[];
-    // Legacy format
-    user?: OnboardingPage[];
-    organisation?: OnboardingPage[];
   };
 }
 
