@@ -190,6 +190,10 @@ export const API_ENDPOINTS = {
     method: "PATCH",
     url: "/api/v2/profiles/organisation/me/",
   },
+  ORGANISATION_MEMBER_ME_UPDATE_V2: {
+    method: "PATCH",
+    url: "/api/v2/profiles/organisation/member/me/",
+  },
   STUDENT_PROFILE_UPDATE_V2: {
     method: "PATCH",
     url: "/api/v2/profiles/student/me/",

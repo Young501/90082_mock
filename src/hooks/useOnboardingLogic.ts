@@ -42,20 +42,27 @@ export const useOnboardingLogic = (userType: string) => {
     const onboarding = pagesData?.onboarding_pages;
     if (!onboarding) return [];
 
-    console.log("onboarding", onboarding);
-
-    if (userType === "student" && onboarding.student_onboarding) {
-      return normalizePages(onboarding.student_onboarding);
+    if (userType === "student") {
+      return normalizePages(onboarding.student_onboarding ?? onboarding.user ?? []);
     }
 
-    const userPages = onboarding.user ?? [];
-    const organisationPages = onboarding.organisation ?? [];
+    if (userType === "organisation") {
+      const isOrgMember = getIsOrganisationMemberOnboarding();
 
-    const isOrgMember = getIsOrganisationMemberOnboarding();
-    const showOrgPages =
-      userType === "organisation" && !isOrgMember && currentPhase !== "user";
+      // v2 format: organisation_member_onboarding = personal info phase, organisation_onboarding = org details phase
+      const memberPages =
+        onboarding.organisation_member_onboarding ?? onboarding.user ?? [];
+      const orgPages =
+        onboarding.organisation_onboarding ?? onboarding.organisation ?? [];
 
-    return showOrgPages ? organisationPages : userPages;
+      // Org members only complete the personal info phase
+      if (isOrgMember) return normalizePages(memberPages);
+
+      // New org owners go through personal info first, then org details
+      return normalizePages(currentPhase === "user" ? memberPages : orgPages);
+    }
+
+    return normalizePages(onboarding.user ?? []);
   }, [userType, currentPhase, pagesData, getIsOrganisationMemberOnboarding]);
 
 

@@ -285,6 +285,40 @@ export function useUserMeUpdateV2() {
   });
 }
 
+export function useOrganisationMemberUpdateV2() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: Record<string, any>) => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.ORGANISATION_MEMBER_ME_UPDATE_V2,
+        body: data,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
+      queryClient.invalidateQueries({ queryKey: ["user-profile", "organisation"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
+    },
+  });
+}
+
+export function useOrganisationProfileUpdateV2() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: Record<string, any>) => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_UPDATE_V2,
+        body: data,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
+      queryClient.invalidateQueries({ queryKey: ["user-profile", "organisation"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
+    },
+  });
+}
+
 export function useStudentProfile(id: string, opportunityId: string) {
   return useQuery({
     queryKey: ["student-profile", id, opportunityId],
