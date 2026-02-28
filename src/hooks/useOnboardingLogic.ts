@@ -70,19 +70,79 @@ export const useOnboardingLogic = (userType: string) => {
     return pages.find((p: Page) => p.id === currentPageId);
   }, [pages, currentPageId]);
 
-
   const error = queryError?.message || null;
+
+  // Organisation structure: member phase + org phase for owners; org members only have member phase
+  const organisationPageStructure = useMemo(() => {
+    if (userType !== "organisation") return null;
+    const onboarding = pagesData?.onboarding_pages;
+    if (!onboarding) return null;
+
+    const isOrgMember = getIsOrganisationMemberOnboarding();
+    const memberPages = normalizePages(
+      onboarding.organisation_member_onboarding ?? onboarding.user ?? []
+    );
+    const orgPages = normalizePages(
+      onboarding.organisation_onboarding ?? onboarding.organisation ?? []
+    );
+
+    if (isOrgMember) {
+      return { totalSteps: memberPages.length, memberPages, orgPages: [] };
+    }
+    return {
+      totalSteps: memberPages.length + orgPages.length,
+      memberPages,
+      orgPages,
+    };
+  }, [
+    userType,
+    pagesData?.onboarding_pages,
+    getIsOrganisationMemberOnboarding,
+  ]);
 
   const progressInfo = useMemo(() => {
     const currentPageIndex = pages.findIndex((p) => p.id === currentPageId);
+
+    if (userType === "organisation" && organisationPageStructure) {
+      const { totalSteps, memberPages } = organisationPageStructure;
+      let currentStep: number;
+
+      if (currentPhase === "user") {
+        currentStep = currentPageIndex >= 0 ? currentPageIndex + 1 : 0;
+      } else {
+        currentStep =
+          memberPages.length + (currentPageIndex >= 0 ? currentPageIndex + 1 : 0);
+      }
+
+      const progressPercent =
+        totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0;
+
+      return {
+        currentPageIndex,
+        progressPercent: Math.round(progressPercent),
+        totalSteps,
+        currentStep,
+      };
+    }
+
+    const totalSteps = pages.length;
+    const currentStep = currentPageIndex >= 0 ? currentPageIndex + 1 : 0;
     const progressPercent =
-      pages.length > 0 ? ((currentPageIndex + 1) / pages.length) * 100 : 0;
+      totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0;
 
     return {
       currentPageIndex,
       progressPercent: Math.round(progressPercent),
+      totalSteps,
+      currentStep,
     };
-  }, [pages, currentPageId]);
+  }, [
+    pages,
+    currentPageId,
+    userType,
+    currentPhase,
+    organisationPageStructure,
+  ]);
 
   const navigationInfo = useMemo(() => {
     const isFirstPage = currentPage?.id === 1;

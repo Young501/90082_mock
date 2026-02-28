@@ -208,6 +208,8 @@ async function submitOrganisationOnboardingV2(
     }
   }
 
+  
+
   if (phase === "user") {
     if (Object.keys(userPayload).length > 0) {
       await userMeUpdateV2.mutateAsync(userPayload);
@@ -284,6 +286,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
     goToNextPage,
     goToPage,
     startOrganisationPhase,
+    totalSteps,
+    currentStep,
   } = useOnboardingLogic(userType);
 
   useEffect(() => {
@@ -933,15 +937,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   };
 
-  const handleCreateOrganisation = () => {
-    setShowCreateOrganisationPrompt(false);
-    setShowReviewPreview(false);
-    startOrganisationPhase();
-    setFormData({});
-    setFormKey(0);
-    reset();
-  };
-
   const loadingStates =
     studentProfileUpdateV2.isPending ||
     userMeUpdateV2.isPending ||
@@ -952,15 +947,15 @@ export const OnboardingSteps = ({ userType }: Props) => {
     profilePictureUpload.isPending ||
     resumeUpload.isPending;
 
-  if (showCreateOrganisationPrompt && !getIsOrganisationMemberOnboarding()) {
-    return (
-      <CreateOrganisationPrompt
-        onContinue={handleCreateOrganisation}
-        userPhaseData={userPhaseData}
-        userType={userType}
-      />
-    );
-  }
+  // if (showCreateOrganisationPrompt && !getIsOrganisationMemberOnboarding()) {
+  //   return (
+  //     <CreateOrganisationPrompt
+  //       onContinue={handleCreateOrganisation}
+  //       userPhaseData={userPhaseData}
+  //       userType={userType}
+  //     />
+  //   );
+  // }
 
   if (showReviewPreview && isLastPage) {
     const reviewFormData = { ...formData, ...getValues() };
@@ -1003,13 +998,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
 
   const hasFormErrors = Object.keys(errors).length > 0;
 
-  const totalSteps = () => {
-    if (pages.length === 1) {
-      return 2;
-    }
-    return pages.length;
-  };
-
   const hasAbnLookupField = currentPage.questions.some(
     (question) => question.type === "abn_lookup"
   );
@@ -1019,9 +1007,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
       abnStatus === "invalid" ||
       abnStatus === "error");
   const organisationName = watch("name");
-
-  console.log("progressPercent", progressPercent);
-  console.log("totalSteps", totalSteps());
 
   return (
     <Box
@@ -1043,16 +1028,16 @@ export const OnboardingSteps = ({ userType }: Props) => {
           </Text>
           <Box bg="#F4F4F5" px={2} py={0.5} rounded="4px">
             <Text fontSize="sm" color="#27272A" fontWeight="700">
-              Step {currentPage.id} of {totalSteps()}
+              Step {currentStep} of {totalSteps}
             </Text>
           </Box>
         </HStack>
 
-        {pages.length > 1 ? (
+        {totalSteps > 1 ? (
           <Box mb={2}>
             <ProgressTrack
               progressPercent={progressPercent}
-              totalSteps={totalSteps()}
+              totalSteps={totalSteps}
             />
           </Box>
         ) : (

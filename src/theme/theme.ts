@@ -12,6 +12,13 @@ export const PROFILE_BORDER_COLORS = {
   coordinator: "#D6EDFB",
 } as const;
 
+// Matches ButtonV2 secondary background
+export const PROFILE_TRACK_COLORS = {
+  organisation: "#E9F7F6",
+  student: "#EAF6FD",
+  coordinator: "#EAF6FD",
+} as const;
+
 
 
 const config = defineConfig({
@@ -45,6 +52,9 @@ const config = defineConfig({
 
         border: {
           100: { value: "var(--border-100, #D6EDFB)" },
+        },
+        track: {
+          100: { value: "var(--track-100, #EAF6FD)" },
         },
         
       },
