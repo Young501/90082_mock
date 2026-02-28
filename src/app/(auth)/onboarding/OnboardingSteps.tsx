@@ -13,7 +13,8 @@ import {
   useStudentProfileUpdateV2,
   useUserMeUpdateV2,
   useStudentProfileV2,
-  useOrganisationProfileUpdateV2,
+  useOrganisationProfileCreateV2,
+  useOrganisationMemberUpdateV2,
 } from "@/services/shared";
 import { useOnboardingLogic } from "@/hooks/useOnboardingLogic";
 import { createPageSchema } from "@/utils/validationSchemas";
@@ -131,11 +132,18 @@ async function submitOrganisationOnboardingV2(
   allData: Record<string, any>,
   allQuestions: Question[],
   phase: "user" | "organisation",
+  isOrganisationMember: boolean,
   profilePictureUpload: UseMutationResult<any, any, File, unknown>,
   resumeUpload: UseMutationResult<any, any, File, unknown>,
   logoUpload: UseMutationResult<any, any, File, unknown>,
   userMeUpdateV2: UseMutationResult<any, any, Record<string, any>, unknown>,
-  organisationProfileUpdateV2: UseMutationResult<
+  organisationProfileCreateV2: UseMutationResult<
+    any,
+    any,
+    Record<string, any>,
+    unknown
+  >,
+  organisationMemberUpdateV2: UseMutationResult<
     any,
     any,
     Record<string, any>,
@@ -152,6 +160,12 @@ async function submitOrganisationOnboardingV2(
       (q) => q.model === "organisation" && !q.endpoint && q.type !== "display"
     )
     .map((q) => q.field);
+  const organisationMemberFields = allQuestions
+    .filter(
+      (q) =>
+        q.model === "organisation_member" && !q.endpoint && q.type !== "display"
+    )
+    .map((q) => q.field);
 
   const userPayload: Record<string, any> = {};
   userFields.forEach((field) => {
@@ -165,10 +179,17 @@ async function submitOrganisationOnboardingV2(
       organisationPayload[field] = allData[field];
     }
   });
+  const organisationMemberPayload: Record<string, any> = {};
+  organisationMemberFields.forEach((field) => {
+    if (allData[field] !== undefined && allData[field] !== "") {
+      organisationMemberPayload[field] = allData[field];
+    }
+  });
 
   ORGANISATION_ENDPOINT_FIELDS.forEach((f) => {
     delete userPayload[f];
     delete organisationPayload[f];
+    delete organisationMemberPayload[f];
   });
 
   if (allData.location) {
@@ -178,13 +199,25 @@ async function submitOrganisationOnboardingV2(
     if (locationQuestion) {
       userPayload.location = allData.location;
     } else {
-      organisationPayload.location = allData.location;
+      const orgLocationQuestion = allQuestions.find(
+        (q) => q.field === "location" && q.model === "organisation"
+      );
+      if (orgLocationQuestion) {
+        organisationPayload.location = allData.location;
+      }
     }
   }
 
   if (phase === "user") {
     if (Object.keys(userPayload).length > 0) {
       await userMeUpdateV2.mutateAsync(userPayload);
+    }
+
+    if (
+      isOrganisationMember &&
+      Object.keys(organisationMemberPayload).length > 0
+    ) {
+      await organisationMemberUpdateV2.mutateAsync(organisationMemberPayload);
     }
 
     const profilePicture =
@@ -216,7 +249,7 @@ async function submitOrganisationOnboardingV2(
 
   if (phase === "organisation") {
     if (Object.keys(organisationPayload).length > 0) {
-      await organisationProfileUpdateV2.mutateAsync(organisationPayload);
+      await organisationProfileCreateV2.mutateAsync(organisationPayload);
     }
 
     const logo = allData.logo ?? allData.logo_url;
@@ -231,7 +264,7 @@ async function submitOrganisationOnboardingV2(
       }
     }
 
-    toast.success("Organisation profile updated successfully!");
+    toast.success("Organisation profile created successfully!");
   }
 }
 
@@ -281,8 +314,9 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const [abnStatus, setAbnStatus] = useState<AbnValidationStatus>("idle");
   const studentProfileUpdateV2 = useStudentProfileUpdateV2();
   const userMeUpdateV2 = useUserMeUpdateV2();
-  const organisationProfileUpdateV2 = useOrganisationProfileUpdateV2();
-  const { data: studentProfileV2 } = useStudentProfileV2();
+  const organisationProfileCreateV2 = useOrganisationProfileCreateV2();
+  const organisationMemberUpdateV2 = useOrganisationMemberUpdateV2();
+  const { data: studentProfileV2 } = useStudentProfileV2(userType === "student");
   const profilePictureUpload = useProfilePictureUpload();
   const resumeUpload = useResumeUpload();
   const logoUpload = useLogoUpload(userType);
@@ -836,11 +870,13 @@ export const OnboardingSteps = ({ userType }: Props) => {
           allData,
           allQuestions,
           currentPhase,
+          isOrganisationMember,
           profilePictureUpload,
           resumeUpload,
           logoUpload,
           userMeUpdateV2,
-          organisationProfileUpdateV2,
+          organisationProfileCreateV2,
+          organisationMemberUpdateV2,
           setProfilePic,
           setLogo
         );
@@ -900,7 +936,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const loadingStates =
     studentProfileUpdateV2.isPending ||
     userMeUpdateV2.isPending ||
-    organisationProfileUpdateV2.isPending ||
+    organisationProfileCreateV2.isPending ||
+    organisationMemberUpdateV2.isPending ||
     isLoadingOrganisationPrompt ||
     logoUpload.isPending ||
     profilePictureUpload.isPending ||

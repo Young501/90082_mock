@@ -302,6 +302,23 @@ export function useOrganisationMemberUpdateV2() {
   });
 }
 
+export function useOrganisationProfileCreateV2() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: Record<string, any>) => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_CREATE_V2,
+        body: data,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
+      queryClient.invalidateQueries({ queryKey: ["user-profile", "organisation"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
+    },
+  });
+}
+
 export function useOrganisationProfileUpdateV2() {
   const queryClient = useQueryClient();
   return useMutation({

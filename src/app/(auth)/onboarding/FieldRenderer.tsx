@@ -271,6 +271,7 @@ export const FieldRenderer = ({
           clearErrors={clearErrors}
           onStatusChange={onAbnValidationChange}
           icon={question.icon}
+          placeholder={question.placeholder}
         />
       );
     }
@@ -474,6 +475,7 @@ export const FieldRenderer = ({
           control={control}
           error={error}
           required={question.required}
+          
           description={
             question.field === "profile_picture"
               ? "profile_picture"

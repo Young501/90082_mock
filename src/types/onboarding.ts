@@ -73,7 +73,7 @@ export interface Question {
   max?: number;
   unit?: string;
   placeholder?: string;
-  model?: "user" | "student_profile" | "organisation";
+  model?: "user" | "student_profile" | "organisation" | "organisation_member";
   taxonomy_query?: TaxonomyQueryParams;
 }
 
