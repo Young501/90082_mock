@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Box, Field, Input, Spinner, Text } from "@chakra-ui/react";
+import { Box, Field, Input as ChakraInput, InputGroup, Spinner, Text } from "@chakra-ui/react";
 import { Control, UseFormSetError, useController } from "react-hook-form";
 import { isAxiosError } from "axios";
 import { useAbnValidation } from "@/services/shared";
@@ -16,6 +16,7 @@ interface AbnLookupFieldProps {
   setError: UseFormSetError<any>;
   clearErrors?: (name: string) => void;
   icon?: string;
+  placeholder?: string;
   onStatusChange?: (status: AbnValidationStatus) => void;
 }
 
@@ -58,6 +59,7 @@ export const AbnLookupField = ({
   clearErrors,
   onStatusChange,
   icon,
+  placeholder,
 }: AbnLookupFieldProps) => {
   const { field } = useController({ name, control });
   const [inputValue, setInputValue] = useState<string>(
@@ -297,74 +299,52 @@ export const AbnLookupField = ({
     setInputValue(formatAbn(digitsOnly));
   };
 
+  const startElement = icon ? (
+    <Box display="flex" alignItems="center">
+      <i className={icon} style={{ color: "#9CA3AF", fontSize: "18px" }} />
+    </Box>
+  ) : undefined;
+
   return (
     <Field.Root invalid={!!error}>
-      <Box
-        style={{
-          display: "flex",
-          alignItems: "flex-start",
-          gap: "4px",
-          width: "100%",
-          ...(required && { marginLeft: "-11px" }),
-        }}
-      >
-        {required && (
-          <Box>
-            {required && (
-              <span style={{ color: "red", marginLeft: "4px" }}>*</span>
-            )}
-          </Box>
-        )}
-
-        <Box position="relative" width="100%">
-          {icon && (
-            <Box
-              position="absolute"
-              left="16px"
-              top="50%"
-              transform="translateY(-50%)"
-              zIndex={2}
-              pointerEvents="none"
-            >
-              <i
-                className={icon}
-                style={{
-                  color: "#C3C3C3",
-                  fontSize: "18px",
-                }}
-              />
-            </Box>
+      {label && (
+        <Field.Label
+          fontSize="sm"
+          fontWeight="500"
+          color="black"
+          display="block"
+        >
+          {label}
+          {required && (
+            <span style={{ color: "red", marginLeft: "4px" }}>*</span>
           )}
-          <Input
-            value={inputValue}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder={label}
-            h="60px"
-            bg="white"
-            fontSize="16px"
-            pl={icon ? "48px" : "24px"}
-            border="1px solid #A2DDF0"
-            borderRadius="8px"
-            _focus={{
-              borderColor: "#A2DDF0",
-              boxShadow: "0 0 0 1px #A2DDF0",
-            }}
-            _hover={{
-              borderColor: "#A2DDF0",
-            }}
-            inputMode="numeric"
-            autoComplete="off"
-            name={field.name}
-            ref={field.ref}
-          />
-        </Box>
-      </Box>
-      {error && (
-        <Field.ErrorText mt={2} fontSize="sm">
-          {error}
-        </Field.ErrorText>
+        </Field.Label>
       )}
+      <InputGroup startElement={startElement}>
+        <ChakraInput
+          value={inputValue}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          placeholder={placeholder}
+          h="48px"
+          bg="white"
+          fontSize="16px"
+          px={6}
+          borderRadius="sm"
+          border="1px solid"
+          borderColor="#E4E4E7"
+          _focus={{
+            outline: "none",
+            borderColor: "#E4E4E7",
+            boxShadow: "0 0 0 1px #E4E4E7",
+          }}
+          inputMode="numeric"
+          autoComplete="off"
+          name={field.name}
+          ref={field.ref}
+        />
+      </InputGroup>
+      {error && <Field.ErrorText>{error}</Field.ErrorText>}
       {!error && helperText}
     </Field.Root>
   );

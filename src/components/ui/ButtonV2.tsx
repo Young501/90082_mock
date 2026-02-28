@@ -3,6 +3,7 @@
 import { Button as ChakraButton, ButtonProps } from "@chakra-ui/react";
 import { ReactNode } from "react";
 import Loader from "@/components/ui/Loader";
+import { useAuthStore } from "@/store/authStore";
 
 interface CustomButtonProps extends Omit<ButtonProps, "variant"> {
   variant?: "primary" | "secondary" | "ghost" | "student" | "partner";
@@ -10,7 +11,6 @@ interface CustomButtonProps extends Omit<ButtonProps, "variant"> {
   iconPosition?: "start" | "end";
   icon?: React.ReactNode;
   children: ReactNode;
-  profileType?: "coordinator" | "organisation" | "student";
 }
 
 export function ButtonV2({
@@ -19,12 +19,12 @@ export function ButtonV2({
   children,
   iconPosition = "start",
   icon,
-  profileType,
   ...props
 }: CustomButtonProps) {
+  const userType = useAuthStore((state) => state.getUserType());
   const styles = {
     primary: {
-      bg: profileType === "organisation" ? "#3AADA8" : "#2AA8E0",
+      bg: "profile.500",
       color: "#FFFFFF",
       h: "32px",
       borderRadius: "xl",
@@ -36,13 +36,13 @@ export function ButtonV2({
       },
     },
     secondary: {
-      bg: "#EAF6FD",
-      color: "#1679AB",
+      bg: userType === "organisation" ? "#E9F7F6" : "#EAF6FD",
+      color: userType === "organisation" ? "#3AADA8" : "#2AA8E0",
       h: "32px",
       borderRadius: "xl",
       fontSize: "xs",
       fontWeight: "500",
-      border: "1px solid #D6EDFB",
+      border: "1px solid " + (userType === "organisation" ? "#D3EFEA" : "#D6EDFB"),
       //   _hover: {
       //     bg: "#001844",
       //   },
