@@ -40,7 +40,7 @@ export const BooleanCheckboxField = ({
   return (
     <Box>
       <Box mb={4}>
-        <Text fontSize="18px" fontWeight="medium">
+        <Text fontSize="sm" fontWeight="medium" color="#09090B">
           {label}
           {required && (
             <Text as="span" color="red.500" ml={1}>
@@ -55,7 +55,7 @@ export const BooleanCheckboxField = ({
         )}
       </Box>
 
-      <VStack align="stretch" gap={2} ml={4}>
+      <VStack align="stretch" gap={2}>
         {options.map((option) => (
           <Checkbox.Root
             key={option.value.toString()}

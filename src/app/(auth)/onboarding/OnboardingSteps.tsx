@@ -25,7 +25,6 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import ProgressTrack from "@/components/ProgressTrack";
 import { useAuthStore } from "@/store/authStore";
-import { CreateOrganisationPrompt } from "./CreateOrganisationPrompt";
 import { ReviewPreview } from "./ReviewPreview";
 import Loader from "@/components/ui/Loader";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
@@ -318,10 +317,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [formKey, setFormKey] = useState<number>(0);
   const [parentValues, setParentValues] = useState<Record<string, any>>({});
-  const [showCreateOrganisationPrompt, setShowCreateOrganisationPrompt] =
-    useState<boolean>(false);
   const [showReviewPreview, setShowReviewPreview] = useState<boolean>(false);
-  const [userPhaseData, setUserPhaseData] = useState<Record<string, any>>({});
   const [abnStatus, setAbnStatus] = useState<AbnValidationStatus>("idle");
   const studentProfileUpdateV2 = useStudentProfileUpdateV2();
   const userMeUpdateV2 = useUserMeUpdateV2();
@@ -334,8 +330,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const resumeUpload = useResumeUpload();
   const logoUpload = useLogoUpload(userType);
   const schema = createPageSchema(currentPage?.questions || []);
-  const [isLoadingOrganisationPrompt, setIsLoadingOrganisationPrompt] =
-    useState<boolean>(false);
   const ABN_BLOCK_MESSAGE = "Please verify your ABN before continuing.";
 
   const {
@@ -895,20 +889,11 @@ export const OnboardingSteps = ({ userType }: Props) => {
         );
 
         if (currentPhase === "user" && !isOrganisationMember) {
-          setUserPhaseData(allData);
-          const tempUserData = {
-            first_name: allData.first_name || "",
-            last_name: allData.last_name || "",
-            profile_picture_url: getProfilePictureUrl(
-              allData.profile_picture_url
-            ),
-          };
-          setTempOrganisationUser(tempUserData);
-          setIsLoadingOrganisationPrompt(true);
-          setTimeout(() => {
-            setShowCreateOrganisationPrompt(true);
-            setIsLoadingOrganisationPrompt(false);
-          }, 2000);
+          setShowReviewPreview(false);
+          startOrganisationPhase();
+          setFormData({});
+          setFormKey(0);
+          reset();
         } else {
           clearTempOrganisationUser();
           const { setIsOrganisationMemberOnboarding } = useAuthStore.getState();
@@ -942,20 +927,9 @@ export const OnboardingSteps = ({ userType }: Props) => {
     userMeUpdateV2.isPending ||
     organisationProfileCreateV2.isPending ||
     organisationMemberUpdateV2.isPending ||
-    isLoadingOrganisationPrompt ||
     logoUpload.isPending ||
     profilePictureUpload.isPending ||
     resumeUpload.isPending;
-
-  // if (showCreateOrganisationPrompt && !getIsOrganisationMemberOnboarding()) {
-  //   return (
-  //     <CreateOrganisationPrompt
-  //       onContinue={handleCreateOrganisation}
-  //       userPhaseData={userPhaseData}
-  //       userType={userType}
-  //     />
-  //   );
-  // }
 
   if (showReviewPreview && isLastPage) {
     const reviewFormData = { ...formData, ...getValues() };

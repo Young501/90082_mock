@@ -19,6 +19,7 @@ export const useOnboardingLogic = (userType: string) => {
     "user"
   );
   const { getIsOrganisationMemberOnboarding } = useAuthStore();
+  console.log("isOrganisationMemberOnboarding", getIsOrganisationMemberOnboarding());
   const { data: studentProfileV2, isLoading: isProfileLoading } =
     useStudentProfileV2(userType === "student");
 
@@ -49,7 +50,6 @@ export const useOnboardingLogic = (userType: string) => {
     if (userType === "organisation") {
       const isOrgMember = getIsOrganisationMemberOnboarding();
 
-      // v2 format: organisation_member_onboarding = personal info phase, organisation_onboarding = org details phase
       const memberPages =
         onboarding.organisation_member_onboarding ?? onboarding.user ?? [];
       const orgPages =
@@ -72,7 +72,7 @@ export const useOnboardingLogic = (userType: string) => {
 
   const error = queryError?.message || null;
 
-  // Organisation structure: member phase + org phase for owners; org members only have member phase
+  // Organisation structure pages
   const organisationPageStructure = useMemo(() => {
     if (userType !== "organisation") return null;
     const onboarding = pagesData?.onboarding_pages;
