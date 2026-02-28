@@ -84,14 +84,15 @@ export const AbnLookupField = ({
     errorMessage?: string | null;
   }>({ abn: "", organisation: "", errorMessage: null });
 
+  const onStatusChangeRef = useRef(onStatusChange);
+  onStatusChangeRef.current = onStatusChange;
+
   const emitStatusChange = useCallback(
     (nextStatus: AbnValidationStatus) => {
       setStatus(nextStatus);
-      if (onStatusChange) {
-        onStatusChange(nextStatus);
-      }
+      onStatusChangeRef.current?.(nextStatus);
     },
-    [onStatusChange]
+    []
   );
 
   useEffect(() => {

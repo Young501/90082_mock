@@ -300,6 +300,13 @@ export const OnboardingSteps = ({ userType }: Props) => {
     setAbnStatus("idle");
   }, [currentPage?.id]);
 
+  const handleAbnValidationChange = useCallback(
+    (status: AbnValidationStatus) => {
+      setAbnStatus(status);
+    },
+    []
+  );
+
   const [submitError, setSubmitError] = useState<string>("");
   const [showValidationError, setShowValidationError] =
     useState<boolean>(false);
@@ -316,7 +323,9 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const userMeUpdateV2 = useUserMeUpdateV2();
   const organisationProfileCreateV2 = useOrganisationProfileCreateV2();
   const organisationMemberUpdateV2 = useOrganisationMemberUpdateV2();
-  const { data: studentProfileV2 } = useStudentProfileV2(userType === "student");
+  const { data: studentProfileV2 } = useStudentProfileV2(
+    userType === "student"
+  );
   const profilePictureUpload = useProfilePictureUpload();
   const resumeUpload = useResumeUpload();
   const logoUpload = useLogoUpload(userType);
@@ -1011,6 +1020,9 @@ export const OnboardingSteps = ({ userType }: Props) => {
       abnStatus === "error");
   const organisationName = watch("name");
 
+  console.log("progressPercent", progressPercent);
+  console.log("totalSteps", totalSteps());
+
   return (
     <Box
       display="flex"
@@ -1078,11 +1090,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
             onParentValueChange={handleParentValueChange}
             organisationName={organisationName}
             university={userProfile?.university}
-            onAbnValidationChange={(status) => {
-              if (question.type === "abn_lookup") {
-                setAbnStatus(status);
-              }
-            }}
+            onAbnValidationChange={handleAbnValidationChange}
           />
         ))}
 
