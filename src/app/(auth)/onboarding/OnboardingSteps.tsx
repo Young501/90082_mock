@@ -207,17 +207,12 @@ async function submitOrganisationOnboardingV2(
     }
   }
 
-  
-
   if (phase === "user") {
     if (Object.keys(userPayload).length > 0) {
       await userMeUpdateV2.mutateAsync(userPayload);
     }
 
-    if (
-      isOrganisationMember &&
-      Object.keys(organisationMemberPayload).length > 0
-    ) {
+    if (Object.keys(organisationMemberPayload).length > 0) {
       await organisationMemberUpdateV2.mutateAsync(organisationMemberPayload);
     }
 
