@@ -5,10 +5,12 @@ import {
   useUserProfile,
   useStudentProfileV2,
   useOnboardingPages,
+  useUserMeV2,
+  useOrganisationProfileV2,
+  useOrganisationMemberMeV2,
 } from "@/services/shared";
 import { useAuthStore } from "@/store/authStore";
 import { Page } from "@/types/onboarding";
-import { OnboardingPage } from "@/types/profile";
 
 const normalizePages = (raw: unknown[]): Page[] => {
   if (!Array.isArray(raw) || raw.length === 0) return [];
@@ -24,16 +26,20 @@ export const useProfile = (userType: string) => {
   const { setUserProfile, setUserProfilePictureUrl } = useAuthStore();
 
   const isStudent = userType === "student";
+  const isOrganisation = userType === "organisation";
   const isCoordinator = userType === "coordinator";
 
-  // Non-student: use legacy user profile API
+  // Legacy user profile API – only used for user types not yet migrated to V2
   const {
     data: userProfile,
     error,
     isLoading: isUserProfileLoading,
     isError,
-  } = useUserProfile(isStudent || isCoordinator ? "" : userType);
+  } = useUserProfile(
+    isStudent || isCoordinator || isOrganisation ? "" : userType
+  );
 
+  // V2 student profile data
   const userDetailsV2 = useAuthStore((s) => s.user?.userDetailsV2);
   const {
     data: studentData,
@@ -41,6 +47,24 @@ export const useProfile = (userType: string) => {
     isError: isStudentError,
     error: studentError,
   } = useStudentProfileV2(isStudent);
+
+  // V2 organisation data – three separate endpoints
+  const {
+    data: orgUserData,
+    isLoading: isOrgUserLoading,
+  } = useUserMeV2(isOrganisation);
+
+  const {
+    data: orgMemberData,
+    isLoading: isOrgMemberLoading,
+  } = useOrganisationMemberMeV2(isOrganisation);
+
+  const {
+    data: orgProfileData,
+    isLoading: isOrgProfileLoading,
+    isError: isOrgProfileError,
+    error: orgProfileError,
+  } = useOrganisationProfileV2(isOrganisation);
 
   const { data: onboardingData, isLoading: isOnboardingLoading } =
     useOnboardingPages(userType);
@@ -55,8 +79,9 @@ export const useProfile = (userType: string) => {
     return [];
   }, [onboardingData?.onboarding_pages, isStudent]);
 
-  const mergedProfile = useMemo(() => {
-    if (!isStudent) return userProfile ?? null;
+  // Merged profile for student
+  const mergedStudentProfile = useMemo(() => {
+    if (!isStudent) return null;
     const user = userDetailsV2 as Record<string, unknown> | undefined;
     const student = studentData as Record<string, unknown> | undefined;
     if (!user && !student) return null;
@@ -69,9 +94,38 @@ export const useProfile = (userType: string) => {
         user?.profile_picture ??
         student?.profile_picture_url,
     } as Record<string, unknown>;
-  }, [isStudent, userProfile, userDetailsV2, studentData]);
+  }, [isStudent, userDetailsV2, studentData]);
 
-  const userProfileForStore = isStudent ? mergedProfile : userProfile;
+  // Merged profile for organisation (flat – no nested objects)
+  const mergedOrgProfile = useMemo(() => {
+    if (!isOrganisation) return null;
+    const userData = orgUserData as Record<string, unknown> | undefined;
+    const memberData = orgMemberData as Record<string, unknown> | undefined;
+    const profileData = orgProfileData as Record<string, unknown> | undefined;
+    if (!userData && !memberData && !profileData) return null;
+    return {
+      ...(profileData ?? {}),
+      ...(memberData ?? {}),
+      ...(userData ?? {}),
+      profile_picture: userData?.profile_picture ?? userData?.profile_picture_url,
+      profile_picture_url:
+        userData?.profile_picture_url ?? userData?.profile_picture,
+      logo: profileData?.logo,
+      logo_url: profileData?.logo_url ?? profileData?.logo,
+    } as Record<string, unknown>;
+  }, [isOrganisation, orgUserData, orgMemberData, orgProfileData]);
+
+  const mergedProfile = isStudent
+    ? mergedStudentProfile
+    : isOrganisation
+    ? mergedOrgProfile
+    : (userProfile ?? null);
+
+  const userProfileForStore = isStudent
+    ? mergedStudentProfile
+    : isOrganisation
+    ? mergedOrgProfile
+    : userProfile;
 
   useEffect(() => {
     if (userProfileForStore) {
@@ -102,6 +156,17 @@ export const useProfile = (userType: string) => {
       return;
     }
 
+    if (isOrganisation) {
+      if (
+        isOrgProfileError &&
+        (orgProfileError as any)?.response?.status === 404
+      ) {
+        router.push("/onboarding/");
+        return;
+      }
+      return;
+    }
+
     if (isError && error?.response?.status === 404) {
       router.push("/onboarding/");
       return;
@@ -118,6 +183,8 @@ export const useProfile = (userType: string) => {
 
   const isLoading = isStudent
     ? isStudentProfileLoading
+    : isOrganisation
+    ? isOrgUserLoading || isOrgMemberLoading || isOrgProfileLoading
     : isUserProfileLoading;
 
   const university = useMemo(() => {
@@ -134,8 +201,8 @@ export const useProfile = (userType: string) => {
     userProfile: userProfileForStore,
     mergedProfile,
     isLoading,
-    isError: isStudent ? isStudentError : isError,
-    error: isStudent ? studentError : error,
+    isError: isStudent ? isStudentError : isOrganisation ? isOrgProfileError : isError,
+    error: isStudent ? studentError : isOrganisation ? orgProfileError : error,
     handleOnboardingRedirect,
     pages,
     university,

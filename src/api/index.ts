@@ -194,9 +194,17 @@ export const API_ENDPOINTS = {
     method: "PATCH",
     url: "/api/v2/profiles/organisation/me/",
   },
+  ORGANISATION_MEMBER_ME_V2: {
+    method: "GET",
+    url: "/api/v2/profiles/organisation/member/me/",
+  },
   ORGANISATION_MEMBER_ME_UPDATE_V2: {
     method: "PATCH",
     url: "/api/v2/profiles/organisation/member/me/",
+  },
+  ORGANISATION_LOGO_UPLOAD_V2: {
+    method: "POST",
+    url: "/api/v2/profiles/organisation/me/logo",
   },
   STUDENT_PROFILE_UPDATE_V2: {
     method: "PATCH",

@@ -285,6 +285,34 @@ export function useUserMeUpdateV2() {
   });
 }
 
+export function useOrganisationMemberMeV2(enabled: boolean = true) {
+  return useQuery({
+    queryKey: ["organisation-member-me-v2"],
+    queryFn: () =>
+      apiRequest({ endpoint: API_ENDPOINTS.ORGANISATION_MEMBER_ME_V2 }),
+    enabled,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) return false;
+      return failureCount < 2;
+    },
+  });
+}
+
+export function useOrganisationProfileV2(enabled: boolean = true) {
+  return useQuery({
+    queryKey: ["organisation-profile-v2"],
+    queryFn: () =>
+      apiRequest({ endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_V2 }),
+    enabled,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) return false;
+      return failureCount < 2;
+    },
+  });
+}
+
 export function useOrganisationMemberUpdateV2() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -295,6 +323,7 @@ export function useOrganisationMemberUpdateV2() {
       });
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["organisation-member-me-v2"] });
       queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
       queryClient.invalidateQueries({ queryKey: ["user-profile", "organisation"] });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
@@ -326,6 +355,25 @@ export function useOrganisationProfileUpdateV2() {
       return apiRequest({
         endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_UPDATE_V2,
         body: data,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
+      queryClient.invalidateQueries({ queryKey: ["user-profile", "organisation"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
+    },
+  });
+}
+
+export function useOrganisationLogoUploadV2() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return apiRequest({
+        endpoint: API_ENDPOINTS.ORGANISATION_LOGO_UPLOAD_V2,
+        body: formData,
       });
     },
     onSuccess: () => {
