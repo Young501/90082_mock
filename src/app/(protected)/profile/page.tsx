@@ -86,7 +86,6 @@ const Profile = () => {
     );
   }, [onboardingData?.onboarding_pages, isOrganisation, isOrgMember]);
 
-  // ── Helpers for student pages ──────────────────────────────────────────────
   const isDocumentsPage = (p: { questions: Question[] }) =>
     p.questions?.some((q) =>
       ["resume", "homepage", "linkedin", "instagram", "bluesky"].includes(
@@ -104,7 +103,6 @@ const Profile = () => {
     [studentPages]
   );
 
-  // ── Tabs ───────────────────────────────────────────────────────────────────
   const tabs: Tab[] = useMemo(() => {
     const allTabs: Tab[] = [];
 
@@ -142,7 +140,6 @@ const Profile = () => {
     return allTabs;
   }, [isCoordinator, isOrganisation, isOrgMember]);
 
-  // ── Display data ───────────────────────────────────────────────────────────
   const displayFormData = useMemo(() => {
     const p = (fetchedUserProfile ?? userProfile) as Record<
       string,
@@ -173,7 +170,6 @@ const Profile = () => {
     if (name.trim()) return name.trim();
   }, [user]);
 
-  // ── Redirect if profile is missing ────────────────────────────────────────
   useEffect(() => {
     if (!isProfileLoading && !fetchedUserProfile && !isCoordinator) {
       handleOnboardingRedirect(false);
@@ -186,7 +182,6 @@ const Profile = () => {
     handleOnboardingRedirect,
   ]);
 
-  // ── Loading / empty states ─────────────────────────────────────────────────
   const shouldShowLoading =
     (isOnboardingLoading || isProfileLoading) && !isCoordinator;
   const hasCompletedOnboarding =
@@ -279,7 +274,6 @@ const Profile = () => {
               </Tabs.List>
 
               <Box mt={6}>
-                {/* ── My Information ─────────────────────────────────── */}
                 {tabs[activeTab]?.title === "My Information" && (
                   <VStack align="stretch" gap={6}>
                     {(isOrganisation ? orgMemberPages : infoPages).map(
@@ -316,7 +310,6 @@ const Profile = () => {
                   </VStack>
                 )}
 
-                {/* ── Organisation Profile ───────────────────────────── */}
                 {tabs[activeTab]?.title === "Organisation Profile" && (
                   <VStack align="stretch" gap={6}>
                     {(orgProfilePages as PageItem[]).map((page) => (
@@ -345,12 +338,10 @@ const Profile = () => {
                   </VStack>
                 )}
 
-                {/* ── My Opportunities ──────────────────────────────── */}
                 {tabs[activeTab]?.title === "My Opportunities" && (
                   <MyOpportunities userType={userType} />
                 )}
 
-                {/* ── Documents & Links (students only) ─────────────── */}
                 {tabs[activeTab]?.title === "Documents & Links" && (
                   <DocumentsAndLinksSection
                     profile={displayFormData}
@@ -367,7 +358,6 @@ const Profile = () => {
                   />
                 )}
 
-                {/* ── Security Settings ─────────────────────────────── */}
                 {tabs[activeTab]?.title === "Security Settings" && (
                   <ChangePasswordSection userType={userType} />
                 )}

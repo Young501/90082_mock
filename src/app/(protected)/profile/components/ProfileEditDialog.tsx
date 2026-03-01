@@ -32,7 +32,8 @@ import {
   useOrganisationProfileUpdateV2,
   useOrganisationMemberMeV2,
   useOrganisationProfileV2,
-  useOrganisationLogoUploadV2,
+  // useOrganisationLogoUploadV2,
+  useLogoUpload,
 } from "@/services/shared";
 import { useAuthStore } from "@/store/authStore";
 
@@ -75,9 +76,9 @@ export function ProfileEditDialog({
   const resumeUpload = useResumeUpload();
   const orgMemberUpdate = useOrganisationMemberUpdateV2();
   const orgProfileUpdate = useOrganisationProfileUpdateV2();
-  const logoUpload = useOrganisationLogoUploadV2();
+  // const organisationLogoUpload = useLogoUpload("organisation");
+  const logoUpload = useLogoUpload("organisation");
 
-  // Determine which models are present on this page
   const hasStudentProfileFields = useMemo(
     () => page.questions.some((q) => !q.model || q.model === "student_profile"),
     [page.questions]
@@ -95,7 +96,6 @@ export function ProfileEditDialog({
     [page.questions]
   );
 
-  // Fresh data queries
   const {
     data: freshStudentData,
     isLoading: isStudentLoading,
@@ -170,7 +170,6 @@ export function ProfileEditDialog({
   const resumeValue = watch("resume");
   const logoValue = watch("logo");
 
-  // Invalidate queries when dialog opens so we fetch fresh data
   useEffect(() => {
     if (!isOpen) return;
     if (hasStudentProfileFields) {
@@ -570,7 +569,7 @@ export function ProfileEditDialog({
                       px={6}
                       fontSize="md"
                       fontWeight="600"
-                      bg="#2AA8E0"
+                      bg="profile.500"
                     >
                       <Flex as="span" align="center" gap={2}>
                         Save and Update

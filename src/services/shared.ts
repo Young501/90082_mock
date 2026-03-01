@@ -117,6 +117,9 @@ export function useLogoUpload(userType: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
+      if (userType === "organisation") {
+        queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
+      }
     },
   });
 }
