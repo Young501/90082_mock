@@ -19,7 +19,6 @@ export const useOnboardingLogic = (userType: string) => {
     "user"
   );
   const { getIsOrganisationMemberOnboarding } = useAuthStore();
-  console.log("isOrganisationMemberOnboarding", getIsOrganisationMemberOnboarding());
   const { data: studentProfileV2, isLoading: isProfileLoading } =
     useStudentProfileV2(userType === "student");
 
