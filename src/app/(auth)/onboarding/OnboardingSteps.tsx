@@ -212,9 +212,9 @@ async function submitOrganisationOnboardingV2(
       await userMeUpdateV2.mutateAsync(userPayload);
     }
 
-    if (Object.keys(organisationMemberPayload).length > 0) {
-      await organisationMemberUpdateV2.mutateAsync(organisationMemberPayload);
-    }
+    // if (Object.keys(organisationMemberPayload).length > 0) {
+    //   await organisationMemberUpdateV2.mutateAsync(organisationMemberPayload);
+    // }
 
     const profilePicture =
       allData.profile_picture ?? allData.profile_picture_url;

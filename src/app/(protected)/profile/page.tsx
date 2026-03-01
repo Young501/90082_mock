@@ -632,7 +632,7 @@ const Profile = () => {
                 )}
 
                 {tabs[activeTab]?.title === "Security Settings" && (
-                  <ChangePasswordSection />
+                  <ChangePasswordSection userType={userType} />
                 )}
               </Box>
             </Tabs.Root>
