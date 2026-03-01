@@ -2,7 +2,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
 import {
-  useUserProfile,
   useStudentProfileV2,
   useOnboardingPages,
   useUserMeV2,
@@ -28,16 +27,6 @@ export const useProfile = (userType: string) => {
   const isStudent = userType === "student";
   const isOrganisation = userType === "organisation";
   const isCoordinator = userType === "coordinator";
-
-  // Legacy user profile API – only used for user types not yet migrated to V2
-  const {
-    data: userProfile,
-    error,
-    isLoading: isUserProfileLoading,
-    isError,
-  } = useUserProfile(
-    isStudent || isCoordinator || isOrganisation ? "" : userType
-  );
 
   // V2 student profile data
   const userDetailsV2 = useAuthStore((s) => s.user?.userDetailsV2);
@@ -119,13 +108,13 @@ export const useProfile = (userType: string) => {
     ? mergedStudentProfile
     : isOrganisation
     ? mergedOrgProfile
-    : (userProfile ?? null);
+    : null;
 
   const userProfileForStore = isStudent
     ? mergedStudentProfile
     : isOrganisation
     ? mergedOrgProfile
-    : userProfile;
+    : null;
 
   useEffect(() => {
     if (userProfileForStore) {
@@ -166,26 +155,13 @@ export const useProfile = (userType: string) => {
       }
       return;
     }
-
-    if (isError && error?.response?.status === 404) {
-      router.push("/onboarding/");
-      return;
-    }
-
-    if (userProfile && redirectOnSuccess && !isCoordinator) {
-      router.push("/discover/");
-    }
-
-    if (isError && error?.response?.status !== 404) {
-      toast.error("Error checking onboarding status");
-    }
   };
 
   const isLoading = isStudent
     ? isStudentProfileLoading
     : isOrganisation
     ? isOrgUserLoading || isOrgMemberLoading || isOrgProfileLoading
-    : isUserProfileLoading;
+    : false;
 
   const university = useMemo(() => {
     if (!isStudent || !studentData) return null;
@@ -201,8 +177,8 @@ export const useProfile = (userType: string) => {
     userProfile: userProfileForStore,
     mergedProfile,
     isLoading,
-    isError: isStudent ? isStudentError : isOrganisation ? isOrgProfileError : isError,
-    error: isStudent ? studentError : isOrganisation ? orgProfileError : error,
+    isError: isStudent ? isStudentError : isOrganisation ? isOrgProfileError : false,
+    error: isStudent ? studentError : isOrganisation ? orgProfileError : undefined,
     handleOnboardingRedirect,
     pages,
     university,

@@ -173,10 +173,6 @@ export const API_ENDPOINTS = {
     method: "PUT",
     url: `/api/v1/${userType}`,
   }),
-  USER_PROFILE: (userType: string): ApiEndpoint => ({
-    method: "GET",
-    url: `/api/v1/${userType}`,
-  }),
   // v2 Profiles & User APIs (Schema 2.0.0)
   STUDENT_PROFILE_V2: {
     method: "GET",
