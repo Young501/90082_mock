@@ -15,6 +15,7 @@ import {
   useStudentProfileV2,
   useOrganisationProfileCreateV2,
   useOrganisationMemberUpdateV2,
+  useOrganisationProfileUpdateV2,
 } from "@/services/shared";
 import { useOnboardingLogic } from "@/hooks/useOnboardingLogic";
 import { createPageSchema } from "@/utils/validationSchemas";
@@ -46,7 +47,6 @@ const ORGANISATION_ENDPOINT_FIELDS = [
   "logo",
   "location",
   "location_geocode_lookup",
-  "abn",
 ];
 
 async function submitStudentOnboardingV2(
@@ -148,6 +148,12 @@ async function submitOrganisationOnboardingV2(
     Record<string, any>,
     unknown
   >,
+  organisationProfileUpdateV2: UseMutationResult<
+    any,
+    any,
+    Record<string, any>,
+    unknown
+  >,
   setUserProfilePictureUrl: (url: string) => void,
   setLogoUrl: (url: string) => void
 ) {
@@ -210,6 +216,11 @@ async function submitOrganisationOnboardingV2(
   if (phase === "user") {
     if (Object.keys(userPayload).length > 0) {
       await userMeUpdateV2.mutateAsync(userPayload);
+      await organisationProfileCreateV2.mutateAsync({
+        ...organisationPayload,
+        // bypass api validation
+        name: organisationPayload.name || "anything",
+      });
     }
 
     if (Object.keys(organisationMemberPayload).length > 0) {
@@ -245,7 +256,7 @@ async function submitOrganisationOnboardingV2(
 
   if (phase === "organisation") {
     if (Object.keys(organisationPayload).length > 0) {
-      await organisationProfileCreateV2.mutateAsync(organisationPayload);
+      await organisationProfileUpdateV2.mutateAsync(organisationPayload);
     }
 
     const logo = allData.logo ?? allData.logo_url;
@@ -317,6 +328,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const studentProfileUpdateV2 = useStudentProfileUpdateV2();
   const userMeUpdateV2 = useUserMeUpdateV2();
   const organisationProfileCreateV2 = useOrganisationProfileCreateV2();
+  const organisationProfileUpdateV2 = useOrganisationProfileUpdateV2();
   const organisationMemberUpdateV2 = useOrganisationMemberUpdateV2();
   const { data: studentProfileV2 } = useStudentProfileV2(
     userType === "student"
@@ -879,6 +891,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
           userMeUpdateV2,
           organisationProfileCreateV2,
           organisationMemberUpdateV2,
+          organisationProfileUpdateV2,
           setProfilePic,
           setLogo
         );
@@ -921,6 +934,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     studentProfileUpdateV2.isPending ||
     userMeUpdateV2.isPending ||
     organisationProfileCreateV2.isPending ||
+    organisationProfileUpdateV2.isPending ||
     organisationMemberUpdateV2.isPending ||
     logoUpload.isPending ||
     profilePictureUpload.isPending ||
