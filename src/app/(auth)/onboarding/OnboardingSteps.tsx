@@ -1,6 +1,6 @@
 "use client";
 
-import { Progress, Box, Heading, Text, HStack } from "@chakra-ui/react";
+import { Progress, Box, Heading, Text, HStack, VStack } from "@chakra-ui/react";
 import { UseMutationResult } from "@tanstack/react-query";
 import { Alert } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
@@ -28,6 +28,7 @@ import { useAuthStore } from "@/store/authStore";
 import { ReviewPreview } from "./ReviewPreview";
 import Loader from "@/components/ui/Loader";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
+import { TriangleAlert } from "lucide-react";
 
 interface Props {
   userType: string;
@@ -919,6 +920,56 @@ export const OnboardingSteps = ({ userType }: Props) => {
         {error}
       </Text>
     );
+
+  const isUnsupportedUniversity =
+    userType === "student" && !userProfile?.university;
+
+  if (isUnsupportedUniversity) {
+    return (
+      <VStack
+        w="100%"
+        maxW="680px"
+        mx="auto"
+        p={8}
+        bg="#FEF2F2"
+        borderRadius="2xl"
+        border="1px solid"
+        borderColor="#FECACA"
+        textAlign="center"
+        alignItems="center"
+        justifyContent="center"
+        gap={4}
+      >
+        <Box bg="#FEE2E2" borderRadius="full" p={4} color="#DC2626">
+          <TriangleAlert size={32} />
+        </Box>
+        <Heading fontSize="xl" fontWeight="600" color="#991B1B">
+          University Not Supported
+        </Heading>
+        <Text fontSize="md" color="#B91C1C" textAlign="center">
+          Your email domain does not belong to a university currently supported
+          on UniConnected.
+        </Text>
+        <ButtonV2
+          variant="primary"
+          h={{ base: "48px", md: "64px" }}
+          fontSize="md"
+          fontWeight="500"
+          w="100%"
+          maxW={{ base: "100%", md: "137px" }}
+          px={{ base: 4, md: 7 }}
+          py={{ base: 4, md: 4.5 }}
+          onClick={async () => {
+            useAuthStore.getState().logout();
+            router.push("/login/");
+          }}
+        >
+          Back to Login
+        </ButtonV2>
+      </VStack>
+    );
+  }
+
   if (!currentPage) return <Text>No onboarding page found.</Text>;
 
   const hasFormErrors = Object.keys(errors).length > 0;

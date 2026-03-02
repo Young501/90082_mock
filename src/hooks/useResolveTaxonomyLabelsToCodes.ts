@@ -69,12 +69,12 @@ export function useResolveTaxonomyLabelsToCodes() {
         const tq = q.taxonomy_query!;
         const university =
           tq.university === "dynamic"
-            ? universitySlug ?? "unimelb"
+            ? universitySlug
             : tq.university ?? null;
         const parent = tq.parent ?? null;
         const key = `${tq.type}|${parent}|${university}`;
         if (!fetchKeys.has(key)) {
-          fetchKeys.set(key, { type: tq.type, parent, university });
+          fetchKeys.set(key, { type: tq.type, parent: parent ?? null, university: university ?? null });
         }
       }
 
@@ -98,7 +98,7 @@ export function useResolveTaxonomyLabelsToCodes() {
           const tq = q.taxonomy_query!;
           const university =
             tq.university === "dynamic"
-              ? universitySlug ?? "unimelb"
+              ? universitySlug
               : tq.university ?? null;
           const parent = tq.parent ?? null;
           const key = `${tq.type}|${parent}|${university}`;
