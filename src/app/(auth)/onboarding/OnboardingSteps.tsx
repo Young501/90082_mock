@@ -974,13 +974,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
 
   const hasFormErrors = Object.keys(errors).length > 0;
 
-  const totalSteps = () => {
-    if (pages.length === 1) {
-      return 2;
-    }
-    return pages.length;
-  };
-
   const hasAbnLookupField = currentPage.questions.some(
     (question) => question.type === "abn_lookup"
   );
