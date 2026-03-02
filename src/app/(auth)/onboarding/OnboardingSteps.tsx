@@ -13,7 +13,6 @@ import {
   useStudentProfileUpdateV2,
   useUserMeUpdateV2,
   useStudentProfileV2,
-  useOrganisationProfileCreateV2,
   useOrganisationMemberUpdateV2,
   useOrganisationProfileUpdateV2,
 } from "@/services/shared";
@@ -136,12 +135,6 @@ async function submitOrganisationOnboardingV2(
   resumeUpload: UseMutationResult<any, any, File, unknown>,
   logoUpload: UseMutationResult<any, any, File, unknown>,
   userMeUpdateV2: UseMutationResult<any, any, Record<string, any>, unknown>,
-  organisationProfileCreateV2: UseMutationResult<
-    any,
-    any,
-    Record<string, any>,
-    unknown
-  >,
   organisationMemberUpdateV2: UseMutationResult<
     any,
     any,
@@ -162,9 +155,13 @@ async function submitOrganisationOnboardingV2(
     .map((q) => q.field);
   const organisationFields = allQuestions
     .filter(
-      (q) => q.model === "organisation" && !q.endpoint && q.type !== "display"
+      (q) =>
+        q.model === "organisation" &&
+        q.type !== "display" &&
+        (q.type === "abn_lookup" || !q.endpoint)
     )
     .map((q) => q.field);
+
   const organisationMemberFields = allQuestions
     .filter(
       (q) =>
@@ -216,11 +213,10 @@ async function submitOrganisationOnboardingV2(
   if (phase === "user") {
     if (Object.keys(userPayload).length > 0) {
       await userMeUpdateV2.mutateAsync(userPayload);
-      await organisationProfileCreateV2.mutateAsync({
-        ...organisationPayload,
-        // bypass api validation
-        name: organisationPayload.name || "anything",
-      });
+    }
+
+    if (Object.keys(organisationPayload).length > 0) {
+      await organisationProfileUpdateV2.mutateAsync(organisationPayload);
     }
 
     if (Object.keys(organisationMemberPayload).length > 0) {
@@ -287,6 +283,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     isLastPage,
     currentPhase,
     isUserPhaseComplete,
+    isOrgMember,
     goToPreviousPage,
     goToNextPage,
     goToPage,
@@ -327,7 +324,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const [abnStatus, setAbnStatus] = useState<AbnValidationStatus>("idle");
   const studentProfileUpdateV2 = useStudentProfileUpdateV2();
   const userMeUpdateV2 = useUserMeUpdateV2();
-  const organisationProfileCreateV2 = useOrganisationProfileCreateV2();
   const organisationProfileUpdateV2 = useOrganisationProfileUpdateV2();
   const organisationMemberUpdateV2 = useOrganisationMemberUpdateV2();
   const { data: studentProfileV2 } = useStudentProfileV2(
@@ -359,26 +355,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     shouldUnregister: false,
   });
 
-  const {
-    setTempOrganisationUser,
-    clearTempOrganisationUser,
-    getIsOrganisationMemberOnboarding,
-    getTempOrganisation,
-    setLogoUrl,
-    userProfile,
-  } = useAuthStore();
-
-  const getProfilePictureUrl = useCallback(
-    (profilePicture: any): string | null => {
-      if (!profilePicture) return null;
-      if (typeof profilePicture === "string") return profilePicture;
-      if (profilePicture instanceof File) {
-        return URL.createObjectURL(profilePicture);
-      }
-      return null;
-    },
-    []
-  );
+  const { setLogoUrl, userProfile } = useAuthStore();
 
   const getAllPossibleFields = useCallback(
     (questions: Question[]): string[] => {
@@ -577,64 +554,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   }, [watch, trigger, currentPage]);
 
-  useEffect(() => {
-    const isOrganisationMember = getIsOrganisationMemberOnboarding();
-    if (
-      userType === "organisation" &&
-      currentPhase === "user" &&
-      Object.keys(formData).length > 0 &&
-      !isOrganisationMember
-    ) {
-      const tempUserData = {
-        first_name: formData.first_name || "",
-        last_name: formData.last_name || "",
-        email: formData.email || "",
-        profile_picture_url: getProfilePictureUrl(formData.profile_picture_url),
-        user_types: [userType],
-      };
-      setTempOrganisationUser(tempUserData);
-    } else if (
-      userType !== "organisation" ||
-      currentPhase !== "user" ||
-      isOrganisationMember
-    ) {
-      const currentTempUser = useAuthStore.getState().tempOrganisationUser;
-      clearTempOrganisationUser();
-    }
-  }, [
-    formData,
-    userType,
-    currentPhase,
-    setTempOrganisationUser,
-    clearTempOrganisationUser,
-    getProfilePictureUrl,
-    getIsOrganisationMemberOnboarding,
-  ]);
-
-  useEffect(() => {
-    return () => {
-      if (userType === "organisation") {
-        const currentTempUser = useAuthStore.getState().tempOrganisationUser;
-        clearTempOrganisationUser();
-      }
-    };
-  }, [userType, clearTempOrganisationUser]);
-
-  useEffect(() => {
-    const currentTempUser = useAuthStore.getState().tempOrganisationUser;
-    if (
-      currentTempUser?.profile_picture_url &&
-      currentTempUser.profile_picture_url.startsWith("blob:")
-    ) {
-      const profileUrl = currentTempUser.profile_picture_url;
-      return () => {
-        if (profileUrl && profileUrl.startsWith("blob:")) {
-          URL.revokeObjectURL(profileUrl);
-        }
-      };
-    }
-  }, []);
-
   const isFollowupOf = useCallback(
     (
       fieldName: string,
@@ -799,6 +718,35 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   };
 
+  const onContinueToOrg = async () => {
+    setHasAttemptedSubmit(true);
+
+    try {
+      const isValid = await performValidationWithoutGhosts();
+      const hasAbnLookup = currentPage?.questions.some(
+        (question) => question.type === "abn_lookup"
+      );
+      const abnBlocked =
+        !!hasAbnLookup &&
+        (abnStatus === "pending" ||
+          abnStatus === "invalid" ||
+          abnStatus === "error");
+
+      if (isValid && !abnBlocked) {
+        setShowValidationError(false);
+        setSubmitError("");
+        await onSubmit();
+      } else {
+        if (abnBlocked) {
+          setSubmitError(ABN_BLOCK_MESSAGE);
+        }
+        setShowValidationError(true);
+      }
+    } catch {
+      setShowValidationError(true);
+    }
+  };
+
   const onReviewClick = async () => {
     setHasAttemptedSubmit(true);
 
@@ -856,7 +804,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
 
       const currentValues = getValues();
       const allData = { ...formData, ...currentValues };
-      const isOrganisationMember = getIsOrganisationMemberOnboarding();
 
       if (userType === "student") {
         const allQuestions = pages.flatMap((p) => p.questions);
@@ -884,28 +831,24 @@ export const OnboardingSteps = ({ userType }: Props) => {
           allData,
           allQuestions,
           currentPhase,
-          isOrganisationMember,
+          isOrgMember,
           profilePictureUpload,
           resumeUpload,
           logoUpload,
           userMeUpdateV2,
-          organisationProfileCreateV2,
           organisationMemberUpdateV2,
           organisationProfileUpdateV2,
           setProfilePic,
           setLogo
         );
 
-        if (currentPhase === "user" && !isOrganisationMember) {
+        if (currentPhase === "user" && !isOrgMember) {
           setShowReviewPreview(false);
           startOrganisationPhase();
           setFormData({});
           setFormKey(0);
           reset();
         } else {
-          clearTempOrganisationUser();
-          const { setIsOrganisationMemberOnboarding } = useAuthStore.getState();
-          setIsOrganisationMemberOnboarding(false);
           router.push("/onboarding/success");
         }
         return;
@@ -933,7 +876,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const loadingStates =
     studentProfileUpdateV2.isPending ||
     userMeUpdateV2.isPending ||
-    organisationProfileCreateV2.isPending ||
     organisationProfileUpdateV2.isPending ||
     organisationMemberUpdateV2.isPending ||
     logoUpload.isPending ||
@@ -1113,23 +1055,43 @@ export const OnboardingSteps = ({ userType }: Props) => {
               )}
 
               {isLastPage ? (
-                <ButtonV2
-                  type="button"
-                  onClick={onReviewClick}
-                  variant="primary"
-                  h="64px"
-                  fontSize="lg"
-                  w={{
-                    base: !isFirstPage ? "calc(50% - 8px)" : "100%",
-                    md: !isFirstPage ? "fit-content" : "100%",
-                  }}
-                  px="28px"
-                  py="18px"
-                  isLoading={loadingStates}
-                  disabled={loadingStates || isAbnBlocking || hasFormErrors}
-                >
-                  Review
-                </ButtonV2>
+                currentPhase === "user" && !isOrgMember ? (
+                  <ButtonV2
+                    type="button"
+                    onClick={onContinueToOrg}
+                    variant="primary"
+                    h="64px"
+                    fontSize="lg"
+                    w={{
+                      base: !isFirstPage ? "calc(50% - 8px)" : "100%",
+                      md: !isFirstPage ? "fit-content" : "100%",
+                    }}
+                    px="28px"
+                    py="18px"
+                    isLoading={loadingStates}
+                    disabled={loadingStates || isAbnBlocking || hasFormErrors}
+                  >
+                    Continue
+                  </ButtonV2>
+                ) : (
+                  <ButtonV2
+                    type="button"
+                    onClick={onReviewClick}
+                    variant="primary"
+                    h="64px"
+                    fontSize="lg"
+                    w={{
+                      base: !isFirstPage ? "calc(50% - 8px)" : "100%",
+                      md: !isFirstPage ? "fit-content" : "100%",
+                    }}
+                    px="28px"
+                    py="18px"
+                    isLoading={loadingStates}
+                    disabled={loadingStates || isAbnBlocking || hasFormErrors}
+                  >
+                    Review
+                  </ButtonV2>
+                )
               ) : (
                 <ButtonV2
                   type="submit"

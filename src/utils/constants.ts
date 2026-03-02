@@ -74,3 +74,17 @@ export const SOCIAL_MEDIA_LINKS = [
   //   link: "https://www.instagram.com/uniconnected",
   // },
 ];
+
+/** required fields for onboarding completion  */
+export const STUDENT_ONBOARDING_REQUIRED_FIELDS = [
+  "faculty",
+  "course_stream",
+] as const;
+
+export const ORGANISATION_MEMBER_REQUIRED_FIELDS = [
+  "job_title",
+] as const;
+
+export const ORGANISATION_REQUIRED_FIELDS = ["name"] as const;
+
+
