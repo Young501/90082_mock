@@ -1,8 +1,18 @@
-import { useState, useMemo, useCallback } from "react";
-import { useOnboardingPages, useStudentProfileV2 } from "@/services/shared";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  useOnboardingPages,
+  useStudentProfileV2,
+  useOrganisationMemberMeV2,
+  useOrganisationProfileV2,
+} from "@/services/shared";
+import { apiRequest, API_ENDPOINTS } from "@/api";
 import { Page } from "@/types/onboarding";
-import { useAuthStore } from "@/store/authStore";
-import { isStudentOnboardingComplete } from "@/hooks/auth";
+import {
+  isStudentOnboardingComplete,
+  isOrganisationMemberComplete,
+  isOrganisationComplete,
+} from "@/hooks/auth";
 
 const normalizePages = (rawPages: any[]): Page[] => {
   if (!Array.isArray(rawPages) || rawPages.length === 0) return [];
@@ -18,10 +28,63 @@ export const useOnboardingLogic = (userType: string) => {
   const [currentPhase, setCurrentPhase] = useState<"user" | "organisation">(
     "user"
   );
-  const { getIsOrganisationMemberOnboarding } = useAuthStore();
-  console.log("isOrganisationMemberOnboarding", getIsOrganisationMemberOnboarding());
+
   const { data: studentProfileV2, isLoading: isProfileLoading } =
     useStudentProfileV2(userType === "student");
+
+  const queryClient = useQueryClient();
+  const {
+    data: organisationMember,
+    isLoading: isMemberLoading,
+    isFetched: isMemberFetched,
+    isError: isMemberError,
+    error: memberError,
+    refetch: refetchMember,
+  } = useOrganisationMemberMeV2(userType === "organisation");
+
+  const isMember404 =
+    isMemberError && (memberError as any)?.response?.status === 404;
+
+  useEffect(() => {
+    if (userType === "organisation" && isMemberFetched && isMember404) {
+      apiRequest({
+        endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_CREATE_V2,
+        body: { name: " " },
+      })
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["organisation-member-me-v2"],
+          });
+          refetchMember();
+        })
+        .catch(() => {});
+    }
+  }, [userType, isMemberFetched, isMember404, queryClient, refetchMember]);
+
+  const {
+    data: organisationProfile,
+    isLoading: isOrgProfileLoading,
+    isFetched: isOrgProfileFetched,
+  } = useOrganisationProfileV2(
+    userType === "organisation" && isOrganisationMemberComplete(organisationMember ?? null)
+  );
+
+  const memberComplete = isOrganisationMemberComplete(organisationMember ?? null);
+  const orgComplete = isOrganisationComplete(organisationProfile ?? null);
+  const isOrgMember = userType === "organisation" && orgComplete;
+
+  // derive the current phase to use
+  const derivedPhase: "user" | "organisation" = useMemo(() => {
+    if (userType !== "organisation") return "user";
+    if (!memberComplete) return "user";
+    if (!orgComplete) return "organisation";
+    return "organisation";
+  }, [userType, memberComplete, orgComplete]);
+
+  useEffect(() => {
+    setCurrentPhase(derivedPhase);
+    setCurrentPageId(1);
+  }, [derivedPhase]);
 
   const shouldFetchOnboardingPages =
     userType !== "student" ||
@@ -37,7 +100,13 @@ export const useOnboardingLogic = (userType: string) => {
   const isLoading =
     (userType === "student" && isProfileLoading) ||
     (userType === "student" && shouldFetchOnboardingPages && isPagesLoading) ||
-    (userType !== "student" && isPagesLoading);
+    (userType === "organisation" &&
+      (isMemberLoading ||
+        (memberComplete && isOrgProfileLoading) ||
+        !isMemberFetched ||
+        (memberComplete && !isOrgProfileFetched && !orgComplete) ||
+        isPagesLoading)) ||
+    (userType !== "student" && userType !== "organisation" && isPagesLoading);
 
   const pages: Page[] = useMemo(() => {
     const onboarding = pagesData?.onboarding_pages;
@@ -48,22 +117,18 @@ export const useOnboardingLogic = (userType: string) => {
     }
 
     if (userType === "organisation") {
-      const isOrgMember = getIsOrganisationMemberOnboarding();
-
       const memberPages =
         onboarding.organisation_member_onboarding ?? onboarding.user ?? [];
       const orgPages =
         onboarding.organisation_onboarding ?? onboarding.organisation ?? [];
 
-      // Org members only complete the personal info phase
       if (isOrgMember) return normalizePages(memberPages);
 
-      // New org owners go through personal info first, then org details
       return normalizePages(currentPhase === "user" ? memberPages : orgPages);
     }
 
     return normalizePages(onboarding.user ?? []);
-  }, [userType, currentPhase, pagesData, getIsOrganisationMemberOnboarding]);
+  }, [userType, currentPhase, pagesData, isOrgMember]);
 
 
   const currentPage = useMemo(() => {
@@ -77,8 +142,6 @@ export const useOnboardingLogic = (userType: string) => {
     if (userType !== "organisation") return null;
     const onboarding = pagesData?.onboarding_pages;
     if (!onboarding) return null;
-
-    const isOrgMember = getIsOrganisationMemberOnboarding();
     const memberPages = normalizePages(
       onboarding.organisation_member_onboarding ?? onboarding.user ?? []
     );
@@ -94,11 +157,7 @@ export const useOnboardingLogic = (userType: string) => {
       memberPages,
       orgPages,
     };
-  }, [
-    userType,
-    pagesData?.onboarding_pages,
-    getIsOrganisationMemberOnboarding,
-  ]);
+  }, [userType, pagesData?.onboarding_pages, isOrgMember]);
 
   const progressInfo = useMemo(() => {
     const currentPageIndex = pages.findIndex((p) => p.id === currentPageId);
@@ -188,10 +247,9 @@ export const useOnboardingLogic = (userType: string) => {
 
   const isUserPhaseComplete = useMemo(() => {
     if (userType !== "organisation") return false;
-    const isOrganisationMember = getIsOrganisationMemberOnboarding();
-    if (isOrganisationMember) return true;
+    if (isOrgMember) return true;
     return currentPhase === "organisation";
-  }, [userType, currentPhase, getIsOrganisationMemberOnboarding]);
+  }, [userType, currentPhase, isOrgMember]);
 
   return {
     pages,
@@ -201,6 +259,9 @@ export const useOnboardingLogic = (userType: string) => {
     error,
     currentPhase,
     isUserPhaseComplete,
+    isOrgMember,
+    organisationMember,
+    organisationProfile,
     ...progressInfo,
     ...navigationInfo,
     goToPreviousPage,

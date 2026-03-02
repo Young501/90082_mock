@@ -13,13 +13,32 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { UserProfile, OrganisationCheckResponse } from "@/types/shared";
+import { UserProfile } from "@/types/shared";
+import { ORGANISATION_MEMBER_REQUIRED_FIELDS, ORGANISATION_REQUIRED_FIELDS, STUDENT_ONBOARDING_REQUIRED_FIELDS } from "@/utils/constants";
 
-/** required fields for student onboarding completion  */
-export const STUDENT_ONBOARDING_REQUIRED_FIELDS = [
-  "faculty",
-  "course_stream",
-] as const;
+export const isOrganisationMemberComplete = (
+  member: Record<string, any> | null
+): boolean => {
+  if (!member) return false;
+  return ORGANISATION_MEMBER_REQUIRED_FIELDS.every((field) => {
+    const value = member[field];
+    if (value == null) return false;
+    if (typeof value === "string") return value.trim() !== "";
+    return true;
+  });
+};
+
+export const isOrganisationComplete = (
+  org: Record<string, any> | null
+): boolean => {
+  if (!org) return false;
+  return ORGANISATION_REQUIRED_FIELDS.every((field) => {
+    const value = org[field];
+    if (value == null) return false;
+    if (typeof value === "string") return value.trim() !== "";
+    return true;
+  });
+};
 
 export const isStudentOnboardingComplete = (
   profile: Record<string, any>
@@ -83,45 +102,52 @@ export const checkOnboardingStatus = async ({
     return;
   }
 
-  try {
-    const response = await apiRequest({
-      endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_V2,
-    });
-    setUserProfile(response);
-    if (redirectOnSuccess) {
-      router.push("/home/");
-    }
-  } catch (error: any) {
-    if (error?.response?.status === 404 && userType === "organisation") {
-      await checkOrganisationDomain(user, router);
-      return;
-    } else if (error?.response?.status === 404 && userType !== "coordinator") {
-      router.push("/onboarding/");
-      return;
-    }
-    console.error("Error checking onboarding status:", error);
-    toast.error("Error checking onboarding status");
-  }
-};
+  if (userType === "organisation") {
+    try {
+      let member: Record<string, any> | null = null;
+      try {
+        member = await apiRequest({
+          endpoint: API_ENDPOINTS.ORGANISATION_MEMBER_ME_V2,
+        });
+      } catch (memberError: any) {
+        if (memberError?.response?.status === 404) {
+          await apiRequest({
+            endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_CREATE_V2,
+            body: { name: " " },
+          });
+          member = await apiRequest({
+            endpoint: API_ENDPOINTS.ORGANISATION_MEMBER_ME_V2,
+          });
+        } else {
+          throw memberError;
+        }
+      }
 
-const checkOrganisationDomain = async (
-  user: User,
-  router: AppRouterInstance
-) => {
-  try {
-    const response = await apiRequest<OrganisationCheckResponse>({
-      endpoint: API_ENDPOINTS.ORGANISATION_CHECK_DOMAIN,
-    });
+      if (!isOrganisationMemberComplete(member)) {
+        if (redirectOnSuccess) router.push("/onboarding/");
+        return;
+      }
 
-    if (response.organisation && response.organisation.id) {
-      const { setTempOrganisation } = useAuthStore.getState();
-      setTempOrganisation(response.organisation);
-      router.push("/onboarding/organisation-match");
-    } else if (response.organisation === null) {
-      router.push("/onboarding/");
+      const org = await apiRequest({
+        endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_V2,
+      });
+      setUserProfile(org);
+
+      if (!isOrganisationComplete(org)) {
+        if (redirectOnSuccess) router.push("/onboarding/");
+        return;
+      }
+
+      if (redirectOnSuccess) router.push("/home/");
+    } catch (error: any) {
+      if (error?.response?.status === 404) {
+        if (redirectOnSuccess) router.push("/onboarding/");
+        return;
+      }
+      console.error("Error checking onboarding status:", error);
+      toast.error("Error checking onboarding status");
     }
-  } catch (error: any) {
-    router.push("/onboarding/");
+    return;
   }
 };
 
