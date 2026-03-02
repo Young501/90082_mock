@@ -202,7 +202,7 @@ function ChangePasswordDialog({
 
 export const ChangePasswordSection = ({ userType }: { userType: string }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { user } = useAuthStore();
+  const { user, userProfile } = useAuthStore();
   const email = user?.email ?? "";
 
   return (
@@ -329,32 +329,34 @@ export const ChangePasswordSection = ({ userType }: { userType: string }) => {
                 </Box>
               </Flex>
             </Box>
-            <Box>
-              <Flex
-                align="center"
-                gap={3}
-                p={4}
-                border="1px solid"
-                borderColor="#22C55E"
-                bg="#F0FDF4"
-                borderRadius="xl"
-              >
-                <BadgeCheck size={18} color="#16A34A" />
-                <VStack flex={1} align="start" gap={1}>
-                  <Text fontSize="md" color="black" fontWeight="500">
-                    ABN Verified
-                  </Text>
-                  <Text fontSize="sm" color="#52525B">
-                    {email}
-                  </Text>
-                </VStack>
-                <Box bg="#16A34A" borderRadius="4px" px={2} py={0.5}>
-                  <Text fontSize="sm" color="white">
-                    Verified
-                  </Text>
-                </Box>
-              </Flex>
-            </Box>
+            {userProfile?.abn_acn && (
+              <Box>
+                <Flex
+                  align="center"
+                  gap={3}
+                  p={4}
+                  border="1px solid"
+                  borderColor="#22C55E"
+                  bg="#F0FDF4"
+                  borderRadius="xl"
+                >
+                  <BadgeCheck size={18} color="#16A34A" />
+                  <VStack flex={1} align="start" gap={1}>
+                    <Text fontSize="md" color="black" fontWeight="500">
+                      ABN Verified
+                    </Text>
+                    <Text fontSize="sm" color="#52525B">
+                      {userProfile?.abn_acn}
+                    </Text>
+                  </VStack>
+                  <Box bg="#16A34A" borderRadius="4px" px={2} py={0.5}>
+                    <Text fontSize="sm" color="white">
+                      Verified
+                    </Text>
+                  </Box>
+                </Flex>
+              </Box>
+            )}
           </VStack>
         </Box>
       )}
