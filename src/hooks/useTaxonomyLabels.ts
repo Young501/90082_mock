@@ -38,7 +38,7 @@ export function useTaxonomyLabels(
           : null;
     const universitySlug =
       taxonomyQuery.university === "dynamic"
-        ? university?.slug ?? "unimelb"
+        ? university?.slug
         : taxonomyQuery.university ?? null;
 
     return {
