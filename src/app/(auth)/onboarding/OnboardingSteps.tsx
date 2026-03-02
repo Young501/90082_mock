@@ -29,6 +29,7 @@ import { CreateOrganisationPrompt } from "./CreateOrganisationPrompt";
 import { ReviewPreview } from "./ReviewPreview";
 import Loader from "@/components/ui/Loader";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
+import { TriangleAlert } from "lucide-react";
 
 interface Props {
   userType: string;
@@ -950,15 +951,27 @@ export const OnboardingSteps = ({ userType }: Props) => {
         maxW="680px"
         mx="auto"
         p={8}
-        bg="white"
+        bg="#FEF2F2"
         borderRadius="2xl"
         border="1px solid"
-        borderColor="#E4E4E7"
+        borderColor="#FECACA"
         textAlign="center"
         alignItems="center"
         justifyContent="center"
+        gap={4}
       >
-        <Text fontSize="lg" color="black" mb={6} textAlign="center">
+        <Box
+          bg="#FEE2E2"
+          borderRadius="full"
+          p={4}
+          color="#DC2626"
+        >
+          <TriangleAlert size={32} />
+        </Box>
+        <Heading fontSize="xl" fontWeight="600" color="#991B1B">
+          University Not Supported
+        </Heading>
+        <Text fontSize="md" color="#B91C1C" textAlign="center">
           Your email domain does not belong to a university currently supported
           on UniConnected.
         </Text>
