@@ -38,7 +38,6 @@ export const ImageUploadField = ({
   const userType = getUserType();
   const { field } = useController({ name, control });
 
-  // Recreate object URL when mounting with existing File (e.g. after navigating back)
   useEffect(() => {
     if (field.value instanceof File) {
       const url = URL.createObjectURL(field.value);

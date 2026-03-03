@@ -111,8 +111,8 @@ function renderFieldValue(
     return <Text color="#A1A1AA">—</Text>;
   }
 
-  console.log("review question", question);
-  console.log("review value", value);
+  // console.log("review question", question);
+  // console.log("review value", value);
   console.log("review formData", formData);
 
   if (question.type === "file-image") {
