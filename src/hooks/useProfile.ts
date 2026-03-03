@@ -96,11 +96,12 @@ export const useProfile = (userType: string) => {
       ...(profileData ?? {}),
       ...(memberData ?? {}),
       ...(userData ?? {}),
-      profile_picture: userData?.profile_picture ?? userData?.profile_picture_url,
+      // profile_picture: userData?.profile_picture ?? userData?.profile_picture_url,
       profile_picture_url:
         userData?.profile_picture_url ?? userData?.profile_picture,
-      logo: profileData?.logo,
+      // logo: profileData?.logo,
       logo_url: profileData?.logo_url ?? profileData?.logo,
+      linkedin: profileData?.linkedin,
     } as Record<string, unknown>;
   }, [isOrganisation, orgUserData, orgMemberData, orgProfileData]);
 

@@ -113,7 +113,7 @@ function renderFieldValue(
 
   // console.log("review question", question);
   // console.log("review value", value);
-  console.log("review formData", formData);
+  // console.log("review formData", formData);
 
   if (question.type === "file-image") {
     const src = getPreviewUrl(value);

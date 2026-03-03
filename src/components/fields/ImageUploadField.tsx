@@ -70,8 +70,8 @@ export const ImageUploadField = ({
 
   const getPreviewSrc = () =>
     previewUrl ||
-    (description === "logo_url" ? getLogoUrl() : getUserProfilePictureUrl()) ||
-    (typeof field.value === "string" ? field.value : null);
+    (typeof field.value === "string" ? field.value : null) ||
+    (description === "logo_url" ? getLogoUrl() : getUserProfilePictureUrl());
 
   const displaySrc = getPreviewSrc();
 

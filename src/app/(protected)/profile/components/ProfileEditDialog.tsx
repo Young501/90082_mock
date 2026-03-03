@@ -210,14 +210,19 @@ export function ProfileEditDialog({
           ...orgProfileData,
           ...orgMemberData,
           ...userData,
-          profile_picture:
-            userData.profile_picture ?? userData.profile_picture_url,
-          profile_picture_url:
-            userData.profile_picture_url ??
-            userData.profile_picture ??
-            studentData.profile_picture_url,
+          // profile_picture:
+          //   userData.profile_picture ?? userData.profile_picture_url,
+          // profile_picture_url:
+          //   userData.profile_picture_url ??
+          //   userData.profile_picture ??
+          //   studentData.profile_picture_url,
           logo: orgProfileData.logo,
-          logo_url: orgProfileData.logo_url ?? orgProfileData.logo,
+          logo_url: orgProfileData.logo,
+          // linkedin: orgProfileData.linkedin,
+          linkedin:
+            studentData.linkedin ??
+            orgProfileData.linkedin ??
+            userData.linkedin,
         }
       : (initialValues as Record<string, any>);
 
@@ -318,20 +323,12 @@ export function ProfileEditDialog({
     setRemovedFiles(new Set());
     onClose();
   };
-  console.log("page.questions", page.questions);
 
   const onSubmit = async (data: Record<string, any>) => {
     const userFields: Record<string, any> = {};
     const studentFields: Record<string, any> = {};
     const orgMemberFields: Record<string, any> = {};
     const orgFields: Record<string, any> = {};
-
-    console.log("data", data);
-    console.log("removedFiles", removedFiles);
-    console.log("userFields", userFields);
-    console.log("studentFields", studentFields);
-    console.log("orgMemberFields", orgMemberFields);
-    console.log("orgFields", orgFields);
 
     for (const q of page.questions) {
       if (q.type === "display") continue;
@@ -453,8 +450,6 @@ export function ProfileEditDialog({
 
   if (!isOpen) return null;
 
-  console.log("errors", errors);
-
   return (
     <Dialog.Root
       open={isOpen}
@@ -520,23 +515,33 @@ export function ProfileEditDialog({
                   )}
 
                   <VStack align="stretch" gap={4}>
-                    {questions.map((question: Question) => (
-                      <FieldRenderer
-                        key={`${fileUploadKey}-${question.field}`}
-                        question={question}
-                        register={register}
-                        control={control}
-                        errors={errors}
-                        setError={setError}
-                        setValue={setValue}
-                        clearErrors={clearErrors}
-                        unregister={unregister}
-                        fileUploadKey={fileUploadKey}
-                        onFileRemove={handleFileRemoval}
-                        removedFiles={removedFiles}
-                        university={university ?? undefined}
-                      />
-                    ))}
+                    {questions.map((question: Question) => {
+                      const fieldValue = watch(question.field);
+                      const fieldProps = {
+                        question,
+                        fieldValue,
+                        fieldError: errors[question.field],
+                        isRemoved: removedFiles.has(question.field),
+                        university: university ?? undefined,
+                      };
+                      return (
+                        <FieldRenderer
+                          key={`${fileUploadKey}-${question.field}`}
+                          question={question}
+                          register={register}
+                          control={control}
+                          errors={errors}
+                          setError={setError}
+                          setValue={setValue}
+                          clearErrors={clearErrors}
+                          unregister={unregister}
+                          fileUploadKey={fileUploadKey}
+                          onFileRemove={handleFileRemoval}
+                          removedFiles={removedFiles}
+                          university={university ?? undefined}
+                        />
+                      );
+                    })}
                   </VStack>
 
                   <Flex gap={3} mt={6} justify="flex-end">
