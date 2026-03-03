@@ -278,17 +278,19 @@ export function ReviewPreview({
                   borderRadius="xl"
                   variant="ghost"
                   border="1px solid"
-                  borderColor="#D6EDFB"
+                  borderColor={
+                    userType === "organisation" ? "#D3EFEA" : "#D6EDFB"
+                  }
                   px={4}
                   py={3}
                   fontSize="sm"
-                  color="#1679AB"
+                  color="profile.500"
                   onClick={() => goToPage(page.id)}
                 >
                   <PenLine
                     size={14}
                     style={{ marginRight: 6 }}
-                    color="#1679AB"
+                    color="var(--chakra-colors-profile-500)"
                   />
                   Edit
                 </ButtonV2>

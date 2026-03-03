@@ -33,9 +33,9 @@ export const ImageUploadField = ({
   onRemove,
 }: ImageUploadFieldProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { getUserProfilePictureUrl, getLogoUrl } = useAuthStore();
+  const { getUserProfilePictureUrl, getLogoUrl, getUserType } = useAuthStore();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
+  const userType = getUserType();
   const { field } = useController({ name, control });
 
   // Recreate object URL when mounting with existing File (e.g. after navigating back)
@@ -108,7 +108,7 @@ export const ImageUploadField = ({
             w="60px"
             h="60px"
             borderRadius="full"
-            bg="#2AA8E0"
+            bg="profile.500"
             display="flex"
             alignItems="center"
             justifyContent="center"
@@ -136,8 +136,8 @@ export const ImageUploadField = ({
           <VStack align="flex-start" gap={2}>
             <ButtonV2
               variant="secondary"
-              borderColor="#D6EDFB"
-              color="#1679AB"
+              borderColor={userType === "organisation" ? "#D3EFEA" : "#D6EDFB"}
+              color="profile.500"
               borderRadius="lg"
               size="sm"
               fontWeight="500"

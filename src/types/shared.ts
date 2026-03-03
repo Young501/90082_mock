@@ -5,6 +5,12 @@ export type UserProfile = StudentProfile &
     organisation?: Organisation;
   };
 
+export interface OrganisationMember {
+  id: number;
+  full_name?: string;
+  profile_picture_url?: string | null;
+}
+
 export interface Organisation {
   id?: number;
   name?: string;
@@ -22,6 +28,8 @@ export interface Organisation {
   company_size?: string;
   created_at?: string;
   contact_email?: string;
+  member_count?: number;
+  members?: OrganisationMember[];
 }
 
 export interface tempOrganisationUser {

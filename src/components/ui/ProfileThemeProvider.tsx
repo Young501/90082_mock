@@ -2,7 +2,11 @@
 
 import { useEffect, type ReactNode } from "react";
 import { useAuthStore } from "@/store/authStore";
-import { PROFILE_COLORS, PROFILE_BORDER_COLORS } from "@/theme/theme";
+import {
+  PROFILE_COLORS,
+  PROFILE_BORDER_COLORS,
+  PROFILE_SECONDARY_COLORS,
+} from "@/theme/theme";
 
 export function useProfileColor() {
   const userType = useAuthStore((s) => s.user?.user_types?.[0]);
@@ -31,8 +35,10 @@ export function ProfileThemeProvider({ children }: { children: ReactNode }) {
 
     const color = PROFILE_COLORS[type];
     const border = PROFILE_BORDER_COLORS[type];
+    const secondary = PROFILE_SECONDARY_COLORS[type];
     root.style.setProperty("--profile-500", color);
     root.style.setProperty("--border-100", border);
+    root.style.setProperty("--secondary-100", secondary);
   }, [userType]);
 
   return <>{children}</>;

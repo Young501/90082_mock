@@ -314,7 +314,7 @@ export const ConversationView = ({
             iconPosition="end"
             icon={<Send size={18} />}
             isLoading={isSending}
-            profileType={profileType}
+            // profileType={profileType}
           >
             <Text fontSize="sm" display={{ base: "none", md: "inline-block" }}>
               Send
