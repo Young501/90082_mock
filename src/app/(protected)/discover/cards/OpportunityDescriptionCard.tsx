@@ -2,6 +2,7 @@
 
 import { Opportunity, AccessibleOpportunity } from "@/types/opportunities";
 import React from "react";
+import { PROFILE_COLORS } from "@/theme/theme";
 import {
   Box,
   Flex,
@@ -114,7 +115,7 @@ export const OpportunityDescriptionCard = ({
                 <HStack gap={2} align="center" flexWrap="no-wrap">
                   <Text
                     fontSize={{ base: "xs", md: "md" }}
-                    color="#1679AB"
+                    color={userType === "organisation" ? PROFILE_COLORS.organisation : "#1679AB"}
                     fontWeight="500"
                   >
                     {visibilityDisplay} Opportunity
