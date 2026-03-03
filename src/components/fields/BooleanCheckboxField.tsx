@@ -40,7 +40,7 @@ export const BooleanCheckboxField = ({
   return (
     <Box>
       <Box mb={4}>
-        <Text fontSize="18px" fontWeight="medium">
+        <Text fontSize="sm" fontWeight="medium" color="#09090B">
           {label}
           {required && (
             <Text as="span" color="red.500" ml={1}>
@@ -55,23 +55,30 @@ export const BooleanCheckboxField = ({
         )}
       </Box>
 
-      <VStack align="stretch" gap={2} ml={4}>
+      <VStack align="stretch" gap={2}>
         {options.map((option) => (
           <Checkbox.Root
             key={option.value.toString()}
             checked={value !== undefined && value === option.value}
             onCheckedChange={() => handleChange(option.value)}
             size="md"
-            colorPalette="blue"
+            colorPalette="profile.500"
             style={{
-              border: "1px solid #A2DDF0",
+              border: "1px solid var(--border-100)",
               borderRadius: "8px",
               padding: "12px",
               width: "260px",
             }}
           >
             <Checkbox.HiddenInput />
-            <Checkbox.Control />
+            <Checkbox.Control
+              bg={value === option.value ? "profile.500" : "transparent"}
+              border={
+                value === option.value
+                  ? "1px solid var(--border-100)"
+                  : "1px solid #E4E4E7"
+              }
+            />
             <Checkbox.Label>
               <Text fontSize="sm">{option.label}</Text>
             </Checkbox.Label>

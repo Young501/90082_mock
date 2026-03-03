@@ -12,6 +12,12 @@ export const PROFILE_BORDER_COLORS = {
   coordinator: "#D6EDFB",
 } as const;
 
+export const PROFILE_SECONDARY_COLORS = {
+  organisation: "#E9F7F6",
+  student: "#EAF6FD",
+  coordinator: "#EAF6FD",
+} as const;
+
 
 
 const config = defineConfig({
@@ -39,12 +45,14 @@ const config = defineConfig({
           },
         },
         profile: {
-          500: { value: "var(--profile-500, #2AA8E0)" },
-          
+          500: { value: "var(--profile-500, #2AA8E0)" }, 
         },
 
         border: {
           100: { value: "var(--border-100, #D6EDFB)" },
+        },
+        secondary: {
+          100: { value: "var(--track-100, #EAF6FD)" },
         },
         
       },

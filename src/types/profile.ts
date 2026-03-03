@@ -6,9 +6,10 @@ export interface OnboardingPage {
 
 export interface OnboardingData {
   onboarding_pages: {
-    user?: OnboardingPage[];
-    organisation?: OnboardingPage[];
+    schema_version?: string;
     student_onboarding?: OnboardingPage[];
+    organisation_onboarding?: OnboardingPage[];
+    organisation_member_onboarding?: OnboardingPage[];
   };
 }
 

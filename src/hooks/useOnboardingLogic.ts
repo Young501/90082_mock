@@ -1,8 +1,18 @@
-import { useState, useMemo, useCallback } from "react";
-import { useOnboardingPages, useStudentProfileV2 } from "@/services/shared";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  useOnboardingPages,
+  useStudentProfileV2,
+  useOrganisationMemberMeV2,
+  useOrganisationProfileV2,
+} from "@/services/shared";
+import { apiRequest, API_ENDPOINTS } from "@/api";
 import { Page } from "@/types/onboarding";
-import { useAuthStore } from "@/store/authStore";
-import { isStudentOnboardingComplete } from "@/hooks/auth";
+import {
+  isStudentOnboardingComplete,
+  isOrganisationMemberComplete,
+  isOrganisationComplete,
+} from "@/hooks/auth";
 
 const normalizePages = (rawPages: any[]): Page[] => {
   if (!Array.isArray(rawPages) || rawPages.length === 0) return [];
@@ -18,9 +28,63 @@ export const useOnboardingLogic = (userType: string) => {
   const [currentPhase, setCurrentPhase] = useState<"user" | "organisation">(
     "user"
   );
-  const { getIsOrganisationMemberOnboarding } = useAuthStore();
+
   const { data: studentProfileV2, isLoading: isProfileLoading } =
     useStudentProfileV2(userType === "student");
+
+  const queryClient = useQueryClient();
+  const {
+    data: organisationMember,
+    isLoading: isMemberLoading,
+    isFetched: isMemberFetched,
+    isError: isMemberError,
+    error: memberError,
+    refetch: refetchMember,
+  } = useOrganisationMemberMeV2(userType === "organisation");
+
+  const isMember404 =
+    isMemberError && (memberError as any)?.response?.status === 404;
+
+  useEffect(() => {
+    if (userType === "organisation" && isMemberFetched && isMember404) {
+      apiRequest({
+        endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_CREATE_V2,
+        body: { name: " " },
+      })
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["organisation-member-me-v2"],
+          });
+          refetchMember();
+        })
+        .catch(() => {});
+    }
+  }, [userType, isMemberFetched, isMember404, queryClient, refetchMember]);
+
+  const {
+    data: organisationProfile,
+    isLoading: isOrgProfileLoading,
+    isFetched: isOrgProfileFetched,
+  } = useOrganisationProfileV2(
+    userType === "organisation" && isOrganisationMemberComplete(organisationMember ?? null)
+  );
+
+  const memberComplete = isOrganisationMemberComplete(organisationMember ?? null);
+  const orgComplete = isOrganisationComplete(organisationProfile ?? null);
+  const isOrgMember = userType === "organisation" && orgComplete;
+
+  // derive the current phase to use
+  const derivedPhase: "user" | "organisation" = useMemo(() => {
+    if (userType !== "organisation") return "user";
+    if (!memberComplete) return "user";
+    if (!orgComplete) return "organisation";
+    return "organisation";
+  }, [userType, memberComplete, orgComplete]);
+
+  useEffect(() => {
+    setCurrentPhase(derivedPhase);
+    setCurrentPageId(1);
+  }, [derivedPhase]);
 
   const shouldFetchOnboardingPages =
     userType !== "student" ||
@@ -36,46 +100,108 @@ export const useOnboardingLogic = (userType: string) => {
   const isLoading =
     (userType === "student" && isProfileLoading) ||
     (userType === "student" && shouldFetchOnboardingPages && isPagesLoading) ||
-    (userType !== "student" && isPagesLoading);
+    (userType === "organisation" &&
+      (isMemberLoading ||
+        (memberComplete && isOrgProfileLoading) ||
+        !isMemberFetched ||
+        (memberComplete && !isOrgProfileFetched && !orgComplete) ||
+        isPagesLoading)) ||
+    (userType !== "student" && userType !== "organisation" && isPagesLoading);
 
   const pages: Page[] = useMemo(() => {
     const onboarding = pagesData?.onboarding_pages;
     if (!onboarding) return [];
 
-    console.log("onboarding", onboarding);
-
-    if (userType === "student" && onboarding.student_onboarding) {
-      return normalizePages(onboarding.student_onboarding);
+    if (userType === "student") {
+      return normalizePages(onboarding.student_onboarding ?? onboarding.user ?? []);
     }
 
-    const userPages = onboarding.user ?? [];
-    const organisationPages = onboarding.organisation ?? [];
+    if (userType === "organisation") {
+      const memberPages =
+        onboarding.organisation_member_onboarding ?? onboarding.user ?? [];
+      const orgPages =
+        onboarding.organisation_onboarding ?? onboarding.organisation ?? [];
 
-    const isOrgMember = getIsOrganisationMemberOnboarding();
-    const showOrgPages =
-      userType === "organisation" && !isOrgMember && currentPhase !== "user";
+      if (isOrgMember) return normalizePages(memberPages);
 
-    return showOrgPages ? organisationPages : userPages;
-  }, [userType, currentPhase, pagesData, getIsOrganisationMemberOnboarding]);
+      return normalizePages(currentPhase === "user" ? memberPages : orgPages);
+    }
+
+    return normalizePages(onboarding.user ?? []);
+  }, [userType, currentPhase, pagesData, isOrgMember]);
 
 
   const currentPage = useMemo(() => {
     return pages.find((p: Page) => p.id === currentPageId);
   }, [pages, currentPageId]);
 
-
   const error = queryError?.message || null;
+
+  // Organisation structure pages
+  const organisationPageStructure = useMemo(() => {
+    if (userType !== "organisation") return null;
+    const onboarding = pagesData?.onboarding_pages;
+    if (!onboarding) return null;
+    const memberPages = normalizePages(
+      onboarding.organisation_member_onboarding ?? onboarding.user ?? []
+    );
+    const orgPages = normalizePages(
+      onboarding.organisation_onboarding ?? onboarding.organisation ?? []
+    );
+
+    if (isOrgMember) {
+      return { totalSteps: memberPages.length, memberPages, orgPages: [] };
+    }
+    return {
+      totalSteps: memberPages.length + orgPages.length,
+      memberPages,
+      orgPages,
+    };
+  }, [userType, pagesData?.onboarding_pages, isOrgMember]);
 
   const progressInfo = useMemo(() => {
     const currentPageIndex = pages.findIndex((p) => p.id === currentPageId);
+
+    if (userType === "organisation" && organisationPageStructure) {
+      const { totalSteps, memberPages } = organisationPageStructure;
+      let currentStep: number;
+
+      if (currentPhase === "user") {
+        currentStep = currentPageIndex >= 0 ? currentPageIndex + 1 : 0;
+      } else {
+        currentStep =
+          memberPages.length + (currentPageIndex >= 0 ? currentPageIndex + 1 : 0);
+      }
+
+      const progressPercent =
+        totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0;
+
+      return {
+        currentPageIndex,
+        progressPercent: Math.round(progressPercent),
+        totalSteps,
+        currentStep,
+      };
+    }
+
+    const totalSteps = pages.length;
+    const currentStep = currentPageIndex >= 0 ? currentPageIndex + 1 : 0;
     const progressPercent =
-      pages.length > 0 ? ((currentPageIndex + 1) / pages.length) * 100 : 0;
+      totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0;
 
     return {
       currentPageIndex,
       progressPercent: Math.round(progressPercent),
+      totalSteps,
+      currentStep,
     };
-  }, [pages, currentPageId]);
+  }, [
+    pages,
+    currentPageId,
+    userType,
+    currentPhase,
+    organisationPageStructure,
+  ]);
 
   const navigationInfo = useMemo(() => {
     const isFirstPage = currentPage?.id === 1;
@@ -121,10 +247,9 @@ export const useOnboardingLogic = (userType: string) => {
 
   const isUserPhaseComplete = useMemo(() => {
     if (userType !== "organisation") return false;
-    const isOrganisationMember = getIsOrganisationMemberOnboarding();
-    if (isOrganisationMember) return true;
+    if (isOrgMember) return true;
     return currentPhase === "organisation";
-  }, [userType, currentPhase, getIsOrganisationMemberOnboarding]);
+  }, [userType, currentPhase, isOrgMember]);
 
   return {
     pages,
@@ -134,6 +259,9 @@ export const useOnboardingLogic = (userType: string) => {
     error,
     currentPhase,
     isUserPhaseComplete,
+    isOrgMember,
+    organisationMember,
+    organisationProfile,
     ...progressInfo,
     ...navigationInfo,
     goToPreviousPage,
