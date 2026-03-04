@@ -223,6 +223,7 @@ export function ProfileEditDialog({
             studentData.linkedin ??
             orgProfileData.linkedin ??
             userData.linkedin,
+          location: orgProfileData.location,
         }
       : (initialValues as Record<string, any>);
 

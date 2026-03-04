@@ -102,6 +102,7 @@ export const useProfile = (userType: string) => {
       // logo: profileData?.logo,
       logo_url: profileData?.logo_url ?? profileData?.logo,
       linkedin: profileData?.linkedin,
+      location: profileData?.location,
     } as Record<string, unknown>;
   }, [isOrganisation, orgUserData, orgMemberData, orgProfileData]);
 
