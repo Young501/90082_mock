@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
-import { Page, Question } from "@/types/onboarding";
+import { AbnValidationStatus, Page, Question } from "@/types/onboarding";
 import { createPageSchema } from "@/utils/validationSchemas";
 import { FieldRenderer } from "@/app/(auth)/onboarding/FieldRenderer";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
@@ -154,7 +154,7 @@ export function ProfileEditDialog({
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, dirtyFields },
     reset,
     clearErrors,
     unregister,
@@ -169,6 +169,10 @@ export function ProfileEditDialog({
   const profilePictureValue = watch("profile_picture");
   const resumeValue = watch("resume");
   const logoValue = watch("logo");
+  const organisationNameValue = watch("name") as string | undefined;
+
+  const [abnValidationStatus, setAbnValidationStatus] =
+    useState<AbnValidationStatus>("idle");
 
   useEffect(() => {
     if (!isOpen) return;
@@ -326,6 +330,15 @@ export function ProfileEditDialog({
   };
 
   const onSubmit = async (data: Record<string, any>) => {
+    const hasAbnField = page.questions.some((q) => q.type === "abn_lookup");
+    if (
+      hasAbnField &&
+      (abnValidationStatus === "pending" || abnValidationStatus === "invalid")
+    ) {
+      setError("abn" as any, { message: "Please verify your ABN before saving." });
+      return;
+    }
+
     const userFields: Record<string, any> = {};
     const studentFields: Record<string, any> = {};
     const orgMemberFields: Record<string, any> = {};
@@ -540,6 +553,12 @@ export function ProfileEditDialog({
                           onFileRemove={handleFileRemoval}
                           removedFiles={removedFiles}
                           university={university ?? undefined}
+                          organisationName={
+                            question.type !== "abn_lookup" || !!dirtyFields[question.field]
+                              ? organisationNameValue
+                              : undefined
+                          }
+                          onAbnValidationChange={setAbnValidationStatus}
                         />
                       );
                     })}
