@@ -204,15 +204,17 @@ export const useOnboardingLogic = (userType: string) => {
   ]);
 
   const navigationInfo = useMemo(() => {
-    const isFirstPage = currentPage?.id === 1;
+    const isFirstPage =
+      userType === "organisation" && currentPhase === "organisation"
+        ? false
+        : currentPage?.id === 1;
     const isLastPage = currentPage?.id === pages[pages.length - 1]?.id;
-
 
     return {
       isFirstPage,
       isLastPage,
     };
-  }, [currentPage, pages]);
+  }, [currentPage, pages, userType, currentPhase]);
 
   const goToPreviousPage = useCallback(() => {
     const currentIndex = pages.findIndex((p: Page) => p.id === currentPageId);
@@ -220,6 +222,26 @@ export const useOnboardingLogic = (userType: string) => {
       setCurrentPageId(pages[currentIndex - 1].id);
     }
   }, [pages, currentPageId]);
+
+  const canGoBackToUserPhase = useMemo(() => {
+    if (userType !== "organisation" || !organisationPageStructure) return false;
+    if (currentPhase !== "organisation") return false;
+    const currentIndex = pages.findIndex((p: Page) => p.id === currentPageId);
+    return currentIndex === 0;
+  }, [
+    userType,
+    organisationPageStructure,
+    currentPhase,
+    pages,
+    currentPageId,
+  ]);
+
+  // const isFirstPageOfOrgPhase = useMemo(() => {
+  //   if (userType !== "organisation" || currentPhase !== "organisation")
+  //     return false;
+  //   const currentIndex = pages.findIndex((p: Page) => p.id === currentPageId);
+  //   return currentIndex === 0;
+  // }, [userType, currentPhase, pages, currentPageId]);
 
   const goToNextPage = useCallback(() => {
     const currentIndex = pages.findIndex((p: Page) => p.id === currentPageId);
@@ -245,6 +267,16 @@ export const useOnboardingLogic = (userType: string) => {
     }
   }, [userType]);
 
+  const goToPhaseAndPage = useCallback(
+    (phase: "user" | "organisation", pageId: number) => {
+      if (userType === "organisation") {
+        setCurrentPhase(phase);
+        setCurrentPageId(pageId);
+      }
+    },
+    [userType]
+  );
+
   const isUserPhaseComplete = useMemo(() => {
     if (userType !== "organisation") return false;
     if (isOrgMember) return true;
@@ -262,11 +294,15 @@ export const useOnboardingLogic = (userType: string) => {
     isOrgMember,
     organisationMember,
     organisationProfile,
+    organisationPageStructure,
+    canGoBackToUserPhase,
+    // isFirstPageOfOrgPhase,
     ...progressInfo,
     ...navigationInfo,
     goToPreviousPage,
     goToNextPage,
     goToPage,
+    goToPhaseAndPage,
     startOrganisationPhase,
   };
 };
