@@ -227,7 +227,7 @@ export function ProfileEditDialog({
             studentData.linkedin ??
             orgProfileData.linkedin ??
             userData.linkedin,
-          location: orgProfileData.location,
+          ...(hasOrgFields ? { location: orgProfileData.location } : {}),
         }
       : (initialValues as Record<string, any>);
 
@@ -330,12 +330,12 @@ export function ProfileEditDialog({
   };
 
   const onSubmit = async (data: Record<string, any>) => {
-    const hasAbnField = page.questions.some((q) => q.type === "abn_lookup");
+    const abnQuestion = page.questions.find((q) => q.type === "abn_lookup");
     if (
-      hasAbnField &&
+      abnQuestion &&
       (abnValidationStatus === "pending" || abnValidationStatus === "invalid")
     ) {
-      setError("abn" as any, { message: "Please verify your ABN before saving." });
+      setError(abnQuestion.field as any, { message: "Please verify your ABN before saving." });
       return;
     }
 
