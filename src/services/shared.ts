@@ -2,7 +2,31 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import { useAuthStore } from "@/store/authStore";
 import { Opportunity, AccessibleOpportunity } from "@/types/opportunities";
-import { AbnValidationResponse, TaxonomyQueryParams } from "@/types/shared";
+import { TaxonomyQueryParams } from "@/types/shared";
+
+// Re-export student-specific services
+export {
+  useStudentProfileV2,
+  useStudentProfileUpdateV2,
+  useResumeUpload,
+  useStudentProfile,
+} from "./student";
+
+// Re-export organisation-specific services
+export {
+  useOrganisationDomainCheck,
+  useOrganisationDetail,
+  useOrganisationMemberMeV2,
+  useOrganisationProfileV2,
+  useOrganisationMemberUpdateV2,
+  useOrganisationProfileCreateV2,
+  useOrganisationProfileUpdateV2,
+  useOrganisationLogoUploadV2,
+  useAbnValidation,
+  usePartnerProfile,
+} from "./organisation";
+
+
 
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
@@ -57,25 +81,6 @@ export function useProfilePictureDelete() {
   });
 }
 
-export function useResumeUpload() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-      return apiRequest({
-        endpoint: API_ENDPOINTS.RESUME_UPLOAD,
-        body: formData,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-profile", "student"] });
-      queryClient.invalidateQueries({ queryKey: ["student-profile-v2"] });
-      queryClient.invalidateQueries({ queryKey: ["homepage"] });
-    },
-  });
-}
-
 export function useProfileUpdate(userType: string) {
   const queryClient = useQueryClient();
 
@@ -117,6 +122,9 @@ export function useLogoUpload(userType: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
+      if (userType === "organisation") {
+        queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
+      }
     },
   });
 }
@@ -136,26 +144,6 @@ export function useLogoDelete(userType: string) {
   });
 }
 
-export function useOrganisationDomainCheck() {
-  return useQuery({
-    queryKey: ["organisation-domain-check"],
-    queryFn: () =>
-      apiRequest({ endpoint: API_ENDPOINTS.ORGANISATION_CHECK_DOMAIN }),
-    enabled: false,
-    retry: false,
-  });
-}
-
-export function useOrganisationDetail(id: string) {
-  return useQuery({
-    queryKey: ["organisation-detail", id],
-    queryFn: () =>
-      apiRequest({ endpoint: API_ENDPOINTS.ORGANISATION_DETAIL(id) }),
-    enabled: !!id,
-    staleTime: 10 * 60 * 1000,
-  });
-}
-
 export function useGeocode() {
   const { getUserType } = useAuthStore();
   const user_type = getUserType();
@@ -168,48 +156,6 @@ export function useGeocode() {
         body: { address, target },
       });
       return result;
-    },
-  });
-}
-
-export function useAbnValidation() {
-  return useMutation({
-    mutationFn: async (payload: { abn: string; organisationName: string }) => {
-      return apiRequest<AbnValidationResponse>({
-        endpoint: API_ENDPOINTS.ABN_VALIDATE,
-        body: payload,
-      });
-    },
-  });
-}
-
-export function useUserProfile(userType: string) {
-  return useQuery({
-    queryKey: ["user-profile", userType],
-    queryFn: () =>
-      apiRequest({ endpoint: API_ENDPOINTS.USER_PROFILE(userType) }),
-    enabled: !!userType,
-    staleTime: 5 * 60 * 1000,
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 404) {
-        return false;
-      }
-      return failureCount < 2;
-    },
-  });
-}
-
-export function useStudentProfileV2(enabled: boolean = true) {
-  return useQuery({
-    queryKey: ["student-profile-v2"],
-    queryFn: () => apiRequest({ endpoint: API_ENDPOINTS.STUDENT_PROFILE_V2 }),
-    enabled,
-    staleTime: 5 * 60 * 1000,
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 404) {
-        return false;
-      }
-      return failureCount < 2;
     },
   });
 }
@@ -251,23 +197,6 @@ export function useTaxonomy(params: TaxonomyQueryParams | null) {
   });
 }
 
-export function useStudentProfileUpdateV2() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (data: Record<string, any>) => {
-      return apiRequest({
-        endpoint: API_ENDPOINTS.STUDENT_PROFILE_UPDATE_V2,
-        body: data,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["student-profile-v2"] });
-      queryClient.invalidateQueries({ queryKey: ["user-profile", "student"] });
-      queryClient.invalidateQueries({ queryKey: ["homepage"] });
-    },
-  });
-}
-
 export function useUserMeUpdateV2() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -281,126 +210,6 @@ export function useUserMeUpdateV2() {
       queryClient.invalidateQueries({ queryKey: ["user-me-v2"] });
       queryClient.invalidateQueries({ queryKey: ["user"] });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
-    },
-  });
-}
-
-export function useOrganisationMemberMeV2(enabled: boolean = true) {
-  return useQuery({
-    queryKey: ["organisation-member-me-v2"],
-    queryFn: () =>
-      apiRequest({ endpoint: API_ENDPOINTS.ORGANISATION_MEMBER_ME_V2 }),
-    enabled,
-    staleTime: 5 * 60 * 1000,
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 404) {
-        return false;
-      }
-      return failureCount < 2;
-    },
-  });
-}
-
-export function useOrganisationProfileV2(enabled: boolean = true) {
-  return useQuery({
-    queryKey: ["organisation-profile-v2"],
-    queryFn: () =>
-      apiRequest({ endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_V2 }),
-    enabled,
-    staleTime: 5 * 60 * 1000,
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 404) {
-        return false;
-      }
-      return failureCount < 2;
-    },
-  });
-}
-
-export function useOrganisationMemberUpdateV2() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (data: Record<string, any>) => {
-      return apiRequest({
-        endpoint: API_ENDPOINTS.ORGANISATION_MEMBER_ME_UPDATE_V2,
-        body: data,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["organisation-member-me-v2"] });
-      queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
-      queryClient.invalidateQueries({ queryKey: ["user-profile", "organisation"] });
-      queryClient.invalidateQueries({ queryKey: ["homepage"] });
-    },
-  });
-}
-
-export function useOrganisationProfileCreateV2() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (data: Record<string, any>) => {
-      return apiRequest({
-        endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_CREATE_V2,
-        body: data,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
-      queryClient.invalidateQueries({ queryKey: ["user-profile", "organisation"] });
-      queryClient.invalidateQueries({ queryKey: ["homepage"] });
-    },
-  });
-}
-
-export function useOrganisationProfileUpdateV2() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (data: Record<string, any>) => {
-      return apiRequest({
-        endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_UPDATE_V2,
-        body: data,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
-      queryClient.invalidateQueries({ queryKey: ["user-profile", "organisation"] });
-      queryClient.invalidateQueries({ queryKey: ["homepage"] });
-    },
-  });
-}
-
-export function useStudentProfile(id: string, opportunityId: string) {
-  return useQuery({
-    queryKey: ["student-profile", id, opportunityId],
-    queryFn: () =>
-      apiRequest({
-        endpoint: API_ENDPOINTS.STUDENT_PROFILE(id, opportunityId),
-      }),
-    enabled: !!id,
-    staleTime: 5 * 60 * 1000,
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 404) {
-        return false;
-      }
-      return failureCount < 2;
-    },
-  });
-}
-
-export function usePartnerProfile(id: string, opportunityId: string) {
-  return useQuery({
-    queryKey: ["partner-profile", id, opportunityId],
-    queryFn: () =>
-      apiRequest({
-        endpoint: API_ENDPOINTS.PARTNER_PROFILE(id, opportunityId),
-      }),
-    enabled: !!id,
-    staleTime: 5 * 60 * 1000,
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 404) {
-        return false;
-      }
-      return failureCount < 2;
     },
   });
 }
@@ -419,7 +228,6 @@ export function useAccessibleOpportunities() {
 
         let opportunities: AccessibleOpportunity[] = [];
 
-        // Handle different response structures
         if (Array.isArray(response)) {
           opportunities = response;
         } else if (
@@ -432,24 +240,20 @@ export function useAccessibleOpportunities() {
           return [];
         }
 
-        // Map opportunities using enrollment_status from API response
         const opportunitiesWithStatus = opportunities.map(
           (o: AccessibleOpportunity) => {
-            // Use enrollment_status from API response if available
             let enrollmentStatus = "not_enrolled";
             if (o.enrollment_status) {
-              // Map API enrollment_status to our expected format
               if (o.enrollment_status === "enrolled") {
                 enrollmentStatus = "enrolled";
               } else if (o.enrollment_status === "not_enrolled") {
                 enrollmentStatus = "not_enrolled";
               } else {
-                // Handle other possible values
                 enrollmentStatus = o.enrollment_status;
               }
             }
 
-            const mappedOpp = {
+            return {
               id: o.id,
               title: o.title,
               enrollment_status: enrollmentStatus,
@@ -466,7 +270,6 @@ export function useAccessibleOpportunities() {
               access: o.access || null,
               slug: o.slug || "",
             };
-            return mappedOpp;
           }
         );
 
@@ -546,7 +349,6 @@ export function useOpportunityDetail(opportunityId: string) {
   });
 }
 
-// Get participant record for a specific opportunity
 export function useOpportunityParticipant(
   opportunityId: string | number,
   enabled?: boolean
@@ -569,7 +371,6 @@ export function useOpportunityParticipant(
   });
 }
 
-// Utility function to categorize opportunities
 export function categorizeOpportunities(
   opportunities: (Opportunity | AccessibleOpportunity)[]
 ) {
@@ -579,19 +380,14 @@ export function categorizeOpportunities(
   opportunities.forEach((opportunity) => {
     let isEnrolled = false;
 
-    // Check if it's an AccessibleOpportunity with status field
     if ("enrollment_status" in opportunity) {
       isEnrolled = opportunity.enrollment_status === "enrolled";
-    }
-    // Check if it's an Opportunity with participant_record
-    else if (
+    } else if (
       "participant_record" in opportunity &&
       opportunity.participant_record
     ) {
       isEnrolled = opportunity.participant_record.status === "Enrolled";
-    }
-    // Fallback to is_enrolled field
-    else if (opportunity.is_enrolled === true) {
+    } else if (opportunity.is_enrolled === true) {
       isEnrolled = true;
     }
 

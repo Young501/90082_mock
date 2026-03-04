@@ -253,7 +253,7 @@ export const useAuth = () => {
       });
     },
     onSettled: () => {
-      queryClient.removeQueries({ queryKey: ["homepage"] });
+      queryClient.clear();
     },
     onError: (error: any) => {
       const errorMessage = getErrorMessage(error, "Logout failed");

@@ -38,7 +38,6 @@ export const ImageUploadField = ({
   const userType = getUserType();
   const { field } = useController({ name, control });
 
-  // Recreate object URL when mounting with existing File (e.g. after navigating back)
   useEffect(() => {
     if (field.value instanceof File) {
       const url = URL.createObjectURL(field.value);
@@ -71,8 +70,8 @@ export const ImageUploadField = ({
 
   const getPreviewSrc = () =>
     previewUrl ||
-    (description === "logo_url" ? getLogoUrl() : getUserProfilePictureUrl()) ||
-    (typeof field.value === "string" ? field.value : null);
+    (typeof field.value === "string" ? field.value : null) ||
+    (description === "logo_url" ? getLogoUrl() : getUserProfilePictureUrl());
 
   const displaySrc = getPreviewSrc();
 
