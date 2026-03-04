@@ -479,7 +479,7 @@ export const FieldRenderer = ({
           description={
             question.field === "profile_picture"
               ? "profile_picture"
-              : question.field === "logo_url"
+              : question.field === "logo" || question.field === "logo_url"
                 ? "logo_url"
                 : undefined
           }

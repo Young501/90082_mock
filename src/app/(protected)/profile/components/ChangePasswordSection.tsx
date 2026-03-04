@@ -19,7 +19,7 @@ import { InputField } from "@/components/ui";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store";
-import { X, Lock, Mail } from "lucide-react";
+import { X, Lock, Mail, BadgeCheck } from "lucide-react";
 
 function ChangePasswordDialog({
   isOpen,
@@ -187,7 +187,6 @@ function ChangePasswordDialog({
                     px={6}
                     fontSize="md"
                     fontWeight="600"
-                    bg="#2AA8E0"
                   >
                     Change Password
                   </ButtonV2>
@@ -201,48 +200,59 @@ function ChangePasswordDialog({
   );
 }
 
-export function ChangePasswordSection() {
+export const ChangePasswordSection = ({ userType }: { userType: string }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { user } = useAuthStore();
+  const { user, userProfile } = useAuthStore();
   const email = user?.email ?? "";
 
   return (
     <VStack align="stretch" gap={4}>
-      <Box
-        bg="white"
-        borderRadius="12px"
-        border="1px solid"
-        borderColor="#E4E4E7"
-        overflow="hidden"
-        py={5}
-        px={{ base: 4, md: 5 }}
-      >
-        <Box pb={4}>
-          <Heading fontSize="lg" fontWeight="600" color="#18181B">
-            Email Address
-          </Heading>
-        </Box>
-        <Separator borderColor="#E4E4E7" />
-        <Box py={4}>
-          <Text fontSize="sm" color="#52525B" mb={3}>
-            Your email address is managed by your university
-          </Text>
-          <Flex
-            align="center"
-            gap={3}
-            px={4}
-            py={3}
-            bg="#F4F4F5 "
-            borderRadius="4px"
-            h="48px"
-          >
-            <Mail size={18} color="black" />
-            <Text fontSize="sm" color="black">
-              {email || "No email on file"}
+      <VStack gap={2} justify="start" align="start">
+        <Heading fontSize="xl" fontWeight="600" color="#18181B">
+          Settings
+        </Heading>
+        <Text fontSize="sm" color="#52525B">
+          Manage your organisation&apos;s settings and preferences.
+        </Text>
+      </VStack>
+
+      {userType === "student" && (
+        <Box
+          bg="white"
+          borderRadius="12px"
+          border="1px solid"
+          borderColor="#E4E4E7"
+          overflow="hidden"
+          py={5}
+          px={{ base: 4, md: 5 }}
+        >
+          <Box pb={4}>
+            <Heading fontSize="lg" fontWeight="600" color="#18181B">
+              Email Address
+            </Heading>
+          </Box>
+          <Separator borderColor="#E4E4E7" />
+          <Box py={4}>
+            <Text fontSize="sm" color="#52525B" mb={3}>
+              Your email address is managed by your university
             </Text>
-          </Flex>
+            <Flex
+              align="center"
+              gap={3}
+              px={4}
+              py={3}
+              bg="#F4F4F5 "
+              borderRadius="4px"
+              h="48px"
+            >
+              <Mail size={18} color="black" />
+              <Text fontSize="sm" color="black">
+                {email || "No email on file"}
+              </Text>
+            </Flex>
+          </Box>
         </Box>
-      </Box>
+      )}
 
       <Box
         bg="white"
@@ -269,12 +279,87 @@ export function ChangePasswordSection() {
             h="48px"
             fontSize="sm"
             fontWeight="500"
-            icon={<Lock size={18} color="#1679AB" />}
+            icon={<Lock size={18} color="var(--chakra-colors-profile-500)" />}
           >
             Change Password
           </ButtonV2>
         </Box>
       </Box>
+
+      {userType === "organisation" && (
+        <Box
+          bg="white"
+          borderRadius="12px"
+          border="1px solid"
+          borderColor="#E4E4E7"
+          overflow="hidden"
+          p={5}
+          px={{ base: 4, md: 5 }}
+        >
+          <Box pb={4}>
+            <Heading fontSize="lg" fontWeight="600" color="#18181B">
+              Verification status
+            </Heading>
+          </Box>
+          <Separator borderColor="#E4E4E7" />
+          <VStack gap={5} w="100%" align="stretch">
+            <Box pt={4}>
+              <Flex
+                align="center"
+                gap={3}
+                p={4}
+                border="1px solid"
+                borderColor="#22C55E"
+                bg="#F0FDF4"
+                borderRadius="xl"
+              >
+                <BadgeCheck size={18} color="#16A34A" />
+                <VStack flex={1} align="start" gap={1}>
+                  <Text fontSize="md" color="black" fontWeight="500">
+                    Email Verified
+                  </Text>
+                  <Text fontSize="sm" color="#52525B">
+                    {email}
+                  </Text>
+                </VStack>
+                <Box bg="#16A34A" borderRadius="4px" px={2} py={0.5}>
+                  <Text fontSize="sm" color="white">
+                    Verified
+                  </Text>
+                </Box>
+              </Flex>
+            </Box>
+            {userProfile?.abn_acn && (
+              <Box>
+                <Flex
+                  align="center"
+                  gap={3}
+                  p={4}
+                  border="1px solid"
+                  borderColor="#22C55E"
+                  bg="#F0FDF4"
+                  borderRadius="xl"
+                >
+                  <BadgeCheck size={18} color="#16A34A" />
+                  <VStack flex={1} align="start" gap={1}>
+                    <Text fontSize="md" color="black" fontWeight="500">
+                      ABN Verified
+                    </Text>
+                    <Text fontSize="sm" color="#52525B">
+                      {userProfile?.abn_acn}
+                    </Text>
+                  </VStack>
+                  <Box bg="#16A34A" borderRadius="4px" px={2} py={0.5}>
+                    <Text fontSize="sm" color="white">
+                      Verified
+                    </Text>
+                  </Box>
+                </Flex>
+              </Box>
+            )}
+          </VStack>
+        </Box>
+      )}
 
       <ChangePasswordDialog
         isOpen={isDialogOpen}
@@ -282,4 +367,4 @@ export function ChangePasswordSection() {
       />
     </VStack>
   );
-}
+};

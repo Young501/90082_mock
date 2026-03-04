@@ -1,21 +1,15 @@
 "use client";
 
-import {
-  Box,
-  Text,
-  Heading,
-  Flex,
-  HStack,
-  Tag,
-} from "@chakra-ui/react";
+import { Box, Text, Heading, Flex, HStack, Tag } from "@chakra-ui/react";
 import { PenLine, FileText, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { Page, Question } from "@/types/onboarding";
 import { formatAnswerForDisplay } from "@/utils/formatAnswer";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { useTaxonomyLabels } from "@/hooks/useTaxonomyLabels";
+import { useAuthStore } from "@/store/authStore";
 
-const SKIP_TYPES = ["abn_lookup", "display"];
+const SKIP_TYPES = ["display"];
 
 function ImagePreview({ src, isFile }: { src: string; isFile: boolean }) {
   return (
@@ -117,12 +111,14 @@ function renderFieldValue(
     return <Text color="#A1A1AA">—</Text>;
   }
 
+  // console.log("review question", question);
+  // console.log("review value", value);
+  // console.log("review formData", formData);
+
   if (question.type === "file-image") {
     const src = getPreviewUrl(value);
     if (src) {
-      return (
-        <ImagePreview src={src} isFile={value instanceof File} />
-      );
+      return <ImagePreview src={src} isFile={value instanceof File} />;
     }
     return <Text color="#A1A1AA">Image uploaded</Text>;
   }
@@ -189,6 +185,14 @@ function renderFieldValue(
     );
   }
 
+  if (question.type === "abn_lookup") {
+    return (
+      <Text fontSize="sm" color="#3F3F46" fontWeight="500">
+        {value as number}
+      </Text>
+    );
+  }
+
   const display = formatAnswerForDisplay(question, value);
 
   if (question.type === "textarea") {
@@ -224,6 +228,7 @@ export function ProfileSectionCard({
   onEdit,
   university,
 }: ProfileSectionCardProps) {
+  const userType = useAuthStore((state) => state.getUserType());
   const questions = collectQuestions(page.questions, formData);
   if (questions.length === 0) return null;
 
@@ -249,14 +254,18 @@ export function ProfileSectionCard({
           borderRadius="xl"
           variant="ghost"
           border="1px solid"
-          borderColor="#D6EDFB"
+          borderColor={userType === "organisation" ? "#D3EFEA" : "#D6EDFB"}
           px={4}
           py={3}
           fontSize="sm"
-          color="#1679AB"
+          color="profile.500"
           onClick={onEdit}
         >
-          <PenLine size={14} style={{ marginRight: 6 }} color="#1679AB" />
+          <PenLine
+            size={14}
+            style={{ marginRight: 6 }}
+            color="var(--chakra-colors-profile-500)"
+          />
           Edit
         </ButtonV2>
       </Flex>
