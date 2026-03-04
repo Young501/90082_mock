@@ -19,6 +19,7 @@ import {
 import { useOnboardingLogic } from "@/hooks/useOnboardingLogic";
 import { createPageSchema } from "@/utils/validationSchemas";
 import { FieldRenderer } from "./FieldRenderer";
+import { OrgSubmissionProgress } from "./OrgSubmissionProgress";
 import { Button } from "@/components/ui/Button";
 import { AbnValidationStatus, Question } from "@/types/onboarding";
 import { toast } from "react-toastify";
@@ -383,6 +384,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const [showValidationError, setShowValidationError] =
     useState<boolean>(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false);
+  const [isOrgSubmitting, setIsOrgSubmitting] = useState<boolean>(false);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [formKey, setFormKey] = useState<number>(0);
   const [parentValues, setParentValues] = useState<Record<string, any>>({});
@@ -713,6 +715,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
       const memberPages = organisationPageStructure.memberPages;
       const lastMemberPage = memberPages[memberPages.length - 1];
       if (lastMemberPage) {
+        const currentOrgData = { ...formData, ...getValues() };
+        setAccumulatedOrgData(currentOrgData);
         const memberDataToRestore =
           Object.keys(accumulatedOrgMemberData).length > 0
             ? accumulatedOrgMemberData
@@ -733,6 +737,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     goToPhaseAndPage,
     goToPreviousPage,
     reset,
+    setAccumulatedOrgData,
   ]);
 
   const handleParentValueChange = useCallback(
@@ -971,19 +976,27 @@ export const OnboardingSteps = ({ userType }: Props) => {
               ]
             : pages.flatMap((p) => p.questions);
 
-        await submitOrganisationOnboardingV2(
-          mergedData,
-          allQuestions,
-          { isFinalSubmit: isFromReview },
-          profilePictureUpload,
-          resumeUpload,
-          logoUpload,
-          userMeUpdateV2,
-          organisationMemberUpdateV2,
-          organisationProfileUpdateV2,
-          setProfilePic,
-          setLogo
-        );
+        setIsOrgSubmitting(true);
+
+        const MIN_DISPLAY_MS = 5 * 1100 + 400;
+        await Promise.all([
+          submitOrganisationOnboardingV2(
+            mergedData,
+            allQuestions,
+            { isFinalSubmit: isFromReview },
+            profilePictureUpload,
+            resumeUpload,
+            logoUpload,
+            userMeUpdateV2,
+            organisationMemberUpdateV2,
+            organisationProfileUpdateV2,
+            setProfilePic,
+            setLogo
+          ),
+          new Promise<void>((resolve) =>
+            setTimeout(resolve, MIN_DISPLAY_MS)
+          ),
+        ]);
 
         router.push("/onboarding/success");
         return;
@@ -991,6 +1004,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
 
       router.push("/onboarding/success");
     } catch (error: any) {
+      setIsOrgSubmitting(false);
       console.error(error);
       const errorMessage =
         error?.response?.data?.error ||
@@ -1018,6 +1032,10 @@ export const OnboardingSteps = ({ userType }: Props) => {
     logoUpload.isPending ||
     profilePictureUpload.isPending ||
     resumeUpload.isPending;
+
+  if (isOrgSubmitting) {
+    return <OrgSubmissionProgress />;
+  }
 
   if (showReviewPreview && isLastPage) {
     const reviewFormData =
