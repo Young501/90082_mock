@@ -19,6 +19,7 @@ import {
 import { useOnboardingLogic } from "@/hooks/useOnboardingLogic";
 import { createPageSchema } from "@/utils/validationSchemas";
 import { FieldRenderer } from "./FieldRenderer";
+import { OrgSubmissionProgress } from "./OrgSubmissionProgress";
 import { Button } from "@/components/ui/Button";
 import { AbnValidationStatus, Question } from "@/types/onboarding";
 import { toast } from "react-toastify";
@@ -127,11 +128,16 @@ async function submitStudentOnboardingV2(
   toast.success("Profile created successfully!");
 }
 
+const ORG_PAGE_ID_OFFSET = 1000;
+
 async function submitOrganisationOnboardingV2(
   allData: Record<string, any>,
   allQuestions: Question[],
-  phase: "user" | "organisation",
-  isOrganisationMember: boolean,
+  options: {
+    phase?: "user" | "organisation";
+    isOrganisationMember?: boolean;
+    isFinalSubmit?: boolean;
+  },
   profilePictureUpload: UseMutationResult<any, any, File, unknown>,
   resumeUpload: UseMutationResult<any, any, File, unknown>,
   logoUpload: UseMutationResult<any, any, File, unknown>,
@@ -151,6 +157,11 @@ async function submitOrganisationOnboardingV2(
   setUserProfilePictureUrl: (url: string) => void,
   setLogoUrl: (url: string) => void
 ) {
+  const {
+    phase = "user",
+    isOrganisationMember = false,
+    isFinalSubmit = false,
+  } = options;
   const userFields = allQuestions
     .filter((q) => q.model === "user" && !q.endpoint && q.type !== "display")
     .map((q) => q.field);
@@ -209,6 +220,58 @@ async function submitOrganisationOnboardingV2(
         organisationPayload.location = allData.location;
       }
     }
+  }
+
+  if (isFinalSubmit) {
+    if (Object.keys(userPayload).length > 0) {
+      await userMeUpdateV2.mutateAsync(userPayload);
+    }
+
+    if (Object.keys(organisationPayload).length > 0) {
+      await organisationProfileUpdateV2.mutateAsync(organisationPayload);
+    }
+
+    if (Object.keys(organisationMemberPayload).length > 0) {
+      await organisationMemberUpdateV2.mutateAsync(organisationMemberPayload);
+    }
+
+    const profilePicture =
+      allData.profile_picture ?? allData.profile_picture_url;
+    if (profilePicture instanceof File) {
+      try {
+        const profileRes =
+          await profilePictureUpload.mutateAsync(profilePicture);
+        if (profileRes?.profile_picture_url) {
+          setUserProfilePictureUrl(profileRes.profile_picture_url);
+        }
+      } catch {
+        toast.error("Profile picture upload failed. You can add it later.");
+      }
+    }
+
+    const resume = allData.resume ?? allData.resume_url;
+    if (resume instanceof File) {
+      try {
+        await resumeUpload.mutateAsync(resume);
+      } catch {
+        toast.error("Resume upload failed. You can add it later.");
+      }
+    }
+
+    const logo = allData.logo ?? allData.logo_url;
+    if (logo instanceof File) {
+      try {
+        const logoRes = await logoUpload.mutateAsync(logo);
+        if (logoRes?.logo_url) {
+          setLogoUrl(logoRes.logo_url);
+        }
+      } catch {
+        toast.error("Logo upload failed. You can add it later.");
+      }
+    }
+
+    toast.success("Profile created successfully!");
+    return;
   }
 
   if (phase === "user") {
@@ -288,7 +351,10 @@ export const OnboardingSteps = ({ userType }: Props) => {
     goToPreviousPage,
     goToNextPage,
     goToPage,
+    goToPhaseAndPage,
     startOrganisationPhase,
+    organisationPageStructure,
+    canGoBackToUserPhase,
     totalSteps,
     currentStep,
   } = useOnboardingLogic(userType);
@@ -318,11 +384,21 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const [showValidationError, setShowValidationError] =
     useState<boolean>(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false);
+  const [isOrgSubmitting, setIsOrgSubmitting] = useState<boolean>(false);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [formKey, setFormKey] = useState<number>(0);
   const [parentValues, setParentValues] = useState<Record<string, any>>({});
   const [showReviewPreview, setShowReviewPreview] = useState<boolean>(false);
   const [abnStatus, setAbnStatus] = useState<AbnValidationStatus>("idle");
+  const [accumulatedOrgMemberData, setAccumulatedOrgMemberData] = useState<
+    Record<string, any>
+  >({});
+  const [accumulatedOrgData, setAccumulatedOrgData] = useState<
+    Record<string, any>
+  >({});
+  const [reviewFormDataSnapshot, setReviewFormDataSnapshot] = useState<
+    Record<string, any> | null
+  >(null);
   const studentProfileUpdateV2 = useStudentProfileUpdateV2();
   const userMeUpdateV2 = useUserMeUpdateV2();
   const organisationProfileUpdateV2 = useOrganisationProfileUpdateV2();
@@ -634,6 +710,36 @@ export const OnboardingSteps = ({ userType }: Props) => {
     [getValues, currentPage, trigger]
   );
 
+  const handleBack = useCallback(() => {
+    if (canGoBackToUserPhase && organisationPageStructure) {
+      const memberPages = organisationPageStructure.memberPages;
+      const lastMemberPage = memberPages[memberPages.length - 1];
+      if (lastMemberPage) {
+        const currentOrgData = { ...formData, ...getValues() };
+        setAccumulatedOrgData(currentOrgData);
+        const memberDataToRestore =
+          Object.keys(accumulatedOrgMemberData).length > 0
+            ? accumulatedOrgMemberData
+            : { ...formData, ...getValues() };
+        goToPhaseAndPage("user", lastMemberPage.id);
+        setFormData(memberDataToRestore);
+        reset(memberDataToRestore, { keepDefaultValues: false });
+      }
+    } else {
+      goToPreviousPage();
+    }
+  }, [
+    canGoBackToUserPhase,
+    organisationPageStructure,
+    accumulatedOrgMemberData,
+    formData,
+    getValues,
+    goToPhaseAndPage,
+    goToPreviousPage,
+    reset,
+    setAccumulatedOrgData,
+  ]);
+
   const handleParentValueChange = useCallback(
     (fieldName: string, newValue: any) => {
       const currentParentValue = parentValues[fieldName];
@@ -736,7 +842,21 @@ export const OnboardingSteps = ({ userType }: Props) => {
       if (isValid && !abnBlocked) {
         setShowValidationError(false);
         setSubmitError("");
-        await onSubmit();
+        const currentValues = getValues();
+        const memberData = { ...formData, ...currentValues };
+        setAccumulatedOrgMemberData(memberData);
+        setShowReviewPreview(false);
+        setReviewFormDataSnapshot(null);
+        startOrganisationPhase();
+        if (Object.keys(accumulatedOrgData).length > 0) {
+          setFormData(accumulatedOrgData);
+          reset(accumulatedOrgData, { keepDefaultValues: false });
+          setAccumulatedOrgData({});
+        } else {
+          setFormData({});
+          reset();
+        }
+        setFormKey(0);
       } else {
         if (abnBlocked) {
           setSubmitError(ABN_BLOCK_MESSAGE);
@@ -765,6 +885,16 @@ export const OnboardingSteps = ({ userType }: Props) => {
       if (isValid && !abnBlocked) {
         setShowValidationError(false);
         setSubmitError("");
+        const currentValues = getValues();
+        const snapshot =
+          userType === "organisation" && organisationPageStructure
+            ? {
+                ...accumulatedOrgMemberData,
+                ...formData,
+                ...currentValues,
+              }
+            : { ...formData, ...currentValues };
+        setReviewFormDataSnapshot(snapshot);
         setShowReviewPreview(true);
       } else {
         if (abnBlocked) {
@@ -824,39 +954,57 @@ export const OnboardingSteps = ({ userType }: Props) => {
       }
 
       if (userType === "organisation") {
-        const allQuestions = pages.flatMap((p) => p.questions);
         const { setUserProfilePictureUrl: setProfilePic, setLogoUrl: setLogo } =
           useAuthStore.getState();
 
-        await submitOrganisationOnboardingV2(
-          allData,
-          allQuestions,
-          currentPhase,
-          isOrgMember,
-          profilePictureUpload,
-          resumeUpload,
-          logoUpload,
-          userMeUpdateV2,
-          organisationMemberUpdateV2,
-          organisationProfileUpdateV2,
-          setProfilePic,
-          setLogo
-        );
+        const isFromReview = showReviewPreview;
+        const mergedData =
+          isFromReview && reviewFormDataSnapshot
+            ? reviewFormDataSnapshot
+            : isFromReview
+              ? { ...accumulatedOrgMemberData, ...allData }
+              : allData;
+        const allQuestions =
+          isFromReview && organisationPageStructure
+            ? [
+                ...organisationPageStructure.memberPages.flatMap(
+                  (p) => p.questions
+                ),
+                ...organisationPageStructure.orgPages.flatMap(
+                  (p) => p.questions
+                ),
+              ]
+            : pages.flatMap((p) => p.questions);
 
-        if (currentPhase === "user" && !isOrgMember) {
-          setShowReviewPreview(false);
-          startOrganisationPhase();
-          setFormData({});
-          setFormKey(0);
-          reset();
-        } else {
-          router.push("/onboarding/success");
-        }
+        setIsOrgSubmitting(true);
+
+        const MIN_DISPLAY_MS = 5 * 1100 + 400;
+        await Promise.all([
+          submitOrganisationOnboardingV2(
+            mergedData,
+            allQuestions,
+            { isFinalSubmit: isFromReview },
+            profilePictureUpload,
+            resumeUpload,
+            logoUpload,
+            userMeUpdateV2,
+            organisationMemberUpdateV2,
+            organisationProfileUpdateV2,
+            setProfilePic,
+            setLogo
+          ),
+          new Promise<void>((resolve) =>
+            setTimeout(resolve, MIN_DISPLAY_MS)
+          ),
+        ]);
+
+        router.push("/onboarding/success");
         return;
       }
 
       router.push("/onboarding/success");
     } catch (error: any) {
+      setIsOrgSubmitting(false);
       console.error(error);
       const errorMessage =
         error?.response?.data?.error ||
@@ -869,7 +1017,9 @@ export const OnboardingSteps = ({ userType }: Props) => {
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLastPage) {
+    if (isLastPage) {
+      onReviewClick();
+    } else if (!isLastPage) {
       onNext();
     }
   };
@@ -883,8 +1033,89 @@ export const OnboardingSteps = ({ userType }: Props) => {
     profilePictureUpload.isPending ||
     resumeUpload.isPending;
 
+  if (isOrgSubmitting) {
+    return <OrgSubmissionProgress />;
+  }
+
   if (showReviewPreview && isLastPage) {
-    const reviewFormData = { ...formData, ...getValues() };
+    const reviewFormData =
+      reviewFormDataSnapshot ??
+      (userType === "organisation" && organisationPageStructure
+        ? {
+            ...accumulatedOrgMemberData,
+            ...formData,
+            ...getValues(),
+          }
+        : { ...formData, ...getValues() });
+
+    const reviewPages =
+      userType === "organisation" && organisationPageStructure
+        ? [
+            ...organisationPageStructure.memberPages,
+            ...organisationPageStructure.orgPages.map((p) => ({
+              ...p,
+              id: p.id + ORG_PAGE_ID_OFFSET,
+            })),
+          ]
+        : pages;
+
+    const handleReviewGoToPage = (pageId: number) => {
+      const snapshot = reviewFormDataSnapshot;
+      if (
+        userType === "organisation" &&
+        organisationPageStructure &&
+        pageId < ORG_PAGE_ID_OFFSET &&
+        snapshot
+      ) {
+        const orgFields = new Set(
+          organisationPageStructure.orgPages.flatMap((p) =>
+            getAllPossibleFields(p.questions)
+          )
+        );
+        const orgData: Record<string, any> = {};
+        Object.entries(snapshot).forEach(([field, value]) => {
+          if (orgFields.has(field)) orgData[field] = value;
+        });
+        setAccumulatedOrgData(orgData);
+      }
+      setShowReviewPreview(false);
+      setReviewFormDataSnapshot(null);
+      if (
+        userType === "organisation" &&
+        organisationPageStructure &&
+        pageId >= ORG_PAGE_ID_OFFSET
+      ) {
+        goToPhaseAndPage("organisation", pageId - ORG_PAGE_ID_OFFSET);
+      } else if (
+        userType === "organisation" &&
+        organisationPageStructure &&
+        pageId < ORG_PAGE_ID_OFFSET
+      ) {
+        const memberDataToRestore =
+          Object.keys(accumulatedOrgMemberData).length > 0
+            ? accumulatedOrgMemberData
+            : snapshot
+              ? (() => {
+                  const memberFields = new Set(
+                    organisationPageStructure.memberPages.flatMap((p) =>
+                      getAllPossibleFields(p.questions)
+                    )
+                  );
+                  const data: Record<string, any> = {};
+                  Object.entries(snapshot).forEach(([field, value]) => {
+                    if (memberFields.has(field)) data[field] = value;
+                  });
+                  return data;
+                })()
+              : { ...formData, ...getValues() };
+        goToPhaseAndPage("user", pageId);
+        setFormData(memberDataToRestore);
+        reset(memberDataToRestore, { keepDefaultValues: false });
+      } else {
+        goToPage(pageId);
+      }
+    };
+
     return (
       <Box
         display="flex"
@@ -897,13 +1128,13 @@ export const OnboardingSteps = ({ userType }: Props) => {
         <Box w="100%">
           <ReviewPreview
             formData={reviewFormData}
-            pages={pages}
-            goToPage={(pageId) => {
-              setShowReviewPreview(false);
-              goToPage(pageId);
-            }}
+            pages={reviewPages}
+            goToPage={handleReviewGoToPage}
             onSubmit={onSubmit}
-            onBack={() => setShowReviewPreview(false)}
+            onBack={() => {
+              setShowReviewPreview(false);
+              setReviewFormDataSnapshot(null);
+            }}
             userType={userType}
             isLoading={loadingStates}
             university={userProfile?.university}
@@ -1098,7 +1329,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
                   px="28px"
                   py="18px"
                   fontSize="lg"
-                  onClick={goToPreviousPage}
+                  onClick={handleBack}
                   disabled={loadingStates}
                 >
                   Back
@@ -1106,7 +1337,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
               )}
 
               {isLastPage ? (
-                currentPhase === "user" && !isOrgMember ? (
+                currentPhase === "user" && !isOrgMember && userType === "organisation" ? (
                   <ButtonV2
                     type="button"
                     onClick={onContinueToOrg}
@@ -1122,7 +1353,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
                     isLoading={loadingStates}
                     disabled={loadingStates || isAbnBlocking || hasFormErrors}
                   >
-                    Continue
+                    Next
                   </ButtonV2>
                 ) : (
                   <ButtonV2
