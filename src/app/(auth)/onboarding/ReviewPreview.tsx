@@ -18,7 +18,7 @@ import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { useTaxonomyLabels } from "@/hooks/useTaxonomyLabels";
 import Link from "next/link";
 
-const SKIP_TYPES = ["abn_lookup", "display"];
+const SKIP_TYPES = ["display"];
 
 function ImagePreview({ src, isFile }: { src: string; isFile: boolean }) {
   useEffect(() => {

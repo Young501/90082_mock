@@ -15,10 +15,9 @@ import {
 import { X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import Image from "next/image";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
-import { Page, Question } from "@/types/onboarding";
+import { AbnValidationStatus, Page, Question } from "@/types/onboarding";
 import { createPageSchema } from "@/utils/validationSchemas";
 import { FieldRenderer } from "@/app/(auth)/onboarding/FieldRenderer";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
@@ -29,6 +28,12 @@ import {
   useResumeUpload,
   useStudentProfileV2,
   useUserMeV2,
+  useOrganisationMemberUpdateV2,
+  useOrganisationProfileUpdateV2,
+  useOrganisationMemberMeV2,
+  useOrganisationProfileV2,
+  // useOrganisationLogoUploadV2,
+  useLogoUpload,
 } from "@/services/shared";
 import { useAuthStore } from "@/store/authStore";
 
@@ -40,6 +45,16 @@ export interface ProfileEditDialogProps {
   onSuccess?: () => void;
   university?: { slug?: string; name?: string } | null;
 }
+
+const DEDICATED_ENDPOINT_FIELDS = [
+  "profile_picture",
+  "profile_picture_url",
+  "resume",
+  "resume_url",
+  "logo",
+  "logo_url",
+  "location_geocode_lookup",
+];
 
 export function ProfileEditDialog({
   isOpen,
@@ -54,12 +69,16 @@ export function ProfileEditDialog({
   const { setUserProfilePictureUrl } = useAuthStore();
   const queryClient = useQueryClient();
 
+  // Mutations
   const studentProfileUpdate = useStudentProfileUpdateV2();
   const userUpdate = useUserMeUpdateV2();
   const profilePictureUpload = useProfilePictureUpload();
   const resumeUpload = useResumeUpload();
+  const orgMemberUpdate = useOrganisationMemberUpdateV2();
+  const orgProfileUpdate = useOrganisationProfileUpdateV2();
+  // const organisationLogoUpload = useLogoUpload("organisation");
+  const logoUpload = useLogoUpload("organisation");
 
-  // Determine which endpoints are needed based on question models
   const hasStudentProfileFields = useMemo(
     () => page.questions.some((q) => !q.model || q.model === "student_profile"),
     [page.questions]
@@ -68,8 +87,15 @@ export function ProfileEditDialog({
     () => page.questions.some((q) => q.model === "user"),
     [page.questions]
   );
+  const hasOrgMemberFields = useMemo(
+    () => page.questions.some((q) => q.model === "organisation_member"),
+    [page.questions]
+  );
+  const hasOrgFields = useMemo(
+    () => page.questions.some((q) => q.model === "organisation"),
+    [page.questions]
+  );
 
-  // Fetch fresh API data when dialog is open
   const {
     data: freshStudentData,
     isLoading: isStudentLoading,
@@ -82,11 +108,29 @@ export function ProfileEditDialog({
     isFetched: isUserFetched,
   } = useUserMeV2(isOpen && hasUserFields);
 
+  const {
+    data: freshOrgMemberData,
+    isLoading: isOrgMemberLoading,
+    isFetched: isOrgMemberFetched,
+  } = useOrganisationMemberMeV2(isOpen && hasOrgMemberFields);
+
+  const {
+    data: freshOrgProfileData,
+    isLoading: isOrgProfileLoading,
+    isFetched: isOrgProfileFetched,
+  } = useOrganisationProfileV2(isOpen && hasOrgFields);
+
   const isFreshDataLoading =
     (hasStudentProfileFields && isOpen && !isStudentFetched) ||
-    (hasUserFields && isOpen && !isUserFetched);
+    (hasUserFields && isOpen && !isUserFetched) ||
+    (hasOrgMemberFields && isOpen && !isOrgMemberFetched) ||
+    (hasOrgFields && isOpen && !isOrgProfileFetched);
 
-  const schema = createPageSchema(page.questions, true);
+  // skip abn field validation since its required since onboarding
+  const schemaQuestions = page.questions.map((q) =>
+    q.type === "abn_lookup" ? { ...q, required: false } : q
+  );
+  const schema = createPageSchema(schemaQuestions, true);
   const customResolverFn = async (values: any, context: any, options: any) => {
     const result = await yupResolver(schema)(values, context, options);
     if (result.errors && Object.keys(result.errors).length > 0) {
@@ -110,7 +154,7 @@ export function ProfileEditDialog({
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, dirtyFields },
     reset,
     clearErrors,
     unregister,
@@ -124,15 +168,12 @@ export function ProfileEditDialog({
 
   const profilePictureValue = watch("profile_picture");
   const resumeValue = watch("resume");
+  const logoValue = watch("logo");
+  const organisationNameValue = watch("name") as string | undefined;
 
-  // //
-  // useEffect(() => {
-  //   if (Object.keys(errors).length > 0) {
-  //     console.log("[ProfileEditDialog] form errors:", errors);
-  //   }
-  // }, [errors]);
+  const [abnValidationStatus, setAbnValidationStatus] =
+    useState<AbnValidationStatus>("idle");
 
-  // When dialog opens, invalidate queries so we always get fresh data
   useEffect(() => {
     if (!isOpen) return;
     if (hasStudentProfileFields) {
@@ -140,6 +181,14 @@ export function ProfileEditDialog({
     }
     if (hasUserFields) {
       queryClient.invalidateQueries({ queryKey: ["user-me-v2"] });
+    }
+    if (hasOrgMemberFields) {
+      queryClient.invalidateQueries({
+        queryKey: ["organisation-member-me-v2"],
+      });
+    }
+    if (hasOrgFields) {
+      queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
@@ -150,21 +199,35 @@ export function ProfileEditDialog({
 
     const studentData = (freshStudentData as Record<string, any>) ?? {};
     const userData = (freshUserData as Record<string, any>) ?? {};
+    const orgMemberData = (freshOrgMemberData as Record<string, any>) ?? {};
+    const orgProfileData = (freshOrgProfileData as Record<string, any>) ?? {};
 
     const hasFreshData =
       (hasStudentProfileFields && Object.keys(studentData).length > 0) ||
-      (hasUserFields && Object.keys(userData).length > 0);
+      (hasUserFields && Object.keys(userData).length > 0) ||
+      (hasOrgMemberFields && Object.keys(orgMemberData).length > 0) ||
+      (hasOrgFields && Object.keys(orgProfileData).length > 0);
 
     const source: Record<string, any> = hasFreshData
       ? {
           ...studentData,
+          ...orgProfileData,
+          ...orgMemberData,
           ...userData,
-          profile_picture:
-            userData.profile_picture ?? userData.profile_picture_url,
-          profile_picture_url:
-            userData.profile_picture_url ??
-            userData.profile_picture ??
-            studentData.profile_picture_url,
+          // profile_picture:
+          //   userData.profile_picture ?? userData.profile_picture_url,
+          // profile_picture_url:
+          //   userData.profile_picture_url ??
+          //   userData.profile_picture ??
+          //   studentData.profile_picture_url,
+          logo: orgProfileData.logo,
+          logo_url: orgProfileData.logo,
+          // linkedin: orgProfileData.linkedin,
+          linkedin:
+            studentData.linkedin ??
+            orgProfileData.linkedin ??
+            userData.linkedin,
+          ...(hasOrgFields ? { location: orgProfileData.location } : {}),
         }
       : (initialValues as Record<string, any>);
 
@@ -176,19 +239,20 @@ export function ProfileEditDialog({
 
     const cleaned = Object.fromEntries(
       Object.entries(source).map(([key, value]) => {
-        if (value === null && (key.includes("_url") || key === "resume")) {
+        if (
+          value === null &&
+          (key.includes("_url") || key === "resume" || key === "logo")
+        ) {
           return [key, ""];
         }
         if (value === null) return [key, undefined];
         if (value instanceof File) return [key, undefined];
-        // Normalize array of taxonomy objects → array of code strings
         if (Array.isArray(value)) {
           const normalized = value
             .map(normalizeTaxonomyValue)
             .filter(Boolean) as string[];
           return [key, normalized];
         }
-        // Normalize single taxonomy object → code string
         if (
           value &&
           typeof value === "object" &&
@@ -208,8 +272,12 @@ export function ProfileEditDialog({
     isFreshDataLoading,
     freshStudentData,
     freshUserData,
+    freshOrgMemberData,
+    freshOrgProfileData,
     hasStudentProfileFields,
     hasUserFields,
+    hasOrgMemberFields,
+    hasOrgFields,
     initialValues,
     reset,
   ]);
@@ -234,12 +302,24 @@ export function ProfileEditDialog({
     }
   }, [resumeValue]);
 
+  useEffect(() => {
+    if (logoValue instanceof File) {
+      setRemovedFiles((prev) => {
+        const next = new Set(prev);
+        next.delete("logo");
+        return next;
+      });
+    }
+  }, [logoValue]);
+
   const handleFileRemoval = (fieldName: string) => {
     setRemovedFiles((prev) => new Set(prev).add(fieldName));
     if (fieldName === "profile_picture") {
       setValue("profile_picture", null);
     } else if (fieldName === "resume") {
       setValue("resume", null);
+    } else if (fieldName === "logo") {
+      setValue("logo", null);
     }
   };
 
@@ -249,55 +329,62 @@ export function ProfileEditDialog({
     onClose();
   };
 
-  const DEDICATED_ENDPOINT_FIELDS = [
-    "profile_picture",
-    "profile_picture_url",
-    "resume",
-    "resume_url",
-    "location_geocode_lookup",
-  ];
-
   const onSubmit = async (data: Record<string, any>) => {
+    const abnQuestion = page.questions.find((q) => q.type === "abn_lookup");
+    if (
+      abnQuestion &&
+      (abnValidationStatus === "pending" || abnValidationStatus === "invalid")
+    ) {
+      setError(abnQuestion.field as any, { message: "Please verify your ABN before saving." });
+      return;
+    }
+
     const userFields: Record<string, any> = {};
     const studentFields: Record<string, any> = {};
+    const orgMemberFields: Record<string, any> = {};
+    const orgFields: Record<string, any> = {};
 
     for (const q of page.questions) {
       if (q.type === "display") continue;
-
       const model = q.model ?? "student_profile";
       const value = data[q.field];
       if (value === undefined) continue;
       if (removedFiles.has(q.field) && (value === null || value === ""))
         continue;
 
-      const payload = model === "user" ? userFields : studentFields;
-      payload[q.field] = value;
+      if (model === "user") userFields[q.field] = value;
+      else if (model === "organisation_member")
+        orgMemberFields[q.field] = value;
+      else if (model === "organisation") orgFields[q.field] = value;
+      else studentFields[q.field] = value;
     }
 
-    [...DEDICATED_ENDPOINT_FIELDS].forEach((f) => {
+    // Strip dedicated-endpoint fields from all payloads
+    DEDICATED_ENDPOINT_FIELDS.forEach((f) => {
       delete userFields[f];
       delete studentFields[f];
+      delete orgMemberFields[f];
+      delete orgFields[f];
     });
 
-    // Capture file refs before they were stripped
     const profilePicFile =
       data.profile_picture instanceof File ? data.profile_picture : null;
     const resumeFile = data.resume instanceof File ? data.resume : null;
+    const logoFile = data.logo instanceof File ? data.logo : null;
 
     try {
       if (Object.keys(userFields).length > 0) {
-        const cleanedUser = Object.fromEntries(
+        const cleaned = Object.fromEntries(
           Object.entries(userFields).filter(
             ([_, v]) => v !== null && v !== undefined && v !== ""
           )
         );
-        if (Object.keys(cleanedUser).length > 0) {
-          await userUpdate.mutateAsync(cleanedUser);
+        if (Object.keys(cleaned).length > 0) {
+          await userUpdate.mutateAsync(cleaned);
         }
       }
 
       if (Object.keys(studentFields).length > 0) {
-        // Empty values are bundled in payload for student profile update.
         const allStudentFields: Record<string, any> = { ...studentFields };
         for (const q of page.questions) {
           if (q.type === "display") continue;
@@ -313,7 +400,28 @@ export function ProfileEditDialog({
         await studentProfileUpdate.mutateAsync(allStudentFields);
       }
 
-      // Handle dedicated-endpoint uploads after PATCH calls succeed
+      if (Object.keys(orgMemberFields).length > 0) {
+        const cleaned = Object.fromEntries(
+          Object.entries(orgMemberFields).filter(
+            ([_, v]) => v !== null && v !== undefined && v !== ""
+          )
+        );
+        if (Object.keys(cleaned).length > 0) {
+          await orgMemberUpdate.mutateAsync(cleaned);
+        }
+      }
+
+      if (Object.keys(orgFields).length > 0) {
+        const cleaned = Object.fromEntries(
+          Object.entries(orgFields).filter(
+            ([_, v]) => v !== null && v !== undefined && v !== ""
+          )
+        );
+        if (Object.keys(cleaned).length > 0) {
+          await orgProfileUpdate.mutateAsync(cleaned);
+        }
+      }
+
       if (profilePicFile) {
         const uploadRes =
           await profilePictureUpload.mutateAsync(profilePicFile);
@@ -325,6 +433,10 @@ export function ProfileEditDialog({
 
       if (resumeFile) {
         await resumeUpload.mutateAsync(resumeFile);
+      }
+
+      if (logoFile) {
+        await logoUpload.mutateAsync(logoFile);
       }
 
       toast.success("Profile updated successfully");
@@ -339,9 +451,16 @@ export function ProfileEditDialog({
     }
   };
 
-  const questions = page.questions.filter(
-    (q: Question) => !["abn_lookup"].includes(q.type)
-  );
+  const questions = page.questions;
+
+  const isMutating =
+    profilePictureUpload.isPending ||
+    resumeUpload.isPending ||
+    logoUpload.isPending ||
+    studentProfileUpdate.isPending ||
+    userUpdate.isPending ||
+    orgMemberUpdate.isPending ||
+    orgProfileUpdate.isPending;
 
   if (!isOpen) return null;
 
@@ -410,23 +529,39 @@ export function ProfileEditDialog({
                   )}
 
                   <VStack align="stretch" gap={4}>
-                    {questions.map((question: Question) => (
-                      <FieldRenderer
-                        key={`${fileUploadKey}-${question.field}`}
-                        question={question}
-                        register={register}
-                        control={control}
-                        errors={errors}
-                        setError={setError}
-                        setValue={setValue}
-                        clearErrors={clearErrors}
-                        unregister={unregister}
-                        fileUploadKey={fileUploadKey}
-                        onFileRemove={handleFileRemoval}
-                        removedFiles={removedFiles}
-                        university={university ?? undefined}
-                      />
-                    ))}
+                    {questions.map((question: Question) => {
+                      const fieldValue = watch(question.field);
+                      const fieldProps = {
+                        question,
+                        fieldValue,
+                        fieldError: errors[question.field],
+                        isRemoved: removedFiles.has(question.field),
+                        university: university ?? undefined,
+                      };
+                      return (
+                        <FieldRenderer
+                          key={`${fileUploadKey}-${question.field}`}
+                          question={question}
+                          register={register}
+                          control={control}
+                          errors={errors}
+                          setError={setError}
+                          setValue={setValue}
+                          clearErrors={clearErrors}
+                          unregister={unregister}
+                          fileUploadKey={fileUploadKey}
+                          onFileRemove={handleFileRemoval}
+                          removedFiles={removedFiles}
+                          university={university ?? undefined}
+                          organisationName={
+                            question.type !== "abn_lookup" || !!dirtyFields[question.field]
+                              ? organisationNameValue
+                              : undefined
+                          }
+                          onAbnValidationChange={setAbnValidationStatus}
+                        />
+                      );
+                    })}
                   </VStack>
 
                   <Flex gap={3} mt={6} justify="flex-end">
@@ -451,25 +586,15 @@ export function ProfileEditDialog({
                     <ButtonV2
                       color="white"
                       type="submit"
-                      isLoading={
-                        profilePictureUpload.isPending ||
-                        resumeUpload.isPending ||
-                        studentProfileUpdate.isPending ||
-                        userUpdate.isPending
-                      }
-                      disabled={
-                        profilePictureUpload.isPending ||
-                        resumeUpload.isPending ||
-                        studentProfileUpdate.isPending ||
-                        userUpdate.isPending
-                      }
+                      isLoading={isMutating}
+                      disabled={isMutating}
                       h="44px"
                       maxW={{ base: "55%", sm: "175px" }}
                       w={{ base: "100%", sm: "auto" }}
                       px={6}
                       fontSize="md"
                       fontWeight="600"
-                      bg="#2AA8E0"
+                      bg="profile.500"
                     >
                       <Flex as="span" align="center" gap={2}>
                         Save and Update
