@@ -35,12 +35,6 @@ export interface Organisation {
   members?: OrganisationMember[];
 }
 
-export interface tempOrganisationUser {
-  first_name?: string;
-  last_name?: string;
-  profile_picture_url?: string | null;
-}
-
 export interface OrganisationCheckResponse {
   organisation: Organisation | null;
   message: string | null;

@@ -4,7 +4,6 @@ import { User, UserDetailsV2 } from "@/types/user";
 import {
   UserProfile,
   Organisation,
-  tempOrganisationUser,
 } from "@/types/shared";
 import { AccessibleOpportunity } from "@/types/opportunities";
 import { SubscriptionStatus } from "@/types/subscription";
@@ -17,8 +16,6 @@ export interface AuthState {
   userProfile: UserProfile | null;
   userProfilePictureUrl: string | null;
   coordinatorOpportunities: string[];
-  tempOrganisationUser: tempOrganisationUser | null;
-  tempOrganisation: Organisation | null;
   isOrganisationMemberOnboarding: boolean;
   accessibleOpportunities: AccessibleOpportunity[] | null;
   setAuthData: (token: string, user: User) => void;
@@ -41,12 +38,6 @@ export interface AuthState {
   setUserProfilePictureUrl: (url: string) => void;
   setCoordinatorOpportunities: (opportunities: string[]) => void;
   getCoordinatorOpportunities: () => string[];
-  setTempOrganisation: (organisation: Organisation) => void;
-  getTempOrganisation: () => Organisation | null;
-  clearTempOrganisation: () => void;
-  setTempOrganisationUser: (user: tempOrganisationUser) => void;
-  getTempOrganisationUser: () => tempOrganisationUser | null;
-  clearTempOrganisationUser: () => void;
   setIsOrganisationMemberOnboarding: (isMember: boolean) => void;
   getIsOrganisationMemberOnboarding: () => boolean;
   setIsAuthenticated: (isAuthenticated: boolean) => void;
@@ -66,8 +57,6 @@ export const useAuthStore = create<AuthState>()(
       userProfile: null,
       userProfilePictureUrl: null,
       coordinatorOpportunities: [],
-      tempOrganisation: null,
-      tempOrganisationUser: null,
       isOrganisationMemberOnboarding: false,
       accessibleOpportunities: null,
       hasUnreadMessages: false,
@@ -99,8 +88,6 @@ export const useAuthStore = create<AuthState>()(
           userProfile: null,
           userProfilePictureUrl: null,
           coordinatorOpportunities: [],
-          tempOrganisation: null,
-          tempOrganisationUser: null,
           isOrganisationMemberOnboarding: false,
           accessibleOpportunities: null,
           hasUnreadMessages: false,
@@ -203,24 +190,6 @@ export const useAuthStore = create<AuthState>()(
         return get().coordinatorOpportunities;
       },
 
-      setTempOrganisation: (organisation: Organisation) => {
-        set({ tempOrganisation: organisation });
-      },
-      getTempOrganisation: () => {
-        return get().tempOrganisation;
-      },
-      clearTempOrganisation: () => {
-        set({ tempOrganisation: null });
-      },
-      setTempOrganisationUser: (user: tempOrganisationUser) => {
-        set({ tempOrganisationUser: user });
-      },
-      clearTempOrganisationUser: () => {
-        set({ tempOrganisationUser: null });
-      },
-      getTempOrganisationUser: () => {
-        return get().tempOrganisationUser;
-      },
       setIsOrganisationMemberOnboarding: (isMember: boolean) => {
         set({ isOrganisationMemberOnboarding: isMember });
       },
@@ -247,8 +216,6 @@ export const useAuthStore = create<AuthState>()(
         userProfile: state.userProfile,
         userProfilePictureUrl: state.userProfilePictureUrl,
         coordinatorOpportunities: state.coordinatorOpportunities,
-        tempOrganisation: state.tempOrganisation,
-        tempOrganisationUser: state.tempOrganisationUser,
         isOrganisationMemberOnboarding: state.isOrganisationMemberOnboarding,
         accessibleOpportunities: state.accessibleOpportunities,
         hasUnreadMessages: state.hasUnreadMessages,

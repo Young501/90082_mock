@@ -114,6 +114,7 @@ export const checkOnboardingStatus = async ({
       } catch {
       }
 
+      // problem is we push to invite before this block exxecutes
       let member: Record<string, any> | null = null;
       try {
         member = await apiRequest({

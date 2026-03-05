@@ -65,11 +65,9 @@ export default function InvitePage() {
     try {
       await declineMutation.mutateAsync();
       // Full flow: treat as fresh user — user phase + organisation phase (create own org)
-      const { setIsOrganisationMemberOnboarding, clearTempOrganisation, clearTempOrganisationUser } =
+      const { setIsOrganisationMemberOnboarding } =
         useAuthStore.getState();
       setIsOrganisationMemberOnboarding(false);
-      clearTempOrganisation();
-      clearTempOrganisationUser();
       router.push("/onboarding/");
     } catch (error: any) {
       toast.error(
