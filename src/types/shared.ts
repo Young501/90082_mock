@@ -9,6 +9,9 @@ export interface OrganisationMember {
   id: number;
   full_name?: string;
   profile_picture_url?: string | null;
+  job_title?: string;
+  first_name?: string;
+  last_name?: string;
 }
 
 export interface Organisation {
@@ -41,6 +44,17 @@ export interface tempOrganisationUser {
 export interface OrganisationCheckResponse {
   organisation: Organisation | null;
   message: string | null;
+}
+
+export interface OrganisationInvite {
+  organisation: Organisation;
+  platform_role: string;
+  invited_by_email: string;
+  expires_at: string;
+  will_replace_current_membership?: boolean;
+  current_organisation?: {
+    organisation: Organisation;
+  };
 }
 
 export interface UserSearchResponse {

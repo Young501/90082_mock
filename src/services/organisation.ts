@@ -1,6 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest, API_ENDPOINTS } from "@/api";
-import { AbnValidationResponse } from "@/types/shared";
+import { apiClient, apiRequest, API_ENDPOINTS } from "@/api";
+import { AbnValidationResponse, OrganisationInvite } from "@/types/shared";
+
+
+export async function checkOrganisationInvite<T = OrganisationInvite>(): Promise<T | null> {
+  const response = await apiClient.request({
+    method: "get",
+    url: API_ENDPOINTS.ORGANISATION_INVITE.url,
+  });
+  if (response.status === 204) return null;
+  return response.data as T;
+}
 
 export function useOrganisationDomainCheck() {
   return useQuery({
@@ -146,6 +156,49 @@ export function usePartnerProfile(id: string, opportunityId: string) {
         return false;
       }
       return failureCount < 2;
+    },
+  });
+}
+
+export function useOrganisationInvite(enabled: boolean = true) {
+  return useQuery({
+    queryKey: ["organisation-invite"],
+    queryFn: () => checkOrganisationInvite<OrganisationInvite>(),
+    enabled,
+    retry: false,
+    staleTime: 0,
+  });
+}
+
+export function useOrganisationInviteAccept() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.ORGANISATION_INVITE_ACCEPT,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["organisation-invite"] });
+      queryClient.invalidateQueries({ queryKey: ["organisation-member-me-v2"] });
+      queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
+    },
+  });
+}
+
+export function useOrganisationInviteDecline() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.ORGANISATION_INVITE_DECLINE,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["organisation-invite"] });
+      // Invalidate member/profile so onboarding fetches fresh → 404 → full user + org flow
+      queryClient.invalidateQueries({ queryKey: ["organisation-member-me-v2"] });
+      queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
     },
   });
 }

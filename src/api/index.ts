@@ -35,7 +35,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 /*********
  * apiClient for making requests directly to the API root layer no token necessity interceptors not present
  */
-const apiClient = axios.create({
+export const apiClient = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,
 });
@@ -201,6 +201,18 @@ export const API_ENDPOINTS = {
   ORGANISATION_LOGO_UPLOAD_V2: {
     method: "POST",
     url: "/api/v2/profiles/organisation/me/logo",
+  },
+  ORGANISATION_INVITE: {
+    method: "GET",
+    url: "/api/v2/profiles/organisation/invite/",
+  },
+  ORGANISATION_INVITE_ACCEPT: {
+    method: "POST",
+    url: "/api/v2/profiles/organisation/invite/accept/",
+  },
+  ORGANISATION_INVITE_DECLINE: {
+    method: "POST",
+    url: "/api/v2/profiles/organisation/invite/decline/",
   },
   STUDENT_PROFILE_UPDATE_V2: {
     method: "PATCH",
@@ -431,3 +443,5 @@ export async function apiRequest<T = any>({
   const response = await apiClient.request(config);
   return response.data;
 }
+
+

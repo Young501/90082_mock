@@ -1,4 +1,5 @@
 import { API_ENDPOINTS, apiRequest } from "@/api";
+import { checkOrganisationInvite } from "@/services/organisation";
 import { getErrorMessage, getSuccessMessage } from "@/utils/apiErrorHandling";
 import { useAuthStore } from "@/store";
 import {
@@ -104,6 +105,15 @@ export const checkOnboardingStatus = async ({
 
   if (userType === "organisation") {
     try {
+      try {
+        const invite = await checkOrganisationInvite();
+        if (invite && redirectOnSuccess) {
+          router.push("/invite/");
+          return;
+        }
+      } catch {
+      }
+
       let member: Record<string, any> | null = null;
       try {
         member = await apiRequest({
