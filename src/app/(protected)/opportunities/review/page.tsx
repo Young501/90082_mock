@@ -211,8 +211,6 @@ export default function OpportunityReviewPage() {
         <Text
           fontSize="sm"
           color="#3F3F46"
-          lineClamp={3}
-          title={typeof display === "string" ? display : undefined}
         >
           {display}
         </Text>
@@ -356,9 +354,11 @@ export default function OpportunityReviewPage() {
                 >
                   {sectionQuestions.map((question) => {
                     const value = answers[question.field];
+                    const isSingle = sectionQuestions.length === 1;
+                    const isFullWidth = isSingle || question.type === "textarea";
 
                     return (
-                      <Box key={question.field}>
+                      <Box key={question.field} gridColumn={isFullWidth ? "1 / -1" : undefined}>
                         <Text
                           fontSize="xs"
                           fontWeight="500"
