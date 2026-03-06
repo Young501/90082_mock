@@ -62,7 +62,6 @@ export const useOnboardingLogic = (userType: string) => {
     }
   }, [userType, isMemberFetched, isMember404, queryClient, refetchMember]);
 
-  // Always fetch org for organisation users so we can correctly skip org phase when org is already complete (e.g. member incomplete + org complete)
   const {
     data: organisationProfile,
     isLoading: isOrgProfileLoading,
@@ -76,7 +75,6 @@ export const useOnboardingLogic = (userType: string) => {
   const onboardingPhaseFromStore = useAuthStore((s) => s.onboardingPhase);
   const setOnboardingPhase = useAuthStore((s) => s.setOnboardingPhase);
 
-  // Derive phase from data: member incomplete → user; only org incomplete → organisation
   const derivedPhase: "user" | "organisation" = useMemo(() => {
     if (userType !== "organisation") return "user";
     if (!memberComplete) return "user";
@@ -98,7 +96,7 @@ export const useOnboardingLogic = (userType: string) => {
     setCurrentPageId(1);
   }, [effectivePhase]);
 
-  // Clear store phase once we have derived data (avoids stale phase on revisit)
+  // Clear store phase once we have derived data 
   useEffect(() => {
     if (hasPhaseData && onboardingPhaseFromStore != null) {
       setOnboardingPhase(null);
@@ -255,12 +253,6 @@ export const useOnboardingLogic = (userType: string) => {
     currentPageId,
   ]);
 
-  // const isFirstPageOfOrgPhase = useMemo(() => {
-  //   if (userType !== "organisation" || currentPhase !== "organisation")
-  //     return false;
-  //   const currentIndex = pages.findIndex((p: Page) => p.id === currentPageId);
-  //   return currentIndex === 0;
-  // }, [userType, currentPhase, pages, currentPageId]);
 
   const goToNextPage = useCallback(() => {
     const currentIndex = pages.findIndex((p: Page) => p.id === currentPageId);
@@ -315,7 +307,6 @@ export const useOnboardingLogic = (userType: string) => {
     organisationProfile,
     organisationPageStructure,
     canGoBackToUserPhase,
-    // isFirstPageOfOrgPhase,
     ...progressInfo,
     ...navigationInfo,
     goToPreviousPage,

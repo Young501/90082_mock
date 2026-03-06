@@ -17,6 +17,8 @@ export interface AuthState {
   userProfilePictureUrl: string | null;
   coordinatorOpportunities: string[];
   isOrganisationMemberOnboarding: boolean;
+  /** Phase to show when redirecting to onboarding: "user" | "organisation" | null (derive from data) */
+  onboardingPhase: "user" | "organisation" | null;
   accessibleOpportunities: AccessibleOpportunity[] | null;
   setAuthData: (token: string, user: User) => void;
   setUserDetailsV2: (details: UserDetailsV2) => void;
@@ -40,6 +42,8 @@ export interface AuthState {
   getCoordinatorOpportunities: () => string[];
   setIsOrganisationMemberOnboarding: (isMember: boolean) => void;
   getIsOrganisationMemberOnboarding: () => boolean;
+  setOnboardingPhase: (phase: "user" | "organisation" | null) => void;
+  getOnboardingPhase: () => "user" | "organisation" | null;
   setIsAuthenticated: (isAuthenticated: boolean) => void;
   getIsAuthenticated: () => boolean;
   setAccessibleOpportunities: (opportunities: AccessibleOpportunity[]) => void;
@@ -58,6 +62,7 @@ export const useAuthStore = create<AuthState>()(
       userProfilePictureUrl: null,
       coordinatorOpportunities: [],
       isOrganisationMemberOnboarding: false,
+      onboardingPhase: null,
       accessibleOpportunities: null,
       hasUnreadMessages: false,
       setIsAuthenticated: (isAuthenticated: boolean) => {
@@ -89,6 +94,7 @@ export const useAuthStore = create<AuthState>()(
           userProfilePictureUrl: null,
           coordinatorOpportunities: [],
           isOrganisationMemberOnboarding: false,
+          onboardingPhase: null,
           accessibleOpportunities: null,
           hasUnreadMessages: false,
         });
@@ -195,6 +201,12 @@ export const useAuthStore = create<AuthState>()(
       },
       getIsOrganisationMemberOnboarding: () => {
         return get().isOrganisationMemberOnboarding;
+      },
+      setOnboardingPhase: (phase: "user" | "organisation" | null) => {
+        set({ onboardingPhase: phase });
+      },
+      getOnboardingPhase: () => {
+        return get().onboardingPhase;
       },
 
       setAccessibleOpportunities: (opportunities: AccessibleOpportunity[]) => {

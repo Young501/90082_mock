@@ -112,7 +112,6 @@ export const checkOnboardingStatus = async ({
           return;
         }
       } catch {
-        // Invite check failed — proceed to member/org flow
       }
 
       let member: Record<string, any> | null = null;
@@ -134,7 +133,6 @@ export const checkOnboardingStatus = async ({
         }
       }
 
-      // Fetch org regardless of member status so we can decide which phase to show
       const org = await apiRequest({
         endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_V2,
       });
@@ -147,7 +145,6 @@ export const checkOnboardingStatus = async ({
         console.log("memberComplete", memberComplete);
         console.log("orgComplete", orgComplete);
         if (redirectOnSuccess) {
-          // member incomplete → user phase; only org incomplete → organisation phase
           const phase: "user" | "organisation" =
             !memberComplete ? "user" : "organisation";
           useAuthStore.getState().setOnboardingPhase(phase);

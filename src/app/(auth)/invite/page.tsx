@@ -71,7 +71,6 @@ export default function InvitePage() {
       return;
     try {
       await declineMutation.mutateAsync();
-      // useAuthStore.getState().setIsOrganisationMemberOnboarding(false);
      
       await checkOnboardingStatus({
         user: user!,
