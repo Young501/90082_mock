@@ -13,6 +13,7 @@ import {
   isOrganisationMemberComplete,
   isOrganisationComplete,
 } from "@/hooks/auth";
+import { useAuthStore } from "@/store/authStore";
 
 const normalizePages = (rawPages: any[]): Page[] => {
   if (!Array.isArray(rawPages) || rawPages.length === 0) return [];
@@ -61,19 +62,21 @@ export const useOnboardingLogic = (userType: string) => {
     }
   }, [userType, isMemberFetched, isMember404, queryClient, refetchMember]);
 
+  // Always fetch org for organisation users so we can correctly skip org phase when org is already complete (e.g. member incomplete + org complete)
   const {
     data: organisationProfile,
     isLoading: isOrgProfileLoading,
     isFetched: isOrgProfileFetched,
-  } = useOrganisationProfileV2(
-    userType === "organisation" && isOrganisationMemberComplete(organisationMember ?? null)
-  );
+  } = useOrganisationProfileV2(userType === "organisation");
 
   const memberComplete = isOrganisationMemberComplete(organisationMember ?? null);
   const orgComplete = isOrganisationComplete(organisationProfile ?? null);
   const isOrgMember = userType === "organisation" && orgComplete;
 
-  // derive the current phase to use
+  const onboardingPhaseFromStore = useAuthStore((s) => s.onboardingPhase);
+  const setOnboardingPhase = useAuthStore((s) => s.setOnboardingPhase);
+
+  // Derive phase from data: member incomplete → user; only org incomplete → organisation
   const derivedPhase: "user" | "organisation" = useMemo(() => {
     if (userType !== "organisation") return "user";
     if (!memberComplete) return "user";
@@ -81,10 +84,26 @@ export const useOnboardingLogic = (userType: string) => {
     return "organisation";
   }, [userType, memberComplete, orgComplete]);
 
+  // Use store phase when landing from auth redirect (before data loads); otherwise use derived
+  const hasPhaseData =
+    userType !== "organisation" ||
+    (isMemberFetched && (!memberComplete || isOrgProfileFetched));
+  const effectivePhase: "user" | "organisation" = useMemo(() => {
+    if (hasPhaseData) return derivedPhase;
+    return onboardingPhaseFromStore ?? "user";
+  }, [hasPhaseData, derivedPhase, onboardingPhaseFromStore]);
+
   useEffect(() => {
-    setCurrentPhase(derivedPhase);
+    setCurrentPhase(effectivePhase);
     setCurrentPageId(1);
-  }, [derivedPhase]);
+  }, [effectivePhase]);
+
+  // Clear store phase once we have derived data (avoids stale phase on revisit)
+  useEffect(() => {
+    if (hasPhaseData && onboardingPhaseFromStore != null) {
+      setOnboardingPhase(null);
+    }
+  }, [hasPhaseData, onboardingPhaseFromStore, setOnboardingPhase]);
 
   const shouldFetchOnboardingPages =
     userType !== "student" ||
@@ -102,9 +121,9 @@ export const useOnboardingLogic = (userType: string) => {
     (userType === "student" && shouldFetchOnboardingPages && isPagesLoading) ||
     (userType === "organisation" &&
       (isMemberLoading ||
-        (memberComplete && isOrgProfileLoading) ||
+        isOrgProfileLoading ||
         !isMemberFetched ||
-        (memberComplete && !isOrgProfileFetched && !orgComplete) ||
+        !isOrgProfileFetched ||
         isPagesLoading)) ||
     (userType !== "student" && userType !== "organisation" && isPagesLoading);
 

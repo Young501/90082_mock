@@ -22,9 +22,11 @@ export default function InvitePage() {
   const shouldFetchInvite =
     !!token && !!userType && userType === "organisation";
 
-  const { data: invite, isLoading, isFetched } = useOrganisationInvite(
-    shouldFetchInvite
-  );
+  const {
+    data: invite,
+    isLoading,
+    isFetched,
+  } = useOrganisationInvite(shouldFetchInvite);
 
   const acceptMutation = useOrganisationInviteAccept();
   const declineMutation = useOrganisationInviteDecline();
@@ -50,8 +52,7 @@ export default function InvitePage() {
       return;
     try {
       await acceptMutation.mutateAsync();
-      useAuthStore.getState().setIsOrganisationMemberOnboarding(true);
-      // Run member/org check to decide: home (both complete) or onboarding (user phase only if org exists)
+      // useAuthStore.getState().setIsOrganisationMemberOnboarding(true);
       await checkOnboardingStatus({
         user: user!,
         router,
@@ -70,8 +71,8 @@ export default function InvitePage() {
       return;
     try {
       await declineMutation.mutateAsync();
-      useAuthStore.getState().setIsOrganisationMemberOnboarding(false);
-      // Run member/org check to decide: home (both complete) or onboarding (full user + org flow)
+      // useAuthStore.getState().setIsOrganisationMemberOnboarding(false);
+     
       await checkOnboardingStatus({
         user: user!,
         router,

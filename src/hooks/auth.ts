@@ -134,23 +134,32 @@ export const checkOnboardingStatus = async ({
         }
       }
 
-      if (!isOrganisationMemberComplete(member)) {
-        if (redirectOnSuccess) router.push("/onboarding/");
-        return;
-      }
-
-
+      // Fetch org regardless of member status so we can decide which phase to show
       const org = await apiRequest({
         endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_V2,
       });
       setUserProfile(org);
 
-      if (!isOrganisationComplete(org)) {
-        if (redirectOnSuccess) router.push("/onboarding/");
+      const memberComplete = isOrganisationMemberComplete(member);
+      const orgComplete = isOrganisationComplete(org);
+
+      if (!memberComplete || !orgComplete) {
+        console.log("memberComplete", memberComplete);
+        console.log("orgComplete", orgComplete);
+        if (redirectOnSuccess) {
+          // member incomplete → user phase; only org incomplete → organisation phase
+          const phase: "user" | "organisation" =
+            !memberComplete ? "user" : "organisation";
+          useAuthStore.getState().setOnboardingPhase(phase);
+          router.push("/onboarding/");
+        }
         return;
       }
 
-      if (redirectOnSuccess) router.push("/home/");
+      if (redirectOnSuccess) {
+        useAuthStore.getState().setOnboardingPhase(null);
+        router.push("/home/");
+      }
     } catch (error: any) {
       if (error?.response?.status === 404) {
         if (redirectOnSuccess) router.push("/onboarding/");
