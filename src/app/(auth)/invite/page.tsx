@@ -11,11 +11,12 @@ import {
   useOrganisationInviteAccept,
   useOrganisationInviteDecline,
 } from "@/services/organisation";
+import { checkOnboardingStatus } from "@/hooks/auth";
 import { toast } from "react-toastify";
 
 export default function InvitePage() {
   const router = useRouter();
-  const { user, token } = useAuthStore();
+  const { user, token, setUserProfile } = useAuthStore();
   const userType = user?.user_types?.[0];
 
   const shouldFetchInvite =
@@ -49,9 +50,14 @@ export default function InvitePage() {
       return;
     try {
       await acceptMutation.mutateAsync();
-      // Member-only flow: user phase only (job title, social links, etc.) — no org creation
       useAuthStore.getState().setIsOrganisationMemberOnboarding(true);
-      router.push("/onboarding/");
+      // Run member/org check to decide: home (both complete) or onboarding (user phase only if org exists)
+      await checkOnboardingStatus({
+        user: user!,
+        router,
+        setUserProfile,
+        redirectOnSuccess: true,
+      });
     } catch (error: any) {
       toast.error(
         error?.response?.data?.detail || "Failed to accept invitation"
@@ -64,11 +70,14 @@ export default function InvitePage() {
       return;
     try {
       await declineMutation.mutateAsync();
-      // Full flow: treat as fresh user — user phase + organisation phase (create own org)
-      const { setIsOrganisationMemberOnboarding } =
-        useAuthStore.getState();
-      setIsOrganisationMemberOnboarding(false);
-      router.push("/onboarding/");
+      useAuthStore.getState().setIsOrganisationMemberOnboarding(false);
+      // Run member/org check to decide: home (both complete) or onboarding (full user + org flow)
+      await checkOnboardingStatus({
+        user: user!,
+        router,
+        setUserProfile,
+        redirectOnSuccess: true,
+      });
     } catch (error: any) {
       toast.error(
         error?.response?.data?.detail || "Failed to decline invitation"

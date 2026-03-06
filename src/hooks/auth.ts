@@ -112,9 +112,9 @@ export const checkOnboardingStatus = async ({
           return;
         }
       } catch {
+        // Invite check failed — proceed to member/org flow
       }
 
-      // problem is we push to invite before this block exxecutes
       let member: Record<string, any> | null = null;
       try {
         member = await apiRequest({
@@ -138,6 +138,7 @@ export const checkOnboardingStatus = async ({
         if (redirectOnSuccess) router.push("/onboarding/");
         return;
       }
+
 
       const org = await apiRequest({
         endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_V2,
