@@ -5,7 +5,7 @@ import { UseMutationResult } from "@tanstack/react-query";
 import { Alert } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   useProfilePictureUpload,
   useResumeUpload,
@@ -357,6 +357,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     canGoBackToUserPhase,
     totalSteps,
     currentStep,
+    prefilledData,
   } = useOnboardingLogic(userType);
 
   useEffect(() => {
@@ -399,6 +400,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const [reviewFormDataSnapshot, setReviewFormDataSnapshot] = useState<
     Record<string, any> | null
   >(null);
+  const hasAppliedPrefilledRef = useRef(false);
   const studentProfileUpdateV2 = useStudentProfileUpdateV2();
   const userMeUpdateV2 = useUserMeUpdateV2();
   const organisationProfileUpdateV2 = useOrganisationProfileUpdateV2();
@@ -592,6 +594,25 @@ export const OnboardingSteps = ({ userType }: Props) => {
       });
     }
   }, [userType, studentProfileV2, currentPage, setValue]);
+
+  // Prefill organisation user phase with existing member + org data (e.g. job_title missing but first_name, etc. exist)
+  useEffect(() => {
+    if (
+      userType === "organisation" &&
+      currentPhase === "user" &&
+      prefilledData &&
+      Object.keys(prefilledData).length > 0 &&
+      !hasAppliedPrefilledRef.current
+    ) {
+      hasAppliedPrefilledRef.current = true;
+      setFormData((prev) => ({ ...prefilledData, ...prev }));
+      Object.entries(prefilledData).forEach(([field, value]) => {
+        if (value !== undefined && value !== null) {
+          setValue(field, value, { shouldValidate: false });
+        }
+      });
+    }
+  }, [userType, currentPhase, prefilledData, setValue]);
 
   useEffect(() => {
     if (formKey > 0 && Object.keys(formData).length > 0) {
