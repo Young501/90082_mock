@@ -294,11 +294,10 @@ export const useOnboardingLogic = (userType: string) => {
     return currentPhase === "organisation";
   }, [userType, currentPhase, isOrgMember]);
 
-  /** Prefilled form data from existing org member + org for user phase (partial data case) */
+  /** Prefilled form data from existing org member for user phase */
   const prefilledData = useMemo(() => {
     if (userType !== "organisation" || !organisationMember) return null;
     const member = organisationMember as Record<string, any>;
-    // const org = (member.organisation ?? organisationProfile) as Record<string, any> | undefined;
     const data: Record<string, any> = {};
 
     // User / organisation_member fields from member

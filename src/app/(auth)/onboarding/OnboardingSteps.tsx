@@ -595,7 +595,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   }, [userType, studentProfileV2, currentPage, setValue]);
 
-  // Prefill organisation user phase with existing member + org data (e.g. job_title missing but first_name, etc. exist)
+  // Prefill organisation user phase with existing member if info exists
   useEffect(() => {
     if (
       userType === "organisation" &&

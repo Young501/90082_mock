@@ -201,7 +201,6 @@ export function useOrganisationInviteDecline() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["organisation-invite"] });
-      // Invalidate member/profile so onboarding fetches fresh → 404 → full user + org flow
       queryClient.invalidateQueries({ queryKey: ["organisation-member-me-v2"] });
       queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
     },
