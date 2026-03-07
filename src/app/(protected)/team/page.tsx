@@ -102,7 +102,8 @@ function canChangeMemberRoleOrTitle(
 ): boolean {
   if (!myRole) return false;
   if (myRole === "creator") return true;
-  if (myRole === "admin") return targetRole === "member";
+  if (myRole === "admin")
+    return targetRole === "member" || targetRole === "creator";
   return false;
 }
 
@@ -473,7 +474,7 @@ function TeamMemberCard({
                 </Box>
               </>
             )}
-            {canEdit && !canChangeRole && (
+            {canEdit && (
               <Box
                 as="button"
                 w="full"
@@ -489,7 +490,9 @@ function TeamMemberCard({
               >
                 <HStack gap={2}>
                   <UserCog size={14} />
-                  <Text>Edit role / job title</Text>
+                  <Text>
+                    Edit {canChangeRole ? "role / job title" : "job title"}
+                  </Text>
                 </HStack>
               </Box>
             )}
