@@ -214,6 +214,30 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: "/api/v2/profiles/organisation/invite/decline/",
   },
+  ORGANISATION_MEMBERS: {
+    method: "GET",
+    url: "/api/v2/profiles/organisation/members/",
+  },
+  ORGANISATION_INVITE_SEND: {
+    method: "POST",
+    url: "/api/v2/profiles/organisation/invite/",
+  },
+  ORGANISATION_INVITES: {
+    method: "GET",
+    url: "/api/v2/profiles/organisation/invites/",
+  },
+  ORGANISATION_INVITE_REVOKE: (id: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v2/profiles/organisation/invite/${id}/revoke/`,
+  }),
+  ORGANISATION_MEMBER_UPDATE: (id: string): ApiEndpoint => ({
+    method: "PATCH",
+    url: `/api/v2/profiles/organisation/member/${id}/`,
+  }),
+  ORGANISATION_MEMBER_REMOVE: (id: string): ApiEndpoint => ({
+    method: "DELETE",
+    url: `/api/v2/profiles/organisation/member/${id}/`,
+  }),
   STUDENT_PROFILE_UPDATE_V2: {
     method: "PATCH",
     url: "/api/v2/profiles/student/me/",

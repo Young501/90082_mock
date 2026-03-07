@@ -33,4 +33,5 @@ export const PAGE_TITLES = {
   TERMS_STUDENT: "Student Terms & Conditions | Uniconnected",
   TERMS_ORGANISATION: "Organisation Terms & Conditions | Uniconnected",
   PRIVACY: "Privacy Policy | Uniconnected",
+  TEAM: "Team | Uniconnected",
 } as const;

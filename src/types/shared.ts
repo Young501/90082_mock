@@ -5,13 +5,31 @@ export type UserProfile = StudentProfile &
     organisation?: Organisation;
   };
 
+export type OrganisationPlatformRole = "creator" | "admin" | "member";
+
 export interface OrganisationMember {
   id: number;
+  user_id?: number;
   full_name?: string;
   profile_picture_url?: string | null;
   job_title?: string;
   first_name?: string;
   last_name?: string;
+  email?: string;
+  platform_role?: OrganisationPlatformRole;
+  member_since?: string;
+  joined_at?: string | null;
+  updated_at?: string;
+}
+
+export interface OrganisationSentInvite {
+  id: number;
+  email: string;
+  platform_role: "member" | "admin";
+  status: "pending" | "accepted" | "declined" | "revoked" | "expired";
+  invited_at?: string;
+  expires_at?: string;
+  created_at?: string;
 }
 
 export interface Organisation {
