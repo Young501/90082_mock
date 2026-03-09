@@ -7,6 +7,7 @@ import { DeleteModal } from "../../folders/modals/DeleteModal";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { MapPin, MessageCircle, FolderHeart, Dot } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
+import { useAuthStore } from "@/store/authStore";
 import { ContactPage } from "@/components/ContactPage";
 
 interface OrganisationCardProps {
@@ -36,6 +37,8 @@ export function OrganisationCard({
   const [deleteModal, setDeleteModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [addedToFolder, setAddedToFolder] = useState(false);
+  const { userProfile } = useAuthStore();
+  const userType = useAuthStore((state) => state.getUserType());
 
   const getCompanyLogo = () => {
     return organisation.logo_url || organisation.profile_picture_url;
@@ -65,6 +68,10 @@ export function OrganisationCard({
   };
 
   const industryText = organisation.industry || organisation.sector;
+  const studentIndustryNicheText =
+    userType === "student"
+      ? userProfile?.course_stream?.label || ""
+      : industryText;
   const matchPercentage = organisation.matchPercentage || 0;
   const locationText = organisation.location || "";
   const distanceText =
@@ -98,35 +105,37 @@ export function OrganisationCard({
           gap={3}
           mb={4}
           justifyContent="space-between"
+          w="full"
+          // maxW="90%"
         >
-          <VStack align="flex-start" gap={3}>
+          <VStack align="flex-start" gap={3} w="full">
             <Avatar.Root
-              w="40px"
-              h="40px"
-              borderRadius="13px"
+              w="24px"
+              h="24px"
+              borderRadius="6px"
               flexShrink={0}
               bg="#F4F4F5"
             >
               <Avatar.Fallback
                 name={organisation.name || organisation.first_name}
-                bg="#E4E4E7"
                 color="#71717A"
                 fontWeight="600"
                 fontSize="sm"
-                borderRadius="full"
+                // borderRadius="full"
               />
               {getCompanyLogo() && (
                 <Avatar.Image
                   src={getCompanyLogo() || ""}
                   w="24px"
                   h="24px"
-                  borderRadius="13px"
+                  borderRadius="6px"
+                  // borderRadius="13px"
                 />
               )}
             </Avatar.Root>
 
-            <VStack align="stretch" gap={1} flex={1} minW={0}>
-              <HStack alignItems="center" gap={1}>
+            <VStack align="stretch" gap={1} flex={1} minW={0} w="full">
+              <HStack alignItems="center" gap={1} w="full">
                 <Tooltip content={organisation.name}>
                   <Text
                     fontSize="md"
@@ -162,7 +171,11 @@ export function OrganisationCard({
                     <MapPin size={14} strokeWidth={2} color="#52525B" />
                   </Box>
                   <HStack alignItems="center" gap={1}>
-                    <Text whiteSpace="nowrap">{locationText}</Text>
+                    <Tooltip content={locationText}>
+                      <Text whiteSpace="nowrap" w="full" maxW="150px" truncate>
+                        {locationText}
+                      </Text>
+                    </Tooltip>
                     {locationText && distanceText && (
                       <Dot size={20} color="#A1A1AA" />
                     )}
@@ -181,15 +194,39 @@ export function OrganisationCard({
                 </Text>
               )} */}
             </VStack>
-            <VStack align="stretch" gap={2}>
+            {/* <VStack align="stretch" gap={2}>
               {industryText && (
                 <Box>
-                  <Text color="#52525B" fontSize="sm">
-                    {industryText}
-                  </Text>
+                  <Tooltip content={industryText}>
+                    <Text
+                      color="#52525B"
+                      fontSize="sm"
+                      w="full"
+                      maxW="150px"
+                      truncate
+                    >
+                      {industryText}
+                    </Text>
+                  </Tooltip>
+                </Box>
+              )} */}
+            <VStack align="stretch" gap={2}>
+              {studentIndustryNicheText && (
+                <Box>
+                  <Tooltip content={studentIndustryNicheText}>
+                    <Text
+                      color="#52525B"
+                      fontSize="sm"
+                      w="full"
+                      maxW="150px"
+                      truncate
+                    >
+                      {studentIndustryNicheText}
+                    </Text>
+                  </Tooltip>
                 </Box>
               )}
-              {organisation.matchPercentage && (
+              {matchPercentage && (
                 <Box
                   flexShrink={0}
                   px={1.5}
@@ -201,7 +238,7 @@ export function OrganisationCard({
                   color="#116932"
                   boxShadow="0px 0px 1px 0px #D4D4D8 inset"
                 >
-                  {organisation.matchPercentage}% Match
+                  {matchPercentage}% Match
                 </Box>
               )}
             </VStack>

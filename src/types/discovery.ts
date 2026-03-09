@@ -35,7 +35,11 @@ export interface StudentProfile {
   distance_km?: number;
   profile_picture_url?: string | null;
   degree?: string;
-  course_stream?: string;
+  course_stream?: {
+    id?: number;
+    code?: string;
+    label?: string;
+  };
   specialisations?: string[] | string;
   progression?: string;
   skills?: string[];
