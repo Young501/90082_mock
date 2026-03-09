@@ -167,10 +167,11 @@ const Sidebar = ({
     if (isCoordinator) {
       return MENU_ITEMS.filter((i) => i.isCoordinator && i.isProtected);
     }
-    if (isOrganisation || isStudent) {
-      return MENU_ITEMS.filter(
-        (i) => (i.isOrganisation || i.isStudent) && i.isProtected
-      );
+    if (isOrganisation) {
+      return MENU_ITEMS.filter((i) => i.isOrganisation && i.isProtected);
+    }
+    if (isStudent) {
+      return MENU_ITEMS.filter((i) => i.isStudent && i.isProtected);
     }
     return [];
   };
