@@ -43,6 +43,8 @@ export const useOnboardingLogic = (userType: string) => {
     refetch: refetchMember,
   } = useOrganisationMemberMeV2(userType === "organisation");
 
+  console.log("organisationMember", organisationMember);
+
   const isMember404 =
     isMemberError && (memberError as any)?.response?.status === 404;
 
@@ -315,7 +317,7 @@ export const useOnboardingLogic = (userType: string) => {
       }
     });
     if (member.profile_picture_url && !data.profile_picture) {
-      data.profile_picture_url = member.profile_picture_url;
+      data.profile_picture = member.profile_picture_url;
     }
 
     return Object.keys(data).length > 0 ? data : null;
