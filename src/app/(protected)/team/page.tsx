@@ -46,6 +46,7 @@ import {
 } from "lucide-react";
 import { getErrorMessage } from "@/utils/apiErrorHandling";
 import { toast } from "react-toastify";
+import { Tooltip } from "@/components/ui/tooltip";
 
 function getRoleLabel(role?: string): string {
   if (!role) return "—";
@@ -603,7 +604,7 @@ function TeamInviteCard({
       border="1px solid #E4E4E7"
       p={5}
       position="relative"
-      minH="180px"
+      minH="140px"
       display="flex"
       flexDirection="column"
     >
@@ -704,26 +705,21 @@ function TeamInviteCard({
       )}
 
       <VStack align="center" gap={2} flex={1}>
-        <Box
-          w={14}
-          h={14}
-          borderRadius="full"
-          bg="#E9F7F6"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
+        <Tooltip
+          content={invite.email}
+          minWidth={{ base: "100px", md: "150px" }}
         >
-          <Text color="profile.500" fontWeight="600" fontSize="sm">
-            {getInitials(undefined, invite.email)}
+          <Text
+            fontSize="sm"
+            color="#52525B"
+            textAlign="center"
+            lineClamp={1}
+            truncate
+            maxW="80%"
+          >
+            {invite.email}
           </Text>
-        </Box>
-        <Text fontSize="lg" fontWeight="600" color="#000000" textAlign="center">
-          (No name available)
-        </Text>
-
-        <Text fontSize="xs" color="#52525B" textAlign="center" lineClamp={1}>
-          {invite.email}
-        </Text>
+        </Tooltip>
         <Box
           px={2}
           py={0.5}
@@ -737,8 +733,7 @@ function TeamInviteCard({
           {getRoleLabel(invite.platform_role)}
         </Box>
         <Box height="1px" width="full" bg="#E4E4E7" />
-        {/* <Separator color="#E4E4E7" orientation="horizontal" /> */}
-        {/* </Box> */}
+
         <Text fontSize="xs" color="#A1A1AA">
           Invite sent {formatDate(inviteDate) || "—"}
         </Text>

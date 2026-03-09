@@ -111,12 +111,12 @@ const Profile = () => {
       allTabs.push({ title: "My Information", icon: "fa-solid fa-user" });
 
       if (isOrganisation) {
-        if (platformRole !== "member") {
-          allTabs.push({
-            title: "Organisation Profile",
-            icon: "fa-solid fa-building",
-          });
-        }
+        // if (platformRole !== "member") {
+        allTabs.push({
+          title: "Organisation Profile",
+          icon: "fa-solid fa-building",
+        });
+        // }
         allTabs.push({
           title: "My Opportunities",
           icon: "fa-solid fa-folder-closed",
@@ -321,6 +321,7 @@ const Profile = () => {
                           title: page.title,
                           questions: page.questions,
                         }}
+                        disabled={platformRole === "member"}
                         formData={displayFormData}
                         onEdit={() =>
                           setEditingPage({
