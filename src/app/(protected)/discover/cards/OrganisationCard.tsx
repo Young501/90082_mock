@@ -72,7 +72,7 @@ export function OrganisationCard({
     userType === "student"
       ? userProfile?.course_stream?.label || ""
       : industryText;
-  const matchPercentage = organisation.matchPercentage || 0;
+  const matchPercentage = organisation.matchPercentage;
   const locationText = organisation.location || "";
   const distanceText =
     organisation.distance_km != null
