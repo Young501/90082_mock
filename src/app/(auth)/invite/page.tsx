@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { OrganisationInvitePage } from "../onboarding/OrganisationInvitePage";
-import { Box, Text, VStack, Button } from "@chakra-ui/react";
+import { Box, Button, Alert, VStack, Text } from "@chakra-ui/react";
+import { TriangleAlert } from "lucide-react";
 import Loader from "@/components/ui/Loader";
 import {
   useOrganisationInvite,
@@ -21,7 +22,6 @@ import {
 import { toast } from "react-toastify";
 
 const AUTH_HYDRATION_DELAY_MS = 300;
-const NO_INVITE_REDIRECT_DELAY_MS = 3000;
 
 export default function InvitePage() {
   const router = useRouter();
@@ -76,29 +76,7 @@ export default function InvitePage() {
       router.replace("/home/");
       return;
     }
-
-    if (noInviteState && !isCheckingNoInviteStatus && !onboardingComplete) {
-      router.replace("/onboarding/");
-    }
-  }, [
-    router,
-    token,
-    userType,
-    hasCheckedAuth,
-    noInviteState,
-    isCheckingNoInviteStatus,
-    onboardingComplete,
-  ]);
-
-  useEffect(() => {
-    if (!(noInviteState && onboardingComplete)) return;
-
-    const timer = setTimeout(() => {
-      router.push("/home/");
-    }, NO_INVITE_REDIRECT_DELAY_MS);
-
-    return () => clearTimeout(timer);
-  }, [router, noInviteState, onboardingComplete]);
+  }, [router, token, userType, hasCheckedAuth]);
 
   const handleAccept = async () => {
     if (!invite || acceptMutation.isPending || declineMutation.isPending)
@@ -142,7 +120,7 @@ export default function InvitePage() {
     return <Loader type="page" text="Loading invitation..." />;
   }
 
-  if (noInviteState && onboardingComplete) {
+  if (noInviteState) {
     return (
       <Box
         h="100%"
@@ -152,36 +130,48 @@ export default function InvitePage() {
         alignItems="center"
         justifyContent="center"
       >
-        <Box
+        <Alert.Root
+          status="warning"
+          variant="subtle"
+          borderRadius="12px"
+          border="1px solid"
+          borderColor="orange.300"
+          bg="orange.50"
           maxW="480px"
+          w="100%"
           mx="auto"
-          bg="white"
-          borderRadius="4xl"
-          px={{ base: 6, md: 12 }}
-          py={{ base: 6, md: 8 }}
-          border="1px solid #E4E4E7"
-          textAlign="center"
+          p={8}
         >
-          <VStack gap={4}>
+          <VStack align="center" gap={4} w="100%">
+            <TriangleAlert size={32} color="var(--chakra-colors-orange-500)" />
             <Text
-              fontSize={{ base: "xl", md: "2xl" }}
               fontWeight="600"
-              color="#18181B"
+              fontSize="md"
+              color="orange.800"
+              textAlign="center"
             >
               You don&apos;t have an active invitation
             </Text>
-
-            <Button
-              onClick={() => router.push("/home/")}
-              bg="#3AADA8"
-              color="white"
-              _hover={{ bg: "#2d8d89" }}
-              size="lg"
-            >
-              Redirecting to Home...
-            </Button>
+            {onboardingComplete ? (
+              <Button
+                onClick={() => router.push("/home/")}
+                colorPalette="orange"
+                size="sm"
+              >
+                Go to Home
+              </Button>
+            ) : (
+              <Button
+                onClick={() => router.push("/onboarding/")}
+                colorPalette="orange"
+                size="sm"
+                mt="10px"
+              >
+                Create New Organisation
+              </Button>
+            )}
           </VStack>
-        </Box>
+        </Alert.Root>
       </Box>
     );
   }
