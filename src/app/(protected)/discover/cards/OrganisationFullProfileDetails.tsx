@@ -462,7 +462,7 @@ export const RenderOrganisationDetails = ({
                         .join(" ") || "—"}
                     </Text>
                     <Text fontSize="sm" color="#52525B" truncate>
-                      {person.role || "—"}
+                      {person.job_title || "—"}
                     </Text>
                   </VStack>
                 </HStack>

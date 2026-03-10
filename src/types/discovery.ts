@@ -107,5 +107,6 @@ export interface OrganisationProfile {
     last_name?: string;
     profile_picture_url?: string | null;
     role?: string;
+    job_title?: string;
   }[];
 }

@@ -24,7 +24,7 @@ interface OrganisationCardProps {
 
 export function OrganisationCard({
   organisation,
-  maxW,
+  maxW = "100%",
   isInFolder = false,
   onRemoveFromFolder,
   disableViewFullProfile = false,
@@ -106,12 +106,11 @@ export function OrganisationCard({
           mb={4}
           justifyContent="space-between"
           w="full"
-          // maxW="90%"
         >
           <VStack align="flex-start" gap={3} w="full">
             <Avatar.Root
-              w="24px"
-              h="24px"
+              w="40px"
+              h="40px"
               borderRadius="6px"
               flexShrink={0}
               bg="#F4F4F5"
@@ -121,15 +120,13 @@ export function OrganisationCard({
                 color="#71717A"
                 fontWeight="600"
                 fontSize="sm"
-                // borderRadius="full"
               />
               {getCompanyLogo() && (
                 <Avatar.Image
                   src={getCompanyLogo() || ""}
-                  w="24px"
-                  h="24px"
+                  w="40px"
+                  h="40px"
                   borderRadius="6px"
-                  // borderRadius="13px"
                 />
               )}
             </Avatar.Root>
@@ -210,15 +207,15 @@ export function OrganisationCard({
                   </Tooltip>
                 </Box>
               )} */}
-            <VStack align="stretch" gap={2}>
-              {studentIndustryNicheText && (
-                <Box>
+            <VStack align="stretch" gap={2} w="full">
+              {studentIndustryNicheText && matchPercentage && (
+                <Box w="full">
                   <Tooltip content={studentIndustryNicheText}>
                     <Text
                       color="#52525B"
                       fontSize="sm"
                       w="full"
-                      maxW="150px"
+                      maxW="full"
                       truncate
                     >
                       {studentIndustryNicheText}
