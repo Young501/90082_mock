@@ -28,6 +28,7 @@ export default function InvitePage() {
   const { user, token, setUserProfile } = useAuthStore();
   const userType = user?.user_types?.[0];
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const shouldFetchInvite =
     !!token && !!userType && userType === "organisation";
@@ -40,7 +41,7 @@ export default function InvitePage() {
   } = useOrganisationInvite(shouldFetchInvite);
 
   const noInviteState =
-    ((isFetched && !invite) || isInviteError) && shouldFetchInvite;
+    ((isFetched && !invite) || isInviteError) && shouldFetchInvite && !isRedirecting;
 
   const { data: organisationMember, isLoading: isMemberLoading } =
     useOrganisationMemberMeV2(noInviteState);
@@ -82,6 +83,7 @@ export default function InvitePage() {
     if (!invite || acceptMutation.isPending || declineMutation.isPending)
       return;
     try {
+      setIsRedirecting(true);
       await acceptMutation.mutateAsync();
       // useAuthStore.getState().setIsOrganisationMemberOnboarding(true);
       await checkOnboardingStatus({
@@ -101,6 +103,7 @@ export default function InvitePage() {
     if (!invite || acceptMutation.isPending || declineMutation.isPending)
       return;
     try {
+      setIsRedirecting(true);
       await declineMutation.mutateAsync();
 
       await checkOnboardingStatus({
