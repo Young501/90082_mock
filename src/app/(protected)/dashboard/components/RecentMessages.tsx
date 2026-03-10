@@ -96,35 +96,57 @@ export function RecentMessages({ messages, userType }: RecentMessagesProps) {
               href={`/messaging/?conversation=${msg.id}`}
               style={{ textDecoration: "none" }}
             >
-              <HStack gap={3} borderRadius="xl" align="flex-start">
-                <Box
-                  w={8}
-                  h={8}
-                  borderRadius="full"
-                  overflow="hidden"
-                  flexShrink={0}
-                  bg="profile.500"
-                >
-                  {msg.other_user.profile_picture_url ? (
-                    <Image
-                      src={msg.other_user.profile_picture_url}
-                      alt={displayName(msg)}
-                      w="100%"
-                      h="100%"
-                      objectFit="cover"
+              <HStack
+                gap={3}
+                borderRadius="lg"
+                align="flex-start"
+                bg={msg.unread_count > 0 ? "blackAlpha.50" : "transparent"}
+                p={msg.unread_count > 0 ? 2 : 0}
+                mx={msg.unread_count > 0 ? -2 : 0}
+                transition="background 0.2s"
+              >
+                <Box position="relative" flexShrink={0}>
+                  <Box
+                    w={8}
+                    h={8}
+                    borderRadius="full"
+                    overflow="hidden"
+                    bg="profile.500"
+                  >
+                    {msg.other_user.profile_picture_url ? (
+                      <Image
+                        src={msg.other_user.profile_picture_url}
+                        alt={displayName(msg)}
+                        w="100%"
+                        h="100%"
+                        objectFit="cover"
+                      />
+                    ) : (
+                      <Flex
+                        w="100%"
+                        h="100%"
+                        align="center"
+                        justify="center"
+                        color="white"
+                        fontWeight="600"
+                        fontSize="sm"
+                      >
+                        {displayName(msg).charAt(0)}
+                      </Flex>
+                    )}
+                  </Box>
+                  {msg.unread_count > 0 && (
+                    <Box
+                      position="absolute"
+                      bottom="-1px"
+                      right="-1px"
+                      w="12px"
+                      h="12px"
+                      borderRadius="full"
+                      bg={userType === "organisation" ? "#1F7F7B" : "#1679AB"}
+                      border="2px solid white"
+                      boxShadow="0 0 0 1px rgba(0,0,0,0.1)"
                     />
-                  ) : (
-                    <Flex
-                      w="100%"
-                      h="100%"
-                      align="center"
-                      justify="center"
-                      color="white"
-                      fontWeight="600"
-                      fontSize="sm"
-                    >
-                      {displayName(msg).charAt(0)}
-                    </Flex>
                   )}
                 </Box>
                 <VStack
@@ -155,20 +177,22 @@ export function RecentMessages({ messages, userType }: RecentMessagesProps) {
                     </VStack>
                     {msg.unread_count > 0 && (
                       <Badge
-                        borderRadius="6px"
+                        borderRadius="full"
                         bg={userType === "organisation" ? "#1F7F7B" : "#1679AB"}
                         color="white"
-                        fontSize="10px"
+                        fontSize="11px"
+                        fontWeight="700"
                         textAlign="center"
                         display="flex"
                         alignItems="center"
                         justifyContent="center"
-                        px={1}
-                        py={0.5}
+                        px={2}
+                        py={1}
                         flexShrink={0}
-                        minW="20px"
+                        minW="24px"
+                        boxShadow="sm"
                       >
-                        {msg.unread_count}
+                        {msg.unread_count > 99 ? "99+" : msg.unread_count}
                       </Badge>
                     )}
                   </HStack>
