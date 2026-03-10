@@ -72,8 +72,10 @@ export default function DiscoveryPage() {
   const [folderSheetOpen, setFolderSheetOpen] = useState(false);
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
 
-  const { data: foldersData, isLoading: isLoadingFolders } =
-    useFolders(opportunitySlug);
+  const { data: foldersData, isLoading: isLoadingFolders } = useFolders(
+    opportunitySlug,
+    { enabled: isEnrolled === true }
+  );
   const discoveryFolders: DiscoveryFolderItem[] = useMemo(
     () =>
       (foldersData ?? []).map((f) => ({

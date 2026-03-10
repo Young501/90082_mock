@@ -10,12 +10,16 @@ import {
   FolderMembersResponse,
 } from "@/types/folder";
 
-export function useFolders(opportunitySlug: string | undefined) {
+export function useFolders(
+  opportunitySlug: string | undefined,
+  options?: { enabled?: boolean }
+) {
+  const enabled = options?.enabled ?? true;
   return useQuery({
     queryKey: ["folders", opportunitySlug],
     queryFn: (): Promise<Folder[]> =>
       apiRequest({ endpoint: API_ENDPOINTS.FOLDERS(opportunitySlug!) }),
-    enabled: !!opportunitySlug,
+    enabled: !!opportunitySlug && enabled,
     staleTime: 0,
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
