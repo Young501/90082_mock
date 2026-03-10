@@ -392,6 +392,9 @@ function FolderSelectCard({
           <Text fontSize="sm" fontWeight="600" color="#18181B" lineClamp={2}>
             {folder.name}
           </Text>
+          <Text fontSize="xs" fontWeight="400" color="#18181B" lineClamp={2}>
+            {folder.description}
+          </Text>
           <Text fontSize="xs" color="#71717A">
             {folder.member_count} {memberLabelPlural}
           </Text>
