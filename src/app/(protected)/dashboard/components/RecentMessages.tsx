@@ -103,7 +103,7 @@ export function RecentMessages({ messages, userType }: RecentMessagesProps) {
                 bg={msg.unread_count > 0 ? "blackAlpha.50" : "transparent"}
                 p={msg.unread_count > 0 ? 2 : 0}
                 mx={msg.unread_count > 0 ? -2 : 0}
-                transition="background 0.2s"
+                transition="all 0.2s"
               >
                 <Box position="relative" flexShrink={0}>
                   <Box
@@ -171,7 +171,12 @@ export function RecentMessages({ messages, userType }: RecentMessagesProps) {
                       <Text fontSize="sm" fontWeight="600" color="black">
                         {displayName(msg)}
                       </Text>
-                      <Text fontSize="xs" color="#52525B" lineHeight="1.4">
+                      <Text
+                        fontSize="xs"
+                        color={msg.unread_count > 0 ? "#27272A" : "#52525B"}
+                        fontWeight={msg.unread_count > 0 ? 600 : 400}
+                        lineHeight="1.4"
+                      >
                         {truncateToWords(msg.last_message.content)}
                       </Text>
                     </VStack>
@@ -191,6 +196,7 @@ export function RecentMessages({ messages, userType }: RecentMessagesProps) {
                         flexShrink={0}
                         minW="24px"
                         boxShadow="sm"
+                        animation="pulse 2s ease-in-out infinite"
                       >
                         {msg.unread_count > 99 ? "99+" : msg.unread_count}
                       </Badge>

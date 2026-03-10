@@ -224,6 +224,7 @@ const Sidebar = ({
             borderRadius="full"
             bg={active ? "white" : isOrganisation ? "#1F7F7B" : "#1679AB"}
             flexShrink={0}
+            animation="pulse 2s ease-in-out infinite"
           />
         )}
       </HStack>
