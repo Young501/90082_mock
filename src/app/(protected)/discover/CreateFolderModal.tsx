@@ -145,7 +145,7 @@ export function CreateFolderModal({
                   Cancel
                 </ButtonV2>
                 <ButtonV2
-                  bg="#2AA8E0"
+                  bg="profile.500"
                   color="white"
                   flex={1}
                   onClick={handleCreateFolder}
