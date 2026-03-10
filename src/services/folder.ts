@@ -20,10 +20,8 @@ export function useFolders(
     queryFn: (): Promise<Folder[]> =>
       apiRequest({ endpoint: API_ENDPOINTS.FOLDERS(opportunitySlug!) }),
     enabled: !!opportunitySlug && enabled,
-    staleTime: 0,
+    staleTime: 2 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: true,
-    refetchOnMount: "always",
   });
 }
 

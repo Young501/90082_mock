@@ -47,7 +47,6 @@ export default function DiscoveryPage() {
   const opportunitySlug = sp.get("opp") || undefined;
 
   const { user } = useAuthStore();
-  const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
   const [isUserEligible, setIsUserEligible] = useState<boolean | null>(null);
 
   const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } =
@@ -59,6 +58,13 @@ export default function DiscoveryPage() {
   );
 
   const opportunityId = currentOpportunity?.id;
+  const isEnrollmentReady =
+    !!accessibleOpportunities && !isOpportunitiesLoading;
+  const isEnrolled =
+    isEnrollmentReady && currentOpportunity
+      ? currentOpportunity.enrollment_status === "enrolled"
+      : undefined;
+  const accessInfo = currentOpportunity?.access ?? null;
 
   const {
     data: opportunity,
@@ -67,7 +73,6 @@ export default function DiscoveryPage() {
   } = useOpportunityDetail(opportunityId?.toString() || "");
 
   const userType = user?.user_types?.[0];
-  const [accessInfo, setAccessInfo] = useState<AccessInfo | null>(null);
   const [createFolderModalOpen, setCreateFolderModalOpen] = useState(false);
   const [folderSheetOpen, setFolderSheetOpen] = useState(false);
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
@@ -92,22 +97,6 @@ export default function DiscoveryPage() {
     },
     [opportunitySlug, router]
   );
-
-  // Compute and cache enrollment status
-  useEffect(() => {
-    if (!opportunityId || !accessibleOpportunities) return;
-
-    const currentOpportunity = findOpportunityByIdOrSlug(
-      accessibleOpportunities,
-      opportunitySlug
-    );
-    const enrolled = currentOpportunity?.enrollment_status === "enrolled";
-
-    if (enrolled !== isEnrolled) {
-      setIsEnrolled(enrolled);
-    }
-    setAccessInfo(currentOpportunity?.access || null);
-  }, [opportunityId, accessibleOpportunities, isEnrolled, opportunitySlug]);
 
   useEffect(() => {
     if (!opportunity || !user?.email || isUserEligible !== null) return;
@@ -148,9 +137,6 @@ export default function DiscoveryPage() {
     router,
   ]);
 
-  // Discovery hook - only initialize if enrolled
-  const isEnrollmentReady =
-    !!accessibleOpportunities && !isOpportunitiesLoading;
   const isEligible = isUserEligible ?? false;
 
   const {
@@ -177,7 +163,7 @@ export default function DiscoveryPage() {
     hasFilters,
     resultsCount: resultsCountV2,
   } = useOpportunityFilter(opportunityId?.toString() || "", {
-    isEnrolled: isEnrolled === null ? undefined : isEnrolled,
+    isEnrolled,
     isEnrollmentReady,
   });
 
