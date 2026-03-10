@@ -18,6 +18,31 @@ import { File, MoreHorizontal, Paperclip, Reply } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+const URL_REGEX = /(https?:\/\/[^\s]+)/g;
+
+function renderTextWithLinks(text: string, isMine: boolean) {
+  const parts = text.split(URL_REGEX);
+  return parts.map((part, i) =>
+    /^https?:\/\/[^\s]+$/.test(part) ? (
+      <Link
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          textDecoration: "underline",
+          color: isMine ? "rgba(255,255,255,0.9)" : "#3182ce",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {part}
+      </Link>
+    ) : (
+      <React.Fragment key={i}>{part}</React.Fragment>
+    )
+  );
+}
+
 export interface MessageBoxProps {
   message: Message;
   isMine: boolean;
@@ -154,7 +179,7 @@ export const MessageBox = ({
                     {text && (
                       <VStack align="flex-start" gap={0}>
                         <Text fontSize="sm" whiteSpace="pre-wrap">
-                          {displayText}
+                          {renderTextWithLinks(displayText, isMine)}
                         </Text>
                         {shouldTruncate && (
                           <Box

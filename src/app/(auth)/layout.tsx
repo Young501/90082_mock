@@ -18,15 +18,21 @@ function AuthLayoutContent({ children }: AuthLayoutProps) {
   const isOnboardingPage = pathname?.startsWith("/onboarding") ?? false;
   const isOnboardingOrganisationMatchPage =
     pathname?.includes("/onboarding/organisation-match") ?? false;
+  const isInvitePage = pathname?.startsWith("/invite") ?? false;
   const allowedbgwaves = pathname
-    ? ["/login", "/signup", "/user-type", "/onboarding/organisation-match"].some(
-        (path) => pathname.startsWith(path)
-      )
+    ? [
+        "/login",
+        "/signup",
+        "/user-type",
+        "/onboarding/organisation-match",
+        "/invite",
+      ].some((path) => pathname.startsWith(path))
     : false;
 
   const isOrganisationSignupPage =
     searchParams?.get("user-type") === "organisation" ||
-    isOnboardingOrganisationMatchPage;
+    isOnboardingOrganisationMatchPage ||
+    isInvitePage;
 
   return (
     <div

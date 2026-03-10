@@ -1,4 +1,5 @@
 import { API_ENDPOINTS, apiRequest } from "@/api";
+import { checkOrganisationInvite } from "@/services/organisation";
 import { getErrorMessage, getSuccessMessage } from "@/utils/apiErrorHandling";
 import { useAuthStore } from "@/store";
 import {
@@ -104,6 +105,15 @@ export const checkOnboardingStatus = async ({
 
   if (userType === "organisation") {
     try {
+      try {
+        const invite = await checkOrganisationInvite();
+        if (invite && redirectOnSuccess) {
+          router.push("/invite/");
+          return;
+        }
+      } catch {
+      }
+
       let member: Record<string, any> | null = null;
       try {
         member = await apiRequest({
@@ -123,22 +133,30 @@ export const checkOnboardingStatus = async ({
         }
       }
 
-      if (!isOrganisationMemberComplete(member)) {
-        if (redirectOnSuccess) router.push("/onboarding/");
-        return;
-      }
-
       const org = await apiRequest({
         endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_V2,
       });
       setUserProfile(org);
 
-      if (!isOrganisationComplete(org)) {
-        if (redirectOnSuccess) router.push("/onboarding/");
+      const memberComplete = isOrganisationMemberComplete(member);
+      const orgComplete = isOrganisationComplete(org);
+
+      if (!memberComplete || !orgComplete) {
+        console.log("memberComplete", memberComplete);
+        console.log("orgComplete", orgComplete);
+        if (redirectOnSuccess) {
+          const phase: "user" | "organisation" =
+            !memberComplete ? "user" : "organisation";
+          useAuthStore.getState().setOnboardingPhase(phase);
+          router.push("/onboarding/");
+        }
         return;
       }
 
-      if (redirectOnSuccess) router.push("/home/");
+      if (redirectOnSuccess) {
+        useAuthStore.getState().setOnboardingPhase(null);
+        router.push("/home/");
+      }
     } catch (error: any) {
       if (error?.response?.status === 404) {
         if (redirectOnSuccess) router.push("/onboarding/");

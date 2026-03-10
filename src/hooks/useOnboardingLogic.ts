@@ -13,6 +13,7 @@ import {
   isOrganisationMemberComplete,
   isOrganisationComplete,
 } from "@/hooks/auth";
+import { useAuthStore } from "@/store/authStore";
 
 const normalizePages = (rawPages: any[]): Page[] => {
   if (!Array.isArray(rawPages) || rawPages.length === 0) return [];
@@ -42,6 +43,8 @@ export const useOnboardingLogic = (userType: string) => {
     refetch: refetchMember,
   } = useOrganisationMemberMeV2(userType === "organisation");
 
+  console.log("organisationMember", organisationMember);
+
   const isMember404 =
     isMemberError && (memberError as any)?.response?.status === 404;
 
@@ -65,15 +68,15 @@ export const useOnboardingLogic = (userType: string) => {
     data: organisationProfile,
     isLoading: isOrgProfileLoading,
     isFetched: isOrgProfileFetched,
-  } = useOrganisationProfileV2(
-    userType === "organisation" && isOrganisationMemberComplete(organisationMember ?? null)
-  );
+  } = useOrganisationProfileV2(userType === "organisation");
 
   const memberComplete = isOrganisationMemberComplete(organisationMember ?? null);
   const orgComplete = isOrganisationComplete(organisationProfile ?? null);
   const isOrgMember = userType === "organisation" && orgComplete;
 
-  // derive the current phase to use
+  const onboardingPhaseFromStore = useAuthStore((s) => s.onboardingPhase);
+  const setOnboardingPhase = useAuthStore((s) => s.setOnboardingPhase);
+
   const derivedPhase: "user" | "organisation" = useMemo(() => {
     if (userType !== "organisation") return "user";
     if (!memberComplete) return "user";
@@ -81,10 +84,26 @@ export const useOnboardingLogic = (userType: string) => {
     return "organisation";
   }, [userType, memberComplete, orgComplete]);
 
+  // Use store phase when landing from auth redirect (before data loads); otherwise use derived
+  const hasPhaseData =
+    userType !== "organisation" ||
+    (isMemberFetched && (!memberComplete || isOrgProfileFetched));
+  const effectivePhase: "user" | "organisation" = useMemo(() => {
+    if (hasPhaseData) return derivedPhase;
+    return onboardingPhaseFromStore ?? "user";
+  }, [hasPhaseData, derivedPhase, onboardingPhaseFromStore]);
+
   useEffect(() => {
-    setCurrentPhase(derivedPhase);
+    setCurrentPhase(effectivePhase);
     setCurrentPageId(1);
-  }, [derivedPhase]);
+  }, [effectivePhase]);
+
+  // Clear store phase once we have derived data 
+  useEffect(() => {
+    if (hasPhaseData && onboardingPhaseFromStore != null) {
+      setOnboardingPhase(null);
+    }
+  }, [hasPhaseData, onboardingPhaseFromStore, setOnboardingPhase]);
 
   const shouldFetchOnboardingPages =
     userType !== "student" ||
@@ -102,9 +121,9 @@ export const useOnboardingLogic = (userType: string) => {
     (userType === "student" && shouldFetchOnboardingPages && isPagesLoading) ||
     (userType === "organisation" &&
       (isMemberLoading ||
-        (memberComplete && isOrgProfileLoading) ||
+        isOrgProfileLoading ||
         !isMemberFetched ||
-        (memberComplete && !isOrgProfileFetched && !orgComplete) ||
+        !isOrgProfileFetched ||
         isPagesLoading)) ||
     (userType !== "student" && userType !== "organisation" && isPagesLoading);
 
@@ -236,12 +255,6 @@ export const useOnboardingLogic = (userType: string) => {
     currentPageId,
   ]);
 
-  // const isFirstPageOfOrgPhase = useMemo(() => {
-  //   if (userType !== "organisation" || currentPhase !== "organisation")
-  //     return false;
-  //   const currentIndex = pages.findIndex((p: Page) => p.id === currentPageId);
-  //   return currentIndex === 0;
-  // }, [userType, currentPhase, pages, currentPageId]);
 
   const goToNextPage = useCallback(() => {
     const currentIndex = pages.findIndex((p: Page) => p.id === currentPageId);
@@ -283,6 +296,33 @@ export const useOnboardingLogic = (userType: string) => {
     return currentPhase === "organisation";
   }, [userType, currentPhase, isOrgMember]);
 
+  /** Prefilled form data from existing org member for user phase */
+  const prefilledData = useMemo(() => {
+    if (userType !== "organisation" || !organisationMember) return null;
+    const member = organisationMember as Record<string, any>;
+    const data: Record<string, any> = {};
+
+    // User / organisation_member fields from member
+    const memberFields = [
+      "first_name",
+      "last_name",
+      "profile_picture_url",
+      "profile_picture",
+      "job_title",
+    ] as const;
+    memberFields.forEach((field) => {
+      const val = member[field];
+      if (val != null && (typeof val !== "string" || val.trim() !== "")) {
+        data[field] = val;
+      }
+    });
+    if (member.profile_picture_url && !data.profile_picture) {
+      data.profile_picture = member.profile_picture_url;
+    }
+
+    return Object.keys(data).length > 0 ? data : null;
+  }, [userType, organisationMember]);
+
   return {
     pages,
     currentPage,
@@ -296,7 +336,6 @@ export const useOnboardingLogic = (userType: string) => {
     organisationProfile,
     organisationPageStructure,
     canGoBackToUserPhase,
-    // isFirstPageOfOrgPhase,
     ...progressInfo,
     ...navigationInfo,
     goToPreviousPage,
@@ -304,5 +343,6 @@ export const useOnboardingLogic = (userType: string) => {
     goToPage,
     goToPhaseAndPage,
     startOrganisationPhase,
+    prefilledData,
   };
 };

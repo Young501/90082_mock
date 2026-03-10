@@ -175,6 +175,9 @@ export const useProfile = (userType: string) => {
     };
   }, [isStudent, studentData]);
 
+  const platformRole = (orgMemberData as { platform_role?: string } | undefined)
+    ?.platform_role;
+
   return {
     userProfile: userProfileForStore,
     mergedProfile,
@@ -186,5 +189,6 @@ export const useProfile = (userType: string) => {
     university,
     onboardingData,
     isOnboardingLoading,
+    platformRole,
   };
 };
