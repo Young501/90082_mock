@@ -33,15 +33,16 @@ const Profile = () => {
   const userType: string = useAuthStore((s) => s.getUserType()) ?? "";
   const isCoordinator = userType === "coordinator";
   const isOrganisation = userType === "organisation";
-  const isOrgMember = useAuthStore((s) =>
-    s.getIsOrganisationMemberOnboarding()
-  );
+  // const isOrgMember = useAuthStore((s) =>
+  //   s.getIsOrganisationMemberOnboarding()
+  // );
 
   const {
     userProfile: fetchedUserProfile,
     isLoading: isProfileLoading,
     handleOnboardingRedirect,
     university,
+    platformRole,
   } = useProfile(isCoordinator ? "" : userType);
 
   const { data: onboardingData, isLoading: isOnboardingLoading } =
@@ -74,7 +75,7 @@ const Profile = () => {
   }, [onboardingData?.onboarding_pages, isOrganisation]);
 
   const orgProfilePages = useMemo(() => {
-    if (!isOrganisation || isOrgMember) return [];
+    if (!isOrganisation) return [];
     const op = onboardingData?.onboarding_pages;
     if (!op) return [];
     return (op.organisation_onboarding ?? op.organisation ?? []).map(
@@ -84,7 +85,7 @@ const Profile = () => {
         questions: (p.questions ?? []) as Question[],
       })
     );
-  }, [onboardingData?.onboarding_pages, isOrganisation, isOrgMember]);
+  }, [onboardingData?.onboarding_pages, isOrganisation]);
 
   const isDocumentsPage = (p: { questions: Question[] }) =>
     p.questions?.some((q) =>
@@ -110,12 +111,12 @@ const Profile = () => {
       allTabs.push({ title: "My Information", icon: "fa-solid fa-user" });
 
       if (isOrganisation) {
-        if (!isOrgMember) {
-          allTabs.push({
-            title: "Organisation Profile",
-            icon: "fa-solid fa-building",
-          });
-        }
+        // if (platformRole !== "member") {
+        allTabs.push({
+          title: "Organisation Profile",
+          icon: "fa-solid fa-building",
+        });
+        // }
         allTabs.push({
           title: "My Opportunities",
           icon: "fa-solid fa-folder-closed",
@@ -138,7 +139,7 @@ const Profile = () => {
     });
 
     return allTabs;
-  }, [isCoordinator, isOrganisation, isOrgMember]);
+  }, [isCoordinator, isOrganisation, platformRole]);
 
   const displayFormData = useMemo(() => {
     const p = (fetchedUserProfile ?? userProfile) as Record<
@@ -320,6 +321,7 @@ const Profile = () => {
                           title: page.title,
                           questions: page.questions,
                         }}
+                        disabled={platformRole === "member"}
                         formData={displayFormData}
                         onEdit={() =>
                           setEditingPage({

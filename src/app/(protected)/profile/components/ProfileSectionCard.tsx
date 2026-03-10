@@ -217,6 +217,7 @@ function renderFieldValue(
 
 export interface ProfileSectionCardProps {
   page: Page;
+  disabled?: boolean;
   formData: Record<string, unknown>;
   onEdit: () => void;
   university?: { slug?: string; name?: string } | null;
@@ -224,6 +225,7 @@ export interface ProfileSectionCardProps {
 
 export function ProfileSectionCard({
   page,
+  disabled,
   formData,
   onEdit,
   university,
@@ -249,25 +251,27 @@ export function ProfileSectionCard({
         <Heading fontSize="md" fontWeight="600" color="black">
           {page.title}
         </Heading>
-        <ButtonV2
-          size="sm"
-          borderRadius="xl"
-          variant="ghost"
-          border="1px solid"
-          borderColor={userType === "organisation" ? "#D3EFEA" : "#D6EDFB"}
-          px={4}
-          py={3}
-          fontSize="sm"
-          color="profile.500"
-          onClick={onEdit}
-        >
-          <PenLine
-            size={14}
-            style={{ marginRight: 6 }}
-            color="var(--chakra-colors-profile-500)"
-          />
-          Edit
-        </ButtonV2>
+        {!disabled && (
+          <ButtonV2
+            size="sm"
+            borderRadius="xl"
+            variant="ghost"
+            border="1px solid"
+            borderColor={userType === "organisation" ? "#D3EFEA" : "#D6EDFB"}
+            px={4}
+            py={3}
+            fontSize="sm"
+            color="profile.500"
+            onClick={onEdit}
+          >
+            <PenLine
+              size={14}
+              style={{ marginRight: 6 }}
+              color="var(--chakra-colors-profile-500)"
+            />
+            Edit
+          </ButtonV2>
+        )}
       </Flex>
 
       <Box

@@ -29,7 +29,9 @@ export const PAGE_TITLES = {
   MANAGE_PARTNERS: "Manage Partners | Uniconnected",
   MATCH: "Match | Uniconnected",
   ORGANISATION_MATCH: "Organisation Match | Uniconnected",
+  ORGANISATION_INVITE: "Organisation Invite | Uniconnected",
   TERMS_STUDENT: "Student Terms & Conditions | Uniconnected",
   TERMS_ORGANISATION: "Organisation Terms & Conditions | Uniconnected",
   PRIVACY: "Privacy Policy | Uniconnected",
+  TEAM: "Team | Uniconnected",
 } as const;

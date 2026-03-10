@@ -19,6 +19,7 @@ import {
   ChevronDown,
   ExternalLink,
   CircleCheckBig,
+  Users,
 } from "lucide-react";
 
 import { IconSidebarLine } from "@/components/Icons";
@@ -119,6 +120,16 @@ const Sidebar = ({
       hasDropdown: true,
     },
     {
+      key: "team",
+      label: "Team",
+      href: "/team/",
+      icon: <Users size={20} />,
+      isCoordinator: false,
+      isOrganisation: true,
+      isStudent: false,
+      isProtected: true,
+    },
+    {
       key: "messages",
       label: "Messages",
       href: "/messaging/",
@@ -173,6 +184,7 @@ const Sidebar = ({
     if (href === "/messaging/") return pathname?.startsWith("/messaging");
     if (href === "/contact/") return pathname?.startsWith("/contact");
     if (href === "/profile/") return pathname?.startsWith("/profile");
+    if (href === "/team/") return pathname?.startsWith("/team");
     return pathname === href || pathname === href.replace(/\/$/, "");
   };
 
