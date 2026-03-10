@@ -7,6 +7,8 @@ import {
   Input,
   SimpleGrid,
   IconButton,
+  Avatar,
+  Flex,
 } from "@chakra-ui/react";
 import { useFolders, useAddMemberToFolder } from "@/services/folder";
 import { Folder } from "@/types/folder";
@@ -356,13 +358,36 @@ function FolderSelectCard({
         h="100%"
         justifyContent="space-between"
       >
-        <Image
-          src="/assets/grouporg2.png"
-          alt="Folder"
-          width={60}
-          height={32}
-          style={{ objectFit: "contain" }}
-        />
+        {folder.member_avatars && folder.member_avatars.length > 0 ? (
+          <Flex>
+            {folder.member_avatars.slice(0, 3).map((avatar, i) => (
+              <Avatar.Root
+                key={`${avatar.avatar_url}-${i}`}
+                w="26px"
+                h="26px"
+                minW="26px"
+                borderRadius="full"
+                overflow="hidden"
+                border="2px solid white"
+                ml={i > 0 ? "-8px" : "0"}
+                zIndex={3 - i}
+              >
+                <Avatar.Image src={avatar.avatar_url} alt={avatar.type} />
+                <Avatar.Fallback color="white" fontSize="9px" fontWeight="500">
+                  {avatar.type === "student" ? "S" : "O"}
+                </Avatar.Fallback>
+              </Avatar.Root>
+            ))}
+          </Flex>
+        ) : (
+          <Image
+            src="/assets/grouporg2.png"
+            alt="Folder"
+            width={60}
+            height={32}
+            style={{ objectFit: "contain" }}
+          />
+        )}
         <VStack align="stretch" gap={1} minW={0}>
           <Text fontSize="sm" fontWeight="600" color="#18181B" lineClamp={2}>
             {folder.name}

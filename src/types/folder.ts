@@ -3,6 +3,10 @@ export interface Folder {
   name: string;
   description: string | null;
   member_count: number;
+  member_avatars?: {
+    avatar_url: string;
+    type: "student" | "organisation";
+  }[];
   created_at: string;
   updated_at: string;
 }
