@@ -99,7 +99,6 @@ export interface OrganisationProfile {
   allow_contact?: boolean;
   contact_email?: string;
   description?: string;
-  actively_hiring?: boolean;
   matchPercentage?: number;
   members?: {
     id?: number;
