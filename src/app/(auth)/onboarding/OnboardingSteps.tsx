@@ -1027,10 +1027,24 @@ export const OnboardingSteps = ({ userType }: Props) => {
     } catch (error: any) {
       setIsOrgSubmitting(false);
       console.error(error);
-      const errorMessage =
-        error?.response?.data?.error ||
-        error?.response?.data?.detail ||
-        "Submission failed";
+      const data = error?.response?.data;
+      let errorMessage: string;
+      if (data?.detail) {
+        errorMessage = data.detail;
+      } else if (data?.error) {
+        errorMessage = data.error;
+      } else if (data && typeof data === "object") {
+        const fieldErrors = Object.entries(data)
+          .map(([field, errors]) => {
+            const fieldLabel = field.replace(/_/g, " ");
+            const messages = Array.isArray(errors) ? errors.join(", ") : String(errors);
+            return `${fieldLabel}: ${messages}`;
+          })
+          .join("\n");
+        errorMessage = fieldErrors || "Submission failed";
+      } else {
+        errorMessage = "Submission failed";
+      }
       toast.error(errorMessage);
       setSubmitError(errorMessage);
     }

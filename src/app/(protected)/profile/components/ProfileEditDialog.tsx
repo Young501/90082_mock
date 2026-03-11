@@ -443,11 +443,26 @@ export function ProfileEditDialog({
       handleClose();
       onSuccess?.();
     } catch (error: any) {
-      const msg =
-        error?.response?.data?.detail ||
-        error?.response?.data?.error ||
-        "Update failed";
-      toast.error(typeof msg === "string" ? msg : JSON.stringify(msg));
+      const data = error?.response?.data;
+      let msg: string;
+      if (data?.detail) {
+        msg = data.detail;
+      } else if (data?.error) {
+        msg = data.error;
+      } else if (data && typeof data === "object") {
+        // Handle DRF field-level errors: { field: ["msg1", "msg2"], ... }
+        const fieldErrors = Object.entries(data)
+          .map(([field, errors]) => {
+            const fieldLabel = field.replace(/_/g, " ");
+            const messages = Array.isArray(errors) ? errors.join(", ") : String(errors);
+            return `${fieldLabel}: ${messages}`;
+          })
+          .join("\n");
+        msg = fieldErrors || "Update failed";
+      } else {
+        msg = "Update failed";
+      }
+      toast.error(msg);
     }
   };
 
