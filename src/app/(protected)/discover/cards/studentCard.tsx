@@ -138,10 +138,9 @@ export function StudentCard({
           borderRadius="xl"
           border="1px solid"
           borderColor="#E4E4E7"
-          overflow="hidden"
           position="relative"
           w="100%"
-          h="320px"
+          minH="320px"
           p={4}
           maxW={maxW}
           display="flex"

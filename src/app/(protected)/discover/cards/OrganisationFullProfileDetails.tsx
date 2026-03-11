@@ -230,7 +230,7 @@ export const RenderOrganisationDetails = ({
           </VStack>
 
           {/* Actively Hiring banner */}
-          {organisation.actively_hiring && (
+          {organisation.questionnaire_answers?.actively_hiring && (
             <Box
               w="full"
               borderRadius="lg"

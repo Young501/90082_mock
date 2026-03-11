@@ -1,19 +1,20 @@
 import { ReactNode } from "react";
+import { Manrope } from "next/font/google";
 import Providers from "@/components/ui/providers";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["200", "300", "400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={manrope.className}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap"
-          rel="stylesheet"
-        />
         <link rel="icon" href="/favicons/favicon.ico" />
         <link rel="shortcut icon" href="/favicons/favicon.ico" />
         <link

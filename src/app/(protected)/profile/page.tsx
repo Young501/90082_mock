@@ -139,7 +139,7 @@ const Profile = () => {
     });
 
     return allTabs;
-  }, [isCoordinator, isOrganisation, platformRole]);
+  }, [isCoordinator, isOrganisation]);
 
   const displayFormData = useMemo(() => {
     const p = (fetchedUserProfile ?? userProfile) as Record<

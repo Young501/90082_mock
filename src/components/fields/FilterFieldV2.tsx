@@ -27,6 +27,18 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
   onChange,
 }) => {
   const [arrayMode, setArrayMode] = useState<"and" | "or">("or");
+  const [rangeValue, setRangeValue] = useState<number>(
+    typeof value === "number" ? value : 50
+  );
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (typeof value === "number") {
+      setRangeValue(value);
+    } else if (value === undefined) {
+      setRangeValue(50);
+    }
+  }, [value]);
 
   const renderScalarFilter = () => {
     const selectedValues = Array.isArray(value) ? value : [];
@@ -215,19 +227,6 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
   };
 
   const renderRangeFilter = () => {
-    const [rangeValue, setRangeValue] = useState<number>(
-      typeof value === "number" ? value : 50
-    );
-    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    useEffect(() => {
-      if (typeof value === "number") {
-        setRangeValue(value);
-      } else if (value === undefined) {
-        setRangeValue(50);
-      }
-    }, [value]);
-
     const handleRangeChange = (newValue: number) => {
       setRangeValue(newValue);
 
