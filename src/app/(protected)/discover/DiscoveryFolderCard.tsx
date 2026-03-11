@@ -80,15 +80,15 @@ export default function DiscoveryFolderCard({
         </HStack>
 
         {folders.length === 0 && (
-          <VStack align="center" justify="center" gap={4}>
-            <FolderX size={32} color="#71717A" />
+          <VStack align="center" justify="center" gap={3} py={10}>
+            <FolderX size={32} color="#A1A1AA" />
             <Text
               fontSize="md"
               textAlign="center"
               color="black"
               fontWeight="600"
             >
-              No folders yet
+              No folder yet
             </Text>
             <Text fontSize="sm" textAlign="center" color="#52525B">
               Save interesting opportunities into personalised folder.

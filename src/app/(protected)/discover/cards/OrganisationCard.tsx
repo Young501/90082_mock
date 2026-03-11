@@ -5,9 +5,8 @@ import { FullProfileCard } from "./FullProfileCard";
 import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
 import { DeleteModal } from "../../folders/modals/DeleteModal";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
-import { MapPin, MessageCircle, FolderHeart, Dot } from "lucide-react";
+import { MapPin, MessageCircle, FolderHeart, Building2 } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
-import { useAuthStore } from "@/store/authStore";
 import { ContactPage } from "@/components/ContactPage";
 
 interface OrganisationCardProps {
@@ -37,8 +36,6 @@ export function OrganisationCard({
   const [deleteModal, setDeleteModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [addedToFolder, setAddedToFolder] = useState(false);
-  const { userProfile } = useAuthStore();
-  const userType = useAuthStore((state) => state.getUserType());
 
   const getCompanyLogo = () => {
     return organisation.logo_url || organisation.profile_picture_url;
@@ -67,11 +64,12 @@ export function OrganisationCard({
     }
   };
 
-  const industryText = organisation.industry || organisation.sector;
-  const studentIndustryNicheText =
-    userType === "student"
-      ? userProfile?.course_stream?.label || ""
-      : industryText;
+  const sectorText = organisation.sector;
+  const industryText = organisation.industry;
+  const industryDisplayText =
+    sectorText && industryText
+      ? `${sectorText} (${industryText})`
+      : sectorText || industryText || "";
   const matchPercentage = organisation.matchPercentage;
   const locationText = organisation.location || "";
   const distanceText =
@@ -89,7 +87,7 @@ export function OrganisationCard({
         overflow="hidden"
         position="relative"
         w="100%"
-        h="251px"
+        minH="251px"
         p={4}
         maxW={maxW}
         display="flex"
@@ -132,100 +130,103 @@ export function OrganisationCard({
             </Avatar.Root>
 
             <VStack align="stretch" gap={1} flex={1} minW={0} w="full">
-              <HStack alignItems="center" gap={1} w="full">
+              <HStack
+                // justifyContent="space-between"
+                alignItems="flex-start"
+                gap={2}
+                w="full"
+              >
                 <Tooltip content={organisation.name}>
                   <Text
                     fontSize="md"
                     fontWeight="500"
                     color="#000000"
                     lineHeight="tight"
-                    maxW="150px"
-                    truncate
+                    wordBreak="break-word"
                   >
                     {organisation.name}
                   </Text>
                 </Tooltip>
-                {organisation.actively_hiring && (
-                  <Box
-                    flexShrink={0}
-                    px={1.5}
-                    py={0.5}
-                    bg="#F4F4F5"
-                    borderRadius="md"
-                    fontSize="xs"
-                    fontWeight="500"
-                    color="#173DA6"
-                    boxShadow="0px 0px 1px 0px #D4D4D8 inset"
+                {organisation.questionnaire_answers?.actively_hiring && (
+                  <Tooltip
+                    content={
+                      organisation.questionnaire_answers
+                        ?.actively_hiring_details
+                    }
+                    disabled={
+                      !organisation.questionnaire_answers
+                        ?.actively_hiring_details
+                    }
                   >
-                    Actively Hiring
-                  </Box>
+                    <Box
+                      flexShrink={0}
+                      px={1.5}
+                      py={0.5}
+                      bg="#EEF2FF"
+                      borderRadius="md"
+                      fontSize="xs"
+                      fontWeight="500"
+                      color="#173DA6"
+                      boxShadow="0px 0px 1px 0px #C7D2FE inset"
+                    >
+                      Actively Hiring
+                    </Box>
+                  </Tooltip>
                 )}
               </HStack>
 
               {(locationText || distanceText) && (
-                <HStack gap={1.5} color="#71717A" fontSize="sm">
-                  <Box flexShrink={0}>
-                    <MapPin size={14} strokeWidth={2} color="#52525B" />
+                <HStack
+                  gap={1.5}
+                  color="#71717A"
+                  fontSize="sm"
+                  align="flex-start"
+                >
+                  <Box flexShrink={0} pt="1px">
+                    <MapPin size={14} strokeWidth={2} color="#A1A1AA" />
                   </Box>
-                  <HStack alignItems="center" gap={1}>
-                    <Tooltip content={locationText}>
-                      <Text whiteSpace="nowrap" w="full" maxW="150px" truncate>
-                        {locationText}
-                      </Text>
-                    </Tooltip>
-                    {locationText && distanceText && (
-                      <Dot size={20} color="#A1A1AA" />
+                  <HStack alignItems="center" gap={1} flexWrap="wrap">
+                    {locationText && (
+                      <Tooltip content={locationText}>
+                        <Text lineClamp={2}>{locationText}</Text>
+                      </Tooltip>
                     )}
                     {distanceText && (
-                      <Text whiteSpace="nowrap" wordBreak="break-word">
+                      <Box
+                        flexShrink={0}
+                        px={1.5}
+                        py={0.5}
+                        bg="#DCFCE7"
+                        borderRadius="md"
+                        fontSize="xs"
+                        fontWeight="500"
+                        color="#116932"
+                        boxShadow="0px 0px 1px 0px #D4D4D8 inset"
+                      >
                         {distanceText}
-                      </Text>
+                      </Box>
                     )}
                   </HStack>
                 </HStack>
               )}
-
-              {/* {industryLabel && (
-                <Text fontSize="sm" color="#52525B" lineClamp={1}>
-                  {industryLabel}
-                </Text>
-              )} */}
             </VStack>
-            {/* <VStack align="stretch" gap={2}>
-              {industryText && (
-                <Box>
-                  <Tooltip content={industryText}>
-                    <Text
-                      color="#52525B"
-                      fontSize="sm"
-                      w="full"
-                      maxW="150px"
-                      truncate
-                    >
-                      {industryText}
-                    </Text>
-                  </Tooltip>
-                </Box>
-              )} */}
+
             <VStack align="stretch" gap={2} w="full">
-              {studentIndustryNicheText && matchPercentage && (
-                <Box w="full">
-                  <Tooltip content={studentIndustryNicheText}>
-                    <Text
-                      color="#52525B"
-                      fontSize="sm"
-                      w="full"
-                      maxW="full"
-                      truncate
-                    >
-                      {studentIndustryNicheText}
+              {industryDisplayText && (
+                <HStack gap={1.5} color="#52525B" fontSize="sm">
+                  <Box flexShrink={0}>
+                    <Building2 size={14} strokeWidth={2} color="#A1A1AA" />
+                  </Box>
+                  <Tooltip content={industryDisplayText}>
+                    <Text truncate maxW="full">
+                      {industryDisplayText}
                     </Text>
                   </Tooltip>
-                </Box>
+                </HStack>
               )}
               {matchPercentage && (
                 <Box
-                  flexShrink={0}
+                  alignSelf="flex-start"
                   px={1.5}
                   py={0.5}
                   bg="#DCFCE7"
