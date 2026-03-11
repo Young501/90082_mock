@@ -35,7 +35,11 @@ export interface StudentProfile {
   distance_km?: number;
   profile_picture_url?: string | null;
   degree?: string;
-  course_stream?: string;
+  course_stream?: {
+    id?: number;
+    code?: string;
+    label?: string;
+  };
   specialisations?: string[] | string;
   progression?: string;
   skills?: string[];
@@ -95,7 +99,6 @@ export interface OrganisationProfile {
   allow_contact?: boolean;
   contact_email?: string;
   description?: string;
-  actively_hiring?: boolean;
   matchPercentage?: number;
   members?: {
     id?: number;
@@ -103,5 +106,6 @@ export interface OrganisationProfile {
     last_name?: string;
     profile_picture_url?: string | null;
     role?: string;
+    job_title?: string;
   }[];
 }

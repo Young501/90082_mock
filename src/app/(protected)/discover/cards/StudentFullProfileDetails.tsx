@@ -204,7 +204,7 @@ export const RenderStudentDetails = ({
               </Box>
               <Text fontSize="sm" color="gray.600">
                 {student.faculty} <br />
-                {student.course_stream} <br />
+                {student.course_stream?.label} <br />
                 {student.degree} <br />
                 {student.progression}
               </Text>

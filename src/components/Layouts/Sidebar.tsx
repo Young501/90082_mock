@@ -167,10 +167,11 @@ const Sidebar = ({
     if (isCoordinator) {
       return MENU_ITEMS.filter((i) => i.isCoordinator && i.isProtected);
     }
-    if (isOrganisation || isStudent) {
-      return MENU_ITEMS.filter(
-        (i) => (i.isOrganisation || i.isStudent) && i.isProtected
-      );
+    if (isOrganisation) {
+      return MENU_ITEMS.filter((i) => i.isOrganisation && i.isProtected);
+    }
+    if (isStudent) {
+      return MENU_ITEMS.filter((i) => i.isStudent && i.isProtected);
     }
     return [];
   };
@@ -218,19 +219,13 @@ const Sidebar = ({
         </Text>
         {item.badge && (
           <Box
-            bg="white"
-            borderWidth="1px"
-            borderColor={active ? "white" : "#E4E4E7"}
-            borderRadius="6px"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            w="20px"
-            h="20px"
+            w="10px"
+            h="10px"
+            borderRadius="full"
+            bg={active ? "white" : isOrganisation ? "#1F7F7B" : "#1679AB"}
             flexShrink={0}
-          >
-            <Box w="6px" h="6px" borderRadius="full" bg="profile.500" />
-          </Box>
+            animation="pulse 2s ease-in-out infinite"
+          />
         )}
       </HStack>
     );

@@ -230,7 +230,7 @@ export const RenderOrganisationDetails = ({
           </VStack>
 
           {/* Actively Hiring banner */}
-          {organisation.actively_hiring && (
+          {organisation.questionnaire_answers?.actively_hiring && (
             <Box
               w="full"
               borderRadius="lg"
@@ -462,7 +462,7 @@ export const RenderOrganisationDetails = ({
                         .join(" ") || "—"}
                     </Text>
                     <Text fontSize="sm" color="#52525B" truncate>
-                      {person.role || "—"}
+                      {person.job_title || "—"}
                     </Text>
                   </VStack>
                 </HStack>

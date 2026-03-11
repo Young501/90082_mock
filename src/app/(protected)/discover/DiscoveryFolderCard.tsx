@@ -14,7 +14,7 @@ import {
   IconPlus,
   IconFolderSingleTrace,
 } from "@/components/Icons";
-import { X } from "lucide-react";
+import { FolderX, X } from "lucide-react";
 
 export interface DiscoveryFolderItem {
   id: string;
@@ -79,6 +79,23 @@ export default function DiscoveryFolderCard({
           )}
         </HStack>
 
+        {folders.length === 0 && (
+          <VStack align="center" justify="center" gap={3} py={10}>
+            <FolderX size={32} color="#A1A1AA" />
+            <Text
+              fontSize="md"
+              textAlign="center"
+              color="black"
+              fontWeight="600"
+            >
+              No folder yet
+            </Text>
+            <Text fontSize="sm" textAlign="center" color="#52525B">
+              Save interesting opportunities into personalised folder.
+            </Text>
+          </VStack>
+        )}
+
         {/* Create New Folder button */}
         <Button
           variant="outline"
@@ -103,10 +120,6 @@ export default function DiscoveryFolderCard({
           {isLoading ? (
             <Text fontSize="sm" textAlign="center" color="#71717A" py={2}>
               Loading folders...
-            </Text>
-          ) : folders.length === 0 ? (
-            <Text fontSize="sm" textAlign="center" color="#71717A" py={2}>
-              No folders yet
             </Text>
           ) : (
             folders.map((folder) => (
