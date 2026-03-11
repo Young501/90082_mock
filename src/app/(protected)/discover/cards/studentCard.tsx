@@ -11,6 +11,7 @@ import {
   MessageCircle,
   FolderHeart,
   GraduationCap,
+  BookOpen,
   Calendar,
   Home,
   Dot,
@@ -121,10 +122,8 @@ export function StudentCard({
       : "";
 
   const availabilityText = student.availability || ""; // TODO: not available in response yet
-  const educationParts = [courseStreamLabel, student.progression].filter(
-    Boolean
-  );
-  const educationText = educationParts.join(", ");
+  const educationText = courseStreamLabel;
+  const progressionText = student.progression || "";
 
   return (
     <>
@@ -142,7 +141,7 @@ export function StudentCard({
           overflow="hidden"
           position="relative"
           w="100%"
-          h="306px"
+          h="320px"
           p={4}
           maxW={maxW}
           display="flex"
@@ -162,15 +161,15 @@ export function StudentCard({
           <HStack
             align="flex-start"
             gap={3}
-            mb={3}
+            mb={2}
             justifyContent="space-between"
             w="full"
           >
             <HStack align="flex-start" gap={3} flex={1} minW={0}>
               <Avatar.Root
-                w="40px"
-                h="40px"
-                borderRadius="6px"
+                w="65px"
+                h="65px"
+                borderRadius="12px"
                 flexShrink={0}
                 bg="#F4F4F5"
               >
@@ -184,7 +183,7 @@ export function StudentCard({
                   <Avatar.Image
                     src={getProfileImage()}
                     alt={getDisplayName()}
-                    borderRadius="6px"
+                    borderRadius="12px"
                   />
                 )}
               </Avatar.Root>
@@ -249,7 +248,7 @@ export function StudentCard({
             )}
           </HStack>
 
-          <VStack align="stretch" gap={2} flex={1} minH={0}>
+          <VStack align="stretch" gap={2} flex={1} justifyContent="center">
             {educationText && (
               <HStack gap={1.5} color="#52525B" fontSize="sm">
                 <Box flexShrink={0}>
@@ -263,6 +262,24 @@ export function StudentCard({
                     maxW="full"
                   >
                     {educationText}
+                  </Text>
+                </Tooltip>
+              </HStack>
+            )}
+
+            {progressionText && (
+              <HStack gap={1.5} color="#52525B" fontSize="sm">
+                <Box flexShrink={0}>
+                  <BookOpen size={14} strokeWidth={2} color="#A1A1AA" />
+                </Box>
+                <Tooltip content={progressionText}>
+                  <Text
+                    whiteSpace="nowrap"
+                    overflow="hidden"
+                    textOverflow="ellipsis"
+                    maxW="full"
+                  >
+                    {progressionText}
                   </Text>
                 </Tooltip>
               </HStack>
@@ -381,7 +398,7 @@ export function StudentCard({
             )}
           </VStack>
 
-          <HStack gap={2} w="100%" mt="auto" pt={4}>
+          <HStack gap={2} w="100%" pt={4}>
             <Tooltip
               disabled={!isInTrialPeriod(opportunitySlug || "")}
               positioning={{ placement: "top", offset: { mainAxis: 8 } }}
