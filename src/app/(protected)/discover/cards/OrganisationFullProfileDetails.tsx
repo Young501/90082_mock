@@ -48,6 +48,10 @@ export const RenderOrganisationDetails = ({
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
 
+  const activelyHiring =
+    organisation.questionnaire_answers?.actively_hiring === true ||
+    organisation.questionnaire_answers?.actively_hiring === "true";
+
   const getCompanyLogo = () => {
     if (organisation.logo_url) return organisation.logo_url;
     return organisation.profile_picture_url || "";
@@ -230,7 +234,7 @@ export const RenderOrganisationDetails = ({
           </VStack>
 
           {/* Actively Hiring banner */}
-          {organisation.questionnaire_answers?.actively_hiring && (
+          {activelyHiring && (
             <Box
               w="full"
               borderRadius="lg"
