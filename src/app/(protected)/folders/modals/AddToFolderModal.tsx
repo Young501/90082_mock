@@ -23,7 +23,7 @@ import Image from "next/image";
 interface AddToFolderModalProps {
   isOpen: boolean;
   onClose: () => void;
-  opportunitySlug: string;
+  opportunitySlug?: string;
   userId?: number;
   userName: string;
   organisationId?: number;
@@ -287,7 +287,7 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
       <CreateFolderModal
         isOpen={showCreateFolder}
         onClose={() => setShowCreateFolder(false)}
-        opportunitySlug={opportunitySlug}
+        opportunitySlug={opportunitySlug || ""}
         onSuccess={handleCreateFolderSuccess}
       />
     </>

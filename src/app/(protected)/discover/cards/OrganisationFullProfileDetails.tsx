@@ -65,7 +65,14 @@ export const RenderOrganisationDetails = ({
       (showReadMore ? "..." : "");
 
   return (
-    <Box w="full" maxW="1006px" mx="auto" bg="white">
+    <Box
+      w="full"
+      maxW="1006px"
+      mx="auto"
+      bg="white"
+      px={{ base: 4, md: 6, lg: 10 }}
+      py={{ base: 5, md: 8, lg: 10 }}
+    >
       <VStack gap={6} w="full">
         <VStack
           gap={7}
