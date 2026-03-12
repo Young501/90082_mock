@@ -99,7 +99,7 @@ export const RenderStudentDetails = ({
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
 
   const resumeUrl =
-    student.resume_url ?? (student as { resume?: string }).resume;
+    student.resume
   const preferredLocations = getPreferredLocations(student);
   const courseStream = getCourseStreamLabel(student);
   const universityName = getUniversityName(student);
@@ -214,20 +214,18 @@ export const RenderStudentDetails = ({
 
           <HStack
             gap={3}
-            // align="flex-end"
-            // alignSelf={{ base: "center", md: "end" }}
-            // justifyContent={{ base: "center", md: "flex-end" }}
             justifyContent="end"
             flexShrink={0}
             flex={1}
-            // w="full"
+            w={{ base: "full", lg: "auto" }}
           >
             <ButtonV2
               variant="primary"
               icon={<MessageCircle size={16} />}
               iconPosition="start"
               h="40px"
-              w={{ base: "50%", md: "fit-content" }}
+              flex={{ base: 1, lg: "none" }}
+              minW={0}
               size="sm"
               onClick={() => setShowContactModal(true)}
               disabled={disableBtns || userType === "coordinator"}
@@ -240,7 +238,8 @@ export const RenderStudentDetails = ({
                 icon={<FolderPlus size={16} />}
                 iconPosition="start"
                 h="40px"
-                w={{ base: "50%", md: "fit-content" }}
+                flex={{ base: 1, lg: "none" }}
+                minW={0}
                 disabled={disableBtns || userType === "coordinator"}
                 onClick={() => setShowAddToFolderModal(true)}
               >
@@ -271,16 +270,14 @@ export const RenderStudentDetails = ({
             border="1px solid #E4E4E7"
             p={5}
           >
-            {resumeUrl && typeof resumeUrl === "string" && (
+            {resumeUrl && (
               <Box>
                 <Text fontSize="md" fontWeight="600" color="#18181B" mb={3}>
                   CV
                 </Text>
                 <Link
                   href={
-                    resumeUrl.startsWith("http")
-                      ? resumeUrl
-                      : `https://${resumeUrl}`
+                    resumeUrl
                   }
                   target="_blank"
                   rel="noopener noreferrer"
