@@ -49,8 +49,8 @@ export const RenderOrganisationDetails = ({
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
 
   const activelyHiring =
-    organisation.questionnaire_answers?.actively_hiring === true ||
-    organisation.questionnaire_answers?.actively_hiring === "true";
+    organisation.questionnaire_answers?.actively_hiring?.value === true ||
+    organisation.questionnaire_answers?.actively_hiring?.value === "true";
 
   const getCompanyLogo = () => {
     if (organisation.logo_url) return organisation.logo_url;
