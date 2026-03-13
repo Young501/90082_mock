@@ -250,7 +250,7 @@ export const RenderStudentDetails = ({
         flexDirection={{ base: "column", lg: "row" }}
         gap={6}
       >
-        {/* Left column */}
+        {/* Left column: About, Education, CV/Links */}
         <VStack
           align="stretch"
           gap={4}
@@ -273,6 +273,129 @@ export const RenderStudentDetails = ({
               </Text>
             </Box>
           )}
+
+          {/* Education — moved to left column */}
+          <VStack
+            gap={4}
+            align="stretch"
+            borderRadius="12px"
+            border="1px solid #E4E4E7"
+            p={5}
+          >
+            {(universityName ||
+              courseStream ||
+              student.degree ||
+              student.faculty ||
+              student.progression ||
+              student.specialisations ||
+              student.specialisations_other) && (
+              <Box>
+                <Text fontSize="md" fontWeight="600" color="#18181B" mb={4}>
+                  Education
+                </Text>
+
+                {/* LinkedIn-style entry: logo left, details right */}
+                <HStack gap={4} align="flex-start">
+                  {/* Logo */}
+                  {student.university?.logo_url ? (
+                    <Box flexShrink={0}>
+                      <Image
+                        src={student.university.logo_url}
+                        alt={universityName ?? "University"}
+                        width={80}
+                        height={80}
+                        style={{ objectFit: "contain" }}
+                      />
+                    </Box>
+                  ) : (
+                    <Flex
+                      w="48px"
+                      h="48px"
+                      borderRadius="8px"
+                      border="1px solid #E4E4E7"
+                      bg="#EAF6FD"
+                      align="center"
+                      justify="center"
+                      flexShrink={0}
+                    >
+                      <GraduationCap size={20} color="#2AA8E0" />
+                    </Flex>
+                  )}
+
+                  {/* Details */}
+                  <VStack align="stretch" gap={1} flex={1}>
+                    {universityName && (
+                      <Text
+                        fontSize="sm"
+                        fontWeight="700"
+                        color="#18181B"
+                        lineHeight="short"
+                      >
+                        {universityName}
+                      </Text>
+                    )}
+                    {(student.degree || courseStream) && (
+                      <Text fontSize="sm" color="#3F3F46">
+                        {[student.degree, courseStream]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </Text>
+                    )}
+                    {student.progression && (
+                      <Text fontSize="xs" color="#71717A">
+                        {student.progression}
+                      </Text>
+                    )}
+                    {student.faculty && (
+                      <Text fontSize="xs" color="#71717A">
+                        {student.faculty}
+                      </Text>
+                    )}
+                    {(student.specialisations ||
+                      student.specialisations_other) && (
+                      <Flex gap={2} flexWrap="wrap" mt={2}>
+                        {(Array.isArray(student.specialisations)
+                          ? student.specialisations
+                          : student.specialisations
+                            ? [student.specialisations]
+                            : []
+                        )
+                          .filter(Boolean)
+                          .map((s, i) => (
+                            <Box
+                              key={i}
+                              bg="#F4F4F5"
+                              color="#3F3F46"
+                              borderRadius="4px"
+                              py={1}
+                              px={2}
+                              fontSize="xs"
+                              fontWeight="500"
+                            >
+                              {s}
+                            </Box>
+                          ))}
+                        {student.specialisations_other && (
+                          <Box
+                            bg="#F4F4F5"
+                            color="#3F3F46"
+                            borderRadius="4px"
+                            py={1}
+                            px={2}
+                            fontSize="xs"
+                            fontWeight="500"
+                            fontStyle="italic"
+                          >
+                            {student.specialisations_other}
+                          </Box>
+                        )}
+                      </Flex>
+                    )}
+                  </VStack>
+                </HStack>
+              </Box>
+            )}
+          </VStack>
 
           {(resumeUrl || student.linkedin || student.homepage) && (
             <VStack
@@ -406,7 +529,15 @@ export const RenderStudentDetails = ({
               )}
             </VStack>
           )}
+        </VStack>
 
+        {/* Right column: Skills+Credentials, Enrollment Answers, Locations */}
+        <VStack
+          align="stretch"
+          gap={4}
+          w={{ base: "full", lg: "50%" }}
+          flex={1}
+        >
           <VStack
             gap={4}
             align="stretch"
@@ -445,20 +576,32 @@ export const RenderStudentDetails = ({
                 )}
                 {student.skills_text && (
                   <Text fontSize="sm" color="#3F3F46" fontStyle="italic">
-                    <Text as="span" fontWeight="600" fontStyle="normal" color="#18181B">Other skills: </Text>
+                    <Text
+                      as="span"
+                      fontWeight="600"
+                      fontStyle="normal"
+                      color="#18181B"
+                    >
+                      Other skills:{" "}
+                    </Text>
                     {student.skills_text}
                   </Text>
                 )}
               </Box>
             )}
 
-            {((student.credentials && student.credentials.length > 0) || student.credentials_text) && (
+            {((student.credentials && student.credentials.length > 0) ||
+              student.credentials_text) && (
               <Box>
                 <Text fontSize="md" fontWeight="600" color="#18181B" mb={3}>
                   Credentials
                 </Text>
                 {student.credentials && student.credentials.length > 0 && (
-                  <Flex gap={2} flexWrap="wrap" mb={student.credentials_text ? 3 : 0}>
+                  <Flex
+                    gap={2}
+                    flexWrap="wrap"
+                    mb={student.credentials_text ? 3 : 0}
+                  >
                     {student.credentials.map((credential, index) => (
                       <Box
                         key={index}
@@ -478,13 +621,78 @@ export const RenderStudentDetails = ({
                 )}
                 {student.credentials_text && (
                   <Text fontSize="sm" color="#3F3F46" fontStyle="italic">
-                    <Text as="span" fontWeight="600" fontStyle="normal" color="#18181B">Other credentials: </Text>
+                    <Text
+                      as="span"
+                      fontWeight="600"
+                      fontStyle="normal"
+                      color="#18181B"
+                    >
+                      Other credentials:{" "}
+                    </Text>
                     {student.credentials_text}
                   </Text>
                 )}
               </Box>
             )}
           </VStack>
+
+          {student.questionnaire_answers &&
+            Object.keys(student.questionnaire_answers).length > 0 && (
+              <VStack
+                gap={4}
+                align="stretch"
+                borderRadius="12px"
+                border="1px solid #E4E4E7"
+              >
+                <Box>
+                  <Text
+                    fontSize="md"
+                    fontWeight="600"
+                    color="#18181B"
+                    p={5}
+                    borderBottom="1px solid #E4E4E7"
+                  >
+                    Enrollment Answers
+                  </Text>
+                  <VStack align="stretch" gap={4} p={5}>
+                    {Object.entries(student.questionnaire_answers).map(
+                      ([field, value]) => {
+                        const label = getQuestionnaireFieldLabel(field);
+                        const displayValue = Array.isArray(value)
+                          ? value.join(", ")
+                          : typeof value === "string"
+                            ? value
+                            : String(value ?? "");
+                        if (!displayValue) return null;
+                        return (
+                          <Box key={field}>
+                            <Text
+                              fontSize="xs"
+                              color="#71717A"
+                              mb={1}
+                              fontWeight="500"
+                            >
+                              {label}
+                            </Text>
+                            <Box
+                              px={3}
+                              py={2}
+                              bg="#F4F4F5"
+                              borderRadius="6px"
+                              fontSize="sm"
+                              color="black"
+                            >
+                              {displayValue}
+                            </Box>
+                          </Box>
+                        );
+                      }
+                    )}
+                  </VStack>
+                </Box>
+              </VStack>
+            )}
+
           <VStack
             gap={4}
             align="stretch"
@@ -545,201 +753,6 @@ export const RenderStudentDetails = ({
               </Box>
             )}
           </VStack>
-        </VStack>
-
-        {/* Right column */}
-        <VStack
-          align="stretch"
-          gap={4}
-          w={{ base: "full", lg: "50%" }}
-          flex={1}
-        >
-          <VStack
-            gap={4}
-            align="stretch"
-            borderRadius="12px"
-            border="1px solid #E4E4E7"
-            p={5}
-          >
-            {(universityName ||
-              courseStream ||
-              student.degree ||
-              student.faculty ||
-              student.progression ||
-              student.specialisations ||
-              student.specialisations_other) && (
-              <Box>
-                <Text fontSize="md" fontWeight="600" color="#18181B" mb={4}>
-                  Education
-                </Text>
-
-                {/* LinkedIn-style entry: logo left, details right */}
-                <HStack gap={4} align="flex-start">
-                  {/* Logo */}
-                  {student.university?.logo_url ? (
-                    <Box flexShrink={0}>
-                      <Image
-                        src={student.university.logo_url}
-                        alt={universityName ?? "University"}
-                        width={56}
-                        height={56}
-                        style={{ objectFit: "contain" }}
-                      />
-                    </Box>
-                  ) : (
-                    <Flex
-                      w="48px"
-                      h="48px"
-                      borderRadius="8px"
-                      border="1px solid #E4E4E7"
-                      bg="#EAF6FD"
-                      align="center"
-                      justify="center"
-                      flexShrink={0}
-                    >
-                      <GraduationCap size={20} color="#2AA8E0" />
-                    </Flex>
-                  )}
-
-                  {/* Details */}
-                  <VStack align="stretch" gap={1} flex={1}>
-                    {/* University name */}
-                    {universityName && (
-                      <Text
-                        fontSize="sm"
-                        fontWeight="700"
-                        color="#18181B"
-                        lineHeight="short"
-                      >
-                        {universityName}
-                      </Text>
-                    )}
-
-                    {/* Degree · Course stream */}
-                    {(student.degree || courseStream) && (
-                      <Text fontSize="sm" color="#3F3F46">
-                        {[student.degree, courseStream]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </Text>
-                    )}
-
-                    {/* Progression */}
-                    {student.progression && (
-                      <Text fontSize="xs" color="#71717A">
-                        {student.progression}
-                      </Text>
-                    )}
-
-                    {/* Faculty */}
-                    {student.faculty && (
-                      <Text fontSize="xs" color="#71717A">
-                        {student.faculty}
-                      </Text>
-                    )}
-
-                    {/* Specialisations */}
-                    {(student.specialisations ||
-                      student.specialisations_other) && (
-                      <Flex gap={2} flexWrap="wrap" mt={2}>
-                        {(Array.isArray(student.specialisations)
-                          ? student.specialisations
-                          : student.specialisations
-                            ? [student.specialisations]
-                            : []
-                        )
-                          .filter(Boolean)
-                          .map((s, i) => (
-                            <Box
-                              key={i}
-                              bg="#F4F4F5"
-                              color="#3F3F46"
-                              borderRadius="4px"
-                              py={1}
-                              px={2}
-                              fontSize="xs"
-                              fontWeight="500"
-                            >
-                              {s}
-                            </Box>
-                          ))}
-                        {student.specialisations_other && (
-                          <Box
-                            bg="#F4F4F5"
-                            color="#3F3F46"
-                            borderRadius="4px"
-                            py={1}
-                            px={2}
-                            fontSize="xs"
-                            fontWeight="500"
-                            fontStyle="italic"
-                          >
-                            {student.specialisations_other}
-                          </Box>
-                        )}
-                      </Flex>
-                    )}
-                  </VStack>
-                </HStack>
-              </Box>
-            )}
-          </VStack>
-          {student.questionnaire_answers &&
-            Object.keys(student.questionnaire_answers).length > 0 && (
-              <VStack
-                gap={4}
-                align="stretch"
-                borderRadius="12px"
-                border="1px solid #E4E4E7"
-              >
-                <Box>
-                  <Text
-                    fontSize="md"
-                    fontWeight="600"
-                    color="#18181B"
-                    p={5}
-                    borderBottom="1px solid #E4E4E7"
-                  >
-                    Enrollment Answers
-                  </Text>
-                  <VStack align="stretch" gap={4} p={5}>
-                    {Object.entries(student.questionnaire_answers).map(
-                      ([field, value]) => {
-                        const label = getQuestionnaireFieldLabel(field);
-                        const displayValue = Array.isArray(value)
-                          ? value.join(", ")
-                          : typeof value === "string"
-                            ? value
-                            : String(value ?? "");
-                        if (!displayValue) return null;
-                        return (
-                          <Box key={field}>
-                            <Text
-                              fontSize="xs"
-                              color="#71717A"
-                              mb={1}
-                              fontWeight="500"
-                            >
-                              {label}
-                            </Text>
-                            <Box
-                              px={3}
-                              py={2}
-                              bg="#F4F4F5"
-                              borderRadius="6px"
-                              fontSize="sm"
-                              color="black"
-                            >
-                              {displayValue}
-                            </Box>
-                          </Box>
-                        );
-                      }
-                    )}
-                  </VStack>
-                </Box>
-              </VStack>
-            )}
         </VStack>
       </Box>
 
