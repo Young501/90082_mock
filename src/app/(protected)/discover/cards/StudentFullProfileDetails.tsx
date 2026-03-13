@@ -36,14 +36,11 @@ const getQuestionnaireFieldLabel = (fieldName: string): string => {
   return fieldName.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 };
 
-function getResumeDisplayName(url: string): string {
-  try {
-    const path = new URL(url).pathname;
-    const filename = path.split("/").filter(Boolean).pop();
-    return filename ? decodeURIComponent(filename) : "CV / Resume";
-  } catch {
-    return "CV / Resume";
-  }
+function getResumeDisplayName(
+  firstName: string | undefined,
+  lastName: string | undefined
+): string {
+  return `${firstName ?? ""} ${lastName ?? ""}`.trim() + "'s Resume";
 }
 
 function getLinkDisplayText(url: string): string {
@@ -98,13 +95,10 @@ export const RenderStudentDetails = ({
 
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
 
-  const resumeUrl =
-    student.resume
+  const resumeUrl = student.resume_url;
   const preferredLocations = getPreferredLocations(student);
   const courseStream = getCourseStreamLabel(student);
   const universityName = getUniversityName(student);
-  const interestedAreas =
-    (student.questionnaire_answers?.sector as string[] | undefined) ?? [];
 
   const academicLine = [universityName, courseStream, student.progression]
     .filter(Boolean)
@@ -263,6 +257,156 @@ export const RenderStudentDetails = ({
           w={{ base: "full", lg: "50%" }}
           flex={1}
         >
+          {student.bio && (
+            <Box
+              borderRadius="12px"
+              border="1px solid #D6EDFB"
+              borderLeft="4px solid #2AA8E0"
+              bg="#EAF6FD"
+              p={5}
+            >
+              <Text fontSize="md" fontWeight="600" color="#18181B" mb={3}>
+                About
+              </Text>
+              <Text fontSize="sm" color="#3F3F46" fontStyle="italic">
+                {student.bio}
+              </Text>
+            </Box>
+          )}
+
+          {(resumeUrl || student.linkedin || student.homepage) && (
+            <VStack
+              gap={4}
+              align="stretch"
+              borderRadius="12px"
+              border="1px solid #E4E4E7"
+              p={5}
+            >
+              {resumeUrl && (
+                <Box>
+                  <Text fontSize="md" fontWeight="600" color="#18181B" mb={3}>
+                    CV
+                  </Text>
+                  <Link
+                    href={resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    _hover={{ textDecoration: "none" }}
+                    w="full"
+                  >
+                    <Flex
+                      align="center"
+                      justify="space-between"
+                      gap={3}
+                      px={3}
+                      py={3}
+                      bg="#F4F4F5"
+                      borderRadius="12px"
+                      w="full"
+                      h="54px"
+                    >
+                      <Flex align="center" gap={3} minW={0}>
+                        <FileText fontWeight="bold" size={20} color="#27272A" />
+                        <Text fontSize="sm" color="black" truncate>
+                          {getResumeDisplayName(
+                            student.first_name,
+                            student.last_name
+                          )}
+                        </Text>
+                      </Flex>
+                      <Box flexShrink={0}>
+                        <Download size={18} color="#27272A" />
+                      </Box>
+                    </Flex>
+                  </Link>
+                </Box>
+              )}
+
+              {student.linkedin && (
+                <Box>
+                  <Text fontSize="md" fontWeight="600" color="#18181B" mb={3}>
+                    LinkedIn
+                  </Text>
+                  <Link
+                    href={
+                      student.linkedin.startsWith("http")
+                        ? student.linkedin
+                        : `https://${student.linkedin}`
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    _hover={{ textDecoration: "none" }}
+                    w="full"
+                  >
+                    <Flex
+                      align="center"
+                      justify="space-between"
+                      gap={3}
+                      px={4}
+                      py={3}
+                      bg="#F4F4F5"
+                      borderRadius="12px"
+                      w="full"
+                      h="54px"
+                      // _hover={{ bg: "#EEEEEE" }}
+                    >
+                      <Flex align="center" gap={3} minW={0}>
+                        <Linkedin size={20} color="#27272A" />
+                        <Text fontSize="sm" color="black" truncate>
+                          {getLinkDisplayText(student.linkedin)}
+                        </Text>
+                      </Flex>
+                      <Box flexShrink={0}>
+                        <ExternalLink size={18} color="#27272A" />
+                      </Box>
+                    </Flex>
+                  </Link>
+                </Box>
+              )}
+
+              {student.homepage && (
+                <Box w="full">
+                  <Text fontSize="md" fontWeight="600" color="#18181B" mb={3}>
+                    Portfolio
+                  </Text>
+                  <Link
+                    href={
+                      student.homepage.startsWith("http")
+                        ? student.homepage
+                        : `https://${student.homepage}`
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    _hover={{ textDecoration: "none" }}
+                    w="full"
+                  >
+                    <Flex
+                      align="center"
+                      justify="space-between"
+                      gap={3}
+                      px={4}
+                      py={3}
+                      bg="#F4F4F5"
+                      borderRadius="12px"
+                      w="full"
+                      h="54px"
+                    >
+                      <Flex align="center" gap={3} minW={0}>
+                        <LinkIcon fontWeight="bold" size={20} color="#27272A" />
+                        <Text fontSize="sm" color="black" truncate>
+                          {getLinkDisplayText(student.homepage)}
+                        </Text>
+                      </Flex>
+                      <Box flexShrink={0}>
+                        <ExternalLink size={18} color="#27272A" />
+                      </Box>
+                    </Flex>
+                  </Link>
+                </Box>
+              )}
+            </VStack>
+          )}
+
           <VStack
             gap={4}
             align="stretch"
@@ -270,183 +414,74 @@ export const RenderStudentDetails = ({
             border="1px solid #E4E4E7"
             p={5}
           >
-            {resumeUrl && (
-              <Box>
-                <Text fontSize="md" fontWeight="600" color="#18181B" mb={3}>
-                  CV
-                </Text>
-                <Link
-                  href={
-                    resumeUrl
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  _hover={{ textDecoration: "none" }}
-                  w="full"
-                >
-                  <Flex
-                    align="center"
-                    justify="space-between"
-                    gap={3}
-                    px={3}
-                    py={3}
-                    bg="#F4F4F5"
-                    borderRadius="12px"
-                    w="full"
-                    h="54px"
-                  >
-                    <Flex align="center" gap={3} minW={0}>
-                      <FileText fontWeight="bold" size={20} color="#27272A" />
-                      <Text fontSize="sm" color="black" truncate>
-                        {getResumeDisplayName(resumeUrl)}
-                      </Text>
-                    </Flex>
-                    <Box flexShrink={0}>
-                      <Download size={18} color="#27272A" />
-                    </Box>
-                  </Flex>
-                </Link>
-              </Box>
-            )}
-
-            {student.linkedin && (
-              <Box>
-                <Text fontSize="md" fontWeight="600" color="#18181B" mb={3}>
-                  LinkedIn
-                </Text>
-                <Link
-                  href={
-                    student.linkedin.startsWith("http")
-                      ? student.linkedin
-                      : `https://${student.linkedin}`
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  _hover={{ textDecoration: "none" }}
-                  w="full"
-                >
-                  <Flex
-                    align="center"
-                    justify="space-between"
-                    gap={3}
-                    px={4}
-                    py={3}
-                    bg="#F4F4F5"
-                    borderRadius="12px"
-                    w="full"
-                    h="54px"
-                    // _hover={{ bg: "#EEEEEE" }}
-                  >
-                    <Flex align="center" gap={3} minW={0}>
-                      <Linkedin size={20} color="#27272A" />
-                      <Text fontSize="sm" color="black" truncate>
-                        {getLinkDisplayText(student.linkedin)}
-                      </Text>
-                    </Flex>
-                    <Box flexShrink={0}>
-                      <ExternalLink size={18} color="#27272A" />
-                    </Box>
-                  </Flex>
-                </Link>
-              </Box>
-            )}
-
-            {student.homepage && (
-              <Box w="full">
-                <Text fontSize="md" fontWeight="600" color="#18181B" mb={3}>
-                  Portfolio
-                </Text>
-                <Link
-                  href={
-                    student.homepage.startsWith("http")
-                      ? student.homepage
-                      : `https://${student.homepage}`
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  _hover={{ textDecoration: "none" }}
-                  w="full"
-                >
-                  <Flex
-                    align="center"
-                    justify="space-between"
-                    gap={3}
-                    px={4}
-                    py={3}
-                    bg="#F4F4F5"
-                    borderRadius="12px"
-                    w="full"
-                    h="54px"
-                  >
-                    <Flex align="center" gap={3} minW={0}>
-                      <LinkIcon fontWeight="bold" size={20} color="#27272A" />
-                      <Text fontSize="sm" color="black" truncate>
-                        {getLinkDisplayText(student.homepage)}
-                      </Text>
-                    </Flex>
-                    <Box flexShrink={0}>
-                      <ExternalLink size={18} color="#27272A" />
-                    </Box>
-                  </Flex>
-                </Link>
-              </Box>
-            )}
-          </VStack>
-
-          <VStack
-            gap={4}
-            align="stretch"
-            borderRadius="12px"
-            border="1px solid #E4E4E7"
-            p={5}
-          >
-            {student.skills && student.skills.length > 0 && (
+            {((student.skills && student.skills.length > 0) ||
+              student.skills_text) && (
               <Box>
                 <Text fontSize="md" fontWeight="600" color="#18181B" mb={3}>
                   Skills
                 </Text>
-                <Flex gap={2} flexWrap="wrap">
-                  {student.skills.map((skill, index) => (
-                    <Box
-                      key={index}
-                      bg="#F3E8FF"
-                      color="#641BA3"
-                      borderRadius="4px"
-                      py={1.5}
-                      px={2}
-                      fontSize="sm"
-                      fontWeight="400"
-                      boxShadow="0px 0px 1px 0px #641BA3 inset"
-                    >
-                      {skill}
-                    </Box>
-                  ))}
-                </Flex>
+                {student.skills && student.skills.length > 0 && (
+                  <Flex
+                    gap={2}
+                    flexWrap="wrap"
+                    mb={student.skills_text ? 3 : 0}
+                  >
+                    {student.skills.map((skill, index) => (
+                      <Box
+                        key={index}
+                        bg="#F3E8FF"
+                        color="#641BA3"
+                        borderRadius="4px"
+                        py={1.5}
+                        px={2}
+                        fontSize="sm"
+                        fontWeight="400"
+                        boxShadow="0px 0px 1px 0px #641BA3 inset"
+                      >
+                        {skill}
+                      </Box>
+                    ))}
+                  </Flex>
+                )}
+                {student.skills_text && (
+                  <Text fontSize="sm" color="#3F3F46" fontStyle="italic">
+                    <Text as="span" fontWeight="600" fontStyle="normal" color="#18181B">Other skills: </Text>
+                    {student.skills_text}
+                  </Text>
+                )}
               </Box>
             )}
 
-            {interestedAreas.length > 0 && (
+            {((student.credentials && student.credentials.length > 0) || student.credentials_text) && (
               <Box>
                 <Text fontSize="md" fontWeight="600" color="#18181B" mb={3}>
-                  Interested areas
+                  Credentials
                 </Text>
-                <Flex gap={2} flexWrap="wrap">
-                  {interestedAreas.map((area, index) => (
-                    <Box
-                      key={index}
-                      bg="#DCFCE7"
-                      color="#116932"
-                      borderRadius="4px"
-                      py={1.5}
-                      px={2}
-                      fontSize="sm"
-                      fontWeight="400"
-                      boxShadow="0px 0px 1px 0px #27272A inset"
-                    >
-                      {area}
-                    </Box>
-                  ))}
-                </Flex>
+                {student.credentials && student.credentials.length > 0 && (
+                  <Flex gap={2} flexWrap="wrap" mb={student.credentials_text ? 3 : 0}>
+                    {student.credentials.map((credential, index) => (
+                      <Box
+                        key={index}
+                        bg="#DCFCE7"
+                        color="#116932"
+                        borderRadius="4px"
+                        py={1.5}
+                        px={2}
+                        fontSize="sm"
+                        fontWeight="400"
+                        boxShadow="0px 0px 1px 0px #116932 inset"
+                      >
+                        {credential}
+                      </Box>
+                    ))}
+                  </Flex>
+                )}
+                {student.credentials_text && (
+                  <Text fontSize="sm" color="#3F3F46" fontStyle="italic">
+                    <Text as="span" fontWeight="600" fontStyle="normal" color="#18181B">Other credentials: </Text>
+                    {student.credentials_text}
+                  </Text>
+                )}
               </Box>
             )}
           </VStack>
@@ -484,6 +519,29 @@ export const RenderStudentDetails = ({
                       </Box>
                     ))}
                 </Flex>
+                {student.preferred_distance_km && student.location && (
+                  <Box
+                    mt={2}
+                    bg="#DBEAFE"
+                    color="#173DA6"
+                    borderRadius="4px"
+                    py={1.5}
+                    px={2}
+                    fontSize="sm"
+                    fontWeight="400"
+                    boxShadow="0px 0px 1px 0px #173DA6 inset"
+                    display="inline-block"
+                  >
+                    Within{" "}
+                    <Text as="span" fontWeight="700">
+                      {student.preferred_distance_km} km
+                    </Text>{" "}
+                    from{" "}
+                    <Text as="span" fontWeight="700">
+                      {student.location}
+                    </Text>
+                  </Box>
+                )}
               </Box>
             )}
           </VStack>
@@ -496,6 +554,136 @@ export const RenderStudentDetails = ({
           w={{ base: "full", lg: "50%" }}
           flex={1}
         >
+          <VStack
+            gap={4}
+            align="stretch"
+            borderRadius="12px"
+            border="1px solid #E4E4E7"
+            p={5}
+          >
+            {(universityName ||
+              courseStream ||
+              student.degree ||
+              student.faculty ||
+              student.progression ||
+              student.specialisations ||
+              student.specialisations_other) && (
+              <Box>
+                <Text fontSize="md" fontWeight="600" color="#18181B" mb={4}>
+                  Education
+                </Text>
+
+                {/* LinkedIn-style entry: logo left, details right */}
+                <HStack gap={4} align="flex-start">
+                  {/* Logo */}
+                  {student.university?.logo_url ? (
+                    <Box flexShrink={0}>
+                      <Image
+                        src={student.university.logo_url}
+                        alt={universityName ?? "University"}
+                        width={56}
+                        height={56}
+                        style={{ objectFit: "contain" }}
+                      />
+                    </Box>
+                  ) : (
+                    <Flex
+                      w="48px"
+                      h="48px"
+                      borderRadius="8px"
+                      border="1px solid #E4E4E7"
+                      bg="#EAF6FD"
+                      align="center"
+                      justify="center"
+                      flexShrink={0}
+                    >
+                      <GraduationCap size={20} color="#2AA8E0" />
+                    </Flex>
+                  )}
+
+                  {/* Details */}
+                  <VStack align="stretch" gap={1} flex={1}>
+                    {/* University name */}
+                    {universityName && (
+                      <Text
+                        fontSize="sm"
+                        fontWeight="700"
+                        color="#18181B"
+                        lineHeight="short"
+                      >
+                        {universityName}
+                      </Text>
+                    )}
+
+                    {/* Degree · Course stream */}
+                    {(student.degree || courseStream) && (
+                      <Text fontSize="sm" color="#3F3F46">
+                        {[student.degree, courseStream]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </Text>
+                    )}
+
+                    {/* Progression */}
+                    {student.progression && (
+                      <Text fontSize="xs" color="#71717A">
+                        {student.progression}
+                      </Text>
+                    )}
+
+                    {/* Faculty */}
+                    {student.faculty && (
+                      <Text fontSize="xs" color="#71717A">
+                        {student.faculty}
+                      </Text>
+                    )}
+
+                    {/* Specialisations */}
+                    {(student.specialisations ||
+                      student.specialisations_other) && (
+                      <Flex gap={2} flexWrap="wrap" mt={2}>
+                        {(Array.isArray(student.specialisations)
+                          ? student.specialisations
+                          : student.specialisations
+                            ? [student.specialisations]
+                            : []
+                        )
+                          .filter(Boolean)
+                          .map((s, i) => (
+                            <Box
+                              key={i}
+                              bg="#F4F4F5"
+                              color="#3F3F46"
+                              borderRadius="4px"
+                              py={1}
+                              px={2}
+                              fontSize="xs"
+                              fontWeight="500"
+                            >
+                              {s}
+                            </Box>
+                          ))}
+                        {student.specialisations_other && (
+                          <Box
+                            bg="#F4F4F5"
+                            color="#3F3F46"
+                            borderRadius="4px"
+                            py={1}
+                            px={2}
+                            fontSize="xs"
+                            fontWeight="500"
+                            fontStyle="italic"
+                          >
+                            {student.specialisations_other}
+                          </Box>
+                        )}
+                      </Flex>
+                    )}
+                  </VStack>
+                </HStack>
+              </Box>
+            )}
+          </VStack>
           {student.questionnaire_answers &&
             Object.keys(student.questionnaire_answers).length > 0 && (
               <VStack
@@ -552,50 +740,6 @@ export const RenderStudentDetails = ({
                 </Box>
               </VStack>
             )}
-
-          <VStack
-            gap={4}
-            align="stretch"
-            borderRadius="12px"
-            border="1px solid #E4E4E7"
-            p={5}
-          >
-            {(universityName ||
-              courseStream ||
-              student.degree ||
-              student.specialisations) && (
-              <Box>
-                <Text fontSize="md" fontWeight="600" color="#18181B" mb={4}>
-                  Education
-                </Text>
-                <VStack align="stretch" gap={2}>
-                  {(courseStream || student.degree) && (
-                    <Text fontSize="sm" fontWeight="600" color="black">
-                      {[courseStream, student.degree]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </Text>
-                  )}
-                  {student.specialisations &&
-                    (Array.isArray(student.specialisations)
-                      ? student.specialisations
-                      : [student.specialisations]
-                    )
-                      .filter(Boolean)
-                      .map((s, i) => (
-                        <Text key={i} fontSize="sm" color="#52525B">
-                          {s}
-                        </Text>
-                      ))}
-                  {universityName && (
-                    <Text fontSize="sm" color="#52525B">
-                      {universityName}
-                    </Text>
-                  )}
-                </VStack>
-              </Box>
-            )}
-          </VStack>
         </VStack>
       </Box>
 

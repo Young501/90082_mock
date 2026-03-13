@@ -57,6 +57,11 @@ export interface StudentProfile {
   faculty?: string;
   resume_url?: string;
   resume?: string;
+  bio?: string;
+  preferred_distance_km?: number;
+  skills_text?: string;
+  specialisations_other?: string;
+  credentials_text?: string;
   questionnaire_answers?: Record<string, any>;
   matched?: boolean;
   university?: {
