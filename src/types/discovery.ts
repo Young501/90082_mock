@@ -62,6 +62,7 @@ export interface StudentProfile {
   skills_text?: string;
   specialisations_other?: string;
   credentials_text?: string;
+  opportunity_title?: string;
   questionnaire_answers?: Record<string, any>;
   matched?: boolean;
   university?: {

@@ -46,7 +46,6 @@ export function FullProfileCard({
   const { userProfile, getUserType } = useAuthStore();
   const userType = getUserType();
 
-
   const {
     data: studentData,
     isLoading: isStudentLoading,
@@ -207,10 +206,11 @@ export function FullProfileCard({
         <Drawer.Backdrop style={{ zIndex: 10000 }} />
         <Drawer.Positioner style={{ zIndex: 10000 }}>
           <Drawer.Content
-            maxH={{ base: "90vh", lg: "85vh" }}
+            maxH={{ base: "95vh", lg: "92vh" }}
             overflowY="auto"
             position="relative"
             bg="transparent"
+            border="none"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
@@ -233,6 +233,7 @@ export function FullProfileCard({
               onClick={onClose}
               pr={4}
               bg="transparent"
+              border="none"
               borderRadius="full"
               ml="auto"
             >

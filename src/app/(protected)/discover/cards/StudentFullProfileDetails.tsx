@@ -32,9 +32,6 @@ import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { useOpportunityDetail } from "@/services/shared";
 import { AddToFolderModal } from "../../folders/modals/AddToFolderModal";
 
-const getQuestionnaireFieldLabel = (fieldName: string): string => {
-  return fieldName.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-};
 
 function getResumeDisplayName(
   firstName: string | undefined,
@@ -652,12 +649,13 @@ export const RenderStudentDetails = ({
                     p={5}
                     borderBottom="1px solid #E4E4E7"
                   >
-                    Enrollment Answers
+                    {student.opportunity_title ? `${student.opportunity_title} Opportunity Answers` : "Enrollment Answers"}
                   </Text>
                   <VStack align="stretch" gap={4} p={5}>
                     {Object.entries(student.questionnaire_answers).map(
-                      ([field, value]) => {
-                        const label = getQuestionnaireFieldLabel(field);
+                      ([field, entry]) => {
+                        const { label, value } = entry as { label: string | null; value: unknown };
+                        if (!label) return null;
                         const displayValue = Array.isArray(value)
                           ? value.join(", ")
                           : typeof value === "string"
