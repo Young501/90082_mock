@@ -80,16 +80,6 @@ export function ProfileSummaryCard({
   }, [opportunities]);
 
 
-  const handleSelectOpportunity = (opp: {
-    id: number;
-    title: string;
-    slug?: string;
-  }) => {
-    setSelectedOpportunity(opp);
-    setPopoverOpen(false);
-    setDrawerOpen(true);
-  };
-
   const handleCloseDrawer = () => {
     setDrawerOpen(false);
     setSelectedOpportunity(null);
@@ -110,18 +100,21 @@ export function ProfileSummaryCard({
     effectiveProfileId &&
     (userType === "student" || userType === "organisation");
 
-  const triggerButton = (
-    <ButtonV2
-      position="absolute"
-      right={{ base: 4, md: 6 }}
-      top={{ base: 4, md: 6 }}
-      icon={<ChevronDown size={16} style={{ marginLeft: 4 }} />}
-      variant="secondary"
-      h="44px"
-      iconPosition="end"
-    >
-      Preview Profile
-    </ButtonV2>
+  const openPreview = (opp?: { id: number; title: string; slug?: string }) => {
+    setSelectedOpportunity(opp ?? null);
+    setPopoverOpen(false);
+    setDrawerOpen(true);
+  };
+
+  const defaultIndex = useMemo(
+    () =>
+      opportunityList.findIndex(
+        (o) =>
+          "access" in o &&
+          o.access?.has_access &&
+          o.enrollment_status === "enrolled"
+      ),
+    [opportunityList]
   );
 
   return (
@@ -241,82 +234,43 @@ export function ProfileSummaryCard({
             )}
           </VStack>
 
-          {canPreview && (
-            <MenuPopover
-              trigger={triggerButton}
-              open={popoverOpen}
-              onOpenChange={setPopoverOpen}
-              placement="bottom-end"
-              minW="240px"
-              maxW="320px"
-            >
-              <VStack align="stretch" gap={0} py={1}>
-                {opportunityList.length === 0 ? (
-                  <Box
-                    px={4}
-                    py={3}
-                    fontSize="sm"
-                    color="#18181B"
-                    cursor="pointer"
-                    display="flex"
-                    alignItems="center"
-                    gap={3}
-                    _hover={{ bg: "#F4F4F5" }}
-                    onClick={() => {
-                      setPopoverOpen(false);
-                      setSelectedOpportunity(null);
-                      setDrawerOpen(true);
-                    }}
+          {canPreview &&
+            (opportunityList.length === 0 ? (
+              <ButtonV2
+                position="absolute"
+                right={{ base: 4, md: 6 }}
+                top={{ base: 4, md: 6 }}
+                variant="secondary"
+                h="44px"
+                onClick={() => openPreview()}
+              >
+                Default
+              </ButtonV2>
+            ) : (
+              <MenuPopover
+                trigger={
+                  <ButtonV2
+                    position="absolute"
+                    right={{ base: 4, md: 6 }}
+                    top={{ base: 4, md: 6 }}
+                    icon={<ChevronDown size={16} style={{ marginLeft: 4 }} />}
+                    variant="secondary"
+                    h="44px"
+                    iconPosition="end"
                   >
-                    <Box
-                      w="16px"
-                      h="16px"
-                      borderRadius="full"
-                      border="2px solid"
-                      borderColor="profile.500"
-                      bg="profile.500"
-                      flexShrink={0}
-                      position="relative"
-                    >
-                      <Box
-                        position="absolute"
-                        top="50%"
-                        left="50%"
-                        transform="translate(-50%, -50%)"
-                        w="6px"
-                        h="6px"
-                        borderRadius="full"
-                        bg="white"
-                      />
-                    </Box>
-                    <Text flex={1}>Default</Text>
-                    <Box
-                      px={2}
-                      py={0.5}
-                      borderRadius="md"
-                      bg="#F4F4F5"
-                      fontSize="xs"
-                      color="#71717A"
-                      fontWeight="500"
-                    >
-                      Default
-                    </Box>
-                  </Box>
-                ) : (
-                  (() => {
-                    const defaultIndex = opportunityList.findIndex(
-                      (o) =>
-                        "access" in o &&
-                        o.access?.has_access &&
-                        o.enrollment_status === "enrolled"
-                    );
-                    return opportunityList.map((opp, index) => {
-                      const isEnrolledWithAccess =
-                        "access" in opp &&
-                        opp.access?.has_access &&
-                        opp.enrollment_status === "enrolled";
-                      const isDefault =
-                        isEnrolledWithAccess && index === defaultIndex;
+                    Preview Profile
+                  </ButtonV2>
+                }
+                open={popoverOpen}
+                onOpenChange={setPopoverOpen}
+                placement="bottom-end"
+                minW="240px"
+                maxW="320px"
+              >
+                <VStack align="stretch" gap={0} py={1}>
+                  {opportunityList.map((opp, index) => {
+                    const isDefault =
+                      defaultIndex >= 0 && index === defaultIndex;
                     const isSelected =
                       selectedOpportunity?.id === opp.id ||
                       (!selectedOpportunity && isDefault);
@@ -334,13 +288,7 @@ export function ProfileSummaryCard({
                         alignItems="center"
                         gap={3}
                         _hover={{ bg: "#F4F4F5" }}
-                        onClick={() =>
-                          handleSelectOpportunity({
-                            id: opp.id,
-                            title: opp.title,
-                            slug: opp.slug,
-                          })
-                        }
+                        onClick={() => openPreview(opp)}
                       >
                         <Box
                           w="16px"
@@ -383,12 +331,10 @@ export function ProfileSummaryCard({
                         )}
                       </Box>
                     );
-                    });
-                  })()
-                )}
-              </VStack>
-            </MenuPopover>
-          )}
+                  })}
+                </VStack>
+              </MenuPopover>
+            ))}
         </Flex>
       </Box>
 
