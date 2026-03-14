@@ -10,9 +10,8 @@ import {
   VStack,
   HStack,
   Separator,
-  Drawer,
 } from "@chakra-ui/react";
-import { Copy, ChevronDown, X } from "lucide-react";
+import { Copy, ChevronDown } from "lucide-react";
 import { toast } from "react-toastify";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { MenuPopover } from "@/components/ui/MenuPopover";
@@ -33,7 +32,6 @@ export interface ProfileSummaryCardProps {
   course?: string;
   yearOfStudy?: string;
   userType?: string;
-  /** Profile ID for fetching full profile (user id for student, organisation id for org) */
   profileId?: string;
 }
 
@@ -74,21 +72,13 @@ export function ProfileSummaryCard({
   const opportunityList = useMemo(() => {
     if (!opportunities) return [];
     const { enrolled, closed } = categorizeOpportunities(opportunities);
-    return [...enrolled, ...closed] as AccessibleOpportunity[];
+    // filter out opportunities that don't have access
+    return [
+      ...enrolled.filter((o) => "access" in o && o.access?.has_access),
+      ...closed,
+    ] as AccessibleOpportunity[];
   }, [opportunities]);
 
-  const defaultOpportunity = useMemo(() => {
-    if (opportunityList.length === 0) return null;
-    const enrolled = opportunityList.filter(
-      (o) => o.enrollment_status === "enrolled"
-    );
-    const first = enrolled[0] ?? opportunityList[0];
-    return {
-      id: first.id,
-      title: first.title,
-      slug: first.slug,
-    };
-  }, [opportunityList]);
 
   const handleSelectOpportunity = (opp: {
     id: number;
@@ -313,14 +303,23 @@ export function ProfileSummaryCard({
                     </Box>
                   </Box>
                 ) : (
-                  opportunityList.map((opp) => {
+                  (() => {
+                    const defaultIndex = opportunityList.findIndex(
+                      (o) =>
+                        "access" in o &&
+                        o.access?.has_access &&
+                        o.enrollment_status === "enrolled"
+                    );
+                    return opportunityList.map((opp, index) => {
+                      const isEnrolledWithAccess =
+                        "access" in opp &&
+                        opp.access?.has_access &&
+                        opp.enrollment_status === "enrolled";
+                      const isDefault =
+                        isEnrolledWithAccess && index === defaultIndex;
                     const isSelected =
                       selectedOpportunity?.id === opp.id ||
-                      (defaultOpportunity?.id === opp.id &&
-                        !selectedOpportunity);
-                    const isDefault =
-                      defaultOpportunity?.id === opp.id &&
-                      opp.enrollment_status === "enrolled";
+                      (!selectedOpportunity && isDefault);
                     return (
                       <Box
                         key={opp.id}
@@ -384,7 +383,8 @@ export function ProfileSummaryCard({
                         )}
                       </Box>
                     );
-                  })
+                    });
+                  })()
                 )}
               </VStack>
             </MenuPopover>
@@ -393,67 +393,16 @@ export function ProfileSummaryCard({
       </Box>
 
       {drawerOpen && effectiveProfileId && (
-        // <Drawer.Root
-        //   open
-        //   onOpenChange={(details) => {
-        //     if (!details.open) handleCloseDrawer();
-        //   }}
-        //   placement="bottom"
-        //   size="full"
-        // >
-        //   <Drawer.Backdrop style={{ zIndex: 10000 }} />
-        //   <Drawer.Positioner style={{ zIndex: 10000 }}>
-        //     <Drawer.Content
-        //       maxH={{ base: "95vh", lg: "92vh" }}
-        //       overflowY="auto"
-        //       position="relative"
-        //       bg="transparent"
-        //       border="none"
-        //       style={{
-        //         scrollbarWidth: "none",
-        //         msOverflowStyle: "none",
-        //       }}
-        //       css={{
-        //         "&::-webkit-scrollbar": { display: "none" },
-        //       }}
-        //     >
-        //       <Drawer.Body
-        //         p={0}
-        //         pt={0}
-        //         position="relative"
-        //         bg="white"
-        //         borderTopRadius="xl"
-        //         boxShadow="0px 5.92px 11.84px 5.92px #00000040"
-        //       >
-        //         <IconButton
-        //           position="absolute"
-        //           top={4}
-        //           right={4}
-        //           zIndex={10}
-        //           size="sm"
-        //           variant="ghost"
-        //           aria-label="Close preview"
-        //           onClick={handleCloseDrawer}
-        //           borderRadius="full"
-        //           _hover={{ bg: "#F4F4F5" }}
-        //         >
-        //           <X size={24} color="#71717A" />
-        //         </IconButton>
         <FullProfileCard
           profileId={effectiveProfileId}
           profileType={profileType}
           onClose={handleCloseDrawer}
-          isModal={false}
           opportunityId={
             selectedOpportunity?.id ? String(selectedOpportunity.id) : undefined
           }
           opportunitySlug={selectedOpportunity?.slug}
           isPreview
         />
-        //       </Drawer.Body>
-        //     </Drawer.Content>
-        //   </Drawer.Positioner>
-        // </Drawer.Root>
       )}
     </>
   );
