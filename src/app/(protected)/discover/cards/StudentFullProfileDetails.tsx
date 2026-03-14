@@ -32,7 +32,6 @@ import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { useOpportunityDetail } from "@/services/shared";
 import { AddToFolderModal } from "../../folders/modals/AddToFolderModal";
 
-
 function getResumeDisplayName(
   firstName: string | undefined,
   lastName: string | undefined
@@ -211,7 +210,10 @@ export const RenderStudentDetails = ({
             w={{ base: "full", lg: "auto" }}
           >
             <ButtonV2
-              variant="primary"
+              variant="ghost"
+              bg="#2AA8E0"
+              borderRadius="xl"
+              color="#FFFFFF"
               icon={<MessageCircle size={16} />}
               iconPosition="start"
               h="40px"
@@ -225,7 +227,11 @@ export const RenderStudentDetails = ({
             </ButtonV2>
             {opportunitySlug && (
               <ButtonV2
-                variant="secondary"
+                variant="ghost"
+                bg="#EAF6FD"
+                borderRadius="xl"
+                color="#2AA8E0"
+                border="1px solid #D6EDFB"
                 icon={<FolderPlus size={16} />}
                 iconPosition="start"
                 h="40px"
@@ -649,12 +655,17 @@ export const RenderStudentDetails = ({
                     p={5}
                     borderBottom="1px solid #E4E4E7"
                   >
-                    {student.opportunity_title ? `${student.opportunity_title} Opportunity Answers` : "Enrollment Answers"}
+                    {student.opportunity_title
+                      ? `${student.opportunity_title} Opportunity Answers`
+                      : "Enrollment Answers"}
                   </Text>
                   <VStack align="stretch" gap={4} p={5}>
                     {Object.entries(student.questionnaire_answers).map(
                       ([field, entry]) => {
-                        const { label, value } = entry as { label: string | null; value: unknown };
+                        const { label, value } = entry as {
+                          label: string | null;
+                          value: unknown;
+                        };
                         if (!label) return null;
                         const displayValue = Array.isArray(value)
                           ? value.join(", ")
