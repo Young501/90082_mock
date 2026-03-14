@@ -31,24 +31,13 @@ import {
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { useOpportunityDetail } from "@/services/shared";
 import { AddToFolderModal } from "../../folders/modals/AddToFolderModal";
+import { getLinkDisplayText } from "@/utils/formatLink";
 
 function getResumeDisplayName(
   firstName: string | undefined,
   lastName: string | undefined
 ): string {
   return `${firstName ?? ""} ${lastName ?? ""}`.trim() + "'s Resume";
-}
-
-function getLinkDisplayText(url: string): string {
-  try {
-    const parsed = new URL(url.startsWith("http") ? url : `https://${url}`);
-    return (
-      parsed.hostname.replace(/^www\./, "") +
-        parsed.pathname.replace(/\/$/, "") || url
-    );
-  } catch {
-    return url.replace(/^https?:\/\//, "").replace(/\/$/, "");
-  }
 }
 
 function getCourseStreamLabel(student: StudentProfile): string {
@@ -127,7 +116,6 @@ export const RenderStudentDetails = ({
           <HStack
             w="full"
             align="stretch"
-            // justify={{ base: "center", xl: "space-between" }}
             justify="space-between"
           >
             <Avatar.Root

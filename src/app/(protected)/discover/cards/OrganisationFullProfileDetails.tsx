@@ -30,18 +30,7 @@ import {
   Globe,
 } from "lucide-react";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
-
-function getLinkDisplayText(url: string): string {
-  try {
-    const parsed = new URL(url.startsWith("http") ? url : `https://${url}`);
-    return (
-      parsed.hostname.replace(/^www\./, "") +
-        parsed.pathname.replace(/\/$/, "") || url
-    );
-  } catch {
-    return url.replace(/^https?:\/\//, "").replace(/\/$/, "");
-  }
-}
+import { getLinkDisplayText } from "@/utils/formatLink";
 
 export const RenderOrganisationDetails = ({
   organisation,
