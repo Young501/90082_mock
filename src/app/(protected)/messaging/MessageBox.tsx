@@ -10,7 +10,6 @@ import {
   Avatar,
 } from "@chakra-ui/react";
 import { MenuPopover } from "@/components/ui/MenuPopover";
-import { ProfilePopover } from "@/components/ui/ProfilePopover";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Message, MessageAttachment } from "@/types/messaging";
@@ -126,7 +125,8 @@ export const MessageBox = ({
             <HStack gap={3} align="flex-start">
               {!isMine &&
                 (message.messanger ? (
-                  <ProfilePopover
+                  <MenuPopover
+                    variant="profile"
                     placement="right-start"
                     avatarSize="sm"
                     profile={{
@@ -264,7 +264,8 @@ export const MessageBox = ({
               </VStack>
               {isMine &&
                 (message.messanger ? (
-                  <ProfilePopover
+                  <MenuPopover
+                    variant="profile"
                     placement="left-start"
                     avatarSize="sm"
                     profile={{

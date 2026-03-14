@@ -11,7 +11,6 @@ import {
   Tag,
 } from "@chakra-ui/react";
 import { MenuPopover } from "@/components/ui/MenuPopover";
-import { ProfilePopover } from "@/components/ui/ProfilePopover";
 import { ConversationId, ConversationSummary } from "@/types/messaging";
 import { ChevronLeft, EllipsisVertical, Search } from "lucide-react";
 
@@ -51,7 +50,8 @@ export const ConversationHeader = ({
           <ChevronLeft size={20} />
         </IconButton>
       )}
-      <ProfilePopover
+      <MenuPopover
+        variant="profile"
         placement="bottom-start"
         profile={
           profileType === "organisation"

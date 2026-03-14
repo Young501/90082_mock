@@ -74,12 +74,12 @@ export const ConversationBox = ({
             </Avatar.Root>
           ) : (
             <Avatar.Root size="sm">
-              <Avatar.Image
+              {/* <Avatar.Image
                 src={conversation?.avatar ?? ""}
                 alt={conversation.organisationTitle ?? ""}
                 w="32px"
                 h="32px"
-              />
+              /> */}
               <Avatar.Fallback bg="#E4E4E7" color="black">
                 {conversation.organisationTitle?.slice(0, 2).toUpperCase()}
               </Avatar.Fallback>
