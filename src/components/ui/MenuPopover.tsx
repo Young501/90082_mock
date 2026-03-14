@@ -10,8 +10,6 @@ import {
   Portal,
   Popover,
 } from "@chakra-ui/react";
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 
 export type MenuPopoverPlacement =
   | "top"
@@ -45,11 +43,7 @@ export interface MenuPopoverProps {
   minW?: string | number;
   contentProps?: Record<string, unknown>;
   maxW?: string | number;
-  /** For variant="profile": profile data to display */
   profile?: ProfilePopoverData;
-  /** For variant="profile": optional link to full profile */
-  viewProfileHref?: string;
-  /** For variant="profile": avatar size in the popover */
   avatarSize?: "sm" | "md" | "lg";
 }
 
@@ -98,7 +92,6 @@ export function MenuPopover({
   contentProps = {},
   maxW = "250px",
   profile,
-  viewProfileHref,
   avatarSize = "md",
 }: MenuPopoverProps) {
   if (variant === "drawer") {
@@ -204,27 +197,6 @@ export function MenuPopover({
                   )}
                 </VStack>
               </HStack>
-              {viewProfileHref && (
-                <Link
-                  href={viewProfileHref}
-                  style={{ textDecoration: "none", width: "100%" }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <HStack
-                    gap={2}
-                    px={2}
-                    py={1.5}
-                    borderRadius="md"
-                    _hover={{ bg: "#F4F4F5" }}
-                    color="profile.500"
-                    fontSize="sm"
-                    fontWeight="medium"
-                  >
-                    <Text>View profile</Text>
-                    <ChevronRight size={14} />
-                  </HStack>
-                </Link>
-              )}
             </VStack>
           </Popover.Content>
         </Popover.Positioner>
