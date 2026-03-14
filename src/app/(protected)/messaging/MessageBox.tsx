@@ -10,6 +10,7 @@ import {
   Avatar,
 } from "@chakra-ui/react";
 import { MenuPopover } from "@/components/ui/MenuPopover";
+import { ProfilePopover } from "@/components/ui/ProfilePopover";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Message, MessageAttachment } from "@/types/messaging";
@@ -123,19 +124,37 @@ export const MessageBox = ({
         <VStack gap={1}>
           <HStack alignItems="center" gap={1}>
             <HStack gap={3} align="flex-start">
-              {!isMine && (
-                <Avatar.Root size="sm">
-                  <Avatar.Image
-                    src={message.messanger?.profile_picture_url ?? ""}
-                    alt={message.messanger?.full_name ?? ""}
-                    w="28px"
-                    h="28px"
+              {!isMine &&
+                (message.messanger ? (
+                  <ProfilePopover
+                    placement="right-start"
+                    avatarSize="sm"
+                    profile={{
+                      name: message.messanger.full_name ?? "",
+                      avatarUrl: message.messanger.profile_picture_url,
+                      subtitle: message.messanger.organisation_name ?? undefined,
+                    }}
+                    trigger={
+                      <Avatar.Root size="sm">
+                        <Avatar.Image
+                          src={message.messanger?.profile_picture_url ?? ""}
+                          alt={message.messanger?.full_name ?? ""}
+                          w="28px"
+                          h="28px"
+                        />
+                        <Avatar.Fallback bg="#E4E4E7" color="black">
+                          {message.messanger?.full_name?.slice(0, 2).toUpperCase()}
+                        </Avatar.Fallback>
+                      </Avatar.Root>
+                    }
                   />
-                  <Avatar.Fallback bg="#E4E4E7" color="black">
-                    {message.messanger?.full_name?.slice(0, 2).toUpperCase()}
-                  </Avatar.Fallback>
-                </Avatar.Root>
-              )}
+                ) : (
+                  <Avatar.Root size="sm">
+                    <Avatar.Fallback bg="#E4E4E7" color="black">
+                      U
+                    </Avatar.Fallback>
+                  </Avatar.Root>
+                ))}
               <VStack gap={1}>
                 <HStack gap={1}>
                   {isMine && (
@@ -243,19 +262,37 @@ export const MessageBox = ({
                   {formatDateTimeToReadable(message.createdAt)}
                 </Text>
               </VStack>
-              {isMine && (
-                <Avatar.Root size="sm">
-                  <Avatar.Image
-                    src={message.messanger?.profile_picture_url ?? ""}
-                    alt={message.messanger?.full_name ?? ""}
-                    w="28px"
-                    h="28px"
+              {isMine &&
+                (message.messanger ? (
+                  <ProfilePopover
+                    placement="left-start"
+                    avatarSize="sm"
+                    profile={{
+                      name: message.messanger.full_name ?? "",
+                      avatarUrl: message.messanger.profile_picture_url,
+                      subtitle: message.messanger.organisation_name ?? undefined,
+                    }}
+                    trigger={
+                      <Avatar.Root size="sm">
+                        <Avatar.Image
+                          src={message.messanger?.profile_picture_url ?? ""}
+                          alt={message.messanger?.full_name ?? ""}
+                          w="28px"
+                          h="28px"
+                        />
+                        <Avatar.Fallback bg="#E4E4E7" color="black">
+                          {message.messanger?.full_name?.slice(0, 2).toUpperCase()}
+                        </Avatar.Fallback>
+                      </Avatar.Root>
+                    }
                   />
-                  <Avatar.Fallback bg="#E4E4E7" color="black">
-                    {message.messanger?.full_name?.slice(0, 2).toUpperCase()}
-                  </Avatar.Fallback>
-                </Avatar.Root>
-              )}
+                ) : (
+                  <Avatar.Root size="sm">
+                    <Avatar.Fallback bg="#E4E4E7" color="black">
+                      U
+                    </Avatar.Fallback>
+                  </Avatar.Root>
+                ))}
             </HStack>
           </HStack>
         </VStack>

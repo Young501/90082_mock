@@ -11,6 +11,7 @@ import {
   Tag,
 } from "@chakra-ui/react";
 import { MenuPopover } from "@/components/ui/MenuPopover";
+import { ProfilePopover } from "@/components/ui/ProfilePopover";
 import { ConversationId, ConversationSummary } from "@/types/messaging";
 import { ChevronLeft, EllipsisVertical, Search } from "lucide-react";
 
@@ -50,67 +51,88 @@ export const ConversationHeader = ({
           <ChevronLeft size={20} />
         </IconButton>
       )}
-      <Box
-        // w="32px"
-        // h="32px"
-        borderRadius="full"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        fontWeight="semibold"
-        flexShrink={0}
-        position="relative"
-        w="fit-content"
-      >
-        {conversation?.avatar && profileType === "organisation" ? (
-          <Avatar.Root size="sm">
-            <Avatar.Image
-              src={conversation?.avatar ?? ""}
-              alt={conversation?.studentTitle}
-              w="32px"
-              h="32px"
-            />
-            <Avatar.Fallback bg="#E4E4E7" color="black">
-              {conversation?.studentTitle.slice(0, 2).toUpperCase()}
-            </Avatar.Fallback>
-          </Avatar.Root>
-        ) : (
-          <Avatar.Root size="sm">
-            <Avatar.Image
-              src={conversation?.organisationLogo ?? ""}
-              alt={conversation?.organisationTitle ?? ""}
-              w="32px"
-              h="32px"
-            />
-            <Avatar.Fallback bg="#E4E4E7" color="black">
-              {conversation?.organisationTitle?.slice(0, 2).toUpperCase()}
-            </Avatar.Fallback>
-          </Avatar.Root>
-        )}
-        {profileType !== "organisation" && (
-          <Avatar.Root
-            size="sm"
-            borderRadius="6px"
-            position="absolute"
-            right={-1}
-            bottom={-1}
-            bg="transparent"
+      <ProfilePopover
+        placement="bottom-start"
+        profile={
+          profileType === "organisation"
+            ? {
+                name: conversation?.studentTitle ?? "",
+                avatarUrl: conversation?.avatar,
+                subtitle: conversation?.studentSubtitle || undefined,
+              }
+            : {
+                name: conversation?.organisationTitle ?? "",
+                avatarUrl: conversation?.organisationLogo,
+                subtitle: [
+                  conversation?.organisationMemberName,
+                  conversation?.opportunityTitle,
+                ]
+                  .filter(Boolean)
+                  .join(" · ") || undefined,
+              }
+        }
+        trigger={
+          <Box
+            borderRadius="full"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            fontWeight="semibold"
+            flexShrink={0}
+            position="relative"
             w="fit-content"
-            h="fit-content"
           >
-            <Avatar.Image
-              src={conversation?.avatar ?? ""}
-              alt={conversation?.organisationMemberName ?? ""}
-              w="20px"
-              h="20px"
-              borderRadius="6px"
-            />
-            <Avatar.Fallback bg="#E4E4E7" color="black">
-              {conversation?.organisationMemberName?.slice(0, 2).toUpperCase()}
-            </Avatar.Fallback>
-          </Avatar.Root>
-        )}
-      </Box>
+            {conversation?.avatar && profileType === "organisation" ? (
+              <Avatar.Root size="sm">
+                <Avatar.Image
+                  src={conversation?.avatar ?? ""}
+                  alt={conversation?.studentTitle}
+                  w="32px"
+                  h="32px"
+                />
+                <Avatar.Fallback bg="#E4E4E7" color="black">
+                  {conversation?.studentTitle.slice(0, 2).toUpperCase()}
+                </Avatar.Fallback>
+              </Avatar.Root>
+            ) : (
+              <Avatar.Root size="sm">
+                <Avatar.Image
+                  src={conversation?.organisationLogo ?? ""}
+                  alt={conversation?.organisationTitle ?? ""}
+                  w="32px"
+                  h="32px"
+                />
+                <Avatar.Fallback bg="#E4E4E7" color="black">
+                  {conversation?.organisationTitle?.slice(0, 2).toUpperCase()}
+                </Avatar.Fallback>
+              </Avatar.Root>
+            )}
+            {profileType !== "organisation" && (
+              <Avatar.Root
+                size="sm"
+                borderRadius="6px"
+                position="absolute"
+                right={-1}
+                bottom={-1}
+                bg="transparent"
+                w="fit-content"
+                h="fit-content"
+              >
+                <Avatar.Image
+                  src={conversation?.avatar ?? ""}
+                  alt={conversation?.organisationMemberName ?? ""}
+                  w="20px"
+                  h="20px"
+                  borderRadius="6px"
+                />
+                <Avatar.Fallback bg="#E4E4E7" color="black">
+                  {conversation?.organisationMemberName?.slice(0, 2).toUpperCase()}
+                </Avatar.Fallback>
+              </Avatar.Root>
+            )}
+          </Box>
+        }
+      />
       <VStack align="flex-start" gap={0} flex={1} minW={0}>
         <Text fontWeight="semibold" color="black" fontSize="sm" truncate>
           {profileType === "organisation"

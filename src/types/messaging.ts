@@ -78,6 +78,7 @@ export type ConversationId = number;
 
 export interface ConversationSummary {
   id: ConversationId;
+  otherUserId?: number;
   organisationTitle?: string;
   studentTitle: string;
   organisationSubtitle: string;
@@ -149,6 +150,7 @@ export function conversationListItemToSummary(
 ): ConversationSummary {
   return {
     id: item.id,
+    otherUserId: item.other_user.id,
     organisationTitle: item.other_user.organisation_name || "",
     studentTitle: item.other_user.full_name,
     organisationSubtitle: item.other_user.full_name || (item.opportunity_title || item.other_user.organisation_name || ""),
