@@ -58,8 +58,6 @@ export const ConversationBox = ({
           fontWeight="semibold"
           flexShrink={0}
         >
-          {/* <IconUserPlaceholder /> */}
-          {/* {conversation.title.slice(0, 2).toUpperCase()} */}
           {conversation.avatar && profileType === "organisation" ? (
             <Avatar.Root size="sm">
               <Avatar.Image
@@ -74,18 +72,11 @@ export const ConversationBox = ({
             </Avatar.Root>
           ) : (
             <Avatar.Root size="sm">
-              {/* <Avatar.Image
-                src={conversation?.avatar ?? ""}
-                alt={conversation.organisationTitle ?? ""}
-                w="32px"
-                h="32px"
-              /> */}
               <Avatar.Fallback bg="#E4E4E7" color="black">
                 {conversation.organisationTitle?.slice(0, 2).toUpperCase()}
               </Avatar.Fallback>
             </Avatar.Root>
           )}
-          {/* <Image src={conversation.avatar} alt={conversation.title} /> */}
         </Box>
         <Box minW={0} w="100%">
           <HStack justify="space-between">
@@ -134,7 +125,6 @@ export const ConversationBox = ({
             mt={1}
             gap={isHovered ? 2 : 0}
             align="center"
-            // height="-moz-fit-content"
             maxH="20px"
             w="100%"
           >

@@ -132,7 +132,9 @@ export const MessageBox = ({
                     profile={{
                       name: message.messanger.full_name ?? "",
                       avatarUrl: message.messanger.profile_picture_url,
-                      subtitle: message.messanger.organisation_name ?? undefined,
+                      subtitle:
+                        message.messanger.organisation_name ?? undefined,
+                      // TO DO : id other user for student needs more info to the profile details card
                     }}
                     trigger={
                       <Avatar.Root size="sm">
@@ -143,7 +145,9 @@ export const MessageBox = ({
                           h="28px"
                         />
                         <Avatar.Fallback bg="#E4E4E7" color="black">
-                          {message.messanger?.full_name?.slice(0, 2).toUpperCase()}
+                          {message.messanger?.full_name
+                            ?.slice(0, 2)
+                            .toUpperCase()}
                         </Avatar.Fallback>
                       </Avatar.Root>
                     }
@@ -271,7 +275,8 @@ export const MessageBox = ({
                     profile={{
                       name: message.messanger.full_name ?? "",
                       avatarUrl: message.messanger.profile_picture_url,
-                      subtitle: message.messanger.organisation_name ?? undefined,
+                      subtitle:
+                        message.messanger.organisation_name ?? undefined,
                     }}
                     trigger={
                       <Avatar.Root size="sm">
@@ -282,7 +287,9 @@ export const MessageBox = ({
                           h="28px"
                         />
                         <Avatar.Fallback bg="#E4E4E7" color="black">
-                          {message.messanger?.full_name?.slice(0, 2).toUpperCase()}
+                          {message.messanger?.full_name
+                            ?.slice(0, 2)
+                            .toUpperCase()}
                         </Avatar.Fallback>
                       </Avatar.Root>
                     }
