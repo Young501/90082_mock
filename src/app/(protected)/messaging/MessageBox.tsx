@@ -1,13 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Box,
-  HStack,
-  VStack,
-  Text,
-  IconButton,
-} from "@chakra-ui/react";
+import { Box, HStack, VStack, Text, IconButton } from "@chakra-ui/react";
 import { MenuPopover } from "@/components/ui/MenuPopover";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
@@ -134,11 +128,12 @@ export const MessageBox = ({
                       avatarUrl: message.messanger.profile_picture_url,
                       subtitle:
                         message.messanger.organisation_name ?? undefined,
-                      // TO DO : id other user for student needs more info to the profile details card
                     }}
                     trigger={
                       <ProfileAvatar
-                        src={message.messanger?.profile_picture_url ?? undefined}
+                        src={
+                          message.messanger?.profile_picture_url ?? undefined
+                        }
                         alt={message.messanger?.full_name ?? undefined}
                         fallback={message.messanger?.full_name ?? "U"}
                         size="28px"
@@ -269,7 +264,9 @@ export const MessageBox = ({
                     }}
                     trigger={
                       <ProfileAvatar
-                        src={message.messanger?.profile_picture_url ?? undefined}
+                        src={
+                          message.messanger?.profile_picture_url ?? undefined
+                        }
                         alt={message.messanger?.full_name ?? undefined}
                         fallback={message.messanger?.full_name ?? "U"}
                         size="28px"
