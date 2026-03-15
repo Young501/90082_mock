@@ -8,12 +8,16 @@ import {
   Slider,
   RadioGroup,
 } from "@chakra-ui/react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+
+const INITIAL_OPTIONS_VISIBLE = 5;
 import {
   FacetField,
   FacetOption,
   FilterValue,
   ArrayFilterValue,
 } from "@/types/opportunity";
+import { ButtonV2 } from "../ui";
 
 interface FilterFieldV2Props {
   facet: FacetField;
@@ -26,6 +30,7 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
   value,
   onChange,
 }) => {
+  const [showAllOptions, setShowAllOptions] = useState(false);
   const [arrayMode, setArrayMode] = useState<"and" | "or">("or");
   const [rangeValue, setRangeValue] = useState<number>(
     typeof value === "number" ? value : 50
@@ -44,10 +49,16 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
     const selectedValues = Array.isArray(value) ? value : [];
     // Filter out options with 0 count
     const availableOptions = facet.options.filter((option) => option.count > 0);
+    const hasMore = availableOptions.length > INITIAL_OPTIONS_VISIBLE;
+    const visibleOptions =
+      showAllOptions || !hasMore
+        ? availableOptions
+        : availableOptions.slice(0, INITIAL_OPTIONS_VISIBLE);
+    const hiddenCount = availableOptions.length - INITIAL_OPTIONS_VISIBLE;
 
     return (
       <VStack align="stretch" gap={3} w="100%">
-        {availableOptions.map((option) => {
+        {visibleOptions.map((option) => {
           const isChecked = selectedValues.includes(option.value);
 
           return (
@@ -84,6 +95,31 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
             </HStack>
           );
         })}
+        {hasMore && (
+          <ButtonV2
+            variant="ghost"
+            onClick={() => setShowAllOptions((prev) => !prev)}
+            display="flex"
+            alignItems="center"
+            gap={1}
+            py={1}
+            px={0}
+            fontSize="xs"
+            fontWeight="500"
+            color="profile.500"
+            justifyContent="flex-start"
+          >
+            {showAllOptions ? (
+              <>
+                Show less <ChevronUp size={14} />
+              </>
+            ) : (
+              <>
+                Show more ({hiddenCount}) <ChevronDown size={14} />
+              </>
+            )}
+          </ButtonV2>
+        )}
       </VStack>
     );
   };
@@ -153,49 +189,89 @@ export const FilterFieldV2: React.FC<FilterFieldV2Props> = ({
 
         {/* Options */}
         <VStack align="stretch" gap={3} w="100%">
-          {facet.options
-            .filter((option) => option.count > 0)
-            .map((option) => {
-              const isChecked = selectedValues.includes(option.value);
+          {(() => {
+            const availableOptions = facet.options.filter(
+              (option) => option.count > 0
+            );
+            const hasMore = availableOptions.length > INITIAL_OPTIONS_VISIBLE;
+            const visibleOptions =
+              showAllOptions || !hasMore
+                ? availableOptions
+                : availableOptions.slice(0, INITIAL_OPTIONS_VISIBLE);
+            const hiddenCount =
+              availableOptions.length - INITIAL_OPTIONS_VISIBLE;
 
-              return (
-                <HStack key={option.value} w="100%" justify="space-between">
-                  <Checkbox.Root
-                    checked={isChecked}
-                    onCheckedChange={(details) => {
-                      const checked = !!details.checked;
-                      const newValues = checked
-                        ? [...selectedValues, option.value]
-                        : selectedValues.filter((v) => v !== option.value);
+            return (
+              <>
+                {visibleOptions.map((option) => {
+                  const isChecked = selectedValues.includes(option.value);
 
-                      onChange(
-                        newValues.length > 0
-                          ? { values: newValues, mode: currentMode }
-                          : undefined
-                      );
-                    }}
-                    size="sm"
-                    colorPalette="profile.500"
+                  return (
+                    <HStack key={option.value} w="100%" justify="space-between">
+                      <Checkbox.Root
+                        checked={isChecked}
+                        onCheckedChange={(details) => {
+                          const checked = !!details.checked;
+                          const newValues = checked
+                            ? [...selectedValues, option.value]
+                            : selectedValues.filter((v) => v !== option.value);
+
+                          onChange(
+                            newValues.length > 0
+                              ? { values: newValues, mode: currentMode }
+                              : undefined
+                          );
+                        }}
+                        size="sm"
+                        colorPalette="profile.500"
+                      >
+                        <Checkbox.HiddenInput />
+                        <Checkbox.Control
+                          bg={isChecked ? "profile.500" : "transparent"}
+                          border={
+                            isChecked
+                              ? "1px solid var(--border-100)"
+                              : "1px solid #E4E4E7"
+                          }
+                        />
+                        <Checkbox.Label fontSize="xs" color="#3F3F46">
+                          {option.label}
+                        </Checkbox.Label>
+                      </Checkbox.Root>
+                      <Text fontSize="xs" color="#52525B">
+                        ({option.count})
+                      </Text>
+                    </HStack>
+                  );
+                })}
+                {hasMore && (
+                  <ButtonV2
+                    variant="ghost"
+                    onClick={() => setShowAllOptions((prev) => !prev)}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    gap={1}
+                    px={0}
+                    py={1}
+                    fontSize="xs"
+                    fontWeight="500"
+                    color="profile.500"
                   >
-                    <Checkbox.HiddenInput />
-                    <Checkbox.Control
-                      bg={isChecked ? "profile.500" : "transparent"}
-                      border={
-                        isChecked
-                          ? "1px solid var(--border-100)"
-                          : "1px solid #E4E4E7"
-                      }
-                    />
-                    <Checkbox.Label fontSize="xs" color="#3F3F46">
-                      {option.label}
-                    </Checkbox.Label>
-                  </Checkbox.Root>
-                  <Text fontSize="xs" color="#52525B">
-                    ({option.count})
-                  </Text>
-                </HStack>
-              );
-            })}
+                    {showAllOptions ? (
+                      <>
+                        Show less <ChevronUp size={14} />
+                      </>
+                    ) : (
+                      <>
+                        Show more ({hiddenCount}) <ChevronDown size={14} />
+                      </>
+                    )}
+                  </ButtonV2>
+                )}
+              </>
+            );
+          })()}
         </VStack>
       </VStack>
     );
