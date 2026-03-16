@@ -71,12 +71,10 @@ export function ProfileSummaryCard({
 
   const opportunityList = useMemo(() => {
     if (!opportunities) return [];
-    const { enrolled, closed } = categorizeOpportunities(opportunities);
-    // filter out opportunities that don't have access
-    return [
-      ...enrolled.filter((o) => "access" in o && o.access?.has_access),
-      ...closed,
-    ] as AccessibleOpportunity[];
+    const { enrolled } = categorizeOpportunities(opportunities);
+    return enrolled.filter(
+      (o) => "access" in o && o.access?.has_access
+    ) as AccessibleOpportunity[];
   }, [opportunities]);
 
 
@@ -246,6 +244,17 @@ export function ProfileSummaryCard({
               >
                 Default
               </ButtonV2>
+            ) : opportunityList.length === 1 ? (
+              <ButtonV2
+                position="absolute"
+                right={{ base: 4, md: 6 }}
+                top={{ base: 4, md: 6 }}
+                variant="secondary"
+                h="44px"
+                onClick={() => openPreview(opportunityList[0])}
+              >
+                Preview Profile
+              </ButtonV2>
             ) : (
               <MenuPopover
                 trigger={
@@ -271,9 +280,6 @@ export function ProfileSummaryCard({
                   {opportunityList.map((opp, index) => {
                     const isDefault =
                       defaultIndex >= 0 && index === defaultIndex;
-                    const isSelected =
-                      selectedOpportunity?.id === opp.id ||
-                      (!selectedOpportunity && isDefault);
                     return (
                       <Box
                         key={opp.id}
@@ -290,29 +296,6 @@ export function ProfileSummaryCard({
                         _hover={{ bg: "#F4F4F5" }}
                         onClick={() => openPreview(opp)}
                       >
-                        <Box
-                          w="16px"
-                          h="16px"
-                          borderRadius="full"
-                          border="2px solid"
-                          borderColor={isSelected ? "profile.500" : "#D4D4D8"}
-                          bg={isSelected ? "profile.500" : "white"}
-                          flexShrink={0}
-                          position="relative"
-                        >
-                          {isSelected && (
-                            <Box
-                              position="absolute"
-                              top="50%"
-                              left="50%"
-                              transform="translate(-50%, -50%)"
-                              w="6px"
-                              h="6px"
-                              borderRadius="full"
-                              bg="white"
-                            />
-                          )}
-                        </Box>
                         <Text flex={1} truncate>
                           {opp.title}
                         </Text>
