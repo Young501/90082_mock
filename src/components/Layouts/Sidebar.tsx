@@ -74,9 +74,6 @@ const Sidebar = ({
   const opps: AccessibleOpportunity[] = accessibleOpportunities ?? [];
   const defaultOpp = opps.find((o) => o.is_default);
 
-  console.log("defaultOpp", defaultOpp);
-  console.log("opps", opps);
-
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (

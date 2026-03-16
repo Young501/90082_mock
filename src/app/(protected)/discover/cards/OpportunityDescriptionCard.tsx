@@ -39,7 +39,6 @@ export const OpportunityDescriptionCard = ({
   links = [],
   userType,
 }: OpportunityDescriptionCardProps) => {
-  console.log("opportunity", opportunity);
 
   const accessibleOpportunity =
     currentOpportunity || (opportunity as AccessibleOpportunity);
