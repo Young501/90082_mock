@@ -171,6 +171,18 @@ const Profile = () => {
     if (name.trim()) return name.trim();
   }, [user]);
 
+  const previewProfileId = useMemo(() => {
+    if (isCoordinator) return undefined;
+    const profile = (fetchedUserProfile ?? userProfile) as { id?: number; organisation?: { id?: number } } | null;
+    if (isOrganisation && profile?.organisation?.id != null) {
+      return String(profile.organisation.id);
+    }
+    if (userType === "student") {
+      return user?.id ?? user?.userDetailsV2?.id?.toString();
+    }
+    return undefined;
+  }, [isCoordinator, isOrganisation, userType, fetchedUserProfile, userProfile, user]);
+
   useEffect(() => {
     if (!isProfileLoading && !fetchedUserProfile && !isCoordinator) {
       handleOnboardingRedirect(false);
@@ -211,6 +223,8 @@ const Profile = () => {
               university={profileSummaryDisplay.university}
               course={profileSummaryDisplay.course}
               yearOfStudy={profileSummaryDisplay.yearOfStudy}
+              userType={userType}
+              profileId={previewProfileId}
             />
           )}
 

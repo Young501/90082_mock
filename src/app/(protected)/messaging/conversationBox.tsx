@@ -7,15 +7,14 @@ import {
   Text,
   Badge,
   IconButton,
-  Avatar,
   VStack,
-  Button,
 } from "@chakra-ui/react";
 import { Star, MoreHorizontal } from "lucide-react";
 import { ConversationId, ConversationSummary } from "@/types/messaging";
 import { formatRelativeTime } from "@/utils/formatDate";
 
 import { MenuPopover } from "@/components/ui/MenuPopover";
+import { ProfileAvatar } from "@/components/ProfileAvatar";
 
 interface ConversationBoxProps {
   conversation: ConversationSummary;
@@ -48,45 +47,24 @@ export const ConversationBox = ({
       w="100%"
     >
       <HStack align="flex-start" gap={3} w="100%">
-        <Box
-          w="32px"
-          h="32px"
-          borderRadius="full"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          fontWeight="semibold"
-          flexShrink={0}
-        >
-          {/* <IconUserPlaceholder /> */}
-          {/* {conversation.title.slice(0, 2).toUpperCase()} */}
-          {conversation.avatar && profileType === "organisation" ? (
-            <Avatar.Root size="sm">
-              <Avatar.Image
-                src={conversation.avatar}
-                alt={conversation.studentTitle}
-                w="32px"
-                h="32px"
-              />
-              <Avatar.Fallback bg="#E4E4E7" color="black">
-                {conversation.studentTitle.slice(0, 2).toUpperCase()}
-              </Avatar.Fallback>
-            </Avatar.Root>
-          ) : (
-            <Avatar.Root size="sm">
-              <Avatar.Image
-                src={conversation?.avatar ?? ""}
-                alt={conversation.organisationTitle ?? ""}
-                w="32px"
-                h="32px"
-              />
-              <Avatar.Fallback bg="#E4E4E7" color="black">
-                {conversation.organisationTitle?.slice(0, 2).toUpperCase()}
-              </Avatar.Fallback>
-            </Avatar.Root>
-          )}
-          {/* <Image src={conversation.avatar} alt={conversation.title} /> */}
-        </Box>
+        <ProfileAvatar
+          src={
+            profileType === "organisation"
+              ? conversation.avatar ?? undefined
+              : conversation.organisationLogo ?? undefined
+          }
+          alt={
+            profileType === "organisation"
+              ? conversation.studentTitle
+              : conversation.organisationTitle ?? undefined
+          }
+          fallback={
+            profileType === "organisation"
+              ? conversation.studentTitle
+              : conversation.organisationTitle ?? undefined
+          }
+          size="xs"
+        />
         <Box minW={0} w="100%">
           <HStack justify="space-between">
             <VStack align="flex-start" gap={0}>
@@ -134,7 +112,6 @@ export const ConversationBox = ({
             mt={1}
             gap={isHovered ? 2 : 0}
             align="center"
-            // height="-moz-fit-content"
             maxH="20px"
             w="100%"
           >
