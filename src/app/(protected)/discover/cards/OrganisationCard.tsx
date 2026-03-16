@@ -9,6 +9,7 @@ import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { MapPin, MessageCircle, FolderHeart, Building2 } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { ContactPage } from "@/components/ContactPage";
+import { usePartnerProfile } from "@/services/shared";
 
 interface OrganisationCardProps {
   organisation: OrganisationProfile;
@@ -37,6 +38,14 @@ export function OrganisationCard({
   const [deleteModal, setDeleteModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [addedToFolder, setAddedToFolder] = useState(false);
+
+  const { data: fullProfile, isLoading: isLoadingFullProfile } =
+    usePartnerProfile(
+      showContactModal && organisation.id
+        ? organisation.id.toString()
+        : "",
+      opportunityId || ""
+    );
 
   const getCompanyLogo = () => {
     return organisation.logo_url || organisation.profile_picture_url;
@@ -296,14 +305,12 @@ export function OrganisationCard({
         />
       )}
 
-      {/* we need to find a way to access right organisation ID from here to navigate to the contact modal directly */}
-
-      {/* {showContactModal && organisation.id && (
+      {showContactModal && organisation.id && !isLoadingFullProfile && (
         <ContactPage
           recipientId={organisation.id}
           organisationId={organisation.id.toString()}
           acceptedOpportunityId={opportunityId}
-          members={organisation.members}
+          members={fullProfile?.members ?? organisation.members}
           recipientName={
             organisation.name ||
             `${organisation.first_name ?? ""} ${organisation.last_name ?? ""}`.trim() ||
@@ -312,7 +319,7 @@ export function OrganisationCard({
           profileType="organisation"
           onBack={() => setShowContactModal(false)}
         />
-      )} */}
+      )}
 
       {showAddToFolderModal &&
         organisation.id &&
