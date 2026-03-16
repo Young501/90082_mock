@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { Box } from "@chakra-ui/react";
 
 const SIZE_MAP = {
@@ -61,16 +62,11 @@ export function ProfileAvatar({
       className={className}
     >
       {showImage ? (
-        <img
+        <Image
           src={src}
           alt={alt ?? ""}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            display: "block",
-          }}
-          loading="eager"
+          fill
+          style={{ objectFit: "cover" }}
           onError={() => setImgError(true)}
         />
       ) : (
