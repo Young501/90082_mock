@@ -348,6 +348,14 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v2/opportunities/${opportunityId}/participant/`,
   }),
+  SET_DEFAULT_OPPORTUNITY: (opportunityId: string | number): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v2/opportunities/${opportunityId}/set-default/`,
+  }),
+  CLEAR_DEFAULT_OPPORTUNITY: (opportunityId: string | number): ApiEndpoint => ({
+    method: "DELETE",
+    url: `/api/v2/opportunities/${opportunityId}/set-default/`,
+  }),
   OPPORTUNITY_DASHBOARD: (opportunityId: string): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/opportunities/${opportunityId}/dashboard/`,

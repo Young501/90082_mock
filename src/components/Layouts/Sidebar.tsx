@@ -72,6 +72,10 @@ const Sidebar = ({
   const isOrganisation = userType === "organisation";
   const isStudent = userType === "student";
   const opps: AccessibleOpportunity[] = accessibleOpportunities ?? [];
+  const defaultOpp = opps.find((o) => o.is_default);
+
+  console.log("defaultOpp", defaultOpp);
+  console.log("opps", opps);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -433,7 +437,12 @@ const Sidebar = ({
                         >
                           {o.title || `Opportunity ${o.id}`}
                         </Text>
-                        <CircleCheckBig size={20} color="var(--profile-500)" />
+                        {defaultOpp?.id === o.id && (
+                          <CircleCheckBig
+                            size={20}
+                            color="var(--profile-500)"
+                          />
+                        )}
                       </HStack>
                     );
                   })()}
