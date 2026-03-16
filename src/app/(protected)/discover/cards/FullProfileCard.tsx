@@ -25,6 +25,7 @@ interface FullProfileCardProps {
   opportunityId?: string;
   opportunitySlug?: string;
   isCoordinator?: boolean;
+  isPreview?: boolean;
 }
 
 export function FullProfileCard({
@@ -38,6 +39,7 @@ export function FullProfileCard({
   opportunityId,
   opportunitySlug,
   isCoordinator = false,
+  isPreview = false,
 }: FullProfileCardProps) {
   const shouldFetchStudent =
     profileType === "student" && !studentProfile && !isCoordinator;
@@ -179,6 +181,7 @@ export function FullProfileCard({
             opportunityId={opportunityId}
             opportunitySlug={opportunitySlug}
             userType={userType}
+            hideActions={isPreview}
           />
         ) : (
           <RenderOrganisationDetails
@@ -187,6 +190,7 @@ export function FullProfileCard({
             opportunityId={opportunityId}
             opportunitySlug={opportunitySlug}
             userType={userType}
+            hideActions={isPreview}
           />
         )}
       </VStack>

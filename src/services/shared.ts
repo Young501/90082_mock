@@ -379,6 +379,10 @@ export function categorizeOpportunities(
 
   opportunities.forEach((opportunity) => {
     let isEnrolled = false;
+    let hasAccess = false;
+    if ("access" in opportunity) {
+      hasAccess = opportunity.access.has_access;
+    }
 
     if ("enrollment_status" in opportunity) {
       isEnrolled = opportunity.enrollment_status === "enrolled";

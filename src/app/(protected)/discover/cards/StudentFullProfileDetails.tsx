@@ -67,6 +67,7 @@ export const RenderStudentDetails = ({
   opportunityId,
   opportunitySlug,
   userType,
+  hideActions,
 }: {
   student: StudentProfile;
   disableBtns: boolean;
@@ -74,6 +75,7 @@ export const RenderStudentDetails = ({
   opportunityId?: string;
   opportunitySlug?: string;
   userType?: string;
+  hideActions?: boolean;
 }) => {
   const [showContactModal, setShowContactModal] = useState(false);
   const { data: opportunity } = useOpportunityDetail(opportunityId || "");
@@ -186,6 +188,7 @@ export const RenderStudentDetails = ({
             </Flex>
           </HStack>
 
+          {!hideActions && (
           <HStack
             gap={3}
             justifyContent="end"
@@ -228,6 +231,7 @@ export const RenderStudentDetails = ({
               </ButtonV2>
             )}
           </HStack>
+          )}
         </Flex>
       </Box>
 
