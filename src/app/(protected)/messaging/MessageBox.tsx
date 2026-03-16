@@ -1,15 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Box,
-  HStack,
-  VStack,
-  Text,
-  IconButton,
-  Avatar,
-} from "@chakra-ui/react";
+import { Box, HStack, VStack, Text, IconButton } from "@chakra-ui/react";
 import { MenuPopover } from "@/components/ui/MenuPopover";
+import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Message, MessageAttachment } from "@/types/messaging";
@@ -134,30 +128,20 @@ export const MessageBox = ({
                       avatarUrl: message.messanger.profile_picture_url,
                       subtitle:
                         message.messanger.organisation_name ?? undefined,
-                      // TO DO : id other user for student needs more info to the profile details card
                     }}
                     trigger={
-                      <Avatar.Root size="sm">
-                        <Avatar.Image
-                          src={message.messanger?.profile_picture_url ?? ""}
-                          alt={message.messanger?.full_name ?? ""}
-                          w="28px"
-                          h="28px"
-                        />
-                        <Avatar.Fallback bg="#E4E4E7" color="black">
-                          {message.messanger?.full_name
-                            ?.slice(0, 2)
-                            .toUpperCase()}
-                        </Avatar.Fallback>
-                      </Avatar.Root>
+                      <ProfileAvatar
+                        src={
+                          message.messanger?.profile_picture_url ?? undefined
+                        }
+                        alt={message.messanger?.full_name ?? undefined}
+                        fallback={message.messanger?.full_name ?? "U"}
+                        size="28px"
+                      />
                     }
                   />
                 ) : (
-                  <Avatar.Root size="sm">
-                    <Avatar.Fallback bg="#E4E4E7" color="black">
-                      U
-                    </Avatar.Fallback>
-                  </Avatar.Root>
+                  <ProfileAvatar fallback="U" size="28px" />
                 ))}
               <VStack gap={1}>
                 <HStack gap={1}>
@@ -279,27 +263,18 @@ export const MessageBox = ({
                         message.messanger.organisation_name ?? undefined,
                     }}
                     trigger={
-                      <Avatar.Root size="sm">
-                        <Avatar.Image
-                          src={message.messanger?.profile_picture_url ?? ""}
-                          alt={message.messanger?.full_name ?? ""}
-                          w="28px"
-                          h="28px"
-                        />
-                        <Avatar.Fallback bg="#E4E4E7" color="black">
-                          {message.messanger?.full_name
-                            ?.slice(0, 2)
-                            .toUpperCase()}
-                        </Avatar.Fallback>
-                      </Avatar.Root>
+                      <ProfileAvatar
+                        src={
+                          message.messanger?.profile_picture_url ?? undefined
+                        }
+                        alt={message.messanger?.full_name ?? undefined}
+                        fallback={message.messanger?.full_name ?? "U"}
+                        size="28px"
+                      />
                     }
                   />
                 ) : (
-                  <Avatar.Root size="sm">
-                    <Avatar.Fallback bg="#E4E4E7" color="black">
-                      U
-                    </Avatar.Fallback>
-                  </Avatar.Root>
+                  <ProfileAvatar fallback="U" size="28px" />
                 ))}
             </HStack>
           </HStack>
