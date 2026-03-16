@@ -25,6 +25,7 @@ import {
   useSetDefaultOpportunity,
   useClearDefaultOpportunity,
 } from "@/services/dashboard";
+import { toast } from "react-toastify";
 
 interface OpportunityDescriptionCardProps {
   opportunity: Opportunity | AccessibleOpportunity;
@@ -222,7 +223,14 @@ export const OpportunityDescriptionCard = ({
                       borderRadius="md"
                       _hover={{ bg: "#F3F4F6" }}
                       onClick={() =>
-                        clearDefaultMutation.mutate(opportunity.id)
+                        clearDefaultMutation.mutate(opportunity.id, {
+                          onSuccess: () =>
+                            toast.success("Default opportunity cleared"),
+                          onError: () =>
+                            toast.error(
+                              "Failed to clear default opportunity"
+                            ),
+                        })
                       }
                       opacity={
                         clearDefaultMutation.isPending ||
@@ -263,7 +271,16 @@ export const OpportunityDescriptionCard = ({
                       color="#374151"
                       borderRadius="md"
                       _hover={{ bg: "#F3F4F6" }}
-                      onClick={() => setDefaultMutation.mutate(opportunity.id)}
+                      onClick={() =>
+                        setDefaultMutation.mutate(opportunity.id, {
+                          onSuccess: () =>
+                            toast.success("Opportunity set as default"),
+                          onError: () =>
+                            toast.error(
+                              "Failed to set opportunity as default"
+                            ),
+                        })
+                      }
                       opacity={
                         setDefaultMutation.isPending ||
                         clearDefaultMutation.isPending

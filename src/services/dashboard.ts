@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_ENDPOINTS, apiRequest } from "@/api";
 import type { HomepageStats } from "@/types/homepage";
-import { toast } from "react-toastify";
 
 export const getDashboardStats = async (opportunityId: string) => {
   return apiRequest({
@@ -25,12 +24,8 @@ export function useSetDefaultOpportunity() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["homepage"] })
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
       queryClient.invalidateQueries({ queryKey: ["accessible-opportunities"] });
-      toast.success("Opportunity set as default");
-    },
-    onError: () => {
-      toast.error("Failed to set opportunity as default");
     },
   });
 }
@@ -47,10 +42,6 @@ export function useClearDefaultOpportunity() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
       queryClient.invalidateQueries({ queryKey: ["accessible-opportunities"] });
-      toast.success("Default opportunity cleared");
-    },
-    onError: () => {
-      toast.error("Failed to clear default opportunity");
     },
   });
 }
