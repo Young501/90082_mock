@@ -89,15 +89,13 @@ export const RenderOrganisationDetails = ({
           gap={{ base: 4, md: 6 }}
           position="relative"
         >
-          <HStack w="full" align="stretch" justify="space-between">
+          <HStack w="full" align="stretch" justify="space-between" gap={6}>
             <Avatar.Root
               w={{ base: "72px", md: "100px", lg: "114px" }}
               h={{ base: "72px", md: "100px", lg: "114px" }}
               flexShrink={0}
               border="1.2px solid #FFFFFF"
               borderRadius={{ base: "19.2px", md: "30.4px" }}
-              bg="#EAF6FD"
-              p={2}
             >
               <Avatar.Image
                 src={getCompanyLogo() || ""}
