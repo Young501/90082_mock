@@ -30,11 +30,11 @@ export function ButtonV2({
       borderRadius: "xl",
       fontSize: "xs",
       fontWeight: "500",
-
       _active: {
         transform: "scale(0.98)",
       },
     },
+
     secondary: {
       bg: userType === "organisation" ? "#E9F7F6" : "#EAF6FD",
       color: userType === "organisation" ? "#3AADA8" : "#2AA8E0",
@@ -42,10 +42,9 @@ export function ButtonV2({
       borderRadius: "xl",
       fontSize: "xs",
       fontWeight: "500",
-      border: "1px solid " + (userType === "organisation" ? "#D3EFEA" : "#D6EDFB"),
-      //   _hover: {
-      //     bg: "#001844",
-      //   },
+      border:
+        "1px solid " + (userType === "organisation" ? "#D3EFEA" : "#D6EDFB"),
+
       _active: {
         transform: "scale(0.98)",
       },
@@ -53,7 +52,7 @@ export function ButtonV2({
     ghost: {
       bg: "transparent",
       color: "#2CA9DF",
-      fontSize: "16px",
+      fontSize: "xs",
       fontWeight: "400",
       _active: {
         transform: "scale(0.98)",

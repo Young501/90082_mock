@@ -69,7 +69,6 @@ const recipientDisplayName = (
 // ************* Custom recipient dropdown component for select here only, chakra native select behaves weirdly with custom styling on select options
 // **********************************************************************************************************************
 
-
 function CustomRecipientDropdown({
   selectableMembers,
   value,
@@ -494,7 +493,7 @@ export function ContactPage({
                 </Button>
                 <Button
                   type="submit"
-                  bg="#2CA9DF"
+                  bg="profile.500"
                   color="white"
                   size="sm"
                   w="full"
@@ -506,7 +505,7 @@ export function ContactPage({
                   fontWeight="normal"
                   loading={isPending}
                   disabled={isPending}
-                  _hover={{ bg: "#2CA9DF", opacity: 0.9 }}
+                  // _hover={{ bg: "#2CA9DF", opacity: 0.9 }}
                   _active={{ transform: "scale(0.98)" }}
                 >
                   Send Message
