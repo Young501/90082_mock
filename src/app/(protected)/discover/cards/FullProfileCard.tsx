@@ -177,6 +177,7 @@ export function FullProfileCard({
             disableBtns={disableBtns}
             userProfile={userProfile as OrganisationProfile}
             opportunityId={opportunityId}
+            opportunitySlug={opportunitySlug}
             userType={userType}
           />
         ) : (
@@ -205,10 +206,11 @@ export function FullProfileCard({
         <Drawer.Backdrop style={{ zIndex: 10000 }} />
         <Drawer.Positioner style={{ zIndex: 10000 }}>
           <Drawer.Content
-            maxH={{ base: "90vh", lg: "85vh" }}
+            maxH={{ base: "95vh", lg: "92vh" }}
             overflowY="auto"
             position="relative"
             bg="transparent"
+            border="none"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
@@ -231,6 +233,7 @@ export function FullProfileCard({
               onClick={onClose}
               pr={4}
               bg="transparent"
+              border="none"
               borderRadius="full"
               ml="auto"
             >
@@ -242,8 +245,8 @@ export function FullProfileCard({
               pt={0}
               bg="white"
               borderTopRadius="xl"
-              py={{ base: 5, md: 16 }}
-              px={{ base: 4, md: 6 }}
+              // py={{ base: 5, md: 16 }}
+              // px={{ base: 4, md: 6 }}
               boxShadow="0px 5.92px 11.84px 5.92px #00000040"
             >
               {profileContent}

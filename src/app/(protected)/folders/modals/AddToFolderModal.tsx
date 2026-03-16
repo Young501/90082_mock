@@ -23,7 +23,7 @@ import Image from "next/image";
 interface AddToFolderModalProps {
   isOpen: boolean;
   onClose: () => void;
-  opportunitySlug: string;
+  opportunitySlug?: string;
   userId?: number;
   userName: string;
   organisationId?: number;
@@ -287,7 +287,7 @@ export const AddToFolderModal: React.FC<AddToFolderModalProps> = ({
       <CreateFolderModal
         isOpen={showCreateFolder}
         onClose={() => setShowCreateFolder(false)}
-        opportunitySlug={opportunitySlug}
+        opportunitySlug={opportunitySlug || ""}
         onSuccess={handleCreateFolderSuccess}
       />
     </>
@@ -309,14 +309,18 @@ function FolderSelectCard({
     <Box
       bg="white"
       borderRadius="lg"
-      border={isSelected ? "2px solid #2AA8E0" : "1px solid #E4E4E7"}
+      border={
+        isSelected
+          ? "2px solid var(--chakra-colors-profile-500)"
+          : "1px solid #E4E4E7"
+      }
       w="100%"
       h="180px"
       p={4}
       cursor="pointer"
       transition="border-color 0.2s, box-shadow 0.2s"
       _hover={{
-        borderColor: isSelected ? "#2AA8E0" : "#D4D4D8",
+        borderColor: isSelected ? "profile.500" : "#D4D4D8",
         boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
       }}
       onClick={onToggle}
@@ -330,8 +334,8 @@ function FolderSelectCard({
         h="18px"
         borderRadius="4px"
         border="1px solid"
-        borderColor={isSelected ? "#2AA8E0" : "#D4D4D8"}
-        bg={isSelected ? "#2AA8E0" : "white"}
+        borderColor={isSelected ? "profile.500" : "#D4D4D8"}
+        bg={isSelected ? "profile.500" : "white"}
         display="flex"
         alignItems="center"
         justifyContent="center"

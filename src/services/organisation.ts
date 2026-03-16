@@ -152,7 +152,8 @@ export function usePartnerProfile(id: string, opportunityId: string) {
     queryKey: ["partner-profile", id, opportunityId],
     queryFn: () =>
       apiRequest({
-        endpoint: API_ENDPOINTS.PARTNER_PROFILE(id, opportunityId),
+        endpoint: API_ENDPOINTS.ORGANISATION_CARD_V2(id),
+        body: { opportunity_id: opportunityId },
       }),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
