@@ -26,6 +26,7 @@ export function useSetDefaultOpportunity() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
       queryClient.invalidateQueries({ queryKey: ["accessible-opportunities"] });
+      queryClient.invalidateQueries({ queryKey: ["opportunity-detail"] });
     },
   });
 }
@@ -42,6 +43,7 @@ export function useClearDefaultOpportunity() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
       queryClient.invalidateQueries({ queryKey: ["accessible-opportunities"] });
+      queryClient.invalidateQueries({ queryKey: ["opportunity-detail"] });
     },
   });
 }
