@@ -113,11 +113,7 @@ export const RenderStudentDetails = ({
           gap={{ base: 4, md: 6 }}
           position="relative"
         >
-          <HStack
-            w="full"
-            align="stretch"
-            justify="space-between"
-          >
+          <HStack w="full" align="stretch" justify="space-between" gap={6}>
             <Avatar.Root
               w={{ base: "72px", md: "100px", lg: "114px" }}
               h={{ base: "72px", md: "100px", lg: "114px" }}
