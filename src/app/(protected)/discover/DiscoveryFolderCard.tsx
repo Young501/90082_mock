@@ -155,9 +155,15 @@ export default function DiscoveryFolderCard({
                 py={3}
                 px={3}
                 borderRadius="8px"
-                bg={selectedFolderId === folder.id ? "#E9F7F6" : "#F8F8F8"}
+                bg={
+                  selectedFolderId === folder.id
+                    ? "var(--border-100)"
+                    : "transparent"
+                }
                 borderWidth={selectedFolderId === folder.id ? "1px" : 0}
-                borderColor={selectedFolderId === folder.id ? "profile.500" : "transparent"}
+                borderColor={
+                  selectedFolderId === folder.id ? "profile.500" : "transparent"
+                }
                 cursor={onFolderClick ? "pointer" : "default"}
                 _hover={onFolderClick ? { bg: "#F0F0F0" } : undefined}
                 onClick={() => onFolderClick?.(folder)}

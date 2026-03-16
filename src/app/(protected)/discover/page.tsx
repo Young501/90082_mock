@@ -551,6 +551,9 @@ export default function DiscoveryPage() {
                         }
                       : undefined
                   }
+                  onClearFolder={
+                    selectedFolderId ? handleClearFolder : undefined
+                  }
                   onRenameFolder={
                     selectedFolderDetail ? handleRenameFolder : undefined
                   }

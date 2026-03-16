@@ -17,8 +17,10 @@ import { SearchInput } from "@/components/ui/SearchInput";
 import { SortComponent } from "@/components/SortComponent";
 import type { OpportunitySortBy } from "@/types/opportunity";
 import IconMoreEllipsis from "@/components/Icons/IconMoreEllipsis";
+import { X } from "lucide-react";
 import { useRemoveMemberFromFolder } from "@/services/folder";
 import { toast } from "react-toastify";
+import { ButtonV2 } from "@/components/ui";
 export interface DiscoveryPaginationProps {
   currentPage: number;
   totalPages: number;
@@ -46,9 +48,9 @@ interface DiscoveryResultBoxProps {
   opportunityId?: string;
   opportunitySlug?: string;
   folder?: DiscoveryFolderInfo;
+  onClearFolder?: () => void;
   onRenameFolder?: (folder: DiscoveryFolderInfo) => void;
   onDeleteFolder?: (folder: DiscoveryFolderInfo) => void;
-  onFolderUpdate?: () => void;
   pagination?: DiscoveryPaginationProps;
   query?: string;
   onQueryChange?: (query: string) => void;
@@ -66,6 +68,7 @@ export function DiscoveryResultBox({
   opportunityId,
   opportunitySlug,
   folder,
+  onClearFolder,
   onRenameFolder,
   onDeleteFolder,
   query,
@@ -191,6 +194,23 @@ export function DiscoveryResultBox({
             onChange={setSearchInput}
             placeholder="Search by name, skills, etc..."
           />
+          {folder && onClearFolder && (
+            <ButtonV2
+              variant="ghost"
+              size="sm"
+              borderRadius="full"
+              border="1px solid var(--border-100)"
+              color="profile.500"
+              fontSize="sm"
+              fontWeight="500"
+              mt={4}
+              _hover={{ bg: "#EFF6FF" }}
+              onClick={onClearFolder}
+            >
+              <X size={16} strokeWidth={2} />
+              Clear folder filter
+            </ButtonV2>
+          )}
         </Box>
       </VStack>
 

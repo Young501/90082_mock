@@ -143,21 +143,6 @@ export const FolderModal: React.FC<FolderModalProps> = ({
                 >
                   {isEditMode ? "Update" : "Create"}
                 </Button>
-                {/* <Button
-                  mt={4}
-                  bg="transparent"
-                  color="#000000"
-                  borderRadius="8px"
-                  h="40px"
-                  fontSize="14px"
-                  fontWeight="600"
-                  onClick={onClose}
-                  maxW="150px"
-                  w="100%"
-                  border="1px solid #000000"
-                >
-                  Cancel
-                </Button> */}
               </Box>
             </VStack>
           </form>
