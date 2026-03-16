@@ -38,12 +38,14 @@ export const RenderOrganisationDetails = ({
   opportunityId,
   opportunitySlug,
   userType,
+  hideActions,
 }: {
   organisation: OrganisationProfile;
   disableBtns: boolean;
   opportunityId?: string;
   opportunitySlug?: string;
   userType?: string;
+  hideActions?: boolean;
 }) => {
   const [showContactModal, setShowContactModal] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
@@ -158,6 +160,7 @@ export const RenderOrganisationDetails = ({
             </Flex>
           </HStack>
 
+          {!hideActions && (
           <HStack
             gap={3}
             justifyContent="end"
@@ -202,6 +205,7 @@ export const RenderOrganisationDetails = ({
               </ButtonV2>
             )}
           </HStack>
+          )}
         </Flex>
       </Box>
 

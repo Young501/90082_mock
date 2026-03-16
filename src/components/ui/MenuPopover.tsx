@@ -204,8 +204,16 @@ export function MenuPopover({
     );
   }
 
+  const isControlled = onOpenChange != null;
+  const popoverProps = isControlled
+    ? {
+        open: open ?? false,
+        onOpenChange: (details: { open: boolean }) => onOpenChange(details.open),
+      }
+    : {};
+
   return (
-    <Popover.Root positioning={{ placement }} closeOnInteractOutside>
+    <Popover.Root positioning={{ placement }} {...popoverProps}>
       <Popover.Trigger asChild>{trigger}</Popover.Trigger>
       <Popover.Positioner>
         <Popover.Content
