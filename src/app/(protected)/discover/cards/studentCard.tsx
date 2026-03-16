@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Box, VStack, HStack, Text, Avatar } from "@chakra-ui/react";
+import { Box, VStack, HStack, Text } from "@chakra-ui/react";
+import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { StudentProfile } from "@/types/discovery";
 import { FullProfileCard } from "./FullProfileCard";
 import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
@@ -165,27 +166,13 @@ export function StudentCard({
             w="full"
           >
             <HStack align="flex-start" gap={3} flex={1} minW={0}>
-              <Avatar.Root
-                w="65px"
-                h="65px"
+              <ProfileAvatar
+                src={getProfileImage() || null}
+                alt={getDisplayName()}
+                fallback={getDisplayName()}
+                size="65px"
                 borderRadius="12px"
-                flexShrink={0}
-                bg="#F4F4F5"
-              >
-                <Avatar.Fallback
-                  name={getDisplayName()}
-                  color="#71717A"
-                  fontWeight="600"
-                  fontSize="sm"
-                />
-                {getProfileImage() && (
-                  <Avatar.Image
-                    src={getProfileImage()}
-                    alt={getDisplayName()}
-                    borderRadius="12px"
-                  />
-                )}
-              </Avatar.Root>
+              />
 
               <VStack align="stretch" gap={0.5} flex={1} minW={0}>
                 <Tooltip content={getDisplayName()}>
@@ -444,6 +431,7 @@ export function StudentCard({
           profileId={student.id.toString()}
           profileType="student"
           opportunityId={opportunityId || ""}
+          opportunitySlug={opportunitySlug}
           onClose={() => setShowFullProfile(false)}
         />
       )}

@@ -21,7 +21,6 @@ const HomePage = () => {
     setHasUnreadMessages(hasUnread);
   }, [homepageStats?.recent_messages, setHasUnreadMessages]);
 
-
   if (isLoading) {
     return (
       <Container

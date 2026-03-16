@@ -415,9 +415,7 @@ export function OpportunityFilters({
           filterContent
         ) : (
           <Box>
-            <EmptyInbox
-              description="No filters available to show"
-            />
+            <EmptyInbox description="No filters available to show" />
           </Box>
         )}
 

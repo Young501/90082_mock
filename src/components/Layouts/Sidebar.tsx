@@ -284,6 +284,43 @@ const Sidebar = ({
       );
     }
 
+    if (opps.length === 1) {
+      return (
+        <Link
+          href={`/discover/?opp=${opps[0].slug}`}
+          key="discover"
+          style={{ width: "100%" }}
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
+          <HStack
+            w="full"
+            p={3}
+            borderRadius="xl"
+            bg={active ? "profile.500" : "transparent"}
+            color={active ? "white" : INACTIVE_COLOR}
+            gap={3}
+          >
+            <Box
+              flexShrink={0}
+              w={5}
+              h={5}
+              color={active ? "white" : "#71717A"}
+            >
+              <Briefcase size={20} />
+            </Box>
+            <Text
+              fontSize="md"
+              fontWeight={active ? 600 : 500}
+              color={active ? "white" : "#71717A"}
+              flex={1}
+            >
+              My Opportunities
+            </Text>
+          </HStack>
+        </Link>
+      );
+    }
+
     return (
       <Box
         key="discover"

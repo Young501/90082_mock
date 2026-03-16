@@ -4,6 +4,7 @@ import React from "react";
 import { Box, Text, Flex, Heading, VStack } from "@chakra-ui/react";
 import { PenLine, FileText, Link as LinkIcon } from "lucide-react";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
+import { getLinkDisplayText } from "@/utils/formatLink";
 
 export interface DocumentsAndLinksSectionProps {
   profile: Record<string, unknown>;
@@ -17,18 +18,6 @@ function getResumeDisplayName(url: string): string {
     return filename ? decodeURIComponent(filename) : "CV / Resume";
   } catch {
     return "CV / Resume";
-  }
-}
-
-function getLinkDisplayText(url: string): string {
-  try {
-    const parsed = new URL(url.startsWith("http") ? url : `https://${url}`);
-    return (
-      parsed.hostname.replace(/^www\./, "") +
-        parsed.pathname.replace(/\/$/, "") || url
-    );
-  } catch {
-    return url.replace(/^https?:\/\//, "").replace(/\/$/, "");
   }
 }
 

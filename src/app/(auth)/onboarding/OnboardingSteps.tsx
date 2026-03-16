@@ -397,9 +397,10 @@ export const OnboardingSteps = ({ userType }: Props) => {
   const [accumulatedOrgData, setAccumulatedOrgData] = useState<
     Record<string, any>
   >({});
-  const [reviewFormDataSnapshot, setReviewFormDataSnapshot] = useState<
-    Record<string, any> | null
-  >(null);
+  const [reviewFormDataSnapshot, setReviewFormDataSnapshot] = useState<Record<
+    string,
+    any
+  > | null>(null);
   const hasAppliedPrefilledRef = useRef(false);
   const studentProfileUpdateV2 = useStudentProfileUpdateV2();
   const userMeUpdateV2 = useUserMeUpdateV2();
@@ -1014,9 +1015,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
             setProfilePic,
             setLogo
           ),
-          new Promise<void>((resolve) =>
-            setTimeout(resolve, MIN_DISPLAY_MS)
-          ),
+          new Promise<void>((resolve) => setTimeout(resolve, MIN_DISPLAY_MS)),
         ]);
 
         router.push("/onboarding/success");
@@ -1037,7 +1036,9 @@ export const OnboardingSteps = ({ userType }: Props) => {
         const fieldErrors = Object.entries(data)
           .map(([field, errors]) => {
             const fieldLabel = field.replace(/_/g, " ");
-            const messages = Array.isArray(errors) ? errors.join(", ") : String(errors);
+            const messages = Array.isArray(errors)
+              ? errors.join(", ")
+              : String(errors);
             return `${fieldLabel}: ${messages}`;
           })
           .join("\n");
@@ -1372,7 +1373,9 @@ export const OnboardingSteps = ({ userType }: Props) => {
               )}
 
               {isLastPage ? (
-                currentPhase === "user" && !isOrgMember && userType === "organisation" ? (
+                currentPhase === "user" &&
+                !isOrgMember &&
+                userType === "organisation" ? (
                   <ButtonV2
                     type="button"
                     onClick={onContinueToOrg}

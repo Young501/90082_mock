@@ -1,12 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  Box,
-  Container,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Container, Text, VStack } from "@chakra-ui/react";
 import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";

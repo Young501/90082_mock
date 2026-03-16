@@ -1,10 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { User, UserDetailsV2 } from "@/types/user";
-import {
-  UserProfile,
-  Organisation,
-} from "@/types/shared";
+import { UserProfile, Organisation } from "@/types/shared";
 import { AccessibleOpportunity } from "@/types/opportunities";
 import { SubscriptionStatus } from "@/types/subscription";
 

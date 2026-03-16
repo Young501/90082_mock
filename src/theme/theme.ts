@@ -18,8 +18,6 @@ export const PROFILE_SECONDARY_COLORS = {
   coordinator: "#EAF6FD",
 } as const;
 
-
-
 const config = defineConfig({
   theme: {
     tokens: {
@@ -45,7 +43,7 @@ const config = defineConfig({
           },
         },
         profile: {
-          500: { value: "var(--profile-500, #2AA8E0)" }, 
+          500: { value: "var(--profile-500, #2AA8E0)" },
         },
 
         border: {
@@ -54,7 +52,6 @@ const config = defineConfig({
         secondary: {
           100: { value: "var(--track-100, #EAF6FD)" },
         },
-        
       },
       fonts: {
         body: { value: "'Manrope', sans-serif" },

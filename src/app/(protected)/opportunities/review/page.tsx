@@ -69,10 +69,8 @@ export default function OpportunityReviewPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
-  const {
-    questionnaireAnswers: answers,
-    clearAnswers,
-  } = useQuestionnaireAnswers(opportunityId?.toString() || "");
+  const { questionnaireAnswers: answers, clearAnswers } =
+    useQuestionnaireAnswers(opportunityId?.toString() || "");
 
   const enrollMutation = useEnrollInOpportunity();
 
@@ -208,10 +206,7 @@ export default function OpportunityReviewPage() {
     if (question.type === "textarea") {
       const display = formatAnswerForDisplay(question, value);
       return (
-        <Text
-          fontSize="sm"
-          color="#3F3F46"
-        >
+        <Text fontSize="sm" color="#3F3F46">
           {display}
         </Text>
       );
@@ -355,10 +350,14 @@ export default function OpportunityReviewPage() {
                   {sectionQuestions.map((question) => {
                     const value = answers[question.field];
                     const isSingle = sectionQuestions.length === 1;
-                    const isFullWidth = isSingle || question.type === "textarea";
+                    const isFullWidth =
+                      isSingle || question.type === "textarea";
 
                     return (
-                      <Box key={question.field} gridColumn={isFullWidth ? "1 / -1" : undefined}>
+                      <Box
+                        key={question.field}
+                        gridColumn={isFullWidth ? "1 / -1" : undefined}
+                      >
                         <Text
                           fontSize="xs"
                           fontWeight="500"

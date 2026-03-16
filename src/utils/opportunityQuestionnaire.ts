@@ -15,8 +15,6 @@ export const getQuestionnaireKey = (
   return undefined;
 };
 
-
-
 export const getQuestionnaireSections = (
   questionnaire: any,
   userType: string | undefined
@@ -29,4 +27,3 @@ export const getQuestionnaireSections = (
     ? (questionnaireData as unknown as QuestionnaireSection[])
     : [];
 };
-

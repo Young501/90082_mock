@@ -133,7 +133,9 @@ function ResetPasswordFormContent() {
                     error={errors.new_password?.message as string}
                     showPasswordToggle
                     showPassword={showNewPassword}
-                    onTogglePassword={() => setShowNewPassword(!showNewPassword)}
+                    onTogglePassword={() =>
+                      setShowNewPassword(!showNewPassword)
+                    }
                     labelStyle="top"
                     placeholder="Enter new password"
                     variant="signup"

@@ -95,7 +95,11 @@ export function OpportunityNotEnrolledCard({
                 Accessing the incredible talent in the Employment Pool is via an
                 annual subscription
               </Text>
-              <Text fontSize="xl" fontWeight="bold" color={PROFILE_COLORS.organisation}>
+              <Text
+                fontSize="xl"
+                fontWeight="bold"
+                color={PROFILE_COLORS.organisation}
+              >
                 $2,500 / year
               </Text>
             </Box>

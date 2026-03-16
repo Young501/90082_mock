@@ -40,9 +40,15 @@ export const GeocodeAutocompleteInput = memo(
     icon,
   }: GeocodeAutocompleteInputProps) => {
     const normalizeToString = (v: unknown): string =>
-      typeof v === "string" ? v : (v as any)?.formatted_address != null ? String((v as any).formatted_address) : "";
+      typeof v === "string"
+        ? v
+        : (v as any)?.formatted_address != null
+          ? String((v as any).formatted_address)
+          : "";
 
-    const [inputValue, setInputValue] = useState(() => normalizeToString(value));
+    const [inputValue, setInputValue] = useState(() =>
+      normalizeToString(value)
+    );
     const [isOpen, setIsOpen] = useState(false);
     const [results, setResults] = useState<GeocodeResult[]>([]);
     const [isLoading, setIsLoading] = useState(false);

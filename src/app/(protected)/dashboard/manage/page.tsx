@@ -43,10 +43,7 @@ const ManagePageContent = () => {
 
   if (error) {
     return (
-      <Box
-        maxW="1512px"
-        mx="auto"
-      >
+      <Box maxW="1512px" mx="auto">
         <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
           <Text
             as="h1"
@@ -181,10 +178,7 @@ const StudentPage = ({
 }) => {
   const router = useRouter();
   return (
-    <Box
-      maxW="1512px"
-      mx="auto"
-    >
+    <Box maxW="1512px" mx="auto">
       <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
         <Box
           display="flex"
@@ -368,10 +362,7 @@ const PartnerPage = ({
 }) => {
   const router = useRouter();
   return (
-    <Box
-      maxW="1512px"
-      mx="auto"
-    >
+    <Box maxW="1512px" mx="auto">
       <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
         <Box
           display="flex"

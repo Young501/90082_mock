@@ -34,7 +34,7 @@ export const TaxonomySelectField = ({
   const params = useMemo(() => {
     const university =
       taxonomyQuery.university === "dynamic"
-        ? (universitySlug)
+        ? universitySlug
         : (taxonomyQuery.university ?? null);
 
     return {
@@ -67,9 +67,10 @@ export const TaxonomySelectField = ({
     if (options.length === 0 || normalisedRef.current) return;
     normalisedRef.current = true;
 
-    const v = typeof initialValueRef.current === "string"
-      ? initialValueRef.current
-      : String(initialValueRef.current ?? "");
+    const v =
+      typeof initialValueRef.current === "string"
+        ? initialValueRef.current
+        : String(initialValueRef.current ?? "");
 
     if (!v) return;
     if (options.some((o) => o.value === v)) return;

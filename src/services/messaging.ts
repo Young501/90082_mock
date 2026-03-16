@@ -18,8 +18,10 @@ export function listConversations(
 ): Promise<ConversationListResponseApi> {
   const query: Record<string, string | number | boolean> = {};
   if (params?.archived !== undefined) query.archived = params.archived;
-  if (params?.cursor != null && params.cursor !== "") query.cursor = params.cursor;
-  if (params?.opportunity_id != null) query.opportunity_id = params.opportunity_id;
+  if (params?.cursor != null && params.cursor !== "")
+    query.cursor = params.cursor;
+  if (params?.opportunity_id != null)
+    query.opportunity_id = params.opportunity_id;
   if (params?.page_size != null) query.page_size = params.page_size;
   return apiRequest({
     endpoint: API_ENDPOINTS.LIST_CONVERSATIONS(),
@@ -32,7 +34,8 @@ export function listMessages(
   params?: ListMessagesParams
 ): Promise<MessageListResponseApi> {
   const query: Record<string, string | number> = {};
-  if (params?.cursor != null && params.cursor !== "") query.cursor = params.cursor;
+  if (params?.cursor != null && params.cursor !== "")
+    query.cursor = params.cursor;
   if (params?.page_size != null) query.page_size = params.page_size;
   return apiRequest({
     endpoint: API_ENDPOINTS.LIST_MESSAGES(conversationId),
@@ -41,7 +44,12 @@ export function listMessages(
 }
 
 const CONVERSATIONS_QUERY_KEY = ["messaging", "conversations"];
-const MESSAGES_QUERY_KEY = (id: number) => ["messaging", "conversations", id, "messages"];
+const MESSAGES_QUERY_KEY = (id: number) => [
+  "messaging",
+  "conversations",
+  id,
+  "messages",
+];
 
 export function useConversationsList(params?: ListConversationsParams) {
   return useQuery({
@@ -62,7 +70,10 @@ export function useConversationMessages(
     currentUserId != null ? Number(currentUserId) : undefined;
 
   return useQuery({
-    queryKey: conversationId == null ? [] : [...MESSAGES_QUERY_KEY(conversationId), params],
+    queryKey:
+      conversationId == null
+        ? []
+        : [...MESSAGES_QUERY_KEY(conversationId), params],
     staleTime: 10_000,
     queryFn: () =>
       conversationId == null
@@ -132,7 +143,9 @@ export function useSendMessage() {
       });
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: MESSAGES_QUERY_KEY(variables.conversationId) });
+      queryClient.invalidateQueries({
+        queryKey: MESSAGES_QUERY_KEY(variables.conversationId),
+      });
       queryClient.invalidateQueries({ queryKey: CONVERSATIONS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },

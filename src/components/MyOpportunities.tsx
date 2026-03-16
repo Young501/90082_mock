@@ -245,7 +245,7 @@ const OpportunityCard = ({
                 </Badge>
                 {/* )} */}
               </HStack>
-            <MenuPopover
+              <MenuPopover
                 placement="bottom-end"
                 trigger={
                   <IconButton

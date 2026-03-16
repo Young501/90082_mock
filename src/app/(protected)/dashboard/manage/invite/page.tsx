@@ -39,10 +39,7 @@ const InvitePage = () => {
   }
 
   return (
-    <Box
-      maxW="1512px"
-      mx="auto"
-    >
+    <Box maxW="1512px" mx="auto">
       <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
         <Text fontSize="lg" color="gray.500">
           Invalid invitation type
@@ -66,10 +63,7 @@ const StudentInvitePage = ({
   return (
     <>
       <PageTitle title={PAGE_TITLES.INVITE_STUDENTS} />
-      <Box
-        maxW="1512px"
-        mx="auto"
-      >
+      <Box maxW="1512px" mx="auto">
         <Container maxW="1512px" display="flex" flexDirection="column" gap={8}>
           <VStack gap={6} align="stretch">
             <HStack gap={4} align="center">
@@ -117,10 +111,7 @@ const PartnerInvitePage = ({
   return (
     <>
       <PageTitle title={PAGE_TITLES.INVITE_PARTNERS} />
-      <Box
-        maxW="1512px"
-        mx="auto"
-      >
+      <Box maxW="1512px" mx="auto">
         <Container maxW="1512px" display="flex" flexDirection="column" gap={8}>
           <VStack gap={6} align="stretch">
             <HStack gap={4} align="center">

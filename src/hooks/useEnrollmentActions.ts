@@ -35,8 +35,10 @@ export function useEnrollmentActions({
     error: participantError,
   } = useOpportunityParticipant(opportunityId, isEnrolled);
   const updateParticipantMutation = useUpdateOpportunityParticipant();
-  const { resolve: resolveTaxonomyLabelsToCodes, isResolving: isResolvingEditAnswers } =
-    useResolveTaxonomyLabelsToCodes();
+  const {
+    resolve: resolveTaxonomyLabelsToCodes,
+    isResolving: isResolvingEditAnswers,
+  } = useResolveTaxonomyLabelsToCodes();
 
   const questionnaireSections = useMemo(
     () => getQuestionnaireSections(questionnaire, userType),

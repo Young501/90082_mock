@@ -70,7 +70,9 @@ export const useOnboardingLogic = (userType: string) => {
     isFetched: isOrgProfileFetched,
   } = useOrganisationProfileV2(userType === "organisation");
 
-  const memberComplete = isOrganisationMemberComplete(organisationMember ?? null);
+  const memberComplete = isOrganisationMemberComplete(
+    organisationMember ?? null
+  );
   const orgComplete = isOrganisationComplete(organisationProfile ?? null);
   const isOrgMember = userType === "organisation" && orgComplete;
 
@@ -98,7 +100,7 @@ export const useOnboardingLogic = (userType: string) => {
     setCurrentPageId(1);
   }, [effectivePhase]);
 
-  // Clear store phase once we have derived data 
+  // Clear store phase once we have derived data
   useEffect(() => {
     if (hasPhaseData && onboardingPhaseFromStore != null) {
       setOnboardingPhase(null);
@@ -132,7 +134,9 @@ export const useOnboardingLogic = (userType: string) => {
     if (!onboarding) return [];
 
     if (userType === "student") {
-      return normalizePages(onboarding.student_onboarding ?? onboarding.user ?? []);
+      return normalizePages(
+        onboarding.student_onboarding ?? onboarding.user ?? []
+      );
     }
 
     if (userType === "organisation") {
@@ -148,7 +152,6 @@ export const useOnboardingLogic = (userType: string) => {
 
     return normalizePages(onboarding.user ?? []);
   }, [userType, currentPhase, pagesData, isOrgMember]);
-
 
   const currentPage = useMemo(() => {
     return pages.find((p: Page) => p.id === currentPageId);
@@ -189,7 +192,8 @@ export const useOnboardingLogic = (userType: string) => {
         currentStep = currentPageIndex >= 0 ? currentPageIndex + 1 : 0;
       } else {
         currentStep =
-          memberPages.length + (currentPageIndex >= 0 ? currentPageIndex + 1 : 0);
+          memberPages.length +
+          (currentPageIndex >= 0 ? currentPageIndex + 1 : 0);
       }
 
       const progressPercent =
@@ -214,13 +218,7 @@ export const useOnboardingLogic = (userType: string) => {
       totalSteps,
       currentStep,
     };
-  }, [
-    pages,
-    currentPageId,
-    userType,
-    currentPhase,
-    organisationPageStructure,
-  ]);
+  }, [pages, currentPageId, userType, currentPhase, organisationPageStructure]);
 
   const navigationInfo = useMemo(() => {
     const isFirstPage =
@@ -247,14 +245,7 @@ export const useOnboardingLogic = (userType: string) => {
     if (currentPhase !== "organisation") return false;
     const currentIndex = pages.findIndex((p: Page) => p.id === currentPageId);
     return currentIndex === 0;
-  }, [
-    userType,
-    organisationPageStructure,
-    currentPhase,
-    pages,
-    currentPageId,
-  ]);
-
+  }, [userType, organisationPageStructure, currentPhase, pages, currentPageId]);
 
   const goToNextPage = useCallback(() => {
     const currentIndex = pages.findIndex((p: Page) => p.id === currentPageId);

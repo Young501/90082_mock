@@ -56,6 +56,13 @@ export interface StudentProfile {
   status?: "International" | string;
   faculty?: string;
   resume_url?: string;
+  resume?: string;
+  bio?: string;
+  preferred_distance_km?: number;
+  skills_text?: string;
+  specialisations_other?: string;
+  credentials_text?: string;
+  opportunity_title?: string;
   questionnaire_answers?: Record<string, any>;
   matched?: boolean;
   university?: {

@@ -44,7 +44,10 @@ export function formatValidationErrors(errorData: unknown): string {
   return "Please check your answers and try again.";
 }
 
-export function getErrorMessage(error: unknown, defaultMessage: string): string {
+export function getErrorMessage(
+  error: unknown,
+  defaultMessage: string
+): string {
   if (!error || typeof error !== "object") {
     return defaultMessage;
   }
@@ -69,7 +72,9 @@ export function getErrorMessage(error: unknown, defaultMessage: string): string 
   }
 
   if (data.detail) {
-    return Array.isArray(data.detail) ? String(data.detail[0]) : String(data.detail);
+    return Array.isArray(data.detail)
+      ? String(data.detail[0])
+      : String(data.detail);
   }
 
   if (data.message) {

@@ -35,4 +35,3 @@ export type User = {
   };
   userDetailsV2?: UserDetailsV2;
 };
-

@@ -5,9 +5,7 @@
  * - taxonomy object: { id, code, label } or { id, code, name }
  * - null/undefined
  */
-export function toProfileDisplayString(
-  value: unknown
-): string | undefined {
+export function toProfileDisplayString(value: unknown): string | undefined {
   if (value == null || value === "") {
     return undefined;
   }

@@ -1,15 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Box,
-  HStack,
-  VStack,
-  Text,
-  IconButton,
-  Avatar,
-} from "@chakra-ui/react";
+import { Box, HStack, VStack, Text, IconButton } from "@chakra-ui/react";
 import { MenuPopover } from "@/components/ui/MenuPopover";
+import { ProfileAvatar } from "@/components/ProfileAvatar";
+import { FullProfileCard } from "@/app/(protected)/discover/cards/FullProfileCard";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Message, MessageAttachment } from "@/types/messaging";
@@ -50,6 +45,7 @@ export interface MessageBoxProps {
   showActions: boolean;
   isSinglePane: boolean | undefined;
   numericUserId: number | undefined;
+  opportunityId?: number | null;
   onHoverIn: () => void;
   onHoverOut: () => void;
   onMessageClick: () => void;
@@ -68,6 +64,7 @@ export const MessageBox = ({
   showActions,
   isSinglePane,
   numericUserId,
+  opportunityId,
   onHoverIn,
   onHoverOut,
   onMessageClick,
@@ -93,6 +90,15 @@ export const MessageBox = ({
   );
 
   const [isTextExpanded, setIsTextExpanded] = useState(false);
+  const [showSenderProfile, setShowSenderProfile] = useState(false);
+
+  const otherProfileType =
+    profileType === "organisation" ? "student" : "organisation";
+  const isCoordinatorView = profileType === "coordinator";
+  const senderProfileId =
+    otherProfileType === "organisation"
+      ? message.messanger?.organisation_id
+      : message.messanger?.id;
   const TRUNCATE_LENGTH = 180;
   const text = message.text ?? "";
   const shouldTruncate = text.length > TRUNCATE_LENGTH;
@@ -102,165 +108,185 @@ export const MessageBox = ({
       : text;
 
   return (
-    <Box
-      key={message.id}
-      ref={messageRef}
-      display="flex"
-      justifyContent={isMine ? "flex-end" : "flex-start"}
-      onMouseEnter={onHoverIn}
-      onMouseLeave={onHoverOut}
-      onClick={onMessageClick}
-    >
+    <>
       <Box
-        maxW="100%"
+        key={message.id}
+        ref={messageRef}
         display="flex"
-        flexDirection="row"
-        gap={1}
-        alignItems="center"
-        w="100%"
         justifyContent={isMine ? "flex-end" : "flex-start"}
+        onMouseEnter={onHoverIn}
+        onMouseLeave={onHoverOut}
+        onClick={onMessageClick}
       >
-        <VStack gap={1}>
-          <HStack alignItems="center" gap={1}>
-            <HStack gap={3} align="flex-start">
-              {!isMine && (
-                <Avatar.Root size="sm">
-                  <Avatar.Image
-                    src={message.messanger?.profile_picture_url ?? ""}
-                    alt={message.messanger?.full_name ?? ""}
-                    w="28px"
-                    h="28px"
-                  />
-                  <Avatar.Fallback bg="#E4E4E7" color="black">
-                    {message.messanger?.full_name?.slice(0, 2).toUpperCase()}
-                  </Avatar.Fallback>
-                </Avatar.Root>
-              )}
-              <VStack gap={1}>
-                <HStack gap={1}>
-                  {isMine && (
-                    <MessageActionsMenu
-                      isMine={isMine}
-                      showActions={showActions}
-                      isSinglePane={isSinglePane}
-                      onCopy={onCopy}
-                      isCopied={isCopied}
-                      showCopy={showCopy}
-                      profileType={profileType}
-                      onMessageClick={onMessageClick}
-                      onCloseActions={onCloseActions}
-                    />
-                  )}
-                  <Box
-                    borderRadius="xl"
-                    px={4}
-                    py={3}
-                    bg={bubbleBg}
-                    color={isMine ? "white" : "#18181B"}
-                    maxW={`${hasAttachments ? "317px" : "396px"}`}
-                    w={
-                      hasAttachments
-                        ? { base: "100%", md: "317px" }
-                        : { base: "100%" }
-                    }
-                    borderWidth="1px"
-                    borderColor={bubbleBorder}
-                    style={{ borderRadius: bubbleBorderRadius }}
-                  >
-                    {message.replyToPreview && (
-                      <ReplyPreview
-                        message={message}
+        <Box
+          maxW="100%"
+          display="flex"
+          flexDirection="row"
+          gap={1}
+          alignItems="center"
+          w="100%"
+          justifyContent={isMine ? "flex-end" : "flex-start"}
+        >
+          <VStack gap={1}>
+            <HStack alignItems="center" gap={1}>
+              <HStack gap={3} align="flex-start">
+                {!isMine &&
+                  (message.messanger ? (
+                    <Box
+                      cursor="pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowSenderProfile(true);
+                      }}
+                    >
+                      <ProfileAvatar
+                        src={
+                          message.messanger?.profile_picture_url ?? undefined
+                        }
+                        alt={message.messanger?.full_name ?? undefined}
+                        fallback={message.messanger?.full_name ?? "U"}
+                        size="28px"
+                      />
+                    </Box>
+                  ) : (
+                    <ProfileAvatar fallback="U" size="28px" />
+                  ))}
+                <VStack gap={1}>
+                  <HStack gap={1}>
+                    {isMine && (
+                      <MessageActionsMenu
                         isMine={isMine}
+                        showActions={showActions}
+                        isSinglePane={isSinglePane}
+                        onCopy={onCopy}
+                        isCopied={isCopied}
+                        showCopy={showCopy}
                         profileType={profileType}
-                        numericUserId={numericUserId}
-                        onScrollToMessage={onScrollToMessage}
+                        onMessageClick={onMessageClick}
+                        onCloseActions={onCloseActions}
                       />
                     )}
-                    {text && (
-                      <VStack align="flex-start" gap={0}>
-                        <Text fontSize="sm" whiteSpace="pre-wrap">
-                          {renderTextWithLinks(displayText, isMine)}
-                        </Text>
-                        {shouldTruncate && (
-                          <Box
-                            as="span"
-                            role="button"
-                            tabIndex={0}
-                            fontSize="sm"
-                            fontWeight="semibold"
-                            mt={1}
-                            cursor="pointer"
-                            opacity={0.9}
-                            color="inherit"
-                            _hover={{ opacity: 1, textDecoration: "underline" }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.preventDefault();
+                    <Box
+                      borderRadius="xl"
+                      px={4}
+                      py={3}
+                      bg={bubbleBg}
+                      color={isMine ? "white" : "#18181B"}
+                      maxW={`${hasAttachments ? "317px" : "396px"}`}
+                      w={
+                        hasAttachments
+                          ? { base: "100%", md: "317px" }
+                          : { base: "100%" }
+                      }
+                      borderWidth="1px"
+                      borderColor={bubbleBorder}
+                      style={{ borderRadius: bubbleBorderRadius }}
+                    >
+                      {message.replyToPreview && (
+                        <ReplyPreview
+                          message={message}
+                          isMine={isMine}
+                          profileType={profileType}
+                          numericUserId={numericUserId}
+                          onScrollToMessage={onScrollToMessage}
+                        />
+                      )}
+                      {text && (
+                        <VStack align="flex-start" gap={0}>
+                          <Text fontSize="sm" whiteSpace="pre-wrap">
+                            {renderTextWithLinks(displayText, isMine)}
+                          </Text>
+                          {shouldTruncate && (
+                            <Box
+                              as="span"
+                              role="button"
+                              tabIndex={0}
+                              fontSize="sm"
+                              fontWeight="semibold"
+                              mt={1}
+                              cursor="pointer"
+                              opacity={0.9}
+                              color="inherit"
+                              _hover={{
+                                opacity: 1,
+                                textDecoration: "underline",
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  setIsTextExpanded((prev) => !prev);
+                                }
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setIsTextExpanded((prev) => !prev);
-                              }
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setIsTextExpanded((prev) => !prev);
-                            }}
-                          >
-                            {isTextExpanded ? "Show less" : "Read more"}
-                          </Box>
-                        )}
-                      </VStack>
-                    )}
-                    {hasAttachments && message.attachments && (
-                      <MessageAttachments
-                        attachments={message.attachments}
+                              }}
+                            >
+                              {isTextExpanded ? "Show less" : "Read more"}
+                            </Box>
+                          )}
+                        </VStack>
+                      )}
+                      {hasAttachments && message.attachments && (
+                        <MessageAttachments
+                          attachments={message.attachments}
+                          isMine={isMine}
+                        />
+                      )}
+                    </Box>
+                    {!isMine && (
+                      <MessageActionsMenu
                         isMine={isMine}
+                        showActions={showActions}
+                        isSinglePane={isSinglePane}
+                        onCopy={onCopy}
+                        isCopied={isCopied}
+                        showCopy={showCopy}
+                        profileType={profileType}
+                        onMessageClick={onMessageClick}
+                        onCloseActions={onCloseActions}
+                        onReply={() => onReply(message)}
                       />
                     )}
-                  </Box>
-                  {!isMine && (
-                    <MessageActionsMenu
-                      isMine={isMine}
-                      showActions={showActions}
-                      isSinglePane={isSinglePane}
-                      onCopy={onCopy}
-                      isCopied={isCopied}
-                      showCopy={showCopy}
-                      profileType={profileType}
-                      onMessageClick={onMessageClick}
-                      onCloseActions={onCloseActions}
-                      onReply={() => onReply(message)}
+                  </HStack>
+                  <Text
+                    mt={1}
+                    flexShrink={0}
+                    whiteSpace="nowrap"
+                    alignSelf={isMine ? "flex-end" : "flex-start"}
+                    fontSize="10px"
+                    color="#52525B"
+                    textAlign={isMine ? "right" : "left"}
+                  >
+                    {formatDateTimeToReadable(message.createdAt)}
+                  </Text>
+                </VStack>
+                {isMine &&
+                  (message.messanger ? (
+                    <ProfileAvatar
+                      src={message.messanger?.profile_picture_url ?? undefined}
+                      alt={message.messanger?.full_name ?? undefined}
+                      fallback={message.messanger?.full_name ?? "U"}
+                      size="28px"
                     />
-                  )}
-                </HStack>
-                <Text
-                  mt={1}
-                  flexShrink={0}
-                  whiteSpace="nowrap"
-                  alignSelf={isMine ? "flex-end" : "flex-start"}
-                  fontSize="10px"
-                  color="#52525B"
-                  textAlign={isMine ? "right" : "left"}
-                >
-                  {formatDateTimeToReadable(message.createdAt)}
-                </Text>
-              </VStack>
-              {isMine && (
-                <Avatar.Root size="sm">
-                  <Avatar.Image
-                    src={message.messanger?.profile_picture_url ?? ""}
-                    alt={message.messanger?.full_name ?? ""}
-                    w="28px"
-                    h="28px"
-                  />
-                  <Avatar.Fallback bg="#E4E4E7" color="black">
-                    {message.messanger?.full_name?.slice(0, 2).toUpperCase()}
-                  </Avatar.Fallback>
-                </Avatar.Root>
-              )}
+                  ) : (
+                    <ProfileAvatar fallback="U" size="28px" />
+                  ))}
+              </HStack>
             </HStack>
-          </HStack>
-        </VStack>
+          </VStack>
+        </Box>
       </Box>
-    </Box>
+      {showSenderProfile && !isMine && message.messanger && senderProfileId && (
+        <FullProfileCard
+          profileId={senderProfileId.toString()}
+          profileType={otherProfileType}
+          isCoordinator={isCoordinatorView}
+          opportunityId={opportunityId?.toString()}
+          onClose={() => setShowSenderProfile(false)}
+        />
+      )}
+    </>
   );
 };
 

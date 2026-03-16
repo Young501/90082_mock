@@ -10,7 +10,5 @@ export const getDashboardStats = async (opportunityId: string) => {
 export const getHomepage = async (): Promise<HomepageStats> => {
   return apiRequest({
     endpoint: API_ENDPOINTS.HOMEPAGE,
-  }
-);
-  
+  });
 };

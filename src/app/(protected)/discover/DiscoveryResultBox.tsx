@@ -58,6 +58,13 @@ export function DiscoveryResultBox({
 
   const count = pagination?.count ?? 0;
 
+  // Keep previous results visible while loading so card DOM nodes (and their
+  // images) stay mounted. Only swap to new results once loading is done.
+  const [displayedResults, setDisplayedResults] = useState(results);
+  useEffect(() => {
+    if (!isLoading) setDisplayedResults(results);
+  }, [isLoading, results]);
+
   const [searchInput, setSearchInput] = useState(query ?? "");
 
   useEffect(() => {
@@ -120,96 +127,103 @@ export function DiscoveryResultBox({
         )}
       </HStack>
 
-      {isLoading ? (
-        <Box
-          py={8}
-          minH="120px"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Loader />
-        </Box>
-      ) : count > 0 ? (
-        <>
-          <SimpleGrid
-            columns={{ base: 1, md: 2 }}
-            gap={4}
-            h="100%"
-            overflowY="auto"
+      <Box position="relative">
+        {isLoading && (
+          <Box
+            position="absolute"
+            inset={0}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            bg="whiteAlpha.700"
+            zIndex={1}
+            minH="120px"
           >
-            {results.map((user) => {
-              const key = user.id || Math.random();
-
-              return userType === "student" ? (
-                <StudentCard
-                  key={key}
-                  student={user}
-                  userType={userType}
-                  profilePictureUrl={user.profile_picture_url || null}
-                  opportunityId={opportunityId}
-                  opportunitySlug={opportunitySlug}
-                />
-              ) : (
-                <OrganisationCard
-                  key={key}
-                  organisation={user}
-                  opportunityId={opportunityId}
-                  opportunitySlug={opportunitySlug}
-                />
-              );
-            })}
-          </SimpleGrid>
-
-          {pagination && (
-            <Box mt={6}>
-              <PaginationControlsV2
-                currentPage={pagination.currentPage}
-                totalPages={Math.max(pagination.totalPages, 1)}
-                pageSize={pagination.pageSize}
-                totalCount={pagination.count}
-                hasNext={pagination.hasNext}
-                hasPrevious={pagination.hasPrevious}
-                onPageChange={pagination.onPageChange}
-                onPageSizeChange={pagination.onPageSizeChange}
-                isLoading={isLoading}
-                itemLabel={
-                  userType === "student" ? "students" : "organisations"
-                }
-              />
-            </Box>
-          )}
-        </>
-      ) : (
-        <>
-          <Box textAlign="center" py={8}>
-            <Text color="gray.500">
-              {hasSearched
-                ? "No results found. Try adjusting your search criteria or reset to view all users."
-                : "No users found."}
-            </Text>
+            <Loader />
           </Box>
+        )}
 
-          {pagination && (
-            <Box mt={6}>
-              <PaginationControlsV2
-                currentPage={1}
-                totalPages={1}
-                pageSize={pagination.pageSize}
-                totalCount={0}
-                hasNext={pagination.hasNext}
-                hasPrevious={pagination.hasPrevious}
-                onPageChange={pagination.onPageChange}
-                onPageSizeChange={pagination.onPageSizeChange}
-                isLoading={isLoading}
-                itemLabel={
-                  userType === "student" ? "students" : "organisations"
-                }
-              />
+        {!isLoading && count === 0 ? (
+          <>
+            <Box textAlign="center" py={8}>
+              <Text color="gray.500">
+                {hasSearched
+                  ? "No results found. Try adjusting your search criteria or reset to view all users."
+                  : "No users found."}
+              </Text>
             </Box>
-          )}
-        </>
-      )}
+
+            {pagination && (
+              <Box mt={6}>
+                <PaginationControlsV2
+                  currentPage={1}
+                  totalPages={1}
+                  pageSize={pagination.pageSize}
+                  totalCount={0}
+                  hasNext={pagination.hasNext}
+                  hasPrevious={pagination.hasPrevious}
+                  onPageChange={pagination.onPageChange}
+                  onPageSizeChange={pagination.onPageSizeChange}
+                  isLoading={isLoading}
+                  itemLabel={
+                    userType === "student" ? "students" : "organisations"
+                  }
+                />
+              </Box>
+            )}
+          </>
+        ) : (
+          <>
+            <SimpleGrid
+              columns={{ base: 1, md: 2 }}
+              gap={4}
+              h="100%"
+              overflowY="auto"
+            >
+              {displayedResults.map((user) => {
+                const key = user.id;
+
+                return userType === "student" ? (
+                  <StudentCard
+                    key={key}
+                    student={user}
+                    userType={userType}
+                    profilePictureUrl={user.profile_picture_url || null}
+                    opportunityId={opportunityId}
+                    opportunitySlug={opportunitySlug}
+                  />
+                ) : (
+                  <OrganisationCard
+                    key={key}
+                    organisation={user}
+                    opportunityId={opportunityId}
+                    opportunitySlug={opportunitySlug}
+                  />
+                );
+              })}
+            </SimpleGrid>
+
+            {pagination && (
+              <Box mt={6}>
+                <PaginationControlsV2
+                  currentPage={pagination.currentPage}
+                  totalPages={Math.max(pagination.totalPages, 1)}
+                  pageSize={pagination.pageSize}
+                  totalCount={pagination.count}
+                  hasNext={pagination.hasNext}
+                  hasPrevious={pagination.hasPrevious}
+                  onPageChange={pagination.onPageChange}
+                  onPageSizeChange={pagination.onPageSizeChange}
+                  isLoading={isLoading}
+                  itemLabel={
+                    userType === "student" ? "students" : "organisations"
+                  }
+                />
+              </Box>
+            )}
+          </>
+        )}
+      </Box>
     </VStack>
   );
 }

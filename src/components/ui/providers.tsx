@@ -32,13 +32,13 @@ export default function Providers({ children }: { children: ReactNode }) {
       <ChakraProvider value={system}>
         <ProfileThemeProvider>
           <NextThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          forcedTheme="light"
-          disableTransitionOnChange
-        >
-          {children}
-        </NextThemeProvider>
+            attribute="class"
+            defaultTheme="light"
+            forcedTheme="light"
+            disableTransitionOnChange
+          >
+            {children}
+          </NextThemeProvider>
         </ProfileThemeProvider>
       </ChakraProvider>
       <ReactQueryDevtools initialIsOpen={false} />
