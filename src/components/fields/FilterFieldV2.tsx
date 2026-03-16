@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-const INITIAL_OPTIONS_VISIBLE = 5;
+const INITIAL_OPTIONS_VISIBLE = 10;
 import {
   FacetField,
   FacetOption,
