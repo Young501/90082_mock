@@ -147,15 +147,15 @@ export function OrganisationCard({
                     {organisation.name}
                   </Text>
                 </Tooltip>
-                {organisation.questionnaire_answers?.actively_hiring && (
+                {organisation.questionnaire_answers?.actively_hiring?.value && (
                   <Tooltip
                     content={
                       organisation.questionnaire_answers
-                        ?.actively_hiring_details
+                        ?.actively_hiring_details?.value
                     }
                     disabled={
                       !organisation.questionnaire_answers
-                        ?.actively_hiring_details
+                        ?.actively_hiring_details?.value
                     }
                   >
                     <Box

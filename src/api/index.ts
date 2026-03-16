@@ -266,13 +266,14 @@ export const API_ENDPOINTS = {
     method: "DELETE",
     url: `/api/v1/${userType}/upload-logo`,
   }),
-  STUDENT_PROFILE: (id: string, opportunityId: string): ApiEndpoint => ({
-    method: "GET",
-    url: `/api/v1/student/${id}?opportunity_id=${opportunityId}`,
+ 
+  STUDENT_CARD_V2: (studentId: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v2/ui/student/${studentId}/card/`,
   }),
-  PARTNER_PROFILE: (id: string, opportunityId: string): ApiEndpoint => ({
-    method: "GET",
-    url: `/api/v1/organisation/${id}?opportunity_id=${opportunityId}`,
+  ORGANISATION_CARD_V2: (organisationId: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v2/ui/organisation/${organisationId}/card/`,
   }),
   OPPORTUNITY_DETAIL: (opportunityId: string): ApiEndpoint => ({
     method: "GET",

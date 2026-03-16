@@ -72,6 +72,7 @@ export function StudentCard({
   const [addedToFolder, setAddedToFolder] = useState(false);
   const { userProfile } = useAuthStore();
 
+
   const getDisplayName = () => {
     const firstName = student.first_name || "";
     const lastName = student.last_name || "";
@@ -444,6 +445,7 @@ export function StudentCard({
           profileId={student.id.toString()}
           profileType="student"
           opportunityId={opportunityId || ""}
+          opportunitySlug={opportunitySlug}
           onClose={() => setShowFullProfile(false)}
         />
       )}
