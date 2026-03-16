@@ -51,7 +51,8 @@ export function useResolveTaxonomyLabelsToCodes() {
       const taxonomyFields = sections.flatMap((s) =>
         s.questions.filter(
           (q) =>
-            (q.type === "taxonomy-select" || q.type === "taxonomy-multiselect") &&
+            (q.type === "taxonomy-select" ||
+              q.type === "taxonomy-multiselect") &&
             q.taxonomy_query?.type
         )
       );
@@ -70,11 +71,15 @@ export function useResolveTaxonomyLabelsToCodes() {
         const university =
           tq.university === "dynamic"
             ? universitySlug
-            : tq.university ?? null;
+            : (tq.university ?? null);
         const parent = tq.parent ?? null;
         const key = `${tq.type}|${parent}|${university}`;
         if (!fetchKeys.has(key)) {
-          fetchKeys.set(key, { type: tq.type, parent: parent ?? null, university: university ?? null });
+          fetchKeys.set(key, {
+            type: tq.type,
+            parent: parent ?? null,
+            university: university ?? null,
+          });
         }
       }
 
@@ -83,7 +88,10 @@ export function useResolveTaxonomyLabelsToCodes() {
         const results = await Promise.all(
           Array.from(fetchKeys.values()).map((p) => fetchTaxonomy(p))
         );
-        const optionsByKey = new Map<string, { value: string; label: string }[]>();
+        const optionsByKey = new Map<
+          string,
+          { value: string; label: string }[]
+        >();
         let i = 0;
         for (const [key, params] of fetchKeys) {
           const nodes = results[i++] as TaxonomyNode[];
@@ -99,7 +107,7 @@ export function useResolveTaxonomyLabelsToCodes() {
           const university =
             tq.university === "dynamic"
               ? universitySlug
-              : tq.university ?? null;
+              : (tq.university ?? null);
           const parent = tq.parent ?? null;
           const key = `${tq.type}|${parent}|${university}`;
           const options = optionsByKey.get(key) ?? [];

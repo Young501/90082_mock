@@ -1,13 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  Box,
-  HStack,
-  VStack,
-  Text,
-  IconButton,
-} from "@chakra-ui/react";
+import { Box, HStack, VStack, Text, IconButton } from "@chakra-ui/react";
 import { Message } from "@/types/messaging";
 import { Paperclip, Reply, X } from "lucide-react";
 
@@ -64,9 +58,7 @@ export const ConversationReplyPreview = ({
                     }
                   >
                     Replying to{" "}
-                    {replyToMessage.sender === "me"
-                      ? "yourself"
-                      : "message"}
+                    {replyToMessage.sender === "me" ? "yourself" : "message"}
                   </Text>
                 </HStack>
                 <Text

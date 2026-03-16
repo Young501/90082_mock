@@ -475,7 +475,6 @@ export const FieldRenderer = ({
           control={control}
           error={error}
           required={question.required}
-          
           description={
             question.field === "profile_picture"
               ? "profile_picture"

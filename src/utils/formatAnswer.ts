@@ -74,7 +74,9 @@ export function formatAnswerForDisplay(
     question.type === "taxonomy-multiselect"
   ) {
     if (Array.isArray(answer)) {
-      return answer.map((v) => (typeof v === "string" ? v : String(v))).join(", ");
+      return answer
+        .map((v) => (typeof v === "string" ? v : String(v)))
+        .join(", ");
     }
     return String(answer);
   }

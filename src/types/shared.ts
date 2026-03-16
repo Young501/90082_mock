@@ -101,7 +101,7 @@ export interface AbnValidationResponse {
 
 export interface TaxonomyQueryParams {
   type: string;
-    parent?: string | null;
+  parent?: string | null;
   university?: string | null | "dynamic";
 }
 

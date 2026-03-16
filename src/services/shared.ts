@@ -26,8 +26,6 @@ export {
   usePartnerProfile,
 } from "./organisation";
 
-
-
 export function useOnboardingSubmission(userType: string) {
   const queryClient = useQueryClient();
 
@@ -123,7 +121,9 @@ export function useLogoUpload(userType: string) {
       queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
       if (userType === "organisation") {
-        queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
+        queryClient.invalidateQueries({
+          queryKey: ["organisation-profile-v2"],
+        });
       }
     },
   });

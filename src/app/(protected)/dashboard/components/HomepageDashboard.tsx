@@ -23,21 +23,11 @@ export function HomepageDashboard({ data }: HomepageDashboardProps) {
       gap={6}
       w="100%"
     >
-      <Box
-        minW={0}
-        h="100%"
-        display="flex"
-        flexDirection="column"
-      >
+      <Box minW={0} h="100%" display="flex" flexDirection="column">
         <ProfileOverview profile={profile} userType={user_type} />
       </Box>
 
-      <Box
-        minW={0}
-        display="flex"
-        flexDirection="column"
-        gap={6}
-      >
+      <Box minW={0} display="flex" flexDirection="column" gap={6}>
         <MyOpportunities
           opportunities={opportunities}
           userType={user_type}

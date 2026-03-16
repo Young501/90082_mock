@@ -189,48 +189,48 @@ export const RenderStudentDetails = ({
           </HStack>
 
           {!hideActions && (
-          <HStack
-            gap={3}
-            justifyContent="end"
-            flexShrink={0}
-            flex={1}
-            w={{ base: "full", lg: "auto" }}
-          >
-            <ButtonV2
-              variant="ghost"
-              bg="#2AA8E0"
-              borderRadius="xl"
-              color="#FFFFFF"
-              icon={<MessageCircle size={16} />}
-              iconPosition="start"
-              h="40px"
-              flex={{ base: 1, lg: "none" }}
-              minW={0}
-              size="sm"
-              onClick={() => setShowContactModal(true)}
-              disabled={disableBtns || userType === "coordinator"}
+            <HStack
+              gap={3}
+              justifyContent="end"
+              flexShrink={0}
+              flex={1}
+              w={{ base: "full", lg: "auto" }}
             >
-              Contact Student
-            </ButtonV2>
-            {opportunitySlug && (
               <ButtonV2
                 variant="ghost"
-                bg="#EAF6FD"
+                bg="#2AA8E0"
                 borderRadius="xl"
-                color="#2AA8E0"
-                border="1px solid #D6EDFB"
-                icon={<FolderPlus size={16} />}
+                color="#FFFFFF"
+                icon={<MessageCircle size={16} />}
                 iconPosition="start"
                 h="40px"
                 flex={{ base: 1, lg: "none" }}
                 minW={0}
+                size="sm"
+                onClick={() => setShowContactModal(true)}
                 disabled={disableBtns || userType === "coordinator"}
-                onClick={() => setShowAddToFolderModal(true)}
               >
-                Add to Folder
+                Contact Student
               </ButtonV2>
-            )}
-          </HStack>
+              {opportunitySlug && (
+                <ButtonV2
+                  variant="ghost"
+                  bg="#EAF6FD"
+                  borderRadius="xl"
+                  color="#2AA8E0"
+                  border="1px solid #D6EDFB"
+                  icon={<FolderPlus size={16} />}
+                  iconPosition="start"
+                  h="40px"
+                  flex={{ base: 1, lg: "none" }}
+                  minW={0}
+                  disabled={disableBtns || userType === "coordinator"}
+                  onClick={() => setShowAddToFolderModal(true)}
+                >
+                  Add to Folder
+                </ButtonV2>
+              )}
+            </HStack>
           )}
         </Flex>
       </Box>

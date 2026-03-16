@@ -1,4 +1,3 @@
-
 export interface MessagingUser {
   id: number;
   email: string;
@@ -74,7 +73,6 @@ export interface ListMessagesParams {
   page_size?: number;
 }
 
-
 export type ConversationId = number;
 
 export interface ConversationSummary {
@@ -100,7 +98,7 @@ export interface ConversationSummary {
 export interface MessageAttachment {
   id: string;
   original_filename: string;
-  type: string
+  type: string;
   file_url: string;
   file_size: number;
   content_type: string;
@@ -146,7 +144,6 @@ export interface ConversationResponse {
   [key: string]: unknown;
 }
 
-
 export function conversationListItemToSummary(
   item: ConversationListItemApi
 ): ConversationSummary {
@@ -156,7 +153,11 @@ export function conversationListItemToSummary(
     otherOrganisationId: item.other_user.organisation_id,
     organisationTitle: item.other_user.organisation_name || "",
     studentTitle: item.other_user.full_name,
-    organisationSubtitle: item.other_user.full_name || (item.opportunity_title || item.other_user.organisation_name || ""),
+    organisationSubtitle:
+      item.other_user.full_name ||
+      item.opportunity_title ||
+      item.other_user.organisation_name ||
+      "",
     studentSubtitle: item.opportunity_title || "",
     lastMessagePreview: item.last_message?.content ?? "",
     lastActivityAt: item.last_message_at,

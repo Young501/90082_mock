@@ -173,7 +173,10 @@ const Profile = () => {
 
   const previewProfileId = useMemo(() => {
     if (isCoordinator) return undefined;
-    const profile = (fetchedUserProfile ?? userProfile) as { id?: number; organisation?: { id?: number } } | null;
+    const profile = (fetchedUserProfile ?? userProfile) as {
+      id?: number;
+      organisation?: { id?: number };
+    } | null;
     if (isOrganisation && profile?.organisation?.id != null) {
       return String(profile.organisation.id);
     }
@@ -181,7 +184,14 @@ const Profile = () => {
       return user?.id ?? user?.userDetailsV2?.id?.toString();
     }
     return undefined;
-  }, [isCoordinator, isOrganisation, userType, fetchedUserProfile, userProfile, user]);
+  }, [
+    isCoordinator,
+    isOrganisation,
+    userType,
+    fetchedUserProfile,
+    userProfile,
+    user,
+  ]);
 
   useEffect(() => {
     if (!isProfileLoading && !fetchedUserProfile && !isCoordinator) {

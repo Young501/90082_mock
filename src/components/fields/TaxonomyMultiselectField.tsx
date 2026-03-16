@@ -52,7 +52,7 @@ export const TaxonomyMultiselectField = ({
   const params = useMemo(() => {
     const university =
       taxonomyQuery.university === "dynamic"
-        ? (universitySlug)
+        ? universitySlug
         : (taxonomyQuery.university ?? null);
 
     return {

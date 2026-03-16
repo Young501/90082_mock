@@ -77,7 +77,6 @@ export function ProfileSummaryCard({
     ) as AccessibleOpportunity[];
   }, [opportunities]);
 
-
   const handleCloseDrawer = () => {
     setDrawerOpen(false);
     setSelectedOpportunity(null);

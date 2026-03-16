@@ -15,7 +15,11 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { UserProfile } from "@/types/shared";
-import { ORGANISATION_MEMBER_REQUIRED_FIELDS, ORGANISATION_REQUIRED_FIELDS, STUDENT_ONBOARDING_REQUIRED_FIELDS } from "@/utils/constants";
+import {
+  ORGANISATION_MEMBER_REQUIRED_FIELDS,
+  ORGANISATION_REQUIRED_FIELDS,
+  STUDENT_ONBOARDING_REQUIRED_FIELDS,
+} from "@/utils/constants";
 
 export const isOrganisationMemberComplete = (
   member: Record<string, any> | null
@@ -111,8 +115,7 @@ export const checkOnboardingStatus = async ({
           router.push("/invite/");
           return;
         }
-      } catch {
-      }
+      } catch {}
 
       let member: Record<string, any> | null = null;
       try {
@@ -145,8 +148,9 @@ export const checkOnboardingStatus = async ({
         console.log("memberComplete", memberComplete);
         console.log("orgComplete", orgComplete);
         if (redirectOnSuccess) {
-          const phase: "user" | "organisation" =
-            !memberComplete ? "user" : "organisation";
+          const phase: "user" | "organisation" = !memberComplete
+            ? "user"
+            : "organisation";
           useAuthStore.getState().setOnboardingPhase(phase);
           router.push("/onboarding/");
         }
@@ -450,4 +454,3 @@ export const useAuth = () => {
     handleChangePassword,
   };
 };
-

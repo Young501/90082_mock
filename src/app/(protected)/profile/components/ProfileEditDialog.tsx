@@ -335,7 +335,9 @@ export function ProfileEditDialog({
       abnQuestion &&
       (abnValidationStatus === "pending" || abnValidationStatus === "invalid")
     ) {
-      setError(abnQuestion.field as any, { message: "Please verify your ABN before saving." });
+      setError(abnQuestion.field as any, {
+        message: "Please verify your ABN before saving.",
+      });
       return;
     }
 
@@ -454,7 +456,9 @@ export function ProfileEditDialog({
         const fieldErrors = Object.entries(data)
           .map(([field, errors]) => {
             const fieldLabel = field.replace(/_/g, " ");
-            const messages = Array.isArray(errors) ? errors.join(", ") : String(errors);
+            const messages = Array.isArray(errors)
+              ? errors.join(", ")
+              : String(errors);
             return `${fieldLabel}: ${messages}`;
           })
           .join("\n");
@@ -569,7 +573,8 @@ export function ProfileEditDialog({
                           removedFiles={removedFiles}
                           university={university ?? undefined}
                           organisationName={
-                            question.type !== "abn_lookup" || !!dirtyFields[question.field]
+                            question.type !== "abn_lookup" ||
+                            !!dirtyFields[question.field]
                               ? organisationNameValue
                               : undefined
                           }

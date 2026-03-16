@@ -161,50 +161,50 @@ export const RenderOrganisationDetails = ({
           </HStack>
 
           {!hideActions && (
-          <HStack
-            gap={3}
-            justifyContent="end"
-            flexShrink={0}
-            flex={1}
-            w={{ base: "full", lg: "auto" }}
-          >
-            {organisation.allow_contact && (
-              <ButtonV2
-                variant="ghost"
-                icon={<MessageCircle size={16} />}
-                iconPosition="start"
-                bg="#3AADA8"
-                borderRadius="xl"
-                color="#FFFFFF"
-                h="40px"
-                flex={{ base: 1, lg: "none" }}
-                minW={0}
-                size="sm"
-                onClick={() => setShowContactModal(true)}
-                disabled={disableBtns || userType === "coordinator"}
-              >
-                Contact organization
-              </ButtonV2>
-            )}
-            {opportunitySlug && (
-              <ButtonV2
-                variant="ghost"
-                bg="#E9F7F6"
-                icon={<FolderPlus size={16} />}
-                iconPosition="start"
-                h="40px"
-                borderRadius="xl"
-                color="#1F7F7B"
-                border="1px solid #D3EFEA"
-                flex={{ base: 1, lg: "none" }}
-                minW={0}
-                disabled={disableBtns || userType === "coordinator"}
-                onClick={() => setShowAddToFolderModal(true)}
-              >
-                Add to Folder
-              </ButtonV2>
-            )}
-          </HStack>
+            <HStack
+              gap={3}
+              justifyContent="end"
+              flexShrink={0}
+              flex={1}
+              w={{ base: "full", lg: "auto" }}
+            >
+              {organisation.allow_contact && (
+                <ButtonV2
+                  variant="ghost"
+                  icon={<MessageCircle size={16} />}
+                  iconPosition="start"
+                  bg="#3AADA8"
+                  borderRadius="xl"
+                  color="#FFFFFF"
+                  h="40px"
+                  flex={{ base: 1, lg: "none" }}
+                  minW={0}
+                  size="sm"
+                  onClick={() => setShowContactModal(true)}
+                  disabled={disableBtns || userType === "coordinator"}
+                >
+                  Contact organization
+                </ButtonV2>
+              )}
+              {opportunitySlug && (
+                <ButtonV2
+                  variant="ghost"
+                  bg="#E9F7F6"
+                  icon={<FolderPlus size={16} />}
+                  iconPosition="start"
+                  h="40px"
+                  borderRadius="xl"
+                  color="#1F7F7B"
+                  border="1px solid #D3EFEA"
+                  flex={{ base: 1, lg: "none" }}
+                  minW={0}
+                  disabled={disableBtns || userType === "coordinator"}
+                  onClick={() => setShowAddToFolderModal(true)}
+                >
+                  Add to Folder
+                </ButtonV2>
+              )}
+            </HStack>
           )}
         </Flex>
       </Box>

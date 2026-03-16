@@ -24,7 +24,8 @@ export const ConversationHeader = ({
   onToggleArchive,
 }: ConversationHeaderProps) => {
   const [showProfile, setShowProfile] = useState(false);
-  const otherProfileType = profileType === "organisation" ? "student" : "organisation";
+  const otherProfileType =
+    profileType === "organisation" ? "student" : "organisation";
   const isCoordinatorView = profileType === "coordinator";
   const otherProfileId =
     otherProfileType === "organisation"

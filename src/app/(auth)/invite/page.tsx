@@ -41,7 +41,9 @@ export default function InvitePage() {
   } = useOrganisationInvite(shouldFetchInvite);
 
   const noInviteState =
-    ((isFetched && !invite) || isInviteError) && shouldFetchInvite && !isRedirecting;
+    ((isFetched && !invite) || isInviteError) &&
+    shouldFetchInvite &&
+    !isRedirecting;
 
   const { data: organisationMember, isLoading: isMemberLoading } =
     useOrganisationMemberMeV2(noInviteState);

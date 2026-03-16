@@ -14,10 +14,9 @@ export function normalizeLabelForMatching(label: string): string {
 /**
  * Finds an option by matching the value (code or label) against options.
  */
-export function findOptionByValueOrLabel<T extends { value: string; label: string }>(
-  options: T[],
-  value: string
-): T | undefined {
+export function findOptionByValueOrLabel<
+  T extends { value: string; label: string },
+>(options: T[], value: string): T | undefined {
   if (!value || options.length === 0) return undefined;
   const v = String(value).trim();
   const byCode = options.find((o) => o.value === v);

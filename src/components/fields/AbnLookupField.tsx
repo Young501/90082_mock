@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Box, Field, Input as ChakraInput, InputGroup, Spinner, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Field,
+  Input as ChakraInput,
+  InputGroup,
+  Spinner,
+  Text,
+} from "@chakra-ui/react";
 import { Control, UseFormSetError, useController } from "react-hook-form";
 import { isAxiosError } from "axios";
 import { useAbnValidation } from "@/services/shared";
@@ -87,13 +94,10 @@ export const AbnLookupField = ({
   const onStatusChangeRef = useRef(onStatusChange);
   onStatusChangeRef.current = onStatusChange;
 
-  const emitStatusChange = useCallback(
-    (nextStatus: AbnValidationStatus) => {
-      setStatus(nextStatus);
-      onStatusChangeRef.current?.(nextStatus);
-    },
-    []
-  );
+  const emitStatusChange = useCallback((nextStatus: AbnValidationStatus) => {
+    setStatus(nextStatus);
+    onStatusChangeRef.current?.(nextStatus);
+  }, []);
 
   useEffect(() => {
     const formatted = formatAbn((field.value as string) || "");

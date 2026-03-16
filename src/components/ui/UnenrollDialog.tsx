@@ -34,7 +34,10 @@ export function UnenrollDialog({
       placement="center"
     >
       <Portal>
-        <Dialog.Positioner zIndex={9999} style={{ backdropFilter: "blur(4px)" }}>
+        <Dialog.Positioner
+          zIndex={9999}
+          style={{ backdropFilter: "blur(4px)" }}
+        >
           <Dialog.Content maxW="512px" zIndex={10000}>
             <Dialog.Header>
               <Flex justify="space-between" w="full" align="center">

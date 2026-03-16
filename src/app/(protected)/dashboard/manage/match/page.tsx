@@ -72,10 +72,7 @@ const Match = () => {
   return (
     <>
       <PageTitle title={PAGE_TITLES.MATCH} />
-      <Box
-        maxW="1512px"
-        mx="auto"
-      >
+      <Box maxW="1512px" mx="auto">
         <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
           <Text
             as="h1"

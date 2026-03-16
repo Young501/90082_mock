@@ -26,7 +26,7 @@ export const EmptyInbox = ({ title, description }: EmptyInboxProps) => {
         <MessageCircleX size={32} color="#52525B" />
       </Box>
       <Text fontWeight="semibold" fontSize="lg">
-       {title}
+        {title}
       </Text>
       <Text fontSize="sm" color="#52525B" textAlign="center" maxW="310px">
         {description}

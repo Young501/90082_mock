@@ -21,7 +21,7 @@ export const useHomepage = (enabled = true) => {
     },
     enabled,
     retry: 1,
-  }); 
+  });
 
   return {
     homepageStats,

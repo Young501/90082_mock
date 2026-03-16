@@ -3,7 +3,6 @@ import { useTaxonomy } from "@/services/shared";
 import { Question } from "@/types/onboarding";
 import { TaxonomyQueryParams } from "@/types/shared";
 
-
 export function useTaxonomyLabels(
   question: Question,
   value: string | string[] | undefined,
@@ -27,9 +26,7 @@ export function useTaxonomyLabels(
     if (!taxonomyQuery?.type) return null;
     const parentField = taxonomyQuery.parent ?? "__none__";
     const parentValue =
-      parentField === "__none__"
-        ? null
-        : formData[parentField] ?? null;
+      parentField === "__none__" ? null : (formData[parentField] ?? null);
     const parentCode =
       typeof parentValue === "object" && parentValue?.code != null
         ? parentValue.code
@@ -39,7 +36,7 @@ export function useTaxonomyLabels(
     const universitySlug =
       taxonomyQuery.university === "dynamic"
         ? university?.slug
-        : taxonomyQuery.university ?? null;
+        : (taxonomyQuery.university ?? null);
 
     return {
       type: taxonomyQuery.type,

@@ -88,8 +88,8 @@ export const OrganisationInvitePage = ({
                   This will replace your current organisation
                 </Text>
                 <Text fontSize="sm">
-                  Accepting will move you out of {currentOrg.organisation.name}. This action
-                  cannot be undone.
+                  Accepting will move you out of {currentOrg.organisation.name}.
+                  This action cannot be undone.
                 </Text>
               </VStack>
             </Flex>

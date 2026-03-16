@@ -109,180 +109,183 @@ export const MessageBox = ({
 
   return (
     <>
-    <Box
-      key={message.id}
-      ref={messageRef}
-      display="flex"
-      justifyContent={isMine ? "flex-end" : "flex-start"}
-      onMouseEnter={onHoverIn}
-      onMouseLeave={onHoverOut}
-      onClick={onMessageClick}
-    >
       <Box
-        maxW="100%"
+        key={message.id}
+        ref={messageRef}
         display="flex"
-        flexDirection="row"
-        gap={1}
-        alignItems="center"
-        w="100%"
         justifyContent={isMine ? "flex-end" : "flex-start"}
+        onMouseEnter={onHoverIn}
+        onMouseLeave={onHoverOut}
+        onClick={onMessageClick}
       >
-        <VStack gap={1}>
-          <HStack alignItems="center" gap={1}>
-            <HStack gap={3} align="flex-start">
-              {!isMine &&
-                (message.messanger ? (
-                  <Box
-                    cursor="pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowSenderProfile(true);
-                    }}
-                  >
-                    <ProfileAvatar
-                      src={
-                        message.messanger?.profile_picture_url ?? undefined
+        <Box
+          maxW="100%"
+          display="flex"
+          flexDirection="row"
+          gap={1}
+          alignItems="center"
+          w="100%"
+          justifyContent={isMine ? "flex-end" : "flex-start"}
+        >
+          <VStack gap={1}>
+            <HStack alignItems="center" gap={1}>
+              <HStack gap={3} align="flex-start">
+                {!isMine &&
+                  (message.messanger ? (
+                    <Box
+                      cursor="pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowSenderProfile(true);
+                      }}
+                    >
+                      <ProfileAvatar
+                        src={
+                          message.messanger?.profile_picture_url ?? undefined
+                        }
+                        alt={message.messanger?.full_name ?? undefined}
+                        fallback={message.messanger?.full_name ?? "U"}
+                        size="28px"
+                      />
+                    </Box>
+                  ) : (
+                    <ProfileAvatar fallback="U" size="28px" />
+                  ))}
+                <VStack gap={1}>
+                  <HStack gap={1}>
+                    {isMine && (
+                      <MessageActionsMenu
+                        isMine={isMine}
+                        showActions={showActions}
+                        isSinglePane={isSinglePane}
+                        onCopy={onCopy}
+                        isCopied={isCopied}
+                        showCopy={showCopy}
+                        profileType={profileType}
+                        onMessageClick={onMessageClick}
+                        onCloseActions={onCloseActions}
+                      />
+                    )}
+                    <Box
+                      borderRadius="xl"
+                      px={4}
+                      py={3}
+                      bg={bubbleBg}
+                      color={isMine ? "white" : "#18181B"}
+                      maxW={`${hasAttachments ? "317px" : "396px"}`}
+                      w={
+                        hasAttachments
+                          ? { base: "100%", md: "317px" }
+                          : { base: "100%" }
                       }
+                      borderWidth="1px"
+                      borderColor={bubbleBorder}
+                      style={{ borderRadius: bubbleBorderRadius }}
+                    >
+                      {message.replyToPreview && (
+                        <ReplyPreview
+                          message={message}
+                          isMine={isMine}
+                          profileType={profileType}
+                          numericUserId={numericUserId}
+                          onScrollToMessage={onScrollToMessage}
+                        />
+                      )}
+                      {text && (
+                        <VStack align="flex-start" gap={0}>
+                          <Text fontSize="sm" whiteSpace="pre-wrap">
+                            {renderTextWithLinks(displayText, isMine)}
+                          </Text>
+                          {shouldTruncate && (
+                            <Box
+                              as="span"
+                              role="button"
+                              tabIndex={0}
+                              fontSize="sm"
+                              fontWeight="semibold"
+                              mt={1}
+                              cursor="pointer"
+                              opacity={0.9}
+                              color="inherit"
+                              _hover={{
+                                opacity: 1,
+                                textDecoration: "underline",
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  setIsTextExpanded((prev) => !prev);
+                                }
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setIsTextExpanded((prev) => !prev);
+                              }}
+                            >
+                              {isTextExpanded ? "Show less" : "Read more"}
+                            </Box>
+                          )}
+                        </VStack>
+                      )}
+                      {hasAttachments && message.attachments && (
+                        <MessageAttachments
+                          attachments={message.attachments}
+                          isMine={isMine}
+                        />
+                      )}
+                    </Box>
+                    {!isMine && (
+                      <MessageActionsMenu
+                        isMine={isMine}
+                        showActions={showActions}
+                        isSinglePane={isSinglePane}
+                        onCopy={onCopy}
+                        isCopied={isCopied}
+                        showCopy={showCopy}
+                        profileType={profileType}
+                        onMessageClick={onMessageClick}
+                        onCloseActions={onCloseActions}
+                        onReply={() => onReply(message)}
+                      />
+                    )}
+                  </HStack>
+                  <Text
+                    mt={1}
+                    flexShrink={0}
+                    whiteSpace="nowrap"
+                    alignSelf={isMine ? "flex-end" : "flex-start"}
+                    fontSize="10px"
+                    color="#52525B"
+                    textAlign={isMine ? "right" : "left"}
+                  >
+                    {formatDateTimeToReadable(message.createdAt)}
+                  </Text>
+                </VStack>
+                {isMine &&
+                  (message.messanger ? (
+                    <ProfileAvatar
+                      src={message.messanger?.profile_picture_url ?? undefined}
                       alt={message.messanger?.full_name ?? undefined}
                       fallback={message.messanger?.full_name ?? "U"}
                       size="28px"
                     />
-                  </Box>
-                ) : (
-                  <ProfileAvatar fallback="U" size="28px" />
-                ))}
-              <VStack gap={1}>
-                <HStack gap={1}>
-                  {isMine && (
-                    <MessageActionsMenu
-                      isMine={isMine}
-                      showActions={showActions}
-                      isSinglePane={isSinglePane}
-                      onCopy={onCopy}
-                      isCopied={isCopied}
-                      showCopy={showCopy}
-                      profileType={profileType}
-                      onMessageClick={onMessageClick}
-                      onCloseActions={onCloseActions}
-                    />
-                  )}
-                  <Box
-                    borderRadius="xl"
-                    px={4}
-                    py={3}
-                    bg={bubbleBg}
-                    color={isMine ? "white" : "#18181B"}
-                    maxW={`${hasAttachments ? "317px" : "396px"}`}
-                    w={
-                      hasAttachments
-                        ? { base: "100%", md: "317px" }
-                        : { base: "100%" }
-                    }
-                    borderWidth="1px"
-                    borderColor={bubbleBorder}
-                    style={{ borderRadius: bubbleBorderRadius }}
-                  >
-                    {message.replyToPreview && (
-                      <ReplyPreview
-                        message={message}
-                        isMine={isMine}
-                        profileType={profileType}
-                        numericUserId={numericUserId}
-                        onScrollToMessage={onScrollToMessage}
-                      />
-                    )}
-                    {text && (
-                      <VStack align="flex-start" gap={0}>
-                        <Text fontSize="sm" whiteSpace="pre-wrap">
-                          {renderTextWithLinks(displayText, isMine)}
-                        </Text>
-                        {shouldTruncate && (
-                          <Box
-                            as="span"
-                            role="button"
-                            tabIndex={0}
-                            fontSize="sm"
-                            fontWeight="semibold"
-                            mt={1}
-                            cursor="pointer"
-                            opacity={0.9}
-                            color="inherit"
-                            _hover={{ opacity: 1, textDecoration: "underline" }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.preventDefault();
-                                setIsTextExpanded((prev) => !prev);
-                              }
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setIsTextExpanded((prev) => !prev);
-                            }}
-                          >
-                            {isTextExpanded ? "Show less" : "Read more"}
-                          </Box>
-                        )}
-                      </VStack>
-                    )}
-                    {hasAttachments && message.attachments && (
-                      <MessageAttachments
-                        attachments={message.attachments}
-                        isMine={isMine}
-                      />
-                    )}
-                  </Box>
-                  {!isMine && (
-                    <MessageActionsMenu
-                      isMine={isMine}
-                      showActions={showActions}
-                      isSinglePane={isSinglePane}
-                      onCopy={onCopy}
-                      isCopied={isCopied}
-                      showCopy={showCopy}
-                      profileType={profileType}
-                      onMessageClick={onMessageClick}
-                      onCloseActions={onCloseActions}
-                      onReply={() => onReply(message)}
-                    />
-                  )}
-                </HStack>
-                <Text
-                  mt={1}
-                  flexShrink={0}
-                  whiteSpace="nowrap"
-                  alignSelf={isMine ? "flex-end" : "flex-start"}
-                  fontSize="10px"
-                  color="#52525B"
-                  textAlign={isMine ? "right" : "left"}
-                >
-                  {formatDateTimeToReadable(message.createdAt)}
-                </Text>
-              </VStack>
-              {isMine &&
-                (message.messanger ? (
-                  <ProfileAvatar
-                    src={message.messanger?.profile_picture_url ?? undefined}
-                    alt={message.messanger?.full_name ?? undefined}
-                    fallback={message.messanger?.full_name ?? "U"}
-                    size="28px"
-                  />
-                ) : (
-                  <ProfileAvatar fallback="U" size="28px" />
-                ))}
+                  ) : (
+                    <ProfileAvatar fallback="U" size="28px" />
+                  ))}
+              </HStack>
             </HStack>
-          </HStack>
-        </VStack>
+          </VStack>
+        </Box>
       </Box>
-    </Box>
-    {showSenderProfile && !isMine && message.messanger && senderProfileId && (
-      <FullProfileCard
-        profileId={senderProfileId.toString()}
-        profileType={otherProfileType}
-        isCoordinator={isCoordinatorView}
-        opportunityId={opportunityId?.toString()}
-        onClose={() => setShowSenderProfile(false)}
-      />
-    )}
+      {showSenderProfile && !isMine && message.messanger && senderProfileId && (
+        <FullProfileCard
+          profileId={senderProfileId.toString()}
+          profileType={otherProfileType}
+          isCoordinator={isCoordinatorView}
+          opportunityId={opportunityId?.toString()}
+          onClose={() => setShowSenderProfile(false)}
+        />
+      )}
     </>
   );
 };

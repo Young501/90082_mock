@@ -1,14 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Box,
-  HStack,
-  Text,
-  Badge,
-  IconButton,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, HStack, Text, Badge, IconButton, VStack } from "@chakra-ui/react";
 import { Star, MoreHorizontal } from "lucide-react";
 import { ConversationId, ConversationSummary } from "@/types/messaging";
 import { formatRelativeTime } from "@/utils/formatDate";
@@ -50,18 +43,18 @@ export const ConversationBox = ({
         <ProfileAvatar
           src={
             profileType === "organisation"
-              ? conversation.avatar ?? undefined
-              : conversation.organisationLogo ?? undefined
+              ? (conversation.avatar ?? undefined)
+              : (conversation.organisationLogo ?? undefined)
           }
           alt={
             profileType === "organisation"
               ? conversation.studentTitle
-              : conversation.organisationTitle ?? undefined
+              : (conversation.organisationTitle ?? undefined)
           }
           fallback={
             profileType === "organisation"
               ? conversation.studentTitle
-              : conversation.organisationTitle ?? undefined
+              : (conversation.organisationTitle ?? undefined)
           }
           size="xs"
         />

@@ -38,15 +38,11 @@ export const useProfile = (userType: string) => {
   } = useStudentProfileV2(isStudent);
 
   // V2 organisation data – three separate endpoints
-  const {
-    data: orgUserData,
-    isLoading: isOrgUserLoading,
-  } = useUserMeV2(isOrganisation);
+  const { data: orgUserData, isLoading: isOrgUserLoading } =
+    useUserMeV2(isOrganisation);
 
-  const {
-    data: orgMemberData,
-    isLoading: isOrgMemberLoading,
-  } = useOrganisationMemberMeV2(isOrganisation);
+  const { data: orgMemberData, isLoading: isOrgMemberLoading } =
+    useOrganisationMemberMeV2(isOrganisation);
 
   const {
     data: orgProfileData,
@@ -109,14 +105,14 @@ export const useProfile = (userType: string) => {
   const mergedProfile = isStudent
     ? mergedStudentProfile
     : isOrganisation
-    ? mergedOrgProfile
-    : null;
+      ? mergedOrgProfile
+      : null;
 
   const userProfileForStore = isStudent
     ? mergedStudentProfile
     : isOrganisation
-    ? mergedOrgProfile
-    : null;
+      ? mergedOrgProfile
+      : null;
 
   useEffect(() => {
     if (userProfileForStore) {
@@ -138,10 +134,7 @@ export const useProfile = (userType: string) => {
         router.push("/onboarding/");
         return;
       }
-      if (
-        isStudentError &&
-        (studentError as any)?.response?.status !== 404
-      ) {
+      if (isStudentError && (studentError as any)?.response?.status !== 404) {
         toast.error("Error loading profile");
       }
       return;
@@ -162,8 +155,8 @@ export const useProfile = (userType: string) => {
   const isLoading = isStudent
     ? isStudentProfileLoading
     : isOrganisation
-    ? isOrgUserLoading || isOrgMemberLoading || isOrgProfileLoading
-    : false;
+      ? isOrgUserLoading || isOrgMemberLoading || isOrgProfileLoading
+      : false;
 
   const university = useMemo(() => {
     if (!isStudent || !studentData) return null;
@@ -182,8 +175,16 @@ export const useProfile = (userType: string) => {
     userProfile: userProfileForStore,
     mergedProfile,
     isLoading,
-    isError: isStudent ? isStudentError : isOrganisation ? isOrgProfileError : false,
-    error: isStudent ? studentError : isOrganisation ? orgProfileError : undefined,
+    isError: isStudent
+      ? isStudentError
+      : isOrganisation
+        ? isOrgProfileError
+        : false,
+    error: isStudent
+      ? studentError
+      : isOrganisation
+        ? orgProfileError
+        : undefined,
     handleOnboardingRedirect,
     pages,
     university,

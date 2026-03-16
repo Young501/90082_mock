@@ -7,8 +7,9 @@ import {
   OrganisationSentInvite,
 } from "@/types/shared";
 
-
-export async function checkOrganisationInvite<T = OrganisationInvite>(): Promise<T | null> {
+export async function checkOrganisationInvite<
+  T = OrganisationInvite,
+>(): Promise<T | null> {
   const response = await apiClient.request({
     method: "get",
     url: API_ENDPOINTS.ORGANISATION_INVITE.url,
@@ -75,9 +76,13 @@ export function useOrganisationMemberUpdateV2() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["organisation-member-me-v2"] });
+      queryClient.invalidateQueries({
+        queryKey: ["organisation-member-me-v2"],
+      });
       queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
-      queryClient.invalidateQueries({ queryKey: ["user-profile", "organisation"] });
+      queryClient.invalidateQueries({
+        queryKey: ["user-profile", "organisation"],
+      });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
@@ -94,7 +99,9 @@ export function useOrganisationProfileCreateV2() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
-      queryClient.invalidateQueries({ queryKey: ["user-profile", "organisation"] });
+      queryClient.invalidateQueries({
+        queryKey: ["user-profile", "organisation"],
+      });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
@@ -111,7 +118,9 @@ export function useOrganisationProfileUpdateV2() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
-      queryClient.invalidateQueries({ queryKey: ["user-profile", "organisation"] });
+      queryClient.invalidateQueries({
+        queryKey: ["user-profile", "organisation"],
+      });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
@@ -130,7 +139,9 @@ export function useOrganisationLogoUploadV2() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
-      queryClient.invalidateQueries({ queryKey: ["user-profile", "organisation"] });
+      queryClient.invalidateQueries({
+        queryKey: ["user-profile", "organisation"],
+      });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
@@ -186,7 +197,9 @@ export function useOrganisationInviteAccept() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["organisation-invite"] });
-      queryClient.invalidateQueries({ queryKey: ["organisation-member-me-v2"] });
+      queryClient.invalidateQueries({
+        queryKey: ["organisation-member-me-v2"],
+      });
       queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
     },
   });
@@ -202,7 +215,9 @@ export function useOrganisationInviteDecline() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["organisation-invite"] });
-      queryClient.invalidateQueries({ queryKey: ["organisation-member-me-v2"] });
+      queryClient.invalidateQueries({
+        queryKey: ["organisation-member-me-v2"],
+      });
       queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
     },
   });
@@ -308,7 +323,9 @@ export function useOrganisationMemberUpdate() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["organisation-members"] });
-      queryClient.invalidateQueries({ queryKey: ["organisation-member-me-v2"] });
+      queryClient.invalidateQueries({
+        queryKey: ["organisation-member-me-v2"],
+      });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });
@@ -324,7 +341,9 @@ export function useOrganisationMemberRemove() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["organisation-members"] });
-      queryClient.invalidateQueries({ queryKey: ["organisation-member-me-v2"] });
+      queryClient.invalidateQueries({
+        queryKey: ["organisation-member-me-v2"],
+      });
       queryClient.invalidateQueries({ queryKey: ["homepage"] });
     },
   });

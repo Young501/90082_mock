@@ -115,7 +115,11 @@ export const OpportunityDescriptionCard = ({
                 <HStack gap={2} align="center" flexWrap="no-wrap">
                   <Text
                     fontSize={{ base: "xs", md: "md" }}
-                    color={userType === "organisation" ? PROFILE_COLORS.organisation : "#1679AB"}
+                    color={
+                      userType === "organisation"
+                        ? PROFILE_COLORS.organisation
+                        : "#1679AB"
+                    }
                     fontWeight="500"
                   >
                     {visibilityDisplay} Opportunity
@@ -153,11 +157,14 @@ export const OpportunityDescriptionCard = ({
                 {isEnrolled ? "Enrolled" : "Pending Enrollment"}
               </Badge>
               {isEnrolled && (
-                <MenuPopover placement="bottom-end" trigger={
-                  <IconButton aria-label="More options" variant="ghost">
-                    <IconMoreEllipsis color="#52525B" />
-                  </IconButton>
-                }>
+                <MenuPopover
+                  placement="bottom-end"
+                  trigger={
+                    <IconButton aria-label="More options" variant="ghost">
+                      <IconMoreEllipsis color="#52525B" />
+                    </IconButton>
+                  }
+                >
                   {enrollment.hasQuestionnaire && (
                     <Box
                       as="button"

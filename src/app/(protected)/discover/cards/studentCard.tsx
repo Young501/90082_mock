@@ -73,7 +73,6 @@ export function StudentCard({
   const [addedToFolder, setAddedToFolder] = useState(false);
   const { userProfile } = useAuthStore();
 
-
   const getDisplayName = () => {
     const firstName = student.first_name || "";
     const lastName = student.last_name || "";

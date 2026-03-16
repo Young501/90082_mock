@@ -266,7 +266,7 @@ export const API_ENDPOINTS = {
     method: "DELETE",
     url: `/api/v1/${userType}/upload-logo`,
   }),
- 
+
   STUDENT_CARD_V2: (studentId: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v2/ui/student/${studentId}/card/`,
@@ -468,5 +468,3 @@ export async function apiRequest<T = any>({
   const response = await apiClient.request(config);
   return response.data;
 }
-
-

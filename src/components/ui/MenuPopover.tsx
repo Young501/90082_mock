@@ -1,13 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  Box,
-  VStack,
-  Text,
-  Portal,
-  Popover,
-} from "@chakra-ui/react";
+import { Box, VStack, Text, Portal, Popover } from "@chakra-ui/react";
 
 export type MenuPopoverPlacement =
   | "top"
@@ -112,7 +106,8 @@ export function MenuPopover({
   const popoverProps = isControlled
     ? {
         open: open ?? false,
-        onOpenChange: (details: { open: boolean }) => onOpenChange(details.open),
+        onOpenChange: (details: { open: boolean }) =>
+          onOpenChange(details.open),
       }
     : {};
 
