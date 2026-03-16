@@ -20,12 +20,15 @@ export interface DiscoveryFolderItem {
   id: string;
   name: string;
   count: number;
+  description?: string;
 }
 
 export interface DiscoveryFolderCardProps {
   folders?: DiscoveryFolderItem[];
   isLoading?: boolean;
   inDrawer?: boolean;
+  selectedFolderId?: string | null;
+  onClearFolder?: () => void;
   onCreateNewFolder?: () => void;
   onFolderClick?: (folder: DiscoveryFolderItem) => void;
   onClose?: () => void;
@@ -35,6 +38,8 @@ export default function DiscoveryFolderCard({
   folders = [],
   isLoading = false,
   inDrawer = false,
+  selectedFolderId = null,
+  onClearFolder,
   onCreateNewFolder,
   onFolderClick,
   onClose,
@@ -96,6 +101,26 @@ export default function DiscoveryFolderCard({
           </VStack>
         )}
 
+        {selectedFolderId && onClearFolder && (
+          <Button
+            variant="outline"
+            w="full"
+            justifyContent="center"
+            gap={2}
+            py={2}
+            borderRadius="xl"
+            borderColor="#E4E4E7"
+            borderWidth="1px"
+            bg="white"
+            color="#52525B"
+            fontWeight="normal"
+            fontSize="sm"
+            onClick={onClearFolder}
+          >
+            View all participants
+          </Button>
+        )}
+
         {/* Create New Folder button */}
         <Button
           variant="outline"
@@ -130,7 +155,9 @@ export default function DiscoveryFolderCard({
                 py={3}
                 px={3}
                 borderRadius="8px"
-                bg="#F8F8F8"
+                bg={selectedFolderId === folder.id ? "#E9F7F6" : "#F8F8F8"}
+                borderWidth={selectedFolderId === folder.id ? "1px" : 0}
+                borderColor={selectedFolderId === folder.id ? "profile.500" : "transparent"}
                 cursor={onFolderClick ? "pointer" : "default"}
                 _hover={onFolderClick ? { bg: "#F0F0F0" } : undefined}
                 onClick={() => onFolderClick?.(folder)}

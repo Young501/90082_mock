@@ -171,6 +171,7 @@ export function useRemoveMemberFromFolder() {
         queryKey: ["folder", variables.folderId],
       });
       queryClient.invalidateQueries({ queryKey: ["folders"] });
+      queryClient.invalidateQueries({ queryKey: ["opportunity"] });
     },
   });
 }

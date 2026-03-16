@@ -32,12 +32,19 @@ import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 import { useHandleEnroll } from "@/hooks/useHandleEnroll";
 import { AccessInfo } from "@/types/opportunities";
 import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
-import { useFolders } from "@/services/folder";
+import {
+  useFolders,
+  useFolderDetail,
+  useDeleteFolder,
+} from "@/services/folder";
 import { OpportunityDescriptionCard } from "./cards/OpportunityDescriptionCard";
 import { OpportunityNotEnrolledCard } from "./cards/OpportunityNotEnrolledCard";
 import DiscoveryFolderCard from "./DiscoveryFolderCard";
 import { CreateFolderModal } from "./CreateFolderModal";
 import type { DiscoveryFolderItem } from "./DiscoveryFolderCard";
+import { useFolderModal } from "@/hooks/useFolder";
+import { FolderModal } from "@/app/(protected)/folders/modals/FolderModal";
+import { DeleteModal } from "@/app/(protected)/folders/modals/DeleteModal";
 import { IconFolder, IconArrowRight } from "@/components/Icons";
 import { FilterButton } from "@/components/ui/FilterButton";
 
@@ -45,6 +52,7 @@ export default function DiscoveryPage() {
   const sp = useSearchParams();
   const router = useRouter();
   const opportunitySlug = sp.get("opp") || undefined;
+  const folderIdFromUrl = sp.get("folder") || null;
 
   const { user } = useAuthStore();
   const [isUserEligible, setIsUserEligible] = useState<boolean | null>(null);
@@ -76,6 +84,18 @@ export default function DiscoveryPage() {
   const [createFolderModalOpen, setCreateFolderModalOpen] = useState(false);
   const [folderSheetOpen, setFolderSheetOpen] = useState(false);
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const [deleteFolderModalOpen, setDeleteFolderModalOpen] = useState(false);
+  const [folderToDelete, setFolderToDelete] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+
+  const folderModal = useFolderModal(opportunitySlug || "");
+  const deleteFolder = useDeleteFolder();
+
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(
+    folderIdFromUrl
+  );
 
   const { data: foldersData, isLoading: isLoadingFolders } = useFolders(
     opportunitySlug,
@@ -87,16 +107,59 @@ export default function DiscoveryPage() {
         id: String(f.id),
         name: f.name,
         count: f.member_count,
+        description: f.description ?? undefined,
       })),
     [foldersData]
   );
+
+  const { data: selectedFolderDetail } = useFolderDetail(selectedFolderId ?? undefined);
+
   const handleFolderClick = useCallback(
     (folder: DiscoveryFolderItem) => {
-      const oppParam = opportunitySlug ? `&opp=${opportunitySlug}` : "";
-      router.push(`/folders/?id=${folder.id}${oppParam}`);
+      setSelectedFolderId(folder.id);
+      setFolderSheetOpen(false);
+      if (opportunitySlug && typeof window !== "undefined") {
+        router.replace(`/discover/?opp=${opportunitySlug}&folder=${folder.id}`, {
+          scroll: false,
+        });
+      }
     },
     [opportunitySlug, router]
   );
+
+  const handleClearFolder = useCallback(() => {
+    setSelectedFolderId(null);
+    if (opportunitySlug && typeof window !== "undefined") {
+      router.replace(`/discover/?opp=${opportunitySlug}`, { scroll: false });
+    }
+  }, [opportunitySlug, router]);
+
+  useEffect(() => {
+    setSelectedFolderId(folderIdFromUrl);
+  }, [folderIdFromUrl]);
+
+  const handleRenameFolder = useCallback(
+    (folder: { id: number; name: string; description: string | null }) => {
+      if (selectedFolderDetail && selectedFolderDetail.id === folder.id) {
+        folderModal.onOpen(selectedFolderDetail);
+      }
+    },
+    [selectedFolderDetail, folderModal]
+  );
+
+  const handleConfirmDeleteFolder = useCallback(async () => {
+    if (!folderToDelete) return;
+    try {
+      await deleteFolder.mutateAsync(folderToDelete.id.toString());
+      toast.success("Folder deleted successfully");
+      setSelectedFolderId(null);
+      setDeleteFolderModalOpen(false);
+      setFolderToDelete(null);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { detail?: string } } };
+      toast.error(err.response?.data?.detail || "Failed to delete folder");
+    }
+  }, [folderToDelete, deleteFolder]);
 
   useEffect(() => {
     if (!opportunity || !user?.email || isUserEligible !== null) return;
@@ -165,6 +228,7 @@ export default function DiscoveryPage() {
   } = useOpportunityFilter(opportunityId?.toString() || "", {
     isEnrolled,
     isEnrollmentReady,
+    folderId: selectedFolderId ? parseInt(selectedFolderId, 10) : null,
   });
 
   useEffect(() => {
@@ -301,8 +365,10 @@ export default function DiscoveryPage() {
                   <DiscoveryFolderCard
                     folders={discoveryFolders}
                     isLoading={isLoadingFolders}
+                    selectedFolderId={selectedFolderId}
                     onCreateNewFolder={() => setCreateFolderModalOpen(true)}
                     onFolderClick={handleFolderClick}
+                    onClearFolder={selectedFolderId ? handleClearFolder : undefined}
                   />
                 </Box>
 
@@ -368,6 +434,8 @@ export default function DiscoveryPage() {
                         inDrawer
                         folders={discoveryFolders}
                         isLoading={isLoadingFolders}
+                        selectedFolderId={selectedFolderId}
+                        onClearFolder={selectedFolderId ? handleClearFolder : undefined}
                         onCreateNewFolder={() => {
                           setFolderSheetOpen(false);
                           setCreateFolderModalOpen(true);
@@ -427,6 +495,28 @@ export default function DiscoveryPage() {
                   />
                 )}
 
+                {opportunitySlug && (
+                  <FolderModal
+                    isOpen={folderModal.isOpen}
+                    onClose={folderModal.onClose}
+                    onSubmit={folderModal.handleSubmit}
+                    register={folderModal.register}
+                    errors={folderModal.errors}
+                    isLoading={folderModal.isLoading}
+                    folder={folderModal.currentFolder}
+                  />
+                )}
+
+                <DeleteModal
+                  isOpen={deleteFolderModalOpen}
+                  onClose={() => {
+                    setDeleteFolderModalOpen(false);
+                    setFolderToDelete(null);
+                  }}
+                  onDelete={handleConfirmDeleteFolder}
+                  InFolder={false}
+                />
+
                 <DiscoveryResultBox
                   results={searchResults}
                   isLoading={isLoadingSearch}
@@ -451,6 +541,27 @@ export default function DiscoveryPage() {
                   }}
                   opportunityId={opportunityId?.toString() || ""}
                   opportunitySlug={opportunitySlug}
+                  folder={
+                    selectedFolderDetail && selectedFolderId
+                      ? {
+                          id: parseInt(selectedFolderId, 10),
+                          name: selectedFolderDetail.name,
+                          description: selectedFolderDetail.description,
+                          member_count: selectedFolderDetail.member_count,
+                        }
+                      : undefined
+                  }
+                  onRenameFolder={
+                    selectedFolderDetail ? handleRenameFolder : undefined
+                  }
+                  onDeleteFolder={
+                    selectedFolderId
+                      ? (f) => {
+                          setFolderToDelete(f);
+                          setDeleteFolderModalOpen(true);
+                        }
+                      : undefined
+                  }
                 />
               </Box>
             </Box>

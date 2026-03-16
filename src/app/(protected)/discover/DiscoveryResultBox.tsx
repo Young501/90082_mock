@@ -6,7 +6,9 @@ import {
   Heading,
   Text,
   SimpleGrid,
+  IconButton,
 } from "@chakra-ui/react";
+import { MenuPopover } from "@/components/ui/MenuPopover";
 import { UserProfile } from "@/types/shared";
 import { StudentCard, OrganisationCard } from "./cards";
 import { PaginationControlsV2 } from "@/components/ui/PaginationControlsV2";
@@ -14,6 +16,9 @@ import Loader from "@/components/ui/Loader";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { SortComponent } from "@/components/SortComponent";
 import type { OpportunitySortBy } from "@/types/opportunity";
+import IconMoreEllipsis from "@/components/Icons/IconMoreEllipsis";
+import { useRemoveMemberFromFolder } from "@/services/folder";
+import { toast } from "react-toastify";
 export interface DiscoveryPaginationProps {
   currentPage: number;
   totalPages: number;
@@ -25,6 +30,13 @@ export interface DiscoveryPaginationProps {
   onPageSizeChange?: (pageSize: number) => void;
 }
 
+interface DiscoveryFolderInfo {
+  id: number;
+  name: string;
+  description: string | null;
+  member_count: number;
+}
+
 interface DiscoveryResultBoxProps {
   results: UserProfile[];
   isLoading: boolean;
@@ -33,6 +45,10 @@ interface DiscoveryResultBoxProps {
   userType: string;
   opportunityId?: string;
   opportunitySlug?: string;
+  folder?: DiscoveryFolderInfo;
+  onRenameFolder?: (folder: DiscoveryFolderInfo) => void;
+  onDeleteFolder?: (folder: DiscoveryFolderInfo) => void;
+  onFolderUpdate?: () => void;
   pagination?: DiscoveryPaginationProps;
   query?: string;
   onQueryChange?: (query: string) => void;
@@ -49,13 +65,15 @@ export function DiscoveryResultBox({
   pagination,
   opportunityId,
   opportunitySlug,
+  folder,
+  onRenameFolder,
+  onDeleteFolder,
   query,
   onQueryChange,
   sortBy,
   onSortChange,
 }: DiscoveryResultBoxProps) {
-  // if (!show) return null;
-
+  const removeMemberFromFolder = useRemoveMemberFromFolder();
   const count = pagination?.count ?? 0;
 
   // Keep previous results visible while loading so card DOM nodes (and their
@@ -93,12 +111,78 @@ export function DiscoveryResultBox({
       // h={{ base: "100%", lg: "calc(100vh - 355px)" }}
     >
       <VStack align="stretch" gap={3}>
-        <HStack justify="space-between" align="center">
-          <Heading size="xl">
-            {userType === "student"
-              ? "Available Students "
-              : "Available Organisations"}
-          </Heading>
+        <HStack justify="space-between" align="center" w="full">
+          {folder ? (
+            <VStack align="flex-start" gap={0} flex={1} minW={0}>
+              <HStack gap={2} align="center" w="full" justify="space-between">
+                <Heading size="xl">{folder.name}</Heading>
+                {(onRenameFolder || onDeleteFolder) && (
+                  <MenuPopover
+                    placement="bottom-end"
+                    trigger={
+                      <IconButton
+                        aria-label="Folder options"
+                        variant="ghost"
+                        size="sm"
+                      >
+                        <IconMoreEllipsis color="#52525B" />
+                      </IconButton>
+                    }
+                  >
+                    {onRenameFolder && (
+                      <Box
+                        as="button"
+                        w="full"
+                        textAlign="left"
+                        px={3}
+                        py={2}
+                        fontSize="sm"
+                        color="#374151"
+                        borderRadius="md"
+                        _hover={{ bg: "#F3F4F6" }}
+                        onClick={() => onRenameFolder(folder)}
+                      >
+                        Rename
+                      </Box>
+                    )}
+                    {onDeleteFolder && (
+                      <Box
+                        as="button"
+                        w="full"
+                        textAlign="left"
+                        px={3}
+                        py={2}
+                        fontSize="sm"
+                        color="#DC2626"
+                        borderRadius="md"
+                        _hover={{ bg: "#FEF2F2" }}
+                        onClick={() => onDeleteFolder(folder)}
+                      >
+                        Delete folder
+                      </Box>
+                    )}
+                  </MenuPopover>
+                )}
+              </HStack>
+              {/* {folder.description && (
+                <Text fontSize="sm" color="#52525B" lineClamp={2}>
+                  {folder.description}
+                </Text>
+              )} */}
+              <Text fontSize="sm" color="#71717A">
+                {" "}
+                You have
+                {folder.member_count}{" "}
+                {userType === "student" ? "students" : "organisations"}
+              </Text>
+            </VStack>
+          ) : (
+            <Heading size="xl">
+              {userType === "student"
+                ? "Available Students "
+                : "Available Organisations"}
+            </Heading>
+          )}
         </HStack>
 
         <Box w="100%" maxW="679px">
@@ -182,6 +266,30 @@ export function DiscoveryResultBox({
             >
               {displayedResults.map((user) => {
                 const key = user.id;
+                const folderMemberId = (user as { folder_member_id?: number })
+                  .folder_member_id;
+                const isInFolder = !!folder && !!folderMemberId;
+                const onRemoveFromFolder =
+                  folder && folderMemberId
+                    ? () => {
+                        removeMemberFromFolder.mutate(
+                          {
+                            folderId: folder.id.toString(),
+                            memberId: folderMemberId,
+                          },
+                          {
+                            onSuccess: () =>
+                              toast.success(
+                                "Member removed from folder successfully"
+                              ),
+                            onError: () =>
+                              toast.error(
+                                "Failed to remove member from folder"
+                              ),
+                          }
+                        );
+                      }
+                    : undefined;
 
                 return userType === "student" ? (
                   <StudentCard
@@ -191,6 +299,8 @@ export function DiscoveryResultBox({
                     profilePictureUrl={user.profile_picture_url || null}
                     opportunityId={opportunityId}
                     opportunitySlug={opportunitySlug}
+                    isInFolder={isInFolder}
+                    onRemoveFromFolder={onRemoveFromFolder}
                   />
                 ) : (
                   <OrganisationCard
@@ -198,6 +308,8 @@ export function DiscoveryResultBox({
                     organisation={user}
                     opportunityId={opportunityId}
                     opportunitySlug={opportunitySlug}
+                    isInFolder={isInFolder}
+                    onRemoveFromFolder={onRemoveFromFolder}
                   />
                 );
               })}
