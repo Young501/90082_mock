@@ -83,12 +83,12 @@ const Folder = () => {
 
   const handleFolderClick = (folderId: number) => {
     const oppParam = opportunitySlug ? `&opp=${opportunitySlug}` : "";
-    router.push(`/folders?id=${folderId}${oppParam}`);
+    router.push(`/folders/?id=${folderId}${oppParam}`);
   };
 
   const handleBackToFolders = () => {
     const oppParam = opportunitySlug ? `?opp=${opportunitySlug}` : "";
-    router.push(`/folders${oppParam}`);
+    router.push(`/folders/${oppParam}`);
   };
 
   const handleRemoveFromFolder = async (memberId: string) => {
@@ -172,7 +172,7 @@ const Folder = () => {
                   <Text fontSize="16px" color="#666">
                     Add members from the{" "}
                     <Link
-                      href={`/discover${opportunitySlug ? `?opp=${opportunitySlug}` : ""}`}
+                      href={`/discover/${opportunitySlug ? `?opp=${opportunitySlug}` : ""}`}
                       passHref
                     >
                       <Text
@@ -356,7 +356,7 @@ const Folder = () => {
               Please access folders from the Discover page for a specific
               opportunity.
             </Text>
-            <Link href="/discover" passHref>
+            <Link href="/discover/" passHref>
               <Button
                 bg="#2CA9DF"
                 color="white"

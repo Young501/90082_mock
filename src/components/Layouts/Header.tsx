@@ -120,7 +120,7 @@ const Header = ({
     await handleLogout();
     logout();
     setIsMobileMenuOpen(false);
-    router.push("/login");
+    router.push("/login/");
   };
 
   const handleMenuToggle = () => {

@@ -88,15 +88,15 @@ export default function OpportunityReviewPage() {
   );
 
   const handleBack = () => {
-    router.push(`/opportunities/fill?opp=${opportunitySlug}`);
+    router.push(`/opportunities/fill/?opp=${opportunitySlug}`);
   };
 
   const handleEdit = (fieldName: string) => {
-    router.push(`/opportunities/fill?opp=${opportunitySlug}&edit=${fieldName}`);
+    router.push(`/opportunities/fill/?opp=${opportunitySlug}&edit=${fieldName}`);
   };
 
   const goToOpportunity = useCallback(() => {
-    router.push(`/discover?opp=${opportunitySlug}`);
+    router.push(`/discover/?opp=${opportunitySlug}`);
   }, [router, opportunitySlug]);
 
   useEffect(() => {
@@ -142,7 +142,7 @@ export default function OpportunityReviewPage() {
 
       const status = getErrorStatus(error);
       if (status === 401) {
-        router.push("/login");
+        router.push("/login/");
         return;
       }
 

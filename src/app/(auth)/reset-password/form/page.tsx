@@ -50,7 +50,7 @@ function ResetPasswordFormContent() {
     const tokenParam = searchParams.get("token");
     if (!tokenParam) {
       router.push(
-        "/reset-password/failed?message=" +
+        "/reset-password/failed/?message=" +
           encodeURIComponent(
             "No reset token found. Please check your email link."
           )
@@ -69,7 +69,7 @@ function ResetPasswordFormContent() {
         new_password: data.new_password,
         confirm_password: data.confirm_password,
         callback: () => {
-          router.push("/reset-password/success");
+          router.push("/reset-password/success/");
         },
       });
     } catch (error: any) {
@@ -77,7 +77,7 @@ function ResetPasswordFormContent() {
         error?.response?.data?.detail ||
         "Failed to reset password. Please try again.";
       router.push(
-        "/reset-password/failed?message=" + encodeURIComponent(errorMessage)
+        "/reset-password/failed/?message=" + encodeURIComponent(errorMessage)
       );
     }
   };

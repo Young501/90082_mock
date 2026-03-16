@@ -106,14 +106,14 @@ function OpportunityFillContent() {
   }, [editField, allQuestions]);
 
   const handleBack = () => {
-    router.push(`/discover?opp=${opportunitySlug}`);
+    router.push(`/discover/?opp=${opportunitySlug}`);
   };
 
   const handleNext = async () => {
     if (questionnaireRef.current) {
       const isValid = await questionnaireRef.current.validate();
       if (isValid) {
-        router.push(`/opportunities/review?opp=${opportunitySlug}`);
+        router.push(`/opportunities/review/?opp=${opportunitySlug}`);
       } else {
         setHasValidationError(true);
       }

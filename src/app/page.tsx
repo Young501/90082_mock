@@ -12,9 +12,9 @@ export default function Home() {
     if (isAuthenticated && token && user) {
       const userType = user.user_types?.[0];
       if (userType === "coordinator") {
-        router.push("/dashboard");
+        router.push("/dashboard/");
       } else {
-        router.push("/home");
+        router.push("/home/");
       }
     } else {
       router.push("/user-type/");

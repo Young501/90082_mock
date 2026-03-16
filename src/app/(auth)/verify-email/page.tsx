@@ -32,7 +32,7 @@ function VerifyEmailContent() {
       const message =
         "No verification token found. Please check your email link.";
       router.push(
-        `/verify-email/failed?message=${encodeURIComponent(message)}/`
+        `/verify-email/failed/?message=${encodeURIComponent(message)}`
       );
       return;
     }
@@ -49,7 +49,7 @@ function VerifyEmailContent() {
         "Network error. Please check your connection and try again.";
 
       router.push(
-        `/verify-email/failed?message=${encodeURIComponent(errorMessage)}/`
+        `/verify-email/failed/?message=${encodeURIComponent(errorMessage)}`
       );
     }
   }, [hasVerified, searchParams, router, emailVerificationMutation]);

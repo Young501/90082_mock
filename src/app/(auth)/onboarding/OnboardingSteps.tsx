@@ -971,7 +971,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
           studentProfileUpdateV2,
           setProfilePic
         );
-        router.push("/onboarding/success");
+        router.push("/onboarding/success/");
         return;
       }
 
@@ -1018,11 +1018,11 @@ export const OnboardingSteps = ({ userType }: Props) => {
           new Promise<void>((resolve) => setTimeout(resolve, MIN_DISPLAY_MS)),
         ]);
 
-        router.push("/onboarding/success");
+        router.push("/onboarding/success/");
         return;
       }
 
-      router.push("/onboarding/success");
+      router.push("/onboarding/success/");
     } catch (error: any) {
       setIsOrgSubmitting(false);
       console.error(error);

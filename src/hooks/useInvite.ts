@@ -49,7 +49,7 @@ export const useAcceptInvite = () => {
         }),
       ]);
       setTimeout(() => {
-        router.push("/discover");
+        router.push("/discover/");
       }, 3000);
     },
   });

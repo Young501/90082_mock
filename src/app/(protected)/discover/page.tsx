@@ -93,7 +93,7 @@ export default function DiscoveryPage() {
   const handleFolderClick = useCallback(
     (folder: DiscoveryFolderItem) => {
       const oppParam = opportunitySlug ? `&opp=${opportunitySlug}` : "";
-      router.push(`/folders?id=${folder.id}${oppParam}`);
+      router.push(`/folders/?id=${folder.id}${oppParam}`);
     },
     [opportunitySlug, router]
   );
@@ -128,7 +128,7 @@ export default function DiscoveryPage() {
       const minOpportunity = accessibleOpportunities.reduce((min, current) =>
         current.id < min.id ? current : min
       );
-      router.replace(`/discover?opp=${minOpportunity.slug}`);
+      router.replace(`/discover/?opp=${minOpportunity.slug}`);
     }
   }, [
     opportunitySlug,
