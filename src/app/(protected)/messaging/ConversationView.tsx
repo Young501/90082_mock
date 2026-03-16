@@ -228,6 +228,7 @@ export const ConversationView = ({
                   showActions={showActions}
                   isSinglePane={isSinglePane}
                   numericUserId={numericUserId}
+                  opportunityId={conversation?.opportunityId}
                   onHoverIn={handleHoverIn}
                   onHoverOut={handleHoverOut}
                   onMessageClick={handleMessageClick}

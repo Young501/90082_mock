@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Box, HStack, VStack, Text, IconButton, Tag } from "@chakra-ui/react";
 import { MenuPopover } from "@/components/ui/MenuPopover";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
+import { FullProfileCard } from "@/app/(protected)/discover/cards/FullProfileCard";
 import { ConversationId, ConversationSummary } from "@/types/messaging";
 import { ChevronLeft, EllipsisVertical, Search } from "lucide-react";
 
@@ -22,6 +23,14 @@ export const ConversationHeader = ({
   onBackToList,
   onToggleArchive,
 }: ConversationHeaderProps) => {
+  const [showProfile, setShowProfile] = useState(false);
+  const otherProfileType = profileType === "organisation" ? "student" : "organisation";
+  const isCoordinatorView = profileType === "coordinator";
+  const otherProfileId =
+    otherProfileType === "organisation"
+      ? conversation?.otherOrganisationId
+      : conversation?.otherUserId;
+
   return (
     <HStack
       px={{ base: 3, md: 4 }}
@@ -43,79 +52,67 @@ export const ConversationHeader = ({
           <ChevronLeft size={20} />
         </IconButton>
       )}
-      <MenuPopover
-        variant="profile"
-        placement="bottom-start"
-        profile={
-          profileType === "organisation"
-            ? {
-                name: conversation?.studentTitle ?? "",
-                avatarUrl: conversation?.avatar,
-                subtitle: conversation?.studentSubtitle || undefined,
-              }
-            : {
-                name: conversation?.organisationTitle ?? "",
-                avatarUrl: conversation?.organisationLogo,
-                subtitle:
-                  [
-                    conversation?.organisationMemberName,
-                    conversation?.opportunityTitle,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ") || undefined,
-              }
-        }
-        trigger={
+      <Box
+        cursor={otherProfileId ? "pointer" : "default"}
+        onClick={() => {
+          if (otherProfileId) setShowProfile(true);
+        }}
+        borderRadius="full"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        fontWeight="semibold"
+        flexShrink={0}
+        position="relative"
+        w="fit-content"
+      >
+        <ProfileAvatar
+          src={
+            profileType === "organisation"
+              ? (conversation?.avatar ?? undefined)
+              : (conversation?.organisationLogo ?? undefined)
+          }
+          alt={
+            profileType === "organisation"
+              ? conversation?.studentTitle
+              : (conversation?.organisationTitle ?? undefined)
+          }
+          fallback={
+            profileType === "organisation"
+              ? conversation?.studentTitle
+              : (conversation?.organisationTitle ?? undefined)
+          }
+          size="md"
+        />
+        {profileType !== "organisation" && (
           <Box
-            borderRadius="full"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            fontWeight="semibold"
-            flexShrink={0}
-            position="relative"
-            w="fit-content"
+            position="absolute"
+            right={-1}
+            bottom={-1}
+            borderRadius="6px"
+            overflow="hidden"
+            boxShadow="0 0 0 2px white"
           >
             <ProfileAvatar
-              src={
-                profileType === "organisation"
-                  ? (conversation?.avatar ?? undefined)
-                  : (conversation?.organisationLogo ?? undefined)
-              }
-              alt={
-                profileType === "organisation"
-                  ? conversation?.studentTitle
-                  : (conversation?.organisationTitle ?? undefined)
-              }
-              fallback={
-                profileType === "organisation"
-                  ? conversation?.studentTitle
-                  : (conversation?.organisationTitle ?? undefined)
-              }
-              size="md"
+              src={conversation?.avatar ?? undefined}
+              alt={conversation?.organisationMemberName ?? undefined}
+              fallback={conversation?.organisationMemberName ?? undefined}
+              size="20px"
+              fallbackFontSize="2xs"
+              borderRadius="6px"
             />
-            {profileType !== "organisation" && (
-              <Box
-                position="absolute"
-                right={-1}
-                bottom={-1}
-                borderRadius="6px"
-                overflow="hidden"
-                boxShadow="0 0 0 2px white"
-              >
-                <ProfileAvatar
-                  src={conversation?.avatar ?? undefined}
-                  alt={conversation?.organisationMemberName ?? undefined}
-                  fallback={conversation?.organisationMemberName ?? undefined}
-                  size="20px"
-                  fallbackFontSize="2xs"
-                  borderRadius="6px"
-                />
-              </Box>
-            )}
           </Box>
-        }
-      />
+        )}
+      </Box>
+      {showProfile && otherProfileId && (
+        <FullProfileCard
+          profileId={otherProfileId.toString()}
+          profileType={otherProfileType}
+          isCoordinator={isCoordinatorView}
+          opportunityId={conversation.opportunityId?.toString()}
+          onClose={() => setShowProfile(false)}
+        />
+      )}
       <VStack align="flex-start" gap={0} flex={1} minW={0}>
         <Text fontWeight="semibold" color="black" fontSize="sm" truncate>
           {profileType === "organisation"

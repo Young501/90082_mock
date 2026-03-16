@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Box, HStack, VStack, Text, IconButton } from "@chakra-ui/react";
 import { MenuPopover } from "@/components/ui/MenuPopover";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
+import { FullProfileCard } from "@/app/(protected)/discover/cards/FullProfileCard";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Message, MessageAttachment } from "@/types/messaging";
@@ -44,6 +45,7 @@ export interface MessageBoxProps {
   showActions: boolean;
   isSinglePane: boolean | undefined;
   numericUserId: number | undefined;
+  opportunityId?: number | null;
   onHoverIn: () => void;
   onHoverOut: () => void;
   onMessageClick: () => void;
@@ -62,6 +64,7 @@ export const MessageBox = ({
   showActions,
   isSinglePane,
   numericUserId,
+  opportunityId,
   onHoverIn,
   onHoverOut,
   onMessageClick,
@@ -87,6 +90,15 @@ export const MessageBox = ({
   );
 
   const [isTextExpanded, setIsTextExpanded] = useState(false);
+  const [showSenderProfile, setShowSenderProfile] = useState(false);
+
+  const otherProfileType =
+    profileType === "organisation" ? "student" : "organisation";
+  const isCoordinatorView = profileType === "coordinator";
+  const senderProfileId =
+    otherProfileType === "organisation"
+      ? message.messanger?.organisation_id
+      : message.messanger?.id;
   const TRUNCATE_LENGTH = 180;
   const text = message.text ?? "";
   const shouldTruncate = text.length > TRUNCATE_LENGTH;
@@ -96,6 +108,7 @@ export const MessageBox = ({
       : text;
 
   return (
+    <>
     <Box
       key={message.id}
       ref={messageRef}
@@ -119,27 +132,22 @@ export const MessageBox = ({
             <HStack gap={3} align="flex-start">
               {!isMine &&
                 (message.messanger ? (
-                  <MenuPopover
-                    variant="profile"
-                    placement="right-start"
-                    avatarSize="sm"
-                    profile={{
-                      name: message.messanger.full_name ?? "",
-                      avatarUrl: message.messanger.profile_picture_url,
-                      subtitle:
-                        message.messanger.organisation_name ?? undefined,
+                  <Box
+                    cursor="pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowSenderProfile(true);
                     }}
-                    trigger={
-                      <ProfileAvatar
-                        src={
-                          message.messanger?.profile_picture_url ?? undefined
-                        }
-                        alt={message.messanger?.full_name ?? undefined}
-                        fallback={message.messanger?.full_name ?? "U"}
-                        size="28px"
-                      />
-                    }
-                  />
+                  >
+                    <ProfileAvatar
+                      src={
+                        message.messanger?.profile_picture_url ?? undefined
+                      }
+                      alt={message.messanger?.full_name ?? undefined}
+                      fallback={message.messanger?.full_name ?? "U"}
+                      size="28px"
+                    />
+                  </Box>
                 ) : (
                   <ProfileAvatar fallback="U" size="28px" />
                 ))}
@@ -252,26 +260,11 @@ export const MessageBox = ({
               </VStack>
               {isMine &&
                 (message.messanger ? (
-                  <MenuPopover
-                    variant="profile"
-                    placement="left-start"
-                    avatarSize="sm"
-                    profile={{
-                      name: message.messanger.full_name ?? "",
-                      avatarUrl: message.messanger.profile_picture_url,
-                      subtitle:
-                        message.messanger.organisation_name ?? undefined,
-                    }}
-                    trigger={
-                      <ProfileAvatar
-                        src={
-                          message.messanger?.profile_picture_url ?? undefined
-                        }
-                        alt={message.messanger?.full_name ?? undefined}
-                        fallback={message.messanger?.full_name ?? "U"}
-                        size="28px"
-                      />
-                    }
+                  <ProfileAvatar
+                    src={message.messanger?.profile_picture_url ?? undefined}
+                    alt={message.messanger?.full_name ?? undefined}
+                    fallback={message.messanger?.full_name ?? "U"}
+                    size="28px"
                   />
                 ) : (
                   <ProfileAvatar fallback="U" size="28px" />
@@ -281,6 +274,16 @@ export const MessageBox = ({
         </VStack>
       </Box>
     </Box>
+    {showSenderProfile && !isMine && message.messanger && senderProfileId && (
+      <FullProfileCard
+        profileId={senderProfileId.toString()}
+        profileType={otherProfileType}
+        isCoordinator={isCoordinatorView}
+        opportunityId={opportunityId?.toString()}
+        onClose={() => setShowSenderProfile(false)}
+      />
+    )}
+    </>
   );
 };
 
