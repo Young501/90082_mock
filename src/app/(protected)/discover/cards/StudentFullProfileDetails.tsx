@@ -101,7 +101,7 @@ export const RenderStudentDetails = ({
       <Box
         position="relative"
         bg="#0A425F"
-        backgroundImage="url('/assets/profileBackgroundWaves.svg')"
+        backgroundImage="url('/assets/profileBackgroundwaves.svg')"
         backgroundSize="auto"
         backgroundRepeat="repeat"
         borderRadius="12px"

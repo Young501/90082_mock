@@ -75,7 +75,7 @@ export const RenderOrganisationDetails = ({
       <Box
         position="relative"
         bg="#0F4F4D"
-        backgroundImage="url('/assets/profileBackgroundWaves.svg')"
+        backgroundImage="url('/assets/profileBackgroundwaves.svg')"
         backgroundSize="auto"
         backgroundRepeat="repeat"
         borderRadius="12px"
