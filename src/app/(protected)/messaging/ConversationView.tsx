@@ -15,8 +15,6 @@ import {
 } from "@/types/messaging";
 import { useAuthStore } from "@/store";
 import { Loader, Send } from "lucide-react";
-import { profile } from "console";
-
 interface ConversationViewProps {
   isSinglePane: boolean | undefined;
   conversation: ConversationSummary | null;
@@ -230,6 +228,7 @@ export const ConversationView = ({
                   showActions={showActions}
                   isSinglePane={isSinglePane}
                   numericUserId={numericUserId}
+                  opportunityId={conversation?.opportunityId}
                   onHoverIn={handleHoverIn}
                   onHoverOut={handleHoverOut}
                   onMessageClick={handleMessageClick}

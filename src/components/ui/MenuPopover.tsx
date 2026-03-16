@@ -1,7 +1,13 @@
 "use client";
 
 import React from "react";
-import { Box, VStack, Text, Portal, Popover } from "@chakra-ui/react";
+import {
+  Box,
+  VStack,
+  Text,
+  Portal,
+  Popover,
+} from "@chakra-ui/react";
 
 export type MenuPopoverPlacement =
   | "top"
@@ -20,7 +26,7 @@ export type MenuPopoverPlacement =
 export interface MenuPopoverProps {
   trigger: React.ReactNode;
   title?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   placement?: MenuPopoverPlacement;
   variant?: "popover" | "drawer";
   open?: boolean;

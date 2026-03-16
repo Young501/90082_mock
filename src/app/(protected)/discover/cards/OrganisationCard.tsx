@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Box, VStack, HStack, Text, Avatar } from "@chakra-ui/react";
+import { Box, VStack, HStack, Text } from "@chakra-ui/react";
+import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { OrganisationProfile } from "@/types/discovery";
 import { FullProfileCard } from "./FullProfileCard";
 import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
@@ -106,28 +107,13 @@ export function OrganisationCard({
           w="full"
         >
           <VStack align="flex-start" gap={3} w="full">
-            <Avatar.Root
-              w="40px"
-              h="40px"
+            <ProfileAvatar
+              src={getCompanyLogo() || null}
+              alt={organisation.name || organisation.first_name}
+              fallback={organisation.name || organisation.first_name}
+              size="40px"
               borderRadius="6px"
-              flexShrink={0}
-              bg="#F4F4F5"
-            >
-              <Avatar.Fallback
-                name={organisation.name || organisation.first_name}
-                color="#71717A"
-                fontWeight="600"
-                fontSize="sm"
-              />
-              {getCompanyLogo() && (
-                <Avatar.Image
-                  src={getCompanyLogo() || ""}
-                  w="40px"
-                  h="40px"
-                  borderRadius="6px"
-                />
-              )}
-            </Avatar.Root>
+            />
 
             <VStack align="stretch" gap={1} flex={1} minW={0} w="full">
               <HStack

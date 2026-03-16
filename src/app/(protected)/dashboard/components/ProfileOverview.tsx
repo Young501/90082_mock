@@ -1,22 +1,14 @@
 "use client";
 
 import React from "react";
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Image,
-  Avatar,
-  Separator,
-} from "@chakra-ui/react";
-import { Button } from "@/components/ui/Button";
+import { Box, VStack, HStack, Text } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useRouter } from "next/navigation";
-import { CircleCheck, CircleCheckBig, Info } from "lucide-react";
+import { CircleCheck, Info } from "lucide-react";
 import type { HomepageProfile } from "@/types/homepage";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { useAuthStore } from "@/store/authStore";
+import { ProfileAvatar } from "@/components/ProfileAvatar";
 
 interface ProfileOverviewProps {
   profile: HomepageProfile;
@@ -59,23 +51,20 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
 
       <VStack gap={6} align="stretch">
         <VStack align="center" gap={2}>
-          <Avatar.Root w="60px" h="60px">
-            <Avatar.Image
-              src={
-                userType === "organisation"
-                  ? (profile.logo_url ?? "")
-                  : (profile.profile_picture_url ?? "")
-              }
-              alt={
-                userType === "organisation"
-                  ? profile.organisation_name
-                  : profile.name
-              }
-            />
-            <Avatar.Fallback bg="#E4E4E7" color="black">
-              {profile.name?.slice(0, 2).toUpperCase()}
-            </Avatar.Fallback>
-          </Avatar.Root>
+          <ProfileAvatar
+            src={
+              userType === "organisation"
+                ? profile.logo_url
+                : profile.profile_picture_url
+            }
+            alt={
+              userType === "organisation"
+                ? profile.organisation_name
+                : profile.name
+            }
+            fallback={profile.name}
+            size="lg"
+          />
           <VStack gap={1} align="center" w="100%" minW={0}>
             <Text
               fontSize="md"
