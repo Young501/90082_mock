@@ -100,27 +100,6 @@ export default function DiscoveryFolderCard({
           </VStack>
         )}
 
-        {selectedFolderId && onClearFolder && (
-          <Button
-            variant="outline"
-            w="full"
-            justifyContent="center"
-            gap={2}
-            py={2}
-            borderRadius="xl"
-            borderColor="#E4E4E7"
-            borderWidth="1px"
-            bg="white"
-            color="#52525B"
-            fontWeight="normal"
-            fontSize="sm"
-            onClick={onClearFolder}
-          >
-            View all participants
-          </Button>
-        )}
-
-        {/* Create New Folder button */}
         <Button
           variant="outline"
           w="full"
