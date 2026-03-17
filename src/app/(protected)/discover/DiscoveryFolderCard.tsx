@@ -56,7 +56,6 @@ export default function DiscoveryFolderCard({
       minW={inDrawer ? "none" : "261px"}
     >
       <VStack align="stretch" gap={4}>
-        {/* Header: icon + "My Folder" */}
         <HStack justify="space-between" align="center">
           <HStack gap={2} align="center">
             <Box flexShrink={0} color="#3F3F46">
