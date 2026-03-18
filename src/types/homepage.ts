@@ -40,6 +40,7 @@ export interface HomepageOpportunity {
   slug: string;
   enrollment_status?: string;
   access?: HomepageOpportunityAccess;
+  is_default?: boolean;
   [key: string]: unknown;
 }
 
