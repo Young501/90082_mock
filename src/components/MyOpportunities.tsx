@@ -108,12 +108,23 @@ const OpportunityCard = ({
     if (!saved) return [];
 
     return Object.entries(saved)
+      .map(([key, entry]) => {
+        // Backend returns { label, value } objects; fall back for raw values
+        const isEntryObject =
+          entry && typeof entry === "object" && "value" in entry;
+        const value = isEntryObject ? (entry as any).value : entry;
+        const entryLabel = isEntryObject ? (entry as any).label : null;
+        return { key, entry, value, entryLabel };
+      })
       .filter(
-        ([, value]) => value !== null && value !== undefined && value !== ""
+        ({ value }) =>
+          value !== null && value !== undefined && value !== ""
       )
-      .map(([key, value]) => {
+      .map(({ key, value, entryLabel }) => {
+
         const question = questionnaire.find((q) => q.field === key);
         const label =
+          entryLabel ||
           question?.label ||
           key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
         const display = question
