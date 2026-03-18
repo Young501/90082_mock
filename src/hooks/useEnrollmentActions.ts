@@ -52,15 +52,25 @@ export function useEnrollmentActions({
 
   const handleOpenEditEnrollment = useCallback(async () => {
     const rawAnswers = participantRecord?.data?.questionnaire_answers ?? {};
+
+    // Backend returns { label, value } objects — unwrap to flat { field: value } for the form
+    const flatAnswers = Object.fromEntries(
+      Object.entries(rawAnswers).map(([key, entry]) => {
+        const isEntryObject =
+          entry && typeof entry === "object" && "value" in entry;
+        return [key, isEntryObject ? (entry as any).value : entry];
+      })
+    );
+
     try {
       const resolved = await resolveTaxonomyLabelsToCodes(
         questionnaireSections,
-        rawAnswers,
+        flatAnswers,
         null
       );
       setEditAnswers(resolved);
     } catch {
-      setEditAnswers(rawAnswers);
+      setEditAnswers(flatAnswers);
     }
     setIsEditEnrollmentOpen(true);
   }, [
