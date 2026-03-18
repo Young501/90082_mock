@@ -223,7 +223,79 @@ Users can get help via the **Support** page (accessible from the sidebar).
 
 ---
 
-## 12. Common Support Questions (FAQ)
+## 12. Profile Fields — Where to Find and Edit Them
+
+Understanding where a setting lives depends on whether it was set during **onboarding** (Account page) or as part of an **opportunity enrolment questionnaire** (My Opportunities).
+
+### Employment Opportunity Questionnaire Fields
+
+These fields are answered when a student or organisation enrolls in, or creates, an **Employment opportunity**. They are **not** part of the general profile — they live on the enrolment record for that specific opportunity.
+
+**To edit these fields:** Go to **Account → My Opportunities → find the relevant opportunity → Edit Enrollment Answers**.
+
+Fields in this questionnaire include:
+
+- **Work status in Australia** (e.g. "I don't want to appear available", "looking for work", visa/work rights status)
+- **Employment type** (e.g. part-time, casual, freelance, full-time, contract)
+- **Preferred sector(s)** (set per opportunity, not global profile sector)
+- **Open to work as / work role preferences** — specific roles or job types the student is open to (e.g. CRT — Casual Relief Teaching, graduate, internship-style roles, etc.)
+- **Other roles** (free text, additional job interests beyond the taxonomy)
+- **Actively hiring** (for organisations — whether they are currently hiring)
+- **Hiring details** (free text — what roles the organisation is hiring for)
+
+> If a student says they don't want to appear available for a specific type of work (e.g. CRT work, relief teaching, a particular role type), or wants to remove or add a role preference, direct them to **Account → My Opportunities → Edit Enrollment Answers** for the relevant employment opportunity.
+
+### Student Profile Fields (Account Page)
+
+These fields are set during onboarding and can be updated at any time from the **Account** page.
+
+Fields include:
+
+- **Personal:** first name, last name, profile picture, location
+- **Academic:** university (display only — contact support to change), student status, faculty, degree, course stream, specialisations, course progression
+- **Skills:** skills (multi-select), other skills (free text)
+- **Credentials:** credentials/accreditations (multi-select taxonomy), other credentials (free text) — e.g. VIT registration, WWCC, first aid, professional memberships
+- **Bio:** short bio text
+- **Work preferences:** preferred work locations, preferred max travel distance (km)
+- **Documents and links:** resume (file upload), homepage URL, LinkedIn URL
+
+> If a student wants to add, remove, or update a credential or accreditation (e.g. VIT, WWCC, certifications), direct them to **Account → Edit Profile → Credentials section**.
+
+### Organisation Profile Fields (Account Page)
+
+These fields are set during organisation onboarding and can be updated from the **Account** page.
+
+Fields include:
+
+- **Organisation:** name, logo, description, ABN/ACN, sector, industry, location, website, LinkedIn
+- **Settings:** allow students to contact the organisation
+- **Member profile:** first name, last name, job title, profile picture
+
+---
+
+## 13. Editing Profile and Opportunity Settings — Quick Reference
+
+| What the user wants to change | Where to go |
+|---|---|
+| Work status in Australia | Account → My Opportunities → Edit Enrollment Answers |
+| Employment type preferences | Account → My Opportunities → Edit Enrollment Answers |
+| Work role preferences (e.g. remove CRT, add a role type) | Account → My Opportunities → Edit Enrollment Answers |
+| Sector preference (per opportunity) | Account → My Opportunities → Edit Enrollment Answers |
+| Actively hiring status (organisations) | Account → My Opportunities → Edit Enrollment Answers |
+| Skills | Account → Edit Profile |
+| Credentials / accreditations (e.g. VIT, WWCC) | Account → Edit Profile |
+| Bio | Account → Edit Profile |
+| Preferred work locations or travel distance | Account → Edit Profile |
+| Resume / CV | Account → Edit Profile |
+| LinkedIn or homepage URL | Account → Edit Profile |
+| Faculty, degree, course stream, progression | Account → Edit Profile |
+| Profile picture | Account → Edit Profile |
+| Organisation name, logo, sector, industry, ABN | Account (organisation profile) |
+| Organisation contact setting | Account (organisation profile) |
+
+---
+
+## 14. Common Support Questions (FAQ)
 
 ### Account & Login
 
@@ -246,6 +318,15 @@ Go to **Account** — each incomplete section will be shown. Click **Edit Profil
 **Q: My profile picture isn't updating. What should I do?**
 Try uploading a smaller image file (JPEG or PNG). If the problem persists, contact support.
 
+**Q: How do I add or remove a credential or accreditation (e.g. VIT registration, WWCC, first aid certificate)?**
+Go to **Account → Edit Profile** and find the **Credentials** section. You can select from the available options or add a free-text entry for credentials not listed. To remove one, deselect it and save.
+
+**Q: How do I update my skills?**
+Go to **Account → Edit Profile** and find the **Skills** section. You can add or remove skills from the multi-select list.
+
+**Q: How do I change my preferred work locations or travel distance?**
+Go to **Account → Edit Profile** and update the **Preferred work locations** and **Preferred max travel distance** fields.
+
 ---
 
 ### Opportunities
@@ -261,10 +342,25 @@ This can happen because:
 - Your account is still being verified (new organisations).
 
 **Q: How do I edit my enrolment answers?**
-Go to your **Home** page, find the opportunity, and click **Edit Enrollment Answers**.
+Go to **Account → My Opportunities**, find the opportunity, and click **Edit Enrollment Answers**.
 
 **Q: How do I unenrol from an opportunity?**
 Go to your **Home** page, find the opportunity, and select the unenrol option.
+
+**Q: How do I change my work status in Australia?**
+This is part of the Employment opportunity questionnaire. Go to **Account → My Opportunities**, find the relevant employment opportunity, and click **Edit Enrollment Answers** to update your work status.
+
+**Q: How do I change what types of employment I'm looking for (e.g. part-time, casual, full-time)?**
+Go to **Account → My Opportunities**, find the relevant employment opportunity, and click **Edit Enrollment Answers** to update your employment type preferences.
+
+**Q: I don't want to appear available for a certain type of work (e.g. CRT, relief teaching, a specific role type). How do I remove it?**
+Go to **Account → My Opportunities**, find the relevant employment opportunity, and click **Edit Enrollment Answers**. Under **Open to work as**, deselect the role type you no longer want and save your answers.
+
+**Q: How do I update which work roles I'm open to?**
+Go to **Account → My Opportunities**, find the relevant employment opportunity, and click **Edit Enrollment Answers**. Update the **Open to work as** field.
+
+**Q: As an organisation, how do I update whether we're actively hiring?**
+Go to **Account → My Opportunities**, find the relevant employment opportunity, and click **Edit Enrollment Answers** to update your hiring status and details.
 
 ---
 
@@ -303,3 +399,22 @@ Open their profile from the Discover page or your enrolments and click **Send Me
 
 **Q: I'm not receiving message notifications. What should I do?**
 Ensure your browser allows notifications from UniConnected. Unread messages also show as a dot indicator in the sidebar when you're logged in.
+
+---
+
+### Can't Find the Setting? — General Guidance
+
+If a user asks how to change a profile setting, preference, or piece of information and the specific field isn't clear from their question, use the following logic:
+
+1. **Is it related to work availability, work roles, employment type, hiring status, or work preferences tied to an opportunity?**
+   → Direct them to: **Account → My Opportunities → find the relevant employment opportunity → Edit Enrollment Answers**
+
+2. **Is it related to their personal profile — skills, credentials, accreditations, bio, education, resume, location, or links?**
+   → Direct them to: **Account → Edit Profile** and look for the relevant section.
+
+3. **Is it related to the organisation's profile — name, logo, sector, industry, hiring details, or contact settings?**
+   → Direct them to: **Account** (organisation profile section).
+
+4. **If unsure:** suggest both options — check **Account → Edit Profile** first, and if the field isn't there, check **Account → My Opportunities → Edit Enrollment Answers** for the relevant opportunity.
+
+> Note: Some settings (such as university affiliation or email address) cannot be changed by the user directly — advise them to contact support at contactus@uniconnected.com.
