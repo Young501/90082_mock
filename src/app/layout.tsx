@@ -3,7 +3,6 @@ import { Manrope } from "next/font/google";
 import Providers from "@/components/ui/providers";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./globals.css";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
 const manrope = Manrope({
