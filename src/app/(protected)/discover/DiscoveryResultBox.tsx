@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Box,
   VStack,
@@ -101,6 +101,20 @@ export function DiscoveryResultBox({
     return () => clearTimeout(handle);
   }, [searchInput, onQueryChange]);
 
+  const handleRemoveFromFolder = useCallback(
+    (folderId: string, memberId: number) => {
+      removeMemberFromFolder.mutate(
+        { folderId, memberId },
+        {
+          onSuccess: () =>
+            toast.success("Member removed from folder successfully"),
+          onError: () => toast.error("Failed to remove member from folder"),
+        }
+      );
+    },
+    [removeMemberFromFolder]
+  );
+
   return (
     <VStack
       align="stretch"
@@ -172,12 +186,11 @@ export function DiscoveryResultBox({
                   {folder.description}
                 </Text>
               )} */}
-              <Text fontSize="sm" color="#71717A">
+              {/* <Text fontSize="sm" color="#71717A">
                 {" "}
-                You have
-                {folder.member_count}{" "}
+                You have {folder.member_count}{" "}
                 {userType === "student" ? "students" : "organisations"}
-              </Text>
+              </Text> */}
             </VStack>
           ) : (
             <Heading size="xl">
@@ -293,24 +306,11 @@ export function DiscoveryResultBox({
                 const isInFolder = !!folder;
                 const onRemoveFromFolder =
                   folder && folderMemberId
-                    ? () => {
-                        removeMemberFromFolder.mutate(
-                          {
-                            folderId: folder.id.toString(),
-                            memberId: folderMemberId,
-                          },
-                          {
-                            onSuccess: () =>
-                              toast.success(
-                                "Member removed from folder successfully"
-                              ),
-                            onError: () =>
-                              toast.error(
-                                "Failed to remove member from folder"
-                              ),
-                          }
-                        );
-                      }
+                    ? () =>
+                        handleRemoveFromFolder(
+                          folder.id.toString(),
+                          folderMemberId
+                        )
                     : undefined;
 
                 return userType === "student" ? (

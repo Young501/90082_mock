@@ -252,7 +252,7 @@ export function OrganisationCard({
                   as="button"
                   color="#DC2626"
                   fontSize="18px"
-                  onClick={onRemoveFromFolder}
+                  onClick={() => setDeleteModal(true)}
                 >
                   <i
                     className="fa-solid fa-trash"

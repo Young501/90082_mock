@@ -75,8 +75,9 @@ export const DeleteModal = ({
             </HStack>
 
             <Text fontSize="sm" color="#52525B">
-              Deleting this folder clears all your saved data
-              {/* {InFolder ? "remove this user" : "delete this folder"}? */}
+              {InFolder
+                ? "This will remove them from your folder."
+                : "Deleting this folder clears all your saved data."}
             </Text>
           </VStack>
 
@@ -92,7 +93,7 @@ export const DeleteModal = ({
               Cancel
             </ButtonV2>
             <ButtonV2 variant="student" onClick={onDelete} flex="1">
-              Delete
+              {InFolder ? "Remove" : "Delete"}
             </ButtonV2>
           </Box>
         </VStack>
