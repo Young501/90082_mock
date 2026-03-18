@@ -1,0 +1,305 @@
+# UniConnected — AI Support Knowledge Base
+
+This document is intended for AI support agents. It contains comprehensive information about the UniConnected platform, its features, and how to assist users.
+
+---
+
+## 1. Platform Overview
+
+UniConnected is a platform that connects university students with industry organisations through work-integrated learning opportunities (such as internships, placements, and industry projects). It is used in partnership with universities, whose coordinators oversee the matching process.
+Also it is a platform for employement where students can look for part-time, casual, freelance or full-time work within organisations.
+
+**Core value:**
+
+- Students gain access to real-world industry opportunities aligned with their study.
+- Organisations discover and engage with motivated, university-vetted students.
+- Universities coordinate and monitor student–industry engagement at scale.
+
+---
+
+## 2. User Types
+
+### Student
+
+- Registers via invitation from a university or through a university-affiliated link.
+- Creates a profile showcasing skills, education, and availability.
+- Browses and enrols in opportunities made available through their university program.
+- Messages organisations directly through the platform.
+
+### Organisation
+
+- Registers and creates a company profile.
+- Search and Discovers student profiles.
+- Can view student details as well as their CVs.
+- Can contact students to arrange for interviews.
+- Manages a team of internal users (members, admins).
+- May need a paid subscription to post or access certain opportunities.
+
+### Coordinator (University-side)
+
+- Manages the program on behalf of a university.
+- Oversees which opportunities students can access.
+- Reviews student and organisation participation.
+- Has access to a dedicated Dashboard with management tools.
+- Does not use the Discover or Opportunities features directly.
+
+---
+
+## 3. Onboarding
+
+### Student Onboarding
+
+1. Receives an invitation email from their university coordinator or signs up via a university-specific link.
+2. Completes a multi-step form collecting:
+   - Profile picture
+   - Resume/CV upload
+   - Location
+   - Degree, faculty, course progression (e.g. 2nd year, final year)
+   - Skills and specialisations
+3. Reviews answers before final submission.
+4. After submission, the account is active and the student can access opportunities.
+
+### Organisation Onboarding
+
+1. Invited by a coordinator or registers directly.
+2. Completes two phases:
+   - **Phase 1 — User details:** the individual signing up (name, role, etc.)
+   - **Phase 2 — Organisation details:** company name, ABN/ACN, sector, industry, company size, location
+3. Reviews answers and submits for verification.
+4. Verification is processed before full access is granted.
+
+---
+
+## 4. Student Profile
+
+Students can view and edit their profile from the **Account** page.
+
+**Profile fields:**
+
+- Full name, profile picture
+- Location
+- Degree, faculty, course progression
+- Skills (multi-select from taxonomy)
+- Specialisations
+- Availability (hours per week, start date, etc.)
+- Preferred position type (remote, on-site, hybrid)
+- Bio
+- LinkedIn URL, personal website
+- Resume (file upload)
+- Supporting documents
+
+**Profile completion:** The home page shows which sections are incomplete. A fully completed profile increases visibility to organisations.
+
+---
+
+## 5. Organisation Profile
+
+Accessible from the **Account** page.
+
+**Profile fields:**
+
+- Company name, logo
+- ABN / ACN
+- Sector, industry
+- Company size
+- Location
+- Website
+- Description
+- Contact email
+- LinkedIn, Instagram
+
+---
+
+## 6. Team Management (Organisations)
+
+Organisations can have multiple users under one account, managed via the **Team** page.
+
+**Roles:**
+| Role | Permissions |
+|---|---|
+| **Creator** | Full access — manages billing, team, and all content |
+| **Admin** | Manages team members and content; cannot manage billing |
+| **Member** | Limited access — can view and contribute but not manage |
+
+**Inviting members:**
+
+1. Go to **Team** → **Invite Member**
+2. Enter the email address and select a role
+3. The invitee receives an email to join the organisation account
+4. Invitations expire after a set period
+
+**Removing/editing members:** Admins and Creators can change roles or remove members from the Team page.
+
+---
+
+## 7. Opportunities
+
+Opportunities are the core unit of engagement on UniConnected — they represent a program, placement, internship, or project that students can apply for or enrol in.
+
+**Visibility:**
+
+- **Public:** Any eligible student can see and enrol.
+- **Invite Only:** Only students with a direct invitation or specific access can see it.
+
+**Enrolment flow (4 steps):**
+
+1. **Pricing check** — if the opportunity requires a subscription, the student is prompted to select a plan or start a trial.
+2. **Questionnaire** — student answers questions set by the organisation (e.g. motivation, availability, skills).
+3. **Review** — student reviews their answers before submitting.
+4. **Confirmation** — enrolment is complete; the student can now access the opportunity content.
+
+**Managing enrolments:**
+
+- Students can edit their questionnaire answers or unenrol from the home page.
+- Organisations can view all enrolled students and their answers from the opportunity management area.
+
+---
+
+## 8. Discover / Matching
+
+### For Students
+
+- The **Discover** page shows opportunities the student is eligible for.
+- Filters available: opportunity type, location, industry, and more.
+- Clicking an opportunity shows a full profile with description and enrolment button.
+
+### For Organisations
+
+- Organisations can browse student profiles on the Discover page.
+- Filters help narrow by skills, availability, location, etc.
+- Profiles can be saved to **Folders** for organisation (e.g. "Shortlisted", "Contacted").
+
+### Folders
+
+- Available to organisations on the **Folders** page.
+- Create custom folders and add student profiles to them.
+- Useful for tracking candidates across different opportunities.
+
+---
+
+## 9. Messaging
+
+- Accessed via the **Messages** page in the sidebar.
+- Direct one-to-one conversations between students and organisations.
+- Unread message count shown as a dot indicator in the sidebar and on the home page.
+- Conversations can be **archived** to reduce clutter.
+- An empty inbox shows an empty state prompt to start a conversation.
+
+---
+
+## 10. Billing & Subscription
+
+Some opportunities require a paid subscription. Subscriptions are purchased by organisations or students on a per-opportunity basis.
+
+**General behaviour:**
+
+- Plans are available on **monthly** or **yearly** billing (yearly offers a saving).
+- A **free trial** period is available on eligible plans.
+- Subscriptions can be cancelled at any time from **Account → Billing settings**.
+- When a subscription expires or is cancelled, access to paid opportunities is revoked at the end of the billing period.
+- If a subscription is `past_due` or `unpaid`, access may be suspended.
+
+**Subscription statuses:**
+| Status | Meaning |
+|---|---|
+| `active` | Subscription is current and access is granted |
+| `trialing` | In free trial period — full access |
+| `past_due` | Payment failed — access may be restricted |
+| `canceled` | Subscription cancelled — access ends at period end |
+| `unpaid` | Invoice unpaid — access suspended |
+| `paused` | Subscription paused |
+
+---
+
+## 11. Support
+
+Users can get help via the **Support** page (accessible from the sidebar).
+
+**Primary:** Chat with the AI assistant (UniBot) — available directly on the Support page. Handles most common questions instantly.
+
+**Escalation:** If the AI cannot resolve the issue, users can leave a message and a team member will follow up.
+
+**Email:** contactus@uniconnected.com — response within 1–2 business days.
+
+---
+
+## 12. Common Support Questions (FAQ)
+
+### Account & Login
+
+**Q: How do I reset my password?**
+Go to the login page and click "Forgot Password". Enter your email address and follow the instructions in the reset email. Check your spam folder if the email doesn't arrive within a few minutes.
+
+**Q: I didn't receive a verification email. What do I do?**
+Check your spam or junk folder. If it's not there, contact support at contactus@uniconnected.com and we'll resend it.
+
+**Q: How do I change my email or password?**
+Go to **Account** → **Change Password** section. Email changes should be directed to support.
+
+---
+
+### Profile
+
+**Q: How do I complete my profile?**
+Go to **Account** — each incomplete section will be shown. Click **Edit Profile** to update your information. A fully completed profile is important for students to improve their visibility to organisations.
+
+**Q: My profile picture isn't updating. What should I do?**
+Try uploading a smaller image file (JPEG or PNG). If the problem persists, contact support.
+
+---
+
+### Opportunities
+
+**Q: How do I enrol in an opportunity?**
+Go to the **Discover** page, find the opportunity, and click **Enrol**. You'll be guided through the enrolment steps (pricing if required, questionnaire, review, and confirmation).
+
+**Q: Why can't I access an opportunity?**
+This can happen because:
+
+- The opportunity requires a paid subscription — click the opportunity to see the pricing options.
+- The opportunity is invite-only and you haven't been invited.
+- Your account is still being verified (new organisations).
+
+**Q: How do I edit my enrolment answers?**
+Go to your **Home** page, find the opportunity, and click **Edit Enrollment Answers**.
+
+**Q: How do I unenrol from an opportunity?**
+Go to your **Home** page, find the opportunity, and select the unenrol option.
+
+---
+
+### Team (Organisations)
+
+**Q: How do I invite a team member?**
+Go to **Team** → **Invite Member**, enter their email address, select their role, and send the invite. They'll receive an email to join.
+
+**Q: A team member's invitation expired. What do I do?**
+Re-invite them from the Team page using the same process.
+
+**Q: How do I change a team member's role?**
+Go to **Team**, find the member, and select **Edit** to change their role. Only Admins and Creators can do this.
+
+---
+
+### Billing
+
+**Q: How do I cancel my subscription?**
+Contact us if you want to cancel your subscription.
+
+<!-- Go to **Account** → Billing settings → Cancel subscription. Your access continues until the end of the current billing period. -->
+
+**Q: My subscription shows as "past due". What does that mean?**
+A payment attempt failed. Update your payment method in Account → Billing settings to restore access.
+
+**Q: How do I get a refund?**
+Contact support at contactus@uniconnected.com with your account details and reason for the refund request.
+
+---
+
+### Messaging
+
+**Q: How do I send a message to an organisation/student?**
+Open their profile from the Discover page or your enrolments and click **Send Message**. Alternatively, go to the **Messages** page and start a new conversation. If you are messaging an organisation you can pick which organisation member you would like to reach out to.
+
+**Q: I'm not receiving message notifications. What should I do?**
+Ensure your browser allows notifications from UniConnected. Unread messages also show as a dot indicator in the sidebar when you're logged in.
