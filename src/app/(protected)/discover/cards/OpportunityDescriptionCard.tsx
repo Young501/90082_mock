@@ -21,6 +21,11 @@ import { MenuPopover } from "@/components/ui/MenuPopover";
 import { UnenrollDialog } from "@/components/ui/UnenrollDialog";
 import { EditEnrollmentDialog } from "@/components/ui/EditEnrollmentDialog";
 import { useEnrollmentActions } from "@/hooks/useEnrollmentActions";
+import {
+  useSetDefaultOpportunity,
+  useClearDefaultOpportunity,
+} from "@/services/dashboard";
+import { toast } from "react-toastify";
 
 interface OpportunityDescriptionCardProps {
   opportunity: Opportunity | AccessibleOpportunity;
@@ -35,6 +40,7 @@ export const OpportunityDescriptionCard = ({
   links = [],
   userType,
 }: OpportunityDescriptionCardProps) => {
+
   const accessibleOpportunity =
     currentOpportunity || (opportunity as AccessibleOpportunity);
   const enrollmentStatus =
@@ -50,6 +56,9 @@ export const OpportunityDescriptionCard = ({
     userType,
     isEnrolled,
   });
+  const setDefaultMutation = useSetDefaultOpportunity();
+  const clearDefaultMutation = useClearDefaultOpportunity();
+  const isDefault = opportunity.is_default ?? false;
 
   return (
     <>
@@ -124,17 +133,19 @@ export const OpportunityDescriptionCard = ({
                   >
                     {visibilityDisplay} Opportunity
                   </Text>
-                  <Badge
-                    bg="#F4F4F5"
-                    color="#27272A"
-                    fontSize={{ base: "2xs", md: "xs" }}
-                    px={2}
-                    py={0.5}
-                    borderRadius="4px"
-                    fontWeight="normal"
-                  >
-                    Default
-                  </Badge>
+                  {isDefault && (
+                    <Badge
+                      bg="#F4F4F5"
+                      color="#27272A"
+                      fontSize={{ base: "2xs", md: "xs" }}
+                      px={2}
+                      py={0.5}
+                      borderRadius="4px"
+                      fontWeight="normal"
+                    >
+                      Default
+                    </Badge>
+                  )}
                 </HStack>
               </VStack>
             </Flex>
@@ -197,6 +208,105 @@ export const OpportunityDescriptionCard = ({
                         </HStack>
                       ) : (
                         "Edit Enrollment Answers"
+                      )}
+                    </Box>
+                  )}
+                  {isDefault ? (
+                    <Box
+                      as="button"
+                      w="full"
+                      textAlign="left"
+                      px={3}
+                      py={2}
+                      fontSize="sm"
+                      color="#374151"
+                      borderRadius="md"
+                      _hover={{ bg: "#F3F4F6" }}
+                      onClick={() =>
+                        clearDefaultMutation.mutate(opportunity.id, {
+                          onSuccess: () =>
+                            toast.success("Default opportunity cleared"),
+                          onError: () =>
+                            toast.error(
+                              "Failed to clear default opportunity"
+                            ),
+                        })
+                      }
+                      opacity={
+                        clearDefaultMutation.isPending ||
+                        setDefaultMutation.isPending
+                          ? 0.6
+                          : 1
+                      }
+                      cursor={
+                        clearDefaultMutation.isPending ||
+                        setDefaultMutation.isPending
+                          ? "not-allowed"
+                          : "pointer"
+                      }
+                      pointerEvents={
+                        clearDefaultMutation.isPending ||
+                        setDefaultMutation.isPending
+                          ? "none"
+                          : "auto"
+                      }
+                    >
+                      {clearDefaultMutation.isPending ? (
+                        <HStack gap={2}>
+                          <Spinner size="sm" />
+                          <span>Clearing...</span>
+                        </HStack>
+                      ) : (
+                        "Clear default"
+                      )}
+                    </Box>
+                  ) : (
+                    <Box
+                      as="button"
+                      w="full"
+                      textAlign="left"
+                      px={3}
+                      py={2}
+                      fontSize="sm"
+                      color="#374151"
+                      borderRadius="md"
+                      _hover={{ bg: "#F3F4F6" }}
+                      onClick={() =>
+                        setDefaultMutation.mutate(opportunity.id, {
+                          onSuccess: () =>
+                            toast.success("Opportunity set as default"),
+                          onError: () =>
+                            toast.error(
+                              "Failed to set opportunity as default"
+                            ),
+                        })
+                      }
+                      opacity={
+                        setDefaultMutation.isPending ||
+                        clearDefaultMutation.isPending
+                          ? 0.6
+                          : 1
+                      }
+                      cursor={
+                        setDefaultMutation.isPending ||
+                        clearDefaultMutation.isPending
+                          ? "not-allowed"
+                          : "pointer"
+                      }
+                      pointerEvents={
+                        setDefaultMutation.isPending ||
+                        clearDefaultMutation.isPending
+                          ? "none"
+                          : "auto"
+                      }
+                    >
+                      {setDefaultMutation.isPending ? (
+                        <HStack gap={2}>
+                          <Spinner size="sm" />
+                          <span>Setting...</span>
+                        </HStack>
+                      ) : (
+                        "Set as default"
                       )}
                     </Box>
                   )}

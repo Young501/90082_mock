@@ -19,6 +19,11 @@ import { MenuPopover } from "@/components/ui/MenuPopover";
 import { UnenrollDialog } from "@/components/ui/UnenrollDialog";
 import { EditEnrollmentDialog } from "@/components/ui/EditEnrollmentDialog";
 import { useEnrollmentActions } from "@/hooks/useEnrollmentActions";
+import {
+  useSetDefaultOpportunity,
+  useClearDefaultOpportunity,
+} from "@/services/dashboard";
+import { toast } from "react-toastify";
 
 interface MyOpportunitiesProps {
   opportunities: HomepageOpportunity[];
@@ -53,6 +58,9 @@ function DashboardOpportunityCard({
   onNavigate,
 }: DashboardOpportunityCardProps) {
   const enrolled = isEnrolled(opp);
+  const setDefaultMutation = useSetDefaultOpportunity();
+  const clearDefaultMutation = useClearDefaultOpportunity();
+  const isDefault = opp.is_default ?? false;
 
   const enrollment = useEnrollmentActions({
     opportunityId: opp.id,
@@ -107,7 +115,7 @@ function DashboardOpportunityCard({
                 <Text fontSize="xs" color="#173DA6">
                   {getStatusLabel(opp)}
                 </Text>
-                {opp.visibility_display === "Public" && (
+                {opp.is_default && (
                   <Badge
                     bg="#F4F4F5"
                     color="#27272A"
@@ -179,6 +187,103 @@ function DashboardOpportunityCard({
                         </HStack>
                       ) : (
                         "Edit Enrollment Answers"
+                      )}
+                    </Box>
+                  )}
+                  {isDefault ? (
+                    <Box
+                      as="button"
+                      w="full"
+                      textAlign="left"
+                      px={3}
+                      py={2}
+                      fontSize="sm"
+                      color="#374151"
+                      borderRadius="md"
+                      _hover={{ bg: "#F3F4F6" }}
+                      onClick={() =>
+                        clearDefaultMutation.mutate(opp.id, {
+                          onSuccess: () =>
+                            toast.success("Default opportunity cleared"),
+                          onError: () =>
+                            toast.error("Failed to clear default opportunity"),
+                        })
+                      }
+                      opacity={
+                        clearDefaultMutation.isPending ||
+                        setDefaultMutation.isPending
+                          ? 0.6
+                          : 1
+                      }
+                      cursor={
+                        clearDefaultMutation.isPending ||
+                        setDefaultMutation.isPending
+                          ? "not-allowed"
+                          : "pointer"
+                      }
+                      pointerEvents={
+                        clearDefaultMutation.isPending ||
+                        setDefaultMutation.isPending
+                          ? "none"
+                          : "auto"
+                      }
+                    >
+                      {clearDefaultMutation.isPending ? (
+                        <HStack gap={2}>
+                          <Spinner size="sm" />
+                          <span>Clearing...</span>
+                        </HStack>
+                      ) : (
+                        "Clear default"
+                      )}
+                    </Box>
+                  ) : (
+                    <Box
+                      as="button"
+                      w="full"
+                      textAlign="left"
+                      px={3}
+                      py={2}
+                      fontSize="sm"
+                      color="#374151"
+                      borderRadius="md"
+                      _hover={{ bg: "#F3F4F6" }}
+                      onClick={() =>
+                        setDefaultMutation.mutate(opp.id, {
+                          onSuccess: () =>
+                            toast.success("Opportunity set as default"),
+                          onError: () =>
+                            toast.error(
+                              "Failed to set opportunity as default"
+                            ),
+                        })
+                      }
+                      opacity={
+                        setDefaultMutation.isPending ||
+                        clearDefaultMutation.isPending
+                          ? 0.6
+                          : 1
+                      }
+                      cursor={
+                        setDefaultMutation.isPending ||
+                        clearDefaultMutation.isPending
+                          ? "not-allowed"
+                          : "pointer"
+                      }
+                      pointerEvents={
+                        setDefaultMutation.isPending ||
+                        clearDefaultMutation.isPending
+                          ? "none"
+                          : "auto"
+                      }
+                    >
+                      {setDefaultMutation.isPending ? (
+                        <HStack gap={2}>
+                          <Spinner size="sm" />
+                          <span>Setting...</span>
+                        </HStack>
+                      ) : (
+                        "Set as default"
                       )}
                     </Box>
                   )}

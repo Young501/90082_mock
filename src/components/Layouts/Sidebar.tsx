@@ -25,7 +25,7 @@ import {
 import { IconSidebarLine } from "@/components/Icons";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import type { AccessibleOpportunity } from "@/types/opportunities";
 
@@ -59,6 +59,7 @@ const Sidebar = ({
   const hasUnreadMessages = useAuthStore((s) => s.hasUnreadMessages);
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { getUserType, accessibleOpportunities, userProfile } = useAuthStore();
   const discoverDropdownRef = useRef<HTMLDivElement>(null);
   const {
@@ -72,6 +73,7 @@ const Sidebar = ({
   const isOrganisation = userType === "organisation";
   const isStudent = userType === "student";
   const opps: AccessibleOpportunity[] = accessibleOpportunities ?? [];
+  const defaultOpp = opps.find((o) => o.is_default);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -336,7 +338,11 @@ const Sidebar = ({
           bg={active ? "profile.500" : "transparent"}
           color={active ? "white" : INACTIVE_COLOR}
           cursor="pointer"
-          onClick={onDiscoverToggle}
+          onClick={() => {
+            const target = defaultOpp ?? opps[0];
+            router.push(`/discover/?opp=${target.slug}`);
+            if (!isDiscoverOpen) onDiscoverToggle();
+          }}
         >
           <HStack gap={3}>
             <Box
@@ -433,7 +439,12 @@ const Sidebar = ({
                         >
                           {o.title || `Opportunity ${o.id}`}
                         </Text>
-                        <CircleCheckBig size={20} color="var(--profile-500)" />
+                        {defaultOpp?.id === o.id && (
+                          <CircleCheckBig
+                            size={20}
+                            color="var(--profile-500)"
+                          />
+                        )}
                       </HStack>
                     );
                   })()}
