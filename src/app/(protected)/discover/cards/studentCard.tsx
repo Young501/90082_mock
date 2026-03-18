@@ -218,7 +218,12 @@ export function StudentCard({
                 pointerEvents={isMatched ? "none" : "auto"}
               >
                 {isInFolder ? (
-                  <Box color="#DC2626" fontSize="18px">
+                  <Box
+                    as="button"
+                    color="#DC2626"
+                    fontSize="18px"
+                    onClick={onRemoveFromFolder}
+                  >
                     <i
                       className="fa-solid fa-trash"
                       style={{ fontSize: "16px" }}

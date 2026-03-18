@@ -41,9 +41,7 @@ export function OrganisationCard({
 
   const { data: fullProfile, isLoading: isLoadingFullProfile } =
     usePartnerProfile(
-      showContactModal && organisation.id
-        ? organisation.id.toString()
-        : "",
+      showContactModal && organisation.id ? organisation.id.toString() : "",
       opportunityId || ""
     );
 
@@ -250,7 +248,12 @@ export function OrganisationCard({
               aria-label={isInFolder ? "Remove from folder" : "Add to folder"}
             >
               {isInFolder ? (
-                <Box color="#DC2626" fontSize="18px">
+                <Box
+                  as="button"
+                  color="#DC2626"
+                  fontSize="18px"
+                  onClick={onRemoveFromFolder}
+                >
                   <i
                     className="fa-solid fa-trash"
                     style={{ fontSize: "16px" }}

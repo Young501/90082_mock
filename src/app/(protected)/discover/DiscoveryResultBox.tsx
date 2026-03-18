@@ -288,7 +288,9 @@ export function DiscoveryResultBox({
                 const key = user.id;
                 const folderMemberId = (user as { folder_member_id?: number })
                   .folder_member_id;
-                const isInFolder = !!folder && !!folderMemberId;
+                // We are in folder mode whenever a folder is selected — all
+                // results returned in that context belong to the folder.
+                const isInFolder = !!folder;
                 const onRemoveFromFolder =
                   folder && folderMemberId
                     ? () => {
