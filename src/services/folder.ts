@@ -93,7 +93,6 @@ export function useDeleteFolder() {
   });
 }
 
-
 export function useAddMemberToFolder() {
   const queryClient = useQueryClient();
 

@@ -247,7 +247,9 @@ export function OrganisationCard({
                 top={4}
                 right={4}
                 cursor="pointer"
-                color={isInFolder || addedToFolder ? "var(--profile-500)" : "#71717A"}
+                color={
+                  isInFolder || addedToFolder ? "var(--profile-500)" : "#71717A"
+                }
                 _hover={{ color: "var(--profile-500)" }}
                 onClick={handleAddToFolder}
                 aria-label={isInFolder ? "Remove from folder" : "Add to folder"}

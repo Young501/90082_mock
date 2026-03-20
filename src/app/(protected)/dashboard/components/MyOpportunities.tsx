@@ -253,9 +253,7 @@ function DashboardOpportunityCard({
                           onSuccess: () =>
                             toast.success("Opportunity set as default"),
                           onError: () =>
-                            toast.error(
-                              "Failed to set opportunity as default"
-                            ),
+                            toast.error("Failed to set opportunity as default"),
                         })
                       }
                       opacity={

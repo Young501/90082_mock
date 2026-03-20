@@ -216,10 +216,18 @@ export function StudentCard({
                   top={4}
                   right={4}
                   cursor={isMatched ? "default" : "pointer"}
-                  color={isInFolder || addedToFolder ? "var(--profile-500)" : "#71717A"}
-                  _hover={!isMatched ? { color: "var(--profile-500)" } : undefined}
+                  color={
+                    isInFolder || addedToFolder
+                      ? "var(--profile-500)"
+                      : "#71717A"
+                  }
+                  _hover={
+                    !isMatched ? { color: "var(--profile-500)" } : undefined
+                  }
                   onClick={handleAddToFolder}
-                  aria-label={isInFolder ? "Remove from folder" : "Add to folder"}
+                  aria-label={
+                    isInFolder ? "Remove from folder" : "Add to folder"
+                  }
                   pointerEvents={isMatched ? "none" : "auto"}
                 >
                   <FolderHeart

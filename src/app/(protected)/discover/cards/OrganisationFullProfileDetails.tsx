@@ -315,7 +315,8 @@ export const RenderOrganisationDetails = ({
                         Actively Hiring
                       </Text>
                       <Text fontSize="sm" color="#3F3F46">
-                        {organisation.questionnaire_answers?.actively_hiring_details?.value ||
+                        {organisation.questionnaire_answers
+                          ?.actively_hiring_details?.value ||
                           "Currently accepting students for placements and employment discussions."}
                       </Text>
                     </VStack>
