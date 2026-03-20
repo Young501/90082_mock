@@ -273,7 +273,7 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
               : "1px solid #2AA8E0"
         }
         size="sm"
-        // _hover={{ bg: "profile.500", opacity: 0.9 }}
+        _hover={{ bg: userType === "organisation" ? "#D3EFEA" : "#D6EDFB" }}
         onClick={() => router.push("/profile/")}
       >
         {allItemsCompleted ? "Edit Profile" : "Complete Profile"}

@@ -65,16 +65,14 @@ interface PublicMenuItem {
 const Header = ({
   isProtected,
   isOnboardingPage,
-  isCollapsed,
-  onToggleSidebar,
 }: {
   isProtected?: boolean;
   isOnboardingPage?: boolean;
-  isCollapsed?: boolean;
-  onToggleSidebar?: () => void;
 }) => {
   const isMobile = useBreakpointValue({ base: true, md: true, lg: false });
   const router = useRouter();
+  const isCollapsed = useAuthStore((s) => s.isSidebarCollapsed);
+  const toggleSidebar = useAuthStore((s) => s.toggleSidebar);
   const { handleLogout } = useAuth();
   const { logout, getUserProfilePictureUrl } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -317,7 +315,7 @@ const Header = ({
                   color="#1679AB"
                   cursor="pointer"
                   _hover={{ bg: "gray.100" }}
-                  onClick={onToggleSidebar}
+                  onClick={toggleSidebar}
                 >
                   {isCollapsed ? (
                     <PanelLeftOpen size={24} />

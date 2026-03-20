@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useSidebar } from "@/context/SidebarContext";
+import { useAuthStore } from "@/store/authStore";
 import {
   Box,
   VStack,
@@ -79,7 +79,7 @@ export function DiscoveryResultBox({
   onSortChange,
 }: DiscoveryResultBoxProps) {
   const removeMemberFromFolder = useRemoveMemberFromFolder();
-  const { isCollapsed } = useSidebar();
+  const isCollapsed = useAuthStore((s) => s.isSidebarCollapsed);
   const count = pagination?.count ?? 0;
 
   // Keep previous results visible while loading so card DOM nodes (and their

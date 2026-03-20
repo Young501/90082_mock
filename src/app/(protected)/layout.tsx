@@ -1,10 +1,9 @@
 "use client";
 
-import { ReactNode, Suspense, useEffect, useState } from "react";
+import { ReactNode, Suspense, useEffect } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Spinner, Box } from "@chakra-ui/react";
 import Header from "@/components/Layouts/Header";
-import { SidebarContext } from "@/context/SidebarContext";
 import { usePathname, useSearchParams } from "next/navigation";
 import Sidebar from "@/components/Layouts/Sidebar";
 import { useProfile } from "@/hooks/useProfile";
@@ -35,13 +34,12 @@ function LayoutContent({ children }: { children: ReactNode }) {
     }
   }, [accessibleOpportunities, setAccessibleOpportunities]);
 
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const isCollapsed = useAuthStore((s) => s.isSidebarCollapsed);
 
   const pathname = usePathname();
   const isOnboardingPage = pathname?.startsWith("/onboarding") ?? false;
 
   return (
-    <SidebarContext.Provider value={{ isCollapsed }}>
     <ProtectedRoute>
       <div
         style={{
@@ -54,8 +52,6 @@ function LayoutContent({ children }: { children: ReactNode }) {
         <Header
           isProtected={true}
           isOnboardingPage={isOnboardingPage}
-          isCollapsed={isCollapsed}
-          onToggleSidebar={() => setIsCollapsed((c) => !c)}
         />
 
         {/* Fixed sidebar — desktop only */}
@@ -91,7 +87,6 @@ function LayoutContent({ children }: { children: ReactNode }) {
         </Box>
       </div>
     </ProtectedRoute>
-    </SidebarContext.Provider>
   );
 }
 
