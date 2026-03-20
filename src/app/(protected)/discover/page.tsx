@@ -112,16 +112,21 @@ export default function DiscoveryPage() {
     [foldersData]
   );
 
-  const { data: selectedFolderDetail } = useFolderDetail(selectedFolderId ?? undefined);
+  const { data: selectedFolderDetail } = useFolderDetail(
+    selectedFolderId ?? undefined
+  );
 
   const handleFolderClick = useCallback(
     (folder: DiscoveryFolderItem) => {
       setSelectedFolderId(folder.id);
       setFolderSheetOpen(false);
       if (opportunitySlug && typeof window !== "undefined") {
-        router.replace(`/discover/?opp=${opportunitySlug}&folder=${folder.id}`, {
-          scroll: false,
-        });
+        router.replace(
+          `/discover/?opp=${opportunitySlug}&folder=${folder.id}`,
+          {
+            scroll: false,
+          }
+        );
       }
     },
     [opportunitySlug, router]
@@ -368,7 +373,9 @@ export default function DiscoveryPage() {
                     selectedFolderId={selectedFolderId}
                     onCreateNewFolder={() => setCreateFolderModalOpen(true)}
                     onFolderClick={handleFolderClick}
-                    onClearFolder={selectedFolderId ? handleClearFolder : undefined}
+                    onClearFolder={
+                      selectedFolderId ? handleClearFolder : undefined
+                    }
                   />
                 </Box>
 
@@ -435,7 +442,9 @@ export default function DiscoveryPage() {
                         folders={discoveryFolders}
                         isLoading={isLoadingFolders}
                         selectedFolderId={selectedFolderId}
-                        onClearFolder={selectedFolderId ? handleClearFolder : undefined}
+                        onClearFolder={
+                          selectedFolderId ? handleClearFolder : undefined
+                        }
                         onCreateNewFolder={() => {
                           setFolderSheetOpen(false);
                           setCreateFolderModalOpen(true);
@@ -554,7 +563,7 @@ export default function DiscoveryPage() {
                   onClearFolder={
                     selectedFolderId ? handleClearFolder : undefined
                   }
-                  onRenameFolder={
+                  onEditFolder={
                     selectedFolderDetail ? handleRenameFolder : undefined
                   }
                   onDeleteFolder={

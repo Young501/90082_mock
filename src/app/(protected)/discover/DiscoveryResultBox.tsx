@@ -50,7 +50,7 @@ interface DiscoveryResultBoxProps {
   opportunitySlug?: string;
   folder?: DiscoveryFolderInfo;
   onClearFolder?: () => void;
-  onRenameFolder?: (folder: DiscoveryFolderInfo) => void;
+  onEditFolder?: (folder: DiscoveryFolderInfo) => void;
   onDeleteFolder?: (folder: DiscoveryFolderInfo) => void;
   pagination?: DiscoveryPaginationProps;
   query?: string;
@@ -70,7 +70,7 @@ export function DiscoveryResultBox({
   opportunitySlug,
   folder,
   onClearFolder,
-  onRenameFolder,
+  onEditFolder,
   onDeleteFolder,
   query,
   onQueryChange,
@@ -134,7 +134,7 @@ export function DiscoveryResultBox({
             <VStack align="flex-start" gap={0} flex={1} minW={0}>
               <HStack gap={2} align="center" w="full" justify="space-between">
                 <Heading size="xl">{folder.name}</Heading>
-                {(onRenameFolder || onDeleteFolder) && (
+                {(onEditFolder || onDeleteFolder) && (
                   <MenuPopover
                     placement="bottom-end"
                     trigger={
@@ -147,7 +147,7 @@ export function DiscoveryResultBox({
                       </IconButton>
                     }
                   >
-                    {onRenameFolder && (
+                    {onEditFolder && (
                       <Box
                         as="button"
                         w="full"
@@ -158,9 +158,9 @@ export function DiscoveryResultBox({
                         color="#374151"
                         borderRadius="md"
                         _hover={{ bg: "#F3F4F6" }}
-                        onClick={() => onRenameFolder(folder)}
+                        onClick={() => onEditFolder(folder)}
                       >
-                        Rename
+                        Edit folder
                       </Box>
                     )}
                     {onDeleteFolder && (
@@ -182,16 +182,11 @@ export function DiscoveryResultBox({
                   </MenuPopover>
                 )}
               </HStack>
-              {/* {folder.description && (
-                <Text fontSize="sm" color="#52525B" lineClamp={2}>
+              {folder.description && (
+                <Text fontSize="sm" color="#71717A" mt={0.5} lineClamp={2}>
                   {folder.description}
                 </Text>
-              )} */}
-              {/* <Text fontSize="sm" color="#71717A">
-                {" "}
-                You have {folder.member_count}{" "}
-                {userType === "student" ? "students" : "organisations"}
-              </Text> */}
+              )}
             </VStack>
           ) : (
             <Heading size="xl">
@@ -214,7 +209,7 @@ export function DiscoveryResultBox({
               size="sm"
               borderRadius="full"
               border="1px solid var(--border-100)"
-              color="profile.500"
+              color="profile.dark"
               fontSize="sm"
               fontWeight="500"
               mt={4}

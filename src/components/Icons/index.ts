@@ -13,6 +13,7 @@ import IconUser from "./IconUser";
 import IconOpportunity from "./IconOpportunity";
 import IconCheck from "./IconCheck";
 import IconSidebarLine from "./IconSidebarLine";
+import IconFolderHeart from "./IconFolderHeart";
 export {
   IconArrowRight,
   IconArrowLeft,
@@ -29,4 +30,5 @@ export {
   IconOpportunity,
   IconCheck,
   IconSidebarLine,
+  IconFolderHeart,
 };
