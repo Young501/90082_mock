@@ -30,6 +30,7 @@ import { formatDate } from "@/utils/formatDate";
 import Sidebar from "@/components/Layouts/Sidebar";
 import { MenuPopover } from "../ui/MenuPopover";
 import { ButtonV2 } from "../ui/ButtonV2";
+import { SupportModal } from "../SupportModal";
 
 const lessThan3Days = (date: string) => {
   const trialEndDate = new Date(date);
@@ -51,7 +52,8 @@ interface MenuItem {
 interface PublicMenuItem {
   label: string;
   subLabel?: string;
-  href: string;
+  href?: string;
+  onClick?: () => void;
   icon?: React.ComponentType<{ size?: number; color?: string }>;
   variant: "ghost" | "secondary" | "primary";
   customStyles?: Record<string, unknown>;
@@ -70,6 +72,7 @@ const Header = ({
   const { handleLogout } = useAuth();
   const { logout, getUserProfilePictureUrl } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const searchParams = useSearchParams();
 
   const profilePictureUrl = getUserProfilePictureUrl?.() ?? null;
@@ -88,7 +91,7 @@ const Header = ({
     {
       label: "Contact Us",
       subLabel: "Need Help?",
-      href: "/contact/",
+      onClick: () => setIsContactModalOpen(true),
       icon: Headset,
       variant: "ghost",
       customStyles: {
@@ -156,10 +159,27 @@ const Header = ({
         {content}
       </ButtonV2>
     );
+    const key = item.href ?? item.label;
+    if (item.onClick) {
+      return (
+        <Box key={key} w={isCompact ? "full" : undefined}>
+          <Box
+            as="button"
+            onClick={() => {
+              if (isCompact) handleMenuToggle();
+              item.onClick!();
+            }}
+            w={isCompact ? "full" : undefined}
+          >
+            {button}
+          </Box>
+        </Box>
+      );
+    }
     return (
-      <Box key={item.href} w={isCompact ? "full" : undefined}>
+      <Box key={key} w={isCompact ? "full" : undefined}>
         <Link
-          href={item.href}
+          href={item.href!}
           onClick={isCompact ? handleMenuToggle : undefined}
         >
           {button}
@@ -505,6 +525,10 @@ const Header = ({
           )}
         </>
       )}
+      <SupportModal
+        open={isContactModalOpen}
+        onOpenChange={(details) => setIsContactModalOpen(details.open)}
+      />
     </>
   );
 };

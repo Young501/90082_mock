@@ -129,7 +129,7 @@ const Sidebar = ({
     {
       key: "support",
       label: "Support",
-      href: "/contact/",
+      href: "/support/",
       icon: <Headset size={20} />,
       isCoordinator: true,
       isOrganisation: true,
@@ -169,7 +169,7 @@ const Sidebar = ({
     if (href === "/discover/") return pathname?.startsWith("/discover");
     if (href === "/inbox/") return pathname?.startsWith("/inbox");
     if (href === "/messaging/") return pathname?.startsWith("/messaging");
-    if (href === "/contact/") return pathname?.startsWith("/contact");
+    if (href === "/support/") return pathname?.startsWith("/support");
     if (href === "/profile/") return pathname?.startsWith("/profile");
     if (href === "/team/") return pathname?.startsWith("/team");
     return pathname === href || pathname === href.replace(/\/$/, "");
