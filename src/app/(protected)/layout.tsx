@@ -1,11 +1,10 @@
 "use client";
 
-import { ReactNode, Suspense, useEffect } from "react";
+import { ReactNode, Suspense, useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { Container, Spinner, Box, useBreakpointValue } from "@chakra-ui/react";
+import { Spinner, Box } from "@chakra-ui/react";
 import Header from "@/components/Layouts/Header";
-import Footer from "@/components/Layouts/Footer";
-import { isInTrialPeriod } from "@/utils/subscriptionPermissions";
+import { SidebarContext } from "@/context/SidebarContext";
 import { usePathname, useSearchParams } from "next/navigation";
 import Sidebar from "@/components/Layouts/Sidebar";
 import { useProfile } from "@/hooks/useProfile";
@@ -35,75 +34,64 @@ function LayoutContent({ children }: { children: ReactNode }) {
       setAccessibleOpportunities(accessibleOpportunities);
     }
   }, [accessibleOpportunities, setAccessibleOpportunities]);
-  const searchParams = useSearchParams();
-  const opportunitySlug = searchParams.get("opp");
-  const isMobile = useBreakpointValue({ base: true, lg: false });
+
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const pathname = usePathname();
   const isOnboardingPage = pathname?.startsWith("/onboarding") ?? false;
 
   return (
+    <SidebarContext.Provider value={{ isCollapsed }}>
     <ProtectedRoute>
       <div
         style={{
           minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
           position: "relative",
           width: "100%",
-          height: "100%",
           backgroundColor: "#FAFAFA",
         }}
       >
-        <Header isProtected={true} isOnboardingPage={isOnboardingPage} />
+        <Header
+          isProtected={true}
+          isOnboardingPage={isOnboardingPage}
+          isCollapsed={isCollapsed}
+          onToggleSidebar={() => setIsCollapsed((c) => !c)}
+        />
+
+        {/* Fixed sidebar — desktop only */}
         <Box
-          h="100%"
-          // h={{ base: "calc(100vh - 58px)", lg: "calc(100vh - 76px)" }}
+          display={{ base: "none", lg: "block" }}
+          position="fixed"
+          top={{ base: "58px", lg: "76px" }}
+          left={0}
+          bottom={0}
+          w={isCollapsed ? "0px" : "300px"}
+          overflowX="hidden"
+          borderRight={isCollapsed ? "none" : "1px solid"}
+          borderColor="gray.200"
+          bg="white"
+          zIndex={4999}
+          transition="width 0.3s ease"
         >
-          <Box
-            display="flex"
-            flex={1}
-            w="100%"
-            maxW="1440px"
-            mx="auto"
-            mt={`${isMobile ? "58px" : "76px"}`}
-            gap={6}
-            py={{ base: 4, lg: 10 }}
-            px={{ base: 4, lg: 14 }}
-            h="100%"
-            // px={{ base: 4, lg: 6 }}
-            // py={{ base: 4, lg: 6 }}
-            // mt={{
-            //   base: "20px",
-            //   lg: opportunitySlug
-            //     ? isInTrialPeriod(opportunitySlug)
-            //       ? "40px"
-            //       : "0px"
-            //     : "0px",
-            // }}
-          >
-            <Box
-              display={{ base: "none", xl: "block" }}
-              flexShrink={0}
-              w="300px"
-            >
-              <Sidebar isProtected={true} />
-            </Box>
-            <Container
-              maxW="100%"
-              px={0}
-              flex={1}
-              style={{ minWidth: 0 }}
-              h="100%"
-            >
-              {children}
-            </Container>
+          <Box minW="300px" h="100%">
+            <Sidebar isProtected={true} />
           </Box>
         </Box>
 
-        {/* <Footer /> */}
+        {/* Main content — offset by sidebar width */}
+        <Box
+          ml={{ base: 0, lg: isCollapsed ? 0 : "300px" }}
+          mt={{ base: "58px", lg: "76px" }}
+          py={{ base: 4, lg: 10 }}
+          px={{ base: 4, lg: 14 }}
+          transition="margin-left 0.3s ease"
+          minH="100vh"
+        >
+          {children}
+        </Box>
       </div>
     </ProtectedRoute>
+    </SidebarContext.Provider>
   );
 }
 

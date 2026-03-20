@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useSidebar } from "@/context/SidebarContext";
 import {
   Box,
   VStack,
@@ -78,6 +79,7 @@ export function DiscoveryResultBox({
   onSortChange,
 }: DiscoveryResultBoxProps) {
   const removeMemberFromFolder = useRemoveMemberFromFolder();
+  const { isCollapsed } = useSidebar();
   const count = pagination?.count ?? 0;
 
   // Keep previous results visible while loading so card DOM nodes (and their
@@ -288,7 +290,7 @@ export function DiscoveryResultBox({
         ) : (
           <>
             <SimpleGrid
-              columns={{ base: 1, md: 2 }}
+              columns={{ base: 1, md: 2, xl: isCollapsed ? 3 : 2, "2xl": 3 }}
               gap={4}
               h="100%"
               overflowY="auto"

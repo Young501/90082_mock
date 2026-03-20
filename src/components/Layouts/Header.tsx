@@ -14,6 +14,8 @@ import {
   HelpCircle,
   Bell,
   ChevronDown,
+  PanelLeftClose,
+  PanelLeftOpen,
   Menu,
   X,
   LogOut,
@@ -61,11 +63,15 @@ interface PublicMenuItem {
 const Header = ({
   isProtected,
   isOnboardingPage,
+  isCollapsed,
+  onToggleSidebar,
 }: {
   isProtected?: boolean;
   isOnboardingPage?: boolean;
+  isCollapsed?: boolean;
+  onToggleSidebar?: () => void;
 }) => {
-  const isMobile = useBreakpointValue({ base: true, lg: true, xl: false });
+  const isMobile = useBreakpointValue({ base: true, md: true, lg: false });
   const router = useRouter();
   const { handleLogout } = useAuth();
   const { logout, getUserProfilePictureUrl } = useAuthStore();
@@ -219,119 +225,218 @@ const Header = ({
             right={0}
             zIndex={5000}
             width="100%"
-            borderBottom="1px solid rgba(148, 163, 184, 0.35)"
             h={{ base: "58px", lg: "76px" }}
           >
-            <Box
-              maxW="1440px"
-              display="flex"
-              mx="auto"
-              alignItems="center"
-              justifyContent="space-between"
-              px={{ base: 4, lg: 16 }}
-              maxHeight={{ base: "58px", lg: "76px" }}
-              py={3}
-            >
-              <Box display="flex" alignItems="center" gap={1}>
-                {isMobile && (
-                  <Button
-                    aria-label="Open menu"
-                    variant="ghost"
-                    color="black"
-                    onClick={handleMenuToggle}
-                    px={2}
-                    minW="auto"
-                    height="auto"
-                  >
-                    <Menu width={20} height={20} color="#1679AB" />
-                  </Button>
-                )}
-                <Link href="/">
+            <Box display="flex" h="100%" alignItems="stretch">
+              {/* Sidebar-width section: logo + collapse toggle (desktop only) */}
+              <Box
+                display={{ base: "none", lg: "block" }}
+                position="relative"
+                flexShrink={0}
+                w="300px"
+                borderRight={isCollapsed ? "none" : "1px solid rgba(148, 163, 184, 0.35)"}
+                borderBottom={isCollapsed ? "1px solid rgba(148, 163, 184, 0.35)" : "none"}
+                // Delay border appearing to match the 0.3s sidebar animation,
+                // but remove it instantly when it should disappear
+                style={{
+                  transition: isCollapsed
+                    ? "border-right 0s 0s, border-bottom 0s 0.3s"
+                    : "border-right 0s 0.3s, border-bottom 0s 0s",
+                }}
+              >
+                {/* Logo — slides right and shrinks when collapsed */}
+                <Box
+                  position="absolute"
+                  left={isCollapsed ? "64px" : "12px"}
+                  top="50%"
+                  transition="left 0.3s ease"
+                  style={{ transform: "translateY(-50%)" }}
+                >
                   <Box
                     pos="relative"
-                    w={{ base: "133px", md: "216px", lg: "260px" }}
-                    h={{ base: "32px", md: "52px", lg: "64px" }}
+                    w={isCollapsed ? "260px" : "200px"}
+                    h={isCollapsed ? "64px" : "45px"}
+                    transition="width 0.3s ease, height 0.3s ease"
                   >
-                    <Image
-                      alt="Uniconnected"
-                      src="/assets/logo.svg"
-                      fill
-                      style={{ objectFit: "contain" }}
-                      priority
-                    />
+                    {isOnboardingPage ? (
+                      <Image
+                        alt="Uniconnected"
+                        src="/assets/logo.svg"
+                        fill
+                        style={{ objectFit: "contain", objectPosition: "left" }}
+                        priority
+                      />
+                    ) : (
+                      <Link href="/">
+                        <Image
+                          alt="Uniconnected"
+                          src="/assets/logo.svg"
+                          fill
+                          style={{ objectFit: "contain", objectPosition: "left" }}
+                          priority
+                        />
+                      </Link>
+                    )}
                   </Box>
-                </Link>
-              </Box>
-              <HStack gap={4}>
+                </Box>
+
+                {/* Toggle button — slides from right edge to left edge on collapse */}
                 <Box
-                  w={10}
-                  h={10}
-                  borderRadius="full"
-                  bg="#FAFAFA"
+                  as="button"
+                  position="absolute"
+                  left={isCollapsed ? "12px" : "256px"}
+                  top="50%"
+                  transition="left 0.3s ease"
+                  style={{ transform: "translateY(-50%)" }}
+                  w="32px"
+                  h="32px"
+                  borderRadius="md"
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  gap={2}
+                  color="#1679AB"
+                  cursor="pointer"
+                  _hover={{ bg: "gray.100" }}
+                  onClick={onToggleSidebar}
                 >
-                  <Bell size={18} color="#18181B" />
+                  {isCollapsed ? (
+                    <PanelLeftOpen size={24} />
+                  ) : (
+                    <PanelLeftClose size={20} />
+                  )}
                 </Box>
+              </Box>
 
-                <MenuPopover
-                  placement="bottom-end"
-                  minW="180px"
-                  trigger={
-                    <Box
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      gap={2}
-                      px={1}
-                      py={1}
-                      borderRadius="full"
-                      cursor="pointer"
-                      _hover={{ bg: "#F4F4F5" }}
+              {/* Right section: mobile hamburger + logo, then bell + profile */}
+              <Box
+                flex={1}
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                px={{ base: 4, lg: 8 }}
+                py={3}
+                borderBottom="1px solid rgba(148, 163, 184, 0.35)"
+              >
+                <Box display="flex" alignItems="center" gap={1}>
+                  {isMobile && (
+                    <Button
+                      aria-label="Open menu"
+                      variant="ghost"
+                      color="black"
+                      onClick={handleMenuToggle}
+                      px={2}
+                      minW="auto"
+                      height="auto"
                     >
+                      <Menu width={20} height={20} color="#1679AB" />
+                    </Button>
+                  )}
+                  {/* Logo visible on mobile only — desktop logo lives in the left section */}
+                  <Box display={{ base: "block", lg: "none" }}>
+                    {isOnboardingPage ? (
                       <Box
-                        w={8}
-                        h={8}
-                        borderRadius="full"
-                        overflow="hidden"
+                        pos="relative"
+                        w={{ base: "133px", md: "216px" }}
+                        h={{ base: "32px", md: "52px" }}
+                      >
+                        <Image
+                          alt="Uniconnected"
+                          src="/assets/logo.svg"
+                          fill
+                          style={{ objectFit: "contain" }}
+                          priority
+                        />
+                      </Box>
+                    ) : (
+                      <Link href="/">
+                        <Box
+                          pos="relative"
+                          w={{ base: "133px", md: "216px" }}
+                          h={{ base: "32px", md: "52px" }}
+                        >
+                          <Image
+                            alt="Uniconnected"
+                            src="/assets/logo.svg"
+                            fill
+                            style={{ objectFit: "contain" }}
+                            priority
+                          />
+                        </Box>
+                      </Link>
+                    )}
+                  </Box>
+                </Box>
+                <HStack gap={4}>
+                  <Box
+                    w={10}
+                    h={10}
+                    borderRadius="full"
+                    bg="#FAFAFA"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    gap={2}
+                  >
+                    <Bell size={18} color="#18181B" />
+                  </Box>
+
+                  <MenuPopover
+                    placement="bottom-end"
+                    minW="180px"
+                    trigger={
+                      <Box
                         display="flex"
                         alignItems="center"
                         justifyContent="center"
+                        gap={2}
+                        px={1}
+                        py={1}
+                        borderRadius="full"
+                        cursor="pointer"
+                        _hover={{ bg: "#F4F4F5" }}
                       >
-                        {profilePictureUrl ? (
-                          <Image
-                            src={profilePictureUrl}
-                            alt="Profile picture"
-                            width={32}
-                            height={32}
-                            style={{ objectFit: "cover" }}
-                          />
-                        ) : (
-                          <UserRound size={20} color="#18181B" />
-                        )}
+                        <Box
+                          w={8}
+                          h={8}
+                          borderRadius="full"
+                          overflow="hidden"
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                        >
+                          {profilePictureUrl ? (
+                            <Image
+                              src={profilePictureUrl}
+                              alt="Profile picture"
+                              width={32}
+                              height={32}
+                              style={{ objectFit: "cover" }}
+                            />
+                          ) : (
+                            <UserRound size={20} color="#18181B" />
+                          )}
+                        </Box>
+                        <ChevronDown width={20} height={20} color="#18181B" />
                       </Box>
-                      <ChevronDown width={20} height={20} color="#18181B" />
-                    </Box>
-                  }
-                >
-                  <HStack
-                    gap={2}
-                    cursor="pointer"
-                    px={2}
-                    py={1}
-                    borderRadius="md"
-                    _hover={{ bg: "#F4F4F5" }}
-                    onClick={handleUserLogout}
+                    }
                   >
-                    <LogOut size={16} color="#111827" />
-                    <Text fontSize="sm" color="#111827">
-                      Log out
-                    </Text>
-                  </HStack>
-                </MenuPopover>
-              </HStack>
+                    <HStack
+                      gap={2}
+                      cursor="pointer"
+                      px={2}
+                      py={1}
+                      borderRadius="md"
+                      _hover={{ bg: "#F4F4F5" }}
+                      onClick={handleUserLogout}
+                    >
+                      <LogOut size={16} color="#111827" />
+                      <Text fontSize="sm" color="#111827">
+                        Log out
+                      </Text>
+                    </HStack>
+                  </MenuPopover>
+                </HStack>
+              </Box>
             </Box>
             <SubscriptionBanner isInMobileMenu={isMobileMenuOpen} />
             {isMobile && (
@@ -414,17 +519,15 @@ const Header = ({
               px={{ base: 4, lg: 20 }}
               py={3}
             >
-              <Link href="/">
-                <Box pos="relative" w="200px" h="60px">
-                  <Image
-                    src="/assets/logo.svg"
-                    alt="Uniconnected"
-                    fill
-                    style={{ objectFit: "contain" }}
-                    priority
-                  />
-                </Box>
-              </Link>
+              <Box pos="relative" w="200px" h="60px">
+                <Image
+                  src="/assets/logo.svg"
+                  alt="Uniconnected"
+                  fill
+                  style={{ objectFit: "contain" }}
+                  priority
+                />
+              </Box>
 
               <Box>
                 {!isMobile ? (
