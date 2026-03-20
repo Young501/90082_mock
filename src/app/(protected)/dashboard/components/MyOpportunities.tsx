@@ -112,7 +112,7 @@ function DashboardOpportunityCard({
                 {opp.title}
               </Text>
               <HStack>
-                <Text fontSize="xs" color="#173DA6">
+                <Text fontSize="xs" color="#173DA6" whiteSpace="nowrap">
                   {getStatusLabel(opp)}
                 </Text>
                 {opp.is_default && (

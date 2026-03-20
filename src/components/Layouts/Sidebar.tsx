@@ -8,7 +8,7 @@ import {
   useDisclosure,
   Link as ChakraLink,
 } from "@chakra-ui/react";
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import {
   Home,
   LayoutDashboard,
@@ -29,7 +29,6 @@ import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import type { AccessibleOpportunity } from "@/types/opportunities";
 
-const ACTIVE_BG = "#2AA8E0";
 const INACTIVE_COLOR = "#71717A";
 
 interface SidebarMenuItem {
@@ -53,7 +52,6 @@ interface SidebarProps {
 
 const Sidebar = ({
   isProtected = true,
-  isMobileMenuOpen = false,
   setIsMobileMenuOpen = () => {},
 }: SidebarProps) => {
   const hasUnreadMessages = useAuthStore((s) => s.hasUnreadMessages);
@@ -64,7 +62,6 @@ const Sidebar = ({
   const discoverDropdownRef = useRef<HTMLDivElement>(null);
   const {
     open: isDiscoverOpen,
-    onClose: onDiscoverClose,
     onToggle: onDiscoverToggle,
   } = useDisclosure();
 
@@ -75,19 +72,6 @@ const Sidebar = ({
   const opps: AccessibleOpportunity[] = accessibleOpportunities ?? [];
   const defaultOpp = opps.find((o) => o.is_default);
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        discoverDropdownRef.current &&
-        !discoverDropdownRef.current.contains(e.target as Node)
-      ) {
-        onDiscoverClose();
-      }
-    };
-    if (isDiscoverOpen)
-      document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isDiscoverOpen, onDiscoverClose]);
 
   const MENU_ITEMS: SidebarMenuItem[] = [
     {
@@ -207,6 +191,8 @@ const Sidebar = ({
         cursor="pointer"
         gap={3}
         h="100%"
+        _hover={{ bg: active ? "profile.500" : "secondary.100" }}
+        transition="background 0.15s"
       >
         <Box flexShrink={0} w={5} h={5} color={active ? "white" : "#71717A"}>
           {item.icon}
@@ -264,6 +250,8 @@ const Sidebar = ({
             bg={active ? "profile.500" : "transparent"}
             color={active ? "white" : INACTIVE_COLOR}
             gap={3}
+            _hover={{ bg: active ? "profile.500" : "secondary.100" }}
+            transition="background 0.15s"
           >
             <Box
               flexShrink={0}
@@ -301,6 +289,8 @@ const Sidebar = ({
             bg={active ? "profile.500" : "transparent"}
             color={active ? "white" : INACTIVE_COLOR}
             gap={3}
+            _hover={{ bg: active ? "profile.500" : "secondary.100" }}
+            transition="background 0.15s"
           >
             <Box
               flexShrink={0}
@@ -338,10 +328,12 @@ const Sidebar = ({
           bg={active ? "profile.500" : "transparent"}
           color={active ? "white" : INACTIVE_COLOR}
           cursor="pointer"
+          _hover={{ bg: active ? "profile.500" : "secondary.100" }}
+          transition="background 0.15s"
           onClick={() => {
             const target = defaultOpp ?? opps[0];
             router.push(`/discover/?opp=${target.slug}`);
-            if (!isDiscoverOpen) onDiscoverToggle();
+            onDiscoverToggle();
           }}
         >
           <HStack gap={3}>
@@ -424,6 +416,8 @@ const Sidebar = ({
                             : INACTIVE_COLOR
                         }
                         gap={2}
+                        _hover={{ bg: isActiveOpp ? (isStudent ? "#EAF6FD" : "#E9F7F6") : "secondary.100" }}
+                        transition="background 0.15s"
                       >
                         <Text
                           fontSize="md"

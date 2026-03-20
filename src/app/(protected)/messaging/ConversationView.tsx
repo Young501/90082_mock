@@ -49,6 +49,7 @@ export const ConversationView = ({
   isSending = false,
 }: ConversationViewProps) => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [isAttachmentOpen, setIsAttachmentOpen] = useState(false);
   const [activeMessageActionsId, setActiveMessageActionsId] = useState<
@@ -66,8 +67,9 @@ export const ConversationView = ({
   );
 
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop =
+        messagesContainerRef.current.scrollHeight;
     }
   }, [conversation?.id, orderedMessages.length]);
 
@@ -143,7 +145,7 @@ export const ConversationView = ({
         onToggleArchive={onToggleArchive}
       />
 
-      <Box flex={1} minH="0" h="100%" overflowY="auto" px={4} py={4}>
+      <Box ref={messagesContainerRef} flex={1} minH="0" h="100%" overflowY="auto" px={4} py={4}>
         {messagesLoading ? (
           <Flex w="100%" h="100%" minH="200px" align="center" justify="center">
             <Spinner size="md" />

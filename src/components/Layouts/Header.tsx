@@ -343,7 +343,7 @@ const Header = ({
                 <Drawer.Root
                   open={isMobileMenuOpen}
                   onOpenChange={(details) => setIsMobileMenuOpen(details.open)}
-                  placement="end"
+                  placement="start"
                   size="full"
                 >
                   <Drawer.Backdrop />
