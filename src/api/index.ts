@@ -312,12 +312,9 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v2/opportunities/folders/${folderId}/member/`,
   }),
-  REMOVE_MEMBER_FROM_FOLDER: (
-    folderId: string,
-    memberId: string
-  ): ApiEndpoint => ({
-    method: "DELETE",
-    url: `/api/v2/opportunities/folders/${folderId}/member/${memberId}/`,
+  REMOVE_MEMBER_FROM_FOLDER: (folderId: string): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v2/opportunities/folders/${folderId}/member/remove/`,
   }),
   FOLDER_MEMBERS: (folderId: string): ApiEndpoint => ({
     method: "GET",

@@ -12,6 +12,12 @@ export const PROFILE_BORDER_COLORS = {
   coordinator: "#D6EDFB",
 } as const;
 
+export const PROFILE_DARK_COLORS = {
+  organisation: "#1F7F7B",
+  student: "#1679AB",
+  coordinator: "#1679AB",
+} as const;
+
 export const PROFILE_SECONDARY_COLORS = {
   organisation: "#E9F7F6",
   student: "#EAF6FD",
@@ -44,6 +50,7 @@ const config = defineConfig({
         },
         profile: {
           500: { value: "var(--profile-500, #2AA8E0)" },
+          dark: { value: "var(--profile-dark, #1679AB)" },
         },
 
         border: {

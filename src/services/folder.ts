@@ -5,7 +5,7 @@ import {
   FolderDetail,
   CreateFolderRequest,
   UpdateFolderRequest,
-  AddMemberToFolderRequest,
+  FolderMemberRequest,
   AddMemberToFolderResponse,
   FolderMembersResponse,
 } from "@/types/folder";
@@ -126,7 +126,7 @@ export function useAddMemberToFolder() {
       data,
     }: {
       folderId: string;
-      data: AddMemberToFolderRequest;
+      data: FolderMemberRequest;
     }): Promise<AddMemberToFolderResponse> => {
       return apiRequest({
         endpoint: API_ENDPOINTS.ADD_MEMBER_TO_FOLDER(folderId),
@@ -151,16 +151,14 @@ export function useRemoveMemberFromFolder() {
   return useMutation({
     mutationFn: async ({
       folderId,
-      memberId,
+      data,
     }: {
       folderId: string;
-      memberId: number;
+      data: FolderMemberRequest;
     }): Promise<void> => {
       return apiRequest({
-        endpoint: API_ENDPOINTS.REMOVE_MEMBER_FROM_FOLDER(
-          folderId,
-          memberId.toString()
-        ),
+        endpoint: API_ENDPOINTS.REMOVE_MEMBER_FROM_FOLDER(folderId),
+        body: data,
       });
     },
     onSuccess: (_, variables) => {

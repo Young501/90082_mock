@@ -19,6 +19,7 @@ import type { OpportunitySortBy } from "@/types/opportunity";
 import IconMoreEllipsis from "@/components/Icons/IconMoreEllipsis";
 import { X } from "lucide-react";
 import { useRemoveMemberFromFolder } from "@/services/folder";
+import { FolderMemberRequest } from "@/types/folder";
 import { toast } from "react-toastify";
 import { ButtonV2 } from "@/components/ui";
 export interface DiscoveryPaginationProps {
@@ -102,9 +103,9 @@ export function DiscoveryResultBox({
   }, [searchInput, onQueryChange]);
 
   const handleRemoveFromFolder = useCallback(
-    (folderId: string, memberId: number) => {
+    (folderId: string, data: FolderMemberRequest) => {
       removeMemberFromFolder.mutate(
-        { folderId, memberId },
+        { folderId, data },
         {
           onSuccess: () =>
             toast.success("Member removed from folder successfully"),
@@ -299,18 +300,17 @@ export function DiscoveryResultBox({
             >
               {displayedResults.map((user) => {
                 const key = user.id;
-                const folderMemberId = (user as { folder_member_id?: number })
-                  .folder_member_id;
                 // We are in folder mode whenever a folder is selected — all
                 // results returned in that context belong to the folder.
                 const isInFolder = !!folder;
                 const onRemoveFromFolder =
-                  folder && folderMemberId
+                  folder && user.id
                     ? () =>
-                        handleRemoveFromFolder(
-                          folder.id.toString(),
-                          folderMemberId
-                        )
+                        handleRemoveFromFolder(folder.id.toString(), {
+                          ...(userType === "student"
+                            ? { user_id: user.id }
+                            : { organisation_id: user.id }),
+                        })
                     : undefined;
 
                 return userType === "student" ? (

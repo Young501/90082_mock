@@ -9,12 +9,8 @@ import {
   Button,
   IconButton,
 } from "@chakra-ui/react";
-import {
-  IconFolder,
-  IconPlus,
-  IconFolderSingleTrace,
-} from "@/components/Icons";
-import { FolderX, X } from "lucide-react";
+import { IconFolder, IconFolderSingleTrace } from "@/components/Icons";
+import { FolderX, Plus, X } from "lucide-react";
 
 export interface DiscoveryFolderItem {
   id: string;
@@ -55,7 +51,7 @@ export default function DiscoveryFolderCard({
       w="100%"
       minW={inDrawer ? "none" : "261px"}
     >
-      <VStack align="stretch" gap={4}>
+      <VStack align="stretch" gap={7}>
         <HStack justify="space-between" align="center">
           <HStack gap={2} align="center">
             <Box flexShrink={0} color="#3F3F46">
@@ -104,22 +100,23 @@ export default function DiscoveryFolderCard({
           variant="outline"
           w="full"
           justifyContent="center"
-          gap={2}
-          py={3}
+          gap={1.5}
+          py={2.5}
           borderRadius="xl"
-          borderColor="border.100"
+          borderColor="var(--border-100)"
           borderWidth="1px"
           bg="white"
-          color="profile.500"
+          color="profile.dark"
           fontWeight="normal"
           fontSize="sm"
+          _hover={{ bg: "var(--border-100)" }}
           onClick={onCreateNewFolder}
         >
-          <IconPlus color="var(--profile-500)" />
+          <Plus size={14} color="var(--profile-dark)" />
           Create New Folder
         </Button>
 
-        <VStack align="stretch" gap={2}>
+        <VStack align="stretch" gap={4} mt={1}>
           {isLoading ? (
             <Text fontSize="sm" textAlign="center" color="#71717A" py={2}>
               Loading folders...
@@ -132,36 +129,34 @@ export default function DiscoveryFolderCard({
                 align="center"
                 py={3}
                 px={3}
-                borderRadius="8px"
-                bg={
-                  selectedFolderId === folder.id
-                    ? "var(--border-100)"
-                    : "transparent"
-                }
-                borderWidth={selectedFolderId === folder.id ? "1px" : 0}
-                borderColor={
-                  selectedFolderId === folder.id ? "profile.500" : "transparent"
-                }
+                borderRadius="xl"
+                bg={selectedFolderId === folder.id ? "profile.500" : "white"}
+                color={selectedFolderId === folder.id ? "white" : "#27272A"}
+                boxShadow="0px 1px 4px rgba(0, 0, 0, 0.08)"
                 cursor={onFolderClick ? "pointer" : "default"}
-                _hover={onFolderClick ? { bg: "#F0F0F0" } : undefined}
-                onClick={() => onFolderClick?.(folder)}
+                _hover={
+                  onFolderClick && selectedFolderId !== folder.id
+                    ? { bg: "var(--border-100)" }
+                    : undefined
+                }
+                onClick={() =>
+                  selectedFolderId === folder.id
+                    ? onClearFolder?.()
+                    : onFolderClick?.(folder)
+                }
               >
-                <Box flexShrink={0} color="#3F3F46">
-                  <IconFolderSingleTrace color="#3F3F46" />
+                <Box flexShrink={0}>
+                  <IconFolderSingleTrace
+                    color={selectedFolderId === folder.id ? "white" : "#3F3F46"}
+                  />
                 </Box>
-                <Text
-                  flex={1}
-                  fontSize="sm"
-                  fontWeight="normal"
-                  color="#27272A"
-                  truncate
-                >
+                <Text flex={1} fontSize="sm" fontWeight="normal" truncate>
                   {folder.name}
                 </Text>
                 <Text
                   fontSize="sm"
                   fontWeight="normal"
-                  color="#71717A"
+                  color={selectedFolderId === folder.id ? "white" : "#71717A"}
                   flexShrink={0}
                 >
                   {folder.count}
