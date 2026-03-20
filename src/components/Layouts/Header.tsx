@@ -434,17 +434,15 @@ const Header = ({
               px={{ base: 4, lg: 20 }}
               py={3}
             >
-              <Link href="/">
-                <Box pos="relative" w="200px" h="60px">
-                  <Image
-                    src="/assets/logo.svg"
-                    alt="Uniconnected"
-                    fill
-                    style={{ objectFit: "contain" }}
-                    priority
-                  />
-                </Box>
-              </Link>
+              <Box pos="relative" w="200px" h="60px">
+                <Image
+                  src="/assets/logo.svg"
+                  alt="Uniconnected"
+                  fill
+                  style={{ objectFit: "contain" }}
+                  priority
+                />
+              </Box>
 
               <Box>
                 {!isMobile ? (
