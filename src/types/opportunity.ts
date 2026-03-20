@@ -44,6 +44,7 @@ export interface OpportunitySearchRequestBody {
   query?: string;
   sort?: OpportunitySort;
   filters?: OpportunityFilters;
+  folder_id?: number;
 }
 
 export interface SearchResponse {

@@ -7,7 +7,6 @@ import {
   useCreateFolder,
   useFolders,
   useUpdateFolder,
-  useFolderMembersPaginated,
 } from "@/services/folder";
 import { CreateFolderRequest, Folder } from "@/types/folder";
 import { createFolderSchema } from "@/utils/validationSchemas";
@@ -103,45 +102,5 @@ export function useFolderManagement(opportunitySlug: string) {
     folders: folders || [],
     isLoadingFolders,
     folderModal,
-  };
-}
-
-export function useFolderMembersManagement(folderId: string) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
-  const [memberType, setMemberType] = useState<
-    "student" | "organisation" | undefined
-  >(undefined);
-
-  const { data: folderMembers, isLoading: isLoadingMembers } =
-    useFolderMembersPaginated(folderId, currentPage, pageSize, memberType);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handlePageSizeChange = (newPageSize: number) => {
-    setPageSize(newPageSize);
-    setCurrentPage(1);
-  };
-
-  const handleMemberTypeChange = (
-    type: "student" | "organisation" | undefined
-  ) => {
-    setMemberType(type);
-    setCurrentPage(1);
-  };
-
-  return {
-    members: folderMembers?.results || [],
-    totalCount: folderMembers?.count || 0,
-    totalPages: Math.ceil((folderMembers?.count || 0) / pageSize),
-    currentPage,
-    pageSize,
-    memberType,
-    isLoadingMembers,
-    handlePageChange,
-    handlePageSizeChange,
-    handleMemberTypeChange,
   };
 }

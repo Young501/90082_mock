@@ -1,7 +1,8 @@
 import React from "react";
-import { Box, Text, VStack } from "@chakra-ui/react";
+import { Box, HStack, Text, VStack } from "@chakra-ui/react";
 import Image from "next/image";
-import { Button } from "@/components/ui/Button";
+import { ButtonV2 } from "@/components/ui/ButtonV2";
+import { X } from "lucide-react";
 
 export const DeleteModal = ({
   isOpen,
@@ -29,7 +30,7 @@ export const DeleteModal = ({
       display="flex"
       alignItems="center"
       justifyContent="center"
-      zIndex={1000}
+      zIndex={9999}
       onClick={() => {
         onClose();
         if (onResetBackground) {
@@ -47,49 +48,53 @@ export const DeleteModal = ({
         onClick={(e) => e.stopPropagation()}
         position="relative"
       >
-        <Button
-          position="absolute"
-          top={4}
-          right={4}
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            onClose();
-            if (onResetBackground) {
-              onResetBackground();
-            }
-          }}
-        >
-          <Image src="/assets/cancel.svg" alt="Close" width={25} height={25} />
-        </Button>
+        <VStack align="stretch" gap={8}>
+          <VStack align="stretch" gap={2}>
+            <HStack justify="space-between" align="center">
+              <Text
+                fontSize="xl"
+                fontWeight="bold"
+                color="#000000"
+                textAlign="left"
+              >
+                {InFolder ? "Remove from Folder" : "Delete Folder"}
+              </Text>
 
-        <VStack align="stretch" gap={6} pt={4}>
-          <Text
-            fontSize="24px"
-            fontWeight="bold"
-            color="#000000"
-            textAlign="left"
-          >
-            {InFolder ? "Remove from Folder" : "Delete Folder"}
-          </Text>
+              <ButtonV2
+                variant="ghost"
+                onClick={() => {
+                  onClose();
+                  if (onResetBackground) {
+                    onResetBackground();
+                  }
+                }}
+                p={0}
+              >
+                <X size={24} color="#71717A" />
+              </ButtonV2>
+            </HStack>
 
-          <Text fontSize="16px" color="#666666">
-            Are you sure you want to{" "}
-            {InFolder ? "remove this user" : "delete this folder"}?
-          </Text>
+            <Text fontSize="sm" color="#52525B">
+              {InFolder
+                ? "This will remove them from your folder."
+                : "Deleting this folder clears all your saved data."}
+            </Text>
+          </VStack>
 
-          <Box display="flex" gap={4} justifyContent="flex-end">
-            <Button
-              variant="student"
-              borderRadius="8px"
-              h="40px"
-              fontSize="14px"
-              fontWeight="600"
-              onClick={onDelete}
-              px={6}
+          <Box display="flex" gap={4} w="100%">
+            <ButtonV2
+              variant="ghost"
+              onClick={onClose}
+              border="1px solid #E4E4E7"
+              flex="1"
+              color="black"
+              borderRadius="xl"
             >
-              Delete
-            </Button>
+              Cancel
+            </ButtonV2>
+            <ButtonV2 variant="student" onClick={onDelete} flex="1">
+              {InFolder ? "Remove" : "Delete"}
+            </ButtonV2>
           </Box>
         </VStack>
       </Box>

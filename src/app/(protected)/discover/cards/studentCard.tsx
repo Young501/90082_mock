@@ -104,7 +104,7 @@ export function StudentCard({
   const handleAddToFolder = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (student.id) {
-      if (isInFolder && onRemoveFromFolder) {
+      if (isInFolder) {
         setDeleteModal(true);
       } else {
         setShowAddToFolderModal(true);
@@ -204,33 +204,38 @@ export function StudentCard({
             </HStack>
 
             {!disableAddToFolder && (
-              <Box
-                p={1.5}
-                borderRadius="md"
-                position="absolute"
-                top={4}
-                right={4}
-                cursor={isMatched ? "default" : "pointer"}
-                color={addedToFolder ? "#2AA8E0" : "#71717A"}
-                _hover={!isMatched ? { color: "#2AA8E0" } : undefined}
-                onClick={handleAddToFolder}
-                aria-label={isInFolder ? "Remove from folder" : "Add to folder"}
-                pointerEvents={isMatched ? "none" : "auto"}
+              <Tooltip
+                content={isInFolder ? "Remove from folder" : "Add to folder"}
+                positioning={{ placement: "top", offset: { mainAxis: 6 } }}
+                showArrow
               >
-                {isInFolder ? (
-                  <Box color="#DC2626" fontSize="18px">
-                    <i
-                      className="fa-solid fa-trash"
-                      style={{ fontSize: "16px" }}
-                    />
-                  </Box>
-                ) : (
+                <Box
+                  p={1.5}
+                  borderRadius="md"
+                  position="absolute"
+                  top={4}
+                  right={4}
+                  cursor={isMatched ? "default" : "pointer"}
+                  color={
+                    isInFolder || addedToFolder
+                      ? "var(--profile-500)"
+                      : "#71717A"
+                  }
+                  _hover={
+                    !isMatched ? { color: "var(--profile-500)" } : undefined
+                  }
+                  onClick={handleAddToFolder}
+                  aria-label={
+                    isInFolder ? "Remove from folder" : "Add to folder"
+                  }
+                  pointerEvents={isMatched ? "none" : "auto"}
+                >
                   <FolderHeart
                     size={18}
-                    strokeWidth={addedToFolder ? 2.5 : 1.5}
+                    strokeWidth={isInFolder ? 2.5 : addedToFolder ? 2.5 : 1.5}
                   />
-                )}
-              </Box>
+                </Box>
+              </Tooltip>
             )}
           </HStack>
 

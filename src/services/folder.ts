@@ -5,7 +5,7 @@ import {
   FolderDetail,
   CreateFolderRequest,
   UpdateFolderRequest,
-  AddMemberToFolderRequest,
+  FolderMemberRequest,
   AddMemberToFolderResponse,
   FolderMembersResponse,
 } from "@/types/folder";
@@ -93,30 +93,6 @@ export function useDeleteFolder() {
   });
 }
 
-export function useFolderMembersPaginated(
-  folderId: string | undefined,
-  page: number = 1,
-  pageSize: number = 20,
-  memberType?: "student" | "organisation"
-) {
-  return useQuery({
-    queryKey: ["folder-members", folderId, page, pageSize, memberType],
-    queryFn: (): Promise<FolderMembersResponse> =>
-      apiRequest({
-        endpoint: API_ENDPOINTS.FOLDER_MEMBERS(folderId!),
-        params: {
-          page,
-          page_size: pageSize,
-          ...(memberType && { member_type: memberType }),
-        },
-      }),
-    enabled: !!folderId,
-    staleTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: "always",
-  });
-}
-
 export function useAddMemberToFolder() {
   const queryClient = useQueryClient();
 
@@ -126,7 +102,7 @@ export function useAddMemberToFolder() {
       data,
     }: {
       folderId: string;
-      data: AddMemberToFolderRequest;
+      data: FolderMemberRequest;
     }): Promise<AddMemberToFolderResponse> => {
       return apiRequest({
         endpoint: API_ENDPOINTS.ADD_MEMBER_TO_FOLDER(folderId),
@@ -151,16 +127,14 @@ export function useRemoveMemberFromFolder() {
   return useMutation({
     mutationFn: async ({
       folderId,
-      memberId,
+      data,
     }: {
       folderId: string;
-      memberId: number;
+      data: FolderMemberRequest;
     }): Promise<void> => {
       return apiRequest({
-        endpoint: API_ENDPOINTS.REMOVE_MEMBER_FROM_FOLDER(
-          folderId,
-          memberId.toString()
-        ),
+        endpoint: API_ENDPOINTS.REMOVE_MEMBER_FROM_FOLDER(folderId),
+        body: data,
       });
     },
     onSuccess: (_, variables) => {
@@ -171,6 +145,7 @@ export function useRemoveMemberFromFolder() {
         queryKey: ["folder", variables.folderId],
       });
       queryClient.invalidateQueries({ queryKey: ["folders"] });
+      queryClient.invalidateQueries({ queryKey: ["opportunity"] });
     },
   });
 }
