@@ -107,8 +107,8 @@ export function RecentMessages({ messages, userType }: RecentMessagesProps) {
               >
                 <Box position="relative" flexShrink={0}>
                   <Box
-                    w={8}
-                    h={8}
+                    w={10}
+                    h={10}
                     borderRadius="full"
                     overflow="hidden"
                     bg="profile.500"
