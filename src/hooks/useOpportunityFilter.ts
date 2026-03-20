@@ -14,6 +14,7 @@ import type { StudentProfile, OrganisationProfile } from "@/types/discovery";
 interface UseOpportunityFilterOptions {
   isEnrolled?: boolean;
   isEnrollmentReady?: boolean;
+  folderId?: number | null;
 }
 
 // Helper function to build request body with nesting
@@ -21,7 +22,8 @@ const buildRequestBody = (
   participantType: string,
   filters: OpportunityFilters,
   query?: string,
-  sort?: OpportunitySort
+  sort?: OpportunitySort,
+  folderId?: number | null
 ): OpportunitySearchRequestBody => {
   const body: OpportunitySearchRequestBody = {
     participant_type: participantType,
@@ -34,10 +36,13 @@ const buildRequestBody = (
   if (sort) {
     body.sort = sort;
   }
-  // body.sort = sort ?? { by: "distance" };
 
   if (Object.keys(filters).length > 0) {
     body.filters = filters;
+  }
+
+  if (folderId != null && folderId > 0) {
+    body.folder_id = folderId;
   }
 
   return body;
@@ -47,7 +52,7 @@ export const useOpportunityFilter = (
   opportunityId?: string,
   opts: UseOpportunityFilterOptions = {}
 ) => {
-  const { isEnrolled, isEnrollmentReady } = opts;
+  const { isEnrolled, isEnrollmentReady, folderId } = opts;
   const { user } = useAuthStore();
 
   const [participantType, setParticipantType] = useState<string>("");
@@ -74,8 +79,22 @@ export const useOpportunityFilter = (
     if (!participantType || !isEnrollmentReady || !isEnrolled) {
       return null;
     }
-    return buildRequestBody(participantType, filters, query, sort ?? undefined);
-  }, [participantType, filters, query, sort, isEnrollmentReady, isEnrolled]);
+    return buildRequestBody(
+      participantType,
+      filters,
+      query,
+      sort ?? undefined,
+      folderId
+    );
+  }, [
+    participantType,
+    filters,
+    query,
+    sort,
+    folderId,
+    isEnrollmentReady,
+    isEnrolled,
+  ]);
 
   const {
     data: facetsData,

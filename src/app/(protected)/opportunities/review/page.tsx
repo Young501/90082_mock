@@ -92,7 +92,9 @@ export default function OpportunityReviewPage() {
   };
 
   const handleEdit = (fieldName: string) => {
-    router.push(`/opportunities/fill/?opp=${opportunitySlug}&edit=${fieldName}`);
+    router.push(
+      `/opportunities/fill/?opp=${opportunitySlug}&edit=${fieldName}`
+    );
   };
 
   const goToOpportunity = useCallback(() => {

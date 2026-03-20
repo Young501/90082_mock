@@ -41,9 +41,7 @@ export function OrganisationCard({
 
   const { data: fullProfile, isLoading: isLoadingFullProfile } =
     usePartnerProfile(
-      showContactModal && organisation.id
-        ? organisation.id.toString()
-        : "",
+      showContactModal && organisation.id ? organisation.id.toString() : "",
       opportunityId || ""
     );
 
@@ -237,32 +235,31 @@ export function OrganisationCard({
             </VStack>
           </VStack>
           {!disableAddToFolder && (
-            <Box
-              p={1.5}
-              borderRadius="md"
-              position="absolute"
-              top={4}
-              right={4}
-              cursor="pointer"
-              color={addedToFolder ? "#2AA8E0" : "#71717A"}
-              _hover={{ color: "#2AA8E0" }}
-              onClick={handleAddToFolder}
-              aria-label={isInFolder ? "Remove from folder" : "Add to folder"}
+            <Tooltip
+              content={isInFolder ? "Remove from folder" : "Add to folder"}
+              positioning={{ placement: "top", offset: { mainAxis: 6 } }}
+              showArrow
             >
-              {isInFolder ? (
-                <Box color="#DC2626" fontSize="18px">
-                  <i
-                    className="fa-solid fa-trash"
-                    style={{ fontSize: "16px" }}
-                  />
-                </Box>
-              ) : (
+              <Box
+                p={1.5}
+                borderRadius="md"
+                position="absolute"
+                top={4}
+                right={4}
+                cursor="pointer"
+                color={
+                  isInFolder || addedToFolder ? "var(--profile-500)" : "#71717A"
+                }
+                _hover={{ color: "var(--profile-500)" }}
+                onClick={handleAddToFolder}
+                aria-label={isInFolder ? "Remove from folder" : "Add to folder"}
+              >
                 <FolderHeart
                   size={18}
-                  strokeWidth={addedToFolder ? 2.5 : 1.5}
+                  strokeWidth={isInFolder ? 2.5 : addedToFolder ? 2.5 : 1.5}
                 />
-              )}
-            </Box>
+              </Box>
+            </Tooltip>
           )}
         </HStack>
 
@@ -271,6 +268,7 @@ export function OrganisationCard({
             variant="primary"
             flex={1}
             size="sm"
+            h="36px"
             py={3}
             onClick={handleViewFullProfile}
             disabled={!organisation.id || disableViewFullProfile}
@@ -281,6 +279,7 @@ export function OrganisationCard({
             <ButtonV2
               variant="secondary"
               size="sm"
+              h="36px"
               flex={1}
               py={3}
               px={4}

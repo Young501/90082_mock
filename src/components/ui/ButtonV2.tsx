@@ -30,6 +30,9 @@ export function ButtonV2({
       borderRadius: "xl",
       fontSize: "xs",
       fontWeight: "500",
+      _hover: {
+        bg: "profile.dark",
+      },
       _active: {
         transform: "scale(0.98)",
       },
@@ -44,7 +47,10 @@ export function ButtonV2({
       fontWeight: "500",
       border:
         "1px solid " + (userType === "organisation" ? "#D3EFEA" : "#D6EDFB"),
-
+      _hover: {
+        bg: "var(--border-100)",
+        color: "profile.dark",
+      },
       _active: {
         transform: "scale(0.98)",
       },

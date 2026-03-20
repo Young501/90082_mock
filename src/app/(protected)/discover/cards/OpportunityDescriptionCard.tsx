@@ -40,7 +40,6 @@ export const OpportunityDescriptionCard = ({
   links = [],
   userType,
 }: OpportunityDescriptionCardProps) => {
-
   const accessibleOpportunity =
     currentOpportunity || (opportunity as AccessibleOpportunity);
   const enrollmentStatus =
@@ -227,9 +226,7 @@ export const OpportunityDescriptionCard = ({
                           onSuccess: () =>
                             toast.success("Default opportunity cleared"),
                           onError: () =>
-                            toast.error(
-                              "Failed to clear default opportunity"
-                            ),
+                            toast.error("Failed to clear default opportunity"),
                         })
                       }
                       opacity={
@@ -276,9 +273,7 @@ export const OpportunityDescriptionCard = ({
                           onSuccess: () =>
                             toast.success("Opportunity set as default"),
                           onError: () =>
-                            toast.error(
-                              "Failed to set opportunity as default"
-                            ),
+                            toast.error("Failed to set opportunity as default"),
                         })
                       }
                       opacity={

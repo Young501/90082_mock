@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Box,
   VStack,
@@ -6,7 +6,9 @@ import {
   Heading,
   Text,
   SimpleGrid,
+  IconButton,
 } from "@chakra-ui/react";
+import { MenuPopover } from "@/components/ui/MenuPopover";
 import { UserProfile } from "@/types/shared";
 import { StudentCard, OrganisationCard } from "./cards";
 import { PaginationControlsV2 } from "@/components/ui/PaginationControlsV2";
@@ -14,6 +16,12 @@ import Loader from "@/components/ui/Loader";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { SortComponent } from "@/components/SortComponent";
 import type { OpportunitySortBy } from "@/types/opportunity";
+import IconMoreEllipsis from "@/components/Icons/IconMoreEllipsis";
+import { X } from "lucide-react";
+import { useRemoveMemberFromFolder } from "@/services/folder";
+import { FolderMemberRequest } from "@/types/folder";
+import { toast } from "react-toastify";
+import { ButtonV2 } from "@/components/ui";
 export interface DiscoveryPaginationProps {
   currentPage: number;
   totalPages: number;
@@ -25,6 +33,13 @@ export interface DiscoveryPaginationProps {
   onPageSizeChange?: (pageSize: number) => void;
 }
 
+interface DiscoveryFolderInfo {
+  id: number;
+  name: string;
+  description: string | null;
+  member_count: number;
+}
+
 interface DiscoveryResultBoxProps {
   results: UserProfile[];
   isLoading: boolean;
@@ -33,6 +48,10 @@ interface DiscoveryResultBoxProps {
   userType: string;
   opportunityId?: string;
   opportunitySlug?: string;
+  folder?: DiscoveryFolderInfo;
+  onClearFolder?: () => void;
+  onEditFolder?: (folder: DiscoveryFolderInfo) => void;
+  onDeleteFolder?: (folder: DiscoveryFolderInfo) => void;
   pagination?: DiscoveryPaginationProps;
   query?: string;
   onQueryChange?: (query: string) => void;
@@ -49,13 +68,16 @@ export function DiscoveryResultBox({
   pagination,
   opportunityId,
   opportunitySlug,
+  folder,
+  onClearFolder,
+  onEditFolder,
+  onDeleteFolder,
   query,
   onQueryChange,
   sortBy,
   onSortChange,
 }: DiscoveryResultBoxProps) {
-  // if (!show) return null;
-
+  const removeMemberFromFolder = useRemoveMemberFromFolder();
   const count = pagination?.count ?? 0;
 
   // Keep previous results visible while loading so card DOM nodes (and their
@@ -80,6 +102,20 @@ export function DiscoveryResultBox({
     return () => clearTimeout(handle);
   }, [searchInput, onQueryChange]);
 
+  const handleRemoveFromFolder = useCallback(
+    (folderId: string, data: FolderMemberRequest) => {
+      removeMemberFromFolder.mutate(
+        { folderId, data },
+        {
+          onSuccess: () =>
+            toast.success("Member removed from folder successfully"),
+          onError: () => toast.error("Failed to remove member from folder"),
+        }
+      );
+    },
+    [removeMemberFromFolder]
+  );
+
   return (
     <VStack
       align="stretch"
@@ -93,12 +129,72 @@ export function DiscoveryResultBox({
       // h={{ base: "100%", lg: "calc(100vh - 355px)" }}
     >
       <VStack align="stretch" gap={3}>
-        <HStack justify="space-between" align="center">
-          <Heading size="xl">
-            {userType === "student"
-              ? "Available Students "
-              : "Available Organisations"}
-          </Heading>
+        <HStack justify="space-between" align="center" w="full">
+          {folder ? (
+            <VStack align="flex-start" gap={0} flex={1} minW={0}>
+              <HStack gap={2} align="center" w="full" justify="space-between">
+                <Heading size="xl">{folder.name}</Heading>
+                {(onEditFolder || onDeleteFolder) && (
+                  <MenuPopover
+                    placement="bottom-end"
+                    trigger={
+                      <IconButton
+                        aria-label="Folder options"
+                        variant="ghost"
+                        size="sm"
+                      >
+                        <IconMoreEllipsis color="#52525B" />
+                      </IconButton>
+                    }
+                  >
+                    {onEditFolder && (
+                      <Box
+                        as="button"
+                        w="full"
+                        textAlign="left"
+                        px={3}
+                        py={2}
+                        fontSize="sm"
+                        color="#374151"
+                        borderRadius="md"
+                        _hover={{ bg: "#F3F4F6" }}
+                        onClick={() => onEditFolder(folder)}
+                      >
+                        Edit folder
+                      </Box>
+                    )}
+                    {onDeleteFolder && (
+                      <Box
+                        as="button"
+                        w="full"
+                        textAlign="left"
+                        px={3}
+                        py={2}
+                        fontSize="sm"
+                        color="#DC2626"
+                        borderRadius="md"
+                        _hover={{ bg: "#FEF2F2" }}
+                        onClick={() => onDeleteFolder(folder)}
+                      >
+                        Delete folder
+                      </Box>
+                    )}
+                  </MenuPopover>
+                )}
+              </HStack>
+              {folder.description && (
+                <Text fontSize="sm" color="#71717A" mt={0.5} lineClamp={2}>
+                  {folder.description}
+                </Text>
+              )}
+            </VStack>
+          ) : (
+            <Heading size="xl">
+              {userType === "student"
+                ? "Available Students "
+                : "Available Organisations"}
+            </Heading>
+          )}
         </HStack>
 
         <Box w="100%" maxW="679px">
@@ -107,6 +203,23 @@ export function DiscoveryResultBox({
             onChange={setSearchInput}
             placeholder="Search by name, skills, etc..."
           />
+          {folder && onClearFolder && (
+            <ButtonV2
+              variant="ghost"
+              size="sm"
+              borderRadius="full"
+              border="1px solid var(--border-100)"
+              color="profile.dark"
+              fontSize="sm"
+              fontWeight="500"
+              mt={4}
+              _hover={{ bg: "#EFF6FF" }}
+              onClick={onClearFolder}
+            >
+              <X size={16} strokeWidth={2} />
+              Clear folder filter
+            </ButtonV2>
+          )}
         </Box>
       </VStack>
 
@@ -182,6 +295,18 @@ export function DiscoveryResultBox({
             >
               {displayedResults.map((user) => {
                 const key = user.id;
+                // We are in folder mode whenever a folder is selected — all
+                // results returned in that context belong to the folder.
+                const isInFolder = !!folder;
+                const onRemoveFromFolder =
+                  folder && user.id
+                    ? () =>
+                        handleRemoveFromFolder(folder.id.toString(), {
+                          ...(userType === "student"
+                            ? { user_id: user.id }
+                            : { organisation_id: user.id }),
+                        })
+                    : undefined;
 
                 return userType === "student" ? (
                   <StudentCard
@@ -191,6 +316,8 @@ export function DiscoveryResultBox({
                     profilePictureUrl={user.profile_picture_url || null}
                     opportunityId={opportunityId}
                     opportunitySlug={opportunitySlug}
+                    isInFolder={isInFolder}
+                    onRemoveFromFolder={onRemoveFromFolder}
                   />
                 ) : (
                   <OrganisationCard
@@ -198,6 +325,8 @@ export function DiscoveryResultBox({
                     organisation={user}
                     opportunityId={opportunityId}
                     opportunitySlug={opportunitySlug}
+                    isInFolder={isInFolder}
+                    onRemoveFromFolder={onRemoveFromFolder}
                   />
                 );
               })}

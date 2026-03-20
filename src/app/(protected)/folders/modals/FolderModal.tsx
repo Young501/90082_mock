@@ -7,10 +7,14 @@ import {
   Field,
   Input,
   Textarea,
+  HStack,
 } from "@chakra-ui/react";
 import Image from "next/image";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { CreateFolderRequest, Folder } from "@/types/folder";
+import { X } from "lucide-react";
+import { ButtonV2 } from "@/components/ui/ButtonV2";
+import { InputField } from "@/components/fields/InputField";
 
 interface FolderModalProps {
   isOpen: boolean;
@@ -46,7 +50,7 @@ export const FolderModal: React.FC<FolderModalProps> = ({
       display="flex"
       alignItems="center"
       justifyContent="center"
-      zIndex={1000}
+      zIndex={9999}
       onClick={onClose}
     >
       <Box
@@ -59,44 +63,31 @@ export const FolderModal: React.FC<FolderModalProps> = ({
         onClick={(e) => e.stopPropagation()}
         position="relative"
       >
-        <Button
-          position="absolute"
-          top={4}
-          right={4}
-          variant="ghost"
-          size="sm"
-          onClick={onClose}
-        >
-          <Image src="/assets/cancel.svg" alt="Close" width={25} height={25} />
-        </Button>
+        <VStack align="stretch" gap={6}>
+          <HStack justify="space-between" align="center">
+            <Text
+              fontSize="24px"
+              fontWeight="bold"
+              color="#000000"
+              textAlign="left"
+            >
+              {isEditMode ? "Edit Folder" : "Create Folder"}
+            </Text>
 
-        <VStack align="stretch" gap={6} pt={4}>
-          <Text
-            fontSize="24px"
-            fontWeight="bold"
-            color="#000000"
-            textAlign="left"
-          >
-            {isEditMode ? "Edit Folder" : "Create Folder"}
-          </Text>
-
+            <ButtonV2 variant="ghost" onClick={onClose} p={0}>
+              <X size={24} color="#71717A" />
+            </ButtonV2>
+          </HStack>
           <form onSubmit={onSubmit}>
             <VStack align="stretch" gap={4}>
               <Field.Root invalid={!!errors.name}>
                 <Field.Label fontSize="16px" fontWeight="500" color="#000000">
                   Name
                 </Field.Label>
-                <Input
-                  {...register("name")}
+                <InputField
+                  register={register("name")}
                   placeholder="Enter folder name"
-                  defaultValue={folder?.name || ""}
-                  h="50px"
-                  borderRadius="8px"
-                  border="1px solid #2CA9DF"
-                  _focus={{
-                    borderColor: "#2CA9DF",
-                    boxShadow: "0 0 0 1px #2CA9DF",
-                  }}
+                  inputProps={{ borderRadius: "xl" }}
                 />
                 {errors.name && (
                   <Field.ErrorText>{errors.name.message}</Field.ErrorText>
@@ -111,13 +102,9 @@ export const FolderModal: React.FC<FolderModalProps> = ({
                   {...register("description")}
                   placeholder="Enter folder description"
                   defaultValue={folder?.description || ""}
-                  minH="100px"
-                  borderRadius="8px"
-                  border="1px solid #2CA9DF"
-                  _focus={{
-                    borderColor: "#2CA9DF",
-                    boxShadow: "0 0 0 1px #2CA9DF",
-                  }}
+                  minH="80px"
+                  borderRadius="xl"
+                  border="1px solid #E4E4E7"
                   resize="vertical"
                 />
                 {errors.description && (
@@ -127,37 +114,27 @@ export const FolderModal: React.FC<FolderModalProps> = ({
                 )}
               </Field.Root>
 
-              <Box display="flex" gap={4} justifyContent="flex-end">
-                <Button
-                  type="submit"
-                  mt={4}
-                  bg="#282F68"
-                  color="white"
-                  borderRadius="8px"
+              <Box display="flex" gap={4} w="100%">
+                <ButtonV2
+                  variant="ghost"
                   h="40px"
-                  fontSize="14px"
-                  fontWeight="600"
-                  loading={isLoading}
-                  maxW="150px"
-                  w="100%"
-                >
-                  {isEditMode ? "Update" : "Create"}
-                </Button>
-                {/* <Button
-                  mt={4}
-                  bg="transparent"
-                  color="#000000"
-                  borderRadius="8px"
-                  h="40px"
-                  fontSize="14px"
-                  fontWeight="600"
+                  border="1px solid #E4E4E7"
+                  color="black"
+                  borderRadius="xl"
                   onClick={onClose}
-                  maxW="150px"
-                  w="100%"
-                  border="1px solid #000000"
+                  flex="1"
                 >
                   Cancel
-                </Button> */}
+                </ButtonV2>
+                <ButtonV2
+                  type="submit"
+                  variant="primary"
+                  loading={isLoading}
+                  flex="1"
+                  h="40px"
+                >
+                  {isEditMode ? "Update" : "Create"}
+                </ButtonV2>
               </Box>
             </VStack>
           </form>

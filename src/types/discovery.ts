@@ -65,6 +65,7 @@ export interface StudentProfile {
   opportunity_title?: string;
   questionnaire_answers?: Record<string, any>;
   matched?: boolean;
+  folder_member_id?: number;
   university?: {
     id?: number;
     name?: string;
@@ -107,6 +108,7 @@ export interface OrganisationProfile {
   contact_email?: string;
   description?: string;
   matchPercentage?: number;
+  folder_member_id?: number;
   members?: {
     id?: number;
     first_name?: string;

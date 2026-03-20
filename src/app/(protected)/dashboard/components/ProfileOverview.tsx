@@ -50,7 +50,7 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
       </Text>
 
       <VStack gap={6} align="stretch">
-        <VStack align="center" gap={2}>
+        <VStack align="center" gap={4} pt={4}>
           <ProfileAvatar
             src={
               userType === "organisation"
@@ -63,7 +63,7 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
                 : profile.name
             }
             fallback={profile.name}
-            size="lg"
+            size={120}
           />
           <VStack gap={1} align="center" w="100%" minW={0}>
             <Text

@@ -60,7 +60,7 @@ export interface FolderMember {
   added_at: string;
 }
 
-export interface AddMemberToFolderRequest {
+export interface FolderMemberRequest {
   user_id?: number;
   organisation_id?: number;
 }
