@@ -316,10 +316,6 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v2/opportunities/folders/${folderId}/member/remove/`,
   }),
-  FOLDER_MEMBERS: (folderId: string): ApiEndpoint => ({
-    method: "GET",
-    url: `/api/v2/opportunities/folders/${folderId}/members/`,
-  }),
   // v2 opportunities endpoints
   COORDINATOR_OPPORTUNITIES: {
     method: "GET",
