@@ -9,6 +9,8 @@ import {
   Badge,
   IconButton,
   Spinner,
+  Flex,
+  Link,
 } from "@chakra-ui/react";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { useRouter } from "next/navigation";
@@ -24,6 +26,8 @@ import {
   useClearDefaultOpportunity,
 } from "@/services/dashboard";
 import { toast } from "react-toastify";
+import { PROFILE_TINT_COLORS } from "@/theme/theme";
+import { ExternalLink, Mail } from "lucide-react";
 
 interface MyOpportunitiesProps {
   opportunities: HomepageOpportunity[];
@@ -81,27 +85,20 @@ function DashboardOpportunityCard({
       >
         <VStack align="stretch" gap={2}>
           <HStack align="flex-start" gap={3} flex={1} minW={0}>
-            <Box
-              flexShrink={0}
-              w="48px"
-              h="48px"
-              bg="#F4F4F5"
-              borderRadius="16px"
-              p={2}
-            >
+            <Box flexShrink={0} w="48px" h="48px">
               {opp.logo_url ? (
                 <Image
                   src={opp.logo_url as string}
                   alt={opp.title}
-                  width={32}
-                  height={32}
+                  width={45}
+                  height={45}
                 />
               ) : (
                 <Image
                   src="/assets/opportunityLogoPlaceholder.svg"
                   alt="Placeholder"
-                  width={32}
-                  height={32}
+                  width={45}
+                  height={45}
                   style={{ objectFit: "contain" }}
                 />
               )}
@@ -314,6 +311,51 @@ function DashboardOpportunityCard({
           <Text fontSize="xs" color="#52525B">
             {opp.description}
           </Text>
+
+          {Array.isArray(opp.links) && opp.links.length > 0 && (
+            <Flex flexWrap="wrap" gap={4} align="center" rowGap={1.5}>
+              {opp.links.map((link, index) => {
+                const href = link.url?.trim() ?? "";
+                const label = link.label?.trim() ?? href;
+                if (!href) return null;
+                const isHttp =
+                  href.startsWith("https://") || href.startsWith("http://");
+                const isMailto = href.startsWith("mailto:");
+                return (
+                  <Link
+                    key={`${href}-${index}`}
+                    href={href}
+                    fontSize="sm"
+                    color="#52525B"
+                    _hover={{ textDecoration: "underline" }}
+                    {...(isHttp
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : isMailto
+                      ? { target: "_self" }
+                      : {})}
+                  >
+                    <HStack gap={2} align="center">
+                      {label}
+                      {isHttp && (
+                        <ExternalLink
+                          size={12}
+                          strokeWidth={3}
+                          color="#71717A"
+                        />
+                      )}
+                      {isMailto && (
+                        <Mail
+                          size={12}
+                          strokeWidth={3}
+                          color="#71717A"
+                        />
+                      )}
+                    </HStack>
+                  </Link>
+                );
+              })}
+            </Flex>
+          )}
         </VStack>
 
         <VStack gap={2} flexShrink={0} w="full" align="stretch">
@@ -348,6 +390,7 @@ function DashboardOpportunityCard({
                   : "1px solid #2AA8E0"
             }
             size="sm"
+            _hover={{ bg: PROFILE_TINT_COLORS[userType as keyof typeof PROFILE_TINT_COLORS] ?? PROFILE_TINT_COLORS.student }}
             onClick={() => onNavigate(opp.slug)}
           >
             {enrolled ? "Explore Opportunity" : "Enroll"}
