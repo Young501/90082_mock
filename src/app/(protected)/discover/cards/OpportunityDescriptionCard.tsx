@@ -16,7 +16,6 @@ import {
 } from "@chakra-ui/react";
 import IconMoreEllipsis from "@/components/Icons/IconMoreEllipsis";
 import Image from "next/image";
-import IconExternalLink from "@/components/Icons/IconExternalLink";
 import { MenuPopover } from "@/components/ui/MenuPopover";
 import { UnenrollDialog } from "@/components/ui/UnenrollDialog";
 import { EditEnrollmentDialog } from "@/components/ui/EditEnrollmentDialog";
@@ -26,18 +25,17 @@ import {
   useClearDefaultOpportunity,
 } from "@/services/dashboard";
 import { toast } from "react-toastify";
+import { ExternalLink } from "lucide-react";
 
 interface OpportunityDescriptionCardProps {
   opportunity: Opportunity | AccessibleOpportunity;
   currentOpportunity?: AccessibleOpportunity | null;
-  links?: Array<{ label: string; url: string }>;
   userType?: string;
 }
 
 export const OpportunityDescriptionCard = ({
   opportunity,
   currentOpportunity,
-  links = [],
   userType,
 }: OpportunityDescriptionCardProps) => {
   const accessibleOpportunity =
@@ -329,32 +327,44 @@ export const OpportunityDescriptionCard = ({
                 {opportunity.description}
               </Text>
             )}
-
-            {links.length > 0 && (
-              <HStack gap={4} flexWrap="wrap">
-                {links.map((link, index) => (
-                  <Box
-                    key={index}
-                    display="inline-flex"
-                    alignItems="center"
-                    gap={{ base: 1, md: 2 }}
-                  >
-                    <Link
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      color="#52525B"
-                      fontSize={{ base: "xs", md: "sm" }}
-                      fontWeight="medium"
-                    >
-                      {link.label}
-                    </Link>
-                    <IconExternalLink />
-                  </Box>
-                ))}
-              </HStack>
-            )}
           </HStack>
+
+          {Array.isArray(opportunity.links) && opportunity.links.length > 0 && (
+            <Flex flexWrap="wrap" gap={4} align="center" rowGap={1.5}>
+              {opportunity.links.map((link, index) => {
+                const href = link.url?.trim() ?? "";
+                const label = link.label?.trim() ?? href;
+                if (!href) return null;
+                const isHttp =
+                  href.startsWith("https://") || href.startsWith("http://");
+                return (
+                  <Link
+                    key={`${href}-${index}`}
+                    href={href}
+                    fontSize="sm"
+                    color="#52525B"
+                    fontWeight="medium"
+                    _hover={{ textDecoration: "underline" }}
+                    {...(isHttp
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
+                  >
+                    <HStack gap={2} align="center">
+                      {label}
+                      {isHttp && (
+                        <ExternalLink
+                          size={12}
+                          strokeWidth={3}
+                          color="#71717A"
+                          aria-hidden
+                        />
+                      )}
+                    </HStack>
+                  </Link>
+                );
+              })}
+            </Flex>
+          )}
         </VStack>
       </Box>
 

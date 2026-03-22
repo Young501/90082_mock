@@ -9,6 +9,8 @@ import {
   Badge,
   IconButton,
   Spinner,
+  Flex,
+  Link,
 } from "@chakra-ui/react";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { useRouter } from "next/navigation";
@@ -24,6 +26,7 @@ import {
   useClearDefaultOpportunity,
 } from "@/services/dashboard";
 import { toast } from "react-toastify";
+import { ExternalLink } from "lucide-react";
 
 interface MyOpportunitiesProps {
   opportunities: HomepageOpportunity[];
@@ -314,6 +317,45 @@ function DashboardOpportunityCard({
           <Text fontSize="xs" color="#52525B">
             {opp.description}
           </Text>
+
+          {Array.isArray(opp.links) && opp.links.length > 0 && (
+            <Flex flexWrap="wrap" gap={4} align="center" rowGap={1.5}>
+              {opp.links.map((link, index) => {
+                const href = link.url?.trim() ?? "";
+                const label = link.label?.trim() ?? href;
+                if (!href) return null;
+                const isHttp =
+                  href.startsWith("https://") || href.startsWith("http://");
+                return (
+                  <Link
+                    key={`${href}-${index}`}
+                    href={href}
+                    // display="inline"
+                    fontSize="sm"
+                    color="#52525B"
+                    // fontWeight="500"
+                    // textDecoration="underline"
+                    _hover={{ textDecoration: "underline" }}
+                    {...(isHttp
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
+                  >
+                    <HStack gap={2} align="center">
+                      {label}
+                      {isHttp && (
+                        <ExternalLink
+                          size={12}
+                          strokeWidth={3}
+                          fontWeight="bold"
+                          color="#71717A"
+                        />
+                      )}
+                    </HStack>
+                  </Link>
+                );
+              })}
+            </Flex>
+          )}
         </VStack>
 
         <VStack gap={2} flexShrink={0} w="full" align="stretch">
