@@ -26,7 +26,8 @@ import {
   useClearDefaultOpportunity,
 } from "@/services/dashboard";
 import { toast } from "react-toastify";
-import { ExternalLink } from "lucide-react";
+import { PROFILE_TINT_COLORS } from "@/theme/theme";
+import { ExternalLink, Mail } from "lucide-react";
 
 interface MyOpportunitiesProps {
   opportunities: HomepageOpportunity[];
@@ -84,27 +85,20 @@ function DashboardOpportunityCard({
       >
         <VStack align="stretch" gap={2}>
           <HStack align="flex-start" gap={3} flex={1} minW={0}>
-            <Box
-              flexShrink={0}
-              w="48px"
-              h="48px"
-              bg="#F4F4F5"
-              borderRadius="16px"
-              p={2}
-            >
+            <Box flexShrink={0} w="48px" h="48px">
               {opp.logo_url ? (
                 <Image
                   src={opp.logo_url as string}
                   alt={opp.title}
-                  width={32}
-                  height={32}
+                  width={45}
+                  height={45}
                 />
               ) : (
                 <Image
                   src="/assets/opportunityLogoPlaceholder.svg"
                   alt="Placeholder"
-                  width={32}
-                  height={32}
+                  width={45}
+                  height={45}
                   style={{ objectFit: "contain" }}
                 />
               )}
@@ -326,6 +320,7 @@ function DashboardOpportunityCard({
                 if (!href) return null;
                 const isHttp =
                   href.startsWith("https://") || href.startsWith("http://");
+                const isMailto = href.startsWith("mailto:");
                 return (
                   <Link
                     key={`${href}-${index}`}
@@ -335,6 +330,8 @@ function DashboardOpportunityCard({
                     _hover={{ textDecoration: "underline" }}
                     {...(isHttp
                       ? { target: "_blank", rel: "noopener noreferrer" }
+                      : isMailto
+                      ? { target: "_self" }
                       : {})}
                   >
                     <HStack gap={2} align="center">
@@ -343,7 +340,13 @@ function DashboardOpportunityCard({
                         <ExternalLink
                           size={12}
                           strokeWidth={3}
-                          fontWeight="bold"
+                          color="#71717A"
+                        />
+                      )}
+                      {isMailto && (
+                        <Mail
+                          size={12}
+                          strokeWidth={3}
                           color="#71717A"
                         />
                       )}
@@ -387,6 +390,7 @@ function DashboardOpportunityCard({
                   : "1px solid #2AA8E0"
             }
             size="sm"
+            _hover={{ bg: PROFILE_TINT_COLORS[userType as keyof typeof PROFILE_TINT_COLORS] ?? PROFILE_TINT_COLORS.student }}
             onClick={() => onNavigate(opp.slug)}
           >
             {enrolled ? "Explore Opportunity" : "Enroll"}

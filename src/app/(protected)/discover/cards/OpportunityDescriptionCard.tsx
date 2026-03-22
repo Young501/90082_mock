@@ -25,7 +25,7 @@ import {
   useClearDefaultOpportunity,
 } from "@/services/dashboard";
 import { toast } from "react-toastify";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Mail } from "lucide-react";
 
 interface OpportunityDescriptionCardProps {
   opportunity: Opportunity | AccessibleOpportunity;
@@ -74,7 +74,7 @@ export const OpportunityDescriptionCard = ({
             <Flex
               align="flex-start"
               justify="space-between"
-              gap={{ base: 2, md: 3 }}
+              gap={{ base: 2, md: 4 }}
               flex="1"
               minW="0"
             >
@@ -82,23 +82,20 @@ export const OpportunityDescriptionCard = ({
                 flexShrink={0}
                 w={{ base: "36px", md: "60px" }}
                 h={{ base: "36px", md: "60px" }}
-                bg="#F4F4F5"
-                borderRadius={{ base: "12px", md: "20px" }}
-                p={3}
               >
                 {opportunity.logo_url ? (
                   <Image
                     src={opportunity.logo_url}
                     alt={opportunity.title}
-                    width={36}
-                    height={36}
+                    width={56}
+                    height={56}
                   />
                 ) : (
                   <Image
                     src="/assets/opportunityLogoPlaceholder.svg"
                     alt="Placeholder"
-                    width={36}
-                    height={36}
+                    width={56}
+                    height={56}
                     style={{ objectFit: "contain" }}
                   />
                 )}
@@ -337,6 +334,7 @@ export const OpportunityDescriptionCard = ({
                 if (!href) return null;
                 const isHttp =
                   href.startsWith("https://") || href.startsWith("http://");
+                const isMailto = href.startsWith("mailto:");
                 return (
                   <Link
                     key={`${href}-${index}`}
@@ -347,12 +345,22 @@ export const OpportunityDescriptionCard = ({
                     _hover={{ textDecoration: "underline" }}
                     {...(isHttp
                       ? { target: "_blank", rel: "noopener noreferrer" }
-                      : {})}
+                      : isMailto
+                        ? { target: "_self" }
+                        : {})}
                   >
                     <HStack gap={2} align="center">
                       {label}
                       {isHttp && (
                         <ExternalLink
+                          size={12}
+                          strokeWidth={3}
+                          color="#71717A"
+                          aria-hidden
+                        />
+                      )}
+                      {isMailto && (
+                        <Mail
                           size={12}
                           strokeWidth={3}
                           color="#71717A"
