@@ -11,7 +11,10 @@ import { useProductPricing } from "@/services/billing";
 import { toaster } from "@/components/ui/toaster";
 import { PageTitle } from "@/components/PageTitle";
 import { CheckoutSessionRequest, PricingTier } from "@/types/subscription";
-import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
+import {
+  findOpportunityByIdOrSlug,
+  toBaseOpportunity,
+} from "@/utils/findOpportunity";
 import { OpportunityNotEnrolledCard } from "@/app/(protected)/discover/cards/OpportunityNotEnrolledCard";
 import type { Opportunity } from "@/types/opportunities";
 import { STRIPE_PRICING_ENABLED } from "@/hooks/useHandleEnroll";
@@ -47,25 +50,10 @@ export default function OpportunityPricingPage() {
     ? trialEligibility?.days_total
     : 0;
 
-  const opportunity: Opportunity | null = useMemo(() => {
-    if (!currentOpportunity) return null;
-    return {
-      id: currentOpportunity.id,
-      title: currentOpportunity.title,
-      description: currentOpportunity.description ?? "",
-      logo_url: currentOpportunity.logo_url,
-      start_date: currentOpportunity.start_date ?? "",
-      end_date: currentOpportunity.end_date ?? "",
-      created_by: currentOpportunity.created_by ?? 0,
-      is_active: currentOpportunity.is_active ?? true,
-      created_at: currentOpportunity.created_at ?? "",
-      updated_at: currentOpportunity.updated_at ?? "",
-      questionnaire: currentOpportunity.questionnaire ?? {},
-      allowed_student_email_domains:
-        currentOpportunity.allowed_student_email_domains,
-      is_default: currentOpportunity.is_default,
-    };
-  }, [currentOpportunity]);
+  const opportunity: Opportunity | null = useMemo(
+    () => toBaseOpportunity(currentOpportunity),
+    [currentOpportunity]
+  );
 
   const {
     data: productsData,

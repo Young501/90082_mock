@@ -29,7 +29,10 @@ import { toast } from "react-toastify";
 import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 import { useHandleEnroll } from "@/hooks/useHandleEnroll";
 import type { Opportunity } from "@/types/opportunities";
-import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
+import {
+  findOpportunityByIdOrSlug,
+  toBaseOpportunity,
+} from "@/utils/findOpportunity";
 import {
   useFolders,
   useFolderDetail,
@@ -52,8 +55,11 @@ export default function DiscoveryPage() {
   const opportunitySlug = sp.get("opp") || undefined;
   const folderIdFromUrl = sp.get("folder") || null;
 
-  const { user, getUserType, accessibleOpportunities: storedAccessibleOpps } =
-    useAuthStore();
+  const {
+    user,
+    getUserType,
+    accessibleOpportunities: storedAccessibleOpps,
+  } = useAuthStore();
   const [isUserEligible, setIsUserEligible] = useState<boolean | null>(null);
 
   const { data: queryAccessibleOpps, isLoading: isOpportunitiesLoading } =
@@ -93,25 +99,10 @@ export default function DiscoveryPage() {
   const pricingProduct = productsPricing?.products?.[0] ?? null;
   const subscribeLink = pricingProduct?.subscribe_link ?? null;
 
-  const opportunity: Opportunity | null = useMemo(() => {
-    if (!currentOpportunity) return null;
-    return {
-      id: currentOpportunity.id,
-      title: currentOpportunity.title,
-      description: currentOpportunity.description ?? "",
-      logo_url: currentOpportunity.logo_url,
-      start_date: currentOpportunity.start_date ?? "",
-      end_date: currentOpportunity.end_date ?? "",
-      created_by: currentOpportunity.created_by ?? 0,
-      is_active: currentOpportunity.is_active ?? true,
-      created_at: currentOpportunity.created_at ?? "",
-      updated_at: currentOpportunity.updated_at ?? "",
-      questionnaire: currentOpportunity.questionnaire ?? {},
-      allowed_student_email_domains:
-        currentOpportunity.allowed_student_email_domains,
-      is_default: currentOpportunity.is_default,
-    };
-  }, [currentOpportunity]);
+  const opportunity: Opportunity | null = useMemo(
+    () => toBaseOpportunity(currentOpportunity),
+    [currentOpportunity]
+  );
   const [createFolderModalOpen, setCreateFolderModalOpen] = useState(false);
   const [folderSheetOpen, setFolderSheetOpen] = useState(false);
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
@@ -312,7 +303,7 @@ export default function DiscoveryPage() {
 
   // Opportunity-specific content
   if (opportunityId) {
-    // Loading state — wait for accessible opportunities list (store or query)
+    // Loading state
     if (isOpportunitiesLoading) {
       return (
         <Box
