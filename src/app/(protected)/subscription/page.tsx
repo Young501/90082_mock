@@ -36,7 +36,6 @@ import OpportunityCardSkeleton from "@/components/ui/OpportunityCardSkeleton";
 import { Clock4, CreditCard, Calendar } from "lucide-react";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 
-/** Single source for the hero “expiry” date from access (matches API shape). */
 function computeAccessExpiryIso(access: AccessInfo): string | null {
   return (
     access.entitlement_expires_at ||
@@ -47,31 +46,10 @@ function computeAccessExpiryIso(access: AccessInfo): string | null {
 }
 
 /**
- * True only when this opportunity’s access object indicates paid subscription
- * access is currently valid (not merely that the opportunity listing is “active”).
+ * Active subscription for this opportunity:
  */
-function isPaidSubscriptionAccessLive(access: AccessInfo | undefined): boolean {
-  if (!access?.requires_subscription) return false;
-  if (!access.has_access) return false;
-
-  const sub = access.subscription;
-  if (sub) {
-    if (sub.status !== "active" && sub.status !== "trialing") {
-      return false;
-    }
-    if (sub.current_period_end) {
-      if (new Date(sub.current_period_end).getTime() <= Date.now()) {
-        return false;
-      }
-    }
-  }
-
-  const exp = computeAccessExpiryIso(access);
-  if (exp) {
-    return new Date(exp).getTime() > Date.now();
-  }
-
-  return true;
+function hasActiveSubscriptionAccess(access: AccessInfo | undefined): boolean {
+  return !!access?.requires_subscription && !!access?.has_access;
 }
 
 function recurrenceLabel(
@@ -96,7 +74,6 @@ export default function SubscriptionPage() {
     error: opportunitiesError,
   } = useAccessibleOpportunities();
 
-
   // Find the opportunity with a subscription
   const pricingOpportunity = useMemo((): AccessibleOpportunity | null => {
     if (!opportunities?.length) return null;
@@ -107,11 +84,10 @@ export default function SubscriptionPage() {
   const pricingOppId = pricingOpportunity?.id ?? null;
   const pricingAccess = pricingOpportunity?.access;
 
-  const { subscriptionStatusBadge, paidSubscriptionLive } = useMemo(() => {
-    const live = isPaidSubscriptionAccessLive(pricingAccess);
+  const { subscriptionStatusBadge, subscriptionActive } = useMemo(() => {
     if (!pricingAccess) {
       return {
-        paidSubscriptionLive: false,
+        subscriptionActive: false,
         subscriptionStatusBadge: {
           label: "—",
           bg: "#F4F4F5",
@@ -121,7 +97,7 @@ export default function SubscriptionPage() {
     }
     if (!pricingAccess.requires_subscription) {
       return {
-        paidSubscriptionLive: false,
+        subscriptionActive: false,
         subscriptionStatusBadge: {
           label: "No subscription required",
           bg: "#F4F4F5",
@@ -129,9 +105,9 @@ export default function SubscriptionPage() {
         },
       };
     }
-    if (live) {
+    if (hasActiveSubscriptionAccess(pricingAccess)) {
       return {
-        paidSubscriptionLive: true,
+        subscriptionActive: true,
         subscriptionStatusBadge: {
           label: "Active",
           bg: "#DCFCE7",
@@ -140,7 +116,7 @@ export default function SubscriptionPage() {
       };
     }
     return {
-      paidSubscriptionLive: false,
+      subscriptionActive: false,
       subscriptionStatusBadge: {
         label: "Inactive",
         bg: "#FEE2E2",
@@ -162,8 +138,7 @@ export default function SubscriptionPage() {
     if (!pricingAccess) {
       return {
         title: "Billing & subscription",
-        description:
-          "When your plan details are available, you can manage cancellation here. For help in the meantime, contact support.",
+        description: `Contact support at ${CONTACT_EMAIL} for billing questions.`,
         primaryButton: {
           label: "Contact support",
           onClick: openSupportEmail,
@@ -175,7 +150,7 @@ export default function SubscriptionPage() {
       return {
         title: "Billing & subscription",
         description:
-          "This opportunity does not require a paid subscription through UniConnected, so there is no subscription to cancel. For account or billing questions, contact support.",
+          "This plan does not use a paid subscription. For other questions, contact support.",
         primaryButton: {
           label: "Contact support",
           onClick: openSupportEmail,
@@ -183,11 +158,11 @@ export default function SubscriptionPage() {
       };
     }
 
-    if (!paidSubscriptionLive) {
+    if (!pricingAccess.has_access) {
       return {
-        title: "Cancel subscription",
+        title: "Subscription",
         description:
-          "You do not have an active paid subscription for this plan yet, so there is nothing to cancel here. If you need help with billing, refunds, or a past charge, contact support.",
+          "Your organisation does not have access yet. Subscribe from pricing or contact support for help.",
         primaryButton: {
           label: "Contact support",
           onClick: openSupportEmail,
@@ -195,28 +170,21 @@ export default function SubscriptionPage() {
       };
     }
 
-    if (!pricingAccess.subscription) {
-      return {
-        title: "Manage access",
-        description:
-          "Your organisation has active paid access through a manual grant or admin agreement (not a self-service Stripe subscription). To cancel or change this access, contact support.",
-        primaryButton: {
-          label: "Contact support",
-          onClick: openSupportEmail,
-        },
-      };
-    }
+    // Active access without a Stripe subscription no cancel UI
+    // if (!pricingAccess.subscription) {
+    //   return null;
+    // }
 
     return {
       title: "Cancel subscription",
       description:
-        "Cancel your subscription for this plan. When you cancel, you will be downgraded to the free plan and lose access to paid features when the current billing period ends.",
+        "Cancel the subscription of the opportunity. When you cancel the subscription, you will be downgraded to the free plan and lose access to the features on your paid plan.",
       primaryButton: {
         label: "Cancel subscription",
         onClick: undefined,
       },
     };
-  }, [pricingAccess, paidSubscriptionLive]);
+  }, [pricingAccess]);
 
   const { data: productsPricing, isLoading: isLoadingPricing } =
     useProductPricing(pricingOppId, userTypeKey ?? null, {
@@ -333,18 +301,16 @@ export default function SubscriptionPage() {
               <Text fontSize="xl" fontWeight="bold">
                 {planName}
               </Text>
-              {pricingAccess?.requires_subscription &&
-                !paidSubscriptionLive && (
-                  <Text fontSize="sm" color="#D4D4D8" lineHeight="short">
-                    Your organisation does not have active paid access for this
-                    plan yet. Subscribe or renew to restore access.
-                  </Text>
-                )}
+              {pricingAccess?.requires_subscription && !subscriptionActive && (
+                <Text fontSize="sm" color="#D4D4D8" lineHeight="short">
+                  Subscription is not active — subscribe to get access.
+                </Text>
+              )}
             </VStack>
           </Flex>
 
           <SimpleGrid
-            columns={{ base: 1, sm: 2, lg: 3 }}
+            columns={{ base: 2, sm: 2, lg: 3 }}
             gap={{ base: 4, md: 6 }}
             mt={6}
           >
@@ -365,7 +331,11 @@ export default function SubscriptionPage() {
                 <Text fontSize="xs" color="#D4D4D8">
                   Price
                 </Text>
-                <Text fontSize="lg" fontWeight="semibold" color="#FAFAFA">
+                <Text
+                  fontSize={{ base: "sm", md: "lg" }}
+                  fontWeight="semibold"
+                  color="#FAFAFA"
+                >
                   {primaryPrice
                     ? formatPrice(
                         primaryPrice.unit_amount,
@@ -392,7 +362,11 @@ export default function SubscriptionPage() {
                 <Text fontSize="xs" color="#D4D4D8">
                   Recurrence
                 </Text>
-                <Text fontSize="lg" fontWeight="semibold" color="#FAFAFA">
+                <Text
+                  fontSize={{ base: "sm", md: "lg" }}
+                  fontWeight="semibold"
+                  color="#FAFAFA"
+                >
                   {primaryPrice
                     ? recurrenceLabel(
                         primaryPrice.interval,
@@ -420,7 +394,11 @@ export default function SubscriptionPage() {
                   Expiry date
                 </Text>
 
-                <Text fontSize="lg" fontWeight="semibold" color="#FAFAFA">
+                <Text
+                  fontSize={{ base: "sm", md: "lg" }}
+                  fontWeight="semibold"
+                  color="#FAFAFA"
+                >
                   {heroExpiryIso ? formatShortDate(heroExpiryIso) : "—"}
                 </Text>
               </Box>
@@ -429,7 +407,7 @@ export default function SubscriptionPage() {
         </Box>
 
         {/* Enrolled opportunities */}
-        <Box>
+        <Box bg="white" p={6} borderRadius="xl" border="1px solid #E4E4E7">
           <Flex
             justify="space-between"
             align="center"
@@ -478,42 +456,49 @@ export default function SubscriptionPage() {
           )}
         </Box>
 
-        <Box
-          borderRadius="xl"
-          border="1px solid"
-          borderColor="#E4E4E7"
-          bg="white"
-          p={6}
-        >
-          <Text fontSize="md" fontWeight="semibold" color="#18181B" mb={2}>
-            {billingCancelSection.title}
-          </Text>
-          <Flex justify="space-between" align="center" gap={4} flexWrap="wrap">
-            <Text
-              fontSize="sm"
-              color="#52525B"
-              lineHeight="1.6"
-              as="p"
-              flex="1"
-              minW="min(100%, 200px)"
-            >
-              {billingCancelSection.description}
+        {billingCancelSection && (
+          <Box
+            borderRadius="xl"
+            border="1px solid"
+            borderColor="#E4E4E7"
+            bg="white"
+            p={6}
+          >
+            <Text fontSize="md" fontWeight="semibold" color="#18181B" mb={2}>
+              {billingCancelSection.title}
             </Text>
-            <ButtonV2
-              variant="ghost"
-              bg="#F4F4F5"
-              border="1px solid #E4E4E7"
-              borderRadius="xl"
-              color="black"
-              size="sm"
-              fontWeight={500}
-              flexShrink={0}
-              onClick={billingCancelSection.primaryButton.onClick}
+            <Flex
+              justify="space-between"
+              align="center"
+              gap={4}
+              flexWrap="wrap"
             >
-              {billingCancelSection.primaryButton.label}
-            </ButtonV2>
-          </Flex>
-        </Box>
+              <Text
+                fontSize="sm"
+                color="#52525B"
+                lineHeight="1.6"
+                as="p"
+                flex="1"
+                minW="min(100%, 200px)"
+              >
+                {billingCancelSection.description}
+              </Text>
+              <ButtonV2
+                variant="ghost"
+                bg="#F4F4F5"
+                border="1px solid #E4E4E7"
+                borderRadius="xl"
+                color="black"
+                size="sm"
+                fontWeight={500}
+                flexShrink={0}
+                onClick={billingCancelSection.primaryButton.onClick}
+              >
+                {billingCancelSection.primaryButton.label}
+              </ButtonV2>
+            </Flex>
+          </Box>
+        )}
       </VStack>
     </>
   );
