@@ -24,9 +24,10 @@ type Props = {
     error: (m: string) => void;
   };
   opportunitySlug?: string;
+  subscribeLink?: string | null;
 };
 
-const STRIPE_PRICING_ENABLED = false; // [BJ] use this flag to turn back on stripe pricing flow
+export const STRIPE_PRICING_ENABLED = false; // [BJ] use this flag to turn back on stripe pricing flow
 const UNIMELB_SUBSCRIPTION_URL =
   "https://ecommerce.unimelb.edu.au/uniconnected-subscription";
 
@@ -37,6 +38,7 @@ export function useHandleEnroll({
   accessInfo,
   toast,
   opportunitySlug,
+  subscribeLink,
 }: Props) {
   const { user } = useAuthStore();
   const router = useRouter();
@@ -82,7 +84,7 @@ export function useHandleEnroll({
 
       if (accessInfo?.next_action === "subscribe") {
         if (!STRIPE_PRICING_ENABLED) {
-          window.location.href = UNIMELB_SUBSCRIPTION_URL;
+          window.location.href = subscribeLink || UNIMELB_SUBSCRIPTION_URL;
           return;
         }
 
@@ -145,6 +147,7 @@ export function useHandleEnroll({
     refetchPricing,
     accessInfo,
     opportunitySlug,
+    subscribeLink,
   ]);
 
   return {
