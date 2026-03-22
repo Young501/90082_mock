@@ -4,7 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import { useAuthStore } from "@/store/authStore";
 import {
   PROFILE_COLORS,
-  PROFILE_BORDER_COLORS,
+  PROFILE_TINT_COLORS,
   PROFILE_DARK_COLORS,
   PROFILE_SECONDARY_COLORS,
 } from "@/theme/theme";
@@ -35,7 +35,7 @@ export function ProfileThemeProvider({ children }: { children: ReactNode }) {
           : "student";
 
     const color = PROFILE_COLORS[type];
-    const border = PROFILE_BORDER_COLORS[type];
+    const border = PROFILE_TINT_COLORS[type];
     const dark = PROFILE_DARK_COLORS[type];
     const secondary = PROFILE_SECONDARY_COLORS[type];
     root.style.setProperty("--profile-500", color);

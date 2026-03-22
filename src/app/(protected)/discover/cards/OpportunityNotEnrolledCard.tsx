@@ -9,7 +9,7 @@ import { useAuthStore } from "@/store/authStore";
 import {
   PROFILE_COLORS,
   PROFILE_SECONDARY_COLORS,
-  PROFILE_BORDER_COLORS,
+  PROFILE_TINT_COLORS,
 } from "@/theme/theme";
 
 const DEFAULT_BENEFITS = [
@@ -88,7 +88,7 @@ export function OpportunityNotEnrolledCard({
               p={4}
               bg={PROFILE_SECONDARY_COLORS.organisation}
               border="1px solid"
-              borderColor={PROFILE_BORDER_COLORS.organisation}
+              borderColor={PROFILE_TINT_COLORS.organisation}
               borderRadius="12px"
             >
               <Text fontSize="sm" color="#52525B" mb={1}>
