@@ -330,11 +330,8 @@ function DashboardOpportunityCard({
                   <Link
                     key={`${href}-${index}`}
                     href={href}
-                    // display="inline"
                     fontSize="sm"
                     color="#52525B"
-                    // fontWeight="500"
-                    // textDecoration="underline"
                     _hover={{ textDecoration: "underline" }}
                     {...(isHttp
                       ? { target: "_blank", rel: "noopener noreferrer" }
