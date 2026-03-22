@@ -20,6 +20,7 @@ import {
   ExternalLink,
   CircleCheckBig,
   Users,
+  CreditCard,
 } from "lucide-react";
 
 import { IconSidebarLine } from "@/components/Icons";
@@ -116,6 +117,16 @@ const Sidebar = ({
       isProtected: true,
     },
     {
+      key: "subscription",
+      label: "Subscription",
+      href: "/subscription/",
+      icon: <CreditCard size={20} />,
+      isCoordinator: false,
+      isOrganisation: true,
+      isStudent: false,
+      isProtected: true,
+    },
+    {
       key: "messages",
       label: "Messages",
       href: "/messaging/",
@@ -172,6 +183,8 @@ const Sidebar = ({
     if (href === "/support/") return pathname?.startsWith("/support");
     if (href === "/profile/") return pathname?.startsWith("/profile");
     if (href === "/team/") return pathname?.startsWith("/team");
+    if (href === "/subscription/")
+      return pathname?.startsWith("/subscription");
     return pathname === href || pathname === href.replace(/\/$/, "");
   };
 

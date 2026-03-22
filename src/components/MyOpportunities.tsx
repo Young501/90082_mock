@@ -48,7 +48,7 @@ interface OpportunityCardProps {
   type: "enrolled" | "closed";
 }
 
-const OpportunityCard = ({
+export const OpportunityCard = ({
   opportunity,
   userType,
   type,
