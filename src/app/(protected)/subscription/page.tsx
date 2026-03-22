@@ -22,34 +22,56 @@ import {
 } from "@/services/shared";
 import { useProductPricing } from "@/services/billing";
 import { OpportunityCard } from "@/components/MyOpportunities";
-import type { Opportunity } from "@/types/opportunities";
-import type { AccessibleOpportunity } from "@/types/opportunities";
+import type {
+  AccessInfo,
+  Opportunity,
+  AccessibleOpportunity,
+} from "@/types/opportunities";
 import Loader from "@/components/ui/Loader";
 import { formatPrice } from "@/utils/formatPrice";
 import { formatShortDate } from "@/utils/formatDate";
 import { PROFILE_DARK_COLORS } from "@/theme/theme";
+import { CONTACT_EMAIL } from "@/utils/constants";
 import OpportunityCardSkeleton from "@/components/ui/OpportunityCardSkeleton";
 import { Clock4, CreditCard, Calendar } from "lucide-react";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 
-function pickLatestExpiryIso(
-  opportunities: AccessibleOpportunity[]
-): string | null {
-  let best: string | null = null;
-  for (const o of opportunities) {
-    const a = o.access;
-    if (!a) continue;
-    const d =
-      a.entitlement_expires_at ||
-      a.active_override?.end ||
-      a.subscription?.current_period_end ||
-      null;
-    if (!d) continue;
-    if (!best || new Date(d).getTime() > new Date(best).getTime()) {
-      best = d;
+/** Single source for the hero “expiry” date from access (matches API shape). */
+function computeAccessExpiryIso(access: AccessInfo): string | null {
+  return (
+    access.entitlement_expires_at ||
+    access.active_override?.end ||
+    access.subscription?.current_period_end ||
+    null
+  );
+}
+
+/**
+ * True only when this opportunity’s access object indicates paid subscription
+ * access is currently valid (not merely that the opportunity listing is “active”).
+ */
+function isPaidSubscriptionAccessLive(access: AccessInfo | undefined): boolean {
+  if (!access?.requires_subscription) return false;
+  if (!access.has_access) return false;
+
+  const sub = access.subscription;
+  if (sub) {
+    if (sub.status !== "active" && sub.status !== "trialing") {
+      return false;
+    }
+    if (sub.current_period_end) {
+      if (new Date(sub.current_period_end).getTime() <= Date.now()) {
+        return false;
+      }
     }
   }
-  return best;
+
+  const exp = computeAccessExpiryIso(access);
+  if (exp) {
+    return new Date(exp).getTime() > Date.now();
+  }
+
+  return true;
 }
 
 function recurrenceLabel(
@@ -74,11 +96,127 @@ export default function SubscriptionPage() {
     error: opportunitiesError,
   } = useAccessibleOpportunities();
 
-  const pricingOppId = useMemo(() => {
+
+  // Find the opportunity with a subscription
+  const pricingOpportunity = useMemo((): AccessibleOpportunity | null => {
     if (!opportunities?.length) return null;
     const sub = opportunities.find((o) => o.access?.requires_subscription);
-    return sub?.id ?? opportunities[0].id;
+    return sub ?? opportunities[0];
   }, [opportunities]);
+
+  const pricingOppId = pricingOpportunity?.id ?? null;
+  const pricingAccess = pricingOpportunity?.access;
+
+  const { subscriptionStatusBadge, paidSubscriptionLive } = useMemo(() => {
+    const live = isPaidSubscriptionAccessLive(pricingAccess);
+    if (!pricingAccess) {
+      return {
+        paidSubscriptionLive: false,
+        subscriptionStatusBadge: {
+          label: "—",
+          bg: "#F4F4F5",
+          color: "#52525B",
+        },
+      };
+    }
+    if (!pricingAccess.requires_subscription) {
+      return {
+        paidSubscriptionLive: false,
+        subscriptionStatusBadge: {
+          label: "No subscription required",
+          bg: "#F4F4F5",
+          color: "#52525B",
+        },
+      };
+    }
+    if (live) {
+      return {
+        paidSubscriptionLive: true,
+        subscriptionStatusBadge: {
+          label: "Active",
+          bg: "#DCFCE7",
+          color: "#116932",
+        },
+      };
+    }
+    return {
+      paidSubscriptionLive: false,
+      subscriptionStatusBadge: {
+        label: "Inactive",
+        bg: "#FEE2E2",
+        color: "#991B1B",
+      },
+    };
+  }, [pricingAccess]);
+
+  const heroExpiryIso = useMemo(() => {
+    if (!pricingAccess) return null;
+    return computeAccessExpiryIso(pricingAccess);
+  }, [pricingAccess]);
+
+  const billingCancelSection = useMemo(() => {
+    const openSupportEmail = () => {
+      window.location.href = `mailto:${CONTACT_EMAIL}`;
+    };
+
+    if (!pricingAccess) {
+      return {
+        title: "Billing & subscription",
+        description:
+          "When your plan details are available, you can manage cancellation here. For help in the meantime, contact support.",
+        primaryButton: {
+          label: "Contact support",
+          onClick: openSupportEmail,
+        },
+      };
+    }
+
+    if (!pricingAccess.requires_subscription) {
+      return {
+        title: "Billing & subscription",
+        description:
+          "This opportunity does not require a paid subscription through UniConnected, so there is no subscription to cancel. For account or billing questions, contact support.",
+        primaryButton: {
+          label: "Contact support",
+          onClick: openSupportEmail,
+        },
+      };
+    }
+
+    if (!paidSubscriptionLive) {
+      return {
+        title: "Cancel subscription",
+        description:
+          "You do not have an active paid subscription for this plan yet, so there is nothing to cancel here. If you need help with billing, refunds, or a past charge, contact support.",
+        primaryButton: {
+          label: "Contact support",
+          onClick: openSupportEmail,
+        },
+      };
+    }
+
+    if (!pricingAccess.subscription) {
+      return {
+        title: "Manage access",
+        description:
+          "Your organisation has active paid access through a manual grant or admin agreement (not a self-service Stripe subscription). To cancel or change this access, contact support.",
+        primaryButton: {
+          label: "Contact support",
+          onClick: openSupportEmail,
+        },
+      };
+    }
+
+    return {
+      title: "Cancel subscription",
+      description:
+        "Cancel your subscription for this plan. When you cancel, you will be downgraded to the free plan and lose access to paid features when the current billing period ends.",
+      primaryButton: {
+        label: "Cancel subscription",
+        onClick: undefined,
+      },
+    };
+  }, [pricingAccess, paidSubscriptionLive]);
 
   const { data: productsPricing, isLoading: isLoadingPricing } =
     useProductPricing(pricingOppId, userTypeKey ?? null, {
@@ -98,13 +236,6 @@ export default function SubscriptionPage() {
 
   const enrolled = categorized.enrolled;
   const totalListed = opportunities?.length ?? 0;
-  const accessCount =
-    opportunities?.filter((o) => o.access?.has_access).length ?? 0;
-
-  const expiryIso = useMemo(
-    () => (opportunities ? pickLatestExpiryIso(opportunities) : null),
-    [opportunities]
-  );
 
   const planName = pricingProduct?.name ?? "Subscription access";
 
@@ -189,19 +320,26 @@ export default function SubscriptionPage() {
               pb={6}
             >
               <Badge
-                bg="#DCFCE7"
-                color="#116932"
+                bg={subscriptionStatusBadge.bg}
+                color={subscriptionStatusBadge.color}
                 px={2}
                 py={0.5}
                 borderRadius="md"
                 fontWeight="semibold"
                 textTransform="none"
               >
-                Active
+                {subscriptionStatusBadge.label}
               </Badge>
               <Text fontSize="xl" fontWeight="bold">
                 {planName}
               </Text>
+              {pricingAccess?.requires_subscription &&
+                !paidSubscriptionLive && (
+                  <Text fontSize="sm" color="#D4D4D8" lineHeight="short">
+                    Your organisation does not have active paid access for this
+                    plan yet. Subscribe or renew to restore access.
+                  </Text>
+                )}
             </VStack>
           </Flex>
 
@@ -283,7 +421,7 @@ export default function SubscriptionPage() {
                 </Text>
 
                 <Text fontSize="lg" fontWeight="semibold" color="#FAFAFA">
-                  {expiryIso ? formatShortDate(expiryIso) : "—"}
+                  {heroExpiryIso ? formatShortDate(heroExpiryIso) : "—"}
                 </Text>
               </Box>
             </HStack>
@@ -348,7 +486,7 @@ export default function SubscriptionPage() {
           p={6}
         >
           <Text fontSize="md" fontWeight="semibold" color="#18181B" mb={2}>
-            Cancel subscription
+            {billingCancelSection.title}
           </Text>
           <Flex justify="space-between" align="center" gap={4} flexWrap="wrap">
             <Text
@@ -359,9 +497,7 @@ export default function SubscriptionPage() {
               flex="1"
               minW="min(100%, 200px)"
             >
-              Cancel the subscription of the opportunity. When you cancel the
-              subscription, you will be downgraded to the free plan and lose
-              access to the features on your paid plan.
+              {billingCancelSection.description}
             </Text>
             <ButtonV2
               variant="ghost"
@@ -372,8 +508,9 @@ export default function SubscriptionPage() {
               size="sm"
               fontWeight={500}
               flexShrink={0}
+              onClick={billingCancelSection.primaryButton.onClick}
             >
-              cancel subscription
+              {billingCancelSection.primaryButton.label}
             </ButtonV2>
           </Flex>
         </Box>
