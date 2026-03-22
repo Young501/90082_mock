@@ -8,6 +8,7 @@ import type { AccessInfo } from "@/types/opportunities";
 import { useAuthStore } from "@/store/authStore";
 import {
   PROFILE_COLORS,
+  PROFILE_HOVER_COLORS,
   PROFILE_SECONDARY_COLORS,
   PROFILE_TINT_COLORS,
 } from "@/theme/theme";
@@ -110,7 +111,7 @@ export function OpportunityNotEnrolledCard({
         w="100%"
         bg={isOrganisation ? PROFILE_COLORS.organisation : "#36A2EB"}
         color="white"
-        _hover={{ bg: isOrganisation ? "#2E9994" : "#2B8AD4" }}
+        _hover={{ bg: isOrganisation ? PROFILE_HOVER_COLORS.organisation : PROFILE_HOVER_COLORS.student }}
         size="lg"
         h="44px"
         borderRadius="xl"

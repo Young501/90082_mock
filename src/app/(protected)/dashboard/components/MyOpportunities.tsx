@@ -26,7 +26,7 @@ import {
   useClearDefaultOpportunity,
 } from "@/services/dashboard";
 import { toast } from "react-toastify";
-import { PROFILE_TINT_COLORS } from "@/theme/theme";
+import { PROFILE_TINT_COLORS, PROFILE_HOVER_COLORS } from "@/theme/theme";
 import { ExternalLink, Mail } from "lucide-react";
 
 interface MyOpportunitiesProps {
@@ -331,8 +331,8 @@ function DashboardOpportunityCard({
                     {...(isHttp
                       ? { target: "_blank", rel: "noopener noreferrer" }
                       : isMailto
-                      ? { target: "_self" }
-                      : {})}
+                        ? { target: "_self" }
+                        : {})}
                   >
                     <HStack gap={2} align="center">
                       {label}
@@ -344,11 +344,7 @@ function DashboardOpportunityCard({
                         />
                       )}
                       {isMailto && (
-                        <Mail
-                          size={12}
-                          strokeWidth={3}
-                          color="#71717A"
-                        />
+                        <Mail size={12} strokeWidth={3} color="#71717A" />
                       )}
                     </HStack>
                   </Link>
@@ -381,16 +377,22 @@ function DashboardOpportunityCard({
             }
             h="36px"
             border={
-              userType === "organisation"
-                ? enrolled
+              enrolled
+                ? userType === "organisation"
                   ? "1px solid #D3EFEA"
-                  : "1px solid #3AADA8"
-                : enrolled
-                  ? "1px solid #D6EDFB"
-                  : "1px solid #2AA8E0"
+                  : "1px solid #D6EDFB"
+                : "none"
             }
             size="sm"
-            _hover={{ bg: PROFILE_TINT_COLORS[userType as keyof typeof PROFILE_TINT_COLORS] ?? PROFILE_TINT_COLORS.student }}
+            _hover={{
+              bg: enrolled
+                ? (PROFILE_TINT_COLORS[
+                    userType as keyof typeof PROFILE_TINT_COLORS
+                  ] ?? PROFILE_TINT_COLORS.student)
+                : (PROFILE_HOVER_COLORS[
+                    userType as keyof typeof PROFILE_HOVER_COLORS
+                  ] ?? PROFILE_HOVER_COLORS.student),
+            }}
             onClick={() => onNavigate(opp.slug)}
           >
             {enrolled ? "Explore Opportunity" : "Enroll"}
