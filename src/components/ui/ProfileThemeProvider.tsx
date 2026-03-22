@@ -41,7 +41,7 @@ export function ProfileThemeProvider({ children }: { children: ReactNode }) {
     root.style.setProperty("--profile-500", color);
     root.style.setProperty("--border-100", border);
     root.style.setProperty("--profile-dark", dark);
-    root.style.setProperty("--secondary-100", secondary);
+    root.style.setProperty("--track-100", secondary);
   }, [userType]);
 
   return <>{children}</>;

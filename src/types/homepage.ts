@@ -27,6 +27,11 @@ export interface HomepageOpportunityAccess {
   next_action: string;
 }
 
+export interface HomepageOpportunityLink {
+  url: string;
+  label: string;
+}
+
 export interface HomepageOpportunity {
   id: number;
   title: string;
@@ -41,6 +46,7 @@ export interface HomepageOpportunity {
   enrollment_status?: string;
   access?: HomepageOpportunityAccess;
   is_default?: boolean;
+  links?: HomepageOpportunityLink[];
   [key: string]: unknown;
 }
 
