@@ -196,6 +196,14 @@ export const createPageSchema = (
               return false;
             }
           );
+      } else if (question.type === "boolean-checkbox") {
+        fieldSchema = yup
+          .boolean()
+          .transform((value: any) => {
+            if (value === "true" || value === true) return true;
+            if (value === "false" || value === false) return false;
+            return value;
+          });
       } else if (question.type === "display") {
         fieldSchema = yup
           .mixed()

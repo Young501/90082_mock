@@ -9,8 +9,9 @@ import type { Product } from "@/types/subscription";
 import { useAuthStore } from "@/store/authStore";
 import {
   PROFILE_COLORS,
+  PROFILE_HOVER_COLORS,
   PROFILE_SECONDARY_COLORS,
-  PROFILE_BORDER_COLORS,
+  PROFILE_TINT_COLORS,
 } from "@/theme/theme";
 import { FeatureList } from "@/components/billing/PricingSelector";
 import { formatPrice } from "@/utils/formatPrice";
@@ -200,7 +201,7 @@ export function OpportunityNotEnrolledCard({
               p={4}
               bg={PROFILE_SECONDARY_COLORS.organisation}
               border="1px solid"
-              borderColor={PROFILE_BORDER_COLORS.organisation}
+              borderColor={PROFILE_TINT_COLORS.organisation}
               borderRadius="12px"
             >
               <Text fontSize="sm" color="#52525B" mb={1}>
@@ -222,7 +223,7 @@ export function OpportunityNotEnrolledCard({
         w="100%"
         bg={isOrganisation ? PROFILE_COLORS.organisation : "#36A2EB"}
         color="white"
-        _hover={{ bg: isOrganisation ? "#2E9994" : "#2B8AD4" }}
+        _hover={{ bg: isOrganisation ? PROFILE_HOVER_COLORS.organisation : PROFILE_HOVER_COLORS.student }}
         size="lg"
         h="44px"
         borderRadius="xl"

@@ -6,10 +6,16 @@ export const PROFILE_COLORS = {
   coordinator: "#1F97D1",
 } as const;
 
-export const PROFILE_BORDER_COLORS = {
+export const PROFILE_TINT_COLORS = {
   organisation: "#D3EFEA",
   student: "#D6EDFB",
   coordinator: "#D6EDFB",
+} as const;
+
+export const PROFILE_HOVER_COLORS = {
+  organisation: "#2E9994",
+  student: "#2B8AD4",
+  coordinator: "#2B8AD4",
 } as const;
 
 export const PROFILE_DARK_COLORS = {

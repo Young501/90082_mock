@@ -194,6 +194,7 @@ export default function OpportunityReviewPage() {
       value === null ||
       value === "" ||
       (Array.isArray(value) && value.length === 0);
+    // Note: boolean `false` is intentionally NOT treated as empty here
     if (isEmpty) {
       return <Text color="#A1A1AA">—</Text>;
     }

@@ -472,30 +472,13 @@ const Sidebar = ({
   return (
     <Box
       w="full"
-      // h="100%"
-      minH={{ base: "100%", lg: "calc(100vh - 188px)" }}
-      maxW={{ base: "100%", lg: "100%", xl: "300px" }}
-      bg="white"
-      borderRadius={{ base: "0", lg: "lg" }}
-      boxShadow="sm"
-      border={{ base: "none", lg: "1px solid" }}
-      borderColor={{ base: "transparent", lg: "gray.100" }}
-      overflow="hidden"
+      h="100%"
       display="flex"
       flexDirection="column"
       p={4}
+      overflowY="auto"
     >
       <Box flex="1 1 auto">
-        <Text
-          fontSize="xs"
-          fontWeight={700}
-          color="#52525B"
-          letterSpacing="wider"
-          mb={4}
-          px={3}
-        >
-          MENU
-        </Text>
         <VStack align="stretch" gap={2}>
           {menuItems.map((item) => renderMenuItem(item))}
         </VStack>

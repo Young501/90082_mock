@@ -35,7 +35,8 @@ export function formatAnswerForDisplay(
 
   // Boolean
   if (question.type === "boolean-checkbox") {
-    // If you someday add custom yes/no labels on the question, prefer them here.
+    if (answer === true || answer === "true") return "Yes";
+    if (answer === false || answer === "false") return "No";
     return answer ? "Yes" : "No";
   }
 

@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/auth";
 import { motion, transform } from "framer-motion";
 import Link from "next/link";
 import { Mail } from "lucide-react";
+import { PROFILE_HOVER_COLORS } from "@/theme/theme";
 import {
   baseAuthSchema,
   studentAuthValidationSchema,
@@ -293,6 +294,11 @@ const SignupPage = () => {
                     fontWeight="600"
                     h={{ base: "48px", md: "64px" }}
                     borderRadius="xl"
+                    _hover={{
+                      bg: isOrganisation
+                        ? PROFILE_HOVER_COLORS.organisation
+                        : PROFILE_HOVER_COLORS.student,
+                    }}
                   >
                     Create account
                   </ButtonV2>

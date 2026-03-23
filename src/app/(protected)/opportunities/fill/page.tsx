@@ -58,6 +58,7 @@ function OpportunityFillContent() {
   const {
     questionnaireAnswers: answers,
     updateAnswers,
+    flushAnswers,
     clearAnswers,
   } = useQuestionnaireAnswers(opportunityId?.toString() || "");
 
@@ -113,6 +114,10 @@ function OpportunityFillContent() {
     if (questionnaireRef.current) {
       const isValid = await questionnaireRef.current.validate();
       if (isValid) {
+        // Synchronously flush the latest form values to sessionStorage before
+        // navigating — the watch-based save is async and may not have run yet.
+        const finalValues = questionnaireRef.current.getValues();
+        flushAnswers(finalValues);
         router.push(`/opportunities/review/?opp=${opportunitySlug}`);
       } else {
         setHasValidationError(true);

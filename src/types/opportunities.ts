@@ -17,6 +17,7 @@ export interface Opportunity {
   participant_record?: ParticipantRecord | null;
   enrollment_status?: "enrolled" | "not_enrolled" | string;
   is_default?: boolean;
+  links?: { url: string; label: string }[];
 }
 
 export interface ParticipantRecord {

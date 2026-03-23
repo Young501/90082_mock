@@ -9,6 +9,7 @@ import type { HomepageProfile } from "@/types/homepage";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { useAuthStore } from "@/store/authStore";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
+import { PROFILE_TINT_COLORS, PROFILE_HOVER_COLORS } from "@/theme/theme";
 
 interface ProfileOverviewProps {
   profile: HomepageProfile;
@@ -266,14 +267,18 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
         border={
           userType === "organisation"
             ? allItemsCompleted
-              ? "1px solid #D3EFEA"
+              ? `1px solid ${PROFILE_TINT_COLORS.organisation}`
               : "1px solid #3AADA8"
             : allItemsCompleted
-              ? "1px solid #D6EDFB"
+              ? `1px solid ${PROFILE_TINT_COLORS.student}`
               : "1px solid #2AA8E0"
         }
         size="sm"
-        // _hover={{ bg: "profile.500", opacity: 0.9 }}
+        _hover={{
+          bg: allItemsCompleted
+            ? (PROFILE_TINT_COLORS[userType as keyof typeof PROFILE_TINT_COLORS] ?? PROFILE_TINT_COLORS.student)
+            : (PROFILE_HOVER_COLORS[userType as keyof typeof PROFILE_HOVER_COLORS] ?? PROFILE_HOVER_COLORS.student),
+        }}
         onClick={() => router.push("/profile/")}
       >
         {allItemsCompleted ? "Edit Profile" : "Complete Profile"}
