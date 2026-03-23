@@ -92,10 +92,6 @@ async function submitStudentOnboardingV2(
     delete studentPayload[f];
   });
 
-  if (allData.location) {
-    userPayload.location = allData.location;
-  }
-
   if (Object.keys(userPayload).length > 0) {
     await userMeUpdateV2.mutateAsync(userPayload);
   }
@@ -205,22 +201,6 @@ async function submitOrganisationOnboardingV2(
     delete organisationPayload[f];
     delete organisationMemberPayload[f];
   });
-
-  if (allData.location) {
-    const locationQuestion = allQuestions.find(
-      (q) => q.field === "location" && q.model === "user"
-    );
-    if (locationQuestion) {
-      userPayload.location = allData.location;
-    } else {
-      const orgLocationQuestion = allQuestions.find(
-        (q) => q.field === "location" && q.model === "organisation"
-      );
-      if (orgLocationQuestion) {
-        organisationPayload.location = allData.location;
-      }
-    }
-  }
 
   if (isFinalSubmit) {
     if (Object.keys(userPayload).length > 0) {
