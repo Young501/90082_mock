@@ -44,6 +44,19 @@ export function useQuestionnaireAnswers(opportunityId: string | null) {
     setQuestionnaireAnswers(answers);
   }, []);
 
+  // Synchronously writes to sessionStorage — use before navigation to avoid
+  // timing issues where the async save effect hasn't run yet.
+  const flushAnswers = useCallback(
+    (answers: Record<string, any>) => {
+      if (opportunityId && Object.keys(answers).length > 0) {
+        const storageKey = `${QUESTIONNAIRE_STORAGE_KEY}${opportunityId}`;
+        sessionStorage.setItem(storageKey, JSON.stringify(answers));
+        setQuestionnaireAnswers(answers);
+      }
+    },
+    [opportunityId]
+  );
+
   const clearAnswers = useCallback(() => {
     if (opportunityId) {
       const storageKey = `${QUESTIONNAIRE_STORAGE_KEY}${opportunityId}`;
@@ -55,6 +68,7 @@ export function useQuestionnaireAnswers(opportunityId: string | null) {
   return {
     questionnaireAnswers,
     updateAnswers,
+    flushAnswers,
     clearAnswers,
   };
 }
