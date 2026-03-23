@@ -10,6 +10,7 @@ import { MapPin, MessageCircle, FolderHeart, Building2 } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { ContactPage } from "@/components/ContactPage";
 import { usePartnerProfile } from "@/services/shared";
+import { formatLocationDisplay } from "@/utils/geocode";
 
 interface OrganisationCardProps {
   organisation: OrganisationProfile;
@@ -79,7 +80,7 @@ export function OrganisationCard({
       ? `${sectorText} (${industryText})`
       : sectorText || industryText || "";
   const matchPercentage = organisation.matchPercentage;
-  const locationText = organisation.location || "";
+  const locationText = formatLocationDisplay(organisation.location);
   const distanceText =
     organisation.distance_km != null
       ? `${organisation.distance_km % 1 === 0 ? organisation.distance_km : organisation.distance_km.toFixed(1)} km`

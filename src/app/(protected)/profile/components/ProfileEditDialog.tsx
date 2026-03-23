@@ -54,7 +54,6 @@ const DEDICATED_ENDPOINT_FIELDS = [
   "logo",
   "logo_url",
   "location_geocode_lookup",
-  "location",
 ];
 
 export function ProfileEditDialog({

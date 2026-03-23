@@ -123,30 +123,30 @@ export const checkOnboardingStatus = async ({
           endpoint: API_ENDPOINTS.ORGANISATION_MEMBER_ME_V2,
         });
       } catch (memberError: any) {
-        if (memberError?.response?.status === 404) {
-          await apiRequest({
-            endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_CREATE_V2,
-            body: { name: " " },
-          });
-          member = await apiRequest({
-            endpoint: API_ENDPOINTS.ORGANISATION_MEMBER_ME_V2,
-          });
-        } else {
+        if (memberError?.response?.status !== 404) {
           throw memberError;
         }
       }
 
-      const org = await apiRequest({
-        endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_V2,
-      });
-      setUserProfile(org);
+      let org: Record<string, any> | null = null;
+      try {
+        org = await apiRequest({
+          endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_V2,
+        });
+      } catch (orgError: any) {
+        if (orgError?.response?.status !== 404) {
+          throw orgError;
+        }
+      }
+
+      if (org) {
+        setUserProfile(org);
+      }
 
       const memberComplete = isOrganisationMemberComplete(member);
       const orgComplete = isOrganisationComplete(org);
 
       if (!memberComplete || !orgComplete) {
-        console.log("memberComplete", memberComplete);
-        console.log("orgComplete", orgComplete);
         if (redirectOnSuccess) {
           const phase: "user" | "organisation" = !memberComplete
             ? "user"

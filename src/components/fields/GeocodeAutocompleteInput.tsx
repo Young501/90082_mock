@@ -6,6 +6,7 @@ import { MapPin } from "lucide-react";
 import { useGeocode } from "@/services/shared";
 import { useDebounce } from "@/hooks/useDebounce";
 import { GeocodeResult } from "@/types/shared";
+import { mapGeocodeSearchResponse } from "@/utils/geocode";
 import { UseFormRegisterReturn, Control, useController } from "react-hook-form";
 import Loader from "@/components/ui/Loader";
 
@@ -104,13 +105,17 @@ export const GeocodeAutocompleteInput = memo(
         mutationRef
           .current(trimmedAddress)
           .then((response) => {
+            const responseData = response as
+              | Record<string, unknown>
+              | null
+              | undefined;
             if (
-              response &&
-              response.formatted_address &&
-              response.latitude &&
-              response.longitude
+              responseData &&
+              responseData.formatted_address &&
+              responseData.latitude != null &&
+              responseData.longitude != null
             ) {
-              setResults([response]);
+              setResults([mapGeocodeSearchResponse(responseData)]);
             } else {
               setResults([]);
             }
@@ -172,18 +177,20 @@ export const GeocodeAutocompleteInput = memo(
 
     const handleSelect = useCallback(
       (result: GeocodeResult) => {
-        const formattedAddress = result.formatted_address;
+        const mapped = mapGeocodeSearchResponse(
+          result as unknown as Record<string, unknown>
+        );
+        const formattedAddress = mapped.formatted_address;
         setInputValue(formattedAddress);
         onChange(formattedAddress);
-        onSelect(result);
+        onSelect(mapped);
 
-        // Update the form controller
         if (controller) {
-          controller.field.onChange(formattedAddress);
+          controller.field.onChange(mapped);
         }
 
         if (isProfilePage && onLocationUpdate) {
-          onLocationUpdate(result);
+          onLocationUpdate(mapped);
         }
 
         setIsOpen(false);
@@ -314,7 +321,7 @@ export const GeocodeAutocompleteInput = memo(
                 {!isLoading &&
                   results.map((result, index) => (
                     <Box
-                      key={result.id || index}
+                      key={`${result.formatted_address}-${index}`}
                       w="100%"
                       p={3}
                       cursor="pointer"
