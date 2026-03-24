@@ -31,6 +31,10 @@ import { ReviewPreview } from "./ReviewPreview";
 import Loader from "@/components/ui/Loader";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { TriangleAlert } from "lucide-react";
+import {
+  getMemberGeocodeLocationFromFormData,
+  getOrganisationGeocodeLocationFromFormData,
+} from "@/utils/geocode";
 
 interface Props {
   userType: string;
@@ -43,7 +47,6 @@ const STUDENT_ENDPOINT_FIELDS = [
   "location_geocode_lookup",
 ];
 
-/** Virtual / upload-only fields — not sent as JSON on profile endpoints. `location` is persisted via PATCH/POST. */
 const ORGANISATION_STRIP_FIELDS = [
   "profile_picture",
   "resume",
@@ -175,14 +178,18 @@ async function submitOrganisationOnboardingV2(
       (q) =>
         q.model === "organisation" &&
         q.type !== "display" &&
-        (q.type === "abn_lookup" || !q.endpoint)
+        (q.type === "abn_lookup" ||
+          q.type === "location_geocode_lookup" ||
+          !q.endpoint)
     )
     .map((q) => q.field);
 
   const organisationMemberFields = allQuestions
     .filter(
       (q) =>
-        q.model === "organisation_member" && !q.endpoint && q.type !== "display"
+        q.model === "organisation_member" &&
+        q.type !== "display" &&
+        (q.type === "location_geocode_lookup" || !q.endpoint)
     )
     .map((q) => q.field);
 
@@ -198,12 +205,45 @@ async function submitOrganisationOnboardingV2(
       organisationPayload[field] = allData[field];
     }
   });
+
+  for (const q of allQuestions) {
+    if (
+      q.model === "organisation" &&
+      q.type === "location_geocode_lookup" &&
+      q.field !== "location"
+    ) {
+      delete organisationPayload[q.field];
+    }
+  }
+  const organisationLocationPayload =
+    getOrganisationGeocodeLocationFromFormData(allData, allQuestions);
+  if (organisationLocationPayload) {
+    organisationPayload.location = organisationLocationPayload;
+  }
+
   const organisationMemberPayload: Record<string, any> = {};
   organisationMemberFields.forEach((field) => {
     if (allData[field] !== undefined && allData[field] !== "") {
       organisationMemberPayload[field] = allData[field];
     }
   });
+
+  for (const q of allQuestions) {
+    if (
+      q.model === "organisation_member" &&
+      q.type === "location_geocode_lookup" &&
+      q.field !== "location"
+    ) {
+      delete organisationMemberPayload[q.field];
+    }
+  }
+  const memberLocationPayload = getMemberGeocodeLocationFromFormData(
+    allData,
+    allQuestions
+  );
+  if (memberLocationPayload) {
+    organisationMemberPayload.location = memberLocationPayload;
+  }
 
   ORGANISATION_STRIP_FIELDS.forEach((f) => {
     delete userPayload[f];
@@ -907,6 +947,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
           userType === "organisation" && organisationPageStructure
             ? {
                 ...accumulatedOrgMemberData,
+                ...accumulatedOrgData,
                 ...formData,
                 ...currentValues,
               }
@@ -977,7 +1018,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
         const isFromReview = showReviewPreview;
         const mergedData =
           isFromReview && reviewFormDataSnapshot
-            ? reviewFormDataSnapshot
+            ? { ...accumulatedOrgData, ...reviewFormDataSnapshot }
             : isFromReview
               ? { ...accumulatedOrgMemberData, ...allData }
               : allData;
@@ -1079,6 +1120,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
       (userType === "organisation" && organisationPageStructure
         ? {
             ...accumulatedOrgMemberData,
+            ...accumulatedOrgData,
             ...formData,
             ...getValues(),
           }

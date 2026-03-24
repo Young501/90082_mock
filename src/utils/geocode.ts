@@ -3,7 +3,6 @@ import type { Question } from "@/types/onboarding";
 
 /**
  * Normalizes v2 geocode search API response for local form state.
- * Preserves all fields returned by the API (e.g. neighborhood, administrative_area_level_1).
  */
 export function mapGeocodeSearchResponse(
   raw: Record<string, unknown>
@@ -15,8 +14,7 @@ export function mapGeocodeSearchResponse(
 }
 
 /**
- * Turns stored geocode result into the `location` object for PATCH/POST organisation member.
- * Strips only the client-only `id` (if present). Omits plain strings (typed but not selected).
+ * Turns stored geocode result into the `location` object for PATCH/POST 
  */
 export function toMemberLocationPayload(
   value: unknown
@@ -49,8 +47,31 @@ export function getMemberGeocodeLocationFromFormData(
   return null;
 }
 
+/**
+ * Reads geocode for PATCH/POST organisation profile (same shape as ProfileEditDialog org payload).
+ * 1) Any question with model organisation + type location_geocode_lookup
+ * 2) Fallback: `location` or `location_geocode_lookup` keys
+ */
+export function getOrganisationGeocodeLocationFromFormData(
+  allData: Record<string, unknown>,
+  questions: Question[]
+): Record<string, unknown> | null {
+  const fields = questions
+    .filter(
+      (q) =>
+        q.model === "organisation" && q.type === "location_geocode_lookup"
+    )
+    .map((q) => q.field);
+  for (const f of fields) {
+    const v = toMemberLocationPayload(allData[f]);
+    if (v) return v;
+  }
+  const fromLocation = toMemberLocationPayload(allData.location);
+  if (fromLocation) return fromLocation;
+  return toMemberLocationPayload(allData.location_geocode_lookup);
+}
+
 /** Renders organisation/user location whether API returns a string or object with formatted_address property. */
-/*** presently API returns a string */
 export function formatLocationDisplay(location: unknown): string {
   if (location == null) return "";
   if (typeof location === "string") return location;
