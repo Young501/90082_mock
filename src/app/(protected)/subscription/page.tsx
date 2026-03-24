@@ -174,13 +174,21 @@ export default function SubscriptionPage() {
     pricingProduct?.prices?.[0] ??
     null;
 
+  const pricingOpportunitySlug =
+    pricingProduct?.metadata?.opportunity_slug ?? null;
   const pricingOpportunityPublicId =
     pricingProduct?.metadata?.opportunity_public_id ?? null;
 
   const linkedOpportunity = useMemo(() => {
-    if (!opportunities || !pricingOpportunityPublicId) return null;
-    return opportunities.find((o) => o.public_id === pricingOpportunityPublicId) ?? null;
-  }, [opportunities, pricingOpportunityPublicId]);
+    if (!opportunities) return null;
+    if (pricingOpportunitySlug) {
+      return opportunities.find((o) => o.slug === pricingOpportunitySlug) ?? null;
+    }
+    if (pricingOpportunityPublicId) {
+      return opportunities.find((o) => o.public_id === pricingOpportunityPublicId) ?? null;
+    }
+    return null;
+  }, [opportunities, pricingOpportunitySlug, pricingOpportunityPublicId]);
 
   const planName = pricingProduct?.name ?? "Subscription access";
 
