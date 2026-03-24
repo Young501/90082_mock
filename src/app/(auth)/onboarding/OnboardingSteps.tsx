@@ -34,13 +34,20 @@ import { TriangleAlert } from "lucide-react";
 import {
   getMemberGeocodeLocationFromFormData,
   getOrganisationGeocodeLocationFromFormData,
+  getUserGeocodeLocationFromFormData,
 } from "@/utils/geocode";
 
 interface Props {
   userType: string;
 }
 
-const STUDENT_ENDPOINT_FIELDS = [
+/** Strip virtual/upload keys from payloads; `location` is set from geocode merge for user PATCH. */
+const USER_SUBMIT_STRIP_FIELDS = [
+  "profile_picture",
+  "resume",
+  "location_geocode_lookup",
+];
+const STUDENT_SUBMIT_STRIP_FIELDS = [
   "profile_picture",
   "resume",
   "location",
@@ -69,7 +76,12 @@ async function submitStudentOnboardingV2(
   setUserProfilePictureUrl: (url: string) => void
 ) {
   const userFields = allQuestions
-    .filter((q) => q.model === "user" && !q.endpoint && q.type !== "display")
+    .filter(
+      (q) =>
+        q.model === "user" &&
+        q.type !== "display" &&
+        (q.type === "location_geocode_lookup" || !q.endpoint)
+    )
     .map((q) => q.field);
   const studentProfileFields = allQuestions
     .filter(
@@ -91,8 +103,27 @@ async function submitStudentOnboardingV2(
     }
   });
 
-  STUDENT_ENDPOINT_FIELDS.forEach((f) => {
+  for (const q of allQuestions) {
+    if (
+      q.model === "user" &&
+      q.type === "location_geocode_lookup" &&
+      q.field !== "location"
+    ) {
+      delete userPayload[q.field];
+    }
+  }
+  const userLocationPayload = getUserGeocodeLocationFromFormData(
+    allData,
+    allQuestions
+  );
+  if (userLocationPayload) {
+    userPayload.location = userLocationPayload;
+  }
+
+  USER_SUBMIT_STRIP_FIELDS.forEach((f) => {
     delete userPayload[f];
+  });
+  STUDENT_SUBMIT_STRIP_FIELDS.forEach((f) => {
     delete studentPayload[f];
   });
 

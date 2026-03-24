@@ -39,6 +39,7 @@ import { useAuthStore } from "@/store/authStore";
 import {
   getMemberGeocodeLocationFromFormData,
   getOrganisationGeocodeLocationFromFormData,
+  getUserGeocodeLocationFromFormData,
 } from "@/utils/geocode";
 
 export interface ProfileEditDialogProps {
@@ -372,6 +373,10 @@ export function ProfileEditDialog({
     );
     const organisationLocationPayload =
       getOrganisationGeocodeLocationFromFormData(dataRecord, page.questions);
+    const userLocationPayload = getUserGeocodeLocationFromFormData(
+      dataRecord,
+      page.questions
+    );
 
     // Strip dedicated-endpoint fields from all payloads
     DEDICATED_ENDPOINT_FIELDS.forEach((f) => {
@@ -380,6 +385,19 @@ export function ProfileEditDialog({
       delete orgMemberFields[f];
       delete orgFields[f];
     });
+
+    for (const q of page.questions) {
+      if (
+        q.model === "user" &&
+        q.type === "location_geocode_lookup" &&
+        q.field !== "location"
+      ) {
+        delete userFields[q.field];
+      }
+    }
+    if (userLocationPayload) {
+      userFields.location = userLocationPayload;
+    }
 
     for (const q of page.questions) {
       if (

@@ -71,6 +71,27 @@ export function getOrganisationGeocodeLocationFromFormData(
   return toMemberLocationPayload(allData.location_geocode_lookup);
 }
 
+/**
+ * Reads geocode for PATCH /api/v2/users/me/ (`location` on user).
+ * 1) Questions with model user + type location_geocode_lookup
+ * 2) Fallback: `location` / `location_geocode_lookup` on form data (student onboarding uses field name `location` often)
+ */
+export function getUserGeocodeLocationFromFormData(
+  allData: Record<string, unknown>,
+  questions: Question[]
+): Record<string, unknown> | null {
+  const fields = questions
+    .filter((q) => q.model === "user" && q.type === "location_geocode_lookup")
+    .map((q) => q.field);
+  for (const f of fields) {
+    const v = toMemberLocationPayload(allData[f]);
+    if (v) return v;
+  }
+  const fromLocation = toMemberLocationPayload(allData.location);
+  if (fromLocation) return fromLocation;
+  return toMemberLocationPayload(allData.location_geocode_lookup);
+}
+
 /** Renders organisation/user location whether API returns a string or object with formatted_address property. */
 export function formatLocationDisplay(location: unknown): string {
   if (location == null) return "";
