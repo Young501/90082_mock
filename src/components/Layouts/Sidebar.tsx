@@ -539,9 +539,8 @@ const Sidebar = ({
               <Image
                 src={userProfile?.university?.logo_url}
                 alt={userProfile?.university?.name || "University Logo"}
-                // width={260}
-                // height={260}
                 fill
+                priority
                 style={{ objectFit: "contain", borderRadius: "12px" }}
               />
             </Box>
