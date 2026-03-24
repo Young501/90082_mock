@@ -72,6 +72,9 @@ const Sidebar = ({
   const isStudent = userType === "student";
   const opps: AccessibleOpportunity[] = accessibleOpportunities ?? [];
   const defaultOpp = opps.find((o) => o.is_default);
+  const showSubscriptionTab = opps.some(
+    (o) => o.access?.subscription != null || o.access?.active_override != null
+  );
 
 
   const MENU_ITEMS: SidebarMenuItem[] = [
@@ -123,7 +126,7 @@ const Sidebar = ({
       icon: <CreditCard size={20} />,
       isCoordinator: false,
       isOrganisation: true,
-      isStudent: false,
+      isStudent: true,
       isProtected: true,
     },
     {
@@ -161,16 +164,15 @@ const Sidebar = ({
 
   const getMenuItems = (): SidebarMenuItem[] => {
     if (!isProtected) return [];
+    let items: SidebarMenuItem[] = [];
     if (isCoordinator) {
-      return MENU_ITEMS.filter((i) => i.isCoordinator && i.isProtected);
+      items = MENU_ITEMS.filter((i) => i.isCoordinator && i.isProtected);
+    } else if (isOrganisation) {
+      items = MENU_ITEMS.filter((i) => i.isOrganisation && i.isProtected);
+    } else if (isStudent) {
+      items = MENU_ITEMS.filter((i) => i.isStudent && i.isProtected);
     }
-    if (isOrganisation) {
-      return MENU_ITEMS.filter((i) => i.isOrganisation && i.isProtected);
-    }
-    if (isStudent) {
-      return MENU_ITEMS.filter((i) => i.isStudent && i.isProtected);
-    }
-    return [];
+    return items.filter((i) => i.key !== "subscription" || showSubscriptionTab);
   };
 
   const isActive = (href: string) => {

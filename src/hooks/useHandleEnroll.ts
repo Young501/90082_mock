@@ -84,7 +84,7 @@ export function useHandleEnroll({
 
       if (accessInfo?.next_action === "subscribe") {
         if (!STRIPE_PRICING_ENABLED) {
-          window.location.href = subscribeLink || UNIMELB_SUBSCRIPTION_URL;
+          window.open(subscribeLink || UNIMELB_SUBSCRIPTION_URL, "_blank", "noopener,noreferrer");
           return;
         }
 

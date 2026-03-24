@@ -2,6 +2,7 @@ import { Question } from "./onboarding";
 
 export interface Opportunity {
   id: number;
+  public_id?: string;
   title: string;
   description: string;
   logo_url?: string;

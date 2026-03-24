@@ -16,22 +16,13 @@ import NextLink from "next/link";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { useAuthStore } from "@/store/authStore";
-import {
-  useAccessibleOpportunities,
-  categorizeOpportunities,
-} from "@/services/shared";
+import { useAccessibleOpportunities } from "@/services/shared";
 import { useProductPricing } from "@/services/billing";
 import { OpportunityCard } from "@/components/MyOpportunities";
-import type {
-  AccessInfo,
-  Opportunity,
-  AccessibleOpportunity,
-} from "@/types/opportunities";
+import type { AccessInfo, AccessibleOpportunity } from "@/types/opportunities";
 import Loader from "@/components/ui/Loader";
 import { formatPrice } from "@/utils/formatPrice";
 import { formatShortDate } from "@/utils/formatDate";
-import { PROFILE_DARK_COLORS } from "@/theme/theme";
-import { CONTACT_EMAIL } from "@/utils/constants";
 import OpportunityCardSkeleton from "@/components/ui/OpportunityCardSkeleton";
 import { Clock4, CreditCard, Calendar } from "lucide-react";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
@@ -130,59 +121,45 @@ export default function SubscriptionPage() {
     return computeAccessExpiryIso(pricingAccess);
   }, [pricingAccess]);
 
-  const billingCancelSection = useMemo(() => {
-    const openSupportEmail = () => {
-      window.location.href = `mailto:${CONTACT_EMAIL}`;
-    };
+  const isExpiringSoon = useMemo(() => {
+    if (!heroExpiryIso) return false;
+    const diff = new Date(heroExpiryIso).getTime() - Date.now();
+    return diff > 0 && diff <= 7 * 24 * 60 * 60 * 1000;
+  }, [heroExpiryIso]);
 
+  const billingCancelSection = useMemo(() => {
     if (!pricingAccess) {
       return {
-        title: "Billing & subscription",
-        description: `Contact support at ${CONTACT_EMAIL} for billing questions.`,
-        primaryButton: {
-          label: "Contact support",
-          onClick: openSupportEmail,
-        },
+        title: "Subscription support",
+        description:
+          "If you need any support with your subscription, including cancellation or other technical support, please reach out to us.",
+        primaryButton: { label: "Contact us", href: "/support/" },
       };
     }
 
     if (!pricingAccess.requires_subscription) {
       return {
-        title: "Billing & subscription",
+        title: "Subscription support",
         description:
-          "This plan does not use a paid subscription. For other questions, contact support.",
-        primaryButton: {
-          label: "Contact support",
-          onClick: openSupportEmail,
-        },
+          "If you need any support with your subscription, including cancellation or other technical support, please reach out to us.",
+        primaryButton: { label: "Contact us", href: "/support/" },
       };
     }
 
     if (!pricingAccess.has_access) {
       return {
-        title: "Subscription",
+        title: "Subscription support",
         description:
-          "Your organisation does not have access yet. Subscribe from pricing or contact support for help.",
-        primaryButton: {
-          label: "Contact support",
-          onClick: openSupportEmail,
-        },
+          "If you need any support with your subscription, including cancellation or other technical support, please reach out to us.",
+        primaryButton: { label: "Contact us", href: "/support/" },
       };
     }
 
-    // Active access without a Stripe subscription no cancel UI
-    // if (!pricingAccess.subscription) {
-    //   return null;
-    // }
-
     return {
-      title: "Cancel subscription",
+      title: "Subscription support",
       description:
-        "Cancel the subscription of the opportunity. When you cancel the subscription, you will be downgraded to the free plan and lose access to the features on your paid plan.",
-      primaryButton: {
-        label: "Cancel subscription",
-        onClick: undefined,
-      },
+        "If you need any support with your subscription, including cancellation or other technical support, please reach out to us.",
+      primaryButton: { label: "Contact us", href: "/support/" },
     };
   }, [pricingAccess]);
 
@@ -197,13 +174,13 @@ export default function SubscriptionPage() {
     pricingProduct?.prices?.[0] ??
     null;
 
-  const categorized = useMemo(() => {
-    if (!opportunities) return { enrolled: [] as Opportunity[], closed: [] };
-    return categorizeOpportunities(opportunities);
-  }, [opportunities]);
+  const pricingOpportunityPublicId =
+    pricingProduct?.metadata?.opportunity_public_id ?? null;
 
-  const enrolled = categorized.enrolled;
-  const totalListed = opportunities?.length ?? 0;
+  const linkedOpportunity = useMemo(() => {
+    if (!opportunities || !pricingOpportunityPublicId) return null;
+    return opportunities.find((o) => o.public_id === pricingOpportunityPublicId) ?? null;
+  }, [opportunities, pricingOpportunityPublicId]);
 
   const planName = pricingProduct?.name ?? "Subscription access";
 
@@ -393,14 +370,25 @@ export default function SubscriptionPage() {
                 <Text fontSize="xs" color="#D4D4D8">
                   Expiry date
                 </Text>
-
                 <Text
                   fontSize={{ base: "sm", md: "lg" }}
                   fontWeight="semibold"
-                  color="#FAFAFA"
+                  color={isExpiringSoon ? "#FCA5A5" : "#FAFAFA"}
                 >
                   {heroExpiryIso ? formatShortDate(heroExpiryIso) : "—"}
                 </Text>
+                {isExpiringSoon && (
+                  <Text fontSize="xs" color="#FCA5A5" fontWeight="medium">
+                    Expiring soon —{" "}
+                    <NextLink
+                      href="/support/"
+                      style={{ color: "#FCA5A5", textDecoration: "underline" }}
+                    >
+                      contact us
+                    </NextLink>{" "}
+                    to keep your subscription active
+                  </Text>
+                )}
               </Box>
             </HStack>
           </SimpleGrid>
@@ -416,21 +404,11 @@ export default function SubscriptionPage() {
             flexWrap="wrap"
           >
             <Text fontSize="lg" fontWeight="semibold" color="#18181B">
-              Enrolled Opportunities ({enrolled.length}/{totalListed || 0})
+              Opportunity
             </Text>
-            <NextLink
-              href="/profile"
-              style={{
-                fontSize: "14px",
-                fontWeight: 500,
-                color: PROFILE_DARK_COLORS.organisation,
-              }}
-            >
-              Browse all
-            </NextLink>
           </Flex>
 
-          {enrolled.length === 0 ? (
+          {!linkedOpportunity ? (
             <Box
               p={8}
               borderRadius="12px"
@@ -439,20 +417,15 @@ export default function SubscriptionPage() {
               textAlign="center"
             >
               <Text fontSize="md" color="#71717A">
-                You&apos;re not enrolled in any opportunities yet.
+                No opportunity linked to your subscription.
               </Text>
             </Box>
           ) : (
-            <VStack gap={4} align="stretch">
-              {enrolled.map((opportunity: Opportunity) => (
-                <OpportunityCard
-                  key={opportunity.id}
-                  opportunity={opportunity}
-                  userType={userType}
-                  type="enrolled"
-                />
-              ))}
-            </VStack>
+            <OpportunityCard
+              opportunity={linkedOpportunity}
+              userType={userType}
+              type={linkedOpportunity.enrollment_status === "enrolled" ? "enrolled" : "closed"}
+            />
           )}
         </Box>
 
@@ -483,19 +456,20 @@ export default function SubscriptionPage() {
               >
                 {billingCancelSection.description}
               </Text>
-              <ButtonV2
-                variant="ghost"
-                bg="#F4F4F5"
-                border="1px solid #E4E4E7"
-                borderRadius="xl"
-                color="black"
-                size="sm"
-                fontWeight={500}
-                flexShrink={0}
-                onClick={billingCancelSection.primaryButton.onClick}
-              >
-                {billingCancelSection.primaryButton.label}
-              </ButtonV2>
+              <NextLink href={billingCancelSection.primaryButton.href}>
+                <ButtonV2
+                  variant="ghost"
+                  bg="#F4F4F5"
+                  border="1px solid #E4E4E7"
+                  borderRadius="xl"
+                  color="black"
+                  size="sm"
+                  fontWeight={500}
+                  flexShrink={0}
+                >
+                  {billingCancelSection.primaryButton.label}
+                </ButtonV2>
+              </NextLink>
             </Flex>
           </Box>
         )}
