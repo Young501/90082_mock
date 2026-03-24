@@ -22,16 +22,17 @@ import { DiscoveryResultBox } from "./DiscoveryResultBox";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
 import { useSearchParams, useRouter } from "next/navigation";
-import {
-  useOpportunityDetail,
-  useAccessibleOpportunities,
-} from "@/services/shared";
+import { useAccessibleOpportunities } from "@/services/shared";
+import { useProductPricing } from "@/services/billing";
 import { useAuthStore } from "@/store";
 import { toast } from "react-toastify";
 import { isStudentEligibleForOpportunity } from "@/utils/domainEligibility";
 import { useHandleEnroll } from "@/hooks/useHandleEnroll";
-import { AccessInfo } from "@/types/opportunities";
-import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
+import type { Opportunity } from "@/types/opportunities";
+import {
+  findOpportunityByIdOrSlug,
+  toBaseOpportunity,
+} from "@/utils/findOpportunity";
 import {
   useFolders,
   useFolderDetail,
@@ -54,11 +55,18 @@ export default function DiscoveryPage() {
   const opportunitySlug = sp.get("opp") || undefined;
   const folderIdFromUrl = sp.get("folder") || null;
 
-  const { user } = useAuthStore();
+  const {
+    user,
+    getUserType,
+    accessibleOpportunities: storedAccessibleOpps,
+  } = useAuthStore();
   const [isUserEligible, setIsUserEligible] = useState<boolean | null>(null);
 
-  const { data: accessibleOpportunities, isLoading: isOpportunitiesLoading } =
+  const { data: queryAccessibleOpps, isLoading: isOpportunitiesLoading } =
     useAccessibleOpportunities();
+
+  const accessibleOpportunities =
+    storedAccessibleOpps ?? queryAccessibleOpps ?? null;
 
   const currentOpportunity = findOpportunityByIdOrSlug(
     accessibleOpportunities,
@@ -74,13 +82,27 @@ export default function DiscoveryPage() {
       : undefined;
   const accessInfo = currentOpportunity?.access ?? null;
 
-  const {
-    data: opportunity,
-    isLoading: isOpportunityLoading,
-    error: opportunityError,
-  } = useOpportunityDetail(opportunityId?.toString() || "");
-
   const userType = user?.user_types?.[0];
+  const userTypeKey = getUserType();
+
+  const needsSubscriptionPricing =
+    !!opportunityId &&
+    !!userTypeKey &&
+    accessInfo?.requires_subscription === true &&
+    accessInfo?.next_action === "subscribe";
+
+  const { data: productsPricing, isLoading: isPricingLoading } =
+    useProductPricing(opportunityId ?? null, userTypeKey ?? null, {
+      enabled: needsSubscriptionPricing,
+    });
+
+  const pricingProduct = productsPricing?.products?.[0] ?? null;
+  const subscribeLink = pricingProduct?.subscribe_link ?? null;
+
+  const opportunity: Opportunity | null = useMemo(
+    () => toBaseOpportunity(currentOpportunity),
+    [currentOpportunity]
+  );
   const [createFolderModalOpen, setCreateFolderModalOpen] = useState(false);
   const [folderSheetOpen, setFolderSheetOpen] = useState(false);
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
@@ -276,12 +298,13 @@ export default function DiscoveryPage() {
     accessInfo,
     toast,
     opportunitySlug,
+    subscribeLink,
   });
 
   // Opportunity-specific content
   if (opportunityId) {
     // Loading state
-    if (isOpportunityLoading) {
+    if (isOpportunitiesLoading) {
       return (
         <Box
           display="flex"
@@ -301,7 +324,7 @@ export default function DiscoveryPage() {
     }
 
     // Error state
-    if (opportunityError || !opportunity) {
+    if (!opportunity || !currentOpportunity) {
       return (
         <Box
           display="flex"
@@ -583,6 +606,10 @@ export default function DiscoveryPage() {
               accessInfo={accessInfo}
               onEnroll={handleEnroll}
               isSubmitting={isSubmitting}
+              pricingProduct={pricingProduct}
+              isPricingLoading={
+                needsSubscriptionPricing ? isPricingLoading : false
+              }
             />
           )}
         </VStack>
