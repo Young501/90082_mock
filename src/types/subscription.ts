@@ -21,6 +21,7 @@ export interface Product {
   name: string;
   description: string;
   default_price_id: string | null;
+  subscribe_link?: string;
   prices: PricingTier[];
   metadata?: Record<string, string>;
   marketing_features?: string[];

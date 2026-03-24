@@ -20,6 +20,7 @@ import {
   ExternalLink,
   CircleCheckBig,
   Users,
+  CreditCard,
 } from "lucide-react";
 
 import { IconSidebarLine } from "@/components/Icons";
@@ -71,6 +72,9 @@ const Sidebar = ({
   const isStudent = userType === "student";
   const opps: AccessibleOpportunity[] = accessibleOpportunities ?? [];
   const defaultOpp = opps.find((o) => o.is_default);
+  const showSubscriptionTab = opps.some(
+    (o) => o.access?.subscription != null || o.access?.active_override != null
+  );
 
 
   const MENU_ITEMS: SidebarMenuItem[] = [
@@ -116,6 +120,16 @@ const Sidebar = ({
       isProtected: true,
     },
     {
+      key: "subscription",
+      label: "Subscription",
+      href: "/subscription/",
+      icon: <CreditCard size={20} />,
+      isCoordinator: false,
+      isOrganisation: true,
+      isStudent: true,
+      isProtected: true,
+    },
+    {
       key: "messages",
       label: "Messages",
       href: "/messaging/",
@@ -150,16 +164,15 @@ const Sidebar = ({
 
   const getMenuItems = (): SidebarMenuItem[] => {
     if (!isProtected) return [];
+    let items: SidebarMenuItem[] = [];
     if (isCoordinator) {
-      return MENU_ITEMS.filter((i) => i.isCoordinator && i.isProtected);
+      items = MENU_ITEMS.filter((i) => i.isCoordinator && i.isProtected);
+    } else if (isOrganisation) {
+      items = MENU_ITEMS.filter((i) => i.isOrganisation && i.isProtected);
+    } else if (isStudent) {
+      items = MENU_ITEMS.filter((i) => i.isStudent && i.isProtected);
     }
-    if (isOrganisation) {
-      return MENU_ITEMS.filter((i) => i.isOrganisation && i.isProtected);
-    }
-    if (isStudent) {
-      return MENU_ITEMS.filter((i) => i.isStudent && i.isProtected);
-    }
-    return [];
+    return items.filter((i) => i.key !== "subscription" || showSubscriptionTab);
   };
 
   const isActive = (href: string) => {
@@ -172,6 +185,8 @@ const Sidebar = ({
     if (href === "/support/") return pathname?.startsWith("/support");
     if (href === "/profile/") return pathname?.startsWith("/profile");
     if (href === "/team/") return pathname?.startsWith("/team");
+    if (href === "/subscription/")
+      return pathname?.startsWith("/subscription");
     return pathname === href || pathname === href.replace(/\/$/, "");
   };
 
@@ -526,9 +541,8 @@ const Sidebar = ({
               <Image
                 src={userProfile?.university?.logo_url}
                 alt={userProfile?.university?.name || "University Logo"}
-                // width={260}
-                // height={260}
                 fill
+                priority
                 style={{ objectFit: "contain", borderRadius: "12px" }}
               />
             </Box>

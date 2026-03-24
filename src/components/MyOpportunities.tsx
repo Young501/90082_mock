@@ -41,6 +41,7 @@ import OpportunityCardSkeleton from "./ui/OpportunityCardSkeleton";
 import { formatDate, formatShortDate } from "@/utils/formatDate";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface OpportunityCardProps {
   opportunity: Opportunity | AccessibleOpportunity;
@@ -48,7 +49,7 @@ interface OpportunityCardProps {
   type: "enrolled" | "closed";
 }
 
-const OpportunityCard = ({
+export const OpportunityCard = ({
   opportunity,
   userType,
   type,
@@ -624,6 +625,13 @@ const OpportunityCard = ({
                   </HStack>
                 </Box>
               </Flex>
+              {slug && (
+                <Flex justify="flex-end">
+                  <Link href={`/opportunities/fill/?opp=${slug}`}>
+                    <ButtonV2 variant="secondary">Enroll</ButtonV2>
+                  </Link>
+                </Flex>
+              )}
             </Box>
           </>
         )}
