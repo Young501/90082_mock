@@ -48,9 +48,8 @@ export function getMemberGeocodeLocationFromFormData(
 }
 
 /**
- * Reads geocode for PATCH/POST organisation profile (same shape as ProfileEditDialog org payload).
- * 1) Any question with model organisation + type location_geocode_lookup
- * 2) Fallback: `location` or `location_geocode_lookup` keys
+ * Reads geocode for PATCH/POST organisation profile.
+ * Question-based only — no global `location` fallback (would collide with user geocode on students).
  */
 export function getOrganisationGeocodeLocationFromFormData(
   allData: Record<string, unknown>,
@@ -66,15 +65,12 @@ export function getOrganisationGeocodeLocationFromFormData(
     const v = toMemberLocationPayload(allData[f]);
     if (v) return v;
   }
-  const fromLocation = toMemberLocationPayload(allData.location);
-  if (fromLocation) return fromLocation;
-  return toMemberLocationPayload(allData.location_geocode_lookup);
+  return null;
 }
 
 /**
  * Reads geocode for PATCH /api/v2/users/me/ (`location` on user).
- * 1) Questions with model user + type location_geocode_lookup
- * 2) Fallback: `location` / `location_geocode_lookup` on form data (student onboarding uses field name `location` often)
+ 
  */
 export function getUserGeocodeLocationFromFormData(
   allData: Record<string, unknown>,

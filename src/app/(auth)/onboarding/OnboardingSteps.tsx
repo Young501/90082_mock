@@ -41,7 +41,6 @@ interface Props {
   userType: string;
 }
 
-/** Strip virtual/upload keys from payloads; `location` is set from geocode merge for user PATCH. */
 const USER_SUBMIT_STRIP_FIELDS = [
   "profile_picture",
   "resume",

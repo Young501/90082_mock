@@ -101,6 +101,9 @@ export function ProfileEditDialog({
     [page.questions]
   );
 
+  const isOrganisationUser =
+    useAuthStore((s) => s.getUserType()) === "organisation";
+
   const {
     data: freshStudentData,
     isLoading: isStudentLoading,
@@ -117,19 +120,24 @@ export function ProfileEditDialog({
     data: freshOrgMemberData,
     isLoading: isOrgMemberLoading,
     isFetched: isOrgMemberFetched,
-  } = useOrganisationMemberMeV2(isOpen && hasOrgMemberFields);
+  } = useOrganisationMemberMeV2(
+    isOpen && hasOrgMemberFields && isOrganisationUser
+  );
 
   const {
     data: freshOrgProfileData,
     isLoading: isOrgProfileLoading,
     isFetched: isOrgProfileFetched,
-  } = useOrganisationProfileV2(isOpen && hasOrgFields);
+  } = useOrganisationProfileV2(isOpen && hasOrgFields && isOrganisationUser);
 
   const isFreshDataLoading =
     (hasStudentProfileFields && isOpen && !isStudentFetched) ||
     (hasUserFields && isOpen && !isUserFetched) ||
-    (hasOrgMemberFields && isOpen && !isOrgMemberFetched) ||
-    (hasOrgFields && isOpen && !isOrgProfileFetched);
+    (hasOrgMemberFields &&
+      isOpen &&
+      isOrganisationUser &&
+      !isOrgMemberFetched) ||
+    (hasOrgFields && isOpen && isOrganisationUser && !isOrgProfileFetched);
 
   // skip abn field validation since its required since onboarding
   const schemaQuestions = page.questions.map((q) =>
@@ -187,16 +195,15 @@ export function ProfileEditDialog({
     if (hasUserFields) {
       queryClient.invalidateQueries({ queryKey: ["user-me-v2"] });
     }
-    if (hasOrgMemberFields) {
+    if (hasOrgMemberFields && isOrganisationUser) {
       queryClient.invalidateQueries({
         queryKey: ["organisation-member-me-v2"],
       });
     }
-    if (hasOrgFields) {
+    if (hasOrgFields && isOrganisationUser) {
       queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
+  }, [isOpen, hasStudentProfileFields, hasUserFields, hasOrgMemberFields, hasOrgFields, isOrganisationUser, queryClient]);
 
   // Reset form with fresh API data once loaded
   useEffect(() => {
@@ -210,14 +217,18 @@ export function ProfileEditDialog({
     const hasFreshData =
       (hasStudentProfileFields && Object.keys(studentData).length > 0) ||
       (hasUserFields && Object.keys(userData).length > 0) ||
-      (hasOrgMemberFields && Object.keys(orgMemberData).length > 0) ||
-      (hasOrgFields && Object.keys(orgProfileData).length > 0);
+      (isOrganisationUser &&
+        hasOrgMemberFields &&
+        Object.keys(orgMemberData).length > 0) ||
+      (isOrganisationUser &&
+        hasOrgFields &&
+        Object.keys(orgProfileData).length > 0);
 
     const source: Record<string, any> = hasFreshData
       ? {
           ...studentData,
-          ...orgProfileData,
-          ...orgMemberData,
+          ...(isOrganisationUser ? orgProfileData : {}),
+          ...(isOrganisationUser ? orgMemberData : {}),
           ...userData,
           // profile_picture:
           //   userData.profile_picture ?? userData.profile_picture_url,
@@ -225,14 +236,20 @@ export function ProfileEditDialog({
           //   userData.profile_picture_url ??
           //   userData.profile_picture ??
           //   studentData.profile_picture_url,
-          logo: orgProfileData.logo,
-          logo_url: orgProfileData.logo,
+          ...(isOrganisationUser
+            ? {
+                logo: orgProfileData.logo,
+                logo_url: orgProfileData.logo,
+              }
+            : {}),
           // linkedin: orgProfileData.linkedin,
           linkedin:
             studentData.linkedin ??
-            orgProfileData.linkedin ??
+            (isOrganisationUser ? orgProfileData.linkedin : undefined) ??
             userData.linkedin,
-          ...(hasOrgFields ? { location: orgProfileData.location } : {}),
+          ...(hasOrgFields && isOrganisationUser
+            ? { location: orgProfileData.location }
+            : {}),
         }
       : (initialValues as Record<string, any>);
 
@@ -285,6 +302,7 @@ export function ProfileEditDialog({
     hasOrgFields,
     initialValues,
     reset,
+    isOrganisationUser,
   ]);
 
   useEffect(() => {
@@ -399,30 +417,32 @@ export function ProfileEditDialog({
       userFields.location = userLocationPayload;
     }
 
-    for (const q of page.questions) {
-      if (
-        q.model === "organisation_member" &&
-        q.type === "location_geocode_lookup" &&
-        q.field !== "location"
-      ) {
-        delete orgMemberFields[q.field];
+    if (isOrganisationUser) {
+      for (const q of page.questions) {
+        if (
+          q.model === "organisation_member" &&
+          q.type === "location_geocode_lookup" &&
+          q.field !== "location"
+        ) {
+          delete orgMemberFields[q.field];
+        }
       }
-    }
-    if (memberLocationPayload) {
-      orgMemberFields.location = memberLocationPayload;
-    }
+      if (memberLocationPayload) {
+        orgMemberFields.location = memberLocationPayload;
+      }
 
-    for (const q of page.questions) {
-      if (
-        q.model === "organisation" &&
-        q.type === "location_geocode_lookup" &&
-        q.field !== "location"
-      ) {
-        delete orgFields[q.field];
+      for (const q of page.questions) {
+        if (
+          q.model === "organisation" &&
+          q.type === "location_geocode_lookup" &&
+          q.field !== "location"
+        ) {
+          delete orgFields[q.field];
+        }
       }
-    }
-    if (organisationLocationPayload) {
-      orgFields.location = organisationLocationPayload;
+      if (organisationLocationPayload) {
+        orgFields.location = organisationLocationPayload;
+      }
     }
 
     const profilePicFile =
@@ -458,7 +478,7 @@ export function ProfileEditDialog({
         await studentProfileUpdate.mutateAsync(allStudentFields);
       }
 
-      if (Object.keys(orgMemberFields).length > 0) {
+      if (isOrganisationUser && Object.keys(orgMemberFields).length > 0) {
         const cleaned = Object.fromEntries(
           Object.entries(orgMemberFields).filter(
             ([_, v]) => v !== null && v !== undefined && v !== ""
@@ -469,7 +489,7 @@ export function ProfileEditDialog({
         }
       }
 
-      if (Object.keys(orgFields).length > 0) {
+      if (isOrganisationUser && Object.keys(orgFields).length > 0) {
         const cleaned = Object.fromEntries(
           Object.entries(orgFields).filter(
             ([_, v]) => v !== null && v !== undefined && v !== ""
@@ -493,7 +513,7 @@ export function ProfileEditDialog({
         await resumeUpload.mutateAsync(resumeFile);
       }
 
-      if (logoFile) {
+      if (isOrganisationUser && logoFile) {
         await logoUpload.mutateAsync(logoFile);
       }
 
