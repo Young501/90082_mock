@@ -413,7 +413,7 @@ export function ProfileEditDialog({
         delete userFields[q.field];
       }
     }
-    if (userLocationPayload) {
+    if (userLocationPayload && !isOrganisationUser) {
       userFields.location = userLocationPayload;
     }
 
@@ -427,9 +427,7 @@ export function ProfileEditDialog({
           delete orgMemberFields[q.field];
         }
       }
-      if (memberLocationPayload) {
-        orgMemberFields.location = memberLocationPayload;
-      }
+      delete orgMemberFields.location;
 
       for (const q of page.questions) {
         if (
@@ -442,6 +440,8 @@ export function ProfileEditDialog({
       }
       if (organisationLocationPayload) {
         orgFields.location = organisationLocationPayload;
+      } else if (memberLocationPayload) {
+        orgFields.location = memberLocationPayload;
       }
     }
 
