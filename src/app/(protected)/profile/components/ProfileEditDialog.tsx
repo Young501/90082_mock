@@ -36,6 +36,7 @@ import {
   useLogoUpload,
 } from "@/services/shared";
 import { useAuthStore } from "@/store/authStore";
+import { getMemberGeocodeLocationFromFormData } from "@/utils/geocode";
 
 export interface ProfileEditDialogProps {
   isOpen: boolean;
@@ -361,6 +362,12 @@ export function ProfileEditDialog({
       else studentFields[q.field] = value;
     }
 
+    const dataRecord = data as Record<string, unknown>;
+    const memberLocationPayload = getMemberGeocodeLocationFromFormData(
+      dataRecord,
+      page.questions
+    );
+
     // Strip dedicated-endpoint fields from all payloads
     DEDICATED_ENDPOINT_FIELDS.forEach((f) => {
       delete userFields[f];
@@ -368,6 +375,18 @@ export function ProfileEditDialog({
       delete orgMemberFields[f];
       delete orgFields[f];
     });
+
+    if (memberLocationPayload) {
+      orgMemberFields.location = memberLocationPayload;
+    }
+    for (const q of page.questions) {
+      if (
+        q.model === "organisation_member" &&
+        q.type === "location_geocode_lookup"
+      ) {
+        delete orgMemberFields[q.field];
+      }
+    }
 
     const profilePicFile =
       data.profile_picture instanceof File ? data.profile_picture : null;
