@@ -7,7 +7,7 @@ This document is intended for AI support agents. It contains comprehensive infor
 ## 1. Platform Overview
 
 UniConnected is a platform that connects university students with industry organisations through work-integrated learning opportunities (such as internships, placements, and industry projects). It is used in partnership with universities, whose coordinators oversee the matching process.
-Also it is a platform for employement where students can look for part-time, casual, freelance or full-time work within organisations.
+Also it is a platform for employment where students can look for part-time, casual, freelance or full-time work within organisations.
 
 **Core value:**
 
@@ -189,21 +189,36 @@ Opportunities are the core unit of engagement on UniConnected — they represent
 
 ## 10. Billing & Subscription
 
-Some opportunities require a paid subscription. Subscriptions are purchased by organisations or students on a per-opportunity basis.
+UniConnected currently offers one subscription plan, available to **organisations only**. There is no student-facing subscription.
+
+### Employment Access — Organisation Subscription
+
+**Product:** Employment Access
+
+**Description:** Gain access to both undergraduate and graduate students from the University of Melbourne seeking casual, part-time, or full-time employment opportunities.
+
+**Pricing:** AUD $2,500 / year (yearly billing only — no monthly option)
+
+**What's included:**
+- Access to graduate students
+- Access to undergraduate students
+- Access to students from all faculties
+- View complete student profiles and CVs
+- Send unlimited messages to students
+
+**How to subscribe:** Visit [https://ecommerce.unimelb.edu.au/uniconnected-subscription](https://ecommerce.unimelb.edu.au/uniconnected-subscription)
 
 **General behaviour:**
 
-- Plans are available on **monthly** or **yearly** billing (yearly offers a saving).
-- A **free trial** period is available on eligible plans.
-- Subscriptions can be cancelled at any time from **Account → Billing settings**.
-- When a subscription expires or is cancelled, access to paid opportunities is revoked at the end of the billing period.
+- Billing is **yearly only**.
+- Subscriptions can be cancelled by contacting support at contactus@uniconnected.com.
+- When a subscription expires or is cancelled, access to the employment opportunity is revoked at the end of the billing period.
 - If a subscription is `past_due` or `unpaid`, access may be suspended.
 
 **Subscription statuses:**
 | Status | Meaning |
 |---|---|
 | `active` | Subscription is current and access is granted |
-| `trialing` | In free trial period — full access |
 | `past_due` | Payment failed — access may be restricted |
 | `canceled` | Subscription cancelled — access ends at period end |
 | `unpaid` | Invoice unpaid — access suspended |
@@ -379,8 +394,26 @@ Go to **Team**, find the member, and select **Edit** to change their role. Only 
 
 ### Billing
 
+**Q: How much does a subscription cost?**
+The Employment Access subscription for organisations is AUD $2,500 per year. This is the only available plan and is billed annually.
+
+**Q: How do I subscribe?**
+Visit [https://ecommerce.unimelb.edu.au/uniconnected-subscription](https://ecommerce.unimelb.edu.au/uniconnected-subscription) to purchase an Employment Access subscription. This is for organisations only.
+
+**Q: Is there a monthly billing option?**
+No. The only billing option is yearly (AUD $2,500/year).
+
+**Q: Is there a free trial?**
+No. There is no free trial for the Employment Access subscription.
+
+**Q: What does the Employment Access subscription include?**
+It gives your organisation access to undergraduate and graduate students from the University of Melbourne who are seeking employment. You can view complete profiles and CVs, and send unlimited messages to students across all faculties.
+
+**Q: Do students need a subscription?**
+No. Subscriptions are for organisations only. Students can access the platform for free.
+
 **Q: How do I cancel my subscription?**
-Contact us if you want to cancel your subscription.
+Contact us at contactus@uniconnected.com if you want to cancel your subscription. Your access continues until the end of the current billing period.
 
 <!-- Go to **Account** → Billing settings → Cancel subscription. Your access continues until the end of the current billing period. -->
 
