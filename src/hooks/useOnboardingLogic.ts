@@ -1,12 +1,10 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   useOnboardingPages,
   useStudentProfileV2,
   useOrganisationMemberMeV2,
   useOrganisationProfileV2,
 } from "@/services/shared";
-import { apiRequest, API_ENDPOINTS } from "@/api";
 import { Page } from "@/types/onboarding";
 import {
   isStudentOnboardingComplete,
@@ -33,42 +31,25 @@ export const useOnboardingLogic = (userType: string) => {
   const { data: studentProfileV2, isLoading: isProfileLoading } =
     useStudentProfileV2(userType === "student");
 
-  const queryClient = useQueryClient();
   const {
     data: organisationMember,
     isLoading: isMemberLoading,
     isFetched: isMemberFetched,
-    isError: isMemberError,
-    error: memberError,
-    refetch: refetchMember,
   } = useOrganisationMemberMeV2(userType === "organisation");
-
-  console.log("organisationMember", organisationMember);
-
-  const isMember404 =
-    isMemberError && (memberError as any)?.response?.status === 404;
-
-  useEffect(() => {
-    if (userType === "organisation" && isMemberFetched && isMember404) {
-      apiRequest({
-        endpoint: API_ENDPOINTS.ORGANISATION_PROFILE_CREATE_V2,
-        body: { name: " " },
-      })
-        .then(() => {
-          queryClient.invalidateQueries({
-            queryKey: ["organisation-member-me-v2"],
-          });
-          refetchMember();
-        })
-        .catch(() => {});
-    }
-  }, [userType, isMemberFetched, isMember404, queryClient, refetchMember]);
 
   const {
     data: organisationProfile,
     isLoading: isOrgProfileLoading,
     isFetched: isOrgProfileFetched,
+    isError: isOrgProfileError,
+    error: orgProfileError,
   } = useOrganisationProfileV2(userType === "organisation");
+
+  const shouldCreateOrganisationProfile =
+    userType === "organisation" &&
+    isOrgProfileFetched &&
+    isOrgProfileError &&
+    (orgProfileError as any)?.response?.status === 404;
 
   const memberComplete = isOrganisationMemberComplete(
     organisationMember ?? null
@@ -325,6 +306,7 @@ export const useOnboardingLogic = (userType: string) => {
     isOrgMember,
     organisationMember,
     organisationProfile,
+    shouldCreateOrganisationProfile,
     organisationPageStructure,
     canGoBackToUserPhase,
     ...progressInfo,

@@ -79,7 +79,7 @@ export function useOrganisationMemberUpdateV2() {
       queryClient.invalidateQueries({
         queryKey: ["organisation-member-me-v2"],
       });
-      queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
+      // queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
       queryClient.invalidateQueries({
         queryKey: ["user-profile", "organisation"],
       });
@@ -99,6 +99,9 @@ export function useOrganisationProfileCreateV2() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
+      // queryClient.invalidateQueries({
+      //   queryKey: ["organisation-member-me-v2"],
+      // });
       queryClient.invalidateQueries({
         queryKey: ["user-profile", "organisation"],
       });

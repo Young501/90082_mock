@@ -145,17 +145,12 @@ export function useLogoDelete(userType: string) {
 }
 
 export function useGeocode() {
-  const { getUserType } = useAuthStore();
-  const user_type = getUserType();
-  let target = "user";
-  if (user_type === "organisation") target = "organisation";
   return useMutation({
     mutationFn: async (address: string) => {
-      const result = await apiRequest({
+      return apiRequest({
         endpoint: API_ENDPOINTS.GEOCODE,
-        body: { address, target },
+        body: { address },
       });
-      return result;
     },
   });
 }

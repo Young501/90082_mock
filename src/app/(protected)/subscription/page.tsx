@@ -27,6 +27,15 @@ import OpportunityCardSkeleton from "@/components/ui/OpportunityCardSkeleton";
 import { Clock4, CreditCard, Calendar } from "lucide-react";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 
+const COLORS = {
+  border: "#E4E4E7",
+  textPrimary: "#18181B",
+  textSecondary: "#52525B",
+  textMutedOnDark: "#D4D4D8",
+  textOnDark: "#FAFAFA",
+  expiringRed: "#FCA5A5",
+} as const;
+
 function computeAccessExpiryIso(access: AccessInfo): string | null {
   return (
     access.entitlement_expires_at ||
@@ -82,7 +91,7 @@ export default function SubscriptionPage() {
         subscriptionStatusBadge: {
           label: "—",
           bg: "#F4F4F5",
-          color: "#52525B",
+          color: COLORS.textSecondary,
         },
       };
     }
@@ -92,7 +101,7 @@ export default function SubscriptionPage() {
         subscriptionStatusBadge: {
           label: "No subscription required",
           bg: "#F4F4F5",
-          color: "#52525B",
+          color: COLORS.textSecondary,
         },
       };
     }
@@ -269,7 +278,7 @@ export default function SubscriptionPage() {
               align="flex-start"
               gap={2}
               w="full"
-              borderBottom="1px solid #E4E4E7"
+              borderBottom={`1px solid ${COLORS.border}`}
               pb={6}
             >
               <Badge
@@ -287,7 +296,7 @@ export default function SubscriptionPage() {
                 {planName}
               </Text>
               {pricingAccess?.requires_subscription && !subscriptionActive && (
-                <Text fontSize="sm" color="#D4D4D8" lineHeight="short">
+                <Text fontSize="sm" color={COLORS.textMutedOnDark} lineHeight="short">
                   Subscription is not active — subscribe to get access.
                 </Text>
               )}
@@ -313,13 +322,13 @@ export default function SubscriptionPage() {
                 <CreditCard size={20} color="white" />
               </Box>
               <Box>
-                <Text fontSize="xs" color="#D4D4D8">
+                <Text fontSize="xs" color={COLORS.textMutedOnDark}>
                   Price
                 </Text>
                 <Text
                   fontSize={{ base: "sm", md: "lg" }}
                   fontWeight="semibold"
-                  color="#FAFAFA"
+                  color={COLORS.textOnDark}
                 >
                   {primaryPrice
                     ? formatPrice(
@@ -344,13 +353,13 @@ export default function SubscriptionPage() {
                 <Clock4 size={20} color="white" />
               </Box>
               <Box>
-                <Text fontSize="xs" color="#D4D4D8">
+                <Text fontSize="xs" color={COLORS.textMutedOnDark}>
                   Recurrence
                 </Text>
                 <Text
                   fontSize={{ base: "sm", md: "lg" }}
                   fontWeight="semibold"
-                  color="#FAFAFA"
+                  color={COLORS.textOnDark}
                 >
                   {primaryPrice
                     ? recurrenceLabel(
@@ -375,22 +384,22 @@ export default function SubscriptionPage() {
                 <Calendar size={20} color="white" />
               </Box>
               <Box>
-                <Text fontSize="xs" color="#D4D4D8">
+                <Text fontSize="xs" color={COLORS.textMutedOnDark}>
                   Expiry date
                 </Text>
                 <Text
                   fontSize={{ base: "sm", md: "lg" }}
                   fontWeight="semibold"
-                  color={isExpiringSoon ? "#FCA5A5" : "#FAFAFA"}
+                  color={isExpiringSoon ? COLORS.expiringRed : COLORS.textOnDark}
                 >
                   {heroExpiryIso ? formatShortDate(heroExpiryIso) : "—"}
                 </Text>
                 {isExpiringSoon && (
-                  <Text fontSize="xs" color="#FCA5A5" fontWeight="medium">
+                  <Text fontSize="xs" color={COLORS.expiringRed} fontWeight="medium">
                     Expiring soon —{" "}
                     <NextLink
                       href="/support/"
-                      style={{ color: "#FCA5A5", textDecoration: "underline" }}
+                      style={{ color: COLORS.expiringRed, textDecoration: "underline" }}
                     >
                       contact us
                     </NextLink>{" "}
@@ -403,7 +412,7 @@ export default function SubscriptionPage() {
         </Box>
 
         {/* Enrolled opportunities */}
-        <Box bg="white" p={6} borderRadius="xl" border="1px solid #E4E4E7">
+        <Box bg="white" p={6} borderRadius="xl" border={`1px solid ${COLORS.border}`}>
           <Flex
             justify="space-between"
             align="center"
@@ -411,8 +420,8 @@ export default function SubscriptionPage() {
             mb={4}
             flexWrap="wrap"
           >
-            <Text fontSize="lg" fontWeight="semibold" color="#18181B">
-              Opportunity
+            <Text fontSize="lg" fontWeight="semibold" color={COLORS.textPrimary}>
+              Linked Opportunity
             </Text>
           </Flex>
 
@@ -424,7 +433,7 @@ export default function SubscriptionPage() {
               border="1px solid #E2E8F0"
               textAlign="center"
             >
-              <Text fontSize="md" color="#71717A">
+              <Text fontSize="md" color={COLORS.textSecondary}>
                 No opportunity linked to your subscription.
               </Text>
             </Box>
@@ -441,11 +450,11 @@ export default function SubscriptionPage() {
           <Box
             borderRadius="xl"
             border="1px solid"
-            borderColor="#E4E4E7"
+            borderColor={COLORS.border}
             bg="white"
             p={6}
           >
-            <Text fontSize="md" fontWeight="semibold" color="#18181B" mb={2}>
+            <Text fontSize="md" fontWeight="semibold" color={COLORS.textPrimary} mb={2}>
               {billingCancelSection.title}
             </Text>
             <Flex
@@ -456,7 +465,7 @@ export default function SubscriptionPage() {
             >
               <Text
                 fontSize="sm"
-                color="#52525B"
+                color={COLORS.textSecondary}
                 lineHeight="1.6"
                 as="p"
                 flex="1"
@@ -468,7 +477,7 @@ export default function SubscriptionPage() {
                 <ButtonV2
                   variant="ghost"
                   bg="#F4F4F5"
-                  border="1px solid #E4E4E7"
+                  border={`1px solid ${COLORS.border}`}
                   borderRadius="xl"
                   color="black"
                   size="sm"
