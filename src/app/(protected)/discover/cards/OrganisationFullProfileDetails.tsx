@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { getLinkDisplayText } from "@/utils/formatLink";
+import { formatLocationDisplay } from "@/utils/geocode";
 
 export const RenderOrganisationDetails = ({
   organisation,
@@ -138,7 +139,7 @@ export const RenderOrganisationDetails = ({
                   <Text>{companySizeLabel}</Text>
                 </HStack>
               )}
-              {organisation.location && (
+              {formatLocationDisplay(organisation.location) && (
                 <HStack gap={1} align="center" color="#FAFAFA" fontSize="sm">
                   <IconButton
                     variant="ghost"
@@ -150,7 +151,7 @@ export const RenderOrganisationDetails = ({
                     <MapPin size={14} />
                   </IconButton>
                   <Text>
-                    {organisation.location}
+                    {formatLocationDisplay(organisation.location)}
                     {organisation.distance_km != null &&
                       organisation.distance_km !== 0 &&
                       ` (${organisation.distance_km} km)`}

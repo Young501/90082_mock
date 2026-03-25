@@ -77,10 +77,10 @@ export interface UserSearchResponse {
 }
 
 export interface GeocodeResult {
-  id: number;
+  id?: number;
   formatted_address: string;
-  latitude: string;
-  longitude: string;
+  latitude: number | string;
+  longitude: number | string;
   subpremise?: string;
   premise?: string;
   street_number?: string;

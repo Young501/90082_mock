@@ -371,11 +371,11 @@ export const API_ENDPOINTS = {
   }),
   GEOCODE: {
     method: "POST",
-    url: "/api/v1/geocode/",
+    url: "/api/v2/generic/geocode/search/",
   },
   ABN_VALIDATE: {
     method: "POST",
-    url: "/api/v1/organisation/validate-abn/",
+    url: "/api/v2/generic/abn/validate/",
   },
   INVITE_PARTICIPANTS: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
