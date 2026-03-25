@@ -1,144 +1,128 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import React, { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Box, Container, VStack, Alert, Text } from "@chakra-ui/react";
 import Loader from "@/components/ui/Loader";
-import PricingSelector from "@/components/billing/PricingSelector";
-import {
-  useProductPricing,
-  useCreateCheckoutSession,
-} from "@/services/billing";
+import { useCreateCheckoutSession } from "@/services/billing";
 import { useAuthStore } from "@/store";
-import { useOpportunityDetail } from "@/services/shared";
+import { useAccessibleOpportunities } from "@/services/shared";
+import { useProductPricing } from "@/services/billing";
 import { toaster } from "@/components/ui/toaster";
 import { PageTitle } from "@/components/PageTitle";
-import { PricingTier } from "@/types/subscription";
-import { findOpportunityByIdOrSlug } from "@/utils/findOpportunity";
+import { CheckoutSessionRequest, PricingTier } from "@/types/subscription";
+import {
+  findOpportunityByIdOrSlug,
+  toBaseOpportunity,
+} from "@/utils/findOpportunity";
+import { OpportunityNotEnrolledCard } from "@/app/(protected)/discover/cards/OpportunityNotEnrolledCard";
+import type { Opportunity } from "@/types/opportunities";
+import { STRIPE_PRICING_ENABLED } from "@/hooks/useHandleEnroll";
+
+const UNIMELB_SUBSCRIPTION_URL =
+  "https://ecommerce.unimelb.edu.au/uniconnected-subscription";
 
 export default function OpportunityPricingPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const opportunitySlug = searchParams.get("opp");
   const nextStep = searchParams.get("next");
-  const { user, accessibleOpportunities } = useAuthStore();
+  const { user, getUserType, accessibleOpportunities: storedAccessibleOpps } =
+    useAuthStore();
   const userType = user?.user_types?.[0];
+  const userTypeKey = getUserType();
 
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const { data: queryAccessibleOpps, isLoading: isOpportunitiesLoading } =
+    useAccessibleOpportunities();
+
+  const accessibleOpportunities =
+    storedAccessibleOpps ?? queryAccessibleOpps ?? null;
 
   const currentOpportunity = findOpportunityByIdOrSlug(
     accessibleOpportunities,
     opportunitySlug
   );
   const opportunityId = currentOpportunity?.id;
+  const accessInfo = currentOpportunity?.access ?? null;
   const trialEligibility = currentOpportunity?.access.trial_eligibility;
   const trialDays = trialEligibility?.eligible
     ? trialEligibility?.days_total
     : 0;
-  // Fetch opportunity details
-  const {
-    data: opportunity,
-    isLoading: isLoadingOpportunity,
-    error: opportunityError,
-  } = useOpportunityDetail(opportunityId?.toString() || "");
 
-  // Fetch pricing
+  const opportunity: Opportunity | null = useMemo(
+    () => toBaseOpportunity(currentOpportunity),
+    [currentOpportunity]
+  );
+
   const {
     data: productsData,
     isLoading: isLoadingPricing,
     error: pricingError,
-  } = useProductPricing(opportunityId || null, userType || null);
+  } = useProductPricing(opportunityId || null, userTypeKey || null, {
+    enabled: !!opportunityId && !!userTypeKey,
+  });
 
-  // Checkout mutation
   const checkoutMutation = useCreateCheckoutSession();
 
-  // If no pricing available, redirect to questionnaire or direct enrollment
-  useEffect(() => {
-    if (
-      !isLoadingPricing &&
-      productsData &&
-      (!productsData.products || productsData.products.length === 0)
-    ) {
-      toaster.create({
-        title: "This opportunity does not require a paid subscription",
-        type: "info",
-      });
+  const pricingProduct = productsData?.products?.[0] ?? null;
+  const primaryPrice: PricingTier | undefined =
+    pricingProduct?.prices?.find((p) => p.interval === "year") ??
+    pricingProduct?.prices?.[0];
 
-      if (nextStep === "questionnaire") {
-        router.push(`/opportunities/fill?opp=${opportunitySlug}`);
-      } else {
-        router.push(
-          currentOpportunity?.slug
-            ? `/discover?opp=${currentOpportunity.slug}`
-            : "/discover"
-        );
-      }
-    }
-  }, [
-    isLoadingPricing,
-    productsData,
-    nextStep,
-    opportunitySlug,
-    router,
-    currentOpportunity?.slug,
-  ]);
-
-  const handleSelectPlan = async (selectedTier: PricingTier) => {
-    if (!userType) {
+  const handleSubscribe = async () => {
+    if (!opportunityId || !userTypeKey || !pricingProduct || !primaryPrice) {
       toaster.create({
         title: "Missing required information",
-        description: "Unable to create subscription session",
+        description: "Unable to start subscription",
         type: "error",
       });
       return;
     }
+
+    if (!STRIPE_PRICING_ENABLED) {
+      window.location.href =
+        pricingProduct.subscribe_link || UNIMELB_SUBSCRIPTION_URL;
+      return;
+    }
+
     setIsProcessing(true);
     try {
-      const checkoutData: any = {
-        price_id: selectedTier.price_id,
-        user_type: userType,
+      const checkoutData: CheckoutSessionRequest = {
+        price_id: primaryPrice.price_id,
+        user_type: userTypeKey,
         opportunity_id: Number(opportunityId),
-        trial_days: trialDays,
+        ...(trialDays > 0 ? { trial_days: trialDays } : {}),
       };
-      // Add trial_days if available
-      if (selectedTier?.trial_days && selectedTier.trial_days > 0) {
-        checkoutData.trial_days = selectedTier.trial_days;
-      }
       const response = await checkoutMutation.mutateAsync(checkoutData);
       if (response.url) {
-        // Store the return context
-        const contextData: any = {
+        const contextData: Record<string, string> = {
           next: nextStep === "questionnaire" ? "questionnaire" : "discover",
         };
         if (opportunitySlug) {
           contextData.opportunitySlug = opportunitySlug;
         }
-
         sessionStorage.setItem(
           "billing_return_context",
           JSON.stringify(contextData)
         );
-        // Redirect to Stripe Checkout
         window.location.href = response.url;
       } else {
         throw new Error("No checkout URL received");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("❌ [Pricing] Failed to create checkout session:", error);
       toaster.create({
         title: "Failed to create subscription",
-        description: error?.message || "Please try again later",
+        description:
+          error instanceof Error ? error.message : "Please try again later",
         type: "error",
       });
       setIsProcessing(false);
     }
   };
 
-  const handleCancel = () => {
-    router.back();
-  };
-
-  if (isLoadingOpportunity || isLoadingPricing) {
+  if (isOpportunitiesLoading || isLoadingPricing) {
     return (
       <>
         <PageTitle title="Choose Subscription Plan" />
@@ -158,7 +142,7 @@ export default function OpportunityPricingPage() {
     );
   }
 
-  if (opportunityError || pricingError) {
+  if (pricingError || !opportunity || !currentOpportunity || !accessInfo) {
     return (
       <>
         <PageTitle title="Error" />
@@ -171,8 +155,7 @@ export default function OpportunityPricingPage() {
             <Alert.Indicator />
             <Alert.Title>Failed to Load</Alert.Title>
             <Alert.Description>
-              {(opportunityError as any)?.message ||
-                (pricingError as any)?.message ||
+              {(pricingError as Error)?.message ||
                 "Unable to load pricing information. Please try again later."}
             </Alert.Description>
           </Alert.Root>
@@ -186,40 +169,38 @@ export default function OpportunityPricingPage() {
     !productsData.products ||
     productsData.products.length === 0
   ) {
-    // This will be handled by useEffect redirect
     return (
       <>
-        <PageTitle title="Loading" />
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          minH="60vh"
+        <PageTitle title="Subscription" />
+        <Container
+          maxW="container.lg"
+          py={10}
           mt={{ base: "80px", lg: "100px" }}
         >
-          <Loader type="page" size="xl" />
-        </Box>
+          <Alert.Root status="info">
+            <Alert.Indicator />
+            <Alert.Title>No subscription required</Alert.Title>
+            <Alert.Description>
+              This opportunity does not have a paid plan configured. You can go
+              back to Discover.
+            </Alert.Description>
+          </Alert.Root>
+        </Container>
       </>
     );
   }
 
-  console.log("productsData", productsData);
-
-  console.log("opportunity", opportunity);
-
-  console.log("opportunityId", opportunityId);
-
   return (
     <>
-      <PageTitle title={`Subscribe - ${opportunity?.title || "Opportunity"}`} />
-      <Container maxW="container.xl" py={10} mt={{ base: "80px", lg: "100px" }}>
-        <PricingSelector
-          opportunityTitle={opportunity?.title}
-          products={productsData.products}
-          onSubscribeClick={handleSelectPlan}
-          onCancel={handleCancel}
-          trialDays={trialDays}
-          isLoading={isProcessing}
+      <PageTitle title={`Subscribe - ${opportunity.title}`} />
+      <Container maxW="container.md" py={10} mt={{ base: "80px", lg: "100px" }}>
+        <OpportunityNotEnrolledCard
+          opportunity={opportunity}
+          accessInfo={accessInfo}
+          onEnroll={handleSubscribe}
+          isSubmitting={isProcessing}
+          pricingProduct={pricingProduct}
+          isPricingLoading={false}
         />
       </Container>
     </>

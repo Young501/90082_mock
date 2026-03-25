@@ -168,7 +168,6 @@ const Header = ({
       return (
         <Box key={key} w={isCompact ? "full" : undefined}>
           <Box
-            as="button"
             onClick={() => {
               if (isCompact) handleMenuToggle();
               item.onClick!();
@@ -428,7 +427,7 @@ const Header = ({
                               alt="Profile picture"
                               width={32}
                               height={32}
-                              style={{ objectFit: "cover" }}
+                              style={{ objectFit: "cover", width: "100%", height: "100%" }}
                             />
                           ) : (
                             <UserRound size={20} color="#18181B" />

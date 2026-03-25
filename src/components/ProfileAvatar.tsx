@@ -22,6 +22,7 @@ export interface ProfileAvatarProps {
   fallbackFontSize?: string;
   className?: string;
   borderRadius?: string;
+  priority?: boolean;
 }
 
 export function ProfileAvatar({
@@ -34,6 +35,7 @@ export function ProfileAvatar({
   fallbackFontSize = "sm",
   className,
   borderRadius = "full",
+  priority = false,
 }: ProfileAvatarProps) {
   const [imgError, setImgError] = useState(false);
   const resolvedSize =
@@ -68,6 +70,7 @@ export function ProfileAvatar({
           fill
           style={{ objectFit: "cover" }}
           onError={() => setImgError(true)}
+          priority={priority}
         />
       ) : (
         <Box
