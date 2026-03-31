@@ -266,6 +266,7 @@ export function useAccessibleOpportunities() {
               access: o.access || null,
               slug: o.slug || "",
               is_default: o.is_default ?? false,
+              links: o.links,
             };
           }
         );

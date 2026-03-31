@@ -33,5 +33,6 @@ export function toBaseOpportunity(
     questionnaire: current.questionnaire ?? {},
     allowed_student_email_domains: current.allowed_student_email_domains,
     is_default: current.is_default,
+    links: current.links,
   };
 }
