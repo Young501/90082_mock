@@ -40,7 +40,7 @@ const defaultAttachmentOptions = (
       ref={fileInputRef}
       type="file"
       multiple
-      accept="image/*,video/*,.pdf,.doc,.docx,.txt"
+      accept=".csv,.docx,.gif,.jpeg,.jpg,.odp,.ods,.odt,.pdf,.png,.pptx,.txt,.webp,.xlsx"
       style={{ display: "none" }}
       onChange={(e) => {
         const files = Array.from(e.target.files || []);
@@ -96,7 +96,7 @@ const defaultAttachmentOptions = (
         <Images size={16} color="black" />
       </Box>
       <Text fontSize="sm" color="#111827">
-        Photos and Videos
+        Photos
       </Text>
     </HStack>
   </VStack>

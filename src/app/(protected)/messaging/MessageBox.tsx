@@ -9,7 +9,7 @@ import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Message, MessageAttachment } from "@/types/messaging";
 import { formatDateTimeToReadable } from "@/utils/formatDate";
-import { File, MoreHorizontal, Paperclip, Reply } from "lucide-react";
+import { ExternalLink, MoreHorizontal, Paperclip, Reply } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -376,93 +376,149 @@ function ReplyPreview({
   );
 }
 
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function getDocMeta(
+  contentType: string,
+  filename: string
+): { label: string; color: string } {
+  const lower = filename.toLowerCase();
+  if (contentType.includes("pdf") || lower.endsWith(".pdf"))
+    return { label: "PDF", color: "#E53E3E" };
+  if (
+    contentType.includes("word") ||
+    lower.endsWith(".docx") ||
+    lower.endsWith(".doc")
+  )
+    return { label: "DOC", color: "#3182CE" };
+  if (
+    contentType.includes("spreadsheet") ||
+    contentType.includes("excel") ||
+    lower.endsWith(".xlsx") ||
+    lower.endsWith(".xls")
+  )
+    return { label: "XLS", color: "#38A169" };
+  if (
+    contentType.includes("presentation") ||
+    contentType.includes("powerpoint") ||
+    lower.endsWith(".pptx") ||
+    lower.endsWith(".ppt")
+  )
+    return { label: "PPT", color: "#DD6B20" };
+  if (lower.endsWith(".csv")) return { label: "CSV", color: "#38A169" };
+  if (
+    contentType.includes("zip") ||
+    lower.endsWith(".zip") ||
+    lower.endsWith(".rar")
+  )
+    return { label: "ZIP", color: "#805AD5" };
+  if (contentType.startsWith("text/") || lower.endsWith(".txt"))
+    return { label: "TXT", color: "#718096" };
+  return { label: "FILE", color: "#718096" };
+}
+
 function MessageAttachments({
   attachments,
-  isMine,
 }: {
   attachments: MessageAttachment[];
   isMine: boolean;
 }) {
   return (
-    <VStack
-      align="center"
-      gap={1}
-      mt={2}
-      justify="center"
-      alignItems="center"
-      w="100%"
-    >
-      {attachments.map((att) => (
-        <Link
-          href={att.file_url}
-          target="_blank"
-          key={att.id}
-          style={{
-            cursor: "pointer",
-            width: "100%",
-            margin: "0 auto",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <Tooltip
+    <VStack align="stretch" gap={2} mt={2} w="100%">
+      {attachments.map((att) => {
+        const isImage = att.content_type?.startsWith("image/");
+
+        if (isImage) {
+          return (
+            <Link
+              href={att.file_url}
+              target="_blank"
+              key={att.id}
+              style={{ display: "block" }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={att.file_url}
+                alt={att.original_filename}
+                style={{
+                  width: "100%",
+                  maxHeight: "220px",
+                  objectFit: "cover",
+                  display: "block",
+                  borderRadius: "8px",
+                }}
+              />
+            </Link>
+          );
+        }
+
+        const { label, color } = getDocMeta(
+          att.content_type,
+          att.original_filename
+        );
+        return (
+          <Link
+            href={att.file_url}
+            target="_blank"
             key={att.id}
-            content={att.original_filename}
-            contentProps={{ maxW: "240px" }}
+            style={{ display: "block", textDecoration: "none" }}
           >
-            <VStack
-              gap={2}
-              justify="center"
-              align="center"
+            <HStack
+              gap={3}
               bg="#FAFAFA"
-              p={2}
-              h="162px"
-              w="100%"
+              p={3}
               borderRadius="md"
               borderWidth="1px"
               borderColor="#E4E4E7"
-              maxW={{ base: "160px", md: "198px" }}
-              minW={0}
-              cursor="default"
+              w="100%"
+              _hover={{ bg: "#F0F0F0" }}
             >
-              <Image
-                src="/assets/file.png"
-                alt={att.original_filename}
-                width={53}
-                height={93}
-                style={{
-                  objectFit: "cover",
-                  borderRadius: "md",
-                }}
-              />
-              <Text
-                fontSize="xs"
-                color="black"
-                overflow="hidden"
-                textOverflow="ellipsis"
-                whiteSpace="nowrap"
-                w="100%"
-                minW={0}
-                textAlign="center"
+              <Box
+                w="40px"
+                h="48px"
+                bg={color}
+                borderRadius="6px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                flexShrink={0}
               >
-                {att.original_filename}
-              </Text>
-              <Text
-                fontSize="xs"
-                color="#71717A"
-                overflow="hidden"
-                textOverflow="ellipsis"
-                whiteSpace="nowrap"
-                w="100%"
-                minW={0}
-                textAlign="center"
-              >
-                {att.file_size}
-              </Text>
-            </VStack>
-          </Tooltip>
-        </Link>
-      ))}
+                <Text
+                  fontSize="9px"
+                  fontWeight="bold"
+                  color="white"
+                  letterSpacing="0.05em"
+                >
+                  {label}
+                </Text>
+              </Box>
+              <VStack align="flex-start" gap={0} flex={1} minW={0}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color="black"
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                  whiteSpace="nowrap"
+                  w="100%"
+                >
+                  {att.original_filename}
+                </Text>
+                <Text fontSize="xs" color="#71717A">
+                  {formatFileSize(att.file_size)}
+                </Text>
+              </VStack>
+              <Box flexShrink={0}>
+                <ExternalLink size={14} color="#71717A" />
+              </Box>
+            </HStack>
+          </Link>
+        );
+      })}
     </VStack>
   );
 }
