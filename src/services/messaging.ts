@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useInfiniteQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { apiRequest, API_ENDPOINTS } from "@/api";
 import {
   ConversationListResponseApi,
@@ -58,6 +63,26 @@ export function useConversationsList(params?: ListConversationsParams) {
     staleTime: 30_000,
     select: (data): ConversationSummary[] =>
       data.results.map(conversationListItemToSummary),
+  });
+}
+
+export function useInfiniteConversationsList(
+  params?: Omit<ListConversationsParams, "cursor">
+) {
+  return useInfiniteQuery({
+    queryKey: [...CONVERSATIONS_QUERY_KEY, "infinite", params],
+    queryFn: ({ pageParam }: { pageParam: string | undefined }) =>
+      listConversations({ ...params, cursor: pageParam }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.next) return undefined;
+      try {
+        return new URL(lastPage.next).searchParams.get("cursor") ?? undefined;
+      } catch {
+        return undefined;
+      }
+    },
+    staleTime: 30_000,
   });
 }
 
