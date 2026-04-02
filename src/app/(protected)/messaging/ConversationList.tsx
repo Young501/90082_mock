@@ -42,9 +42,9 @@ export const ConversationList = ({
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
+  // Handles scroll-triggered loading: fires when the sentinel enters the viewport
   useEffect(() => {
     const sentinel = sentinelRef.current;
-    const container = scrollContainerRef.current;
     if (!sentinel || !onLoadMoreConversations || !hasMoreConversations) return;
 
     const observer = new IntersectionObserver(
@@ -53,13 +53,23 @@ export const ConversationList = ({
           onLoadMoreConversations();
         }
       },
-
-      { root: container, threshold: 0 }
+      { threshold: 0 }
     );
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [hasMoreConversations, onLoadMoreConversations]);
+  }, [hasMoreConversations, isLoadingMoreConversations, onLoadMoreConversations]);
+
+  // Fallback for initial load: if content doesn't fill the container (nothing to scroll),
+  // the IntersectionObserver never fires. Directly check after each batch of conversations loads.
+  useEffect(() => {
+    if (!onLoadMoreConversations || !hasMoreConversations || isLoadingMoreConversations) return;
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    if (container.scrollHeight <= container.clientHeight) {
+      onLoadMoreConversations();
+    }
+  }, [conversations, hasMoreConversations, isLoadingMoreConversations, onLoadMoreConversations]);
 
   return (
     <Box

@@ -15,7 +15,6 @@ import {
   useToggleConversationArchive,
 } from "@/services/messaging";
 import {
-  ConversationSummary,
   ConversationId,
   Message,
   messageListItemToMessage,
@@ -61,7 +60,7 @@ const Inbox = () => {
     isFetchingNextPage: isFetchingMoreConversations,
   } = useInfiniteConversationsList({
     archived: showArchived,
-    page_size: 5,
+    page_size: 10,
   });
 
   const conversations = useMemo(
