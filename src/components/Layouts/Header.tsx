@@ -78,6 +78,7 @@ const Header = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const searchParams = useSearchParams();
+  const hasUnreadMessages = useAuthStore((s) => s.hasUnreadMessages);
 
   const profilePictureUrl = getUserProfilePictureUrl?.() ?? null;
 
@@ -393,8 +394,20 @@ const Header = ({
                     alignItems="center"
                     justifyContent="center"
                     gap={2}
+                    position={"relative"}
                   >
                     <Bell size={18} color="#18181B" />
+                    {hasUnreadMessages && (
+                      <Box
+                        position={"absolute"}
+                        top={1}
+                        right={1}
+                        w={"8px"}
+                        h={"8px"}
+                        bg={"red.500"}
+                        borderRadius={"full"}
+                      />
+                    )}
                   </Box>
 
                   <MenuPopover
