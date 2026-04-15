@@ -54,6 +54,8 @@ export const GeocodeAutocompleteInput = memo(
     const [results, setResults] = useState<GeocodeResult[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const userHasInteractedRef = useRef(false);
+    const pickedFromListRef = useRef(false);
+    const resultsRef = useRef<GeocodeResult[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const isLoadingRef = useRef(false);
@@ -138,6 +140,10 @@ export const GeocodeAutocompleteInput = memo(
     }, [debouncedInputValue]);
 
     useEffect(() => {
+      resultsRef.current = results;
+    }, [results]);
+
+    useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
         if (
           containerRef.current &&
@@ -155,6 +161,7 @@ export const GeocodeAutocompleteInput = memo(
 
     const handleInputChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
+        pickedFromListRef.current = false;
         userHasInteractedRef.current = true;
         const newValue = e.target.value;
         setInputValue(newValue);
@@ -177,6 +184,7 @@ export const GeocodeAutocompleteInput = memo(
 
     const handleSelect = useCallback(
       (result: GeocodeResult) => {
+        pickedFromListRef.current = true;
         const mapped = mapGeocodeSearchResponse(
           result as unknown as Record<string, unknown>
         );
@@ -197,6 +205,22 @@ export const GeocodeAutocompleteInput = memo(
       },
       [onChange, onSelect, isProfilePage, onLocationUpdate, controller]
     );
+
+    const handleInputBlur = useCallback(() => {
+      if (geocodeMutation.isError) return;
+      if (isLoadingRef.current) return;
+      if (pickedFromListRef.current) return;
+
+      const list = resultsRef.current;
+      if (list.length === 0) return;
+
+      const raw = controller
+        ? normalizeToString(controller.field.value)
+        : inputValue;
+      if (raw.trim().length < 2) return;
+
+      handleSelect(list[0]);
+    }, [geocodeMutation.isError, controller, inputValue, handleSelect]);
 
     useEffect(() => {
       const str = normalizeToString(value);
@@ -254,6 +278,10 @@ export const GeocodeAutocompleteInput = memo(
                   : (inputValue ?? "")
               }
               onChange={handleInputChange}
+              onBlur={(e) => {
+                controller?.field.onBlur();
+                handleInputBlur();
+              }}
               ref={inputRef}
             />
           </InputGroup>
@@ -326,6 +354,7 @@ export const GeocodeAutocompleteInput = memo(
                       p={3}
                       cursor="pointer"
                       _hover={{ bg: "gray.50" }}
+                      onMouseDown={(e) => e.preventDefault()}
                       onClick={() => handleSelect(result)}
                       borderBottom="1px solid"
                       borderColor="gray.100"
