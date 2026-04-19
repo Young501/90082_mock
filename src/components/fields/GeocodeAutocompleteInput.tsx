@@ -167,9 +167,10 @@ export const GeocodeAutocompleteInput = memo(
         setInputValue(newValue);
         onChange(newValue);
 
-        // Update the form controller
-        if (controller) {
-          controller.field.onChange(newValue);
+        // If the user clears the input, reset the controller so required validation fires.
+        // Otherwise leave the controller alone — only handleSelect writes a valid value.
+        if (controller && !newValue.trim()) {
+          controller.field.onChange("");
         }
 
         if (newValue.trim().length >= 2) {
@@ -214,9 +215,7 @@ export const GeocodeAutocompleteInput = memo(
       const list = resultsRef.current;
       if (list.length === 0) return;
 
-      const raw = controller
-        ? normalizeToString(controller.field.value)
-        : inputValue;
+      const raw = inputValue;
       if (raw.trim().length < 2) return;
 
       handleSelect(list[0]);
@@ -272,11 +271,7 @@ export const GeocodeAutocompleteInput = memo(
                 boxShadow: "0 0 0 1px #E4E4E7",
               }}
               {...(controller ? controller.field : {})}
-              value={
-                controller
-                  ? normalizeToString(controller.field.value)
-                  : (inputValue ?? "")
-              }
+              value={inputValue ?? ""}
               onChange={handleInputChange}
               onBlur={(e) => {
                 controller?.field.onBlur();
