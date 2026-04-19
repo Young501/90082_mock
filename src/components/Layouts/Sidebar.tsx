@@ -61,10 +61,7 @@ const Sidebar = ({
   const router = useRouter();
   const { getUserType, accessibleOpportunities, userProfile } = useAuthStore();
   const discoverDropdownRef = useRef<HTMLDivElement>(null);
-  const {
-    open: isDiscoverOpen,
-    onToggle: onDiscoverToggle,
-  } = useDisclosure();
+  const { open: isDiscoverOpen, onToggle: onDiscoverToggle } = useDisclosure();
 
   const userType = getUserType();
   const isCoordinator = userType === "coordinator";
@@ -75,7 +72,6 @@ const Sidebar = ({
   const showSubscriptionTab = opps.some(
     (o) => o.access?.subscription != null || o.access?.active_override != null
   );
-
 
   const MENU_ITEMS: SidebarMenuItem[] = [
     {
@@ -185,8 +181,7 @@ const Sidebar = ({
     if (href === "/support/") return pathname?.startsWith("/support");
     if (href === "/profile/") return pathname?.startsWith("/profile");
     if (href === "/team/") return pathname?.startsWith("/team");
-    if (href === "/subscription/")
-      return pathname?.startsWith("/subscription");
+    if (href === "/subscription/") return pathname?.startsWith("/subscription");
     return pathname === href || pathname === href.replace(/\/$/, "");
   };
 
@@ -431,7 +426,13 @@ const Sidebar = ({
                             : INACTIVE_COLOR
                         }
                         gap={2}
-                        _hover={{ bg: isActiveOpp ? (isStudent ? "#EAF6FD" : "#E9F7F6") : "secondary.100" }}
+                        _hover={{
+                          bg: isActiveOpp
+                            ? isStudent
+                              ? "#EAF6FD"
+                              : "#E9F7F6"
+                            : "secondary.100",
+                        }}
                         transition="background 0.15s"
                       >
                         <Text

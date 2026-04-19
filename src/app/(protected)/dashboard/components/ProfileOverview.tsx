@@ -276,8 +276,12 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
         size="sm"
         _hover={{
           bg: allItemsCompleted
-            ? (PROFILE_TINT_COLORS[userType as keyof typeof PROFILE_TINT_COLORS] ?? PROFILE_TINT_COLORS.student)
-            : (PROFILE_HOVER_COLORS[userType as keyof typeof PROFILE_HOVER_COLORS] ?? PROFILE_HOVER_COLORS.student),
+            ? (PROFILE_TINT_COLORS[
+                userType as keyof typeof PROFILE_TINT_COLORS
+              ] ?? PROFILE_TINT_COLORS.student)
+            : (PROFILE_HOVER_COLORS[
+                userType as keyof typeof PROFILE_HOVER_COLORS
+              ] ?? PROFILE_HOVER_COLORS.student),
         }}
         onClick={() => router.push("/profile/")}
       >

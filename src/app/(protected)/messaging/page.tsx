@@ -75,7 +75,11 @@ const Inbox = () => {
     if (hasMoreConversations && !isFetchingMoreConversations) {
       fetchNextConversationsPage();
     }
-  }, [hasMoreConversations, isFetchingMoreConversations, fetchNextConversationsPage]);
+  }, [
+    hasMoreConversations,
+    isFetchingMoreConversations,
+    fetchNextConversationsPage,
+  ]);
 
   const setHasUnreadMessages = useAuthStore((s) => s.setHasUnreadMessages);
 
@@ -139,7 +143,9 @@ const Inbox = () => {
   const handleLoadMoreMessages = () => {
     if (messagesData?.previous && !messagesLoading) {
       try {
-        const cursor = new URL(messagesData.previous).searchParams.get("cursor");
+        const cursor = new URL(messagesData.previous).searchParams.get(
+          "cursor"
+        );
         setMessagesCursor(cursor);
       } catch {
         setMessagesCursor(messagesData.previous);

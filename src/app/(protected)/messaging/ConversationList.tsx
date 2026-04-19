@@ -58,18 +58,32 @@ export const ConversationList = ({
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [hasMoreConversations, isLoadingMoreConversations, onLoadMoreConversations]);
+  }, [
+    hasMoreConversations,
+    isLoadingMoreConversations,
+    onLoadMoreConversations,
+  ]);
 
   // Fallback for initial load: if content doesn't fill the container (nothing to scroll),
   // the IntersectionObserver never fires. Directly check after each batch of conversations loads.
   useEffect(() => {
-    if (!onLoadMoreConversations || !hasMoreConversations || isLoadingMoreConversations) return;
+    if (
+      !onLoadMoreConversations ||
+      !hasMoreConversations ||
+      isLoadingMoreConversations
+    )
+      return;
     const container = scrollContainerRef.current;
     if (!container) return;
     if (container.scrollHeight <= container.clientHeight) {
       onLoadMoreConversations();
     }
-  }, [conversations, hasMoreConversations, isLoadingMoreConversations, onLoadMoreConversations]);
+  }, [
+    conversations,
+    hasMoreConversations,
+    isLoadingMoreConversations,
+    onLoadMoreConversations,
+  ]);
 
   return (
     <Box
