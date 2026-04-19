@@ -191,10 +191,15 @@ export default function SubscriptionPage() {
   const linkedOpportunity = useMemo(() => {
     if (!opportunities) return null;
     if (pricingOpportunitySlug) {
-      return opportunities.find((o) => o.slug === pricingOpportunitySlug) ?? null;
+      return (
+        opportunities.find((o) => o.slug === pricingOpportunitySlug) ?? null
+      );
     }
     if (pricingOpportunityPublicId) {
-      return opportunities.find((o) => o.public_id === pricingOpportunityPublicId) ?? null;
+      return (
+        opportunities.find((o) => o.public_id === pricingOpportunityPublicId) ??
+        null
+      );
     }
     return null;
   }, [opportunities, pricingOpportunitySlug, pricingOpportunityPublicId]);
@@ -296,7 +301,11 @@ export default function SubscriptionPage() {
                 {planName}
               </Text>
               {pricingAccess?.requires_subscription && !subscriptionActive && (
-                <Text fontSize="sm" color={COLORS.textMutedOnDark} lineHeight="short">
+                <Text
+                  fontSize="sm"
+                  color={COLORS.textMutedOnDark}
+                  lineHeight="short"
+                >
                   Subscription is not active — subscribe to get access.
                 </Text>
               )}
@@ -390,16 +399,25 @@ export default function SubscriptionPage() {
                 <Text
                   fontSize={{ base: "sm", md: "lg" }}
                   fontWeight="semibold"
-                  color={isExpiringSoon ? COLORS.expiringRed : COLORS.textOnDark}
+                  color={
+                    isExpiringSoon ? COLORS.expiringRed : COLORS.textOnDark
+                  }
                 >
                   {heroExpiryIso ? formatShortDate(heroExpiryIso) : "—"}
                 </Text>
                 {isExpiringSoon && (
-                  <Text fontSize="xs" color={COLORS.expiringRed} fontWeight="medium">
+                  <Text
+                    fontSize="xs"
+                    color={COLORS.expiringRed}
+                    fontWeight="medium"
+                  >
                     Expiring soon —{" "}
                     <NextLink
                       href="/support/"
-                      style={{ color: COLORS.expiringRed, textDecoration: "underline" }}
+                      style={{
+                        color: COLORS.expiringRed,
+                        textDecoration: "underline",
+                      }}
                     >
                       contact us
                     </NextLink>{" "}
@@ -412,7 +430,12 @@ export default function SubscriptionPage() {
         </Box>
 
         {/* Enrolled opportunities */}
-        <Box bg="white" p={6} borderRadius="xl" border={`1px solid ${COLORS.border}`}>
+        <Box
+          bg="white"
+          p={6}
+          borderRadius="xl"
+          border={`1px solid ${COLORS.border}`}
+        >
           <Flex
             justify="space-between"
             align="center"
@@ -420,7 +443,11 @@ export default function SubscriptionPage() {
             mb={4}
             flexWrap="wrap"
           >
-            <Text fontSize="lg" fontWeight="semibold" color={COLORS.textPrimary}>
+            <Text
+              fontSize="lg"
+              fontWeight="semibold"
+              color={COLORS.textPrimary}
+            >
               Linked Opportunity
             </Text>
           </Flex>
@@ -441,7 +468,11 @@ export default function SubscriptionPage() {
             <OpportunityCard
               opportunity={linkedOpportunity}
               userType={userType}
-              type={linkedOpportunity.enrollment_status === "enrolled" ? "enrolled" : "closed"}
+              type={
+                linkedOpportunity.enrollment_status === "enrolled"
+                  ? "enrolled"
+                  : "closed"
+              }
             />
           )}
         </Box>
@@ -454,7 +485,12 @@ export default function SubscriptionPage() {
             bg="white"
             p={6}
           >
-            <Text fontSize="md" fontWeight="semibold" color={COLORS.textPrimary} mb={2}>
+            <Text
+              fontSize="md"
+              fontWeight="semibold"
+              color={COLORS.textPrimary}
+              mb={2}
+            >
               {billingCancelSection.title}
             </Text>
             <Flex

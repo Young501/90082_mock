@@ -16,14 +16,21 @@ export function SupportModal({ open, onOpenChange }: SupportModalProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange} placement="center">
       <Portal>
-        <Dialog.Positioner zIndex={9999} style={{ backdropFilter: "blur(4px)" }}>
+        <Dialog.Positioner
+          zIndex={9999}
+          style={{ backdropFilter: "blur(4px)" }}
+        >
           <Dialog.Content maxW="560px" zIndex={10000}>
             <Dialog.Header>
               <Flex justify="space-between" w="full" align="center">
                 <Dialog.Title fontSize="lg" fontWeight="bold">
                   Support
                 </Dialog.Title>
-                <IconButton aria-label="Close" variant="ghost" onClick={handleClose}>
+                <IconButton
+                  aria-label="Close"
+                  variant="ghost"
+                  onClick={handleClose}
+                >
                   <X size={16} color="#52525B" />
                 </IconButton>
               </Flex>
