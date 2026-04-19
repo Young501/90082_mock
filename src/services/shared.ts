@@ -210,7 +210,6 @@ export function useUserMeUpdateV2() {
 }
 
 // UC-314: All accessible opportunities for current user
-
 export function useAccessibleOpportunities() {
   const { user } = useAuthStore();
   return useQuery({
