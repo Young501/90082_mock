@@ -49,10 +49,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
           backgroundColor: "#FAFAFA",
         }}
       >
-        <Header
-          isProtected={true}
-          isOnboardingPage={isOnboardingPage}
-        />
+        <Header isProtected={true} isOnboardingPage={isOnboardingPage} />
 
         {/* Fixed sidebar — desktop only */}
         <Box

@@ -26,8 +26,11 @@ export default function OpportunityPricingPage() {
   const searchParams = useSearchParams();
   const opportunitySlug = searchParams.get("opp");
   const nextStep = searchParams.get("next");
-  const { user, getUserType, accessibleOpportunities: storedAccessibleOpps } =
-    useAuthStore();
+  const {
+    user,
+    getUserType,
+    accessibleOpportunities: storedAccessibleOpps,
+  } = useAuthStore();
   const userType = user?.user_types?.[0];
   const userTypeKey = getUserType();
 

@@ -118,11 +118,9 @@ export const OpportunityCard = ({
         return { key, entry, value, entryLabel };
       })
       .filter(
-        ({ value }) =>
-          value !== null && value !== undefined && value !== ""
+        ({ value }) => value !== null && value !== undefined && value !== ""
       )
       .map(({ key, value, entryLabel }) => {
-
         const question = questionnaire.find((q) => q.field === key);
         const label =
           entryLabel ||

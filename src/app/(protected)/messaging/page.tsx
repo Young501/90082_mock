@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Box, Flex, Spinner, Text, useBreakpointValue } from "@chakra-ui/react";
 import { PageTitle } from "@/components/PageTitle";
@@ -8,17 +8,17 @@ import { PAGE_TITLES } from "@/utils/pageTitles";
 import { ConversationList } from "./ConversationList";
 import { ConversationView } from "./ConversationView";
 import {
-  useConversationsList,
+  useInfiniteConversationsList,
   useConversationMessages,
   useMarkConversationAsRead,
   useSendMessage,
   useToggleConversationArchive,
 } from "@/services/messaging";
 import {
-  ConversationSummary,
   ConversationId,
   Message,
   messageListItemToMessage,
+  conversationListItemToSummary,
 } from "@/types/messaging";
 import { useAuthStore } from "@/store";
 
@@ -52,13 +52,34 @@ const Inbox = () => {
         : "student";
 
   const {
-    data: conversations = [],
+    data: conversationsData,
     isLoading: conversationsLoading,
     isError: conversationsError,
-  } = useConversationsList({
+    hasNextPage: hasMoreConversations,
+    fetchNextPage: fetchNextConversationsPage,
+    isFetchingNextPage: isFetchingMoreConversations,
+  } = useInfiniteConversationsList({
     archived: showArchived,
-    page_size: 50,
+    page_size: 10,
   });
+
+  const conversations = useMemo(
+    () =>
+      conversationsData?.pages.flatMap((page) =>
+        page.results.map(conversationListItemToSummary)
+      ) ?? [],
+    [conversationsData]
+  );
+
+  const handleLoadMoreConversations = useCallback(() => {
+    if (hasMoreConversations && !isFetchingMoreConversations) {
+      fetchNextConversationsPage();
+    }
+  }, [
+    hasMoreConversations,
+    isFetchingMoreConversations,
+    fetchNextConversationsPage,
+  ]);
 
   const setHasUnreadMessages = useAuthStore((s) => s.setHasUnreadMessages);
 
@@ -121,7 +142,14 @@ const Inbox = () => {
 
   const handleLoadMoreMessages = () => {
     if (messagesData?.previous && !messagesLoading) {
-      setMessagesCursor(messagesData.previous);
+      try {
+        const cursor = new URL(messagesData.previous).searchParams.get(
+          "cursor"
+        );
+        setMessagesCursor(cursor);
+      } catch {
+        setMessagesCursor(messagesData.previous);
+      }
     }
   };
 
@@ -293,6 +321,9 @@ const Inbox = () => {
                 onToggleArchive={handleToggleArchive}
                 hasAnyConversations={hasAnyConversations}
                 profileType={profileType}
+                onLoadMoreConversations={handleLoadMoreConversations}
+                hasMoreConversations={hasMoreConversations}
+                isLoadingMoreConversations={isFetchingMoreConversations}
               />
             </Box>
           )}
@@ -314,6 +345,9 @@ const Inbox = () => {
             onToggleArchive={handleToggleArchive}
             hasAnyConversations={hasAnyConversations}
             profileType={profileType}
+            onLoadMoreConversations={handleLoadMoreConversations}
+            hasMoreConversations={hasMoreConversations}
+            isLoadingMoreConversations={isFetchingMoreConversations}
           />
         </Box>
         <Box flex={1} h="100%">

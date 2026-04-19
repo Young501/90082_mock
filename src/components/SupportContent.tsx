@@ -51,9 +51,11 @@ function useLiveAgent(isActive: boolean) {
     const userId = String(user?.userDetailsV2?.id ?? user?.id ?? "");
 
     if (window.LiveAgent) {
-      if (email) window.LiveAgent.setUserDetails(email, firstName, lastName, "");
+      if (email)
+        window.LiveAgent.setUserDetails(email, firstName, lastName, "");
       if (userType) window.LiveAgent.addContactField("user-type", userType);
-      if (companyName) window.LiveAgent.addContactField("company-name", companyName);
+      if (companyName)
+        window.LiveAgent.addContactField("company-name", companyName);
       if (userId) window.LiveAgent.addContactField("user-id", userId);
       return;
     }
@@ -149,9 +151,9 @@ export function SupportContent({ isActive = true }: SupportContentProps) {
               Chat with UniBot, our friendly AI assistant
             </Heading>
             <Text color="gray.600" fontSize="sm" lineHeight="tall">
-              Get instant answers to your questions. If the assistant
-              can&apos;t resolve your issue, you can leave a message and our
-              team will follow up.
+              Get instant answers to your questions. If the assistant can&apos;t
+              resolve your issue, you can leave a message and our team will
+              follow up.
             </Text>
             <Button
               mt={2}

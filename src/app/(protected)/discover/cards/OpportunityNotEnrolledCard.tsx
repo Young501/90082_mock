@@ -27,7 +27,8 @@ const ENROLLMENT_CONTENT = {
     ],
   },
   organisation: {
-    heading: "As an organisation in the employment opportunity, you'll have access to:",
+    heading:
+      "As an organisation in the employment opportunity, you'll have access to:",
     benefits: [
       "Incredible talent from the University",
       "The ability to filter candidates to meet your workforce needs",
@@ -177,23 +178,26 @@ export function OpportunityNotEnrolledCard({
       >
         <VStack align="flex-start" gap={2} w="100%">
           <Text fontSize="md" fontWeight="semibold" color="#27272A">
-            {ENROLLMENT_CONTENT[isOrganisation ? "organisation" : "student"].heading}
+            {
+              ENROLLMENT_CONTENT[isOrganisation ? "organisation" : "student"]
+                .heading
+            }
           </Text>
           <Box as="ul" ml="10px" pl={5} m={0} listStyleType="disc">
-            {ENROLLMENT_CONTENT[isOrganisation ? "organisation" : "student"].benefits.map(
-              (benefit, i) => (
-                <Text
-                  key={i}
-                  as="li"
-                  fontSize="sm"
-                  color="#52525B"
-                  lineHeight="20px"
-                  mb={2}
-                >
-                  {benefit}
-                </Text>
-              )
-            )}
+            {ENROLLMENT_CONTENT[
+              isOrganisation ? "organisation" : "student"
+            ].benefits.map((benefit, i) => (
+              <Text
+                key={i}
+                as="li"
+                fontSize="sm"
+                color="#52525B"
+                lineHeight="20px"
+                mb={2}
+              >
+                {benefit}
+              </Text>
+            ))}
           </Box>
         </VStack>
       </VStack>
