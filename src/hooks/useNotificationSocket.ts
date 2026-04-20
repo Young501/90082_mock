@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 
 export function useNotificationSocket() {
   const token = useAuthStore((s) => s.token);
+  const user = useAuthStore((s) => s.user);
   const setHasUnreadMessages = useAuthStore((s) => s.setHasUnreadMessages);
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -43,16 +44,18 @@ export function useNotificationSocket() {
           // Refetch messages / conversations when new message arrives
           queryClient.invalidateQueries({ queryKey: ["messaging", "conversations"] });
 
-          // Show toast only when user isn't already on the messaging page
-          if (!pathname.startsWith("messaging")) {
-            toast.info(`New message from ${data.sender_name}: ${data.preview}`, {
-              toastId: `msg-${data.conversation_id}`,
-              onClick: () => { router.push(`/messaging/?conversation=${data.conversation_id}`) }
-            })
+          // Only show toast and set unread badge if the message was NOT sent by the current user
+          if (data.sender_id !== user?.id) {
+            // Show toast only when user isn't already on the messaging page
+            if (!pathname.startsWith("/messaging")) {
+              toast.info(`New message from ${data.sender_name}: ${data.preview}`, {
+                toastId: `msg-${data.conversation_id}`,
+                onClick: () => { router.push(`/messaging/?conversation=${data.conversation_id}`) }
+              });
+            }
+            setHasUnreadMessages(true);
           }
         }
-
-        setHasUnreadMessages(true);
       }
     }
 
@@ -62,7 +65,7 @@ export function useNotificationSocket() {
       destroyed = true;
       wsRef.current?.close();
     };
-  }, [token]);
+  }, [token, user?.id, pathname]);
 
   return;
 }
