@@ -33,6 +33,12 @@ export function useNotificationSocket() {
         reconnectDelay.current = 1000; // Reset backoff on successful connect
       };
 
+      ws.onerror = (event) => {
+        if (process.env.NODE_ENV === "development") {
+          console.error("WebSocket Error:", event);
+        }
+      }
+
       ws.onclose = () => {
         if (destroyed) return;
 
