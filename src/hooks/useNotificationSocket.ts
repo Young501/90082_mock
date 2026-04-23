@@ -13,6 +13,9 @@ export function useNotificationSocket() {
   const pathname = usePathname();
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectDelay = useRef(1000);
+  const pathnameRef = useRef(pathname);
+
+  useEffect(() => { pathnameRef.current = pathname; }, [pathname]);
 
   useEffect(() => {
     if (!token) return;
@@ -47,7 +50,7 @@ export function useNotificationSocket() {
           // Only show toast and set unread badge if the message was NOT sent by the current user
           if (data.sender_id !== user?.id) {
             // Show toast only when user isn't already on the messaging page
-            if (!pathname.startsWith("/messaging")) {
+            if (!pathnameRef.current.startsWith("/messaging")) {
               toast.info(`New message from ${data.sender_name}: ${data.preview}`, {
                 toastId: `msg-${data.conversation_id}`,
                 onClick: () => { router.push(`/messaging/?conversation=${data.conversation_id}`) }
@@ -65,7 +68,7 @@ export function useNotificationSocket() {
       destroyed = true;
       wsRef.current?.close();
     };
-  }, [token, user?.id, pathname]);
+  }, [token, user?.id, queryClient, router, setHasUnreadMessages]);
 
   return;
 }
