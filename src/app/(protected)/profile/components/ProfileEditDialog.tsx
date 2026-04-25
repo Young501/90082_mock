@@ -203,7 +203,15 @@ export function ProfileEditDialog({
     if (hasOrgFields && isOrganisationUser) {
       queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
     }
-  }, [isOpen, hasStudentProfileFields, hasUserFields, hasOrgMemberFields, hasOrgFields, isOrganisationUser, queryClient]);
+  }, [
+    isOpen,
+    hasStudentProfileFields,
+    hasUserFields,
+    hasOrgMemberFields,
+    hasOrgFields,
+    isOrganisationUser,
+    queryClient,
+  ]);
 
   // Reset form with fresh API data once loaded
   useEffect(() => {

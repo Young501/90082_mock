@@ -171,13 +171,15 @@ function renderFieldValue(
           padding: 12,
           borderRadius: 8,
           alignItems: "center",
+          overflow: "hidden",
         }}
       >
-        <LinkIcon size={16} color="#71717A" />
+        <LinkIcon size={16} color="#71717A" style={{ flexShrink: 0 }} />
         <Text
           fontSize="md"
           color="black"
           _hover={{ textDecoration: "underline" }}
+          truncate
         >
           {display}
         </Text>
@@ -292,6 +294,8 @@ export function ProfileSectionCard({
             <Box
               key={question.field}
               gridColumn={isImageField ? "1 / -1" : undefined}
+              minW={0}
+              overflow="hidden"
             >
               <Text
                 fontSize="xs"

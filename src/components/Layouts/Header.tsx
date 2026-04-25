@@ -252,8 +252,12 @@ const Header = ({
                 position="relative"
                 flexShrink={0}
                 w="300px"
-                borderRight={isCollapsed ? "none" : "1px solid rgba(148, 163, 184, 0.35)"}
-                borderBottom={isCollapsed ? "1px solid rgba(148, 163, 184, 0.35)" : "none"}
+                borderRight={
+                  isCollapsed ? "none" : "1px solid rgba(148, 163, 184, 0.35)"
+                }
+                borderBottom={
+                  isCollapsed ? "1px solid rgba(148, 163, 184, 0.35)" : "none"
+                }
                 // Delay border appearing to match the 0.3s sidebar animation,
                 // but remove it instantly when it should disappear
                 style={{
@@ -290,7 +294,10 @@ const Header = ({
                           alt="Uniconnected"
                           src="/assets/logo.svg"
                           fill
-                          style={{ objectFit: "contain", objectPosition: "left" }}
+                          style={{
+                            objectFit: "contain",
+                            objectPosition: "left",
+                          }}
                           priority
                         />
                       </Link>
@@ -440,7 +447,11 @@ const Header = ({
                               alt="Profile picture"
                               width={32}
                               height={32}
-                              style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                              style={{
+                                objectFit: "cover",
+                                width: "100%",
+                                height: "100%",
+                              }}
                             />
                           ) : (
                             <UserRound size={20} color="#18181B" />

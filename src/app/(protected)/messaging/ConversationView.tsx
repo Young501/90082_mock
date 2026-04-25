@@ -145,7 +145,15 @@ export const ConversationView = ({
         onToggleArchive={onToggleArchive}
       />
 
-      <Box ref={messagesContainerRef} flex={1} minH="0" h="100%" overflowY="auto" px={4} py={4}>
+      <Box
+        ref={messagesContainerRef}
+        flex={1}
+        minH="0"
+        h="100%"
+        overflowY="auto"
+        px={4}
+        py={4}
+      >
         {messagesLoading ? (
           <Flex w="100%" h="100%" minH="200px" align="center" justify="center">
             <Spinner size="md" />

@@ -14,7 +14,7 @@ export function mapGeocodeSearchResponse(
 }
 
 /**
- * Turns stored geocode result into the `location` object for PATCH/POST 
+ * Turns stored geocode result into the `location` object for PATCH/POST
  */
 export function toMemberLocationPayload(
   value: unknown
@@ -57,8 +57,7 @@ export function getOrganisationGeocodeLocationFromFormData(
 ): Record<string, unknown> | null {
   const fields = questions
     .filter(
-      (q) =>
-        q.model === "organisation" && q.type === "location_geocode_lookup"
+      (q) => q.model === "organisation" && q.type === "location_geocode_lookup"
     )
     .map((q) => q.field);
   for (const f of fields) {
