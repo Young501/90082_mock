@@ -26,7 +26,7 @@ export function useNotificationSocket() {
     function connect() {
       if (destroyed) return;
 
-      const ws = new WebSocket(`${wsBase}/ws/notification/?token=${token}`);
+      const ws = new WebSocket(`${wsBase}/ws/messaging/notifications/?token=${encodeURIComponent(token!)}`);
       wsRef.current = ws;
 
       ws.onopen = () => {
@@ -39,19 +39,30 @@ export function useNotificationSocket() {
         }
       }
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
         if (destroyed) return;
+        // 4001 means the token is invalid — reconnecting won't help
+        if (event.code === 4001) return;
 
         setTimeout(connect, reconnectDelay.current);
         reconnectDelay.current = Math.min(reconnectDelay.current * 2, 30000);
       };
 
       ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
+        let data: { event?: string; message_id?: number; conversation_id?: number; sender_id?: number; sender_name?: string; preview?: string };
+        try {
+          data = JSON.parse(event.data);
+        } catch {
+          if (process.env.NODE_ENV === "development") {
+            console.error("WebSocket: failed to parse message", event.data);
+          }
+          return;
+        }
 
-        if (data.type === "new_message") {
+        if (data.event === "new_message") {
           // Refetch messages / conversations when new message arrives
           queryClient.invalidateQueries({ queryKey: ["messaging", "conversations"] });
+          queryClient.invalidateQueries({ queryKey: ["homepage"] });
 
           // Only show toast and set unread badge if the message was NOT sent by the current user
           if (data.sender_id !== user?.id) {
