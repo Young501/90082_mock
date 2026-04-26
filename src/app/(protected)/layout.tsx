@@ -9,6 +9,7 @@ import Sidebar from "@/components/Layouts/Sidebar";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuthStore } from "@/store/authStore";
 import { useAccessibleOpportunities, useUserMeV2 } from "@/services/shared";
+import { useConversationsList } from "@/services/messaging";
 import type { UserDetailsV2 } from "@/types/user";
 import { useNotificationSocket } from "@/hooks/useNotificationSocket";
 
@@ -34,6 +35,16 @@ function LayoutContent({ children }: { children: ReactNode }) {
       setAccessibleOpportunities(accessibleOpportunities);
     }
   }, [accessibleOpportunities, setAccessibleOpportunities]);
+
+  const setUnreadCount = useAuthStore((s) => s.setUnreadCount);
+  const { data: conversations } = useConversationsList({ archived: false, page_size: 50 });
+
+  useEffect(() => {
+    if (conversations) {
+      const total = conversations.reduce((sum, c) => sum + (c.unreadCount ?? 0), 0);
+      setUnreadCount(total);
+    }
+  }, [conversations, setUnreadCount]);
 
   const isCollapsed = useAuthStore((s) => s.isSidebarCollapsed);
 

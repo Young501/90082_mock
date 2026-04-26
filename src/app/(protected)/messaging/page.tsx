@@ -81,16 +81,14 @@ const Inbox = () => {
     fetchNextConversationsPage,
   ]);
 
-  const setHasUnreadMessages = useAuthStore((s) => s.setHasUnreadMessages);
+  const setUnreadCount = useAuthStore((s) => s.setUnreadCount);
 
   useEffect(() => {
     if (!showArchived) {
-      const hasUnread =
-        conversations.length > 0 &&
-        conversations.some((c) => c.unreadCount > 0 || c.hasUnread);
-      setHasUnreadMessages(hasUnread);
+      const total = conversations.reduce((sum, c) => sum + (c.unreadCount ?? 0), 0);
+      setUnreadCount(total);
     }
-  }, [conversations, showArchived, setHasUnreadMessages]);
+  }, [conversations, showArchived, setUnreadCount]);
 
   const [messagesCursor, setMessagesCursor] = useState<string | null>(null);
   const [allMessages, setAllMessages] = useState<Message[]>([]);

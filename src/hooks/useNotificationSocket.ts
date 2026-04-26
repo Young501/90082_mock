@@ -1,12 +1,15 @@
 import { useAuthStore } from "@/store";
+import { PROFILE_COLORS } from "@/theme/theme";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 export function useNotificationSocket() {
   const token = useAuthStore((s) => s.token);
   const user = useAuthStore((s) => s.user);
+  const userType = useAuthStore((s) => s.getUserType());
+  const accentColor = PROFILE_COLORS[(userType as keyof typeof PROFILE_COLORS) ?? "student"] ?? PROFILE_COLORS.student;
   const setHasUnreadMessages = useAuthStore((s) => s.setHasUnreadMessages);
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -68,9 +71,15 @@ export function useNotificationSocket() {
           if (data.sender_id !== user?.id) {
             // Show toast only when user isn't already on the messaging page
             if (!pathnameRef.current.startsWith("/messaging")) {
-              toast.info(`New message from ${data.sender_name}: ${data.preview}`, {
-                toastId: `msg-${data.conversation_id}`,
-                onClick: () => { router.push(`/messaging/?conversation=${data.conversation_id}`) }
+              toast(`New message from ${data.sender_name}`, {
+                id: `msg-${data.conversation_id}`,
+                description: data.preview,
+                action: {
+                  label: "View",
+                  onClick: () => router.push(`/messaging/?conversation=${data.conversation_id}`),
+                },
+                style: { borderLeft: `4px solid ${accentColor}` },
+                actionButtonStyle: { backgroundColor: accentColor, color: "#fff", padding: "6px 16px", fontSize: "13px" },
               });
             }
             setHasUnreadMessages(true);
@@ -85,7 +94,7 @@ export function useNotificationSocket() {
       destroyed = true;
       wsRef.current?.close();
     };
-  }, [token, user?.id, queryClient, router, setHasUnreadMessages]);
+  }, [token, user?.id, accentColor, queryClient, router, setHasUnreadMessages]);
 
   return;
 }

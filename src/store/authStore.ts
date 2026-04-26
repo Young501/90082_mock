@@ -45,7 +45,9 @@ export interface AuthState {
   getIsAuthenticated: () => boolean;
   setAccessibleOpportunities: (opportunities: AccessibleOpportunity[]) => void;
   hasUnreadMessages: boolean;
+  unreadCount: number;
   setHasUnreadMessages: (hasUnread: boolean) => void;
+  setUnreadCount: (count: number) => void;
   isSidebarCollapsed: boolean;
   toggleSidebar: () => void;
 }
@@ -64,6 +66,7 @@ export const useAuthStore = create<AuthState>()(
       onboardingPhase: null,
       accessibleOpportunities: null,
       hasUnreadMessages: false,
+      unreadCount: 0,
       isSidebarCollapsed: false,
       setIsAuthenticated: (isAuthenticated: boolean) => {
         set({ isAuthenticated });
@@ -216,6 +219,9 @@ export const useAuthStore = create<AuthState>()(
         if (get().hasUnreadMessages !== hasUnread) {
           set({ hasUnreadMessages: hasUnread });
         }
+      },
+      setUnreadCount: (count: number) => {
+        set({ unreadCount: count, hasUnreadMessages: count > 0 });
       },
       toggleSidebar: () =>
         set((s) => ({ isSidebarCollapsed: !s.isSidebarCollapsed })),
