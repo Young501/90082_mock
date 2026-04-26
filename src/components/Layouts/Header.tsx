@@ -78,6 +78,8 @@ const Header = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const searchParams = useSearchParams();
+  const hasUnreadMessages = useAuthStore((s) => s.hasUnreadMessages);
+  const unreadCount = useAuthStore((s) => s.unreadCount);
 
   const profilePictureUrl = getUserProfilePictureUrl?.() ?? null;
 
@@ -391,18 +393,69 @@ const Header = ({
                   </Box>
                 </Box>
                 <HStack gap={4}>
-                  <Box
-                    w={10}
-                    h={10}
-                    borderRadius="full"
-                    bg="#FAFAFA"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    gap={2}
+                  <MenuPopover
+                    placement="bottom-end"
+                    minW="220px"
+                    trigger={
+                      <Box
+                        w={10}
+                        h={10}
+                        borderRadius="full"
+                        bg="#FAFAFA"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        position="relative"
+                        cursor="pointer"
+                        _hover={{ bg: "#F4F4F5" }}
+                      >
+                        <Bell size={18} color="#18181B" />
+                        {hasUnreadMessages && (
+                          <Box
+                            position="absolute"
+                            top={1}
+                            right={1}
+                            w="8px"
+                            h="8px"
+                            bg="red.500"
+                            borderRadius="full"
+                          />
+                        )}
+                      </Box>
+                    }
                   >
-                    <Bell size={18} color="#18181B" />
-                  </Box>
+                    <VStack align="stretch" gap={2} p={1}>
+                      <Text fontSize="sm" fontWeight="600" color="#18181B" px={2} pt={1}>
+                        Notifications
+                      </Text>
+                      {hasUnreadMessages ? (
+                        <Link href="/messaging/" style={{ textDecoration: "none" }}>
+                          <HStack
+                            px={2}
+                            py={2}
+                            borderRadius="md"
+                            _hover={{ bg: "#F4F4F5" }}
+                            cursor="pointer"
+                          >
+                            <Box
+                              w="8px"
+                              h="8px"
+                              borderRadius="full"
+                              bg="red.500"
+                              flexShrink={0}
+                            />
+                            <Text fontSize="sm" color="#18181B">
+                              {unreadCount} new {unreadCount === 1 ? "message" : "messages"}
+                            </Text>
+                          </HStack>
+                        </Link>
+                      ) : (
+                        <Text fontSize="sm" color="#71717A" px={2} pb={1}>
+                          No new notifications
+                        </Text>
+                      )}
+                    </VStack>
+                  </MenuPopover>
 
                   <MenuPopover
                     placement="bottom-end"

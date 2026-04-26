@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Box, Flex, VStack, HStack, Text, Spinner } from "@chakra-ui/react";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { MessageComposerInput } from "@/components/ui/MessageComposerInput";
@@ -66,12 +66,14 @@ export const ConversationView = ({
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   );
 
-  useEffect(() => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop =
-        messagesContainerRef.current.scrollHeight;
-    }
-  }, [conversation?.id, orderedMessages.length]);
+  const lastMessageId = orderedMessages[orderedMessages.length - 1]?.id;
+
+  useLayoutEffect(() => {
+    if (messagesLoading) return;
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    container.scrollTop = container.scrollHeight;
+  }, [conversation?.id, lastMessageId, messagesLoading]);
 
   const isEmptyThread = orderedMessages.length === 0;
 
