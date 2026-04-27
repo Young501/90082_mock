@@ -253,17 +253,43 @@ const Inbox = () => {
       (!composerText.trim() && !files?.length && !replyToId)
     )
       return;
+
+    const storeUser = useAuthStore.getState().user;
+    const tempMessage: Message = {
+      id: `temp-${Date.now()}`,
+      conversationId: selectedConversation.id,
+      sender: "me",
+      text: composerText.trim() || undefined,
+      createdAt: new Date().toISOString(),
+      messanger: storeUser
+        ? {
+            id: Number(storeUser.id),
+            email: storeUser.email ?? "",
+            full_name: `${storeUser.first_name ?? ""} ${storeUser.last_name ?? ""}`.trim(),
+            profile_picture_url: storeUser.profile_picture_url ?? null,
+            organisation_name: null,
+            organisation_logo_url: null,
+            organisation_id: null,
+          }
+        : null,
+    };
+    setAllMessages((prev) => [...prev, tempMessage]);
+    setComposerText("");
+
     sendMessageMutation.mutate(
       {
         conversationId: selectedConversation.id,
-        content: composerText.trim() || "",
+        content: tempMessage.text || "",
         files: files,
         replyToId: replyToId,
       },
       {
         onSuccess: () => {
-          setComposerText("");
           setMessagesCursor(null);
+        },
+        onError: () => {
+          setAllMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
+          setComposerText(tempMessage.text ?? "");
         },
       }
     );

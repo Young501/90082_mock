@@ -68,6 +68,12 @@ export const ConversationView = ({
 
   const lastMessageId = orderedMessages[orderedMessages.length - 1]?.id;
 
+  useEffect(() => {
+    if (!conversation?.avatar) return;
+    const img = new window.Image();
+    img.src = conversation.avatar;
+  }, [conversation?.id, conversation?.avatar]);
+
   useLayoutEffect(() => {
     if (messagesLoading) return;
     const container = messagesContainerRef.current;
