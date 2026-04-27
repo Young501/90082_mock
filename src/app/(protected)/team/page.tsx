@@ -34,6 +34,7 @@ import type { OrganisationSentInvite } from "@/types/shared";
 import { TeamInviteModal } from "./components/TeamInviteModal";
 import { TeamMemberEditModal } from "./components/TeamMemberEditModal";
 import { TeamRemoveMemberDialog } from "./components/TeamRemoveMemberDialog";
+import { ContactPage } from "@/components/ContactPage";
 import { MenuPopover } from "@/components/ui/MenuPopover";
 import {
   Plus,
@@ -43,6 +44,7 @@ import {
   Mail,
   Check,
   UserCog,
+  MessageCircle,
 } from "lucide-react";
 import { getErrorMessage } from "@/utils/apiErrorHandling";
 import { toast } from "react-toastify";
@@ -141,6 +143,8 @@ export default function TeamPage() {
   );
   const [removeMember, setRemoveMember] =
     React.useState<OrganisationMember | null>(null);
+  const [messageMember, setMessageMember] =
+    React.useState<OrganisationMember | null>(null);
   const myMemberId = (memberMe as { id?: number })?.id;
   const myRole = (platformRole ??
     (memberMe as { platform_role?: OrganisationPlatformRole })
@@ -233,8 +237,12 @@ export default function TeamPage() {
                     member.id,
                     myMemberId
                   )}
+                  canMessage={
+                    member.id !== myMemberId && member.user_id != null
+                  }
                   onEdit={() => setEditMember(member)}
                   onRemove={() => setRemoveMember(member)}
+                  onMessage={() => setMessageMember(member)}
                 />
               ))}
             </SimpleGrid>
@@ -306,6 +314,19 @@ export default function TeamPage() {
           toast.error(getErrorMessage(err, "Failed to remove member"))
         }
       />
+
+      {messageMember && messageMember.user_id != null && (
+        <ContactPage
+          recipientId={messageMember.user_id}
+          recipientName={getMemberDisplayName(messageMember)}
+          profileType="student"
+          onBack={() => setMessageMember(null)}
+          onSuccess={(conversationId) => {
+            setMessageMember(null);
+            router.push(`/messaging/?conversation=${conversationId}`);
+          }}
+        />
+      )}
     </>
   );
 }
@@ -356,8 +377,10 @@ interface TeamMemberCardProps {
   myMemberId?: number;
   canEdit: boolean;
   canRemove: boolean;
+  canMessage: boolean;
   onEdit: () => void;
   onRemove: () => void;
+  onMessage: () => void;
 }
 
 function TeamMemberCard({
@@ -365,8 +388,10 @@ function TeamMemberCard({
   myRole,
   canEdit,
   canRemove,
+  canMessage,
   onEdit,
   onRemove,
+  onMessage,
 }: TeamMemberCardProps) {
   const updateMember = useOrganisationMemberUpdate();
   const displayName = getMemberDisplayName(member);
@@ -577,6 +602,29 @@ function TeamMemberCard({
           Member since{" "}
           {formatDate(member.joined_at ?? member.member_since) || "—"}
         </Text>
+        {canMessage && (
+          <Box
+            as="button"
+            onClick={onMessage}
+            display="flex"
+            alignItems="center"
+            gap={1}
+            px={3}
+            py={1}
+            borderRadius="md"
+            border="1px solid #E4E4E7"
+            fontSize="xs"
+            fontWeight="500"
+            color="#52525B"
+            bg="white"
+            cursor="pointer"
+            _hover={{ bg: "#F4F4F5", borderColor: "profile.500", color: "profile.500" }}
+            transition="all 0.15s"
+          >
+            <MessageCircle size={13} />
+            <Text>Message</Text>
+          </Box>
+        )}
       </VStack>
     </Box>
   );

@@ -58,7 +58,7 @@ export function useStudentProfile(id: string, opportunityId: string) {
     queryFn: () =>
       apiRequest({
         endpoint: API_ENDPOINTS.STUDENT_CARD_V2(id),
-        body: { opportunity_id: opportunityId },
+        body: opportunityId ? { opportunity_id: opportunityId } : undefined,
       }),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,

@@ -96,8 +96,8 @@ export function FullProfileCard({
           placement="bottom"
           size="full"
         >
-          <Drawer.Backdrop />
-          <Drawer.Positioner>
+          <Drawer.Backdrop style={{ zIndex: 10000 }} />
+          <Drawer.Positioner style={{ zIndex: 10000 }}>
             <Drawer.Content
               maxH={{ base: "90vh", lg: "85vh" }}
               borderTopRadius="xl"
@@ -131,8 +131,8 @@ export function FullProfileCard({
           placement="bottom"
           size="full"
         >
-          <Drawer.Backdrop />
-          <Drawer.Positioner>
+          <Drawer.Backdrop style={{ zIndex: 10000 }} />
+          <Drawer.Positioner style={{ zIndex: 10000 }}>
             <Drawer.Content
               maxH={{ base: "90vh", lg: "85vh" }}
               borderTopRadius="xl"
