@@ -30,6 +30,7 @@ interface ContactPageProps {
   recipientName: string;
   profileType: "student" | "organisation";
   onBack: () => void;
+  onSuccess?: (conversationId: number) => void;
   organisationName?: string;
   organisationContact?: string;
   organisationId?: string;
@@ -227,6 +228,7 @@ export function ContactPage({
   recipientName,
   profileType,
   onBack,
+  onSuccess,
   organisationName,
   organisationId,
   members,
@@ -293,6 +295,7 @@ export function ContactPage({
 
       toast.success("Message sent successfully!");
       reset();
+      onSuccess?.(conversation.id);
       onBack();
     } catch (error: any) {
       const detail =

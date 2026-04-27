@@ -253,18 +253,18 @@ const Header = ({
                 position="relative"
                 flexShrink={0}
                 w="300px"
-                borderRight={
-                  isCollapsed ? "none" : "1px solid rgba(148, 163, 184, 0.35)"
+                borderRight="1px solid"
+                borderBottom="1px solid"
+                borderRightColor={
+                  isCollapsed ? "transparent" : "rgba(148, 163, 184, 0.35)"
                 }
-                borderBottom={
-                  isCollapsed ? "1px solid rgba(148, 163, 184, 0.35)" : "none"
+                borderBottomColor={
+                  isCollapsed ? "rgba(148, 163, 184, 0.35)" : "transparent"
                 }
-                // Delay border appearing to match the 0.3s sidebar animation,
-                // but remove it instantly when it should disappear
                 style={{
                   transition: isCollapsed
-                    ? "border-right 0s 0s, border-bottom 0s 0.3s"
-                    : "border-right 0s 0.3s, border-bottom 0s 0s",
+                    ? "border-right-color 0s 0s, border-bottom-color 0s 0.3s"
+                    : "border-right-color 0s 0.3s, border-bottom-color 0s 0s",
                 }}
               >
                 {/* Logo — slides right and shrinks when collapsed */}
