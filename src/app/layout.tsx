@@ -3,6 +3,7 @@ import { Manrope } from "next/font/google";
 import Providers from "@/components/ui/providers";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Toaster } from "sonner";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
 const manrope = Manrope({
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             style={{ zIndex: 10000 }}
             limit={3}
           />
+          <Toaster position="top-right" richColors />
           {children}
         </Providers>
       </body>

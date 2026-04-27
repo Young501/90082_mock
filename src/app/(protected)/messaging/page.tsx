@@ -81,16 +81,14 @@ const Inbox = () => {
     fetchNextConversationsPage,
   ]);
 
-  const setHasUnreadMessages = useAuthStore((s) => s.setHasUnreadMessages);
+  const setUnreadCount = useAuthStore((s) => s.setUnreadCount);
 
   useEffect(() => {
     if (!showArchived) {
-      const hasUnread =
-        conversations.length > 0 &&
-        conversations.some((c) => c.unreadCount > 0 || c.hasUnread);
-      setHasUnreadMessages(hasUnread);
+      const total = conversations.reduce((sum, c) => sum + (c.unreadCount ?? 0), 0);
+      setUnreadCount(total);
     }
-  }, [conversations, showArchived, setHasUnreadMessages]);
+  }, [conversations, showArchived, setUnreadCount]);
 
   const [messagesCursor, setMessagesCursor] = useState<string | null>(null);
   const [allMessages, setAllMessages] = useState<Message[]>([]);
@@ -255,17 +253,43 @@ const Inbox = () => {
       (!composerText.trim() && !files?.length && !replyToId)
     )
       return;
+
+    const storeUser = useAuthStore.getState().user;
+    const tempMessage: Message = {
+      id: `temp-${Date.now()}`,
+      conversationId: selectedConversation.id,
+      sender: "me",
+      text: composerText.trim() || undefined,
+      createdAt: new Date().toISOString(),
+      messanger: storeUser
+        ? {
+            id: Number(storeUser.id),
+            email: storeUser.email ?? "",
+            full_name: `${storeUser.first_name ?? ""} ${storeUser.last_name ?? ""}`.trim(),
+            profile_picture_url: storeUser.profile_picture_url ?? null,
+            organisation_name: null,
+            organisation_logo_url: null,
+            organisation_id: null,
+          }
+        : null,
+    };
+    setAllMessages((prev) => [...prev, tempMessage]);
+    setComposerText("");
+
     sendMessageMutation.mutate(
       {
         conversationId: selectedConversation.id,
-        content: composerText.trim() || "",
+        content: tempMessage.text || "",
         files: files,
         replyToId: replyToId,
       },
       {
         onSuccess: () => {
-          setComposerText("");
           setMessagesCursor(null);
+        },
+        onError: () => {
+          setAllMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
+          setComposerText(tempMessage.text ?? "");
         },
       }
     );
