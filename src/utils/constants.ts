@@ -31,7 +31,7 @@ export const userTypesData: UserTypeData[] = [
   {
     key: "student",
     name: "Student",
-    description: "Personal account to manage all you activities.",
+    description: "Personal account to manage all your activities.",
     icon: User,
     iconSize: 24,
     color: "#2AA8E0",
