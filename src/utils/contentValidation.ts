@@ -5,7 +5,8 @@ type ValidationResult =
   | { status: "success" }
   | { status: "error", type: "profanity" }
   | { status: "error", type: "spam-lowercase" }
-  | { status: "error", type: "spam-uppercase" };
+  | { status: "error", type: "spam-uppercase" }
+  | { status: "error", type: "link" };
 
 export function validateContent(text: string): ValidationResult {
   if (filter.check(text)) {
@@ -29,6 +30,13 @@ export function validateContent(text: string): ValidationResult {
     if (match[2] !== undefined) {
       return { status: "error", type: "spam-uppercase" }
     }
+  }
+
+  // Detects URL-specific markers such as http, www, or a domain structure 
+  // Does not detect email
+  const linkRegex = /(?:https?:\/\/|www\.)[^\s<>{}|\\^~[\]`]+|(?<!@)\b[a-zA-Z0-9.-]+\.[a-z]{2,}(?:\/[^\s]*)?\b/gi;
+  if (linkRegex.test(text)) {
+    return { status: "error", type: "link" };
   }
 
   return { status: "success" };
