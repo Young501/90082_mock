@@ -15,6 +15,7 @@ import {
 } from "@/types/messaging";
 import { useAuthStore } from "@/store";
 import { Loader, Send } from "lucide-react";
+import { validateContent } from "@/utils/contentValidation";
 interface ConversationViewProps {
   isSinglePane: boolean | undefined;
   conversation: ConversationSummary | null;
@@ -61,6 +62,7 @@ export const ConversationView = ({
   const currentUserId = useAuthStore((s: any) => s.user?.id);
   const numericUserId =
     currentUserId != null ? Number(currentUserId) : undefined;
+  const [error, setError] = useState<string | null>(null);
 
   const orderedMessages = [...messages].sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
@@ -92,7 +94,37 @@ export const ConversationView = ({
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleOnChange = (value: string) => {
+    // Clears error when typing new character
+    if (error) {
+      setError(null);
+    }
+
+    onComposerTextChange(value)
+  }
+
   const handleSendWithFiles = () => {
+    // Validate the text content before sending
+    const validationResult = validateContent(composerText);
+    if (validationResult.status === "error") {
+      switch (validationResult.type) {
+        case "profanity":
+          setError("Please keep your language appropriate")
+          break;
+        case "spam-lowercase":
+          setError("Please provide a meaningful response")
+          break;
+        case "spam-uppercase":
+          setError("Please avoid writing in all capitals")
+          break;
+        case "link":
+          setError("Please avoid including links in this field")
+          break;
+      }
+
+      return;
+    }
+
     const replyToId = replyToMessage ? Number(replyToMessage.id) : undefined;
     onSendMessage(
       selectedFiles.length > 0 ? selectedFiles : undefined,
@@ -299,7 +331,8 @@ export const ConversationView = ({
         <HStack gap={2} align="flex-end">
           <MessageComposerInput
             value={composerText}
-            onChange={onComposerTextChange}
+            onChange={handleOnChange}
+            error={error}
             placeholder="Type your message..."
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
@@ -321,7 +354,8 @@ export const ConversationView = ({
               isSending ||
               (!composerText.trim() &&
                 selectedFiles.length === 0 &&
-                !replyToMessage)
+                !replyToMessage) ||
+              error !== null
             }
             onClick={handleSendWithFiles}
             flexShrink={0}
