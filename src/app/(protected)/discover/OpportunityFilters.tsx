@@ -7,6 +7,8 @@ import {
   Box,
   Separator,
   IconButton,
+  Switch,
+  Slider,
 } from "@chakra-ui/react";
 import { Button } from "@/components/ui/Button";
 import { FilterFieldV2 } from "@/components/fields/FilterFieldV2";
@@ -37,6 +39,8 @@ interface OpportunityFiltersProps {
   onApply?: () => void;
   onClose?: () => void;
   facetValidationSuccess?: boolean;
+  participantType?: string;
+  onDistanceChange?: (distanceKm: number | null) => void;
 }
 
 export function OpportunityFilters({
@@ -50,10 +54,23 @@ export function OpportunityFilters({
   onApply,
   onClose,
   facetValidationSuccess,
+  participantType,
+  onDistanceChange,
 }: OpportunityFiltersProps) {
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({});
+  const [useDistanceFilter, setUseDistanceFilter] = useState(false);
+  const [distanceKm, setDistanceKm] = useState(30);
+  const [remoteSelected, setRemoteSelected] = useState(false);
+  const [regionalSelected, setRegionalSelected] = useState(false);
+  const [relocateSelected, setRelocateSelected] = useState(false);
+  const distanceColorPalette =
+    participantType?.toLowerCase() === "organisation" ? "green" : "blue";
+  
+  useEffect(() => {
+    onDistanceChange?.(useDistanceFilter ? distanceKm : null);
+  }, [useDistanceFilter, distanceKm, onDistanceChange]);
 
   // if (!facetValidationSuccess) {
   //   return <EmptyInbox />;
@@ -250,6 +267,113 @@ export function OpportunityFilters({
 
   const filterContent = (
     <VStack align="stretch" gap={0}>
+      <Box>
+        <VStack align="stretch" gap={3} py={4}>
+          <Text fontSize="sm" fontWeight="600" color="#52525B">
+            Location
+          </Text>
+
+          <VStack align="stretch" gap={2}>
+            <HStack justify="space-between">
+              <HStack gap={3}>
+                <input
+                  type="checkbox"
+                  checked={remoteSelected}
+                  onChange={(e) => setRemoteSelected(e.target.checked)}
+                />
+                <Text fontSize="sm" color="#52525B">
+                  Remote
+                </Text>
+              </HStack>
+
+              <Text fontSize="sm" color="#52525B">
+                20
+              </Text>
+            </HStack>
+
+            <HStack justify="space-between">
+              <HStack gap={3}>
+                <input
+                  type="checkbox"
+                  checked={regionalSelected}
+                  onChange={(e) => setRegionalSelected(e.target.checked)}
+                />
+                <Text fontSize="sm" color="#52525B">
+                  Regional
+                </Text>
+              </HStack>
+
+              <Text fontSize="sm" color="#52525B">
+                10
+              </Text>
+            </HStack>
+
+            <HStack justify="space-between">
+              <HStack gap={3}>
+                <input
+                  type="checkbox"
+                  checked={relocateSelected}
+                  onChange={(e) => setRelocateSelected(e.target.checked)}
+                />
+                <Text fontSize="sm" color="#52525B">
+                  Happy to relocate
+                </Text>
+              </HStack>
+
+              <Text fontSize="sm" color="#52525B">
+                10
+              </Text>
+            </HStack>
+          </VStack>
+
+          <HStack justify="space-between" pt={2}>
+            <Text fontSize="sm" color="#52525B">
+              From your location
+            </Text>
+
+            <HStack gap={3}>
+              {useDistanceFilter && (
+                <Text fontSize="sm" fontWeight="600" color="#52525B">
+                  {distanceKm} KM
+                </Text>
+              )}
+
+              <Switch.Root
+                colorPalette={distanceColorPalette}
+                checked={useDistanceFilter}
+                onCheckedChange={(details) =>
+                  setUseDistanceFilter(details.checked)
+                }
+              >
+                <Switch.HiddenInput />
+                <Switch.Control />
+              </Switch.Root>
+            </HStack>
+          </HStack>
+
+           {useDistanceFilter && (
+            <Slider.Root
+              colorPalette={distanceColorPalette}
+              min={1}
+              max={100}
+              step={1}
+              value={[distanceKm]}
+              onValueChange={(details) => setDistanceKm(details.value[0])}
+            >
+              <Slider.Control>
+                <Slider.Track>
+                  <Slider.Range />
+                </Slider.Track>
+
+                <Slider.Thumbs />
+              </Slider.Control>
+            </Slider.Root>
+          )}
+        </VStack>
+
+ 
+        {allFacets.length > 0 && <Separator borderColor="#E4E4E7" />}
+      </Box>
       {allFacets.map(({ key, facet, isQuestionnaire, sectionId }, index) => {
         const isExpanded = expandedSections[sectionId] ?? false;
 
@@ -411,13 +535,14 @@ export function OpportunityFilters({
           </HStack>
         </HStack>
 
-        {facetValidationSuccess ? (
+        {/* {facetValidationSuccess ? (
           filterContent
         ) : (
           <Box>
             <EmptyInbox description="No filters available to show" />
           </Box>
-        )}
+        )} */}
+        {filterContent}
 
         {hasFilters && (
           <Box pt={2}>

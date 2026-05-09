@@ -118,6 +118,7 @@ export default function DiscoveryPage() {
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(
     folderIdFromUrl
   );
+  const [maxDistanceKm, setMaxDistanceKm] = useState<number | null>(null);
 
   const { data: foldersData, isLoading: isLoadingFolders } = useFolders(
     opportunitySlug,
@@ -256,6 +257,7 @@ export default function DiscoveryPage() {
     isEnrolled,
     isEnrollmentReady,
     folderId: selectedFolderId ? parseInt(selectedFolderId, 10) : null,
+    maxDistanceKm,
   });
 
   useEffect(() => {
@@ -388,6 +390,8 @@ export default function DiscoveryPage() {
                     hasFilters={hasFilters}
                     isLoading={isLoadingSearch}
                     facetValidationSuccess={facetValidationSuccess}
+                    participantType={userType ?? undefined}
+                    onDistanceChange={setMaxDistanceKm}
                   />
                   {/* )} */}
                   <DiscoveryFolderCard
@@ -513,6 +517,8 @@ export default function DiscoveryPage() {
                         isLoading={isLoadingSearch}
                         onApply={() => setFilterSheetOpen(false)}
                         onClose={() => setFilterSheetOpen(false)}
+                        participantType={userType ?? undefined}
+                        onDistanceChange={setMaxDistanceKm}
                       />
                     </Box>
                   </Portal>
