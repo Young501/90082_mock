@@ -11,6 +11,15 @@ import {
 
 import type { StudentProfile, OrganisationProfile } from "@/types/discovery";
 
+export const DEFAULT_DISTANCE_MAX = 200;
+const defaultDistanceFilter = (): OpportunityFilters => ({
+  _distance_km: { max: DEFAULT_DISTANCE_MAX },
+});
+const isDefaultDistance = (v: unknown) =>
+  typeof v === "object" &&
+  v !== null &&
+  (v as { max?: number }).max === DEFAULT_DISTANCE_MAX;
+
 interface UseOpportunityFilterOptions {
   isEnrolled?: boolean;
   isEnrollmentReady?: boolean;
@@ -53,7 +62,10 @@ export const useOpportunityFilter = (
   opts: UseOpportunityFilterOptions = {}
 ) => {
   const { isEnrolled, isEnrollmentReady, folderId } = opts;
-  const { user } = useAuthStore();
+  const { user, userProfile } = useAuthStore();
+  const hasLocation = !!(
+    user?.userDetailsV2?.location || userProfile?.organisation?.location
+  );
 
   const [participantType, setParticipantType] = useState<string>("");
   const [filters, setFilters] = useState<OpportunityFilters>({});
@@ -62,6 +74,17 @@ export const useOpportunityFilter = (
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [facets, setFacets] = useState<FacetsResponse | null>(null);
+
+  // seed so slider can never display a radius that backend isn't applying
+  useEffect(() => {
+    if (hasLocation && filters["_distance_km"] === undefined) {
+      setFilters((prev) =>
+        prev["_distance_km"] === undefined
+          ? { ...prev, ...defaultDistanceFilter() }
+          : prev
+      );
+    }
+  }, [hasLocation, filters]);
 
   const userType = user?.user_types?.[0];
   const targetParticipantType = useMemo(() => {
@@ -151,11 +174,11 @@ export const useOpportunityFilter = (
   }, []);
 
   const handleReset = useCallback(() => {
-    setFilters({});
+    setFilters(hasLocation ? defaultDistanceFilter() : {});
     setQuery("");
     setSort(null);
     setCurrentPage(1);
-  }, []);
+  }, [hasLocation]);
 
   const totalPages = useMemo(() => {
     const count = searchData?.page.count || 0;
@@ -164,7 +187,11 @@ export const useOpportunityFilter = (
   }, [searchData?.page.count, pageSize]);
 
   const hasFilters = useMemo(() => {
-    return Object.keys(filters).length > 0 || query !== "";
+    // default _distance_km is rest state, not user-applied
+    const meaningful = Object.entries(filters).some(([k, v]) =>
+      k === "_distance_km" ? !isDefaultDistance(v) : true
+    );
+    return meaningful || query !== "";
   }, [filters, query]);
 
   // Extract data with fallbacks

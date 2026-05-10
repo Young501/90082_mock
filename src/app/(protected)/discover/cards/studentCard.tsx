@@ -121,6 +121,7 @@ export function StudentCard({
     student.distance_km != null
       ? `${student.distance_km % 1 === 0 ? student.distance_km : student.distance_km.toFixed(1)} km`
       : "";
+  const matchPercentage = student.match_score;
 
   const availabilityText = student.availability || ""; // TODO: not available in response yet
   const educationText = courseStreamLabel;
@@ -309,6 +310,22 @@ export function StudentCard({
                   )}
                 </HStack>
               </HStack>
+            )}
+
+            {matchPercentage != null && (
+              <Box
+                alignSelf="flex-start"
+                px={1.5}
+                py={0.5}
+                bg="#DCFCE7"
+                borderRadius="md"
+                fontSize="xs"
+                fontWeight="500"
+                color="#116932"
+                boxShadow="0px 0px 1px 0px #D4D4D8 inset"
+              >
+                {matchPercentage}% Match
+              </Box>
             )}
 
             {availabilityText && (

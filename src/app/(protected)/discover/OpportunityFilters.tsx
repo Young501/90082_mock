@@ -15,12 +15,24 @@ import type {
   OpportunityFilters,
   FilterValue,
 } from "@/types/opportunity";
-import { Filter, ChevronDown, ChevronUp, X } from "lucide-react";
+import { Filter, ChevronDown, ChevronUp, X, MapPin } from "lucide-react";
 import IconFilter from "@/components/Icons/IconFilter";
 import { EmptyInbox } from "@/app/(protected)/messaging/EmptyInbox";
+import { useAuthStore } from "@/store";
+import { DEFAULT_DISTANCE_MAX } from "@/hooks/useOpportunityFilter";
 
 function isEmptyFilters(f: OpportunityFilters): boolean {
-  const keys = Object.keys(f).filter((k) => k !== "questionnaire");
+  const keys = Object.keys(f).filter((k) => {
+    if (k === "questionnaire") return false;
+    // default _distance_km is rest state, not user-applied
+    if (k === "_distance_km") {
+      return (
+        (f._distance_km as { max?: number } | undefined)?.max !==
+        DEFAULT_DISTANCE_MAX
+      );
+    }
+    return true;
+  });
   const hasQuestionnaire =
     f.questionnaire && Object.keys(f.questionnaire).length > 0;
   return keys.length === 0 && !hasQuestionnaire;
@@ -51,6 +63,12 @@ export function OpportunityFilters({
   onClose,
   facetValidationSuccess,
 }: OpportunityFiltersProps) {
+  const user = useAuthStore((s) => s.user);
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const hasLocation = !!(
+    user?.userDetailsV2?.location || userProfile?.organisation?.location
+  );
+
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({});
@@ -187,7 +205,9 @@ export function OpportunityFilters({
   };
 
   const handleResetInDrawer = () => {
-    setLocalFilters({});
+    setLocalFilters(
+      hasLocation ? { _distance_km: { max: DEFAULT_DISTANCE_MAX } } : {}
+    );
     onReset?.();
   };
 
@@ -248,8 +268,67 @@ export function OpportunityFilters({
       })),
   ];
 
+  const distanceExpanded = expandedSections["distance"] ?? true;
+  const rawDistanceFilter = getFilterValue("_distance_km", false) as any;
+  const currentDistance =
+    rawDistanceFilter?.max ?? rawDistanceFilter ?? DEFAULT_DISTANCE_MAX;
+
   const filterContent = (
     <VStack align="stretch" gap={0}>
+      <Box key="distance">
+        <VStack align="stretch" gap={0}>
+          <HStack
+            pt={4}
+            pb="10px"
+            cursor="pointer"
+            onClick={() => toggleSection("distance")}
+            justify="space-between"
+          >
+            <VStack align="flex-start" gap={0}>
+              <Text fontSize="sm" fontWeight="600" color="#52525B">
+                Distance
+              </Text>
+            </VStack>
+            <Box w="16px" h="16px">
+              {distanceExpanded ? (
+                <ChevronUp size={16} color="#71717A" />
+              ) : (
+                <ChevronDown size={16} color="#71717A" />
+              )}
+            </Box>
+          </HStack>
+
+          {distanceExpanded && (
+            <Box pb={4} px={1}>
+              {hasLocation ? (
+                <FilterFieldV2
+                  facet={{ kind: "range", label: "Distance" }}
+                  value={currentDistance}
+                  onChange={(val) =>
+                    handleFilterValueChange("_distance_km", { max: val }, false)
+                  }
+                />
+              ) : (
+                <Box p={3} bg="orange.50" borderRadius="md">
+                  <HStack gap={2} align="flex-start">
+                    <MapPin
+                      size={16}
+                      color="var(--chakra-colors-orange-600)"
+                      style={{ marginTop: "2px" }}
+                    />
+                    <Text fontSize="xs" color="orange.800">
+                      Distance calculation requires a location. Please update
+                      your profile.
+                    </Text>
+                  </HStack>
+                </Box>
+              )}
+            </Box>
+          )}
+
+          <Separator borderColor="#E4E4E7" />
+        </VStack>
+      </Box>
       {allFacets.map(({ key, facet, isQuestionnaire, sectionId }, index) => {
         const isExpanded = expandedSections[sectionId] ?? false;
 
