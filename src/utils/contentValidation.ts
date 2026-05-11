@@ -18,6 +18,11 @@ const uppercaseSpamRegex = new RegExp(
   `([A-Z])\\1{${SPAM_CAPS_THRESHOLD - 1},}`
 );
 
+// Rule 3: Detects URL-specific markers such as http, www, or a domain structure
+//         Does not detect email
+const linkRegex =
+  /(?:https?:\/\/|www\.)[^\s<>{}|\\^~[\]`]+|(?<!@)\b[a-zA-Z0-9.-]+\.[a-z]{2,}(?:\/[^\s]*)?\b/gi;
+
 export function validateContent(text: string): ValidationResult {
   if (filter.check(text)) {
     return { status: "error", type: "profanity" };
@@ -31,10 +36,6 @@ export function validateContent(text: string): ValidationResult {
     return { status: "error", type: "spam-uppercase" };
   }
 
-  // Detects URL-specific markers such as http, www, or a domain structure
-  // Does not detect email
-  const linkRegex =
-    /(?:https?:\/\/|www\.)[^\s<>{}|\\^~[\]`]+|(?<!@)\b[a-zA-Z0-9.-]+\.[a-z]{2,}(?:\/[^\s]*)?\b/gi;
   if (linkRegex.test(text)) {
     return { status: "error", type: "link" };
   }
