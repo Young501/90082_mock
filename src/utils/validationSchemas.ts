@@ -1,7 +1,7 @@
 import * as yup from "yup";
 import { Question } from "@/types/onboarding";
 import { isDisallowedDomain } from "@/utils/constants";
-import { validateContent } from "./contentValidation";
+import { validateContent } from "@/utils/contentValidation";
 
 type ParentChainItem = { field: string; value: any };
 
@@ -60,13 +60,21 @@ export const createPageSchema = (
               if (result.status === "error") {
                 switch (result.type) {
                   case "profanity":
-                    return this.createError({ message: "Please keep your language appropriate" });
+                    return this.createError({
+                      message: "Please keep your language appropriate",
+                    });
                   case "spam-lowercase":
-                    return this.createError({ message: "Please provide a meaningful response" });
+                    return this.createError({
+                      message: "Please provide a meaningful response",
+                    });
                   case "spam-uppercase":
-                    return this.createError({ message: "Please avoid writing in all capitals" });
+                    return this.createError({
+                      message: "Please avoid writing in all capitals",
+                    });
                   case "link":
-                    return this.createError({ message: "Please avoid including links in this field" });
+                    return this.createError({
+                      message: "Please avoid including links in this field",
+                    });
                 }
               }
 
@@ -86,13 +94,21 @@ export const createPageSchema = (
               if (result.status === "error") {
                 switch (result.type) {
                   case "profanity":
-                    return this.createError({ message: "Please keep your language appropriate" });
+                    return this.createError({
+                      message: "Please keep your language appropriate",
+                    });
                   case "spam-lowercase":
-                    return this.createError({ message: "Please provide a meaningful response" });
+                    return this.createError({
+                      message: "Please provide a meaningful response",
+                    });
                   case "spam-uppercase":
-                    return this.createError({ message: "Please avoid writing in all capitals" });
+                    return this.createError({
+                      message: "Please avoid writing in all capitals",
+                    });
                   case "link":
-                    return this.createError({ message: "Please avoid including links in this field" });
+                    return this.createError({
+                      message: "Please avoid including links in this field",
+                    });
                 }
               }
 

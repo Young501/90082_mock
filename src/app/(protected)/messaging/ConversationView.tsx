@@ -100,8 +100,8 @@ export const ConversationView = ({
       setError(null);
     }
 
-    onComposerTextChange(value)
-  }
+    onComposerTextChange(value);
+  };
 
   const handleSendWithFiles = () => {
     // Validate the text content before sending
@@ -109,16 +109,16 @@ export const ConversationView = ({
     if (validationResult.status === "error") {
       switch (validationResult.type) {
         case "profanity":
-          setError("Please keep your language appropriate")
+          setError("Please keep your language appropriate");
           break;
         case "spam-lowercase":
-          setError("Please provide a meaningful response")
+          setError("Please provide a meaningful response");
           break;
         case "spam-uppercase":
-          setError("Please avoid writing in all capitals")
+          setError("Please avoid writing in all capitals");
           break;
         case "link":
-          setError("Please avoid including links in this field")
+          setError("Please avoid including links in this field");
           break;
       }
 
@@ -365,7 +365,7 @@ export const ConversationView = ({
             iconPosition="end"
             icon={<Send size={18} />}
             isLoading={isSending}
-            // profileType={profileType}
+          // profileType={profileType}
           >
             <Text fontSize="sm" display={{ base: "none", md: "inline-block" }}>
               Send
