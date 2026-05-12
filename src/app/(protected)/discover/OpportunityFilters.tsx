@@ -9,6 +9,7 @@ import {
   IconButton,
   Switch,
   Slider,
+  Checkbox,
 } from "@chakra-ui/react";
 import { Button } from "@/components/ui/Button";
 import { FilterFieldV2 } from "@/components/fields/FilterFieldV2";
@@ -60,17 +61,32 @@ export function OpportunityFilters({
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({});
-  const [useDistanceFilter, setUseDistanceFilter] = useState(false);
+
+  // Drawer filter mode overrides
+  const distanceColorPalette =
+    participantType?.toLowerCase() === "organisation" ? "green" : "blue";
+
+  // Use local state, but don't force push unmounted state to parent
+  const [useDistanceFilter, setUseDistanceFilter] = useState(() => {
+    // initialize from existing filter state conceptually (if passed down) or default false
+    return false;
+  });
   const [distanceKm, setDistanceKm] = useState(30);
+
   const [remoteSelected, setRemoteSelected] = useState(false);
   const [regionalSelected, setRegionalSelected] = useState(false);
   const [relocateSelected, setRelocateSelected] = useState(false);
-  const distanceColorPalette =
-    participantType?.toLowerCase() === "organisation" ? "green" : "blue";
-  
-  useEffect(() => {
+
+  // To avoid drawer unmount auto-reset, distance changes should be passed up locally or on apply
+  const syncDistanceToParent = React.useCallback(() => {
     onDistanceChange?.(useDistanceFilter ? distanceKm : null);
-  }, [useDistanceFilter, distanceKm, onDistanceChange]);
+  }, [onDistanceChange, useDistanceFilter, distanceKm]);
+
+  useEffect(() => {
+    if (!inDrawer) {
+      syncDistanceToParent();
+    }
+  }, [syncDistanceToParent, inDrawer]);
 
   // if (!facetValidationSuccess) {
   //   return <EmptyInbox />;
@@ -200,11 +216,14 @@ export function OpportunityFilters({
 
   const handleApplyFilter = () => {
     onFilterChange(localFilters);
+    syncDistanceToParent();
     onApply?.();
   };
 
   const handleResetInDrawer = () => {
     setLocalFilters({});
+    setUseDistanceFilter(false);
+    onDistanceChange?.(null);
     onReset?.();
   };
 
@@ -275,51 +294,51 @@ export function OpportunityFilters({
 
           <VStack align="stretch" gap={2}>
             <HStack justify="space-between">
-              <HStack gap={3}>
-                <input
-                  type="checkbox"
-                  checked={remoteSelected}
-                  onChange={(e) => setRemoteSelected(e.target.checked)}
-                />
-                <Text fontSize="sm" color="#52525B">
+              <Checkbox.Root
+                colorPalette={distanceColorPalette}
+                checked={remoteSelected}
+                onCheckedChange={(e) => setRemoteSelected(!!e.checked)}
+              >
+                <Checkbox.HiddenInput />
+                <Checkbox.Control />
+                <Checkbox.Label fontSize="sm" color="#52525B">
                   Remote
-                </Text>
-              </HStack>
-
+                </Checkbox.Label>
+              </Checkbox.Root>
               <Text fontSize="sm" color="#52525B">
                 20
               </Text>
             </HStack>
 
             <HStack justify="space-between">
-              <HStack gap={3}>
-                <input
-                  type="checkbox"
-                  checked={regionalSelected}
-                  onChange={(e) => setRegionalSelected(e.target.checked)}
-                />
-                <Text fontSize="sm" color="#52525B">
+              <Checkbox.Root
+                colorPalette={distanceColorPalette}
+                checked={regionalSelected}
+                onCheckedChange={(e) => setRegionalSelected(!!e.checked)}
+              >
+                <Checkbox.HiddenInput />
+                <Checkbox.Control />
+                <Checkbox.Label fontSize="sm" color="#52525B">
                   Regional
-                </Text>
-              </HStack>
-
+                </Checkbox.Label>
+              </Checkbox.Root>
               <Text fontSize="sm" color="#52525B">
                 10
               </Text>
             </HStack>
 
             <HStack justify="space-between">
-              <HStack gap={3}>
-                <input
-                  type="checkbox"
-                  checked={relocateSelected}
-                  onChange={(e) => setRelocateSelected(e.target.checked)}
-                />
-                <Text fontSize="sm" color="#52525B">
+              <Checkbox.Root
+                colorPalette={distanceColorPalette}
+                checked={relocateSelected}
+                onCheckedChange={(e) => setRelocateSelected(!!e.checked)}
+              >
+                <Checkbox.HiddenInput />
+                <Checkbox.Control />
+                <Checkbox.Label fontSize="sm" color="#52525B">
                   Happy to relocate
-                </Text>
-              </HStack>
-
+                </Checkbox.Label>
+              </Checkbox.Root>
               <Text fontSize="sm" color="#52525B">
                 10
               </Text>
@@ -351,7 +370,7 @@ export function OpportunityFilters({
             </HStack>
           </HStack>
 
-           {useDistanceFilter && (
+          {useDistanceFilter && (
             <Slider.Root
               colorPalette={distanceColorPalette}
               min={1}
@@ -371,7 +390,6 @@ export function OpportunityFilters({
           )}
         </VStack>
 
- 
         {allFacets.length > 0 && <Separator borderColor="#E4E4E7" />}
       </Box>
       {allFacets.map(({ key, facet, isQuestionnaire, sectionId }, index) => {

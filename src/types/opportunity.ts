@@ -45,7 +45,7 @@ export interface OpportunitySearchRequestBody {
   sort?: OpportunitySort;
   filters?: OpportunityFilters;
   folder_id?: number;
-  max_distance_km?: number; 
+  max_distance_km?: number;
 }
 
 export interface SearchResponse {
