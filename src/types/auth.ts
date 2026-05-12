@@ -9,6 +9,7 @@ export interface SignupData {
   email: string;
   password: string;
   user_types: string[];
+  recaptcha_token?: string;
 }
 
 export interface PasswordResetData {

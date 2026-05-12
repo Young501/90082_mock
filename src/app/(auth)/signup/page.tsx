@@ -21,6 +21,8 @@ import { PAGE_TITLES } from "@/utils/pageTitles";
 import { toast } from "react-toastify";
 // import { userTypesData } from "@/utils/constants";
 
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+
 interface FormData {
   email: string;
   password: string;
@@ -42,6 +44,7 @@ const SignupPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [userType, setUserType] = useState<string | null>(null);
   const { handleSignup } = useAuth();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   useEffect(() => {
     const userTypeParam = searchParams.get("user-type");
@@ -87,28 +90,37 @@ const SignupPage = () => {
     "organisation_terms_and_conditions"
   );
 
-  const onSubmit = async (data: FormData) => {
-    console.log("Sign up data", data);
-    if (!userType) return;
 
-    try {
-      setIsLoading(true);
-      await handleSignup({
-        email: data.email,
-        password: data.password,
-        user_types: [userType],
-        callback: () => {
-          router.push(
-            `/verify-email/sent/?email=${encodeURIComponent(data.email)}`
-          );
-        },
-      });
-    } catch {
-      // Error handled in auth hook
-    } finally {
-      setIsLoading(false);
+  const onSubmit = async (data: FormData) => {
+  if (!userType) return;
+
+  try {
+    setIsLoading(true);
+
+    if (!executeRecaptcha) {
+      toast.error("reCAPTCHA is not ready. Please try again.");
+      return;
     }
-  };
+
+    const recaptchaToken = await executeRecaptcha("signup");
+
+    await handleSignup({
+      email: data.email,
+      password: data.password,
+      user_types: [userType],
+      recaptcha_token: recaptchaToken,
+      callback: () => {
+        router.push(
+          `/verify-email/sent/?email=${encodeURIComponent(data.email)}`
+        );
+      },
+    });
+  } catch {
+    // Error handled in auth hook
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const isStudent = userType === "student";
   const isOrganisation = userType === "organisation";

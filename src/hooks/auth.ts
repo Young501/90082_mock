@@ -12,6 +12,8 @@ import { User } from "@/types/user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { toast } from "react-toastify";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { UserProfile } from "@/types/shared";
@@ -194,6 +196,9 @@ export const useAuth = () => {
   const queryClient = useQueryClient();
   const [errorMsg, setErrorMsg] = useState("");
 
+  const { executeRecaptcha } = useGoogleReCaptcha();
+
+
   const loginMutation = useMutation({
     mutationFn: async (data: LoginData) => {
       return apiRequest({
@@ -201,6 +206,7 @@ export const useAuth = () => {
         body: {
           email: data.email,
           password: data.password,
+          recaptcha_token: data.recaptcha_token,
         },
       });
     },
@@ -224,17 +230,19 @@ export const useAuth = () => {
     },
   });
 
-  const signupMutation = useMutation({
-    mutationFn: async (data: SignupData) => {
+    const signupMutation = useMutation({
+    mutationFn: async (data: SignupData & { recaptcha_token: string }) => {
       return apiRequest({
         endpoint: API_ENDPOINTS.SIGNUP,
         body: {
           email: data.email,
           password: data.password,
           user_types: data.user_types,
+          recaptcha_token: data.recaptcha_token,
         },
       });
     },
+    //
     onSuccess: (response) => {},
     onError: (error: any) => {
       const errorMessage = getErrorMessage(error, "Signup failed");
@@ -367,20 +375,31 @@ export const useAuth = () => {
     callback?: () => void;
   }) => {
     try {
+      if (!executeRecaptcha) {
+        toast.error("Please try again.");
+        return;
+      }
+
+      const recaptchaToken = await executeRecaptcha("login");
+
       await loginMutation.mutateAsync({
         email: data.email,
         password: data.password,
+        recaptcha_token: recaptchaToken,
       });
+
       data.callback?.();
     } catch (error: any) {
       throw error;
     }
   };
 
+
   const handleSignup = async (data: {
     email: string;
     password: string;
     user_types: string[];
+    recaptcha_token: string;
     callback?: () => void;
   }) => {
     try {
@@ -388,12 +407,16 @@ export const useAuth = () => {
         email: data.email,
         password: data.password,
         user_types: data.user_types,
+        recaptcha_token: data.recaptcha_token,
       });
+
       data.callback?.();
     } catch (error: any) {
+      console.error("Signup failed:", error);
       throw error;
     }
   };
+//
 
   const handleForgotPassword = async (data: {
     email: string;
