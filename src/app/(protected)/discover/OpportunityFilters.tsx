@@ -18,7 +18,7 @@ import type {
   OpportunityFilters,
   FilterValue,
 } from "@/types/opportunity";
-import { Filter, ChevronDown, ChevronUp, X } from "lucide-react";
+import { Filter, ChevronDown, ChevronUp, X, RotateCcw } from "lucide-react";
 import IconFilter from "@/components/Icons/IconFilter";
 import { EmptyInbox } from "@/app/(protected)/messaging/EmptyInbox";
 
@@ -39,8 +39,8 @@ interface OpportunityFiltersProps {
   inDrawer?: boolean;
   onApply?: () => void;
   onClose?: () => void;
-  facetValidationSuccess?: boolean;
-  participantType?: string;
+  userType?: string;
+  currentDistanceKm?: number | null;
   onDistanceChange?: (distanceKm: number | null) => void;
 }
 
@@ -54,8 +54,8 @@ export function OpportunityFilters({
   inDrawer = false,
   onApply,
   onClose,
-  facetValidationSuccess,
-  participantType,
+  userType,
+  currentDistanceKm,
   onDistanceChange,
 }: OpportunityFiltersProps) {
   const [expandedSections, setExpandedSections] = useState<
@@ -64,14 +64,15 @@ export function OpportunityFilters({
 
   // Drawer filter mode overrides
   const distanceColorPalette =
-    participantType?.toLowerCase() === "organisation" ? "green" : "blue";
+    userType?.toLowerCase() === "organisation" ? "green" : "blue";
 
   // Use local state, but don't force push unmounted state to parent
   const [useDistanceFilter, setUseDistanceFilter] = useState(() => {
-    // initialize from existing filter state conceptually (if passed down) or default false
-    return false;
+    return currentDistanceKm !== undefined && currentDistanceKm !== null;
   });
-  const [distanceKm, setDistanceKm] = useState(30);
+  const [distanceKm, setDistanceKm] = useState(() => {
+    return currentDistanceKm ?? 30;
+  });
 
   const [remoteSelected, setRemoteSelected] = useState(false);
   const [regionalSelected, setRegionalSelected] = useState(false);
@@ -82,15 +83,14 @@ export function OpportunityFilters({
     onDistanceChange?.(useDistanceFilter ? distanceKm : null);
   }, [onDistanceChange, useDistanceFilter, distanceKm]);
 
+  // Debounce API calls when sliding in non-drawer mode
   useEffect(() => {
-    if (!inDrawer) {
+    if (inDrawer) return;
+    const timeoutId = window.setTimeout(() => {
       syncDistanceToParent();
-    }
+    }, 250);
+    return () => window.clearTimeout(timeoutId);
   }, [syncDistanceToParent, inDrawer]);
-
-  // if (!facetValidationSuccess) {
-  //   return <EmptyInbox />;
-  // }
 
   // In drawer mode, keep pending filters in local state; apply only on "Apply filter"
   const [localFilters, setLocalFilters] = useState<OpportunityFilters>({});
@@ -151,7 +151,12 @@ export function OpportunityFilters({
   };
 
   const effectiveFilters = inDrawer ? localFilters : filters;
+  const hasAnyLocalSelection =
+    remoteSelected || regionalSelected || relocateSelected || useDistanceFilter;
   const hasLocalFilters = inDrawer ? !isEmptyFilters(localFilters) : hasFilters;
+
+  const shouldShowResetInDrawer = hasLocalFilters || hasAnyLocalSelection;
+  const shouldShowGlobalReset = hasFilters || hasAnyLocalSelection;
 
   useEffect(() => {
     if (!facets) return;
@@ -220,10 +225,28 @@ export function OpportunityFilters({
     onApply?.();
   };
 
+  const clearLocalStates = () => {
+    setRemoteSelected(false);
+    setRegionalSelected(false);
+    setRelocateSelected(false);
+    setUseDistanceFilter(false);
+  };
+
+  useEffect(() => {
+    if (!shouldShowGlobalReset && !inDrawer) {
+      clearLocalStates();
+    }
+  }, [shouldShowGlobalReset, inDrawer]);
+
   const handleResetInDrawer = () => {
     setLocalFilters({});
-    setUseDistanceFilter(false);
+    clearLocalStates();
     onDistanceChange?.(null);
+    onReset?.();
+  };
+
+  const handleGlobalReset = () => {
+    clearLocalStates();
     onReset?.();
   };
 
@@ -364,7 +387,7 @@ export function OpportunityFilters({
                   setUseDistanceFilter(details.checked)
                 }
               >
-                <Switch.HiddenInput />
+                <Switch.HiddenInput aria-label="Filter by distance from your location" />
                 <Switch.Control />
               </Switch.Root>
             </HStack>
@@ -514,16 +537,26 @@ export function OpportunityFilters({
             >
               Apply filter
             </Button>
-            {hasLocalFilters && (
+            {shouldShowResetInDrawer && (
               <Button
                 variant="ghost"
                 w="100%"
                 onClick={handleResetInDrawer}
                 disabled={isLoading}
-                color="#3F3F46"
+                color="#52525B"
+                _hover={{ textDecoration: "none", bg: "#F4F4F5" }}
                 fontSize="14px"
+                h="48px"
+                borderRadius="xl"
+                borderWidth="1px"
+                borderColor="#D4D4D8"
+                borderStyle="solid"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
               >
-                Reset all filters
+                <RotateCcw size={16} />
+                <Text ml={2}>Reset all filters</Text>
               </Button>
             )}
           </VStack>
@@ -553,26 +586,29 @@ export function OpportunityFilters({
           </HStack>
         </HStack>
 
-        {/* {facetValidationSuccess ? (
-          filterContent
-        ) : (
-          <Box>
-            <EmptyInbox description="No filters available to show" />
-          </Box>
-        )} */}
         {filterContent}
 
-        {hasFilters && (
+        {shouldShowGlobalReset && (
           <Box pt={2}>
             <Button
               variant="ghost"
               w="100%"
-              onClick={onReset}
+              onClick={handleGlobalReset}
               disabled={isLoading}
-              color="#3F3F46"
+              color="#52525B"
+              _hover={{ textDecoration: "none", bg: "#F4F4F5" }}
               fontSize="14px"
+              h="40px"
+              borderRadius="xl"
+              borderWidth="1px"
+              borderColor="#D4D4D8"
+              borderStyle="solid"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
             >
-              Reset all filters
+              <RotateCcw size={16} />
+              <Text ml={2}>Reset all filters</Text>
             </Button>
           </Box>
         )}

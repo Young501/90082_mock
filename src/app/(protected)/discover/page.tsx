@@ -266,32 +266,8 @@ export default function DiscoveryPage() {
     }
   }, [sort?.by, handleSortChange]);
 
-  const facetValidationSuccess = useMemo(() => {
-    const hasOnboardingWithCounts = Object.keys(
-      facets?.facets?.onboarding || {}
-    ).some((key) =>
-      facets?.facets?.onboarding?.[key]?.options?.some(
-        (option: { count: number }) => option.count > 0
-      )
-    );
-    const hasQuestionnaireWithCounts = Object.keys(
-      facets?.facets?.questionnaire || {}
-    ).some((key) =>
-      facets?.facets?.questionnaire?.[key]?.options?.some(
-        (option: { count: number }) => option.count > 0
-      )
-    );
-
-    const hasAnyFacets = hasOnboardingWithCounts || hasQuestionnaireWithCounts;
-
-    if (hasAnyFacets || isLoadingSearch) {
-      return true;
-    }
-
-    return false;
-  }, [facets, isLoadingSearch]);
-
-  console.log("facetValidationSuccess", facetValidationSuccess);
+  const hasAnyActiveFilters =
+    hasFilters || (maxDistanceKm !== null && maxDistanceKm !== undefined);
 
   const { handleEnroll, isSubmitting } = useHandleEnroll({
     isEligible,
@@ -381,19 +357,20 @@ export default function DiscoveryPage() {
                   flexDirection="column"
                   gap={5}
                 >
-                  {/* {facetValidationSuccess && ( */}
                   <OpportunityFilters
                     facets={facets}
                     filters={filters}
                     onFilterChange={handleFilterChange}
-                    onReset={handleResetV2}
-                    hasFilters={hasFilters}
+                    onReset={() => {
+                      handleResetV2();
+                      setMaxDistanceKm(null);
+                    }}
+                    hasFilters={hasAnyActiveFilters}
                     isLoading={isLoadingSearch}
-                    facetValidationSuccess={facetValidationSuccess}
-                    participantType={userType ?? undefined}
+                    userType={userType ?? undefined}
+                    currentDistanceKm={maxDistanceKm}
                     onDistanceChange={setMaxDistanceKm}
                   />
-                  {/* )} */}
                   <DiscoveryFolderCard
                     folders={discoveryFolders}
                     isLoading={isLoadingFolders}
@@ -434,13 +411,11 @@ export default function DiscoveryPage() {
                       <ChevronRight size={20} color="#3F3F46" />
                     </Box>
                   </Button>
-                  {facetValidationSuccess && (
-                    <FilterButton
-                      flex={1}
-                      label="Filter"
-                      onClick={() => setFilterSheetOpen(true)}
-                    />
-                  )}
+                  <FilterButton
+                    flex={1}
+                    label="Filter"
+                    onClick={() => setFilterSheetOpen(true)}
+                  />
                 </HStack>
 
                 {folderSheetOpen && (
@@ -512,12 +487,16 @@ export default function DiscoveryPage() {
                         facets={facets}
                         filters={filters}
                         onFilterChange={handleFilterChange}
-                        onReset={handleResetV2}
-                        hasFilters={hasFilters}
+                        onReset={() => {
+                          handleResetV2();
+                          setMaxDistanceKm(null);
+                        }}
+                        hasFilters={hasAnyActiveFilters}
                         isLoading={isLoadingSearch}
                         onApply={() => setFilterSheetOpen(false)}
                         onClose={() => setFilterSheetOpen(false)}
-                        participantType={userType ?? undefined}
+                        userType={userType ?? undefined}
+                        currentDistanceKm={maxDistanceKm}
                         onDistanceChange={setMaxDistanceKm}
                       />
                     </Box>
@@ -558,9 +537,11 @@ export default function DiscoveryPage() {
                 <DiscoveryResultBox
                   results={searchResults}
                   isLoading={isLoadingSearch}
-                  hasSearched={hasFilters}
+                  hasSearched={hasAnyActiveFilters}
                   show={
-                    searchResults.length > 0 || hasFilters || isLoadingSearch
+                    searchResults.length > 0 ||
+                    hasAnyActiveFilters ||
+                    isLoadingSearch
                   }
                   userType={participantType!}
                   query={query ?? ""}
