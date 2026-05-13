@@ -458,8 +458,11 @@ export function ProfileEditDialog({
     const resumeFile = data.resume instanceof File ? data.resume : null;
     const logoFile = data.logo instanceof File ? data.logo : null;
 
+    const hasDirtyField = (fields: Record<string, any>) =>
+      Object.keys(fields).some((k) => k in dirtyFields);
+
     try {
-      if (Object.keys(userFields).length > 0) {
+      if (Object.keys(userFields).length > 0 && hasDirtyField(userFields)) {
         const cleaned = Object.fromEntries(
           Object.entries(userFields).filter(
             ([_, v]) => v !== null && v !== undefined && v !== ""
@@ -486,7 +489,11 @@ export function ProfileEditDialog({
         await studentProfileUpdate.mutateAsync(allStudentFields);
       }
 
-      if (isOrganisationUser && Object.keys(orgMemberFields).length > 0) {
+      if (
+        isOrganisationUser &&
+        Object.keys(orgMemberFields).length > 0 &&
+        hasDirtyField(orgMemberFields)
+      ) {
         const cleaned = Object.fromEntries(
           Object.entries(orgMemberFields).filter(
             ([_, v]) => v !== null && v !== undefined && v !== ""
