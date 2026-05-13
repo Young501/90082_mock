@@ -15,6 +15,7 @@ interface UseOpportunityFilterOptions {
   isEnrolled?: boolean;
   isEnrollmentReady?: boolean;
   folderId?: number | null;
+  maxDistanceKm?: number | null;
 }
 
 // Helper function to build request body with nesting
@@ -23,7 +24,8 @@ const buildRequestBody = (
   filters: OpportunityFilters,
   query?: string,
   sort?: OpportunitySort,
-  folderId?: number | null
+  folderId?: number | null,
+  maxDistanceKm?: number | null
 ): OpportunitySearchRequestBody => {
   const body: OpportunitySearchRequestBody = {
     participant_type: participantType,
@@ -45,6 +47,10 @@ const buildRequestBody = (
     body.folder_id = folderId;
   }
 
+  if (maxDistanceKm != null) {
+    body.max_distance_km = maxDistanceKm;
+  }
+
   return body;
 };
 
@@ -52,7 +58,7 @@ export const useOpportunityFilter = (
   opportunityId?: string,
   opts: UseOpportunityFilterOptions = {}
 ) => {
-  const { isEnrolled, isEnrollmentReady, folderId } = opts;
+  const { isEnrolled, isEnrollmentReady, folderId, maxDistanceKm } = opts;
   const { user } = useAuthStore();
 
   const [participantType, setParticipantType] = useState<string>("");
@@ -84,7 +90,8 @@ export const useOpportunityFilter = (
       filters,
       query,
       sort ?? undefined,
-      folderId
+      folderId,
+      maxDistanceKm
     );
   }, [
     participantType,
@@ -92,6 +99,7 @@ export const useOpportunityFilter = (
     query,
     sort,
     folderId,
+    maxDistanceKm,
     isEnrollmentReady,
     isEnrolled,
   ]);
