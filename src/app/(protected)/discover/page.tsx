@@ -367,7 +367,6 @@ export default function DiscoveryPage() {
                     }}
                     hasFilters={hasAnyActiveFilters}
                     isLoading={isLoadingSearch}
-                    userType={userType ?? undefined}
                     currentDistanceKm={maxDistanceKm}
                     onDistanceChange={setMaxDistanceKm}
                   />
@@ -492,7 +491,6 @@ export default function DiscoveryPage() {
                         isLoading={isLoadingSearch}
                         onApply={() => setFilterSheetOpen(false)}
                         onClose={() => setFilterSheetOpen(false)}
-                        userType={userType ?? undefined}
                         currentDistanceKm={maxDistanceKm}
                         onDistanceChange={setMaxDistanceKm}
                       />
