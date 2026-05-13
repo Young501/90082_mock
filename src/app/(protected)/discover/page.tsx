@@ -487,10 +487,7 @@ export default function DiscoveryPage() {
                         facets={facets}
                         filters={filters}
                         onFilterChange={handleFilterChange}
-                        onReset={() => {
-                          handleResetV2();
-                          setMaxDistanceKm(null);
-                        }}
+                        onReset={handleResetV2}
                         hasFilters={hasAnyActiveFilters}
                         isLoading={isLoadingSearch}
                         onApply={() => setFilterSheetOpen(false)}
