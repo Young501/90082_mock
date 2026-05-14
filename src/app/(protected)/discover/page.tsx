@@ -262,7 +262,7 @@ export default function DiscoveryPage() {
 
   useEffect(() => {
     if (!sort?.by) {
-      handleSortChange("distance");
+      handleSortChange("match");
     }
   }, [sort?.by, handleSortChange]);
 

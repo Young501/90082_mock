@@ -29,7 +29,7 @@ export interface ArrayFilterValue {
 
 export type FilterValue = string[] | ArrayFilterValue | boolean | number;
 
-export type OpportunitySortBy = "distance" | "best_match";
+export type OpportunitySortBy = "distance" | "match";
 
 export interface OpportunitySort {
   by: OpportunitySortBy;

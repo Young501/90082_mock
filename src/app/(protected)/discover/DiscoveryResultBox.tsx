@@ -235,8 +235,8 @@ export function DiscoveryResultBox({
             value={sortBy ?? null}
             onChange={onSortChange}
             options={[
+              { label: "Best Match", value: "match" },
               { label: "Distance", value: "distance" },
-              // { label: "Best Match", value: "best_match" },
             ]}
           />
         )}
