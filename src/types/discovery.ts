@@ -108,7 +108,6 @@ export interface OrganisationProfile {
   allow_contact?: boolean;
   contact_email?: string;
   description?: string;
-  matchPercentage?: number;
   match_score?: number;
   folder_member_id?: number;
   members?: {

@@ -79,7 +79,7 @@ export function OrganisationCard({
     sectorText && industryText
       ? `${sectorText} (${industryText})`
       : sectorText || industryText || "";
-  const matchPercentage = organisation.match_score;
+  const matchScore = organisation.match_score;
   const locationText = formatLocationDisplay(organisation.location);
   const distanceText =
     organisation.distance_km != null
@@ -218,7 +218,7 @@ export function OrganisationCard({
                   </Tooltip>
                 </HStack>
               )}
-              {matchPercentage != null && (
+              {matchScore != null && (
                 <Box
                   alignSelf="flex-start"
                   px={1.5}
@@ -230,7 +230,7 @@ export function OrganisationCard({
                   color="#116932"
                   boxShadow="0px 0px 1px 0px #D4D4D8 inset"
                 >
-                  {matchPercentage}% Match
+                  {matchScore}% Match
                 </Box>
               )}
             </VStack>
