@@ -116,7 +116,6 @@ export const MessageBox = ({
         justifyContent={isMine ? "flex-end" : "flex-start"}
         onMouseEnter={onHoverIn}
         onMouseLeave={onHoverOut}
-        onClick={onMessageClick}
       >
         <Box
           maxW="100%"
@@ -181,6 +180,8 @@ export const MessageBox = ({
                       borderWidth="1px"
                       borderColor={bubbleBorder}
                       style={{ borderRadius: bubbleBorderRadius }}
+                      cursor={isSinglePane ? "pointer" : "default"}
+                      onClick={isSinglePane ? onMessageClick : undefined}
                     >
                       {message.replyToPreview && (
                         <ReplyPreview

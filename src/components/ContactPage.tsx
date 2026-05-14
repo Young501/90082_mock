@@ -331,7 +331,6 @@ export function ContactPage({
       justifyContent="center"
       bg="blackAlpha.600"
       p={4}
-      onClick={(e) => e.target === e.currentTarget && onBack()}
     >
       <Box
         bg="white"
