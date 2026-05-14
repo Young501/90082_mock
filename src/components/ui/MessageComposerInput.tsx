@@ -9,13 +9,15 @@ import {
   Text,
   IconButton,
 } from "@chakra-ui/react";
-import { Paperclip, FileText, Images } from "lucide-react";
+import { Paperclip, FileText, Images, AlertCircle } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { MenuPopover } from "./MenuPopover";
+import { Tooltip } from "./tooltip";
 
 export interface MessageComposerInputProps {
   value: string;
   onChange: (value: string) => void;
+  error?: string | null;
   placeholder?: string;
   onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   attachmentDrawer?: boolean;
@@ -105,6 +107,7 @@ const defaultAttachmentOptions = (
 export function MessageComposerInput({
   value,
   onChange,
+  error,
   placeholder = "Type your message...",
   onKeyDown,
   attachmentDrawer = false,
@@ -137,7 +140,7 @@ export function MessageComposerInput({
       minW={0}
       borderRadius="xl"
       borderWidth="1px"
-      borderColor="#D4D4D8"
+      borderColor={error ? "red.400" : "#D4D4D8"}
       bg="white"
       px={paddingX}
       minH="40px"
@@ -181,6 +184,24 @@ export function MessageComposerInput({
           "&::-webkit-scrollbar-track": { background: "transparent" },
         }}
       />
+
+      {error && (
+        <Tooltip content={error} positioning={{ placement: "bottom" }}>
+          <Box
+            as="span"
+            role="img"
+            aria-label={error}
+            color="red.500"
+            mx={2}
+            display="flex"
+            alignItems="center"
+            flexShrink={0}
+          >
+            <AlertCircle size={16} />
+          </Box>
+        </Tooltip>
+      )}
+
       <MenuPopover
         variant={attachmentDrawer ? "drawer" : "popover"}
         placement="top-start"

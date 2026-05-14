@@ -1,6 +1,18 @@
 import * as yup from "yup";
 import { Question } from "@/types/onboarding";
 import { isDisallowedDomain } from "@/utils/constants";
+import { validateContent, getContentValidationMessage } from "@/utils/contentValidation";
+
+const contentValidationSchema = yup
+  .string()
+  .test("content-validation", "", function (value) {
+    if (!value) return true;
+    const result = validateContent(value);
+    if (result.status === "error") {
+      return this.createError({ message: getContentValidationMessage(result.type) });
+    }
+    return true;
+  });
 
 type ParentChainItem = { field: string; value: any };
 
@@ -46,10 +58,8 @@ export const createPageSchema = (
   Object.entries(fieldParentChains).forEach(
     ([fieldName, { question, chains }]) => {
       let fieldSchema: any;
-      if (question.type === "textarea") {
-        fieldSchema = yup.string();
-      } else if (question.type === "text") {
-        fieldSchema = yup.string();
+      if (question.type === "textarea" || question.type === "text") {
+        fieldSchema = contentValidationSchema;
       } else if (question.type === "abn_lookup") {
         fieldSchema = yup
           .string()
@@ -439,9 +449,8 @@ export const changePasswordSchema = yup.object({
 
 export const emailContactValidationSchema = yup.object().shape({
   other_user_id: yup.number().required("Recipient is required"),
-  subject: yup.string().default(""),
-  message: yup
-    .string()
+  subject: contentValidationSchema.default(""),
+  message: contentValidationSchema
     .required("Message is required")
     .min(1, "Message cannot be empty"),
 });

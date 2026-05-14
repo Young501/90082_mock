@@ -177,6 +177,7 @@ export function ProfileEditDialog({
   } = useForm({
     resolver: customResolverFn,
     defaultValues: initialValues as Record<string, any>,
+    mode: "onChange",
   });
 
   const profilePictureValue = watch("profile_picture");
