@@ -15,7 +15,6 @@ import {
   BookOpen,
   Calendar,
   Home,
-  Dot,
 } from "lucide-react";
 import { ContactPage } from "@/components/ContactPage";
 import { useAuthStore } from "@/store/authStore";
@@ -171,7 +170,7 @@ export function StudentCard({
                 src={getProfileImage() || null}
                 alt={getDisplayName()}
                 fallback={getDisplayName()}
-                size="65px"
+                size="80px"
                 borderRadius="12px"
               />
 
@@ -200,6 +199,22 @@ export function StudentCard({
                       {universityName}
                     </Text>
                   </Tooltip>
+                )}
+                {matchScore != null && (
+                  <Box
+                    alignSelf="flex-start"
+                    mt={1}
+                    px={1.5}
+                    py={0.5}
+                    bg="#DCFCE7"
+                    borderRadius="md"
+                    fontSize="xs"
+                    fontWeight="500"
+                    color="#116932"
+                    boxShadow="0px 0px 1px 0px #D4D4D8 inset"
+                  >
+                    {matchScore}% Match
+                  </Box>
                 )}
               </VStack>
             </HStack>
@@ -291,41 +306,17 @@ export function StudentCard({
                     </Tooltip>
                   )}
                   {locationText && distanceText && (
-                    <Dot size={20} color="#A1A1AA" />
+                    <Text color="#A1A1AA" fontWeight="600">
+                      ·
+                    </Text>
                   )}
                   {distanceText && (
-                    <Box
-                      flexShrink={0}
-                      px={1.5}
-                      py={0.5}
-                      bg="#DCFCE7"
-                      borderRadius="md"
-                      fontSize="xs"
-                      fontWeight="500"
-                      color="#116932"
-                      boxShadow="0px 0px 1px 0px #D4D4D8 inset"
-                    >
+                    <Text flexShrink={0} fontWeight="600" color="#52525B">
                       {distanceText}
-                    </Box>
+                    </Text>
                   )}
                 </HStack>
               </HStack>
-            )}
-
-            {matchScore != null && (
-              <Box
-                alignSelf="flex-start"
-                px={1.5}
-                py={0.5}
-                bg="#DCFCE7"
-                borderRadius="md"
-                fontSize="xs"
-                fontWeight="500"
-                color="#116932"
-                boxShadow="0px 0px 1px 0px #D4D4D8 inset"
-              >
-                {matchScore}% Match
-              </Box>
             )}
 
             {availabilityText && (
