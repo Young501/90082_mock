@@ -211,7 +211,7 @@ export function OrganisationCard({
                   </Tooltip>
                 </HStack>
               )}
-              {matchScore != null && (
+              {matchScore != null && matchScore > 0 && (
                 <Box
                   alignSelf="flex-start"
                   px={1.5}
