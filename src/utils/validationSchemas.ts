@@ -3,6 +3,25 @@ import { Question } from "@/types/onboarding";
 import { isDisallowedDomain } from "@/utils/constants";
 import { validateContent } from "@/utils/contentValidation";
 
+const contentValidationSchema = yup
+  .string()
+  .test("content-validation", "", function (value) {
+    if (!value) return true;
+    const result = validateContent(value);
+    if (result.status === "error") {
+      switch (result.type) {
+        case "profanity":
+          return this.createError({ message: "Please keep your language appropriate" });
+        case "spam-lowercase":
+          return this.createError({ message: "Please provide a meaningful response" });
+        case "spam-uppercase":
+          return this.createError({ message: "Please avoid repeating the same character" });
+
+      }
+    }
+    return true;
+  });
+
 type ParentChainItem = { field: string; value: any };
 
 export const createPageSchema = (
@@ -47,74 +66,8 @@ export const createPageSchema = (
   Object.entries(fieldParentChains).forEach(
     ([fieldName, { question, chains }]) => {
       let fieldSchema: any;
-      if (question.type === "textarea") {
-        fieldSchema = yup
-          .string()
-          .test(
-            "content-validation",
-            "Please keep your language appropriate and avoid spam-like content",
-            function (value) {
-              if (!value) return true;
-
-              const result = validateContent(value);
-              if (result.status === "error") {
-                switch (result.type) {
-                  case "profanity":
-                    return this.createError({
-                      message: "Please keep your language appropriate",
-                    });
-                  case "spam-lowercase":
-                    return this.createError({
-                      message: "Please provide a meaningful response",
-                    });
-                  case "spam-uppercase":
-                    return this.createError({
-                      message: "Please avoid writing in all capitals",
-                    });
-                  case "link":
-                    return this.createError({
-                      message: "Please avoid including links in this field",
-                    });
-                }
-              }
-
-              return true;
-            }
-          );
-      } else if (question.type === "text") {
-        fieldSchema = yup
-          .string()
-          .test(
-            "content-validation",
-            "Please keep your language appropriate and avoid spam-like content",
-            function (value) {
-              if (!value) return true;
-
-              const result = validateContent(value);
-              if (result.status === "error") {
-                switch (result.type) {
-                  case "profanity":
-                    return this.createError({
-                      message: "Please keep your language appropriate",
-                    });
-                  case "spam-lowercase":
-                    return this.createError({
-                      message: "Please provide a meaningful response",
-                    });
-                  case "spam-uppercase":
-                    return this.createError({
-                      message: "Please avoid writing in all capitals",
-                    });
-                  case "link":
-                    return this.createError({
-                      message: "Please avoid including links in this field",
-                    });
-                }
-              }
-
-              return true;
-            }
-          );
+      if (question.type === "textarea" || question.type === "text") {
+        fieldSchema = contentValidationSchema;
       } else if (question.type === "abn_lookup") {
         fieldSchema = yup
           .string()
@@ -504,9 +457,8 @@ export const changePasswordSchema = yup.object({
 
 export const emailContactValidationSchema = yup.object().shape({
   other_user_id: yup.number().required("Recipient is required"),
-  subject: yup.string().default(""),
-  message: yup
-    .string()
+  subject: contentValidationSchema.default(""),
+  message: contentValidationSchema
     .required("Message is required")
     .min(1, "Message cannot be empty"),
 });

@@ -17,7 +17,7 @@ import { Tooltip } from "./tooltip";
 export interface MessageComposerInputProps {
   value: string;
   onChange: (value: string) => void;
-  error: string | null;
+  error?: string | null;
   placeholder?: string;
   onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   attachmentDrawer?: boolean;
@@ -186,7 +186,7 @@ export function MessageComposerInput({
       />
 
       {error && (
-        <Tooltip content={error} positioning={{ placement: "bottom" }} open={true}>
+        <Tooltip content={error} positioning={{ placement: "bottom" }}>
           <IconButton
             aria-label={error}
             variant={"ghost"}

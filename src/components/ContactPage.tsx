@@ -267,6 +267,7 @@ export function ContactPage({
       subject: getDefaultSubject(),
       message: "",
     },
+    mode: "onChange",
   });
 
   const selectedMemberId = watch("other_user_id");

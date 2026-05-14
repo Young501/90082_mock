@@ -95,19 +95,9 @@ export const ConversationView = ({
   };
 
   const handleOnChange = (value: string) => {
-    // Clears error when typing new character
-    if (error) {
-      setError(null);
-    }
-
-    onComposerTextChange(value);
-  };
-
-  const handleSendWithFiles = () => {
-    // Validate the text content before sending
-    const validationResult = validateContent(composerText);
-    if (validationResult.status === "error") {
-      switch (validationResult.type) {
+    const result = validateContent(value);
+    if (result.status === "error") {
+      switch (result.type) {
         case "profanity":
           setError("Please keep your language appropriate");
           break;
@@ -115,15 +105,17 @@ export const ConversationView = ({
           setError("Please provide a meaningful response");
           break;
         case "spam-uppercase":
-          setError("Please avoid writing in all capitals");
-          break;
-        case "link":
-          setError("Please avoid including links in this field");
+          setError("Please avoid repeating the same character");
           break;
       }
-
-      return;
+    } else {
+      setError(null);
     }
+    onComposerTextChange(value);
+  };
+
+  const handleSendWithFiles = () => {
+    if (error) return;
 
     const replyToId = replyToMessage ? Number(replyToMessage.id) : undefined;
     onSendMessage(
