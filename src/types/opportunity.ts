@@ -27,17 +27,7 @@ export interface ArrayFilterValue {
   mode: "and" | "or";
 }
 
-export interface RangeFilterValue {
-  min?: number;
-  max?: number;
-}
-
-export type FilterValue =
-  | string[]
-  | ArrayFilterValue
-  | RangeFilterValue
-  | boolean
-  | number;
+export type FilterValue = string[] | ArrayFilterValue | boolean | number;
 
 export type OpportunitySortBy = "distance" | "match";
 
