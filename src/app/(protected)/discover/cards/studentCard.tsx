@@ -200,7 +200,7 @@ export function StudentCard({
                     </Text>
                   </Tooltip>
                 )}
-                {matchScore != null && (
+                {matchScore != null && matchScore > 0 && (
                   <Box
                     alignSelf="flex-start"
                     mt={1}
