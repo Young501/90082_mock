@@ -11,19 +11,11 @@ import {
 
 import type { StudentProfile, OrganisationProfile } from "@/types/discovery";
 
-export const DEFAULT_DISTANCE_MAX = 200;
-const defaultDistanceFilter = (): OpportunityFilters => ({
-  _distance_km: { max: DEFAULT_DISTANCE_MAX },
-});
-const isDefaultDistance = (v: unknown) =>
-  typeof v === "object" &&
-  v !== null &&
-  (v as { max?: number }).max === DEFAULT_DISTANCE_MAX;
-
 interface UseOpportunityFilterOptions {
   isEnrolled?: boolean;
   isEnrollmentReady?: boolean;
   folderId?: number | null;
+  maxDistanceKm?: number | null;
 }
 
 // Helper function to build request body with nesting
@@ -32,7 +24,8 @@ const buildRequestBody = (
   filters: OpportunityFilters,
   query?: string,
   sort?: OpportunitySort,
-  folderId?: number | null
+  folderId?: number | null,
+  maxDistanceKm?: number | null
 ): OpportunitySearchRequestBody => {
   const body: OpportunitySearchRequestBody = {
     participant_type: participantType,
@@ -54,6 +47,10 @@ const buildRequestBody = (
     body.folder_id = folderId;
   }
 
+  if (maxDistanceKm != null) {
+    body.max_distance_km = maxDistanceKm;
+  }
+
   return body;
 };
 
@@ -61,11 +58,8 @@ export const useOpportunityFilter = (
   opportunityId?: string,
   opts: UseOpportunityFilterOptions = {}
 ) => {
-  const { isEnrolled, isEnrollmentReady, folderId } = opts;
-  const { user, userProfile } = useAuthStore();
-  const hasLocation = !!(
-    user?.userDetailsV2?.location || userProfile?.organisation?.location
-  );
+  const { isEnrolled, isEnrollmentReady, folderId, maxDistanceKm } = opts;
+  const { user } = useAuthStore();
 
   const [participantType, setParticipantType] = useState<string>("");
   const [filters, setFilters] = useState<OpportunityFilters>({});
@@ -74,17 +68,6 @@ export const useOpportunityFilter = (
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [facets, setFacets] = useState<FacetsResponse | null>(null);
-
-  // seed so slider can never display a radius that backend isn't applying
-  useEffect(() => {
-    if (hasLocation && filters["_distance_km"] === undefined) {
-      setFilters((prev) =>
-        prev["_distance_km"] === undefined
-          ? { ...prev, ...defaultDistanceFilter() }
-          : prev
-      );
-    }
-  }, [hasLocation, filters]);
 
   const userType = user?.user_types?.[0];
   const targetParticipantType = useMemo(() => {
@@ -107,7 +90,8 @@ export const useOpportunityFilter = (
       filters,
       query,
       sort ?? undefined,
-      folderId
+      folderId,
+      maxDistanceKm
     );
   }, [
     participantType,
@@ -115,6 +99,7 @@ export const useOpportunityFilter = (
     query,
     sort,
     folderId,
+    maxDistanceKm,
     isEnrollmentReady,
     isEnrolled,
   ]);
@@ -174,11 +159,11 @@ export const useOpportunityFilter = (
   }, []);
 
   const handleReset = useCallback(() => {
-    setFilters(hasLocation ? defaultDistanceFilter() : {});
+    setFilters({});
     setQuery("");
     setSort(null);
     setCurrentPage(1);
-  }, [hasLocation]);
+  }, []);
 
   const totalPages = useMemo(() => {
     const count = searchData?.page.count || 0;
@@ -187,11 +172,7 @@ export const useOpportunityFilter = (
   }, [searchData?.page.count, pageSize]);
 
   const hasFilters = useMemo(() => {
-    // default _distance_km is rest state, not user-applied
-    const meaningful = Object.entries(filters).some(([k, v]) =>
-      k === "_distance_km" ? !isDefaultDistance(v) : true
-    );
-    return meaningful || query !== "";
+    return Object.keys(filters).length > 0 || query !== "";
   }, [filters, query]);
 
   // Extract data with fallbacks

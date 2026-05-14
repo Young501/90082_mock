@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   VStack,
-  Flex,
   Text,
   HStack,
   Box,
   Separator,
   IconButton,
+  Checkbox,
+  Slider,
 } from "@chakra-ui/react";
 import { Button } from "@/components/ui/Button";
 import { FilterFieldV2 } from "@/components/fields/FilterFieldV2";
@@ -15,24 +16,11 @@ import type {
   OpportunityFilters,
   FilterValue,
 } from "@/types/opportunity";
-import { Filter, ChevronDown, ChevronUp, X, MapPin } from "lucide-react";
+import { ChevronDown, ChevronUp, X, RotateCcw } from "lucide-react";
 import IconFilter from "@/components/Icons/IconFilter";
-import { EmptyInbox } from "@/app/(protected)/messaging/EmptyInbox";
-import { useAuthStore } from "@/store";
-import { DEFAULT_DISTANCE_MAX } from "@/hooks/useOpportunityFilter";
 
 function isEmptyFilters(f: OpportunityFilters): boolean {
-  const keys = Object.keys(f).filter((k) => {
-    if (k === "questionnaire") return false;
-    // default _distance_km is rest state, not user-applied
-    if (k === "_distance_km") {
-      return (
-        (f._distance_km as { max?: number } | undefined)?.max !==
-        DEFAULT_DISTANCE_MAX
-      );
-    }
-    return true;
-  });
+  const keys = Object.keys(f).filter((k) => k !== "questionnaire");
   const hasQuestionnaire =
     f.questionnaire && Object.keys(f.questionnaire).length > 0;
   return keys.length === 0 && !hasQuestionnaire;
@@ -48,7 +36,8 @@ interface OpportunityFiltersProps {
   inDrawer?: boolean;
   onApply?: () => void;
   onClose?: () => void;
-  facetValidationSuccess?: boolean;
+  currentDistanceKm?: number | null;
+  onDistanceChange?: (distanceKm: number | null) => void;
 }
 
 export function OpportunityFilters({
@@ -61,21 +50,35 @@ export function OpportunityFilters({
   inDrawer = false,
   onApply,
   onClose,
-  facetValidationSuccess,
+  currentDistanceKm,
+  onDistanceChange,
 }: OpportunityFiltersProps) {
-  const user = useAuthStore((s) => s.user);
-  const userProfile = useAuthStore((s) => s.userProfile);
-  const hasLocation = !!(
-    user?.userDetailsV2?.location || userProfile?.organisation?.location
-  );
-
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({});
 
-  // if (!facetValidationSuccess) {
-  //   return <EmptyInbox />;
-  // }
+
+  // Use local state, but don't force push unmounted state to parent
+  const [useDistanceFilter, setUseDistanceFilter] = useState(() => {
+    return currentDistanceKm !== undefined && currentDistanceKm !== null;
+  });
+  const [distanceKm, setDistanceKm] = useState(() => {
+    return currentDistanceKm ?? 30;
+  });
+
+  // To avoid drawer unmount auto-reset, distance changes should be passed up locally or on apply
+  const syncDistanceToParent = React.useCallback(() => {
+    onDistanceChange?.(useDistanceFilter ? distanceKm : null);
+  }, [onDistanceChange, useDistanceFilter, distanceKm]);
+
+  // Debounce API calls when sliding in non-drawer mode
+  useEffect(() => {
+    if (inDrawer) return;
+    const timeoutId = window.setTimeout(() => {
+      syncDistanceToParent();
+    }, 250);
+    return () => window.clearTimeout(timeoutId);
+  }, [syncDistanceToParent, inDrawer]);
 
   // In drawer mode, keep pending filters in local state; apply only on "Apply filter"
   const [localFilters, setLocalFilters] = useState<OpportunityFilters>({});
@@ -136,7 +139,11 @@ export function OpportunityFilters({
   };
 
   const effectiveFilters = inDrawer ? localFilters : filters;
+  const hasAnyLocalSelection = useDistanceFilter;
   const hasLocalFilters = inDrawer ? !isEmptyFilters(localFilters) : hasFilters;
+
+  const shouldShowResetInDrawer = hasLocalFilters || hasAnyLocalSelection;
+  const shouldShowGlobalReset = hasFilters || hasAnyLocalSelection;
 
   useEffect(() => {
     if (!facets) return;
@@ -201,13 +208,30 @@ export function OpportunityFilters({
 
   const handleApplyFilter = () => {
     onFilterChange(localFilters);
+    syncDistanceToParent();
     onApply?.();
   };
 
+  const clearLocalStates = () => {
+    setUseDistanceFilter(false);
+  };
+
+  useEffect(() => {
+    if (!shouldShowGlobalReset && !inDrawer) {
+      clearLocalStates();
+    }
+  }, [shouldShowGlobalReset, inDrawer]);
+
   const handleResetInDrawer = () => {
-    setLocalFilters(
-      hasLocation ? { _distance_km: { max: DEFAULT_DISTANCE_MAX } } : {}
-    );
+    setLocalFilters({});
+    clearLocalStates();
+    onDistanceChange?.(null);
+    onReset?.();
+  };
+
+  const handleGlobalReset = () => {
+    clearLocalStates();
+    onDistanceChange?.(null);
     onReset?.();
   };
 
@@ -268,66 +292,64 @@ export function OpportunityFilters({
       })),
   ];
 
-  const distanceExpanded = expandedSections["distance"] ?? true;
-  const rawDistanceFilter = getFilterValue("_distance_km", false) as any;
-  const currentDistance =
-    rawDistanceFilter?.max ?? rawDistanceFilter ?? DEFAULT_DISTANCE_MAX;
-
   const filterContent = (
     <VStack align="stretch" gap={0}>
-      <Box key="distance">
-        <VStack align="stretch" gap={0}>
-          <HStack
-            pt={4}
-            pb="10px"
-            cursor="pointer"
-            onClick={() => toggleSection("distance")}
-            justify="space-between"
+      <Box>
+        <HStack
+          pt={4}
+          pb={useDistanceFilter ? 3 : "10px"}
+          justify="space-between"
+        >
+          <Checkbox.Root
+            size="sm"
+            colorPalette="profile.500"
+            checked={useDistanceFilter}
+            onCheckedChange={(details) =>
+              setUseDistanceFilter(!!details.checked)
+            }
           >
-            <VStack align="flex-start" gap={0}>
-              <Text fontSize="sm" fontWeight="600" color="#52525B">
-                Distance
-              </Text>
-            </VStack>
-            <Box w="16px" h="16px">
-              {distanceExpanded ? (
-                <ChevronUp size={16} color="#71717A" />
-              ) : (
-                <ChevronDown size={16} color="#71717A" />
-              )}
-            </Box>
-          </HStack>
+            <Checkbox.HiddenInput />
+            <Checkbox.Control
+              bg={useDistanceFilter ? "profile.500" : "transparent"}
+              border={
+                useDistanceFilter
+                  ? "1px solid var(--border-100)"
+                  : "1px solid #E4E4E7"
+              }
+            />
+            <Checkbox.Label fontSize="xs" color="#3F3F46">
+              Filter by distance
+            </Checkbox.Label>
+          </Checkbox.Root>
 
-          {distanceExpanded && (
-            <Box pb={4} px={1}>
-              {hasLocation ? (
-                <FilterFieldV2
-                  facet={{ kind: "range", label: "Distance" }}
-                  value={currentDistance}
-                  onChange={(val) =>
-                    handleFilterValueChange("_distance_km", { max: val }, false)
-                  }
-                />
-              ) : (
-                <Box p={3} bg="orange.50" borderRadius="md">
-                  <HStack gap={2} align="flex-start">
-                    <MapPin
-                      size={16}
-                      color="var(--chakra-colors-orange-600)"
-                      style={{ marginTop: "2px" }}
-                    />
-                    <Text fontSize="xs" color="orange.800">
-                      Distance calculation requires a location. Please update
-                      your profile.
-                    </Text>
-                  </HStack>
-                </Box>
-              )}
-            </Box>
+          {useDistanceFilter && (
+            <Text fontSize="xs" color="#52525B">
+              {distanceKm} km
+            </Text>
           )}
+        </HStack>
 
-          <Separator borderColor="#E4E4E7" />
-        </VStack>
+        {useDistanceFilter && (
+          <Box pb={4}>
+            <Slider.Root
+              min={1}
+              max={100}
+              step={1}
+              value={[distanceKm]}
+              onValueChange={(details) => setDistanceKm(details.value[0])}
+            >
+              <Slider.Control>
+                <Slider.Track>
+                  <Slider.Range bg="profile.500" />
+                </Slider.Track>
+
+                <Slider.Thumbs borderColor="profile.500" />
+              </Slider.Control>
+            </Slider.Root>
+          </Box>
+        )}
+
+        {allFacets.length > 0 && <Separator borderColor="#E4E4E7" />}
       </Box>
       {allFacets.map(({ key, facet, isQuestionnaire, sectionId }, index) => {
         const isExpanded = expandedSections[sectionId] ?? false;
@@ -451,16 +473,26 @@ export function OpportunityFilters({
             >
               Apply filter
             </Button>
-            {hasLocalFilters && (
+            {shouldShowResetInDrawer && (
               <Button
                 variant="ghost"
                 w="100%"
                 onClick={handleResetInDrawer}
                 disabled={isLoading}
-                color="#3F3F46"
+                color="#52525B"
+                _hover={{ textDecoration: "none", bg: "#F4F4F5" }}
                 fontSize="14px"
+                h="48px"
+                borderRadius="xl"
+                borderWidth="1px"
+                borderColor="#D4D4D8"
+                borderStyle="solid"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
               >
-                Reset all filters
+                <RotateCcw size={16} />
+                <Text ml={2}>Reset all filters</Text>
               </Button>
             )}
           </VStack>
@@ -490,25 +522,29 @@ export function OpportunityFilters({
           </HStack>
         </HStack>
 
-        {facetValidationSuccess ? (
-          filterContent
-        ) : (
-          <Box>
-            <EmptyInbox description="No filters available to show" />
-          </Box>
-        )}
+        {filterContent}
 
-        {hasFilters && (
+        {shouldShowGlobalReset && (
           <Box pt={2}>
             <Button
               variant="ghost"
               w="100%"
-              onClick={onReset}
+              onClick={handleGlobalReset}
               disabled={isLoading}
-              color="#3F3F46"
+              color="#52525B"
+              _hover={{ textDecoration: "none", bg: "#F4F4F5" }}
               fontSize="14px"
+              h="40px"
+              borderRadius="xl"
+              borderWidth="1px"
+              borderColor="#D4D4D8"
+              borderStyle="solid"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
             >
-              Reset all filters
+              <RotateCcw size={16} />
+              <Text ml={2}>Reset all filters</Text>
             </Button>
           </Box>
         )}
