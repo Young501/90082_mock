@@ -15,7 +15,7 @@ import {
 } from "@/types/messaging";
 import { useAuthStore } from "@/store";
 import { Loader, Send } from "lucide-react";
-import { validateContent } from "@/utils/contentValidation";
+import { validateContent, getContentValidationMessage } from "@/utils/contentValidation";
 interface ConversationViewProps {
   isSinglePane: boolean | undefined;
   conversation: ConversationSummary | null;
@@ -96,21 +96,7 @@ export const ConversationView = ({
 
   const handleOnChange = (value: string) => {
     const result = validateContent(value);
-    if (result.status === "error") {
-      switch (result.type) {
-        case "profanity":
-          setError("Please keep your language appropriate");
-          break;
-        case "spam-lowercase":
-          setError("Please provide a meaningful response");
-          break;
-        case "spam-uppercase":
-          setError("Please avoid repeating the same character");
-          break;
-      }
-    } else {
-      setError(null);
-    }
+    setError(result.status === "error" ? getContentValidationMessage(result.type) : null);
     onComposerTextChange(value);
   };
 

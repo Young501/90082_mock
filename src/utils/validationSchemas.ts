@@ -1,7 +1,7 @@
 import * as yup from "yup";
 import { Question } from "@/types/onboarding";
 import { isDisallowedDomain } from "@/utils/constants";
-import { validateContent } from "@/utils/contentValidation";
+import { validateContent, getContentValidationMessage } from "@/utils/contentValidation";
 
 const contentValidationSchema = yup
   .string()
@@ -9,15 +9,7 @@ const contentValidationSchema = yup
     if (!value) return true;
     const result = validateContent(value);
     if (result.status === "error") {
-      switch (result.type) {
-        case "profanity":
-          return this.createError({ message: "Please keep your language appropriate" });
-        case "spam-lowercase":
-          return this.createError({ message: "Please provide a meaningful response" });
-        case "spam-uppercase":
-          return this.createError({ message: "Please avoid repeating the same character" });
-
-      }
+      return this.createError({ message: getContentValidationMessage(result.type) });
     }
     return true;
   });

@@ -187,21 +187,18 @@ export function MessageComposerInput({
 
       {error && (
         <Tooltip content={error} positioning={{ placement: "bottom" }}>
-          <IconButton
+          <Box
+            as="span"
+            role="img"
             aria-label={error}
-            variant={"ghost"}
-            size={"xs"}
-            color={"red.500"}
+            color="red.500"
             mx={2}
-            minW={"auto"}
-            h={"auto"}
-            p={0}
-            _hover={{ bg: "transparent" }}
-            _active={{ bg: "transparent" }}
-            tabIndex={0}
+            display="flex"
+            alignItems="center"
+            flexShrink={0}
           >
             <AlertCircle size={16} />
-          </IconButton>
+          </Box>
         </Tooltip>
       )}
 
