@@ -15,6 +15,7 @@ import type {
   FacetsResponse,
   OpportunityFilters,
   FilterValue,
+  RangeFilterValue,
 } from "@/types/opportunity";
 import { ChevronDown, ChevronUp, X, RotateCcw } from "lucide-react";
 import IconFilter from "@/components/Icons/IconFilter";
