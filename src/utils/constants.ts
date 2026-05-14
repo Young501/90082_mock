@@ -84,3 +84,5 @@ export const STUDENT_ONBOARDING_REQUIRED_FIELDS = [
 export const ORGANISATION_MEMBER_REQUIRED_FIELDS = ["job_title"] as const;
 
 export const ORGANISATION_REQUIRED_FIELDS = ["name"] as const;
+
+export const SPAM_MAX_CONSECUTIVE_CHARS = 5 as const;
