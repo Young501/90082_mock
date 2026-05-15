@@ -231,7 +231,7 @@ export const useAuth = () => {
   });
 
     const signupMutation = useMutation({
-    mutationFn: async (data: SignupData) => {
+     mutationFn: async (data: SignupData) => {
       return apiRequest({
         endpoint: API_ENDPOINTS.SIGNUP,
         body: {
