@@ -242,7 +242,6 @@ export const useAuth = () => {
         },
       });
     },
-    //
     onSuccess: (response) => {},
     onError: (error: any) => {
       const errorMessage = getErrorMessage(error, "Signup failed");
