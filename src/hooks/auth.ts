@@ -398,7 +398,7 @@ export const useAuth = () => {
     email: string;
     password: string;
     user_types: string[];
-    recaptcha_token: string;
+    
     callback?: () => void;
   }) => {
     try {
