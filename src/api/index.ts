@@ -349,17 +349,17 @@ export const API_ENDPOINTS = {
     method: "DELETE",
     url: `/api/v2/opportunities/${opportunityId}/set-default/`,
   }),
-  OPPORTUNITY_DASHBOARD: (opportunityId: string): ApiEndpoint => ({
+  COORDINATOR_OPP_DASHBOARD: (opportunityId: string): ApiEndpoint => ({
     method: "GET",
-    url: `/api/v1/opportunities/${opportunityId}/dashboard/`,
+    url: `/api/v2/opportunities/coordinator/${opportunityId}/dashboard/`,
   }),
   HOMEPAGE: {
     method: "GET",
     url: "/api/v2/ui/homepage",
   },
-  OPPORTUNITY_PARTICIPANTS: (opportunityId: string): ApiEndpoint => ({
+  COORDINATOR_OPP_PARTICIPANTS: (opportunityId: string): ApiEndpoint => ({
     method: "GET",
-    url: `/api/v1/opportunities/${opportunityId}/participants/`,
+    url: `/api/v2/opportunities/coordinator/${opportunityId}/participants/`,
   }),
   MATCH: (opportunityId: string): ApiEndpoint => ({
     method: "POST",

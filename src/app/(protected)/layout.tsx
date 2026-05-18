@@ -4,11 +4,12 @@ import { ReactNode, Suspense, useEffect } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Spinner, Box } from "@chakra-ui/react";
 import Header from "@/components/Layouts/Header";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Sidebar from "@/components/Layouts/Sidebar";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuthStore } from "@/store/authStore";
-import { useAccessibleOpportunities, useUserMeV2 } from "@/services/shared";
+import { useAccessibleOpportunities, useCoordinatorOpportunities, useUserMeV2 } from "@/services/shared";
+import type { AccessibleOpportunity } from "@/types/opportunities";
 import { useConversationsList } from "@/services/messaging";
 import type { UserDetailsV2 } from "@/types/user";
 import { useNotificationSocket } from "@/hooks/useNotificationSocket";
@@ -20,9 +21,13 @@ function LayoutContent({ children }: { children: ReactNode }) {
   );
   const setUserDetailsV2 = useAuthStore((s) => s.setUserDetailsV2);
 
+  const isCoordinator = userType === "coordinator";
+  const setCoordinatorOpportunities = useAuthStore((s) => s.setCoordinatorOpportunities);
+
   const { data: userDetailsV2Data } = useUserMeV2();
-  useProfile(userType === "coordinator" ? "" : userType);
-  const { data: accessibleOpportunities } = useAccessibleOpportunities();
+  useProfile(isCoordinator ? "" : userType);
+  const { data: accessibleOpportunities } = useAccessibleOpportunities(!isCoordinator);
+  const { data: coordinatorOpportunitiesData } = useCoordinatorOpportunities(isCoordinator);
 
   useEffect(() => {
     if (userDetailsV2Data) {
@@ -35,6 +40,12 @@ function LayoutContent({ children }: { children: ReactNode }) {
       setAccessibleOpportunities(accessibleOpportunities);
     }
   }, [accessibleOpportunities, setAccessibleOpportunities]);
+
+  useEffect(() => {
+    if (coordinatorOpportunitiesData) {
+      setCoordinatorOpportunities(coordinatorOpportunitiesData as AccessibleOpportunity[]);
+    }
+  }, [coordinatorOpportunitiesData, setCoordinatorOpportunities]);
 
   const setUnreadCount = useAuthStore((s) => s.setUnreadCount);
   const { data: conversations } = useConversationsList({ archived: false, page_size: 50 });

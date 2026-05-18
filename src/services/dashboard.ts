@@ -4,7 +4,7 @@ import type { HomepageStats } from "@/types/homepage";
 
 export const getDashboardStats = async (opportunityId: string) => {
   return apiRequest({
-    endpoint: API_ENDPOINTS.OPPORTUNITY_DASHBOARD(opportunityId),
+    endpoint: API_ENDPOINTS.COORDINATOR_OPP_DASHBOARD(opportunityId),
   });
 };
 

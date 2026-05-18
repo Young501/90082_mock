@@ -19,7 +19,7 @@ export const getParticipants = async (
   });
 
   return apiRequest({
-    endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANTS(opportunityId),
+    endpoint: API_ENDPOINTS.COORDINATOR_OPP_PARTICIPANTS(opportunityId),
     params: queryParams,
   });
 };

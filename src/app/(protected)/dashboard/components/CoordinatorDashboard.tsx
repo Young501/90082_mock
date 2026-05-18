@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Text, SimpleGrid, Container } from "@chakra-ui/react";
+import { Box, SimpleGrid, Container } from "@chakra-ui/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import type { DashboardStats } from "@/types/dashboard";
@@ -11,6 +11,7 @@ import {
   PROFILE_DARK_COLORS,
 } from "@/theme/theme";
 import { MetricsColumn } from "./MetricsColumn";
+import { OpportunityHeader } from "./OpportunityHeader";
 
 export function CoordinatorDashboard({
   dashboardStats,
@@ -26,9 +27,9 @@ export function CoordinatorDashboard({
   const router = useRouter();
   const pathname = usePathname();
   const coordinatorOpportunities = useAuthStore((s) => s.coordinatorOpportunities);
-  const opportunityTitle = opportunitySlug
-    ? coordinatorOpportunities.find((o) => o.slug === opportunitySlug)?.title
-    : coordinatorOpportunities[0]?.title;
+  const currentOpportunity = opportunitySlug
+    ? coordinatorOpportunities.find((o) => o.slug === opportunitySlug)
+    : coordinatorOpportunities[0];
 
   const manageRoute = (type: "student" | "organisation") => {
     const opp = opportunitySlug ? `&opp=${opportunitySlug}` : "";
@@ -88,9 +89,7 @@ export function CoordinatorDashboard({
   return (
     <Box maxW="1512px" mx="auto">
       <Container maxW="1512px" px={0} display="flex" flexDirection="column" gap={12}>
-        <Text as="h1" fontSize={{ base: "32px", lg: "51px" }} fontWeight="600" color="#000000">
-          {opportunityTitle ?? "Dashboard"}
-        </Text>
+        {currentOpportunity && <OpportunityHeader opportunity={currentOpportunity} />}
 
         <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
           <MetricsColumn

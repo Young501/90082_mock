@@ -210,7 +210,7 @@ export function useUserMeUpdateV2() {
 }
 
 // UC-314: All accessible opportunities for current user
-export function useAccessibleOpportunities() {
+export function useAccessibleOpportunities(enabled = true) {
   const { user } = useAuthStore();
   return useQuery({
     queryKey: ["accessible-opportunities", user?.id],
@@ -276,12 +276,36 @@ export function useAccessibleOpportunities() {
         throw error;
       }
     },
-    enabled: !!user,
+    enabled: enabled && !!user,
     staleTime: 2 * 60 * 1000,
     retry: (failureCount, error: any) => {
       if (error?.response?.status === 404) {
         return false;
       }
+      return failureCount < 2;
+    },
+  });
+}
+
+export function useCoordinatorOpportunities(enabled = true) {
+  const { user } = useAuthStore();
+  return useQuery({
+    queryKey: ["coordinator-opportunities", user?.id],
+    enabled: enabled && !!user,
+    queryFn: async () => {
+      try {
+        const response = await apiRequest({
+          endpoint: API_ENDPOINTS.COORDINATOR_OPPORTUNITIES,
+        });
+        return Array.isArray(response) ? (response as AccessibleOpportunity[]) : [];
+      } catch (error: any) {
+        console.error("❌ Coordinator opportunities fetch failed:", error);
+        throw error;
+      }
+    },
+    staleTime: 2 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) return false;
       return failureCount < 2;
     },
   });
