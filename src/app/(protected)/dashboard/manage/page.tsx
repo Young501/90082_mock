@@ -24,9 +24,13 @@ import { toast } from "react-toastify";
 const ManagePageContent = () => {
   const searchParams = useSearchParams();
   const type = searchParams.get("type");
+  const oppSlug = searchParams.get("opp") ?? undefined;
   const { getCoordinatorOpportunities } = useAuthStore();
   const coordinatorOpportunities = getCoordinatorOpportunities();
-  const opportunityId = coordinatorOpportunities[0] || "";
+  const selected = oppSlug
+    ? coordinatorOpportunities.find((o) => o.slug === oppSlug)
+    : coordinatorOpportunities[0];
+  const opportunityId = selected?.id ? String(selected.id) : "";
   const {
     participants,
     selectedParticipant,
@@ -39,7 +43,7 @@ const ManagePageContent = () => {
     resetFilters,
     selectParticipant,
     updateSelectedParticipant,
-  } = useManage(type as "student" | "organisation");
+  } = useManage(type as "student" | "organisation", opportunityId);
 
   if (error) {
     return (

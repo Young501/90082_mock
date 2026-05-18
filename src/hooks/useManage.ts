@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
 import { useParticipants } from "@/services/manage";
-import { useAuthStore } from "@/store/authStore";
 import { Participant, ParticipantsFilterParams } from "@/types/dashboard";
 
 export interface ManageState {
@@ -12,10 +11,10 @@ export interface ManageState {
   error: string | null;
 }
 
-export function useManage(userType: "student" | "organisation" = "student") {
-  const { getCoordinatorOpportunities } = useAuthStore();
-  const coordinatorOpportunities = getCoordinatorOpportunities();
-  const opportunityId = coordinatorOpportunities[0] || "";
+export function useManage(
+  userType: "student" | "organisation" = "student",
+  opportunityId: string = ""
+) {
 
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [selectedParticipant, setSelectedParticipant] =

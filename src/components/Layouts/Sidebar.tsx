@@ -59,9 +59,10 @@ const Sidebar = ({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { getUserType, accessibleOpportunities, userProfile } = useAuthStore();
+  const { getUserType, accessibleOpportunities, coordinatorOpportunities, userProfile } = useAuthStore();
   const discoverDropdownRef = useRef<HTMLDivElement>(null);
   const { open: isDiscoverOpen, onToggle: onDiscoverToggle } = useDisclosure();
+  const { open: isDashboardOpen, onToggle: onDashboardToggle } = useDisclosure();
 
   const userType = getUserType();
   const isCoordinator = userType === "coordinator";
@@ -86,13 +87,14 @@ const Sidebar = ({
     },
     {
       key: "dashboard",
-      label: "Dashboard",
+      label: "Dashboards",
       href: "/dashboard/",
       icon: <LayoutDashboard size={20} />,
       isCoordinator: true,
       isOrganisation: false,
       isStudent: false,
       isProtected: true,
+      hasDropdown: true,
     },
     {
       key: "discover",
@@ -185,7 +187,150 @@ const Sidebar = ({
     return pathname === href || pathname === href.replace(/\/$/, "");
   };
 
+  const renderDashboardItem = () => {
+    const active = pathname?.startsWith("/dashboard");
+    const activeOppSlug = searchParams?.get("opp");
+    const coordOpps = coordinatorOpportunities ?? [];
+
+    if (coordOpps.length === 0) {
+      return (
+        <Link
+          href="/dashboard/"
+          key="dashboard"
+          style={{ width: "100%" }}
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
+          <HStack
+            w="full"
+            p={3}
+            borderRadius="xl"
+            bg={active ? "profile.500" : "transparent"}
+            color={active ? "white" : INACTIVE_COLOR}
+            gap={3}
+            _hover={{ bg: active ? "profile.500" : "secondary.100" }}
+            transition="background 0.15s"
+          >
+            <Box flexShrink={0} w={5} h={5} color={active ? "white" : "#71717A"}>
+              <LayoutDashboard size={20} />
+            </Box>
+            <Text fontSize="md" fontWeight={active ? 600 : 500} color={active ? "white" : "#71717A"} flex={1}>
+              Dashboards
+            </Text>
+          </HStack>
+        </Link>
+      );
+    }
+
+    if (coordOpps.length === 1) {
+      return (
+        <Link
+          href={`/dashboard/?opp=${coordOpps[0].slug}`}
+          key="dashboard"
+          style={{ width: "100%" }}
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
+          <HStack
+            w="full"
+            p={3}
+            borderRadius="xl"
+            bg={active ? "profile.500" : "transparent"}
+            color={active ? "white" : INACTIVE_COLOR}
+            gap={3}
+            _hover={{ bg: active ? "profile.500" : "secondary.100" }}
+            transition="background 0.15s"
+          >
+            <Box flexShrink={0} w={5} h={5} color={active ? "white" : "#71717A"}>
+              <LayoutDashboard size={20} />
+            </Box>
+            <Text fontSize="md" fontWeight={active ? 600 : 500} color={active ? "white" : "#71717A"} flex={1}>
+              Dashboards
+            </Text>
+          </HStack>
+        </Link>
+      );
+    }
+
+    return (
+      <Box key="dashboard" w="full" position="relative" h="100%">
+        <Box
+          w="full"
+          p={3}
+          borderRadius="xl"
+          bg={active ? "profile.500" : "transparent"}
+          color={active ? "white" : INACTIVE_COLOR}
+          cursor="pointer"
+          _hover={{ bg: active ? "profile.500" : "secondary.100" }}
+          transition="background 0.15s"
+          onClick={() => {
+            router.push(`/dashboard/?opp=${coordOpps[0].slug}`);
+            onDashboardToggle();
+          }}
+        >
+          <HStack gap={3}>
+            <Box flexShrink={0} w={5} h={5} color={active ? "white" : "#71717A"}>
+              <LayoutDashboard size={20} />
+            </Box>
+            <Text fontSize="md" fontWeight={active ? 600 : 500} color={active ? "white" : "#71717A"} flex={1}>
+              Dashboards
+            </Text>
+            <Box
+              as="span"
+              transform={isDashboardOpen ? "rotate(180deg)" : "rotate(0)"}
+              transition="transform 0.2s"
+            >
+              <ChevronDown size={16} />
+            </Box>
+          </HStack>
+        </Box>
+        {isDashboardOpen && (
+          <Box mt={1} pl={3} display="flex">
+            <Box w="11px" flexShrink={0} alignSelf="stretch" display="flex" alignItems="stretch">
+              <IconSidebarLine segmentCount={coordOpps.length} />
+            </Box>
+            <VStack align="stretch" flex={1} pl={2} gap={1}>
+              {coordOpps.map((o) => {
+                const isActiveOpp = active && activeOppSlug === o.slug;
+                return (
+                  <Link
+                    key={o.id}
+                    href={`/dashboard/?opp=${o.slug}`}
+                    style={{ width: "100%" }}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <HStack
+                      p={3}
+                      borderRadius="xl"
+                      borderWidth="1px"
+                      borderColor={isActiveOpp ? "#D6EDFB" : "transparent"}
+                      bg={isActiveOpp ? "#EAF6FD" : "transparent"}
+                      color={isActiveOpp ? "#1679AB" : INACTIVE_COLOR}
+                      gap={2}
+                      _hover={{ bg: isActiveOpp ? "#EAF6FD" : "secondary.100" }}
+                      transition="background 0.15s"
+                    >
+                      <Text
+                        fontSize="md"
+                        fontWeight={500}
+                        color={isActiveOpp ? "#1679AB" : INACTIVE_COLOR}
+                        flex={1}
+                      >
+                        {o.title || `Opportunity ${o.id}`}
+                      </Text>
+                    </HStack>
+                  </Link>
+                );
+              })}
+            </VStack>
+          </Box>
+        )}
+      </Box>
+    );
+  };
+
   const renderMenuItem = (item: SidebarMenuItem) => {
+    if (item.key === "dashboard" && item.hasDropdown) {
+      return renderDashboardItem();
+    }
     if (item.key === "discover" && item.hasDropdown) {
       return renderDiscoverItem();
     }

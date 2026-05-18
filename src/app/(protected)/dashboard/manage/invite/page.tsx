@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
 import {
   Box,
   Container,
@@ -19,22 +20,31 @@ const InvitePage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const type = searchParams.get("type");
+  const oppSlug = searchParams.get("opp") ?? undefined;
+  const { getCoordinatorOpportunities } = useAuthStore();
+  const coordinatorOpportunities = getCoordinatorOpportunities();
+  const selected = oppSlug
+    ? coordinatorOpportunities.find((o) => o.slug === oppSlug)
+    : coordinatorOpportunities[0];
+  const opportunityId = selected?.id ? String(selected.id) : "";
+
+  const oppParam = oppSlug ? `&opp=${oppSlug}` : "";
 
   const handleSuccess = () => {
-    router.push(`/dashboard/manage?type=${type}`);
+    router.push(`/dashboard/manage?type=${type}${oppParam}`);
   };
 
   const handleCancel = () => {
-    router.push(`/dashboard/manage?type=${type}`);
+    router.push(`/dashboard/manage?type=${type}${oppParam}`);
   };
 
   if (type === "student") {
     return (
-      <StudentInvitePage onSuccess={handleSuccess} onCancel={handleCancel} />
+      <StudentInvitePage opportunityId={opportunityId} onSuccess={handleSuccess} onCancel={handleCancel} />
     );
   } else if (type === "organisation") {
     return (
-      <PartnerInvitePage onSuccess={handleSuccess} onCancel={handleCancel} />
+      <PartnerInvitePage opportunityId={opportunityId} onSuccess={handleSuccess} onCancel={handleCancel} />
     );
   }
 
@@ -52,9 +62,11 @@ const InvitePage = () => {
 export default InvitePage;
 
 const StudentInvitePage = ({
+  opportunityId,
   onSuccess,
   onCancel,
 }: {
+  opportunityId: string;
   onSuccess?: () => void;
   onCancel?: () => void;
 }) => {
@@ -89,6 +101,7 @@ const StudentInvitePage = ({
 
             <InvitationForm
               userType="student"
+              opportunityId={opportunityId}
               onSuccess={onSuccess}
               onCancel={onCancel}
             />
@@ -100,9 +113,11 @@ const StudentInvitePage = ({
 };
 
 const PartnerInvitePage = ({
+  opportunityId,
   onSuccess,
   onCancel,
 }: {
+  opportunityId: string;
   onSuccess?: () => void;
   onCancel?: () => void;
 }) => {
@@ -137,6 +152,7 @@ const PartnerInvitePage = ({
 
             <InvitationForm
               userType="organisation"
+              opportunityId={opportunityId}
               onSuccess={onSuccess}
               onCancel={onCancel}
             />

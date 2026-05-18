@@ -16,7 +16,6 @@ import { toast } from "react-toastify";
 import { Button } from "@/components/ui/Button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useInviteParticipants } from "@/services/shared";
-import { useAuthStore } from "@/store/authStore";
 import { isDisallowedDomain } from "@/utils/constants";
 
 interface Counts {
@@ -28,12 +27,14 @@ interface Counts {
 
 interface InvitationFormProps {
   userType: "student" | "organisation";
+  opportunityId: string;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
 export const InvitationForm: React.FC<InvitationFormProps> = ({
   userType,
+  opportunityId,
   onSuccess,
   onCancel,
 }) => {
@@ -41,9 +42,6 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
   const [emailInput, setEmailInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { getCoordinatorOpportunities } = useAuthStore();
-  const coordinatorOpportunities = getCoordinatorOpportunities();
-  const opportunityId = coordinatorOpportunities[0] || "";
 
   const inviteParticipants = useInviteParticipants();
 

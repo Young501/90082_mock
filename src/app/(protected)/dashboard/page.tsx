@@ -8,11 +8,13 @@ import { PAGE_TITLES } from "@/utils/pageTitles";
 import { useAuthStore } from "@/store";
 import { useDashboard } from "@/hooks/useDashboard";
 import { CoordinatorDashboard } from "./components/CoordinatorDashboard";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 const DashboardPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const opportunitySlug = searchParams?.get("opp") ?? undefined;
   const userType = useAuthStore((s) => s.user?.user_types?.[0]);
   const isCoordinator = userType === "coordinator";
 
@@ -20,7 +22,7 @@ const DashboardPage = () => {
     dashboardStats,
     isLoading: isDashboardLoading,
     error: dashboardError,
-  } = useDashboard();
+  } = useDashboard(opportunitySlug);
 
   useEffect(() => {
     if (!isCoordinator && userType) {
@@ -114,6 +116,7 @@ const DashboardPage = () => {
               dashboardStats={dashboardStats}
               isLoading={false}
               error={null}
+              opportunitySlug={opportunitySlug}
             />
           )}
         </Container>

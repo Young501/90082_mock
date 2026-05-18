@@ -179,8 +179,7 @@ const fetchCoordinatorOpportunities = async () => {
       endpoint: API_ENDPOINTS.COORDINATOR_OPPORTUNITIES,
     });
 
-    const opportunityIds = response.map((opportunity: any) => opportunity.id);
-    useAuthStore.getState().setCoordinatorOpportunities(opportunityIds);
+    useAuthStore.getState().setCoordinatorOpportunities(response);
   } catch (error: any) {
     console.error("Failed to fetch coordinator opportunities:", error);
     toast.error("Failed to fetch opportunities");
