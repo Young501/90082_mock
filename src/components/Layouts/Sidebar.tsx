@@ -8,7 +8,7 @@ import {
   useDisclosure,
   Link as ChakraLink,
 } from "@chakra-ui/react";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   Home,
   LayoutDashboard,
@@ -62,7 +62,8 @@ const Sidebar = ({
   const { getUserType, accessibleOpportunities, coordinatorOpportunities, userProfile } = useAuthStore();
   const discoverDropdownRef = useRef<HTMLDivElement>(null);
   const { open: isDiscoverOpen, onToggle: onDiscoverToggle } = useDisclosure();
-  const { open: isDashboardOpen, onToggle: onDashboardToggle } = useDisclosure();
+  const [isDashboardOpen, setIsDashboardOpen] = useState(() => pathname?.startsWith("/dashboard") ?? false);
+  const onDashboardToggle = () => setIsDashboardOpen((prev) => !prev);
 
   const userType = getUserType();
   const isCoordinator = userType === "coordinator";

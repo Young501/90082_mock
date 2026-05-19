@@ -282,7 +282,6 @@ export const MessageBox = ({
         <FullProfileCard
           profileId={senderProfileId.toString()}
           profileType={otherProfileType}
-          isCoordinator={isCoordinatorView}
           opportunityId={opportunityId?.toString()}
           onClose={() => setShowSenderProfile(false)}
         />

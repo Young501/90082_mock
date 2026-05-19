@@ -24,6 +24,8 @@ interface MatchedWith {
 export interface Participant {
   id: number;
   name?: string;
+  email?: string;
+  profile_id?: number;
   user_type?: string;
   accepted_status?: string;
   has_profile?: boolean;

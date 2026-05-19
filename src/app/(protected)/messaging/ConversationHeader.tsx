@@ -109,7 +109,6 @@ export const ConversationHeader = ({
         <FullProfileCard
           profileId={otherProfileId.toString()}
           profileType={otherProfileType}
-          isCoordinator={isCoordinatorView}
           opportunityId={conversation.opportunityId?.toString()}
           onClose={() => setShowProfile(false)}
         />

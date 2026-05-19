@@ -1,9 +1,10 @@
 import React from "react";
-import { Box, HStack, VStack, Text, Avatar, Badge } from "@chakra-ui/react";
+import { Box, HStack, VStack, Text, Badge } from "@chakra-ui/react";
 import { Participant } from "@/types/dashboard";
 import { getInitial } from "@/utils/getInitials";
 import Image from "next/image";
 import { Tooltip } from "@/components/ui/tooltip";
+import { ProfileAvatar } from "@/components/ProfileAvatar";
 
 interface UserManagementCardProps {
   participant: Participant;
@@ -31,10 +32,6 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
       default:
         return "Unknown";
     }
-  };
-
-  const getBorderColor = () => {
-    return userType === "student" ? "#DC2626" : "#089C3F";
   };
 
   const getMatchedWithName = () => {
@@ -98,32 +95,13 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
       opacity={isDeclined || isInvited ? 0.6 : 1}
     >
       <HStack gap={4}>
-        <Box
-          w={{ base: "67px" }}
-          h={{ base: "67px" }}
-          borderRadius="50%"
-          border={`10px solid ${getBorderColor()}`}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Avatar.Root width="62px" height="62px" borderRadius="50%">
-            <Avatar.Fallback
-              name={getInitial(participant.name || "")}
-              bg="gray.200"
-              color="gray.800"
-              fontWeight="bold"
-              fontSize="2xl"
-            />
-            {participant.image_url && (
-              <Avatar.Image
-                src={participant.image_url || ""}
-                w="62px"
-                h="62px"
-              />
-            )}
-          </Avatar.Root>
-        </Box>
+        <ProfileAvatar
+          src={participant.image_url}
+          fallback={getInitial(participant.name || "")}
+          size="lg"
+          borderRadius="12px"
+          alt={participant.name}
+        />
         <VStack align="start" flex={1} gap={1}>
           <HStack>
             <Tooltip content={participant.name}>
@@ -151,11 +129,17 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
             )}
           </HStack>
 
+          {participant.email && (
+            <Text fontSize="11px" color="#000000" fontWeight="400">
+              {participant.email}
+            </Text>
+          )}
+
           {userType === "student" ? (
             <Box>
               <Text
                 fontSize={{ base: "12px", lg: "12px" }}
-                color="#000000"
+                color="#71717A"
                 fontWeight="400"
               >
                 {isMatched

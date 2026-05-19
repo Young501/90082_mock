@@ -1,12 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box, VStack, Text, Alert, Drawer, IconButton } from "@chakra-ui/react";
 import { StudentProfile, OrganisationProfile } from "@/types/discovery";
-import {
-  useStudentProfile,
-  usePartnerProfile,
-  useCoordinatorViewUserProfile,
-} from "@/services/shared";
-import Image from "next/image";
+import { useStudentProfile, usePartnerProfile } from "@/services/shared";
 
 import Loader from "@/components/ui/Loader";
 import { useAuthStore } from "@/store/authStore";
@@ -24,7 +19,6 @@ interface FullProfileCardProps {
   disableBtns?: boolean;
   opportunityId?: string;
   opportunitySlug?: string;
-  isCoordinator?: boolean;
   isPreview?: boolean;
 }
 
@@ -38,13 +32,10 @@ export function FullProfileCard({
   disableBtns = false,
   opportunityId,
   opportunitySlug,
-  isCoordinator = false,
   isPreview = false,
 }: FullProfileCardProps) {
-  const shouldFetchStudent =
-    profileType === "student" && !studentProfile && !isCoordinator;
-  const shouldFetchPartner =
-    profileType === "organisation" && !organisationProfile && !isCoordinator;
+  const shouldFetchStudent = profileType === "student" && !studentProfile;
+  const shouldFetchPartner = profileType === "organisation" && !organisationProfile;
   const { userProfile, getUserType } = useAuthStore();
   const userType = getUserType();
 
@@ -66,24 +57,11 @@ export function FullProfileCard({
     opportunityId || ""
   );
 
-  const {
-    data: coordinatorData,
-    isLoading: isCoordinatorLoading,
-    error: coordinatorError,
-  } = useCoordinatorViewUserProfile(
-    isCoordinator ? profileId : "",
-    isCoordinator ? opportunityId || "" : ""
-  );
-
-  const isLoading = isCoordinator
-    ? isCoordinatorLoading
-    : isStudentLoading || isPartnerLoading;
-  const error = isCoordinator ? coordinatorError : studentError || partnerError;
-  const profile = isCoordinator
-    ? coordinatorData?.data
-    : profileType === "student"
-      ? studentProfile || studentData
-      : organisationProfile || partnerData;
+  const isLoading = isStudentLoading || isPartnerLoading;
+  const error = studentError || partnerError;
+  const profile = profileType === "student"
+    ? studentProfile || studentData
+    : organisationProfile || partnerData;
 
   if (isLoading) {
     if (isModal) {

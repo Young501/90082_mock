@@ -49,33 +49,25 @@ const ProgressBar = ({
   colors: MetricsColumnColors;
 }) => {
   const percentage = calculatePercentage(value, total);
-  const gradient = `linear-gradient(90deg, ${colors.dark} 0%, ${colors.primary} 100%)`;
 
   return (
     <Box
       w="100%"
       position="relative"
-      borderRadius={{ base: "10px", lg: "15px" }}
-      boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
+      borderRadius="6px"
       overflow="hidden"
-      height={{ base: "36px", md: "42px", lg: "48px" }}
+      height={{ base: "32px", md: "36px", lg: "40px" }}
       bg={colors.tint}
+      border="1px solid"
+      borderColor="#E4E4E7"
     >
       <Box
-        bg={gradient}
-        h={{ base: "36px", md: "42px", lg: "48px" }}
-        borderRadius={{ base: "10px", lg: "15px" }}
+        bg={colors.primary}
+        h="100%"
         width={`${percentage}%`}
         position="absolute"
         left={0}
-      />
-      <Box
-        bg={gradient}
-        h={{ base: "36px", md: "42px", lg: "48px" }}
-        borderRadius={{ base: "10px", lg: "15px" }}
-        width="100%"
-        opacity={0.5}
-        position="relative"
+        top={0}
       />
       <Flex
         position="absolute"
@@ -88,9 +80,9 @@ const ProgressBar = ({
         px={4}
       >
         <Text
-          fontWeight="700"
+          fontWeight="600"
           textAlign="center"
-          fontSize={{ base: "16px", lg: "22px" }}
+          fontSize={{ base: "14px", lg: "16px" }}
           color="#000000"
         >
           {value} ({percentage}%)
@@ -119,9 +111,10 @@ export function MetricsColumn({
     <VStack gap={4} align="stretch">
       <Box
         bg="white"
-        borderRadius="10px"
+        borderRadius="12px"
         p={{ base: 4, md: 6, lg: 8 }}
-        boxShadow="-4.3px 4.3px 11.71px 4.3px rgba(0, 0, 0, 0.24)"
+        border="1px solid"
+        borderColor="#E4E4E7"
         width="100%"
       >
         <HStack mb={{ base: 3, md: 4, lg: 5 }} gap={3}>
@@ -163,14 +156,15 @@ export function MetricsColumn({
             </Text>
             <Box
               bg={colors.tint}
-              borderRadius="10px"
+              borderRadius="8px"
               width="60px"
               height="60px"
               display="flex"
               alignItems="center"
               justifyContent="center"
               flexShrink={0}
-              boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
+              border="1px solid"
+              borderColor="#E4E4E7"
             >
               <Text
                 fontSize={{ base: "20px", lg: "22px" }}
