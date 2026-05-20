@@ -4,8 +4,10 @@ import {
   Container,
   Text,
   VStack,
+  HStack,
   Button,
   Spinner,
+  IconButton,
 } from "@chakra-ui/react";
 import React, { Suspense, useEffect, useState } from "react";
 import { Button as AppButton } from "@/components/ui/Button";
@@ -15,6 +17,7 @@ import UserManagementCard from "../components/UserManagementCard";
 import UserMatchingStatus from "../components/UserMatchingStatus";
 import { useManage } from "@/hooks/useManage";
 import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
@@ -22,6 +25,7 @@ import { PAGE_TITLES } from "@/utils/pageTitles";
 
 const ManagePageContent = () => {
   const searchParams = useSearchParams();
+  React.useEffect(() => { window.scrollTo(0, 0); }, []);
   const type = searchParams.get("type");
   const oppSlug = searchParams.get("opp") ?? undefined;
   const { getCoordinatorOpportunities } = useAuthStore();
@@ -164,9 +168,14 @@ const StudentPage = ({
           flexDirection={{ base: "column", lg: "row" }}
           gap={4}
         >
-          <Text as="h1" fontSize={{ base: "22px", lg: "28px" }} fontWeight="600" color="#000000">
-            Manage Students
-          </Text>
+          <HStack gap={2} align="center">
+            <IconButton aria-label="Back" variant="ghost" size="sm" onClick={() => router.back()}>
+              <ArrowLeft size={20} />
+            </IconButton>
+            <Text as="h1" fontSize={{ base: "22px", lg: "28px" }} fontWeight="600" color="#000000">
+              Manage Students
+            </Text>
+          </HStack>
           <AppButton variant="student" onClick={() => router.push(inviteUrl)} fontSize="15px" height="40px" px={5} borderRadius="8px">
             + Add Students to this list
           </AppButton>
@@ -196,6 +205,8 @@ const StudentPage = ({
               <Box
                 maxH="700px"
                 overflowY="auto"
+                px={1}
+                py={1}
                 css={{ "&::-webkit-scrollbar": { display: "none" }, scrollbarWidth: "none", msOverflowStyle: "none" }}
               >
                 {isLoading && participants.length === 0 ? (
@@ -262,9 +273,14 @@ const PartnerPage = ({
           flexDirection={{ base: "column", lg: "row" }}
           gap={4}
         >
-          <Text as="h1" fontSize={{ base: "22px", lg: "28px" }} fontWeight="600" color="#000000">
-            Manage Organisations
-          </Text>
+          <HStack gap={2} align="center">
+            <IconButton aria-label="Back" variant="ghost" size="sm" onClick={() => router.back()}>
+              <ArrowLeft size={20} />
+            </IconButton>
+            <Text as="h1" fontSize={{ base: "22px", lg: "28px" }} fontWeight="600" color="#000000">
+              Manage Organisations
+            </Text>
+          </HStack>
           <AppButton variant="partner" onClick={() => router.push(inviteUrl)} fontSize="15px" height="40px" px={5} borderRadius="8px">
             + Add Organisations to this list
           </AppButton>
@@ -294,6 +310,8 @@ const PartnerPage = ({
               <Box
                 maxH="700px"
                 overflowY="auto"
+                px={1}
+                py={1}
                 css={{ "&::-webkit-scrollbar": { display: "none" }, scrollbarWidth: "none", msOverflowStyle: "none" }}
               >
                 {isLoading && participants.length === 0 ? (

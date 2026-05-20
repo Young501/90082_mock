@@ -44,7 +44,7 @@ export default function OnboardingSuccessPage() {
   }, [getUserType, getUserProfilePictureUrl, getLogoUrl]);
 
   const handleRouting = () => {
-    router.push("/home/");
+    router.push(userType === "coordinator" ? "/dashboard/" : "/home/");
   };
 
   return (

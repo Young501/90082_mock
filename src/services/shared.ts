@@ -330,6 +330,50 @@ export function useInviteParticipants() {
   });
 }
 
+export function useInvitePreview(opportunityId: string, userType: "student" | "organisation") {
+  return useQuery<{ subject: string; body: string; rendered_html: string; message: string }>({
+    queryKey: ["invite-preview", opportunityId, userType],
+    queryFn: () =>
+      apiRequest({ endpoint: API_ENDPOINTS.INVITE_PREVIEW(opportunityId, userType) }),
+    enabled: !!opportunityId,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useInvitePreviewRefresh() {
+  return useMutation({
+    mutationFn: async (data: {
+      opportunityId: string;
+      userType: "student" | "organisation";
+      subject: string;
+      body: string;
+    }) => {
+      return apiRequest<{ subject: string; body: string; rendered_html: string; message: string }>({
+        endpoint: API_ENDPOINTS.INVITE_PREVIEW_REFRESH(data.opportunityId, data.userType),
+        body: { subject: data.subject, body: data.body },
+      });
+    },
+  });
+}
+
+export function useInviteV2() {
+  return useMutation({
+    mutationFn: async (data: {
+      opportunityId: string;
+      userType: "student" | "organisation";
+      emails: string[];
+      customEmail?: { subject: string; body: string };
+    }) => {
+      const body: Record<string, unknown> = { emails: data.emails };
+      if (data.customEmail) body.custom_email = data.customEmail;
+      return apiRequest({
+        endpoint: API_ENDPOINTS.INVITE_V2(data.opportunityId, data.userType),
+        body,
+      });
+    },
+  });
+}
+
 export function useOpportunityDetail(opportunityId: string) {
   return useQuery<Opportunity>({
     queryKey: ["opportunity-detail", opportunityId],

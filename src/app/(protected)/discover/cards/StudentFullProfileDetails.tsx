@@ -205,7 +205,7 @@ export const RenderStudentDetails = ({
                 minW={0}
                 size="sm"
                 onClick={() => setShowContactModal(true)}
-                disabled={disableBtns || userType === "coordinator"}
+                disabled={disableBtns}
               >
                 Contact Student
               </ButtonV2>
@@ -221,7 +221,7 @@ export const RenderStudentDetails = ({
                   h="40px"
                   flex={{ base: 1, lg: "none" }}
                   minW={0}
-                  disabled={disableBtns || userType === "coordinator"}
+                  disabled={disableBtns}
                   onClick={() => setShowAddToFolderModal(true)}
                 >
                   Add to Folder

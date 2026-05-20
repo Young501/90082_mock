@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Input,
@@ -24,8 +24,15 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
   onReset,
   searchOnly = false,
 }) => {
-  const [searchText, setSearchText] = useState(filters.text);
+  const [searchText, setSearchText] = useState(filters.text ?? "");
   const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onFilterChange({ text: searchText });
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [searchText]);
 
   const handleSearch = () => {
     onFilterChange({ text: searchText });
@@ -174,7 +181,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
                     src="/assets/ArrowDownIcon.svg"
                     width={16}
                     height={16}
-                    style={{ transform: "rotate(180deg)" }}
+                    style={{ transform: "rotate(180deg)", width: 16, height: 16 }}
                     alt="arrowUp"
                   />
                 ) : (
@@ -182,6 +189,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
                     src="/assets/ArrowDownIcon.svg"
                     width={16}
                     height={16}
+                    style={{ width: 16, height: 16 }}
                     alt="arrowDown"
                   />
                 )}
@@ -289,7 +297,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
                   src="/assets/ArrowDownIcon.svg"
                   width={16}
                   height={16}
-                  style={{ transform: "rotate(180deg)" }}
+                  style={{ transform: "rotate(180deg)", width: 16, height: 16 }}
                   alt="arrowUp"
                 />
               ) : (
@@ -297,6 +305,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
                   src="/assets/ArrowDownIcon.svg"
                   width={16}
                   height={16}
+                  style={{ width: 16, height: 16 }}
                   alt="arrowDown"
                 />
               )}

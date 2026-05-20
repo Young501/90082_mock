@@ -8,7 +8,7 @@ import { Paperclip, Reply, X } from "lucide-react";
 export interface ConversationReplyPreviewProps {
   replyToMessage: Message | null;
   selectedFiles: File[];
-  profileType: "coordinator" | "organisation" | "student";
+  profileType: string;
   onCancelReply: () => void;
   onRemoveFile: (index: number) => void;
 }

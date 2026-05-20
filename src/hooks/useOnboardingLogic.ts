@@ -131,6 +131,10 @@ export const useOnboardingLogic = (userType: string) => {
       return normalizePages(currentPhase === "user" ? memberPages : orgPages);
     }
 
+    if (userType === "coordinator") {
+      return normalizePages(onboarding.coordinator_onboarding ?? onboarding.user ?? []);
+    }
+
     return normalizePages(onboarding.user ?? []);
   }, [userType, currentPhase, pagesData, isOrgMember]);
 

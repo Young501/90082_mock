@@ -2,6 +2,7 @@ export interface MessagingUser {
   id: number;
   email: string;
   full_name: string;
+  user_types: string[];
   profile_picture_url: string | null;
   organisation_name: string | null;
   organisation_logo_url: string | null;
@@ -79,8 +80,9 @@ export interface ConversationSummary {
   id: ConversationId;
   otherUserId?: number;
   otherOrganisationId?: number | null;
+  otherUserTypes: string[];
   organisationTitle?: string;
-  studentTitle: string;
+  otherUserName: string;
   organisationSubtitle: string;
   studentSubtitle: string;
   lastMessagePreview: string;
@@ -151,8 +153,9 @@ export function conversationListItemToSummary(
     id: item.id,
     otherUserId: item.other_user.id,
     otherOrganisationId: item.other_user.organisation_id,
+    otherUserTypes: item.other_user.user_types ?? [],
     organisationTitle: item.other_user.organisation_name || "",
-    studentTitle: item.other_user.full_name,
+    otherUserName: item.other_user.full_name,
     organisationSubtitle:
       item.other_user.full_name ||
       item.opportunity_title ||

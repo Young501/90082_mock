@@ -290,7 +290,7 @@ const Header = ({
                         priority
                       />
                     ) : (
-                      <Link href="/">
+                      <Link href="/" style={{ position: "relative", display: "block", width: "100%", height: "100%" }}>
                         <Image
                           alt="Uniconnected"
                           src="/assets/logo.svg"

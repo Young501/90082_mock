@@ -52,12 +52,14 @@ export function PaginationControls({
   totalPages,
   pageSize,
   totalCount,
-  hasNext,
-  hasPrevious,
+  hasNext: hasNextProp,
+  hasPrevious: hasPreviousProp,
   onPageChange,
   onPageSizeChange,
   isLoading = false,
 }: PaginationControlsProps) {
+  const hasNext = hasNextProp ?? currentPage < totalPages;
+  const hasPrevious = hasPreviousProp ?? currentPage > 1;
   const [jumpError, setJumpError] = React.useState<string>("");
   const [pageSizeError, setPageSizeError] = React.useState<string>("");
 

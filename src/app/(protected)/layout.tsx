@@ -25,7 +25,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
   const setCoordinatorOpportunities = useAuthStore((s) => s.setCoordinatorOpportunities);
 
   const { data: userDetailsV2Data } = useUserMeV2();
-  useProfile(isCoordinator ? "" : userType);
+  useProfile(userType);
   const { data: accessibleOpportunities } = useAccessibleOpportunities(!isCoordinator);
   const { data: coordinatorOpportunitiesData } = useCoordinatorOpportunities(isCoordinator);
 

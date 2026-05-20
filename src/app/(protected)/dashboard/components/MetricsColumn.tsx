@@ -133,6 +133,7 @@ export function MetricsColumn({
               alt={iconAlt}
               width={imageSize}
               height={imageSize}
+              style={{ width: "auto", height: "auto" }}
             />
           </Box>
           <Text

@@ -310,7 +310,7 @@ const Sidebar = ({
                       transition="background 0.15s"
                     >
                       <Text
-                        fontSize="md"
+                        fontSize="sm"
                         fontWeight={500}
                         color={isActiveOpp ? "#1679AB" : INACTIVE_COLOR}
                         flex={1}
@@ -582,7 +582,7 @@ const Sidebar = ({
                         transition="background 0.15s"
                       >
                         <Text
-                          fontSize="md"
+                          fontSize="sm"
                           fontWeight={500}
                           color={
                             isActiveOpp

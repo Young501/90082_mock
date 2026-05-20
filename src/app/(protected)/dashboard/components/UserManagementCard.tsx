@@ -5,6 +5,7 @@ import { getInitial } from "@/utils/getInitials";
 import Image from "next/image";
 import { Tooltip } from "@/components/ui/tooltip";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
+import { PROFILE_TINT_COLORS } from "@/theme/theme";
 
 interface UserManagementCardProps {
   participant: Participant;
@@ -68,28 +69,27 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
   return (
     <Box
       bg={
-        isDeclined || isInvited ? "gray.100" : isSelected ? "#A2DDF0" : "white"
+        isDeclined || isInvited
+          ? "gray.100"
+          : isSelected
+            ? PROFILE_TINT_COLORS[userType]
+            : "white"
       }
       border={
         isDeclined
           ? "1px solid #DC2626"
           : participant.match_info?.is_matched
             ? "1px solid #089C3F"
-            : "1px solid #2CA9DF"
+            : isSelected
+              ? `1px solid ${PROFILE_TINT_COLORS[userType]}`
+              : "1px solid #E4E4E7"
       }
       borderRadius="md"
       p={4}
       cursor={isDeclined || isInvited ? "not-allowed" : "pointer"}
       onClick={isDeclined || isInvited ? undefined : onClick}
       _hover={{
-        bg: isDeclined
-          ? "gray.100"
-          : isSelected
-            ? "#A2DDF0"
-            : isSelected && participant.match_info?.is_matched
-              ? "#00000024"
-              : "gray.50",
-        borderColor: isDeclined ? "#DC2626" : "blue.300",
+        transform: isDeclined || isInvited ? "none" : "scale(1.01)",
       }}
       transition="all 0.2s"
       opacity={isDeclined || isInvited ? 0.6 : 1}
