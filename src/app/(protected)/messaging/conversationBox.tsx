@@ -14,7 +14,6 @@ interface ConversationBoxProps {
   isActive: boolean;
   onSelect: (id: ConversationId) => void;
   onToggleArchive: (id: ConversationId) => void;
-  profileType: "coordinator" | "organisation" | "student";
 }
 
 export const ConversationBox = ({
@@ -22,8 +21,10 @@ export const ConversationBox = ({
   isActive,
   onSelect,
   onToggleArchive,
-  profileType,
 }: ConversationBoxProps) => {
+  const otherIsOrg = conversation.otherUserTypes.includes("organisation");
+  const otherIsCoordinator =
+    conversation.otherUserTypes.includes("coordinator");
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -40,41 +41,81 @@ export const ConversationBox = ({
       w="100%"
     >
       <HStack align="flex-start" gap={3} w="100%">
-        <ProfileAvatar
-          src={
-            profileType === "organisation"
-              ? (conversation.avatar ?? undefined)
-              : (conversation.organisationLogo ?? undefined)
-          }
-          alt={
-            profileType === "organisation"
-              ? conversation.studentTitle
-              : (conversation.organisationTitle ?? undefined)
-          }
-          fallback={
-            profileType === "organisation"
-              ? conversation.studentTitle
-              : (conversation.organisationTitle ?? undefined)
-          }
-          size="xs"
-        />
+        <Box position="relative" flexShrink={0}>
+          <ProfileAvatar
+            src={
+              otherIsOrg
+                ? (conversation.organisationLogo ?? undefined)
+                : (conversation.avatar ?? undefined)
+            }
+            alt={
+              otherIsOrg
+                ? (conversation.organisationTitle ?? undefined)
+                : conversation.otherUserName
+            }
+            fallback={
+              otherIsOrg
+                ? (conversation.organisationTitle ?? undefined)
+                : conversation.otherUserName
+            }
+            size="md"
+            borderRadius="12px"
+          />
+          {otherIsOrg && conversation.avatar && (
+            <Box
+              position="absolute"
+              right={-2}
+              bottom={-2}
+              borderRadius="6px"
+              overflow="hidden"
+              boxShadow="0 0 0 2px white"
+            >
+              <ProfileAvatar
+                src={conversation.avatar}
+                alt={conversation.organisationMemberName ?? undefined}
+                fallback={conversation.organisationMemberName ?? undefined}
+                size="24px"
+                fallbackFontSize="2xs"
+                borderRadius="6px"
+              />
+            </Box>
+          )}
+        </Box>
         <Box minW={0} w="100%">
           <HStack justify="space-between">
-            <VStack align="flex-start" gap={0}>
-              <Text
-                fontWeight={conversation.hasUnread ? "semibold" : "medium"}
-                fontSize="sm"
-                truncate
-                color="black"
-              >
-                {profileType === "organisation"
-                  ? conversation.studentTitle
-                  : conversation.organisationTitle}
-              </Text>
-              <Text fontSize="xs" color="#2563EB" truncate>
-                {profileType === "organisation"
-                  ? conversation.studentSubtitle
-                  : conversation.organisationSubtitle}
+            <VStack align="flex-start" gap={0} minW={0} flex={1} overflow="hidden">
+              <HStack gap={1} align="center" w="100%" minW={0}>
+                <Text
+                  fontWeight={conversation.hasUnread ? "semibold" : "medium"}
+                  fontSize="sm"
+                  truncate
+                  color="black"
+                  minW={0}
+                  flex={1}
+                >
+                  {otherIsOrg
+                    ? conversation.organisationTitle
+                    : conversation.otherUserName}
+                </Text>
+                {otherIsCoordinator && (
+                  <Badge
+                    bg="#E9F7F6"
+                    color="#3AADA8"
+                    border="1px solid #D3EFEA"
+                    fontSize="10px"
+                    borderRadius="md"
+                    px={1.5}
+                    py={0.5}
+                    flexShrink={0}
+                  >
+                    Coordinator
+                  </Badge>
+                )}
+              </HStack>
+              <Text fontSize="xs" color="#2563EB" w="100%">
+                {otherIsOrg
+                  ? conversation.organisationSubtitle
+                  : conversation.studentSubtitle}
               </Text>
             </VStack>
             <VStack align="flex-end" gap={2}>
@@ -84,7 +125,7 @@ export const ConversationBox = ({
               {conversation.hasUnread && conversation.unreadCount > 0 && (
                 <Badge
                   borderRadius="6px"
-                  bg={profileType === "organisation" ? "#1F7F7B" : "#1679AB"}
+                  bg={otherIsOrg ? "#1F7F7B" : "#1679AB"}
                   color="white"
                   fontSize="10px"
                   textAlign="center"

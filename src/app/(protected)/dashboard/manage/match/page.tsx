@@ -3,27 +3,29 @@ import React, { useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Box,
-  VStack,
-  Button,
   Text,
+  VStack,
   useDisclosure,
   HStack,
-  Avatar,
   SimpleGrid,
   Container,
+  IconButton,
 } from "@chakra-ui/react";
 import { useMatchStudent, useParticipants } from "@/services/manage";
 import { PaginationControls } from "@/components/ui/PaginationControls";
 import { MatchConfirmationModal } from "@/components/ui";
 import { Participant } from "@/types/dashboard";
-import ManageFilter from "@/app/(protected)/dashboard/components/ManageFilter";
 import { toast } from "react-toastify";
 import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
+import { ProfileAvatar } from "@/components/ProfileAvatar";
+import { ArrowLeft } from "lucide-react";
+import { DebouncedSearchInput } from "@/components/ui/DebouncedSearchInput";
 
 const Match = () => {
   const router = useRouter();
+  React.useEffect(() => { window.scrollTo(0, 0); }, []);
   const searchParams = useSearchParams();
   const studentId = searchParams.get("studentId");
   const opportunityId = searchParams.get("opportunityId");
@@ -62,7 +64,7 @@ const Match = () => {
         student_participant_id: studentId,
         organisation_participant_id: selectedOrg.id.toString(),
       });
-      router.push(`/dashboard/manage/?type=student`);
+      router.back();
     } catch (e: any) {
       toast.error(e.response?.data?.detail || "Failed to match student");
       onClose();
@@ -73,97 +75,84 @@ const Match = () => {
     <>
       <PageTitle title={PAGE_TITLES.MATCH} />
       <Box maxW="1512px" mx="auto">
-        <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
-          <Text
-            as="h1"
-            fontSize={{ base: "32px", lg: "51px" }}
-            fontWeight="600"
-            color="#000000"
-          >
-            Select Matching Organisation
-          </Text>
-          <ManageFilter
-            filters={{ text: search }}
-            onFilterChange={(f) => {
-              setSearch(f.text || "");
-              setPage(1);
-            }}
-            onReset={() => {
-              setSearch("");
-              setPage(1);
-            }}
-            searchOnly
+        <Container maxW="1512px" px={0} display="flex" flexDirection="column" gap={8}>
+
+          {/* Header */}
+          <HStack gap={3} align="center">
+            <IconButton
+              aria-label="Back"
+              variant="ghost"
+              size="sm"
+              onClick={() => router.back()}
+            >
+              <ArrowLeft size={20} />
+            </IconButton>
+            <Text as="h1" fontSize={{ base: "22px", lg: "28px" }} fontWeight="600" color="#000000">
+              Select Matching Organisation
+            </Text>
+          </HStack>
+
+          <DebouncedSearchInput
+            placeholder="Search by name or email"
+            onChange={(val) => { setSearch(val); setPage(1); }}
           />
+
+          {/* Content */}
           {isLoading ? (
-            <Box textAlign="center" py={8}>
+            <Box display="flex" justifyContent="center" py={12}>
               <Loader size="lg" />
             </Box>
           ) : error ? (
-            <Text color="red.500">Failed to load organsations</Text>
+            <Text color="red.500" fontSize="sm">Failed to load organisations</Text>
           ) : (
             <>
-              <Box w="100%">
-                <SimpleGrid
-                  gap={{ base: 8, lg: 10 }}
-                  w="100%"
-                  columns={{ base: 1, lg: 2 }}
-                >
-                  {data?.results?.map((org: Participant) => (
-                    <HStack
-                      key={org.id}
+              <SimpleGrid gap={4} w="100%" columns={{ base: 1, lg: 2 }}>
+                {data?.results?.map((org: Participant) => (
+                  <HStack
+                    key={org.id}
+                    bg="white"
+                    borderRadius="12px"
+                    border="1px solid #E4E4E7"
+                    gap={4}
+                    px={5}
+                    py={4}
+                    onClick={() => handleSelect(org)}
+                    cursor="pointer"
+                    transition="all 0.2s"
+                    _hover={{ transform: "scale(1.01)", borderColor: "#D3EFEA" }}
+                  >
+                    <ProfileAvatar
+                      src={org.image_url ?? undefined}
+                      fallback={org.name ?? ""}
+                      size="52px"
                       borderRadius="12px"
-                      border="1px solid #2CA9DF"
-                      gap={{ base: 4, lg: 6 }}
-                      px={{ base: 4, lg: 10 }}
-                      height={{ base: "80px", lg: "115px" }}
-                      overflowX="auto"
-                      onClick={() => handleSelect(org)}
-                      cursor="pointer"
-                      _hover={{
-                        bg: "#F0F8FF",
-                      }}
-                    >
-                      <Box
-                        w={{ base: "50px", lg: "75px" }}
-                        h={{ base: "50px", lg: "75px" }}
-                        borderRadius="50%"
-                        border="5px solid #22C45E"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                      >
-                        <Avatar.Root
-                          w={{ base: "45px", lg: "70px" }}
-                          h={{ base: "45px", lg: "70px" }}
-                        >
-                          <Avatar.Fallback
-                            name={org.name || ""}
-                            bg="gray.200"
-                            color="gray.800"
-                            fontWeight="bold"
-                            fontSize="2xl"
-                          />
-                          {org.image_url && (
-                            <Avatar.Image
-                              src={org.image_url}
-                              w={{ base: "45px", lg: "70px" }}
-                              h={{ base: "45px", lg: "70px" }}
-                            />
-                          )}
-                        </Avatar.Root>
-                      </Box>
-
-                      <Text
-                        fontSize={{ base: "18px", lg: "28px" }}
-                        fontWeight="600"
-                        color="#000000"
-                      >
+                    />
+                    <VStack align="flex-start" gap={0}>
+                      <Text fontSize="md" fontWeight="600" color="#18181B">
                         {org.name}
                       </Text>
-                    </HStack>
-                  ))}
-                </SimpleGrid>
-              </Box>
+                      {org.email && (
+                        <Text fontSize="sm" color="#71717A">
+                          {org.email}
+                        </Text>
+                      )}
+                    </VStack>
+                  </HStack>
+                ))}
+              </SimpleGrid>
+
+              {(!data?.results || data.results.length === 0) && (
+                <Box
+                  bg="white"
+                  border="1px solid #E4E4E7"
+                  borderRadius="12px"
+                  p={10}
+                  textAlign="center"
+                >
+                  <Text color="#71717A" fontSize="sm">No organisations found</Text>
+                </Box>
+              )}
+
               <PaginationControls
                 currentPage={page}
                 totalPages={Math.ceil((data?.count || 0) / pageSize)}
@@ -175,17 +164,18 @@ const Match = () => {
               />
             </>
           )}
-          <MatchConfirmationModal
-            isOpen={open}
-            onClose={onClose}
-            onConfirm={handleMatch}
-            title="Confirm Match"
-            message={`Are you sure you want to match this student to ${selectedOrg?.name}?`}
-            confirmText="Confirm"
-            isLoading={matchStudentMutation.isPending}
-          />
         </Container>
       </Box>
+
+      <MatchConfirmationModal
+        isOpen={open}
+        onClose={onClose}
+        onConfirm={handleMatch}
+        title="Confirm Match"
+        message={`Are you sure you want to match this student to ${selectedOrg?.name}?`}
+        confirmText="Confirm"
+        isLoading={matchStudentMutation.isPending}
+      />
     </>
   );
 };

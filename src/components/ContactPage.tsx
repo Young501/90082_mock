@@ -12,6 +12,7 @@ import {
   IconButton,
   Flex,
   Avatar,
+  Portal,
 } from "@chakra-ui/react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -242,13 +243,13 @@ export function ContactPage({
   const getDefaultSubject = () => {
     const fullName =
       `${userProfile?.first_name ?? ""} ${userProfile?.last_name ?? ""}`.trim();
-    if (userType === "coordinator") {
-      return "New message from Coordinator via UniConnected";
+    if (userType === "organisation") {
+      return `New message from ${organisationName || "User"} via UniConnected`;
     }
-    if (profileType === "organisation") {
-      return `New message from ${fullName || "User"} via UniConnected`;
-    }
-    return `New message from ${organisationName || "User"} via UniConnected`;
+    const fallback = userType
+      ? userType.charAt(0).toUpperCase() + userType.slice(1)
+      : "User";
+    return `New message from ${fullName || fallback} via UniConnected`;
   };
 
   const defaultOther = defaultOtherUserId(profileType, recipientId, members);
@@ -323,10 +324,11 @@ export function ContactPage({
     profileType === "organisation" && selectableMembers.length > 0;
 
   return (
+    <Portal>
     <Box
       position="fixed"
       inset={0}
-      zIndex={1000}
+      zIndex={9999}
       display="flex"
       alignItems="center"
       justifyContent="center"
@@ -519,5 +521,6 @@ export function ContactPage({
         </Box>
       </Box>
     </Box>
+    </Portal>
   );
 }

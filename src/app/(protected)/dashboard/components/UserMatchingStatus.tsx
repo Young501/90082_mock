@@ -1,27 +1,35 @@
 import React, { useState } from "react";
-import { Box, VStack, HStack, Text, Avatar, Separator } from "@chakra-ui/react";
+import { Box, VStack, HStack, Text, Separator, IconButton } from "@chakra-ui/react";
 import { Participant } from "@/types/dashboard";
 import { getInitial } from "@/utils/getInitials";
-import { formatDate } from "@/utils/formatDate";
+import { formatDate, formatDateTimeToReadable } from "@/utils/formatDate";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useUnmatch } from "@/services/manage";
+import { EllipsisVertical, Trash2 } from "lucide-react";
+import { useUnmatch, useDeleteParticipant } from "@/services/manage";
 import { MatchConfirmationModal } from "@/components/ui";
 import { Button } from "@/components/ui/Button";
 import { FullProfileCard } from "@/app/(protected)/discover/cards/FullProfileCard";
+import { ProfileAvatar } from "@/components/ProfileAvatar";
+import { MenuPopover } from "@/components/ui/MenuPopover";
+import { PendingResendPanel } from "./PendingResendPanel";
 
 interface UserMatchingStatusProps {
   participant: Participant | null;
   userType: "student" | "organisation";
   opportunityId: string;
+  oppSlug?: string;
   onParticipantUpdate?: (updatedParticipant: Participant) => void;
+  onDelete?: () => void;
 }
 
 const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
   participant,
   userType,
   opportunityId,
+  oppSlug,
   onParticipantUpdate,
+  onDelete,
 }) => {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const router = useRouter();
@@ -29,40 +37,44 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
     opportunityId.toString(),
     participant?.match_info?.matched_with?.match_id?.toString() || " "
   );
-
   const [isUnmatching, setIsUnmatching] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const deleteParticipantMutation = useDeleteParticipant(opportunityId);
 
-  const getBorderColor = () => {
-    return userType === "student" ? "#DC2626" : "#089C3F";
-  };
+  const buttonVariant = userType === "student" ? "student" : "partner";
 
-  const getDotColor = () => {
-    return userType === "student" ? "#DC2626" : "#089C3F";
-  };
+  const getDotColor = () =>
+    userType === "student" ? "#1679AB" : "#1F7F7B";
 
   const getMatchedWithName = () => {
     if (!participant?.match_info?.matched_with) return "";
-
     if (Array.isArray(participant.match_info.matched_with)) {
       const matches = participant.match_info.matched_with;
       return matches.length > 0 ? matches[0].name || "" : "";
-    } else {
-      return participant.match_info.matched_with.name || "";
     }
+    return participant.match_info.matched_with.name || "";
   };
 
   const getMessageText = (message: any) => {
     if (message.sender?.user_type === "organisation") {
       return `Student is contacted by ${message.sender?.name || "-"}`;
-    } else {
-      return `Student contacted ${message.receiver?.name || "-"}`;
     }
+    return `Student contacted ${message.receiver?.name || "-"}`;
   };
 
-  const getEmptyStateText = () => {
-    return userType === "student"
+  const getEmptyStateText = () =>
+    userType === "student"
       ? "Click on a Student's profile to access matching status"
       : "Click on an Organisation's profile to access matching status";
+
+  const handleDelete = () => {
+    if (!participant?.id) return;
+    deleteParticipantMutation.mutate(participant.id, {
+      onSuccess: () => {
+        setIsDeleting(false);
+        onDelete?.();
+      },
+    });
   };
 
   const handleUnmatch = () => {
@@ -70,15 +82,10 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
       unmatchMutation.mutate(undefined, {
         onSuccess: () => {
           if (participant && onParticipantUpdate) {
-            const updatedParticipant = {
+            onParticipantUpdate({
               ...participant,
-              match_info: {
-                ...participant.match_info,
-                is_matched: false,
-                matched_with: null,
-              },
-            };
-            onParticipantUpdate(updatedParticipant);
+              match_info: { ...participant.match_info, is_matched: false, matched_with: null },
+            });
           }
           setIsUnmatching(false);
         },
@@ -86,44 +93,23 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
     }
   };
 
-  const handleUnmatchClick = () => {
-    setIsUnmatching(true);
-  };
-
-  const handleCloseUnmatchModal = () => {
-    setIsUnmatching(false);
-  };
-
-  const handleViewFullProfile = () => {
-    setShowFullProfile(true);
-  };
-
   if (!participant) {
     return (
       <Box height="100%">
-        <Text
-          fontSize={{ base: "20px", lg: "35px" }}
-          fontWeight="600"
-          color="#000000"
-          textAlign="left"
-        >
-          Matching Status
+        <Text fontSize={{ base: "16px", lg: "20px" }} fontWeight="600" color="#000000">
+          Participant Panel
         </Text>
         <Box
-          bg="white"
-          borderRadius="lg"
-          p={6}
-          height="fit-content"
           display="flex"
           alignItems="center"
           justifyContent="center"
-          minH={{ base: "100%", lg: "400px" }}
+          minH={{ base: "100%", lg: "300px" }}
         >
           <Text
-            fontSize={{ base: "18px", lg: "27px" }}
+            fontSize={{ base: "14px", lg: "15px" }}
             fontWeight="400"
-            color="#000000"
-            maxW={{ base: "100%", lg: "417px" }}
+            color="#71717A"
+            maxW="320px"
             textAlign="center"
           >
             {getEmptyStateText()}
@@ -133,343 +119,270 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
     );
   }
 
+  const isPending = participant.accepted_status === "Pending";
+
   return (
     <Box bg="white" height="fit-content">
-      <Text
-        fontSize={{ base: "20px", lg: "35px" }}
-        mb={{ base: "20px", lg: "50px" }}
-        fontWeight="600"
-        color="#000000"
-        textAlign="left"
-      >
-        Matching Status
-      </Text>
+      {/* Panel title + three-dot menu */}
+      <HStack justify="space-between" align="center" mb={4}>
+        <Text fontSize={{ base: "16px", lg: "20px" }} fontWeight="600" color="#000000">
+          Participant Panel
+        </Text>
+        <MenuPopover
+          placement="bottom-end"
+          trigger={
+            <IconButton
+              aria-label="Participant options"
+              variant="ghost"
+              size="sm"
+              minW="fit-content"
+              h="fit-content"
+            >
+              <EllipsisVertical size={18} color="#71717A" />
+            </IconButton>
+          }
+        >
+          <Box
+            as="button"
+            display="flex"
+            alignItems="center"
+            gap={2}
+            w="100%"
+            px={2}
+            py={1.5}
+            borderRadius="md"
+            fontSize="sm"
+            color="#EF4444"
+            _hover={{ bg: "#FEF2F2" }}
+            onClick={() => setIsDeleting(true)}
+          >
+            <Trash2 size={14} />
+            Remove Participant
+          </Box>
+        </MenuPopover>
+      </HStack>
 
       <VStack align="stretch" gap={4}>
+        {/* Shared participant header — same for all statuses */}
         <HStack
-          align="center"
           gap={4}
-          flexDirection={{ base: "column", md: "row" }}
           justifyContent="space-between"
           alignItems="center"
+          flexDirection={{ base: "column", md: "row" }}
           w="100%"
         >
-          <HStack gap={4}>
-            <Box
-              w={{ base: "90px" }}
-              h={{ base: "90px" }}
-              borderRadius="50%"
-              border={`10px solid ${getBorderColor()}`}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Avatar.Root width="85px" height="85px">
-                <Avatar.Fallback
-                  name={getInitial(participant.name || "")}
-                  bg="gray.200"
-                  color="gray.800"
-                  fontWeight="bold"
-                  fontSize={{ base: "20px", lg: "35px" }}
-                />
-                {participant.image_url && (
-                  <Avatar.Image src={participant.image_url} w="85px" h="85px" />
-                )}
-              </Avatar.Root>
-            </Box>
-            <VStack align="start" gap={1}>
-              <Text fontWeight="600" fontSize={{ base: "16px", lg: "20px" }}>
+          <HStack gap={3}>
+            <ProfileAvatar
+              src={participant.image_url}
+              fallback={getInitial(participant.name || "")}
+              size="lg"
+              borderRadius="12px"
+              alt={participant.name}
+            />
+            <VStack align="start" gap={0}>
+              <Text fontWeight="600" fontSize={{ base: "14px", lg: "16px" }}>
                 {participant.name}
               </Text>
+              {participant.email && (
+                <Text fontSize="12px" color="#71717A" fontWeight="400">
+                  {participant.email}
+                </Text>
+              )}
+              {participant.invitation_sent_at && (
+                <Text fontSize="11px" color="#A1A1AA" fontWeight="400">
+                  Invited on {formatDateTimeToReadable(participant.invitation_sent_at)}
+                </Text>
+              )}
             </VStack>
           </HStack>
 
-          <Button
-            onClick={() => {
-              handleViewFullProfile();
-            }}
-            variant="primary"
-            color="white"
-            bg="#002157"
-            fontSize={{ base: "20px" }}
-            fontWeight="600"
-            borderRadius="18px"
-            py={{ base: "10px", lg: "20px" }}
-            px={{ base: "20px", lg: "40px" }}
-            maxW={{ base: "100%", lg: "200px" }}
-          >
-            View Full Profile
-          </Button>
+          {!isPending && (
+            <Button
+              variant={buttonVariant}
+              fontSize="14px"
+              fontWeight="600"
+              height="36px"
+              px={4}
+              borderRadius="8px"
+              onClick={() => setShowFullProfile(true)}
+            >
+              View Full Profile
+            </Button>
+          )}
         </HStack>
 
-        <Separator borderColor="#000000" mb={{ base: "20px", lg: "40px" }} />
+        <Separator borderColor="#E4E4E7" />
 
-        <VStack
-          align="stretch"
-          gap={{ base: "20px", lg: "40px" }}
-          mb={{ base: "20px", lg: "40px" }}
-        >
-          {participant?.messages &&
-          participant.messages.length &&
-          userType === "student" ? (
-            <VStack align="stretch" gap={2}>
-              {participant.messages.map((message, index) => (
-                <Box key={message.id || index}>
-                  <HStack gap={6} alignItems="start" w="100%">
-                    <Box
-                      w={{ base: "8px", md: "12px", lg: "23px" }}
-                      mt={2}
-                      h={{ base: "8px", md: "12px", lg: "23px" }}
-                    >
+        {/* Body — branches on pending vs accepted */}
+        {isPending ? (
+          <PendingResendPanel
+            participant={participant}
+            userType={userType}
+            oppSlug={oppSlug}
+          />
+        ) : (
+          <>
+            <VStack align="stretch" gap={3} py={2}>
+              {participant?.messages && participant.messages.length && userType === "student" ? (
+                <VStack align="stretch" gap={3}>
+                  {participant.messages.map((message, index) => (
+                    <HStack key={message.id || index} gap={3} alignItems="flex-start" w="100%">
                       <Box
-                        w={{ base: "8px", md: "12px", lg: "23px" }}
-                        h={{ base: "8px", md: "12px", lg: "23px" }}
+                        w="8px"
+                        h="8px"
+                        mt="6px"
                         bg={getDotColor()}
-                        borderRadius="20px"
+                        borderRadius="full"
+                        flexShrink={0}
                       />
-                    </Box>
-
-                    <Box>
-                      <Text
-                        fontSize={{ base: "18px", lg: "22px" }}
-                        fontWeight="700"
-                      >
-                        {getMessageText(message)}
-                      </Text>
-                      <Text
-                        fontSize={{ base: "16px", lg: "20px" }}
-                        color="#000000"
-                        fontWeight="400"
-                      >
-                        {formatDate(message.sent_at || "")}
-                      </Text>
-                    </Box>
-                  </HStack>
-                </Box>
-              ))}
-            </VStack>
-          ) : userType === "organisation" ? (
-            <VStack align="stretch" gap={2}>
-              {Array.isArray(participant.match_info?.matched_with) &&
-              participant.match_info?.matched_with?.length &&
-              participant.match_info?.matched_with?.length > 0 ? (
-                <>
-                  <Text
-                    fontSize={{ base: "16px", lg: "20px" }}
-                    color="#000000"
-                    fontWeight="400"
-                  >
-                    List of students matched with this organisation
-                  </Text>
-                  {participant.match_info?.matched_with.map(
-                    (matchedWith: any, index: number) => (
-                      <Box
-                        key={matchedWith.id || index}
-                        border="1px solid #2CA9DF"
-                        px={6}
-                        py={2}
-                        borderRadius="10px"
-                        w="100%"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="start"
-                        gap={6}
-                      >
-                        <Box
-                          w={{ base: "40px" }}
-                          h={{ base: "40px" }}
-                          borderRadius="50%"
-                          border={`5px solid #DC2626`}
-                          display="flex"
-                          alignItems="center"
-                          justifyContent="center"
-                        >
-                          <Avatar.Root
-                            width="35px"
-                            height="35px"
-                            borderRadius="50%"
-                          >
-                            <Avatar.Fallback
-                              name={getInitial(matchedWith.name || "")}
-                              bg="gray.200"
-                              color="gray.800"
-                              fontWeight="bold"
-                              fontSize={{ base: "16px", lg: "20px" }}
-                            />
-                            <Avatar.Image
-                              src={matchedWith.image_url || ""}
-                              w="35px"
-                              h="35px"
-                            />
-                          </Avatar.Root>
-                        </Box>
-
-                        <Text
-                          fontSize={{ base: "18px", lg: "22px" }}
-                          fontWeight="700"
-                        >
-                          {matchedWith.name}
+                      <Box>
+                        <Text fontSize={{ base: "13px", lg: "14px" }} fontWeight="600">
+                          {getMessageText(message)}
                         </Text>
-
-                        <Text
-                          fontSize={{ base: "14px", lg: "16px" }}
-                          fontWeight="400"
-                          color="gray.600"
-                        >
-                          Matched at -{" "}
-                          {formatDate(matchedWith.matched_at || "")}
+                        <Text fontSize={{ base: "12px", lg: "13px" }} color="#71717A" fontWeight="400">
+                          {formatDate(message.sent_at || "")}
                         </Text>
                       </Box>
-                    )
+                    </HStack>
+                  ))}
+                </VStack>
+              ) : userType === "organisation" ? (
+                <VStack align="stretch" gap={2}>
+                  {Array.isArray(participant.match_info?.matched_with) &&
+                  participant.match_info?.matched_with?.length > 0 ? (
+                    <>
+                      <Text fontSize="13px" color="#71717A" fontWeight="400">
+                        Students matched with this organisation
+                      </Text>
+                      {participant.match_info.matched_with.map((matchedWith: any, index: number) => (
+                        <HStack
+                          key={matchedWith.id || index}
+                          border="1px solid #E4E4E7"
+                          px={4}
+                          py={2}
+                          borderRadius="8px"
+                          gap={3}
+                        >
+                          <ProfileAvatar
+                            src={matchedWith.image_url}
+                            fallback={getInitial(matchedWith.name || "")}
+                            size="sm"
+                            borderRadius="8px"
+                            alt={matchedWith.name}
+                          />
+                          <Text fontSize="14px" fontWeight="600" flex={1}>
+                            {matchedWith.name}
+                          </Text>
+                          <Text fontSize="12px" color="#71717A">
+                            {formatDate(matchedWith.matched_at || "")}
+                          </Text>
+                        </HStack>
+                      ))}
+                    </>
+                  ) : (
+                    <Text fontSize="14px" color="#71717A" fontWeight="400">
+                      This organisation has not matched with any students yet
+                    </Text>
                   )}
-                </>
+                </VStack>
               ) : (
-                <Text
-                  fontSize={{ base: "16px", lg: "20px" }}
-                  color="#000000"
-                  fontWeight="400"
-                >
-                  This organisation did not match with any students yet
+                <Text fontSize="14px" color="#71717A" fontStyle="italic">
+                  No messages yet
                 </Text>
               )}
             </VStack>
-          ) : (
-            <Text
-              fontSize={{ base: "16px", lg: "20px" }}
-              color="#000000"
-              fontStyle="italic"
-            >
-              No messages yet
-            </Text>
-          )}
-        </VStack>
 
-        {participant.match_info?.is_matched && userType === "student" && (
-          <VStack align="start">
-            <Box display="flex" alignItems="center" gap={2}>
-              <Image
-                src="/assets/matched.svg"
-                alt="check-circle"
-                width={34}
-                height={34}
-              />
-              <Text
-                fontSize={{ base: "16px", lg: "20px" }}
-                color="#000000"
-                fontWeight="600"
-              >
-                Student is MATCHED to {getMatchedWithName()}
-              </Text>
-            </Box>
-
-            <Text
-              fontSize={{ base: "16px", lg: "20px" }}
-              color="#000000"
-              fontWeight="400"
-            >
-              Matched at -{" "}
-              {formatDate(
-                Array.isArray(participant.match_info?.matched_with)
-                  ? participant.match_info.matched_with[0]?.matched_at || ""
-                  : participant.match_info?.matched_with?.matched_at || ""
-              )}
-            </Text>
-          </VStack>
-        )}
-
-        <Separator borderColor="#000000" mb={{ base: "20px", lg: "40px" }} />
-
-        {userType === "student" && (
-          <Box>
-            {participant.match_info?.is_matched ? (
-              <HStack
-                align="center"
-                gap={3}
-                w="100%"
-                justifyContent="space-between"
-              >
-                <Text
-                  fontWeight="600"
-                  fontSize={{ base: "16px", lg: "20px" }}
-                  width="100%"
-                  color="gray.700"
-                >
-                  Do you want to unmatch this{" "}
-                  {userType === "student" ? "student" : "organisation"}?
-                </Text>
-                <Button
-                  variant="secondary"
-                  fontSize={{ base: "20px", lg: "27px" }}
-                  fontWeight="600"
-                  borderRadius="18px"
-                  py={{ base: "10px", lg: "20px" }}
-                  px={{ base: "20px", lg: "40px" }}
-                  maxW={{ base: "100%", lg: "200px" }}
-                  onClick={handleUnmatchClick}
-                >
-                  Unmatch
-                </Button>
-              </HStack>
-            ) : (
-              <HStack
-                align="stretch"
-                gap={3}
-                w="100%"
-                justifyContent="space-between"
-              >
-                <Text
-                  fontWeight="600"
-                  fontSize={{ base: "16px", lg: "20px" }}
-                  width="100%"
-                  color="gray.700"
-                >
-                  Do you want to match this{" "}
-                  {userType === "student" ? "student" : "organisation"}?
-                </Text>
-                <Button
-                  variant="primary"
-                  color="white"
-                  fontSize={{ base: "20px", lg: "27px" }}
-                  fontWeight="600"
-                  borderRadius="18px"
-                  py={{ base: "10px", lg: "20px" }}
-                  px={{ base: "20px", lg: "40px" }}
-                  maxW={{ base: "100%", lg: "200px" }}
-                  disabled={participant.match_info?.is_matched || false}
-                  onClick={() => {
-                    if (participant && participant.id && opportunityId) {
-                      router.push(
-                        `/dashboard/manage/match/?studentId=${participant.id}&opportunityId=${opportunityId}`
-                      );
-                    }
-                  }}
-                >
-                  Match
-                </Button>
+            {participant.match_info?.is_matched && userType === "student" && (
+              <HStack gap={2}>
+                <Image src="/assets/matched.svg" alt="matched" width={18} height={18} />
+                <Box>
+                  <Text fontSize="14px" fontWeight="600" color="#000000">
+                    Matched with {getMatchedWithName()}
+                  </Text>
+                  <Text fontSize="12px" color="#71717A">
+                    {formatDate(
+                      Array.isArray(participant.match_info?.matched_with)
+                        ? participant.match_info.matched_with[0]?.matched_at || ""
+                        : participant.match_info?.matched_with?.matched_at || ""
+                    )}
+                  </Text>
+                </Box>
               </HStack>
             )}
-          </Box>
+
+            <Separator borderColor="#E4E4E7" />
+
+            {userType === "student" && (
+              <HStack justify="space-between" align="center" gap={4}>
+                <Text fontSize="14px" fontWeight="500" color="#52525B">
+                  {participant.match_info?.is_matched
+                    ? "Do you want to unmatch this student?"
+                    : "Do you want to match this student?"}
+                </Text>
+                {participant.match_info?.is_matched ? (
+                  <Button
+                    variant="secondary"
+                    fontSize="14px"
+                    fontWeight="600"
+                    height="36px"
+                    px={4}
+                    borderRadius="8px"
+                    onClick={() => setIsUnmatching(true)}
+                  >
+                    Unmatch
+                  </Button>
+                ) : (
+                  <Button
+                    variant={buttonVariant}
+                    fontSize="14px"
+                    fontWeight="600"
+                    height="36px"
+                    px={4}
+                    borderRadius="8px"
+                    disabled={participant.match_info?.is_matched || false}
+                    onClick={() => {
+                      if (participant?.id && opportunityId) {
+                        router.push(`/dashboard/manage/match/?studentId=${participant.id}&opportunityId=${opportunityId}`);
+                      }
+                    }}
+                  >
+                    Match
+                  </Button>
+                )}
+              </HStack>
+            )}
+          </>
         )}
       </VStack>
 
       {showFullProfile && (
         <FullProfileCard
-          profileId={participant.id.toString()}
+          profileId={(participant.profile_id ?? participant.id).toString()}
           profileType={userType}
           onClose={() => setShowFullProfile(false)}
           opportunityId={opportunityId}
-          isCoordinator={true}
         />
       )}
 
       <MatchConfirmationModal
         isOpen={isUnmatching}
-        onClose={handleCloseUnmatchModal}
+        onClose={() => setIsUnmatching(false)}
         onConfirm={handleUnmatch}
         title="Confirm Unmatch"
         message={`Are you sure you want to unmatch this student from ${getMatchedWithName()}?`}
         confirmText="Unmatch"
         isLoading={unmatchMutation.isPending}
+      />
+
+      <MatchConfirmationModal
+        isOpen={isDeleting}
+        onClose={() => setIsDeleting(false)}
+        onConfirm={handleDelete}
+        title="Remove Participant"
+        message={`Are you sure you want to remove ${participant?.name ?? "this participant"} from the opportunity? This will permanently delete all associated data including any matches. This action cannot be undone.`}
+        confirmText="Remove Participant"
+        confirmVariant="danger"
+        isLoading={deleteParticipantMutation.isPending}
       />
     </Box>
   );

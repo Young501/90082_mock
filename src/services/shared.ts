@@ -210,7 +210,7 @@ export function useUserMeUpdateV2() {
 }
 
 // UC-314: All accessible opportunities for current user
-export function useAccessibleOpportunities() {
+export function useAccessibleOpportunities(enabled = true) {
   const { user } = useAuthStore();
   return useQuery({
     queryKey: ["accessible-opportunities", user?.id],
@@ -251,6 +251,7 @@ export function useAccessibleOpportunities() {
               id: o.id,
               public_id: o.public_id || "",
               title: o.title,
+              logo_url: o.logo_url,
               enrollment_status: enrollmentStatus,
               description: o.description || "",
               start_date: o.start_date || "",
@@ -266,6 +267,8 @@ export function useAccessibleOpportunities() {
               slug: o.slug || "",
               is_default: o.is_default ?? false,
               links: o.links,
+              enrollment_preview: o.enrollment_preview ?? null,
+              coordinator: o.coordinator ?? null,
             };
           }
         );
@@ -276,12 +279,36 @@ export function useAccessibleOpportunities() {
         throw error;
       }
     },
-    enabled: !!user,
+    enabled: enabled && !!user,
     staleTime: 2 * 60 * 1000,
     retry: (failureCount, error: any) => {
       if (error?.response?.status === 404) {
         return false;
       }
+      return failureCount < 2;
+    },
+  });
+}
+
+export function useCoordinatorOpportunities(enabled = true) {
+  const { user } = useAuthStore();
+  return useQuery({
+    queryKey: ["coordinator-opportunities", user?.id],
+    enabled: enabled && !!user,
+    queryFn: async () => {
+      try {
+        const response = await apiRequest({
+          endpoint: API_ENDPOINTS.COORDINATOR_OPPORTUNITIES,
+        });
+        return Array.isArray(response) ? (response as AccessibleOpportunity[]) : [];
+      } catch (error: any) {
+        console.error("❌ Coordinator opportunities fetch failed:", error);
+        throw error;
+      }
+    },
+    staleTime: 2 * 60 * 1000,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) return false;
       return failureCount < 2;
     },
   });
@@ -306,26 +333,55 @@ export function useInviteParticipants() {
   });
 }
 
-export function useCoordinatorViewUserProfile(
-  participantId: string,
-  opportunityId: string
+export function useInvitePreview(
+  opportunityId: string,
+  userType: "student" | "organisation",
+  isResend: boolean = false
 ) {
-  return useQuery({
-    queryKey: ["coordinator-view-user-profile", participantId, opportunityId],
+  return useQuery<{ subject: string; body: string; rendered_html: string; message: string }>({
+    queryKey: ["invite-preview", opportunityId, userType, isResend],
     queryFn: () =>
-      apiRequest({
-        endpoint: API_ENDPOINTS.COORDINATOR_VIEW_USER_PROFILE(
-          participantId,
-          opportunityId
-        ),
-      }),
-    enabled: !!participantId && !!opportunityId,
+      apiRequest({ endpoint: API_ENDPOINTS.INVITE_PREVIEW(opportunityId, userType), body: { is_resend: isResend } }),
+    enabled: !!opportunityId,
     staleTime: 5 * 60 * 1000,
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 404) {
-        return false;
-      }
-      return failureCount < 2;
+  });
+}
+
+export function useInvitePreviewRefresh() {
+  return useMutation({
+    mutationFn: async (data: {
+      opportunityId: string;
+      userType: "student" | "organisation";
+      subject: string;
+      body: string;
+      isResend?: boolean;
+    }) => {
+      return apiRequest<{ subject: string; body: string; rendered_html: string; message: string }>({
+        endpoint: API_ENDPOINTS.INVITE_PREVIEW(data.opportunityId, data.userType),
+        body: { subject: data.subject, body: data.body, is_resend: data.isResend ?? false },
+      });
+    },
+  });
+}
+
+export function useInviteV2() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      opportunityId: string;
+      userType: "student" | "organisation";
+      emails: string[];
+      customEmail?: { subject: string; body: string };
+    }) => {
+      const body: Record<string, unknown> = { emails: data.emails };
+      if (data.customEmail) body.custom_email = data.customEmail;
+      return apiRequest({
+        endpoint: API_ENDPOINTS.INVITE_V2(data.opportunityId, data.userType),
+        body,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["participants"] });
     },
   });
 }

@@ -456,7 +456,16 @@ export function MyOpportunities({
       <VStack align="stretch" gap={4} w="100%" overflowY="scroll">
         {opportunities.length === 0 ? (
           <Text color="#52525B" fontSize="sm">
-            No opportunities yet. Discover opportunities to get started.
+            You currently don&apos;t have access to any opportunity. Contact us
+            at{" "}
+            <Link
+              href="mailto:contactus@uniconnected.com"
+              color="#173DA6"
+              _hover={{ textDecoration: "underline" }}
+            >
+              contactus@uniconnected.com
+            </Link>{" "}
+            if you think this is a mistake.
           </Text>
         ) : (
           opportunities.map((opp) => (
