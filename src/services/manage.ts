@@ -68,6 +68,19 @@ export const unmatch = async (opportunityId: string, matchId: string) => {
   });
 };
 
+export function useDeleteParticipant(opportunityId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (participantId: number) =>
+      apiRequest({
+        endpoint: API_ENDPOINTS.COORDINATOR_DELETE_PARTICIPANT(opportunityId, participantId),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["participants"] });
+    },
+  });
+}
+
 export function useUnmatch(opportunityId: string, matchId: string) {
   const queryClient = useQueryClient();
   return useMutation({

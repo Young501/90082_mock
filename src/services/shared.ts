@@ -330,11 +330,15 @@ export function useInviteParticipants() {
   });
 }
 
-export function useInvitePreview(opportunityId: string, userType: "student" | "organisation") {
+export function useInvitePreview(
+  opportunityId: string,
+  userType: "student" | "organisation",
+  isResend: boolean = false
+) {
   return useQuery<{ subject: string; body: string; rendered_html: string; message: string }>({
-    queryKey: ["invite-preview", opportunityId, userType],
+    queryKey: ["invite-preview", opportunityId, userType, isResend],
     queryFn: () =>
-      apiRequest({ endpoint: API_ENDPOINTS.INVITE_PREVIEW(opportunityId, userType) }),
+      apiRequest({ endpoint: API_ENDPOINTS.INVITE_PREVIEW(opportunityId, userType), body: { is_resend: isResend } }),
     enabled: !!opportunityId,
     staleTime: 5 * 60 * 1000,
   });
@@ -347,16 +351,18 @@ export function useInvitePreviewRefresh() {
       userType: "student" | "organisation";
       subject: string;
       body: string;
+      isResend?: boolean;
     }) => {
       return apiRequest<{ subject: string; body: string; rendered_html: string; message: string }>({
-        endpoint: API_ENDPOINTS.INVITE_PREVIEW_REFRESH(data.opportunityId, data.userType),
-        body: { subject: data.subject, body: data.body },
+        endpoint: API_ENDPOINTS.INVITE_PREVIEW(data.opportunityId, data.userType),
+        body: { subject: data.subject, body: data.body, is_resend: data.isResend ?? false },
       });
     },
   });
 }
 
 export function useInviteV2() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: {
       opportunityId: string;
@@ -370,6 +376,9 @@ export function useInviteV2() {
         endpoint: API_ENDPOINTS.INVITE_V2(data.opportunityId, data.userType),
         body,
       });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["participants"] });
     },
   });
 }

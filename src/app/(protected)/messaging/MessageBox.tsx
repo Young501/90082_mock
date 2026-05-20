@@ -13,6 +13,15 @@ import Link from "next/link";
 
 const URL_REGEX = /(https?:\/\/[^\s]+)/g;
 
+function isLocalUrl(url: string) {
+  try {
+    const { hostname } = new URL(url);
+    return hostname === window.location.hostname;
+  } catch {
+    return false;
+  }
+}
+
 function renderTextWithLinks(text: string, isMine: boolean) {
   const parts = text.split(URL_REGEX);
   return parts.map((part, i) =>
@@ -20,8 +29,7 @@ function renderTextWithLinks(text: string, isMine: boolean) {
       <Link
         key={i}
         href={part}
-        target="_blank"
-        rel="noopener noreferrer"
+        {...(!isLocalUrl(part) && { target: "_blank", rel: "noopener noreferrer" })}
         style={{
           textDecoration: "underline",
           color: isMine ? "rgba(255,255,255,0.9)" : "#3182ce",
@@ -96,7 +104,7 @@ export const MessageBox = ({
     otherProfileType === "organisation"
       ? message.messanger?.organisation_id
       : message.messanger?.id;
-  const TRUNCATE_LENGTH = 180;
+  const TRUNCATE_LENGTH = 500;
   const text = message.text ?? "";
   const shouldTruncate = text.length > TRUNCATE_LENGTH;
   const displayText =

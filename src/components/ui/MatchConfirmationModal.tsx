@@ -12,6 +12,7 @@ interface MatchConfirmationModalProps {
   confirmText: string;
   cancelText?: string;
   isLoading?: boolean;
+  confirmVariant?: "primary" | "danger";
 }
 
 const MatchConfirmationModal: React.FC<MatchConfirmationModalProps> = ({
@@ -23,6 +24,7 @@ const MatchConfirmationModal: React.FC<MatchConfirmationModalProps> = ({
   confirmText,
   cancelText = "Cancel",
   isLoading = false,
+  confirmVariant = "primary",
 }) => {
   if (!isOpen) return null;
 
@@ -80,7 +82,7 @@ const MatchConfirmationModal: React.FC<MatchConfirmationModalProps> = ({
               {cancelText}
             </ButtonV2>
             <ButtonV2
-              variant="primary"
+              variant={confirmVariant}
               h="44px"
               fontSize="sm"
               onClick={onConfirm}

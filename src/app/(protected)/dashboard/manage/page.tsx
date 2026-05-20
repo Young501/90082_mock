@@ -46,6 +46,7 @@ const ManagePageContent = () => {
     resetFilters,
     selectParticipant,
     updateSelectedParticipant,
+    clearSelectedParticipant,
   } = useManage(type as "student" | "organisation", opportunityId);
 
   if (error) {
@@ -88,6 +89,7 @@ const ManagePageContent = () => {
             resetFilters={resetFilters}
             selectParticipant={selectParticipant}
             updateSelectedParticipant={updateSelectedParticipant}
+            clearSelectedParticipant={clearSelectedParticipant}
             opportunityId={opportunityId}
             oppSlug={oppSlug}
             type={type}
@@ -105,6 +107,7 @@ const ManagePageContent = () => {
             resetFilters={resetFilters}
             selectParticipant={selectParticipant}
             updateSelectedParticipant={updateSelectedParticipant}
+            clearSelectedParticipant={clearSelectedParticipant}
             opportunityId={opportunityId}
             oppSlug={oppSlug}
             type={type}
@@ -145,6 +148,7 @@ interface PageProps {
   resetFilters: () => void;
   selectParticipant: (participant: any) => void;
   updateSelectedParticipant: (participant: any) => void;
+  clearSelectedParticipant: () => void;
   opportunityId: string;
   oppSlug?: string;
   type: string;
@@ -153,7 +157,7 @@ interface PageProps {
 const StudentPage = ({
   participants, selectedParticipant, filters, hasMore, isLoading,
   loadMore, updateFilters, resetFilters, selectParticipant,
-  updateSelectedParticipant, opportunityId, oppSlug, type,
+  updateSelectedParticipant, clearSelectedParticipant, opportunityId, oppSlug, type,
 }: PageProps) => {
   const router = useRouter();
   const inviteUrl = `/dashboard/manage/invite?type=${type}${oppSlug ? `&opp=${oppSlug}` : ""}`;
@@ -245,7 +249,9 @@ const StudentPage = ({
                 participant={selectedParticipant}
                 userType="student"
                 opportunityId={opportunityId}
+                oppSlug={oppSlug}
                 onParticipantUpdate={updateSelectedParticipant}
+                onDelete={clearSelectedParticipant}
               />
             </Box>
           </Box>
@@ -258,7 +264,7 @@ const StudentPage = ({
 const PartnerPage = ({
   participants, selectedParticipant, filters, hasMore, isLoading,
   loadMore, updateFilters, resetFilters, selectParticipant,
-  updateSelectedParticipant, opportunityId, oppSlug, type,
+  updateSelectedParticipant, clearSelectedParticipant, opportunityId, oppSlug, type,
 }: PageProps) => {
   const router = useRouter();
   const inviteUrl = `/dashboard/manage/invite?type=${type}${oppSlug ? `&opp=${oppSlug}` : ""}`;
@@ -350,7 +356,9 @@ const PartnerPage = ({
                 participant={selectedParticipant}
                 userType="organisation"
                 opportunityId={opportunityId}
+                oppSlug={oppSlug}
                 onParticipantUpdate={updateSelectedParticipant}
+                onDelete={clearSelectedParticipant}
               />
             </Box>
           </Box>

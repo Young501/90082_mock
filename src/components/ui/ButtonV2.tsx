@@ -6,7 +6,7 @@ import Loader from "@/components/ui/Loader";
 import { useAuthStore } from "@/store/authStore";
 
 interface CustomButtonProps extends Omit<ButtonProps, "variant"> {
-  variant?: "primary" | "secondary" | "ghost" | "student" | "partner";
+  variant?: "primary" | "secondary" | "ghost" | "student" | "partner" | "danger";
   isLoading?: boolean;
   iconPosition?: "start" | "end";
   icon?: React.ReactNode;
@@ -81,6 +81,24 @@ export function ButtonV2({
       },
       _disabled: {
         bg: "#DC2626/60",
+        opacity: 0.6,
+        cursor: "not-allowed",
+      },
+    },
+    danger: {
+      bg: "#EF4444",
+      color: "white",
+      h: "32px",
+      borderRadius: "xl",
+      fontSize: "xs",
+      fontWeight: "500",
+      _hover: {
+        bg: "#DC2626",
+      },
+      _active: {
+        transform: "scale(0.98)",
+      },
+      _disabled: {
         opacity: 0.6,
         cursor: "not-allowed",
       },

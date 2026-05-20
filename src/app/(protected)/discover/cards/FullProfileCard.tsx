@@ -1,13 +1,13 @@
 import React from "react";
-import { Box, VStack, Text, Alert, Drawer, IconButton } from "@chakra-ui/react";
+import { Box, VStack, Text, Drawer, IconButton } from "@chakra-ui/react";
 import { StudentProfile, OrganisationProfile } from "@/types/discovery";
 import { useStudentProfile, usePartnerProfile } from "@/services/shared";
 
 import Loader from "@/components/ui/Loader";
 import { useAuthStore } from "@/store/authStore";
-import { Button } from "@/components/ui/Button";
+import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { RenderStudentDetails, RenderOrganisationDetails } from "./index";
-import { X } from "lucide-react";
+import { X, AlertCircle } from "lucide-react";
 
 interface FullProfileCardProps {
   profileId: string;
@@ -99,6 +99,26 @@ export function FullProfileCard({
   }
 
   if (error || !profile) {
+    const errorMessage =
+      (error as any)?.response?.data?.detail ||
+      (error as any)?.response?.data?.message ||
+      (error as any)?.message ||
+      "Failed to load profile. Please try again.";
+
+    const errorContent = (
+      <VStack gap={3} pt={10} px={6} textAlign="center">
+        <Box color="red.400">
+          <AlertCircle size={36} strokeWidth={1.5} />
+        </Box>
+        <Text fontSize="sm" color="gray.600" maxW="xs">
+          {errorMessage}
+        </Text>
+        <ButtonV2 onClick={onClose} px={8}>
+          Close
+        </ButtonV2>
+      </VStack>
+    );
+
     if (isModal) {
       return (
         <Drawer.Root
@@ -116,19 +136,8 @@ export function FullProfileCard({
               borderTopRadius="xl"
               boxShadow="0px 5.92px 11.84px 5.92px #00000040"
             >
-              <Drawer.Body p={8}>
-                <Alert.Root status="error">
-                  <Alert.Content>
-                    <Alert.Title>Error</Alert.Title>
-                    <Alert.Indicator />
-                    <Alert.Description>
-                      Failed to load profile. Please try again.
-                    </Alert.Description>
-                  </Alert.Content>
-                </Alert.Root>
-                <Button mt={4} onClick={onClose} w="full">
-                  Close
-                </Button>
+              <Drawer.Body display="flex" justifyContent="center">
+                {errorContent}
               </Drawer.Body>
             </Drawer.Content>
           </Drawer.Positioner>
@@ -136,15 +145,9 @@ export function FullProfileCard({
       );
     }
     return (
-      <Alert.Root status="error">
-        <Alert.Content>
-          <Alert.Title>Error</Alert.Title>
-          <Alert.Indicator />
-          <Alert.Description>
-            Failed to load profile. Please try again.
-          </Alert.Description>
-        </Alert.Content>
-      </Alert.Root>
+      <Box display="flex" justifyContent="center">
+        {errorContent}
+      </Box>
     );
   }
 

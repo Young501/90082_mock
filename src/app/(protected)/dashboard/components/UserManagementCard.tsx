@@ -23,7 +23,7 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
   const getStatusText = (status: string) => {
     switch (status) {
       case "Pending":
-        return "Invited";
+        return "Pending Acceptance";
       case "Accepted":
         return "Matched";
       case "NotMatched":
@@ -66,14 +66,20 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
     participant.accepted_status === "Accepted" &&
     participant.has_profile;
 
+  const isInteractive = true;
+
   return (
     <Box
       bg={
-        isDeclined || isInvited
+        isDeclined
           ? "gray.100"
-          : isSelected
-            ? PROFILE_TINT_COLORS[userType]
-            : "white"
+          : isInvited
+            ? isSelected
+              ? "gray.200"
+              : "gray.100"
+            : isSelected
+              ? PROFILE_TINT_COLORS[userType]
+              : "white"
       }
       border={
         isDeclined
@@ -86,13 +92,13 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
       }
       borderRadius="md"
       p={4}
-      cursor={isDeclined || isInvited ? "not-allowed" : "pointer"}
-      onClick={isDeclined || isInvited ? undefined : onClick}
+      cursor={isInteractive ? "pointer" : "not-allowed"}
+      onClick={isInteractive ? onClick : undefined}
       _hover={{
-        transform: isDeclined || isInvited ? "none" : "scale(1.01)",
+        transform: isInteractive ? "scale(1.01)" : "none",
       }}
       transition="all 0.2s"
-      opacity={isDeclined || isInvited ? 0.6 : 1}
+      opacity={isDeclined ? 0.6 : 1}
     >
       <HStack gap={4}>
         <ProfileAvatar
@@ -152,20 +158,22 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
               </Text>
             </Box>
           ) : (
-            <Text
-              fontSize={{ base: "12px", lg: "12px" }}
-              color="#000000"
-              fontWeight="400"
-            >
-              {isMatched
-                ? "Matched with " + getMatchedWithCount() + " students"
-                : getStatusText(
-                    !participant.match_info?.is_matched &&
-                      participant.accepted_status === "Accepted"
-                      ? "NotMatched"
-                      : participant.accepted_status || ""
-                  )}
-            </Text>
+            <Box>
+              <Text
+                fontSize={{ base: "12px", lg: "12px" }}
+                color="#000000"
+                fontWeight="400"
+              >
+                {isMatched
+                  ? "Matched with " + getMatchedWithCount() + " students"
+                  : getStatusText(
+                      !participant.match_info?.is_matched &&
+                        participant.accepted_status === "Accepted"
+                        ? "NotMatched"
+                        : participant.accepted_status || ""
+                    )}
+              </Text>
+            </Box>
           )}
         </VStack>
       </HStack>

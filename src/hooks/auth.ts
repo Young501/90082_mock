@@ -86,12 +86,14 @@ export const checkOnboardingStatus = async ({
 
   if (userType === "student") {
     try {
-      const response = await apiRequest({
-        endpoint: API_ENDPOINTS.STUDENT_PROFILE_V2,
-      });
-      setUserProfile(response);
+      const [studentProfile, userMe] = await Promise.all([
+        apiRequest({ endpoint: API_ENDPOINTS.STUDENT_PROFILE_V2 }),
+        apiRequest({ endpoint: API_ENDPOINTS.USER_ME_V2 }),
+      ]);
+      const merged = { ...studentProfile, ...userMe };
+      setUserProfile(merged);
       if (redirectOnSuccess) {
-        if (isStudentOnboardingComplete(response)) {
+        if (isStudentOnboardingComplete(merged)) {
           router.push("/home/");
         } else {
           router.push("/onboarding/");

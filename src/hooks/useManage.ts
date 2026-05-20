@@ -91,6 +91,10 @@ export function useManage(
     []
   );
 
+  const clearSelectedParticipant = useCallback(() => {
+    setSelectedParticipant(null);
+  }, []);
+
   return {
     participants,
     selectedParticipant,
@@ -103,6 +107,7 @@ export function useManage(
     resetFilters,
     selectParticipant,
     updateSelectedParticipant,
+    clearSelectedParticipant,
     refetch,
   };
 }

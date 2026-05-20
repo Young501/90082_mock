@@ -361,6 +361,10 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v2/opportunities/coordinator/${opportunityId}/participants/`,
   }),
+  COORDINATOR_DELETE_PARTICIPANT: (opportunityId: string, participantId: number): ApiEndpoint => ({
+    method: "DELETE",
+    url: `/api/v2/opportunities/coordinator/${opportunityId}/participants/${participantId}/`,
+  }),
   MATCH: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/match/`,
@@ -382,10 +386,6 @@ export const API_ENDPOINTS = {
     url: `/api/v1/opportunities/${opportunityId}/invite/`,
   }),
   INVITE_PREVIEW: (opportunityId: string, userType: "student" | "organisation"): ApiEndpoint => ({
-    method: "GET",
-    url: `/api/v2/opportunities/coordinator/${opportunityId}/invite/${userType}/preview/`,
-  }),
-  INVITE_PREVIEW_REFRESH: (opportunityId: string, userType: "student" | "organisation"): ApiEndpoint => ({
     method: "POST",
     url: `/api/v2/opportunities/coordinator/${opportunityId}/invite/${userType}/preview/`,
   }),

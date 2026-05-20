@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import {
   useOnboardingPages,
   useStudentProfileV2,
+  useUserMeV2,
   useOrganisationMemberMeV2,
   useOrganisationProfileV2,
 } from "@/services/shared";
@@ -30,6 +31,9 @@ export const useOnboardingLogic = (userType: string) => {
 
   const { data: studentProfileV2, isLoading: isProfileLoading } =
     useStudentProfileV2(userType === "student");
+
+  const { data: userMeV2, isLoading: isUserMeLoading } =
+    useUserMeV2(userType === "student");
 
   const {
     data: organisationMember,
@@ -88,10 +92,15 @@ export const useOnboardingLogic = (userType: string) => {
     }
   }, [hasPhaseData, onboardingPhaseFromStore, setOnboardingPhase]);
 
+  const mergedStudentProfile =
+    userType === "student" && studentProfileV2 && userMeV2
+      ? { ...studentProfileV2, ...userMeV2 }
+      : studentProfileV2;
+
   const shouldFetchOnboardingPages =
     userType !== "student" ||
-    (studentProfileV2 !== undefined &&
-      !isStudentOnboardingComplete(studentProfileV2));
+    (mergedStudentProfile !== undefined &&
+      !isStudentOnboardingComplete(mergedStudentProfile));
 
   const {
     data: pagesData,
@@ -100,7 +109,7 @@ export const useOnboardingLogic = (userType: string) => {
   } = useOnboardingPages(userType || "", shouldFetchOnboardingPages);
 
   const isLoading =
-    (userType === "student" && isProfileLoading) ||
+    (userType === "student" && (isProfileLoading || isUserMeLoading)) ||
     (userType === "student" && shouldFetchOnboardingPages && isPagesLoading) ||
     (userType === "organisation" &&
       (isMemberLoading ||
