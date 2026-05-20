@@ -1,5 +1,22 @@
 import { Question } from "./onboarding";
 
+export interface OpportunityCoordinator {
+  id: number;
+  first_name: string;
+  last_name: string;
+  profile_picture_url: string | null;
+}
+
+export interface EnrollmentPreviewContent {
+  heading: string;
+  benefits: string[];
+}
+
+export interface EnrollmentPreview {
+  student?: EnrollmentPreviewContent;
+  organisation?: EnrollmentPreviewContent;
+}
+
 export interface Opportunity {
   id: number;
   public_id?: string;
@@ -19,6 +36,8 @@ export interface Opportunity {
   enrollment_status?: "enrolled" | "not_enrolled" | string;
   is_default?: boolean;
   links?: { url: string; label: string }[];
+  enrollment_preview?: EnrollmentPreview | null;
+  coordinator?: OpportunityCoordinator | null;
 }
 
 export interface ParticipantRecord {

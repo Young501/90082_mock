@@ -113,7 +113,6 @@ export const ResendForm: React.FC<ResendFormProps> = ({
           onSubjectChange={setSubject}
           body={body}
           onBodyChange={setBody}
-          onInitialized={(s, b) => { setSubject(s); setBody(b); }}
           isResend
         />
 

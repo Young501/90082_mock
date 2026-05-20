@@ -26,7 +26,7 @@ interface ConversationViewProps {
   onBackToList: () => void;
   onToggleArchive: (id: ConversationId) => void;
   messagesLoading?: boolean;
-  profileType: string;
+  profileType: "student" | "organisation";
   hasMoreMessages?: boolean;
   onLoadMoreMessages?: () => void;
   isLoadingMoreMessages?: boolean;

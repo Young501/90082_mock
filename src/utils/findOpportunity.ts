@@ -34,5 +34,6 @@ export function toBaseOpportunity(
     allowed_student_email_domains: current.allowed_student_email_domains,
     is_default: current.is_default,
     links: current.links,
+    enrollment_preview: current.enrollment_preview,
   };
 }

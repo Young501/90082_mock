@@ -251,6 +251,7 @@ export function useAccessibleOpportunities(enabled = true) {
               id: o.id,
               public_id: o.public_id || "",
               title: o.title,
+              logo_url: o.logo_url,
               enrollment_status: enrollmentStatus,
               description: o.description || "",
               start_date: o.start_date || "",
@@ -266,6 +267,8 @@ export function useAccessibleOpportunities(enabled = true) {
               slug: o.slug || "",
               is_default: o.is_default ?? false,
               links: o.links,
+              enrollment_preview: o.enrollment_preview ?? null,
+              coordinator: o.coordinator ?? null,
             };
           }
         );

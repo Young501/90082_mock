@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Box, HStack, Input, Text } from "@chakra-ui/react";
 import { Search } from "lucide-react";
 
@@ -18,11 +18,18 @@ export function DebouncedSearchInput({
 }: DebouncedSearchInputProps) {
   const [inputValue, setInputValue] = useState(externalValue);
   const [committed, setCommitted] = useState(externalValue);
+  const onChangeRef = useRef(onChange);
+  useEffect(() => { onChangeRef.current = onChange; });
+
+  useEffect(() => {
+    setInputValue(externalValue);
+    setCommitted(externalValue);
+  }, [externalValue]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setCommitted(inputValue);
-      onChange(inputValue);
+      onChangeRef.current(inputValue);
     }, debounceMs);
     return () => clearTimeout(timer);
   }, [inputValue, debounceMs]);

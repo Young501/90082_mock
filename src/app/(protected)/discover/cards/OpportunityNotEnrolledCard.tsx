@@ -16,27 +16,6 @@ import {
 import { FeatureList } from "@/components/billing/PricingSelector";
 import { formatPrice } from "@/utils/formatPrice";
 
-const ENROLLMENT_CONTENT = {
-  student: {
-    heading: "As an invited participant, you'll have access to:",
-    benefits: [
-      "Exclusive networking opportunities with partner organisations",
-      "Personalized matching with organisations based on your profile",
-      "Direct communication channels with organisation coordinators",
-      "Priority consideration for special projects and initiatives",
-    ],
-  },
-  organisation: {
-    heading:
-      "As an organisation in the employment opportunity, you'll have access to:",
-    benefits: [
-      "Incredible talent from the University",
-      "The ability to filter candidates to meet your workforce needs",
-      "Direct messaging with candidates",
-      "Priority invitations to other University opportunities",
-    ],
-  },
-};
 
 interface OpportunityNotEnrolledCardProps {
   opportunity: Opportunity;
@@ -163,44 +142,46 @@ export function OpportunityNotEnrolledCard({
     );
   }
 
+  const enrollmentContent =
+    opportunity.enrollment_preview?.[
+      isOrganisation ? "organisation" : "student"
+    ] ?? null;
+
   return (
     <VStack w="100%" h="100%" gap={10}>
-      <VStack
-        align="flex-start"
-        gap={5}
-        w="100%"
-        bg="white"
-        py={{ base: 4, md: 6 }}
-        px={{ base: 4, md: 5 }}
-        borderRadius="12px"
-        border="1px solid"
-        borderColor="#E4E4E7"
-      >
-        <VStack align="flex-start" gap={2} w="100%">
-          <Text fontSize="md" fontWeight="semibold" color="#27272A">
-            {
-              ENROLLMENT_CONTENT[isOrganisation ? "organisation" : "student"]
-                .heading
-            }
-          </Text>
-          <Box as="ul" ml="10px" pl={5} m={0} listStyleType="disc">
-            {ENROLLMENT_CONTENT[
-              isOrganisation ? "organisation" : "student"
-            ].benefits.map((benefit, i) => (
-              <Text
-                key={i}
-                as="li"
-                fontSize="sm"
-                color="#52525B"
-                lineHeight="20px"
-                mb={2}
-              >
-                {benefit}
-              </Text>
-            ))}
-          </Box>
+      {enrollmentContent && (
+        <VStack
+          align="flex-start"
+          gap={5}
+          w="100%"
+          bg="white"
+          py={{ base: 4, md: 6 }}
+          px={{ base: 4, md: 5 }}
+          borderRadius="12px"
+          border="1px solid"
+          borderColor="#E4E4E7"
+        >
+          <VStack align="flex-start" gap={2} w="100%">
+            <Text fontSize="md" fontWeight="semibold" color="#27272A">
+              {enrollmentContent.heading}
+            </Text>
+            <Box as="ul" ml="10px" pl={5} m={0} listStyleType="disc">
+              {enrollmentContent.benefits.map((benefit, i) => (
+                <Text
+                  key={i}
+                  as="li"
+                  fontSize="sm"
+                  color="#52525B"
+                  lineHeight="20px"
+                  mb={2}
+                >
+                  {benefit}
+                </Text>
+              ))}
+            </Box>
+          </VStack>
         </VStack>
-      </VStack>
+      )}
       <Button
         w="100%"
         bg={isOrganisation ? PROFILE_COLORS.organisation : "#36A2EB"}

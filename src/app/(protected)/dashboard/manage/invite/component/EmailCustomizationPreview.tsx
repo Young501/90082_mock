@@ -24,7 +24,6 @@ interface EmailCustomizationPreviewProps {
   onSubjectChange: (value: string) => void;
   body: string;
   onBodyChange: (value: string) => void;
-  onInitialized?: (subject: string, body: string) => void;
   isResend?: boolean;
 }
 
@@ -35,7 +34,6 @@ export const EmailCustomizationPreview: React.FC<EmailCustomizationPreviewProps>
   onSubjectChange,
   body,
   onBodyChange,
-  onInitialized,
   isResend = false,
 }) => {
   const [subjectError, setSubjectError] = useState("");
@@ -52,7 +50,6 @@ export const EmailCustomizationPreview: React.FC<EmailCustomizationPreviewProps>
     if (preview) {
       setRenderedHtml(preview.rendered_html);
       setPreviewMessage(preview.message);
-      onInitialized?.(preview.subject, preview.body);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preview]);

@@ -249,7 +249,6 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
           onSubjectChange={setSubject}
           body={body}
           onBodyChange={setBody}
-          onInitialized={(s, b) => { setSubject(s); setBody(b); }}
         />
 
         {/* Footer actions */}

@@ -47,7 +47,7 @@ function renderTextWithLinks(text: string, isMine: boolean) {
 export interface MessageBoxProps {
   message: Message;
   isMine: boolean;
-  profileType: string;
+  profileType: "student" | "organisation";
   showActions: boolean;
   isSinglePane: boolean | undefined;
   numericUserId: number | undefined;

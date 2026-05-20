@@ -32,7 +32,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
       onFilterChange({ text: searchText });
     }, 600);
     return () => clearTimeout(timer);
-  }, [searchText]);
+  }, [searchText, onFilterChange]);
 
   const handleSearch = () => {
     onFilterChange({ text: searchText });
