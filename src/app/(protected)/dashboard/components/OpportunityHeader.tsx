@@ -1,11 +1,19 @@
 "use client";
 
 import React from "react";
-import { Box, VStack, HStack, Text, Flex } from "@chakra-ui/react";
+import { Box, VStack, HStack, Text, Flex, Badge } from "@chakra-ui/react";
 import { Link } from "@chakra-ui/react";
 import Image from "next/image";
-import { ExternalLink, Mail } from "lucide-react";
+import { ExternalLink, Mail, Calendar } from "lucide-react";
 import type { AccessibleOpportunity } from "@/types/opportunities";
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-AU", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 interface OpportunityHeaderProps {
   opportunity: AccessibleOpportunity;
@@ -48,14 +56,43 @@ export function OpportunityHeader({ opportunity }: OpportunityHeaderProps) {
             )}
           </Box>
 
-          <Text
-            fontSize={{ base: "md", md: "2xl" }}
-            fontWeight="semibold"
-            color="black"
-            lineHeight="1.2"
-          >
-            {opportunity.title}
-          </Text>
+          <VStack align="flex-start" gap={1} flex={1}>
+            <Text
+              fontSize={{ base: "md", md: "2xl" }}
+              fontWeight="semibold"
+              color="black"
+              lineHeight="1.2"
+            >
+              {opportunity.title}
+            </Text>
+            <HStack gap={3} flexWrap="wrap">
+              {(() => {
+                const isExpired = opportunity.end_date && new Date(opportunity.end_date) < new Date();
+                const colorPalette = isExpired ? "orange" : opportunity.is_active ? "green" : "gray";
+                const label = isExpired ? "Expired" : opportunity.is_active ? "Active" : "Inactive";
+                return (
+                  <Badge
+                    colorPalette={colorPalette}
+                    variant="subtle"
+                    fontSize="xs"
+                    px={2}
+                    py={0.5}
+                    borderRadius="full"
+                  >
+                    {label}
+                  </Badge>
+                );
+              })()}
+              {opportunity.start_date && opportunity.end_date && (
+                <HStack gap={1} color="#71717A">
+                  <Calendar size={13} strokeWidth={2} />
+                  <Text fontSize="xs">
+                    {formatDate(opportunity.start_date)} – {formatDate(opportunity.end_date)}
+                  </Text>
+                </HStack>
+              )}
+            </HStack>
+          </VStack>
         </HStack>
 
         {opportunity.description && (

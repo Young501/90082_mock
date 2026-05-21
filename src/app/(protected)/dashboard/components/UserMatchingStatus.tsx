@@ -9,6 +9,7 @@ import { EllipsisVertical, Trash2 } from "lucide-react";
 import { useUnmatch, useDeleteParticipant } from "@/services/manage";
 import { MatchConfirmationModal } from "@/components/ui";
 import { Button } from "@/components/ui/Button";
+import { Tooltip } from "@/components/ui/tooltip";
 import { FullProfileCard } from "@/app/(protected)/discover/cards/FullProfileCard";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { MenuPopover } from "@/components/ui/MenuPopover";
@@ -21,6 +22,7 @@ interface UserMatchingStatusProps {
   oppSlug?: string;
   onParticipantUpdate?: (updatedParticipant: Participant) => void;
   onDelete?: () => void;
+  isExpired?: boolean;
 }
 
 const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
@@ -30,6 +32,7 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
   oppSlug,
   onParticipantUpdate,
   onDelete,
+  isExpired = false,
 }) => {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const router = useRouter();
@@ -142,23 +145,26 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
             </IconButton>
           }
         >
-          <Box
-            as="button"
-            display="flex"
-            alignItems="center"
-            gap={2}
-            w="100%"
-            px={2}
-            py={1.5}
-            borderRadius="md"
-            fontSize="sm"
-            color="#EF4444"
-            _hover={{ bg: "#FEF2F2" }}
-            onClick={() => setIsDeleting(true)}
-          >
-            <Trash2 size={14} />
-            Remove Participant
-          </Box>
+          <Tooltip content="This opportunity has expired" disabled={!isExpired} showArrow>
+            <Box
+              as="button"
+              display="flex"
+              alignItems="center"
+              gap={2}
+              w="100%"
+              px={2}
+              py={1.5}
+              borderRadius="md"
+              fontSize="sm"
+              color={isExpired ? "#A1A1AA" : "#EF4444"}
+              _hover={{ bg: isExpired ? undefined : "#FEF2F2" }}
+              cursor={isExpired ? "not-allowed" : "pointer"}
+              onClick={() => !isExpired && setIsDeleting(true)}
+            >
+              <Trash2 size={14} />
+              Remove Participant
+            </Box>
+          </Tooltip>
         </MenuPopover>
       </HStack>
 
@@ -320,34 +326,39 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                     : "Do you want to match this student?"}
                 </Text>
                 {participant.match_info?.is_matched ? (
-                  <Button
-                    variant="secondary"
-                    fontSize="14px"
-                    fontWeight="600"
-                    height="36px"
-                    px={4}
-                    borderRadius="8px"
-                    onClick={() => setIsUnmatching(true)}
-                  >
-                    Unmatch
-                  </Button>
+                  <Tooltip content="This opportunity has expired" disabled={!isExpired} showArrow>
+                    <Button
+                      variant="secondary"
+                      fontSize="14px"
+                      fontWeight="600"
+                      height="36px"
+                      px={4}
+                      borderRadius="8px"
+                      disabled={isExpired}
+                      onClick={() => !isExpired && setIsUnmatching(true)}
+                    >
+                      Unmatch
+                    </Button>
+                  </Tooltip>
                 ) : (
-                  <Button
-                    variant={buttonVariant}
-                    fontSize="14px"
-                    fontWeight="600"
-                    height="36px"
-                    px={4}
-                    borderRadius="8px"
-                    disabled={participant.match_info?.is_matched || false}
-                    onClick={() => {
-                      if (participant?.id && opportunityId) {
-                        router.push(`/dashboard/manage/match/?studentId=${participant.id}&opportunityId=${opportunityId}`);
-                      }
-                    }}
-                  >
-                    Match
-                  </Button>
+                  <Tooltip content="This opportunity has expired" disabled={!isExpired} showArrow>
+                    <Button
+                      variant={buttonVariant}
+                      fontSize="14px"
+                      fontWeight="600"
+                      height="36px"
+                      px={4}
+                      borderRadius="8px"
+                      disabled={isExpired || participant.match_info?.is_matched || false}
+                      onClick={() => {
+                        if (!isExpired && participant?.id && opportunityId) {
+                          router.push(`/dashboard/manage/match/?studentId=${participant.id}&opportunityId=${opportunityId}`);
+                        }
+                      }}
+                    >
+                      Match
+                    </Button>
+                  </Tooltip>
                 )}
               </HStack>
             )}

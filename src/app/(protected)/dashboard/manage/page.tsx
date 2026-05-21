@@ -22,6 +22,7 @@ import { useAuthStore } from "@/store/authStore";
 import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
+import { Tooltip } from "@/components/ui/tooltip";
 
 const ManagePageContent = () => {
   const searchParams = useSearchParams();
@@ -34,6 +35,7 @@ const ManagePageContent = () => {
     ? coordinatorOpportunities.find((o) => o.slug === oppSlug)
     : coordinatorOpportunities[0];
   const opportunityId = selected?.id ? String(selected.id) : "";
+  const isExpired = selected?.end_date ? new Date(selected.end_date) < new Date() : false;
   const {
     participants,
     selectedParticipant,
@@ -93,6 +95,7 @@ const ManagePageContent = () => {
             opportunityId={opportunityId}
             oppSlug={oppSlug}
             type={type}
+            isExpired={isExpired}
           />
         ) : type === "organisation" ? (
           <PartnerPage
@@ -111,6 +114,7 @@ const ManagePageContent = () => {
             opportunityId={opportunityId}
             oppSlug={oppSlug}
             type={type}
+            isExpired={isExpired}
           />
         ) : (
           <ManageDefault />
@@ -152,12 +156,13 @@ interface PageProps {
   opportunityId: string;
   oppSlug?: string;
   type: string;
+  isExpired: boolean;
 }
 
 const StudentPage = ({
   participants, selectedParticipant, filters, hasMore, isLoading,
   loadMore, updateFilters, resetFilters, selectParticipant,
-  updateSelectedParticipant, clearSelectedParticipant, opportunityId, oppSlug, type,
+  updateSelectedParticipant, clearSelectedParticipant, opportunityId, oppSlug, type, isExpired,
 }: PageProps) => {
   const router = useRouter();
   const inviteUrl = `/dashboard/manage/invite?type=${type}${oppSlug ? `&opp=${oppSlug}` : ""}`;
@@ -180,9 +185,11 @@ const StudentPage = ({
               Manage Students
             </Text>
           </HStack>
-          <AppButton variant="student" onClick={() => router.push(inviteUrl)} fontSize="15px" height="40px" px={5} borderRadius="8px">
-            + Add Students to this list
-          </AppButton>
+          <Tooltip content="This opportunity has expired" disabled={!isExpired} showArrow>
+            <AppButton variant="student" onClick={() => !isExpired && router.push(inviteUrl)} fontSize="15px" height="40px" px={5} borderRadius="8px" disabled={isExpired} opacity={isExpired ? 0.5 : 1}>
+              + Add Students to this list
+            </AppButton>
+          </Tooltip>
         </Box>
 
         <VStack width="100%" gap={6} alignItems="flex-start">
@@ -252,6 +259,7 @@ const StudentPage = ({
                 oppSlug={oppSlug}
                 onParticipantUpdate={updateSelectedParticipant}
                 onDelete={clearSelectedParticipant}
+                isExpired={isExpired}
               />
             </Box>
           </Box>
@@ -264,7 +272,7 @@ const StudentPage = ({
 const PartnerPage = ({
   participants, selectedParticipant, filters, hasMore, isLoading,
   loadMore, updateFilters, resetFilters, selectParticipant,
-  updateSelectedParticipant, clearSelectedParticipant, opportunityId, oppSlug, type,
+  updateSelectedParticipant, clearSelectedParticipant, opportunityId, oppSlug, type, isExpired,
 }: PageProps) => {
   const router = useRouter();
   const inviteUrl = `/dashboard/manage/invite?type=${type}${oppSlug ? `&opp=${oppSlug}` : ""}`;
@@ -287,9 +295,11 @@ const PartnerPage = ({
               Manage Organisations
             </Text>
           </HStack>
-          <AppButton variant="partner" onClick={() => router.push(inviteUrl)} fontSize="15px" height="40px" px={5} borderRadius="8px">
-            + Add Organisations to this list
-          </AppButton>
+          <Tooltip content="This opportunity has expired" disabled={!isExpired} showArrow>
+            <AppButton variant="partner" onClick={() => !isExpired && router.push(inviteUrl)} fontSize="15px" height="40px" px={5} borderRadius="8px" disabled={isExpired} opacity={isExpired ? 0.5 : 1}>
+              + Add Organisations to this list
+            </AppButton>
+          </Tooltip>
         </Box>
 
         <VStack width="100%" gap={6} alignItems="flex-start">
@@ -359,6 +369,7 @@ const PartnerPage = ({
                 oppSlug={oppSlug}
                 onParticipantUpdate={updateSelectedParticipant}
                 onDelete={clearSelectedParticipant}
+                isExpired={isExpired}
               />
             </Box>
           </Box>
