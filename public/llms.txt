@@ -41,7 +41,9 @@ Also it is a platform for employment where students can look for part-time, casu
 - Oversees which opportunities students can access.
 - Reviews student and organisation participation.
 - Has access to a dedicated Dashboard with management tools.
+- Can be assigned to one or more opportunities simultaneously and switches between them from the sidebar.
 - Does not use the Discover or Opportunities features directly.
+- Cannot take management actions (invite, resend, delete) on opportunities that are expired or inactive.
 
 ---
 
@@ -130,6 +132,8 @@ Organisations can have multiple users under one account, managed via the **Team*
 
 **Removing/editing members:** Admins and Creators can change roles or remove members from the Team page.
 
+**Team messaging:** Organisation team members can message each other directly from the **Team** page. Each member entry has a **Message** button that opens a direct conversation in the Messages area.
+
 ---
 
 ## 7. Opportunities
@@ -160,13 +164,16 @@ Opportunities are the core unit of engagement on UniConnected — they represent
 ### For Students
 
 - The **Discover** page shows opportunities the student is eligible for.
-- Filters available: opportunity type, location, industry, and more.
+- Filters available: opportunity type, location, industry, distance radius, and more.
+- A **distance filter** lets students narrow opportunities by proximity to their location (radius in km).
 - Clicking an opportunity shows a full profile with description and enrolment button.
+- A **match percentage** is shown on opportunity cards where a match score exists. If the score is 0, the match badge is not displayed.
+- On **invite-only (private) opportunities**, a coordinator chip is shown identifying the coordinator assigned to that opportunity. Clicking it opens a contact card.
 
 ### For Organisations
 
 - Organisations can browse student profiles on the Discover page.
-- Filters help narrow by skills, availability, location, etc.
+- Filters help narrow by skills, availability, location, distance, etc.
 - Profiles can be saved to **Folders** for organisation (e.g. "Shortlisted", "Contacted").
 
 ### Folders
@@ -181,13 +188,37 @@ Opportunities are the core unit of engagement on UniConnected — they represent
 
 - Accessed via the **Messages** page in the sidebar.
 - Direct one-to-one conversations between students and organisations.
+- Organisation team members can also message each other (see Section 6).
 - Unread message count shown as a dot indicator in the sidebar and on the home page.
 - Conversations can be **archived** to reduce clutter.
 - An empty inbox shows an empty state prompt to start a conversation.
+- **Optimistic delivery** — sent messages appear in the conversation immediately, without waiting for a server round-trip.
+- **Content validation** — messages are checked before sending. The system detects profanity, spam patterns, and suspicious links. If flagged, an inline error is shown and the message is not sent.
 
 ---
 
-## 10. Billing & Subscription
+## 10. Coordinator Dashboard
+
+Coordinators access a dedicated **Dashboard** showing metrics and participant management tools for each opportunity they oversee.
+
+**Multi-opportunity support:**
+- A coordinator can be assigned to one or more opportunities.
+- The sidebar lets the coordinator switch between their assigned opportunities.
+- Each opportunity has its own metrics panel and participant list.
+
+**Participant management (Manage page):**
+- View all enrolled/matched students for each opportunity.
+- **Invite** — send an invitation to a student. Before sending, a live preview of the invitation email is shown and the coordinator can edit the email body.
+- **Resend invitation** — resend a pending invitation to a student who has not yet responded.
+- **Delete participant** — remove a participant from the opportunity.
+- A **Pending** panel lists students with outstanding invitations, giving quick access to resend or delete each one.
+
+**Restrictions:**
+- If an opportunity is **expired** or **inactive**, all coordinator actions (invite, resend, delete) are disabled. A message is shown explaining why actions are unavailable.
+
+---
+
+## 11. Billing & Subscription
 
 UniConnected currently offers one subscription plan, available to **organisations only**. There is no student-facing subscription.
 
@@ -226,7 +257,7 @@ UniConnected currently offers one subscription plan, available to **organisation
 
 ---
 
-## 11. Support
+## 12. Support
 
 Users can get help via the **Support** page (accessible from the sidebar).
 
@@ -238,7 +269,7 @@ Users can get help via the **Support** page (accessible from the sidebar).
 
 ---
 
-## 12. Profile Fields — Where to Find and Edit Them
+## 13. Profile Fields — Where to Find and Edit Them
 
 Understanding where a setting lives depends on whether it was set during **onboarding** (Account page) or as part of an **opportunity enrolment questionnaire** (My Opportunities).
 
@@ -288,7 +319,7 @@ Fields include:
 
 ---
 
-## 13. Editing Profile and Opportunity Settings — Quick Reference
+## 14. Editing Profile and Opportunity Settings — Quick Reference
 
 | What the user wants to change | Where to go |
 |---|---|
@@ -310,7 +341,7 @@ Fields include:
 
 ---
 
-## 14. Common Support Questions (FAQ)
+## 15. Common Support Questions (FAQ)
 
 ### Account & Login
 
@@ -432,6 +463,12 @@ Open their profile from the Discover page or your enrolments and click **Send Me
 
 **Q: I'm not receiving message notifications. What should I do?**
 Ensure your browser allows notifications from UniConnected. Unread messages also show as a dot indicator in the sidebar when you're logged in.
+
+**Q: Why was my message blocked before sending?**
+UniConnected checks messages for prohibited content (profanity, spam, and suspicious links) before delivery. If your message was flagged, an error is shown inline — review your message, remove the flagged content, and try again. If you believe this is an error, contact support at contactus@uniconnected.com.
+
+**Q: Can I message my own organisation teammates?**
+Yes. Organisation team members can message each other directly. Go to the **Team** page and click **Message** next to a teammate's name to start a conversation.
 
 ---
 
