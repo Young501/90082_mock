@@ -12,7 +12,6 @@ import {
   IconButton,
   Flex,
   Avatar,
-  Portal,
 } from "@chakra-ui/react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -324,7 +323,6 @@ export function ContactPage({
     profileType === "organisation" && selectableMembers.length > 0;
 
   return (
-    <Portal>
     <Box
       position="fixed"
       inset={0}
@@ -521,6 +519,5 @@ export function ContactPage({
         </Box>
       </Box>
     </Box>
-    </Portal>
   );
 }
