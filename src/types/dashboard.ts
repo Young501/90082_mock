@@ -24,8 +24,11 @@ interface MatchedWith {
 export interface Participant {
   id: number;
   name?: string;
+  email?: string;
+  profile_id?: number;
   user_type?: string;
   accepted_status?: string;
+  invitation_sent_at?: string;
   has_profile?: boolean;
   image_url?: string;
   match_info?: {

@@ -26,7 +26,7 @@ interface ConversationViewProps {
   onBackToList: () => void;
   onToggleArchive: (id: ConversationId) => void;
   messagesLoading?: boolean;
-  profileType: "coordinator" | "organisation" | "student";
+  profileType: "student" | "organisation";
   hasMoreMessages?: boolean;
   onLoadMoreMessages?: () => void;
   isLoadingMoreMessages?: boolean;
@@ -158,7 +158,6 @@ export const ConversationView = ({
       <ConversationHeader
         conversation={conversation}
         isSinglePane={isSinglePane}
-        profileType={profileType}
         onBackToList={onBackToList}
         onToggleArchive={onToggleArchive}
       />

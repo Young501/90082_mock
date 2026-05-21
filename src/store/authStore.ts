@@ -12,7 +12,7 @@ export interface AuthState {
   logoUrl: string | null;
   userProfile: UserProfile | null;
   userProfilePictureUrl: string | null;
-  coordinatorOpportunities: string[];
+  coordinatorOpportunities: AccessibleOpportunity[];
   isOrganisationMemberOnboarding: boolean;
   /** Phase to show when redirecting to onboarding: "user" | "organisation" | null (derive from data) */
   onboardingPhase: "user" | "organisation" | null;
@@ -35,8 +35,8 @@ export interface AuthState {
   setUserLastName: (lastName: string) => void;
   getUserProfilePictureUrl: () => string | null;
   setUserProfilePictureUrl: (url: string) => void;
-  setCoordinatorOpportunities: (opportunities: string[]) => void;
-  getCoordinatorOpportunities: () => string[];
+  setCoordinatorOpportunities: (opportunities: AccessibleOpportunity[]) => void;
+  getCoordinatorOpportunities: () => AccessibleOpportunity[];
   setIsOrganisationMemberOnboarding: (isMember: boolean) => void;
   getIsOrganisationMemberOnboarding: () => boolean;
   setOnboardingPhase: (phase: "user" | "organisation" | null) => void;
@@ -191,7 +191,7 @@ export const useAuthStore = create<AuthState>()(
           set({ userProfilePictureUrl: url });
         }
       },
-      setCoordinatorOpportunities: (opportunities: string[]) => {
+      setCoordinatorOpportunities: (opportunities: AccessibleOpportunity[]) => {
         set({ coordinatorOpportunities: opportunities });
       },
 

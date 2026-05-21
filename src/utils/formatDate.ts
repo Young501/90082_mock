@@ -25,6 +25,7 @@ export const formatDateTimeToReadable = (iso: string) => {
     weekday: "short",
     month: "short",
     day: "numeric",
+    year: "numeric",
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
@@ -32,7 +33,7 @@ export const formatDateTimeToReadable = (iso: string) => {
 
   const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
 
-  return `${get("weekday")}, ${get("month")} ${get("day")} at ${get("hour")}:${get("minute")} ${get("dayPeriod")}`;
+  return `${get("weekday")}, ${get("month")} ${get("day")} ${get("year")} at ${get("hour")}:${get("minute")} ${get("dayPeriod")}`;
 };
 
 export const formatRelativeTime = (iso: string) => {

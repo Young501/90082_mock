@@ -29,7 +29,6 @@ import {
   Linkedin,
 } from "lucide-react";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
-import { useOpportunityDetail } from "@/services/shared";
 import { AddToFolderModal } from "../../folders/modals/AddToFolderModal";
 import { getLinkDisplayText } from "@/utils/formatLink";
 
@@ -78,8 +77,6 @@ export const RenderStudentDetails = ({
   hideActions?: boolean;
 }) => {
   const [showContactModal, setShowContactModal] = useState(false);
-  const { data: opportunity } = useOpportunityDetail(opportunityId || "");
-
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
 
   const resumeUrl = student.resume_url;
@@ -208,7 +205,7 @@ export const RenderStudentDetails = ({
                 minW={0}
                 size="sm"
                 onClick={() => setShowContactModal(true)}
-                disabled={disableBtns || userType === "coordinator"}
+                disabled={disableBtns}
               >
                 Contact Student
               </ButtonV2>
@@ -224,7 +221,7 @@ export const RenderStudentDetails = ({
                   h="40px"
                   flex={{ base: 1, lg: "none" }}
                   minW={0}
-                  disabled={disableBtns || userType === "coordinator"}
+                  disabled={disableBtns}
                   onClick={() => setShowAddToFolderModal(true)}
                 >
                   Add to Folder

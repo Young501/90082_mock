@@ -158,6 +158,44 @@ async function submitStudentOnboardingV2(
   toast.success("Profile created successfully!");
 }
 
+async function submitCoordinatorOnboarding(
+  allData: Record<string, any>,
+  allQuestions: Question[],
+  profilePictureUpload: UseMutationResult<any, any, File, unknown>,
+  userMeUpdateV2: UseMutationResult<any, any, Record<string, any>, unknown>,
+  setUserProfilePictureUrl: (url: string) => void
+) {
+  const userFields = allQuestions
+    .filter((q) => q.model === "user" && q.type !== "display" && !q.endpoint)
+    .map((q) => q.field);
+
+  const userPayload: Record<string, any> = {};
+  userFields.forEach((field) => {
+    if (allData[field] !== undefined && allData[field] !== "") {
+      userPayload[field] = allData[field];
+    }
+  });
+  USER_SUBMIT_STRIP_FIELDS.forEach((f) => delete userPayload[f]);
+
+  if (Object.keys(userPayload).length > 0) {
+    await userMeUpdateV2.mutateAsync(userPayload);
+  }
+
+  const profilePicture = allData.profile_picture ?? allData.profile_picture_url;
+  if (profilePicture instanceof File) {
+    try {
+      const profileRes = await profilePictureUpload.mutateAsync(profilePicture);
+      if (profileRes?.profile_picture_url) {
+        setUserProfilePictureUrl(profileRes.profile_picture_url);
+      }
+    } catch {
+      toast.error("Profile picture upload failed. You can add it later.");
+    }
+  }
+
+  toast.success("Profile created successfully!");
+}
+
 const ORG_PAGE_ID_OFFSET = 1000;
 
 async function submitOrganisationOnboardingV2(
@@ -1024,6 +1062,20 @@ export const OnboardingSteps = ({ userType }: Props) => {
       const currentValues = getValues();
       const allData = { ...formData, ...currentValues };
 
+      if (userType === "coordinator") {
+        const allQuestions = pages.flatMap((p) => p.questions);
+        const { setUserProfilePictureUrl: setProfilePic } = useAuthStore.getState();
+        await submitCoordinatorOnboarding(
+          allData,
+          allQuestions,
+          profilePictureUpload,
+          userMeUpdateV2,
+          setProfilePic
+        );
+        router.push("/onboarding/success/");
+        return;
+      }
+
       if (userType === "student") {
         const allQuestions = pages.flatMap((p) => p.questions);
         const { setUserProfilePictureUrl: setProfilePic } =
@@ -1334,7 +1386,12 @@ export const OnboardingSteps = ({ userType }: Props) => {
     >
       <Box w="100%" textAlign="left" mb={5}>
         <Heading fontSize="2xl" fontWeight="600" color="black" mb={4}>
-          Create Your {userType === "student" ? "Student" : "Organisation"}{" "}
+          Create Your{" "}
+          {userType === "student"
+            ? "Student"
+            : userType === "coordinator"
+              ? "Coordinator"
+              : "Organisation"}{" "}
           Profile
         </Heading>
         <HStack justify="space-between" w="100%" mb={2}>

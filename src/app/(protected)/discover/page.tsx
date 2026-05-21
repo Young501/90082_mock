@@ -62,8 +62,18 @@ export default function DiscoveryPage() {
   } = useAuthStore();
   const [isUserEligible, setIsUserEligible] = useState<boolean | null>(null);
 
-  const { data: queryAccessibleOpps, isLoading: isOpportunitiesLoading } =
-    useAccessibleOpportunities();
+  const {
+    data: queryAccessibleOpps,
+    isLoading: isOpportunitiesLoading,
+    isFetching: isOpportunitiesFetching,
+    refetch: refetchAccessibleOpportunities,
+  } = useAccessibleOpportunities();
+
+  useEffect(() => {
+    if (opportunitySlug) {
+      refetchAccessibleOpportunities();
+    }
+  }, [opportunitySlug, refetchAccessibleOpportunities]);
 
   const accessibleOpportunities =
     storedAccessibleOpps ?? queryAccessibleOpps ?? null;
@@ -280,26 +290,26 @@ export default function DiscoveryPage() {
   });
 
   // Opportunity-specific content
+  if (opportunitySlug && !currentOpportunity && (isOpportunitiesLoading || isOpportunitiesFetching)) {
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        position="relative"
+        overflow="hidden"
+      >
+        <PageTitle title={PAGE_TITLES.DISCOVER} />
+        <Flex justify="center" align="center" minH="400px">
+          <VStack gap={4} align="center">
+            <Spinner size="xl" color="blue.500" />
+            <Text>Loading opportunity details...</Text>
+          </VStack>
+        </Flex>
+      </Box>
+    );
+  }
+
   if (opportunityId) {
-    // Loading state
-    if (isOpportunitiesLoading) {
-      return (
-        <Box
-          display="flex"
-          flexDirection="column"
-          position="relative"
-          overflow="hidden"
-        >
-          <PageTitle title={PAGE_TITLES.DISCOVER} />
-          <Flex justify="center" align="center" minH="400px">
-            <VStack gap={4} align="center">
-              <Spinner size="xl" color="blue.500" />
-              <Text>Loading opportunity details...</Text>
-            </VStack>
-          </Flex>
-        </Box>
-      );
-    }
 
     // Error state
     if (!opportunity || !currentOpportunity) {
@@ -342,7 +352,7 @@ export default function DiscoveryPage() {
             userType={userType}
           />
           {/* Enrolled user and eligible - show discovery interface */}
-          {isEnrolled && accessInfo?.has_access && !isSubmitting ? (
+          {isEnrolled === undefined ? null : isEnrolled && accessInfo?.has_access && !isSubmitting ? (
             <Box w="100%" overflow="hidden">
               <Box
                 display="flex"

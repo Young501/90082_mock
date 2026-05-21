@@ -4,11 +4,14 @@ import { toast } from "react-toastify";
 import { getDashboardStats } from "@/services/dashboard";
 import { DashboardStats } from "@/types/dashboard";
 
-export const useDashboard = (opportunityId?: string) => {
+export const useDashboard = (opportunitySlug?: string) => {
   const { getCoordinatorOpportunities } = useAuthStore();
   const coordinatorOpportunities = getCoordinatorOpportunities();
 
-  const selectedOpportunityId = opportunityId || coordinatorOpportunities[0];
+  const selected = opportunitySlug
+    ? coordinatorOpportunities.find((o) => o.slug === opportunitySlug)
+    : coordinatorOpportunities[0];
+  const selectedOpportunityId = selected?.id ? String(selected.id) : undefined;
 
   const {
     data: dashboardStats,

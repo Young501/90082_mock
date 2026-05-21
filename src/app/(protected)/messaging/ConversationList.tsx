@@ -18,7 +18,6 @@ interface ConversationListProps {
   onSelectConversation: (id: ConversationId) => void;
   onToggleArchive: (id: ConversationId) => void;
   hasAnyConversations: boolean;
-  profileType: "coordinator" | "organisation" | "student";
   onLoadMoreConversations?: () => void;
   hasMoreConversations?: boolean;
   isLoadingMoreConversations?: boolean;
@@ -34,7 +33,6 @@ export const ConversationList = ({
   onSelectConversation,
   onToggleArchive,
   hasAnyConversations,
-  profileType,
   onLoadMoreConversations,
   hasMoreConversations,
   isLoadingMoreConversations,
@@ -132,7 +130,6 @@ export const ConversationList = ({
                     isActive={isActive}
                     onSelect={onSelectConversation}
                     onToggleArchive={onToggleArchive}
-                    profileType={profileType}
                   />
                 );
               })}

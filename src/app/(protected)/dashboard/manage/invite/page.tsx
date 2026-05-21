@@ -2,10 +2,10 @@
 
 import React from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
 import {
   Box,
   Container,
-  VStack,
   Text,
   IconButton,
   HStack,
@@ -19,22 +19,31 @@ const InvitePage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const type = searchParams.get("type");
+  const oppSlug = searchParams.get("opp") ?? undefined;
+  const { getCoordinatorOpportunities } = useAuthStore();
+  const coordinatorOpportunities = getCoordinatorOpportunities();
+  const selected = oppSlug
+    ? coordinatorOpportunities.find((o) => o.slug === oppSlug)
+    : coordinatorOpportunities[0];
+  const opportunityId = selected?.id ? String(selected.id) : "";
+
+  const oppParam = oppSlug ? `&opp=${oppSlug}` : "";
 
   const handleSuccess = () => {
-    router.push(`/dashboard/manage?type=${type}`);
+    router.push(`/dashboard/manage?type=${type}${oppParam}`);
   };
 
   const handleCancel = () => {
-    router.push(`/dashboard/manage?type=${type}`);
+    router.push(`/dashboard/manage?type=${type}${oppParam}`);
   };
 
   if (type === "student") {
     return (
-      <StudentInvitePage onSuccess={handleSuccess} onCancel={handleCancel} />
+      <StudentInvitePage opportunityId={opportunityId} onSuccess={handleSuccess} onCancel={handleCancel} />
     );
   } else if (type === "organisation") {
     return (
-      <PartnerInvitePage onSuccess={handleSuccess} onCancel={handleCancel} />
+      <PartnerInvitePage opportunityId={opportunityId} onSuccess={handleSuccess} onCancel={handleCancel} />
     );
   }
 
@@ -52,9 +61,11 @@ const InvitePage = () => {
 export default InvitePage;
 
 const StudentInvitePage = ({
+  opportunityId,
   onSuccess,
   onCancel,
 }: {
+  opportunityId: string;
   onSuccess?: () => void;
   onCancel?: () => void;
 }) => {
@@ -65,34 +76,26 @@ const StudentInvitePage = ({
       <PageTitle title={PAGE_TITLES.INVITE_STUDENTS} />
       <Box maxW="1512px" mx="auto">
         <Container maxW="1512px" display="flex" flexDirection="column" gap={8}>
-          <VStack gap={6} align="stretch">
-            <HStack gap={4} align="center">
-              <IconButton
-                aria-label="Go back"
-                onClick={
-                  onCancel ||
-                  (() => router.push("/dashboard/manage?type=student"))
-                }
-                variant="ghost"
-                size="lg"
-              >
-                <ArrowLeft size={24} />
-              </IconButton>
-              <Text
-                fontSize={{ base: "24px", lg: "32px" }}
-                fontWeight="600"
-                color="#000000"
-              >
-                Invite Students
-              </Text>
-            </HStack>
+          <HStack gap={2} align="center">
+            <IconButton
+              aria-label="Go back"
+              onClick={onCancel || (() => router.push("/dashboard/manage?type=student"))}
+              variant="ghost"
+              size="sm"
+            >
+              <ArrowLeft size={20} />
+            </IconButton>
+            <Text as="h1" fontSize={{ base: "22px", lg: "28px" }} fontWeight="600" color="#000000">
+              Invite Students
+            </Text>
+          </HStack>
 
-            <InvitationForm
-              userType="student"
-              onSuccess={onSuccess}
-              onCancel={onCancel}
-            />
-          </VStack>
+          <InvitationForm
+            userType="student"
+            opportunityId={opportunityId}
+            onSuccess={onSuccess}
+            onCancel={onCancel}
+          />
         </Container>
       </Box>
     </>
@@ -100,9 +103,11 @@ const StudentInvitePage = ({
 };
 
 const PartnerInvitePage = ({
+  opportunityId,
   onSuccess,
   onCancel,
 }: {
+  opportunityId: string;
   onSuccess?: () => void;
   onCancel?: () => void;
 }) => {
@@ -113,34 +118,26 @@ const PartnerInvitePage = ({
       <PageTitle title={PAGE_TITLES.INVITE_PARTNERS} />
       <Box maxW="1512px" mx="auto">
         <Container maxW="1512px" display="flex" flexDirection="column" gap={8}>
-          <VStack gap={6} align="stretch">
-            <HStack gap={4} align="center">
-              <IconButton
-                aria-label="Go back"
-                onClick={
-                  onCancel ||
-                  (() => router.push("/dashboard/manage?type=organisation"))
-                }
-                variant="ghost"
-                size="lg"
-              >
-                <ArrowLeft size={24} />
-              </IconButton>
-              <Text
-                fontSize={{ base: "24px", lg: "32px" }}
-                fontWeight="600"
-                color="#000000"
-              >
-                Invite Organisations
-              </Text>
-            </HStack>
+          <HStack gap={2} align="center">
+            <IconButton
+              aria-label="Go back"
+              onClick={onCancel || (() => router.push("/dashboard/manage?type=organisation"))}
+              variant="ghost"
+              size="sm"
+            >
+              <ArrowLeft size={20} />
+            </IconButton>
+            <Text as="h1" fontSize={{ base: "22px", lg: "28px" }} fontWeight="600" color="#000000">
+              Invite Organisations
+            </Text>
+          </HStack>
 
-            <InvitationForm
-              userType="organisation"
-              onSuccess={onSuccess}
-              onCancel={onCancel}
-            />
-          </VStack>
+          <InvitationForm
+            userType="organisation"
+            opportunityId={opportunityId}
+            onSuccess={onSuccess}
+            onCancel={onCancel}
+          />
         </Container>
       </Box>
     </>

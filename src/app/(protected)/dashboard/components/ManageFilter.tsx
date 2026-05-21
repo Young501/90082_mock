@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Input,
@@ -24,8 +24,15 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
   onReset,
   searchOnly = false,
 }) => {
-  const [searchText, setSearchText] = useState(filters.text);
+  const [searchText, setSearchText] = useState(filters.text ?? "");
   const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onFilterChange({ text: searchText });
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [searchText, onFilterChange]);
 
   const handleSearch = () => {
     onFilterChange({ text: searchText });
@@ -47,7 +54,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
 
   if (searchOnly) {
     return (
-      <Box bg="#D9D9D9" borderRadius="15px" p={4} mb={4} width="100%">
+      <Box bg="#D9D9D9" borderRadius="10px" p={4} mb={4} width="100%">
         <Flex gap={4} w="100%" direction={{ base: "column", lg: "row" }}>
           <Input
             placeholder="Search organisation name"
@@ -56,7 +63,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
             // onKeyPress={(e) => e.key === "Enter" && handleSearch()}
             maxW="100%"
             bg="white"
-            borderRadius="24px"
+            borderRadius="8px"
           />
           <Flex gap={2}>
             <Button
@@ -65,9 +72,9 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
               onClick={handleSearch}
               fontSize="16px"
               h="40px"
-              flex={hasSearched ? "1" : "2"}
-              borderRadius="24px"
-              w={{ base: "100%", lg: "212px" }}
+              px={4}
+              borderRadius="8px"
+              w={{ base: "100%", lg: "auto" }}
               disabled={!hasSearchTextChange}
             >
               <Image
@@ -97,31 +104,24 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
   }
 
   return (
-    <Box bg="#D9D9D9" borderRadius="15px" p={4} mb={4} width="100%">
+    <Box bg="#D9D9D9" borderRadius="10px" p={4} mb={4} width="100%">
       <Flex direction={{ base: "column" }} align="stretch" gap={4} w="100%">
         <Box w="100%" display="flex" flexDirection="column" gap={4}>
           <Flex
             wrap="wrap"
             gap={4}
-            justify="flex-start"
-            align="stretch"
+            justify="space-between"
+            align="center"
             w="100%"
             direction={{ base: "column", md: "row" }}
           >
-            <Box
-              flex={{
-                base: "1 1 100%",
-                md: "1 1 calc(50% - 8px)",
-                lg: "1 1 calc(25% - 12px)",
-              }}
-              w="100%"
-            >
+            <Box flex="1" minW={0}>
               <Input
                 placeholder="Name or Email"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 bg="white"
-                borderRadius="24px"
+                borderRadius="8px"
                 size="md"
                 // onKeyPress={(e) => e.key === "Enter" && handleSearch()}
               />
@@ -130,14 +130,9 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
             <Flex
               direction="row"
               align="center"
-              justify="flex-start"
+              justify="flex-end"
               gap={2}
-              flex={{
-                base: "none",
-                md: "1 1 calc(50% - 8px)",
-                lg: "1 1 calc(25% - 12px)",
-              }}
-              w={{ base: "100%", md: "auto" }}
+              flex="0 0 auto"
               display={{ base: "none", md: "flex" }}
             >
               {hasSearched && (
@@ -157,8 +152,8 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
                 onClick={handleSearch}
                 fontSize="16px"
                 h="40px"
-                flex={hasSearched ? "1" : "2"}
-                borderRadius="24px"
+                px={4}
+                borderRadius="8px"
                 disabled={!hasSearchTextChange}
               >
                 <Image
@@ -186,7 +181,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
                     src="/assets/ArrowDownIcon.svg"
                     width={16}
                     height={16}
-                    style={{ transform: "rotate(180deg)" }}
+                    style={{ transform: "rotate(180deg)", width: 16, height: 16 }}
                     alt="arrowUp"
                   />
                 ) : (
@@ -194,6 +189,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
                     src="/assets/ArrowDownIcon.svg"
                     width={16}
                     height={16}
+                    style={{ width: 16, height: 16 }}
                     alt="arrowDown"
                   />
                 )}
@@ -273,8 +269,8 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
               onClick={handleSearch}
               fontSize="16px"
               h="40px"
-              flex={hasSearched ? "1" : "2"}
-              borderRadius="24px"
+              px={4}
+              borderRadius="8px"
             >
               <Image
                 src="/assets/SearchIcon.svg"
@@ -301,7 +297,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
                   src="/assets/ArrowDownIcon.svg"
                   width={16}
                   height={16}
-                  style={{ transform: "rotate(180deg)" }}
+                  style={{ transform: "rotate(180deg)", width: 16, height: 16 }}
                   alt="arrowUp"
                 />
               ) : (
@@ -309,6 +305,7 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
                   src="/assets/ArrowDownIcon.svg"
                   width={16}
                   height={16}
+                  style={{ width: 16, height: 16 }}
                   alt="arrowDown"
                 />
               )}

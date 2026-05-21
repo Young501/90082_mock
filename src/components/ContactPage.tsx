@@ -242,13 +242,13 @@ export function ContactPage({
   const getDefaultSubject = () => {
     const fullName =
       `${userProfile?.first_name ?? ""} ${userProfile?.last_name ?? ""}`.trim();
-    if (userType === "coordinator") {
-      return "New message from Coordinator via UniConnected";
+    if (userType === "organisation") {
+      return `New message from ${organisationName || "User"} via UniConnected`;
     }
-    if (profileType === "organisation") {
-      return `New message from ${fullName || "User"} via UniConnected`;
-    }
-    return `New message from ${organisationName || "User"} via UniConnected`;
+    const fallback = userType
+      ? userType.charAt(0).toUpperCase() + userType.slice(1)
+      : "User";
+    return `New message from ${fullName || fallback} via UniConnected`;
   };
 
   const defaultOther = defaultOtherUserId(profileType, recipientId, members);
@@ -326,7 +326,7 @@ export function ContactPage({
     <Box
       position="fixed"
       inset={0}
-      zIndex={1000}
+      zIndex={20000}
       display="flex"
       alignItems="center"
       justifyContent="center"

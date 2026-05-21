@@ -349,17 +349,21 @@ export const API_ENDPOINTS = {
     method: "DELETE",
     url: `/api/v2/opportunities/${opportunityId}/set-default/`,
   }),
-  OPPORTUNITY_DASHBOARD: (opportunityId: string): ApiEndpoint => ({
+  COORDINATOR_OPP_DASHBOARD: (opportunityId: string): ApiEndpoint => ({
     method: "GET",
-    url: `/api/v1/opportunities/${opportunityId}/dashboard/`,
+    url: `/api/v2/opportunities/coordinator/${opportunityId}/dashboard/`,
   }),
   HOMEPAGE: {
     method: "GET",
     url: "/api/v2/ui/homepage",
   },
-  OPPORTUNITY_PARTICIPANTS: (opportunityId: string): ApiEndpoint => ({
+  COORDINATOR_OPP_PARTICIPANTS: (opportunityId: string): ApiEndpoint => ({
     method: "GET",
-    url: `/api/v1/opportunities/${opportunityId}/participants/`,
+    url: `/api/v2/opportunities/coordinator/${opportunityId}/participants/`,
+  }),
+  COORDINATOR_DELETE_PARTICIPANT: (opportunityId: string, participantId: number): ApiEndpoint => ({
+    method: "DELETE",
+    url: `/api/v2/opportunities/coordinator/${opportunityId}/participants/${participantId}/`,
   }),
   MATCH: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
@@ -381,6 +385,14 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/invite/`,
   }),
+  INVITE_PREVIEW: (opportunityId: string, userType: "student" | "organisation"): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v2/opportunities/coordinator/${opportunityId}/invite/${userType}/preview/`,
+  }),
+  INVITE_V2: (opportunityId: string, userType: "student" | "organisation"): ApiEndpoint => ({
+    method: "POST",
+    url: `/api/v2/opportunities/coordinator/${opportunityId}/invite/${userType}/`,
+  }),
   ORGANISATION_CHECK_DOMAIN: {
     method: "GET",
     url: "/api/v1/organisation/check-domain/",
@@ -388,13 +400,6 @@ export const API_ENDPOINTS = {
   ORGANISATION_DETAIL: (id: string): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/organisation/${id}/`,
-  }),
-  COORDINATOR_VIEW_USER_PROFILE: (
-    participantId: string,
-    opportunityId: string
-  ): ApiEndpoint => ({
-    method: "GET",
-    url: `/api/v1/opportunities/${opportunityId}/participant/${participantId}/`,
   }),
   // Subscription endpoints
   SUBSCRIPTION_CANCEL: {

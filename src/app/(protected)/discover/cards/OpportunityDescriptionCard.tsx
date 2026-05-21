@@ -1,10 +1,12 @@
 "use client";
 
 import { Opportunity, AccessibleOpportunity } from "@/types/opportunities";
-import React from "react";
+import React, { useState } from "react";
 import { PROFILE_COLORS } from "@/theme/theme";
 import {
+  Avatar,
   Box,
+  Button,
   Flex,
   VStack,
   HStack,
@@ -25,7 +27,8 @@ import {
   useClearDefaultOpportunity,
 } from "@/services/dashboard";
 import { toast } from "react-toastify";
-import { ExternalLink, Mail } from "lucide-react";
+import { ExternalLink, Mail, MessageCircle } from "lucide-react";
+import { ContactPage } from "@/components/ContactPage";
 
 interface OpportunityDescriptionCardProps {
   opportunity: Opportunity | AccessibleOpportunity;
@@ -38,6 +41,7 @@ export const OpportunityDescriptionCard = ({
   currentOpportunity,
   userType,
 }: OpportunityDescriptionCardProps) => {
+  const [showContact, setShowContact] = useState(false);
   const accessibleOpportunity =
     currentOpportunity || (opportunity as AccessibleOpportunity);
   const enrollmentStatus =
@@ -46,6 +50,8 @@ export const OpportunityDescriptionCard = ({
   const visibilityDisplay =
     accessibleOpportunity?.visibility_display || "Public Opportunity";
   const isEnrolled = enrollmentStatus === "enrolled";
+  const coordinator = accessibleOpportunity?.coordinator ?? null;
+  const showCoordinator = visibilityDisplay === "Private" && !!coordinator;
 
   const enrollment = useEnrollmentActions({
     opportunityId: opportunity.id,
@@ -326,55 +332,113 @@ export const OpportunityDescriptionCard = ({
             )}
           </HStack>
 
-          {Array.isArray(opportunity.links) && opportunity.links.length > 0 && (
-            <Flex flexWrap="wrap" gap={4} align="center" rowGap={1.5}>
-              {opportunity.links.map((link, index) => {
-                const href = link.url?.trim() ?? "";
-                const label = link.label?.trim() ?? href;
-                if (!href) return null;
-                const isHttp =
-                  href.startsWith("https://") || href.startsWith("http://");
-                const isMailto = href.startsWith("mailto:");
-                return (
-                  <Link
-                    key={`${href}-${index}`}
-                    href={href}
-                    fontSize="sm"
-                    color="#52525B"
-                    fontWeight="medium"
-                    _hover={{ textDecoration: "underline" }}
-                    {...(isHttp
-                      ? { target: "_blank", rel: "noopener noreferrer" }
-                      : isMailto
-                        ? { target: "_self" }
-                        : {})}
+          {(Array.isArray(opportunity.links) && opportunity.links.length > 0) || showCoordinator ? (
+            <Flex w="100%" align={{ base: "flex-start", md: "center" }} justify="space-between" gap={4} flexDirection={{ base: "column", md: "row" }}>
+              <Flex flexWrap="wrap" gap={4} align="center" rowGap={1.5}>
+                {Array.isArray(opportunity.links) && opportunity.links.map((link, index) => {
+                  const href = link.url?.trim() ?? "";
+                  const label = link.label?.trim() ?? href;
+                  if (!href) return null;
+                  const isHttp =
+                    href.startsWith("https://") || href.startsWith("http://");
+                  const isMailto = href.startsWith("mailto:");
+                  return (
+                    <Link
+                      key={`${href}-${index}`}
+                      href={href}
+                      fontSize="sm"
+                      color="#52525B"
+                      fontWeight="medium"
+                      _hover={{ textDecoration: "underline" }}
+                      {...(isHttp
+                        ? { target: "_blank", rel: "noopener noreferrer" }
+                        : isMailto
+                          ? { target: "_self" }
+                          : {})}
+                    >
+                      <HStack gap={2} align="center">
+                        {label}
+                        {isHttp && (
+                          <ExternalLink
+                            size={12}
+                            strokeWidth={3}
+                            color="#71717A"
+                            aria-hidden
+                          />
+                        )}
+                        {isMailto && (
+                          <Mail
+                            size={12}
+                            strokeWidth={3}
+                            color="#71717A"
+                            aria-hidden
+                          />
+                        )}
+                      </HStack>
+                    </Link>
+                  );
+                })}
+              </Flex>
+              {showCoordinator && coordinator && (
+                <HStack
+                  gap={2}
+                  px={3}
+                  py={1.5}
+                  borderRadius="10px"
+                  border="1px solid"
+                  borderColor="#E4E4E7"
+                  bg="#FAFAFA"
+                  flexShrink={0}
+                  align="center"
+                >
+                  <Avatar.Root size="xs">
+                    {coordinator.profile_picture_url ? (
+                      <Avatar.Image
+                        src={coordinator.profile_picture_url}
+                        alt={`${coordinator.first_name} ${coordinator.last_name}`}
+                      />
+                    ) : null}
+                    <Avatar.Fallback
+                      name={`${coordinator.first_name} ${coordinator.last_name}`}
+                    />
+                  </Avatar.Root>
+                  <VStack align="flex-start" gap={0}>
+                    <Text fontSize="xs" fontWeight="semibold" color="#27272A">
+                      {coordinator.first_name} {coordinator.last_name}
+                    </Text>
+                    <Text fontSize="xs" color="#71717A">
+                      Coordinator
+                    </Text>
+                  </VStack>
+                  <Button
+                    size="xs"
+                    variant="outline"
+                    borderColor="#3AADA8"
+                    color="#3AADA8"
+                    _hover={{ bg: "#F0FAFA" }}
+                    borderRadius="lg"
+                    onClick={() => setShowContact(true)}
                   >
-                    <HStack gap={2} align="center">
-                      {label}
-                      {isHttp && (
-                        <ExternalLink
-                          size={12}
-                          strokeWidth={3}
-                          color="#71717A"
-                          aria-hidden
-                        />
-                      )}
-                      {isMailto && (
-                        <Mail
-                          size={12}
-                          strokeWidth={3}
-                          color="#71717A"
-                          aria-hidden
-                        />
-                      )}
-                    </HStack>
-                  </Link>
-                );
-              })}
+                    <MessageCircle size={12} />
+                    Contact
+                  </Button>
+                </HStack>
+              )}
             </Flex>
-          )}
+          ) : null}
+
         </VStack>
       </Box>
+
+      {showCoordinator && coordinator && showContact && (
+        <ContactPage
+          recipientId={coordinator.id}
+          recipientName={`${coordinator.first_name} ${coordinator.last_name}`}
+          profileType="student"
+          acceptedOpportunityId={String(opportunity.id)}
+          onBack={() => setShowContact(false)}
+        />
+      )}
 
       <EditEnrollmentDialog
         open={enrollment.isEditEnrollmentOpen}

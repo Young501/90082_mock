@@ -9,7 +9,7 @@ frontend:
         - env | grep -e NEXT_PUBLIC_ >> .env.production
         - npm run build
   artifacts:
-    baseDirectory: .next
+    baseDirectory: out
     files:
       - '**/*'
   cache:

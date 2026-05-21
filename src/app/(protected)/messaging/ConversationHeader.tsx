@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, HStack, VStack, Text, IconButton, Tag } from "@chakra-ui/react";
+import { Box, HStack, VStack, Text, IconButton, Tag, Badge } from "@chakra-ui/react";
 import { MenuPopover } from "@/components/ui/MenuPopover";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { FullProfileCard } from "@/app/(protected)/discover/cards/FullProfileCard";
@@ -11,7 +11,6 @@ import { ChevronLeft, EllipsisVertical, Search } from "lucide-react";
 export interface ConversationHeaderProps {
   conversation: ConversationSummary;
   isSinglePane: boolean | undefined;
-  profileType: "coordinator" | "organisation" | "student";
   onBackToList: () => void;
   onToggleArchive: (id: ConversationId) => void;
 }
@@ -19,18 +18,13 @@ export interface ConversationHeaderProps {
 export const ConversationHeader = ({
   conversation,
   isSinglePane,
-  profileType,
   onBackToList,
   onToggleArchive,
 }: ConversationHeaderProps) => {
   const [showProfile, setShowProfile] = useState(false);
-  const otherProfileType: "student" | "organisation" =
-    conversation.otherOrganisationId != null ? "organisation" : "student";
-  const isCoordinatorView = profileType === "coordinator";
-  const otherProfileId =
-    otherProfileType === "organisation"
-      ? conversation?.otherOrganisationId
-      : conversation?.otherUserId;
+  const otherIsOrg = conversation.otherUserTypes.includes("organisation");
+  const otherIsCoordinator = conversation.otherUserTypes.includes("coordinator");
+  const otherProfileId = otherIsOrg ? conversation.otherOrganisationId : conversation.otherUserId;
 
   return (
     <HStack
@@ -69,28 +63,29 @@ export const ConversationHeader = ({
       >
         <ProfileAvatar
           src={
-            profileType === "organisation"
-              ? (conversation?.avatar ?? undefined)
-              : (conversation?.organisationLogo ?? undefined)
+            otherIsOrg
+              ? (conversation?.organisationLogo ?? undefined)
+              : (conversation?.avatar ?? undefined)
           }
           alt={
-            profileType === "organisation"
-              ? conversation?.studentTitle
-              : (conversation?.organisationTitle ?? undefined)
+            otherIsOrg
+              ? (conversation?.organisationTitle ?? undefined)
+              : conversation?.otherUserName
           }
           fallback={
-            profileType === "organisation"
-              ? conversation?.studentTitle
-              : (conversation?.organisationTitle ?? undefined)
+            otherIsOrg
+              ? (conversation?.organisationTitle ?? undefined)
+              : conversation?.otherUserName
           }
-          size="md"
+          size="lg"
+          borderRadius="12px"
         />
-        {profileType !== "organisation" && (
+        {otherIsOrg && (
           <Box
             position="absolute"
-            right={-1}
-            bottom={-1}
-            borderRadius="6px"
+            right={-2}
+            bottom={-2}
+            borderRadius="8px"
             overflow="hidden"
             boxShadow="0 0 0 2px white"
           >
@@ -98,9 +93,9 @@ export const ConversationHeader = ({
               src={conversation?.avatar ?? undefined}
               alt={conversation?.organisationMemberName ?? undefined}
               fallback={conversation?.organisationMemberName ?? undefined}
-              size="20px"
-              fallbackFontSize="2xs"
-              borderRadius="6px"
+              size="36px"
+              fallbackFontSize="xs"
+              borderRadius="8px"
             />
           </Box>
         )}
@@ -108,20 +103,35 @@ export const ConversationHeader = ({
       {showProfile && otherProfileId && (
         <FullProfileCard
           profileId={otherProfileId.toString()}
-          profileType={otherProfileType}
-          isCoordinator={isCoordinatorView}
+          profileType={otherIsOrg ? "organisation" : "student"}
           opportunityId={conversation.opportunityId?.toString()}
           onClose={() => setShowProfile(false)}
         />
       )}
-      <VStack align="flex-start" gap={0} flex={1} minW={0}>
-        <Text fontWeight="semibold" color="black" fontSize="sm" truncate>
-          {profileType === "organisation"
-            ? conversation?.studentTitle
-            : conversation?.organisationTitle}
-        </Text>
+      <VStack align="flex-start" gap={1.5} flex={1} minW={0}>
+        <HStack gap={2} align="center">
+          <Text fontWeight="semibold" color="black" fontSize="md" truncate>
+            {otherIsOrg
+              ? conversation?.organisationTitle
+              : conversation?.otherUserName}
+          </Text>
+          {otherIsCoordinator && (
+            <Badge
+              bg="#E9F7F6"
+              color="#3AADA8"
+              border="1px solid #D3EFEA"
+              fontSize="10px"
+              borderRadius="md"
+              px={1.5}
+              py={0.5}
+              flexShrink={0}
+            >
+              Coordinator
+            </Badge>
+          )}
+        </HStack>
         <HStack flexWrap="wrap">
-          {profileType === "organisation" && conversation?.studentSubtitle && (
+          {!otherIsOrg && conversation?.studentSubtitle && (
             <Tag.Root>
               <Tag.Label fontSize="xs" color="black" truncate>
                 {conversation?.studentSubtitle}
@@ -129,13 +139,12 @@ export const ConversationHeader = ({
             </Tag.Root>
           )}
 
-          {profileType === "student" &&
-            conversation?.organisationMemberName && (
-              <Text fontSize="xs" truncate color="#2563EB">
-                {conversation?.organisationMemberName}
-              </Text>
-            )}
-          {profileType === "student" && conversation?.opportunityTitle && (
+          {otherIsOrg && conversation?.organisationMemberName && (
+            <Text fontSize="sm" truncate color="#2563EB">
+              {conversation?.organisationMemberName}
+            </Text>
+          )}
+          {otherIsOrg && conversation?.opportunityTitle && (
             <Tag.Root>
               <Tag.Label fontSize="xs" color="black" truncate>
                 {conversation?.opportunityTitle}

@@ -3,6 +3,7 @@
 import { Button as ChakraButton, ButtonProps } from "@chakra-ui/react";
 import { ReactNode } from "react";
 import Loader from "@/components/ui/Loader";
+import { PROFILE_COLORS, PROFILE_DARK_COLORS } from "@/theme/theme";
 
 interface CustomButtonProps extends Omit<ButtonProps, "variant"> {
   variant?: "primary" | "secondary" | "ghost" | "student" | "partner";
@@ -62,37 +63,37 @@ export function Button({
       },
     },
     student: {
-      bg: "#DC2626",
+      bg: PROFILE_DARK_COLORS.student,
       color: "white",
       borderRadius: "xl",
       fontSize: "14px",
       fontWeight: "bold",
       _hover: {
-        bg: "#DC2626/80",
+        bg: PROFILE_COLORS.student,
       },
       _active: {
         transform: "scale(0.98)",
       },
       _disabled: {
-        bg: "#DC2626/60",
+        bg: PROFILE_DARK_COLORS.student,
         opacity: 0.6,
         cursor: "not-allowed",
       },
     },
     partner: {
-      bg: "#22C45E",
+      bg: PROFILE_DARK_COLORS.organisation,
       color: "white",
       borderRadius: "xl",
       fontSize: "14px",
       fontWeight: "bold",
       _hover: {
-        bg: "#22C45E/80",
+        bg: PROFILE_COLORS.organisation,
       },
       _active: {
         transform: "scale(0.98)",
       },
       _disabled: {
-        bg: "#22C45E/60",
+        bg: PROFILE_DARK_COLORS.organisation,
         opacity: 0.6,
         cursor: "not-allowed",
       },

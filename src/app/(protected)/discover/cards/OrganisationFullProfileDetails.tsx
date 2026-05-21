@@ -183,7 +183,7 @@ export const RenderOrganisationDetails = ({
                   minW={0}
                   size="sm"
                   onClick={() => setShowContactModal(true)}
-                  disabled={disableBtns || userType === "coordinator"}
+                  disabled={disableBtns}
                 >
                   Contact organization
                 </ButtonV2>
@@ -200,7 +200,7 @@ export const RenderOrganisationDetails = ({
                   border="1px solid #D3EFEA"
                   flex={{ base: 1, lg: "none" }}
                   minW={0}
-                  disabled={disableBtns || userType === "coordinator"}
+                  disabled={disableBtns}
                   onClick={() => setShowAddToFolderModal(true)}
                 >
                   Add to Folder
