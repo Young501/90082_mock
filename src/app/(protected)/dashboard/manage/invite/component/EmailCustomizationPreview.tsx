@@ -50,7 +50,11 @@ export const EmailCustomizationPreview: React.FC<EmailCustomizationPreviewProps>
     if (preview) {
       setRenderedHtml(preview.rendered_html);
       setPreviewMessage(preview.message);
+      if (preview.subject) onSubjectChange(preview.subject);
+      if (preview.body) onBodyChange(preview.body);
     }
+  // onSubjectChange and onBodyChange are stable setters — intentionally excluded
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preview]);
 
   useEffect(() => {
