@@ -367,7 +367,6 @@ const Inbox = () => {
             onSelectConversation={handleSelectConversation}
             onToggleArchive={handleToggleArchive}
             hasAnyConversations={hasAnyConversations}
-            profileType={profileType}
             onLoadMoreConversations={handleLoadMoreConversations}
             hasMoreConversations={hasMoreConversations}
             isLoadingMoreConversations={isFetchingMoreConversations}
