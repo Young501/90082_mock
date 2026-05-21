@@ -352,7 +352,7 @@ export default function DiscoveryPage() {
             userType={userType}
           />
           {/* Enrolled user and eligible - show discovery interface */}
-          {isEnrolled && accessInfo?.has_access && !isSubmitting ? (
+          {isEnrolled === undefined ? null : isEnrolled && accessInfo?.has_access && !isSubmitting ? (
             <Box w="100%" overflow="hidden">
               <Box
                 display="flex"
