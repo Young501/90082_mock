@@ -266,6 +266,7 @@ const Inbox = () => {
             full_name:
               `${storeUser.first_name ?? ""} ${storeUser.last_name ?? ""}`.trim(),
             profile_picture_url: storeUser.profile_picture_url ?? null,
+            user_types: storeUser.user_types ?? [],
             organisation_name: null,
             organisation_logo_url: null,
             organisation_id: null,

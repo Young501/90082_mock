@@ -51,7 +51,6 @@ export const EmailCustomizationPreview: React.FC<EmailCustomizationPreviewProps>
       setRenderedHtml(preview.rendered_html);
       setPreviewMessage(preview.message);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preview]);
 
   useEffect(() => {
