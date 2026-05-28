@@ -6,14 +6,21 @@ import { MenuPopover } from "@/components/ui/MenuPopover";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { FullProfileCard } from "@/app/(protected)/discover/cards/FullProfileCard";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
-import { Tooltip } from "@/components/ui/tooltip";
 import { Message, MessageAttachment } from "@/types/messaging";
 import { formatDateTimeToReadable } from "@/utils/formatDate";
-import { ExternalLink, MoreHorizontal, Paperclip, Reply } from "lucide-react";
-import Image from "next/image";
+import { ExternalLink, MoreHorizontal, Reply } from "lucide-react";
 import Link from "next/link";
 
 const URL_REGEX = /(https?:\/\/[^\s]+)/g;
+
+function isLocalUrl(url: string) {
+  try {
+    const { hostname } = new URL(url);
+    return hostname === window.location.hostname;
+  } catch {
+    return false;
+  }
+}
 
 function renderTextWithLinks(text: string, isMine: boolean) {
   const parts = text.split(URL_REGEX);
@@ -22,8 +29,7 @@ function renderTextWithLinks(text: string, isMine: boolean) {
       <Link
         key={i}
         href={part}
-        target="_blank"
-        rel="noopener noreferrer"
+        {...(!isLocalUrl(part) && { target: "_blank", rel: "noopener noreferrer" })}
         style={{
           textDecoration: "underline",
           color: isMine ? "rgba(255,255,255,0.9)" : "#3182ce",
@@ -41,7 +47,7 @@ function renderTextWithLinks(text: string, isMine: boolean) {
 export interface MessageBoxProps {
   message: Message;
   isMine: boolean;
-  profileType: "coordinator" | "organisation" | "student";
+  profileType: "student" | "organisation";
   showActions: boolean;
   isSinglePane: boolean | undefined;
   numericUserId: number | undefined;
@@ -78,8 +84,8 @@ export const MessageBox = ({
   const bubbleBg = isMine ? "profile.500" : "#F4F4F5";
   const bubbleBorder = isMine ? "profile.500" : "#E4E4E7";
   const bubbleBorderRadius = isMine
-    ? "12px 0px 12px 12px"
-    : "0px 12px 12px 12px";
+    ? "0px 12px 12px 12px"
+    : "12px 0px 12px 12px";
 
   const isAttachmentOnly =
     !message.text?.trim() && (message.attachments?.length ?? 0) > 0;
@@ -94,12 +100,11 @@ export const MessageBox = ({
 
   const otherProfileType =
     profileType === "organisation" ? "student" : "organisation";
-  const isCoordinatorView = profileType === "coordinator";
   const senderProfileId =
     otherProfileType === "organisation"
       ? message.messanger?.organisation_id
       : message.messanger?.id;
-  const TRUNCATE_LENGTH = 180;
+  const TRUNCATE_LENGTH = 500;
   const text = message.text ?? "";
   const shouldTruncate = text.length > TRUNCATE_LENGTH;
   const displayText =
@@ -113,10 +118,9 @@ export const MessageBox = ({
         key={message.id}
         ref={messageRef}
         display="flex"
-        justifyContent={isMine ? "flex-end" : "flex-start"}
+        justifyContent={isMine ? "flex-start" : "flex-end"}
         onMouseEnter={onHoverIn}
         onMouseLeave={onHoverOut}
-        onClick={onMessageClick}
       >
         <Box
           maxW="100%"
@@ -125,12 +129,12 @@ export const MessageBox = ({
           gap={1}
           alignItems="center"
           w="100%"
-          justifyContent={isMine ? "flex-end" : "flex-start"}
+          justifyContent={isMine ? "flex-start" : "flex-end"}
         >
           <VStack gap={1}>
             <HStack alignItems="center" gap={1}>
               <HStack gap={3} align="flex-start">
-                {!isMine &&
+                {isMine &&
                   (message.messanger ? (
                     <Box
                       cursor="pointer"
@@ -145,15 +149,30 @@ export const MessageBox = ({
                         }
                         alt={message.messanger?.full_name ?? undefined}
                         fallback={message.messanger?.full_name ?? "U"}
-                        size="28px"
+                        size="52px"
+                        borderRadius="8px"
                       />
                     </Box>
                   ) : (
-                    <ProfileAvatar fallback="U" size="28px" />
+                    <ProfileAvatar
+                      fallback="U"
+                      size="52px"
+                      borderRadius="8px"
+                    />
                   ))}
-                <VStack gap={1}>
+                <VStack gap={1} align={isMine ? "flex-start" : "flex-end"}>
+                  {message.messanger?.full_name && (
+                    <Text
+                      fontSize="xs"
+                      fontWeight="500"
+                      color="#71717A"
+                      alignSelf={isMine ? "flex-start" : "flex-end"}
+                    >
+                      {isMine ? "You" : message.messanger.full_name}
+                    </Text>
+                  )}
                   <HStack gap={1}>
-                    {isMine && (
+                    {!isMine && (
                       <MessageActionsMenu
                         isMine={isMine}
                         showActions={showActions}
@@ -161,7 +180,6 @@ export const MessageBox = ({
                         onCopy={onCopy}
                         isCopied={isCopied}
                         showCopy={showCopy}
-                        profileType={profileType}
                         onMessageClick={onMessageClick}
                         onCloseActions={onCloseActions}
                       />
@@ -181,12 +199,13 @@ export const MessageBox = ({
                       borderWidth="1px"
                       borderColor={bubbleBorder}
                       style={{ borderRadius: bubbleBorderRadius }}
+                      cursor={isSinglePane ? "pointer" : "default"}
+                      onClick={isSinglePane ? onMessageClick : undefined}
                     >
                       {message.replyToPreview && (
                         <ReplyPreview
                           message={message}
                           isMine={isMine}
-                          profileType={profileType}
                           numericUserId={numericUserId}
                           onScrollToMessage={onScrollToMessage}
                         />
@@ -234,7 +253,7 @@ export const MessageBox = ({
                         />
                       )}
                     </Box>
-                    {!isMine && (
+                    {isMine && (
                       <MessageActionsMenu
                         isMine={isMine}
                         showActions={showActions}
@@ -242,7 +261,6 @@ export const MessageBox = ({
                         onCopy={onCopy}
                         isCopied={isCopied}
                         showCopy={showCopy}
-                        profileType={profileType}
                         onMessageClick={onMessageClick}
                         onCloseActions={onCloseActions}
                         onReply={() => onReply(message)}
@@ -253,24 +271,29 @@ export const MessageBox = ({
                     mt={1}
                     flexShrink={0}
                     whiteSpace="nowrap"
-                    alignSelf={isMine ? "flex-end" : "flex-start"}
+                    alignSelf={isMine ? "flex-start" : "flex-end"}
                     fontSize="10px"
                     color="#52525B"
-                    textAlign={isMine ? "right" : "left"}
+                    textAlign={isMine ? "left" : "right"}
                   >
                     {formatDateTimeToReadable(message.createdAt)}
                   </Text>
                 </VStack>
-                {isMine &&
+                {!isMine &&
                   (message.messanger ? (
                     <ProfileAvatar
                       src={message.messanger?.profile_picture_url ?? undefined}
                       alt={message.messanger?.full_name ?? undefined}
                       fallback={message.messanger?.full_name ?? "U"}
-                      size="28px"
+                      size="52px"
+                      borderRadius="8px"
                     />
                   ) : (
-                    <ProfileAvatar fallback="U" size="28px" />
+                    <ProfileAvatar
+                      fallback="U"
+                      size="52px"
+                      borderRadius="8px"
+                    />
                   ))}
               </HStack>
             </HStack>
@@ -281,7 +304,6 @@ export const MessageBox = ({
         <FullProfileCard
           profileId={senderProfileId.toString()}
           profileType={otherProfileType}
-          isCoordinator={isCoordinatorView}
           opportunityId={opportunityId?.toString()}
           onClose={() => setShowSenderProfile(false)}
         />
@@ -293,7 +315,6 @@ export const MessageBox = ({
 interface ReplyPreviewProps {
   message: Message;
   isMine: boolean;
-  profileType: "coordinator" | "organisation" | "student";
   numericUserId: number | undefined;
   onScrollToMessage: (messageId: string | number) => void;
 }
@@ -301,7 +322,6 @@ interface ReplyPreviewProps {
 function ReplyPreview({
   message,
   isMine,
-  profileType,
   numericUserId,
   onScrollToMessage,
 }: ReplyPreviewProps) {
@@ -530,7 +550,6 @@ interface MessageActionsMenuProps {
   onCopy: () => void;
   isCopied: boolean;
   showCopy: boolean;
-  profileType: "coordinator" | "organisation" | "student";
   onMessageClick: () => void;
   onCloseActions: () => void;
   onReply?: () => void;
@@ -543,7 +562,6 @@ function MessageActionsMenu({
   onCopy,
   isCopied,
   showCopy,
-  profileType,
   onMessageClick,
   onCloseActions,
   onReply,

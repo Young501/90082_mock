@@ -62,8 +62,18 @@ export default function DiscoveryPage() {
   } = useAuthStore();
   const [isUserEligible, setIsUserEligible] = useState<boolean | null>(null);
 
-  const { data: queryAccessibleOpps, isLoading: isOpportunitiesLoading } =
-    useAccessibleOpportunities();
+  const {
+    data: queryAccessibleOpps,
+    isLoading: isOpportunitiesLoading,
+    isFetching: isOpportunitiesFetching,
+    refetch: refetchAccessibleOpportunities,
+  } = useAccessibleOpportunities();
+
+  useEffect(() => {
+    if (opportunitySlug) {
+      refetchAccessibleOpportunities();
+    }
+  }, [opportunitySlug, refetchAccessibleOpportunities]);
 
   const accessibleOpportunities =
     storedAccessibleOpps ?? queryAccessibleOpps ?? null;
@@ -118,6 +128,7 @@ export default function DiscoveryPage() {
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(
     folderIdFromUrl
   );
+  const [maxDistanceKm, setMaxDistanceKm] = useState<number | null>(null);
 
   const { data: foldersData, isLoading: isLoadingFolders } = useFolders(
     opportunitySlug,
@@ -256,40 +267,17 @@ export default function DiscoveryPage() {
     isEnrolled,
     isEnrollmentReady,
     folderId: selectedFolderId ? parseInt(selectedFolderId, 10) : null,
+    maxDistanceKm,
   });
 
   useEffect(() => {
     if (!sort?.by) {
-      handleSortChange("distance");
+      handleSortChange("match");
     }
   }, [sort?.by, handleSortChange]);
 
-  const facetValidationSuccess = useMemo(() => {
-    const hasOnboardingWithCounts = Object.keys(
-      facets?.facets?.onboarding || {}
-    ).some((key) =>
-      facets?.facets?.onboarding?.[key]?.options?.some(
-        (option: { count: number }) => option.count > 0
-      )
-    );
-    const hasQuestionnaireWithCounts = Object.keys(
-      facets?.facets?.questionnaire || {}
-    ).some((key) =>
-      facets?.facets?.questionnaire?.[key]?.options?.some(
-        (option: { count: number }) => option.count > 0
-      )
-    );
-
-    const hasAnyFacets = hasOnboardingWithCounts || hasQuestionnaireWithCounts;
-
-    if (hasAnyFacets || isLoadingSearch) {
-      return true;
-    }
-
-    return false;
-  }, [facets, isLoadingSearch]);
-
-  console.log("facetValidationSuccess", facetValidationSuccess);
+  const hasAnyActiveFilters =
+    hasFilters || (maxDistanceKm !== null && maxDistanceKm !== undefined);
 
   const { handleEnroll, isSubmitting } = useHandleEnroll({
     isEligible,
@@ -302,26 +290,26 @@ export default function DiscoveryPage() {
   });
 
   // Opportunity-specific content
+  if (opportunitySlug && !currentOpportunity && (isOpportunitiesLoading || isOpportunitiesFetching)) {
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        position="relative"
+        overflow="hidden"
+      >
+        <PageTitle title={PAGE_TITLES.DISCOVER} />
+        <Flex justify="center" align="center" minH="400px">
+          <VStack gap={4} align="center">
+            <Spinner size="xl" color="blue.500" />
+            <Text>Loading opportunity details...</Text>
+          </VStack>
+        </Flex>
+      </Box>
+    );
+  }
+
   if (opportunityId) {
-    // Loading state
-    if (isOpportunitiesLoading) {
-      return (
-        <Box
-          display="flex"
-          flexDirection="column"
-          position="relative"
-          overflow="hidden"
-        >
-          <PageTitle title={PAGE_TITLES.DISCOVER} />
-          <Flex justify="center" align="center" minH="400px">
-            <VStack gap={4} align="center">
-              <Spinner size="xl" color="blue.500" />
-              <Text>Loading opportunity details...</Text>
-            </VStack>
-          </Flex>
-        </Box>
-      );
-    }
 
     // Error state
     if (!opportunity || !currentOpportunity) {
@@ -364,7 +352,7 @@ export default function DiscoveryPage() {
             userType={userType}
           />
           {/* Enrolled user and eligible - show discovery interface */}
-          {isEnrolled && accessInfo?.has_access && !isSubmitting ? (
+          {isEnrolled === undefined ? null : isEnrolled && accessInfo?.has_access && !isSubmitting ? (
             <Box w="100%" overflow="hidden">
               <Box
                 display="flex"
@@ -379,17 +367,19 @@ export default function DiscoveryPage() {
                   flexDirection="column"
                   gap={5}
                 >
-                  {/* {facetValidationSuccess && ( */}
                   <OpportunityFilters
                     facets={facets}
                     filters={filters}
                     onFilterChange={handleFilterChange}
-                    onReset={handleResetV2}
-                    hasFilters={hasFilters}
+                    onReset={() => {
+                      handleResetV2();
+                      setMaxDistanceKm(null);
+                    }}
+                    hasFilters={hasAnyActiveFilters}
                     isLoading={isLoadingSearch}
-                    facetValidationSuccess={facetValidationSuccess}
+                    currentDistanceKm={maxDistanceKm}
+                    onDistanceChange={setMaxDistanceKm}
                   />
-                  {/* )} */}
                   <DiscoveryFolderCard
                     folders={discoveryFolders}
                     isLoading={isLoadingFolders}
@@ -430,13 +420,11 @@ export default function DiscoveryPage() {
                       <ChevronRight size={20} color="#3F3F46" />
                     </Box>
                   </Button>
-                  {facetValidationSuccess && (
-                    <FilterButton
-                      flex={1}
-                      label="Filter"
-                      onClick={() => setFilterSheetOpen(true)}
-                    />
-                  )}
+                  <FilterButton
+                    flex={1}
+                    label="Filter"
+                    onClick={() => setFilterSheetOpen(true)}
+                  />
                 </HStack>
 
                 {folderSheetOpen && (
@@ -509,10 +497,12 @@ export default function DiscoveryPage() {
                         filters={filters}
                         onFilterChange={handleFilterChange}
                         onReset={handleResetV2}
-                        hasFilters={hasFilters}
+                        hasFilters={hasAnyActiveFilters}
                         isLoading={isLoadingSearch}
                         onApply={() => setFilterSheetOpen(false)}
                         onClose={() => setFilterSheetOpen(false)}
+                        currentDistanceKm={maxDistanceKm}
+                        onDistanceChange={setMaxDistanceKm}
                       />
                     </Box>
                   </Portal>
@@ -552,9 +542,11 @@ export default function DiscoveryPage() {
                 <DiscoveryResultBox
                   results={searchResults}
                   isLoading={isLoadingSearch}
-                  hasSearched={hasFilters}
+                  hasSearched={hasAnyActiveFilters}
                   show={
-                    searchResults.length > 0 || hasFilters || isLoadingSearch
+                    searchResults.length > 0 ||
+                    hasAnyActiveFilters ||
+                    isLoadingSearch
                   }
                   userType={participantType!}
                   query={query ?? ""}

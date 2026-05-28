@@ -44,12 +44,7 @@ const Inbox = () => {
 
   const { getUserType } = useAuthStore();
   const userType = getUserType();
-  const profileType =
-    userType === "coordinator"
-      ? "coordinator"
-      : userType === "organisation"
-        ? "organisation"
-        : "student";
+  const profileType: "student" | "organisation" = userType === "organisation" ? "organisation" : "student";
 
   const {
     data: conversationsData,
@@ -85,7 +80,10 @@ const Inbox = () => {
 
   useEffect(() => {
     if (!showArchived) {
-      const total = conversations.reduce((sum, c) => sum + (c.unreadCount ?? 0), 0);
+      const total = conversations.reduce(
+        (sum, c) => sum + (c.unreadCount ?? 0),
+        0
+      );
       setUnreadCount(total);
     }
   }, [conversations, showArchived, setUnreadCount]);
@@ -169,7 +167,7 @@ const Inbox = () => {
     return conversations.filter(
       (c) =>
         c.organisationTitle?.toLowerCase().includes(q) ||
-        c.studentTitle.toLowerCase().includes(q) ||
+        c.otherUserName.toLowerCase().includes(q) ||
         c.organisationSubtitle.toLowerCase().includes(q) ||
         c.studentSubtitle.toLowerCase().includes(q) ||
         c.lastMessagePreview.toLowerCase().includes(q)
@@ -265,8 +263,10 @@ const Inbox = () => {
         ? {
             id: Number(storeUser.id),
             email: storeUser.email ?? "",
-            full_name: `${storeUser.first_name ?? ""} ${storeUser.last_name ?? ""}`.trim(),
+            full_name:
+              `${storeUser.first_name ?? ""} ${storeUser.last_name ?? ""}`.trim(),
             profile_picture_url: storeUser.profile_picture_url ?? null,
+            user_types: storeUser.user_types ?? [],
             organisation_name: null,
             organisation_logo_url: null,
             organisation_id: null,
@@ -344,7 +344,6 @@ const Inbox = () => {
                 onSelectConversation={handleSelectConversation}
                 onToggleArchive={handleToggleArchive}
                 hasAnyConversations={hasAnyConversations}
-                profileType={profileType}
                 onLoadMoreConversations={handleLoadMoreConversations}
                 hasMoreConversations={hasMoreConversations}
                 isLoadingMoreConversations={isFetchingMoreConversations}
@@ -368,7 +367,6 @@ const Inbox = () => {
             onSelectConversation={handleSelectConversation}
             onToggleArchive={handleToggleArchive}
             hasAnyConversations={hasAnyConversations}
-            profileType={profileType}
             onLoadMoreConversations={handleLoadMoreConversations}
             hasMoreConversations={hasMoreConversations}
             isLoadingMoreConversations={isFetchingMoreConversations}

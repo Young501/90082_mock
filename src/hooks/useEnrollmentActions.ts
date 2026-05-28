@@ -14,6 +14,7 @@ export interface UseEnrollmentActionsParams {
   questionnaire?: unknown;
   userType?: string;
   isEnrolled: boolean;
+  isHidden?: boolean;
   onUnenrollSuccess?: () => void;
 }
 
@@ -22,10 +23,12 @@ export function useEnrollmentActions({
   questionnaire,
   userType,
   isEnrolled,
+  isHidden = false,
   onUnenrollSuccess,
 }: UseEnrollmentActionsParams) {
   const [isEditEnrollmentOpen, setIsEditEnrollmentOpen] = useState(false);
   const [isUnenrollDialogOpen, setIsUnenrollDialogOpen] = useState(false);
+  const [isHideDialogOpen, setIsHideDialogOpen] = useState(false);
   const [editAnswers, setEditAnswers] = useState<Record<string, any>>({});
   const editFormRef = useRef<QuestionnaireFormRef>(null);
 
@@ -116,6 +119,21 @@ export function useEnrollmentActions({
     }
   }, [opportunityId, updateParticipantMutation, onUnenrollSuccess]);
 
+  const handleHideClick = useCallback(() => setIsHideDialogOpen(true), []);
+
+  const confirmToggleHidden = useCallback(async () => {
+    try {
+      await updateParticipantMutation.mutateAsync({
+        opportunityId,
+        hidden: !isHidden,
+      });
+      toast.success(isHidden ? "Your profile is now visible to peers." : "Your profile is now hidden from peers.");
+      setIsHideDialogOpen(false);
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Failed to update visibility"));
+    }
+  }, [opportunityId, updateParticipantMutation, isHidden]);
+
   return {
     participantRecord,
     isParticipantLoading,
@@ -124,6 +142,9 @@ export function useEnrollmentActions({
     setIsEditEnrollmentOpen,
     isUnenrollDialogOpen,
     setIsUnenrollDialogOpen,
+    isHideDialogOpen,
+    setIsHideDialogOpen,
+    isHidden,
     editAnswers,
     handleAnswersChange,
     editFormRef,
@@ -135,5 +156,7 @@ export function useEnrollmentActions({
     handleSaveEnrollmentAnswers,
     handleUnenrollClick,
     confirmUnenroll,
+    handleHideClick,
+    confirmToggleHidden,
   };
 }

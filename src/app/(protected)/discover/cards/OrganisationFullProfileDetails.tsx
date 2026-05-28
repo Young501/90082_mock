@@ -28,6 +28,7 @@ import {
   Linkedin,
   Instagram,
   Globe,
+  Briefcase,
 } from "lucide-react";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { getLinkDisplayText } from "@/utils/formatLink";
@@ -182,7 +183,7 @@ export const RenderOrganisationDetails = ({
                   minW={0}
                   size="sm"
                   onClick={() => setShowContactModal(true)}
-                  disabled={disableBtns || userType === "coordinator"}
+                  disabled={disableBtns}
                 >
                   Contact organization
                 </ButtonV2>
@@ -199,7 +200,7 @@ export const RenderOrganisationDetails = ({
                   border="1px solid #D3EFEA"
                   flex={{ base: 1, lg: "none" }}
                   minW={0}
-                  disabled={disableBtns || userType === "coordinator"}
+                  disabled={disableBtns}
                   onClick={() => setShowAddToFolderModal(true)}
                 >
                   Add to Folder
@@ -311,10 +312,22 @@ export const RenderOrganisationDetails = ({
                     >
                       <Info size={20} color="#1679AB" />
                     </Box>
-                    <VStack align="start" gap="2px">
+                    <VStack align="start" gap={2}>
                       <Text fontSize="md" fontWeight="600" color="#173DA6">
                         Actively Hiring
                       </Text>
+                      {(() => {
+                        const roles =
+                          organisation.questionnaire_answers?.hiring_roles
+                            ?.value;
+                        if (!Array.isArray(roles) || roles.length === 0)
+                          return null;
+                        return (
+                          <Text fontSize="sm" color="#173DA6">
+                            {roles.join(", ")}
+                          </Text>
+                        );
+                      })()}
                       <Text fontSize="sm" color="#3F3F46">
                         {organisation.questionnaire_answers
                           ?.actively_hiring_details?.value ||

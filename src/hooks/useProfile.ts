@@ -51,6 +51,10 @@ export const useProfile = (userType: string) => {
     error: orgProfileError,
   } = useOrganisationProfileV2(isOrganisation);
 
+  // V2 coordinator data – user/me only
+  const { data: coordinatorData, isLoading: isCoordinatorLoading } =
+    useUserMeV2(isCoordinator);
+
   const { data: onboardingData, isLoading: isOnboardingLoading } =
     useOnboardingPages(userType);
 
@@ -102,17 +106,30 @@ export const useProfile = (userType: string) => {
     } as Record<string, unknown>;
   }, [isOrganisation, orgUserData, orgMemberData, orgProfileData]);
 
+  const mergedCoordinatorProfile = useMemo(() => {
+    if (!isCoordinator || !coordinatorData) return null;
+    const data = coordinatorData as Record<string, unknown>;
+    return {
+      ...data,
+      profile_picture_url: data.profile_picture_url ?? data.profile_picture,
+    } as Record<string, unknown>;
+  }, [isCoordinator, coordinatorData]);
+
   const mergedProfile = isStudent
     ? mergedStudentProfile
     : isOrganisation
       ? mergedOrgProfile
-      : null;
+      : isCoordinator
+        ? mergedCoordinatorProfile
+        : null;
 
   const userProfileForStore = isStudent
     ? mergedStudentProfile
     : isOrganisation
       ? mergedOrgProfile
-      : null;
+      : isCoordinator
+        ? mergedCoordinatorProfile
+        : null;
 
   useEffect(() => {
     if (userProfileForStore) {
@@ -156,7 +173,9 @@ export const useProfile = (userType: string) => {
     ? isStudentProfileLoading
     : isOrganisation
       ? isOrgUserLoading || isOrgMemberLoading || isOrgProfileLoading
-      : false;
+      : isCoordinator
+        ? isCoordinatorLoading
+        : false;
 
   const university = useMemo(() => {
     if (!isStudent || !studentData) return null;

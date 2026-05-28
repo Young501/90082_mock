@@ -290,7 +290,7 @@ const Header = ({
                         priority
                       />
                     ) : (
-                      <Link href="/">
+                      <Link href="/" style={{ position: "relative", display: "block", width: "100%", height: "100%" }}>
                         <Image
                           alt="Uniconnected"
                           src="/assets/logo.svg"
@@ -600,15 +600,29 @@ const Header = ({
               px={{ base: 4, lg: 20 }}
               py={3}
             >
-              <Box pos="relative" w="200px" h="60px">
-                <Image
-                  src="/assets/logo.svg"
-                  alt="Uniconnected"
-                  fill
-                  style={{ objectFit: "contain" }}
-                  priority
-                />
-              </Box>
+              {isOnboardingPage ? (
+                <Box pos="relative" w="200px" h="60px">
+                  <Image
+                    src="/assets/logo.svg"
+                    alt="Uniconnected"
+                    fill
+                    style={{ objectFit: "contain" }}
+                    priority
+                  />
+                </Box>
+              ) : (
+                <Link href="https://www.uniconnected.com">
+                  <Box pos="relative" w="200px" h="60px">
+                    <Image
+                      src="/assets/logo.svg"
+                      alt="Uniconnected"
+                      fill
+                      style={{ objectFit: "contain" }}
+                      priority
+                    />
+                  </Box>
+                </Link>
+              )}
 
               <Box>
                 {!isMobile ? (

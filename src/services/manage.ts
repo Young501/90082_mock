@@ -19,7 +19,7 @@ export const getParticipants = async (
   });
 
   return apiRequest({
-    endpoint: API_ENDPOINTS.OPPORTUNITY_PARTICIPANTS(opportunityId),
+    endpoint: API_ENDPOINTS.COORDINATOR_OPP_PARTICIPANTS(opportunityId),
     params: queryParams,
   });
 };
@@ -67,6 +67,33 @@ export const unmatch = async (opportunityId: string, matchId: string) => {
     },
   });
 };
+
+export function useDeleteParticipant(opportunityId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (participantId: number) =>
+      apiRequest({
+        endpoint: API_ENDPOINTS.COORDINATOR_DELETE_PARTICIPANT(opportunityId, participantId),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["participants"] });
+    },
+  });
+}
+
+export function useToggleParticipantVisibility(opportunityId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ participantId, hidden }: { participantId: number; hidden: boolean }) =>
+      apiRequest<{ hidden: boolean }>({
+        endpoint: API_ENDPOINTS.COORDINATOR_TOGGLE_PARTICIPANT_VISIBILITY(opportunityId, participantId),
+        body: { hidden },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["participants"] });
+    },
+  });
+}
 
 export function useUnmatch(opportunityId: string, matchId: string) {
   const queryClient = useQueryClient();

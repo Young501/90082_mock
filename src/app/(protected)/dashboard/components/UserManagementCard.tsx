@@ -1,9 +1,12 @@
 import React from "react";
-import { Box, HStack, VStack, Text, Avatar, Badge } from "@chakra-ui/react";
+import { Box, HStack, VStack, Text, Badge } from "@chakra-ui/react";
 import { Participant } from "@/types/dashboard";
 import { getInitial } from "@/utils/getInitials";
 import Image from "next/image";
+import { EyeOff } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
+import { ProfileAvatar } from "@/components/ProfileAvatar";
+import { PROFILE_TINT_COLORS } from "@/theme/theme";
 
 interface UserManagementCardProps {
   participant: Participant;
@@ -21,7 +24,7 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
   const getStatusText = (status: string) => {
     switch (status) {
       case "Pending":
-        return "Invited";
+        return "Pending Acceptance";
       case "Accepted":
         return "Matched";
       case "NotMatched":
@@ -31,10 +34,6 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
       default:
         return "Unknown";
     }
-  };
-
-  const getBorderColor = () => {
-    return userType === "student" ? "#DC2626" : "#089C3F";
   };
 
   const getMatchedWithName = () => {
@@ -68,62 +67,48 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
     participant.accepted_status === "Accepted" &&
     participant.has_profile;
 
+  const isInteractive = true;
+
   return (
     <Box
       bg={
-        isDeclined || isInvited ? "gray.100" : isSelected ? "#A2DDF0" : "white"
+        isDeclined
+          ? "gray.100"
+          : isInvited
+            ? isSelected
+              ? "gray.200"
+              : "gray.100"
+            : isSelected
+              ? PROFILE_TINT_COLORS[userType]
+              : "white"
       }
       border={
         isDeclined
           ? "1px solid #DC2626"
           : participant.match_info?.is_matched
             ? "1px solid #089C3F"
-            : "1px solid #2CA9DF"
+            : isSelected
+              ? `1px solid ${PROFILE_TINT_COLORS[userType]}`
+              : "1px solid #E4E4E7"
       }
       borderRadius="md"
       p={4}
-      cursor={isDeclined || isInvited ? "not-allowed" : "pointer"}
-      onClick={isDeclined || isInvited ? undefined : onClick}
+      cursor={isInteractive ? "pointer" : "not-allowed"}
+      onClick={isInteractive ? onClick : undefined}
       _hover={{
-        bg: isDeclined
-          ? "gray.100"
-          : isSelected
-            ? "#A2DDF0"
-            : isSelected && participant.match_info?.is_matched
-              ? "#00000024"
-              : "gray.50",
-        borderColor: isDeclined ? "#DC2626" : "blue.300",
+        transform: isInteractive ? "scale(1.01)" : "none",
       }}
       transition="all 0.2s"
-      opacity={isDeclined || isInvited ? 0.6 : 1}
+      opacity={isDeclined ? 0.6 : 1}
     >
       <HStack gap={4}>
-        <Box
-          w={{ base: "67px" }}
-          h={{ base: "67px" }}
-          borderRadius="50%"
-          border={`10px solid ${getBorderColor()}`}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Avatar.Root width="62px" height="62px" borderRadius="50%">
-            <Avatar.Fallback
-              name={getInitial(participant.name || "")}
-              bg="gray.200"
-              color="gray.800"
-              fontWeight="bold"
-              fontSize="2xl"
-            />
-            {participant.image_url && (
-              <Avatar.Image
-                src={participant.image_url || ""}
-                w="62px"
-                h="62px"
-              />
-            )}
-          </Avatar.Root>
-        </Box>
+        <ProfileAvatar
+          src={participant.image_url}
+          fallback={getInitial(participant.name || "")}
+          size="lg"
+          borderRadius="12px"
+          alt={participant.name}
+        />
         <VStack align="start" flex={1} gap={1}>
           <HStack>
             <Tooltip content={participant.name}>
@@ -149,13 +134,25 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
                 height={20}
               />
             )}
+
+            {participant.hidden && (
+              <Tooltip content="Hidden from peers" showArrow>
+                <EyeOff size={14} color="#A1A1AA" />
+              </Tooltip>
+            )}
           </HStack>
 
+          {participant.email && (
+            <Text fontSize="11px" color="#000000" fontWeight="400">
+              {participant.email}
+            </Text>
+          )}
+
           {userType === "student" ? (
-            <Box>
+            <HStack gap={1.5} align="center">
               <Text
                 fontSize={{ base: "12px", lg: "12px" }}
-                color="#000000"
+                color="#71717A"
                 fontWeight="400"
               >
                 {isMatched
@@ -166,22 +163,34 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
                         : participant.accepted_status || ""
                     )}
               </Text>
-            </Box>
+              {participant.hidden && (
+                <Badge fontSize="10px" colorPalette="gray" variant="subtle" px={1.5} py={0.5} borderRadius="sm">
+                  Hidden
+                </Badge>
+              )}
+            </HStack>
           ) : (
-            <Text
-              fontSize={{ base: "12px", lg: "12px" }}
-              color="#000000"
-              fontWeight="400"
-            >
-              {isMatched
-                ? "Matched with " + getMatchedWithCount() + " students"
-                : getStatusText(
-                    !participant.match_info?.is_matched &&
-                      participant.accepted_status === "Accepted"
-                      ? "NotMatched"
-                      : participant.accepted_status || ""
-                  )}
-            </Text>
+            <HStack gap={1.5} align="center">
+              <Text
+                fontSize={{ base: "12px", lg: "12px" }}
+                color="#000000"
+                fontWeight="400"
+              >
+                {isMatched
+                  ? "Matched with " + getMatchedWithCount() + " students"
+                  : getStatusText(
+                      !participant.match_info?.is_matched &&
+                        participant.accepted_status === "Accepted"
+                        ? "NotMatched"
+                        : participant.accepted_status || ""
+                    )}
+              </Text>
+              {participant.hidden && (
+                <Badge fontSize="10px" colorPalette="gray" variant="subtle" px={1.5} py={0.5} borderRadius="sm">
+                  Hidden
+                </Badge>
+              )}
+            </HStack>
           )}
         </VStack>
       </HStack>

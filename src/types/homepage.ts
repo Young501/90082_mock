@@ -46,6 +46,7 @@ export interface HomepageOpportunity {
   enrollment_status?: string;
   access?: HomepageOpportunityAccess;
   is_default?: boolean;
+  is_hidden?: boolean;
   links?: HomepageOpportunityLink[];
   [key: string]: unknown;
 }

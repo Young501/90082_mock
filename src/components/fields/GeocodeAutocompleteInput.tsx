@@ -219,7 +219,7 @@ export const GeocodeAutocompleteInput = memo(
       if (raw.trim().length < 2) return;
 
       handleSelect(list[0]);
-    }, [geocodeMutation.isError, controller, inputValue, handleSelect]);
+    }, [geocodeMutation.isError, inputValue, handleSelect]);
 
     useEffect(() => {
       const str = normalizeToString(value);

@@ -18,39 +18,18 @@ import { toast } from "react-toastify";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { UserProfile } from "@/types/shared";
 import {
+  COORDINATOR_ONBOARDING_REQUIRED_FIELDS,
   ORGANISATION_MEMBER_REQUIRED_FIELDS,
   ORGANISATION_REQUIRED_FIELDS,
   STUDENT_ONBOARDING_REQUIRED_FIELDS,
 } from "@/utils/constants";
 
-export const isOrganisationMemberComplete = (
-  member: Record<string, any> | null
+export const isProfileComplete = (
+  profile: Record<string, any> | null | undefined,
+  requiredFields: readonly string[]
 ): boolean => {
-  if (!member) return false;
-  return ORGANISATION_MEMBER_REQUIRED_FIELDS.every((field) => {
-    const value = member[field];
-    if (value == null) return false;
-    if (typeof value === "string") return value.trim() !== "";
-    return true;
-  });
-};
-
-export const isOrganisationComplete = (
-  org: Record<string, any> | null
-): boolean => {
-  if (!org) return false;
-  return ORGANISATION_REQUIRED_FIELDS.every((field) => {
-    const value = org[field];
-    if (value == null) return false;
-    if (typeof value === "string") return value.trim() !== "";
-    return true;
-  });
-};
-
-export const isStudentOnboardingComplete = (
-  profile: Record<string, any>
-): boolean => {
-  return STUDENT_ONBOARDING_REQUIRED_FIELDS.every((field) => {
+  if (!profile) return false;
+  return requiredFields.every((field) => {
     const value = profile[field];
     if (value == null) return false;
     if (Array.isArray(value)) return value.length > 0;
@@ -58,6 +37,18 @@ export const isStudentOnboardingComplete = (
     return true;
   });
 };
+
+export const isOrganisationMemberComplete = (member: Record<string, any> | null) =>
+  isProfileComplete(member, ORGANISATION_MEMBER_REQUIRED_FIELDS);
+
+export const isOrganisationComplete = (org: Record<string, any> | null) =>
+  isProfileComplete(org, ORGANISATION_REQUIRED_FIELDS);
+
+export const isStudentOnboardingComplete = (profile: Record<string, any>) =>
+  isProfileComplete(profile, STUDENT_ONBOARDING_REQUIRED_FIELDS);
+
+export const isCoordinatorOnboardingComplete = (user: Record<string, any> | null) =>
+  isProfileComplete(user, COORDINATOR_ONBOARDING_REQUIRED_FIELDS);
 
 export const checkOnboardingStatus = async ({
   user,
@@ -78,21 +69,33 @@ export const checkOnboardingStatus = async ({
   const isCoordinator = userType === "coordinator";
 
   if (isCoordinator) {
-    if (redirectOnSuccess) {
-      await fetchCoordinatorOpportunities();
-      router.push("/dashboard/");
+    try {
+      const userMe = await apiRequest({ endpoint: API_ENDPOINTS.USER_ME_V2 });
+      if (redirectOnSuccess) {
+        if (isCoordinatorOnboardingComplete(userMe)) {
+          await fetchCoordinatorOpportunities();
+          router.push("/dashboard/");
+        } else {
+          router.push("/onboarding/");
+        }
+      }
+    } catch (error: any) {
+      console.error("Error checking coordinator onboarding status:", error);
+      toast.error("Error checking onboarding status");
     }
     return;
   }
 
   if (userType === "student") {
     try {
-      const response = await apiRequest({
-        endpoint: API_ENDPOINTS.STUDENT_PROFILE_V2,
-      });
-      setUserProfile(response);
+      const [studentProfile, userMe] = await Promise.all([
+        apiRequest({ endpoint: API_ENDPOINTS.STUDENT_PROFILE_V2 }),
+        apiRequest({ endpoint: API_ENDPOINTS.USER_ME_V2 }),
+      ]);
+      const merged = { ...studentProfile, ...userMe };
+      setUserProfile(merged);
       if (redirectOnSuccess) {
-        if (isStudentOnboardingComplete(response)) {
+        if (isStudentOnboardingComplete(merged)) {
           router.push("/home/");
         } else {
           router.push("/onboarding/");
@@ -181,8 +184,7 @@ const fetchCoordinatorOpportunities = async () => {
       endpoint: API_ENDPOINTS.COORDINATOR_OPPORTUNITIES,
     });
 
-    const opportunityIds = response.map((opportunity: any) => opportunity.id);
-    useAuthStore.getState().setCoordinatorOpportunities(opportunityIds);
+    useAuthStore.getState().setCoordinatorOpportunities(response);
   } catch (error: any) {
     console.error("Failed to fetch coordinator opportunities:", error);
     toast.error("Failed to fetch opportunities");

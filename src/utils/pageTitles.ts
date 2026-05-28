@@ -21,6 +21,7 @@ export const PAGE_TITLES = {
   INVITE: "Invite | Uniconnected",
   INVITE_STUDENTS: "Invite Students | Uniconnected",
   INVITE_PARTNERS: "Invite Partners | Uniconnected",
+  RESEND_INVITATION: "Resend Invitation | Uniconnected",
   ONBOARDING_SUCCESS: "Onboarding Success | Uniconnected",
   VERIFY_EMAIL_FAILED: "Verify Email Failed | Uniconnected",
   VERIFY_EMAIL_SENT: "Verify Email Sent | Uniconnected",

@@ -2,11 +2,10 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useAuthStore } from "@/store";
 import { useOnboardingPages } from "@/services/shared";
-import { Box, Text, Flex, VStack, Tabs } from "@chakra-ui/react";
-import { AbnValidationStatus, Question } from "@/types/onboarding";
+import { Box, Text, VStack, Tabs } from "@chakra-ui/react";
+import { Question } from "@/types/onboarding";
 import { OnboardingPage, Tab } from "@/types/profile";
 import { useProfile } from "@/hooks/useProfile";
-import { useAuth } from "@/hooks/auth";
 import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
@@ -43,7 +42,7 @@ const Profile = () => {
     handleOnboardingRedirect,
     university,
     platformRole,
-  } = useProfile(isCoordinator ? "" : userType);
+  } = useProfile(userType);
 
   const { data: onboardingData, isLoading: isOnboardingLoading } =
     useOnboardingPages(userType);
@@ -59,6 +58,18 @@ const Profile = () => {
       questions: (p.questions ?? []) as Question[],
     }));
   }, [onboardingData?.onboarding_pages, userType]);
+
+  // ── Coordinator pages ──────────────────────────────────────────────────────
+  const coordinatorPages = useMemo(() => {
+    if (!isCoordinator) return [];
+    const op = onboardingData?.onboarding_pages;
+    if (!op) return [];
+    return (op.coordinator_onboarding ?? op.user ?? []).map((p: any) => ({
+      id: p.id,
+      title: p.title,
+      questions: (p.questions ?? []) as Question[],
+    }));
+  }, [onboardingData?.onboarding_pages, isCoordinator]);
 
   // ── Organisation pages (split by section) ─────────────────────────────────
   const orgMemberPages = useMemo(() => {
@@ -107,16 +118,14 @@ const Profile = () => {
   const tabs: Tab[] = useMemo(() => {
     const allTabs: Tab[] = [];
 
-    if (!isCoordinator) {
-      allTabs.push({ title: "My Information", icon: "fa-solid fa-user" });
+    allTabs.push({ title: "My Information", icon: "fa-solid fa-user" });
 
+    if (!isCoordinator) {
       if (isOrganisation) {
-        // if (platformRole !== "member") {
         allTabs.push({
           title: "Organisation Profile",
           icon: "fa-solid fa-building",
         });
-        // }
         allTabs.push({
           title: "My Opportunities",
           icon: "fa-solid fa-folder-closed",
@@ -142,19 +151,13 @@ const Profile = () => {
   }, [isCoordinator, isOrganisation]);
 
   const displayFormData = useMemo(() => {
-    const p = (fetchedUserProfile ?? userProfile) as Record<
-      string,
-      unknown
-    > | null;
+    const p = (fetchedUserProfile ?? userProfile) as Record<string, unknown> | null;
     if (!p) return {};
     return { ...p };
   }, [fetchedUserProfile, userProfile]);
 
   const profileSummaryDisplay = useMemo(() => {
-    const p = (fetchedUserProfile ?? userProfile) as Record<
-      string,
-      unknown
-    > | null;
+    const p = (fetchedUserProfile ?? userProfile) as Record<string, unknown> | null;
     if (!p) return {};
     return {
       userId: toProfileDisplayString(p.id),
@@ -224,19 +227,17 @@ const Profile = () => {
       <PageTitle title={PAGE_TITLES.PROFILE} />
       <Box maxW="1512px" mx="auto" w="100%" overflow="hidden">
         <VStack align="stretch" gap={5}>
-          {!isCoordinator && (
-            <ProfileSummaryCard
-              profilePictureUrl={getUserProfilePictureUrl() ?? undefined}
-              fullName={fullName || "—"}
-              userId={profileSummaryDisplay.userId}
-              email={profileSummaryDisplay.email}
-              university={profileSummaryDisplay.university}
-              course={profileSummaryDisplay.course}
-              yearOfStudy={profileSummaryDisplay.yearOfStudy}
-              userType={userType}
-              profileId={previewProfileId}
-            />
-          )}
+          <ProfileSummaryCard
+            profilePictureUrl={getUserProfilePictureUrl() ?? undefined}
+            fullName={fullName || "—"}
+            userId={profileSummaryDisplay.userId}
+            email={profileSummaryDisplay.email}
+            university={profileSummaryDisplay.university}
+            course={profileSummaryDisplay.course}
+            yearOfStudy={profileSummaryDisplay.yearOfStudy}
+            userType={userType}
+            profileId={previewProfileId}
+          />
 
           <Box
             w="100%"
@@ -257,7 +258,7 @@ const Profile = () => {
                 w="100%"
                 flexWrap="wrap"
                 gap={2}
-                justifyContent={{ base: "center", md: "space-between" }}
+                justifyContent="flex-start"
                 border="1px solid"
                 borderColor="#E4E4E7"
                 borderRadius="12px"
@@ -301,7 +302,7 @@ const Profile = () => {
               <Box mt={6}>
                 {tabs[activeTab]?.title === "My Information" && (
                   <VStack align="stretch" gap={6}>
-                    {(isOrganisation ? orgMemberPages : infoPages).map(
+                    {(isOrganisation ? orgMemberPages : isCoordinator ? coordinatorPages : infoPages).map(
                       (page: PageItem) => (
                         <ProfileSectionCard
                           key={page.id}
@@ -326,8 +327,7 @@ const Profile = () => {
                         />
                       )
                     )}
-                    {(isOrganisation ? orgMemberPages : infoPages).length ===
-                      0 && (
+                    {(isOrganisation ? orgMemberPages : isCoordinator ? coordinatorPages : infoPages).length === 0 && (
                       <Text color="#71717A" fontSize="sm">
                         No information to display yet.
                       </Text>

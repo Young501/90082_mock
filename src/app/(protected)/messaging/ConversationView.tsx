@@ -15,6 +15,7 @@ import {
 } from "@/types/messaging";
 import { useAuthStore } from "@/store";
 import { Loader, Send } from "lucide-react";
+import { validateContent, getContentValidationMessage } from "@/utils/contentValidation";
 interface ConversationViewProps {
   isSinglePane: boolean | undefined;
   conversation: ConversationSummary | null;
@@ -25,7 +26,7 @@ interface ConversationViewProps {
   onBackToList: () => void;
   onToggleArchive: (id: ConversationId) => void;
   messagesLoading?: boolean;
-  profileType: "coordinator" | "organisation" | "student";
+  profileType: "student" | "organisation";
   hasMoreMessages?: boolean;
   onLoadMoreMessages?: () => void;
   isLoadingMoreMessages?: boolean;
@@ -61,6 +62,7 @@ export const ConversationView = ({
   const currentUserId = useAuthStore((s: any) => s.user?.id);
   const numericUserId =
     currentUserId != null ? Number(currentUserId) : undefined;
+  const [error, setError] = useState<string | null>(null);
 
   const orderedMessages = [...messages].sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
@@ -92,7 +94,15 @@ export const ConversationView = ({
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleOnChange = (value: string) => {
+    const result = validateContent(value);
+    setError(result.status === "error" ? getContentValidationMessage(result.type) : null);
+    onComposerTextChange(value);
+  };
+
   const handleSendWithFiles = () => {
+    if (error) return;
+
     const replyToId = replyToMessage ? Number(replyToMessage.id) : undefined;
     onSendMessage(
       selectedFiles.length > 0 ? selectedFiles : undefined,
@@ -148,7 +158,6 @@ export const ConversationView = ({
       <ConversationHeader
         conversation={conversation}
         isSinglePane={isSinglePane}
-        profileType={profileType}
         onBackToList={onBackToList}
         onToggleArchive={onToggleArchive}
       />
@@ -299,7 +308,8 @@ export const ConversationView = ({
         <HStack gap={2} align="flex-end">
           <MessageComposerInput
             value={composerText}
-            onChange={onComposerTextChange}
+            onChange={handleOnChange}
+            error={error}
             placeholder="Type your message..."
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
@@ -321,7 +331,8 @@ export const ConversationView = ({
               isSending ||
               (!composerText.trim() &&
                 selectedFiles.length === 0 &&
-                !replyToMessage)
+                !replyToMessage) ||
+              error !== null
             }
             onClick={handleSendWithFiles}
             flexShrink={0}
@@ -331,7 +342,7 @@ export const ConversationView = ({
             iconPosition="end"
             icon={<Send size={18} />}
             isLoading={isSending}
-            // profileType={profileType}
+          // profileType={profileType}
           >
             <Text fontSize="sm" display={{ base: "none", md: "inline-block" }}>
               Send

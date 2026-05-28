@@ -79,7 +79,7 @@ export function OrganisationCard({
     sectorText && industryText
       ? `${sectorText} (${industryText})`
       : sectorText || industryText || "";
-  const matchPercentage = organisation.matchPercentage;
+  const matchScore = organisation.match_score;
   const locationText = formatLocationDisplay(organisation.location);
   const distanceText =
     organisation.distance_km != null
@@ -185,20 +185,13 @@ export function OrganisationCard({
                         <Text lineClamp={2}>{locationText}</Text>
                       </Tooltip>
                     )}
+                    {locationText && distanceText && (
+                      <Text color="#A1A1AA" fontWeight="600">·</Text>
+                    )}
                     {distanceText && (
-                      <Box
-                        flexShrink={0}
-                        px={1.5}
-                        py={0.5}
-                        bg="#DCFCE7"
-                        borderRadius="md"
-                        fontSize="xs"
-                        fontWeight="500"
-                        color="#116932"
-                        boxShadow="0px 0px 1px 0px #D4D4D8 inset"
-                      >
+                      <Text flexShrink={0} fontWeight="600" color="#52525B">
                         {distanceText}
-                      </Box>
+                      </Text>
                     )}
                   </HStack>
                 </HStack>
@@ -218,7 +211,7 @@ export function OrganisationCard({
                   </Tooltip>
                 </HStack>
               )}
-              {matchPercentage && (
+              {matchScore != null && matchScore > 0 && (
                 <Box
                   alignSelf="flex-start"
                   px={1.5}
@@ -230,7 +223,7 @@ export function OrganisationCard({
                   color="#116932"
                   boxShadow="0px 0px 1px 0px #D4D4D8 inset"
                 >
-                  {matchPercentage}% Match
+                  {matchScore}% Match
                 </Box>
               )}
             </VStack>

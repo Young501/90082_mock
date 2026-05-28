@@ -12,10 +12,12 @@ export function useUpdateOpportunityParticipant() {
       opportunityId,
       questionnaireAnswers,
       accepted,
+      hidden,
     }: {
       opportunityId: string | number;
       questionnaireAnswers?: Record<string, any>;
       accepted?: boolean;
+      hidden?: boolean;
     }) => {
       const body: Record<string, any> = {};
 
@@ -24,6 +26,9 @@ export function useUpdateOpportunityParticipant() {
       }
       if (accepted !== undefined) {
         body.accepted = accepted;
+      }
+      if (hidden !== undefined) {
+        body.hidden = hidden;
       }
 
       const response = await apiRequest({
@@ -36,7 +41,7 @@ export function useUpdateOpportunityParticipant() {
       return response;
     },
     onSuccess: (response, variables) => {
-      const { opportunityId, questionnaireAnswers, accepted } = variables;
+      const { opportunityId, questionnaireAnswers, accepted, hidden } = variables;
 
       if (questionnaireAnswers !== undefined) {
         queryClient.setQueryData(
@@ -58,6 +63,12 @@ export function useUpdateOpportunityParticipant() {
         });
         queryClient.invalidateQueries({
           queryKey: ["all-opportunities", user?.id],
+        });
+      }
+
+      if (hidden !== undefined) {
+        queryClient.invalidateQueries({
+          queryKey: ["accessible-opportunities", user?.id],
         });
       }
 
