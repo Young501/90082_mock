@@ -16,7 +16,6 @@ import {
 import { FeatureList } from "@/components/billing/PricingSelector";
 import { formatPrice } from "@/utils/formatPrice";
 
-
 interface OpportunityNotEnrolledCardProps {
   opportunity: Opportunity;
   accessInfo: AccessInfo | null;

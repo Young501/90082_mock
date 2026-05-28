@@ -290,7 +290,11 @@ export default function DiscoveryPage() {
   });
 
   // Opportunity-specific content
-  if (opportunitySlug && !currentOpportunity && (isOpportunitiesLoading || isOpportunitiesFetching)) {
+  if (
+    opportunitySlug &&
+    !currentOpportunity &&
+    (isOpportunitiesLoading || isOpportunitiesFetching)
+  ) {
     return (
       <Box
         display="flex"
@@ -310,7 +314,6 @@ export default function DiscoveryPage() {
   }
 
   if (opportunityId) {
-
     // Error state
     if (!opportunity || !currentOpportunity) {
       return (
@@ -352,7 +355,9 @@ export default function DiscoveryPage() {
             userType={userType}
           />
           {/* Enrolled user and eligible - show discovery interface */}
-          {isEnrolled === undefined ? null : isEnrolled && accessInfo?.has_access && !isSubmitting ? (
+          {isEnrolled === undefined ? null : isEnrolled &&
+            accessInfo?.has_access &&
+            !isSubmitting ? (
             <Box w="100%" overflow="hidden">
               <Box
                 display="flex"

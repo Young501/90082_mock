@@ -11,7 +11,9 @@ import {
 import { User } from "@/types/user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { toast } from "react-toastify";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { UserProfile } from "@/types/shared";
@@ -36,8 +38,9 @@ export const isProfileComplete = (
   });
 };
 
-export const isOrganisationMemberComplete = (member: Record<string, any> | null) =>
-  isProfileComplete(member, ORGANISATION_MEMBER_REQUIRED_FIELDS);
+export const isOrganisationMemberComplete = (
+  member: Record<string, any> | null
+) => isProfileComplete(member, ORGANISATION_MEMBER_REQUIRED_FIELDS);
 
 export const isOrganisationComplete = (org: Record<string, any> | null) =>
   isProfileComplete(org, ORGANISATION_REQUIRED_FIELDS);
@@ -45,8 +48,9 @@ export const isOrganisationComplete = (org: Record<string, any> | null) =>
 export const isStudentOnboardingComplete = (profile: Record<string, any>) =>
   isProfileComplete(profile, STUDENT_ONBOARDING_REQUIRED_FIELDS);
 
-export const isCoordinatorOnboardingComplete = (user: Record<string, any> | null) =>
-  isProfileComplete(user, COORDINATOR_ONBOARDING_REQUIRED_FIELDS);
+export const isCoordinatorOnboardingComplete = (
+  user: Record<string, any> | null
+) => isProfileComplete(user, COORDINATOR_ONBOARDING_REQUIRED_FIELDS);
 
 export const checkOnboardingStatus = async ({
   user,
@@ -196,6 +200,8 @@ export const useAuth = () => {
   const queryClient = useQueryClient();
   const [errorMsg, setErrorMsg] = useState("");
 
+  const { executeRecaptcha } = useGoogleReCaptcha();
+
   const loginMutation = useMutation({
     mutationFn: async (data: LoginData) => {
       return apiRequest({
@@ -203,6 +209,7 @@ export const useAuth = () => {
         body: {
           email: data.email,
           password: data.password,
+          recaptcha_token: data.recaptcha_token,
         },
       });
     },
@@ -234,10 +241,11 @@ export const useAuth = () => {
           email: data.email,
           password: data.password,
           user_types: data.user_types,
+          recaptcha_token: data.recaptcha_token,
         },
       });
     },
-    onSuccess: (response) => {},
+    onSuccess: () => {},
     onError: (error: any) => {
       const errorMessage = getErrorMessage(error, "Signup failed");
       toast.error(errorMessage);
@@ -369,10 +377,23 @@ export const useAuth = () => {
     callback?: () => void;
   }) => {
     try {
+      let recaptchaToken = "dev";
+
+      if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
+        if (!executeRecaptcha) {
+          toast.error("Please try again.");
+          return;
+        }
+        recaptchaToken = await executeRecaptcha("login");
+        // recaptchaToken = "bogus_token";
+      }
+
       await loginMutation.mutateAsync({
         email: data.email,
         password: data.password,
+        recaptcha_token: recaptchaToken,
       });
+
       data.callback?.();
     } catch (error: any) {
       throw error;
@@ -386,11 +407,23 @@ export const useAuth = () => {
     callback?: () => void;
   }) => {
     try {
+      let recaptchaToken = "dev";
+
+      if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
+        if (!executeRecaptcha) {
+          toast.error("reCAPTCHA is not ready. Please try again.");
+          return;
+        }
+        recaptchaToken = await executeRecaptcha("signup");
+      }
+
       await signupMutation.mutateAsync({
         email: data.email,
         password: data.password,
         user_types: data.user_types,
+        recaptcha_token: recaptchaToken,
       });
+
       data.callback?.();
     } catch (error: any) {
       throw error;

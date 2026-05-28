@@ -361,8 +361,18 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v2/opportunities/coordinator/${opportunityId}/participants/`,
   }),
-  COORDINATOR_DELETE_PARTICIPANT: (opportunityId: string, participantId: number): ApiEndpoint => ({
+  COORDINATOR_DELETE_PARTICIPANT: (
+    opportunityId: string,
+    participantId: number
+  ): ApiEndpoint => ({
     method: "DELETE",
+    url: `/api/v2/opportunities/coordinator/${opportunityId}/participants/${participantId}/`,
+  }),
+  COORDINATOR_TOGGLE_PARTICIPANT_VISIBILITY: (
+    opportunityId: string,
+    participantId: number
+  ): ApiEndpoint => ({
+    method: "PATCH",
     url: `/api/v2/opportunities/coordinator/${opportunityId}/participants/${participantId}/`,
   }),
   MATCH: (opportunityId: string): ApiEndpoint => ({
@@ -385,11 +395,17 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/invite/`,
   }),
-  INVITE_PREVIEW: (opportunityId: string, userType: "student" | "organisation"): ApiEndpoint => ({
+  INVITE_PREVIEW: (
+    opportunityId: string,
+    userType: "student" | "organisation"
+  ): ApiEndpoint => ({
     method: "POST",
     url: `/api/v2/opportunities/coordinator/${opportunityId}/invite/${userType}/preview/`,
   }),
-  INVITE_V2: (opportunityId: string, userType: "student" | "organisation"): ApiEndpoint => ({
+  INVITE_V2: (
+    opportunityId: string,
+    userType: "student" | "organisation"
+  ): ApiEndpoint => ({
     method: "POST",
     url: `/api/v2/opportunities/coordinator/${opportunityId}/invite/${userType}/`,
   }),

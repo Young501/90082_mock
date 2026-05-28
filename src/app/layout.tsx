@@ -5,7 +5,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Toaster } from "sonner";
 import { GoogleAnalytics } from "@next/third-parties/google";
-
+import RecaptchaProvider from "@/components/RecaptchaProvider";
 const manrope = Manrope({
   subsets: ["latin"],
   weight: ["200", "300", "400", "500", "600", "700", "800"],
@@ -54,7 +54,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             limit={3}
           />
           <Toaster position="top-right" richColors />
-          {children}
+          <RecaptchaProvider>{children}</RecaptchaProvider>
         </Providers>
       </body>
       <GoogleAnalytics

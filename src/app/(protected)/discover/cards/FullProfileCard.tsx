@@ -35,7 +35,8 @@ export function FullProfileCard({
   isPreview = false,
 }: FullProfileCardProps) {
   const shouldFetchStudent = profileType === "student" && !studentProfile;
-  const shouldFetchPartner = profileType === "organisation" && !organisationProfile;
+  const shouldFetchPartner =
+    profileType === "organisation" && !organisationProfile;
   const { userProfile, getUserType } = useAuthStore();
   const userType = getUserType();
 
@@ -59,9 +60,10 @@ export function FullProfileCard({
 
   const isLoading = isStudentLoading || isPartnerLoading;
   const error = studentError || partnerError;
-  const profile = profileType === "student"
-    ? studentProfile || studentData
-    : organisationProfile || partnerData;
+  const profile =
+    profileType === "student"
+      ? studentProfile || studentData
+      : organisationProfile || partnerData;
 
   if (isLoading) {
     if (isModal) {

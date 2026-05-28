@@ -83,7 +83,13 @@ export const ConversationBox = ({
         </Box>
         <Box minW={0} w="100%">
           <HStack justify="space-between">
-            <VStack align="flex-start" gap={0} minW={0} flex={1} overflow="hidden">
+            <VStack
+              align="flex-start"
+              gap={0}
+              minW={0}
+              flex={1}
+              overflow="hidden"
+            >
               <HStack gap={1} align="center" w="100%" minW={0}>
                 <Text
                   fontWeight={conversation.hasUnread ? "semibold" : "medium"}

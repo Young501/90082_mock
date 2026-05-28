@@ -9,7 +9,9 @@ export function useNotificationSocket() {
   const token = useAuthStore((s) => s.token);
   const user = useAuthStore((s) => s.user);
   const userType = useAuthStore((s) => s.getUserType());
-  const accentColor = PROFILE_COLORS[(userType as keyof typeof PROFILE_COLORS) ?? "student"] ?? PROFILE_COLORS.student;
+  const accentColor =
+    PROFILE_COLORS[(userType as keyof typeof PROFILE_COLORS) ?? "student"] ??
+    PROFILE_COLORS.student;
   const setHasUnreadMessages = useAuthStore((s) => s.setHasUnreadMessages);
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -18,7 +20,9 @@ export function useNotificationSocket() {
   const reconnectDelay = useRef(1000);
   const pathnameRef = useRef(pathname);
 
-  useEffect(() => { pathnameRef.current = pathname; }, [pathname]);
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
 
   useEffect(() => {
     if (!token) return;
@@ -29,7 +33,9 @@ export function useNotificationSocket() {
     function connect() {
       if (destroyed) return;
 
-      const ws = new WebSocket(`${wsBase}/ws/messaging/notifications/?token=${encodeURIComponent(token!)}`);
+      const ws = new WebSocket(
+        `${wsBase}/ws/messaging/notifications/?token=${encodeURIComponent(token!)}`
+      );
       wsRef.current = ws;
 
       ws.onopen = () => {
@@ -40,7 +46,7 @@ export function useNotificationSocket() {
         if (process.env.NODE_ENV === "development") {
           console.error("WebSocket Error:", event);
         }
-      }
+      };
 
       ws.onclose = (event) => {
         if (destroyed) return;
@@ -52,7 +58,14 @@ export function useNotificationSocket() {
       };
 
       ws.onmessage = (event) => {
-        let data: { event?: string; message_id?: number; conversation_id?: number; sender_id?: number; sender_name?: string; preview?: string };
+        let data: {
+          event?: string;
+          message_id?: number;
+          conversation_id?: number;
+          sender_id?: number;
+          sender_name?: string;
+          preview?: string;
+        };
         try {
           data = JSON.parse(event.data);
         } catch {
@@ -64,7 +77,9 @@ export function useNotificationSocket() {
 
         if (data.event === "new_message") {
           // Refetch messages / conversations when new message arrives
-          queryClient.invalidateQueries({ queryKey: ["messaging", "conversations"] });
+          queryClient.invalidateQueries({
+            queryKey: ["messaging", "conversations"],
+          });
           queryClient.invalidateQueries({ queryKey: ["homepage"] });
 
           // Only show toast and set unread badge if the message was NOT sent by the current user
@@ -76,16 +91,24 @@ export function useNotificationSocket() {
                 description: data.preview,
                 action: {
                   label: "View",
-                  onClick: () => router.push(`/messaging/?conversation=${data.conversation_id}`),
+                  onClick: () =>
+                    router.push(
+                      `/messaging/?conversation=${data.conversation_id}`
+                    ),
                 },
                 style: { borderLeft: `4px solid ${accentColor}` },
-                actionButtonStyle: { backgroundColor: accentColor, color: "#fff", padding: "6px 16px", fontSize: "13px" },
+                actionButtonStyle: {
+                  backgroundColor: accentColor,
+                  color: "#fff",
+                  padding: "6px 16px",
+                  fontSize: "13px",
+                },
               });
             }
             setHasUnreadMessages(true);
           }
         }
-      }
+      };
     }
 
     connect();

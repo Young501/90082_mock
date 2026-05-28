@@ -59,10 +59,17 @@ const Sidebar = ({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { getUserType, accessibleOpportunities, coordinatorOpportunities, userProfile } = useAuthStore();
+  const {
+    getUserType,
+    accessibleOpportunities,
+    coordinatorOpportunities,
+    userProfile,
+  } = useAuthStore();
   const discoverDropdownRef = useRef<HTMLDivElement>(null);
   const { open: isDiscoverOpen, onToggle: onDiscoverToggle } = useDisclosure();
-  const [isDashboardOpen, setIsDashboardOpen] = useState(() => pathname?.startsWith("/dashboard") ?? false);
+  const [isDashboardOpen, setIsDashboardOpen] = useState(
+    () => pathname?.startsWith("/dashboard") ?? false
+  );
   const onDashboardToggle = () => setIsDashboardOpen((prev) => !prev);
 
   const userType = getUserType();
@@ -211,10 +218,20 @@ const Sidebar = ({
             _hover={{ bg: active ? "profile.500" : "secondary.100" }}
             transition="background 0.15s"
           >
-            <Box flexShrink={0} w={5} h={5} color={active ? "white" : "#71717A"}>
+            <Box
+              flexShrink={0}
+              w={5}
+              h={5}
+              color={active ? "white" : "#71717A"}
+            >
               <LayoutDashboard size={20} />
             </Box>
-            <Text fontSize="md" fontWeight={active ? 600 : 500} color={active ? "white" : "#71717A"} flex={1}>
+            <Text
+              fontSize="md"
+              fontWeight={active ? 600 : 500}
+              color={active ? "white" : "#71717A"}
+              flex={1}
+            >
               Dashboards
             </Text>
           </HStack>
@@ -240,10 +257,20 @@ const Sidebar = ({
             _hover={{ bg: active ? "profile.500" : "secondary.100" }}
             transition="background 0.15s"
           >
-            <Box flexShrink={0} w={5} h={5} color={active ? "white" : "#71717A"}>
+            <Box
+              flexShrink={0}
+              w={5}
+              h={5}
+              color={active ? "white" : "#71717A"}
+            >
               <LayoutDashboard size={20} />
             </Box>
-            <Text fontSize="md" fontWeight={active ? 600 : 500} color={active ? "white" : "#71717A"} flex={1}>
+            <Text
+              fontSize="md"
+              fontWeight={active ? 600 : 500}
+              color={active ? "white" : "#71717A"}
+              flex={1}
+            >
               Dashboards
             </Text>
           </HStack>
@@ -268,10 +295,20 @@ const Sidebar = ({
           }}
         >
           <HStack gap={3}>
-            <Box flexShrink={0} w={5} h={5} color={active ? "white" : "#71717A"}>
+            <Box
+              flexShrink={0}
+              w={5}
+              h={5}
+              color={active ? "white" : "#71717A"}
+            >
               <LayoutDashboard size={20} />
             </Box>
-            <Text fontSize="md" fontWeight={active ? 600 : 500} color={active ? "white" : "#71717A"} flex={1}>
+            <Text
+              fontSize="md"
+              fontWeight={active ? 600 : 500}
+              color={active ? "white" : "#71717A"}
+              flex={1}
+            >
               Dashboards
             </Text>
             <Box
@@ -285,7 +322,13 @@ const Sidebar = ({
         </Box>
         {isDashboardOpen && (
           <Box mt={1} pl={3} display="flex">
-            <Box w="11px" flexShrink={0} alignSelf="stretch" display="flex" alignItems="stretch">
+            <Box
+              w="11px"
+              flexShrink={0}
+              alignSelf="stretch"
+              display="flex"
+              alignItems="stretch"
+            >
               <IconSidebarLine segmentCount={coordOpps.length} />
             </Box>
             <VStack align="stretch" flex={1} pl={2} gap={1}>

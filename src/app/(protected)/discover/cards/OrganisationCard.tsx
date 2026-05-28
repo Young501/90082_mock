@@ -186,7 +186,9 @@ export function OrganisationCard({
                       </Tooltip>
                     )}
                     {locationText && distanceText && (
-                      <Text color="#A1A1AA" fontWeight="600">·</Text>
+                      <Text color="#A1A1AA" fontWeight="600">
+                        ·
+                      </Text>
                     )}
                     {distanceText && (
                       <Text flexShrink={0} fontWeight="600" color="#52525B">

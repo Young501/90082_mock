@@ -67,9 +67,19 @@ export function OpportunityHeader({ opportunity }: OpportunityHeaderProps) {
             </Text>
             <HStack gap={3} flexWrap="wrap">
               {(() => {
-                const isExpired = opportunity.end_date && new Date(opportunity.end_date) < new Date();
-                const colorPalette = isExpired ? "orange" : opportunity.is_active ? "green" : "gray";
-                const label = isExpired ? "Expired" : opportunity.is_active ? "Active" : "Inactive";
+                const isExpired =
+                  opportunity.end_date &&
+                  new Date(opportunity.end_date) < new Date();
+                const colorPalette = isExpired
+                  ? "orange"
+                  : opportunity.is_active
+                    ? "green"
+                    : "gray";
+                const label = isExpired
+                  ? "Expired"
+                  : opportunity.is_active
+                    ? "Active"
+                    : "Inactive";
                 return (
                   <Badge
                     colorPalette={colorPalette}
@@ -87,7 +97,8 @@ export function OpportunityHeader({ opportunity }: OpportunityHeaderProps) {
                 <HStack gap={1} color="#71717A">
                   <Calendar size={13} strokeWidth={2} />
                   <Text fontSize="xs">
-                    {formatDate(opportunity.start_date)} – {formatDate(opportunity.end_date)}
+                    {formatDate(opportunity.start_date)} –{" "}
+                    {formatDate(opportunity.end_date)}
                   </Text>
                 </HStack>
               )}
@@ -127,10 +138,20 @@ export function OpportunityHeader({ opportunity }: OpportunityHeaderProps) {
                   <HStack gap={2} align="center">
                     {label}
                     {isHttp && (
-                      <ExternalLink size={12} strokeWidth={3} color="#71717A" aria-hidden />
+                      <ExternalLink
+                        size={12}
+                        strokeWidth={3}
+                        color="#71717A"
+                        aria-hidden
+                      />
                     )}
                     {isMailto && (
-                      <Mail size={12} strokeWidth={3} color="#71717A" aria-hidden />
+                      <Mail
+                        size={12}
+                        strokeWidth={3}
+                        color="#71717A"
+                        aria-hidden
+                      />
                     )}
                   </HStack>
                 </Link>

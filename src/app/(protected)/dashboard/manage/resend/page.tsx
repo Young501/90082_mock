@@ -41,13 +41,18 @@ const ResendPageContent = () => {
     return (
       <Box maxW="1512px" mx="auto">
         <Container maxW="1512px">
-          <Text fontSize="lg" color="gray.500">Invalid resend parameters.</Text>
+          <Text fontSize="lg" color="gray.500">
+            Invalid resend parameters.
+          </Text>
         </Container>
       </Box>
     );
   }
 
-  const title = type === "student" ? "Resend Student Invitation" : "Resend Organisation Invitation";
+  const title =
+    type === "student"
+      ? "Resend Student Invitation"
+      : "Resend Organisation Invitation";
 
   return (
     <>
@@ -63,7 +68,12 @@ const ResendPageContent = () => {
             >
               <ArrowLeft size={20} />
             </IconButton>
-            <Text as="h1" fontSize={{ base: "22px", lg: "28px" }} fontWeight="600" color="#000000">
+            <Text
+              as="h1"
+              fontSize={{ base: "22px", lg: "28px" }}
+              fontWeight="600"
+              color="#000000"
+            >
               {title}
             </Text>
           </HStack>
@@ -86,7 +96,14 @@ const ResendPage = () => {
   return (
     <Suspense
       fallback={
-        <Box maxW="1512px" mx="auto" display="flex" justifyContent="center" alignItems="center" minH="50vh">
+        <Box
+          maxW="1512px"
+          mx="auto"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minH="50vh"
+        >
           <Spinner size="xl" />
         </Box>
       }

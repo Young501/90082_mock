@@ -26,7 +26,9 @@ import { Tooltip } from "@/components/ui/tooltip";
 
 const ManagePageContent = () => {
   const searchParams = useSearchParams();
-  React.useEffect(() => { window.scrollTo(0, 0); }, []);
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const type = searchParams.get("type");
   const oppSlug = searchParams.get("opp") ?? undefined;
   const { getCoordinatorOpportunities } = useAuthStore();
@@ -35,7 +37,9 @@ const ManagePageContent = () => {
     ? coordinatorOpportunities.find((o) => o.slug === oppSlug)
     : coordinatorOpportunities[0];
   const opportunityId = selected?.id ? String(selected.id) : "";
-  const isExpired = selected?.end_date ? new Date(selected.end_date) < new Date() : false;
+  const isExpired = selected?.end_date
+    ? new Date(selected.end_date) < new Date()
+    : false;
   const {
     participants,
     selectedParticipant,
@@ -55,16 +59,31 @@ const ManagePageContent = () => {
     return (
       <Box maxW="1512px" mx="auto">
         <Container maxW="1512px" display="flex" flexDirection="column" gap={8}>
-          <Text as="h1" fontSize={{ base: "22px", lg: "28px" }} fontWeight="600" color="#000000">
+          <Text
+            as="h1"
+            fontSize={{ base: "22px", lg: "28px" }}
+            fontWeight="600"
+            color="#000000"
+          >
             Manage {type === "student" ? "Students" : "Organisations"}
           </Text>
-          <Box bg="white" borderRadius="12px" border="1px solid" borderColor="#E4E4E7" p={6} width="100%">
+          <Box
+            bg="white"
+            borderRadius="12px"
+            border="1px solid"
+            borderColor="#E4E4E7"
+            p={6}
+            width="100%"
+          >
             <VStack gap={4}>
               <Text fontSize="lg" fontWeight="bold" color="red.500">
-                Error loading {type === "student" ? "students" : "organisations"}
+                Error loading{" "}
+                {type === "student" ? "students" : "organisations"}
               </Text>
               <Text color="gray.600">{error}</Text>
-              <Button onClick={() => window.location.reload()}>Try Again</Button>
+              <Button onClick={() => window.location.reload()}>
+                Try Again
+              </Button>
             </VStack>
           </Box>
         </Container>
@@ -75,7 +94,11 @@ const ManagePageContent = () => {
   return (
     <>
       <PageTitle
-        title={type === "student" ? PAGE_TITLES.MANAGE_STUDENTS : PAGE_TITLES.MANAGE_PARTNERS}
+        title={
+          type === "student"
+            ? PAGE_TITLES.MANAGE_STUDENTS
+            : PAGE_TITLES.MANAGE_PARTNERS
+        }
       />
       <Box>
         {type === "student" ? (
@@ -128,7 +151,14 @@ const ManagePage = () => {
   return (
     <Suspense
       fallback={
-        <Box maxW="1512px" mx="auto" display="flex" justifyContent="center" alignItems="center" minH="50vh">
+        <Box
+          maxW="1512px"
+          mx="auto"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minH="50vh"
+        >
           <Spinner size="xl" />
         </Box>
       }
@@ -160,9 +190,21 @@ interface PageProps {
 }
 
 const StudentPage = ({
-  participants, selectedParticipant, filters, hasMore, isLoading,
-  loadMore, updateFilters, resetFilters, selectParticipant,
-  updateSelectedParticipant, clearSelectedParticipant, opportunityId, oppSlug, type, isExpired,
+  participants,
+  selectedParticipant,
+  filters,
+  hasMore,
+  isLoading,
+  loadMore,
+  updateFilters,
+  resetFilters,
+  selectParticipant,
+  updateSelectedParticipant,
+  clearSelectedParticipant,
+  opportunityId,
+  oppSlug,
+  type,
+  isExpired,
 }: PageProps) => {
   const router = useRouter();
   const inviteUrl = `/dashboard/manage/invite?type=${type}${oppSlug ? `&opp=${oppSlug}` : ""}`;
@@ -178,15 +220,38 @@ const StudentPage = ({
           gap={4}
         >
           <HStack gap={2} align="center">
-            <IconButton aria-label="Back" variant="ghost" size="sm" onClick={() => router.back()}>
+            <IconButton
+              aria-label="Back"
+              variant="ghost"
+              size="sm"
+              onClick={() => router.back()}
+            >
               <ArrowLeft size={20} />
             </IconButton>
-            <Text as="h1" fontSize={{ base: "22px", lg: "28px" }} fontWeight="600" color="#000000">
+            <Text
+              as="h1"
+              fontSize={{ base: "22px", lg: "28px" }}
+              fontWeight="600"
+              color="#000000"
+            >
               Manage Students
             </Text>
           </HStack>
-          <Tooltip content="This opportunity has expired" disabled={!isExpired} showArrow>
-            <AppButton variant="student" onClick={() => !isExpired && router.push(inviteUrl)} fontSize="15px" height="40px" px={5} borderRadius="8px" disabled={isExpired} opacity={isExpired ? 0.5 : 1}>
+          <Tooltip
+            content="This opportunity has expired"
+            disabled={!isExpired}
+            showArrow
+          >
+            <AppButton
+              variant="student"
+              onClick={() => !isExpired && router.push(inviteUrl)}
+              fontSize="15px"
+              height="40px"
+              px={5}
+              borderRadius="8px"
+              disabled={isExpired}
+              opacity={isExpired ? 0.5 : 1}
+            >
               + Add Students to this list
             </AppButton>
           </Tooltip>
@@ -194,7 +259,11 @@ const StudentPage = ({
 
         <VStack width="100%" gap={6} alignItems="flex-start">
           <Box width="100%" height="fit-content">
-            <ManageFilter filters={filters} onFilterChange={updateFilters} onReset={resetFilters} />
+            <ManageFilter
+              filters={filters}
+              onFilterChange={updateFilters}
+              onReset={resetFilters}
+            />
           </Box>
           <Box
             display="flex"
@@ -218,20 +287,36 @@ const StudentPage = ({
                 overflowY="auto"
                 px={1}
                 py={1}
-                css={{ "&::-webkit-scrollbar": { display: "none" }, scrollbarWidth: "none", msOverflowStyle: "none" }}
+                css={{
+                  "&::-webkit-scrollbar": { display: "none" },
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                }}
               >
                 {isLoading && participants.length === 0 ? (
-                  <VStack gap={4} py={10}><Loader /></VStack>
+                  <VStack gap={4} py={10}>
+                    <Loader />
+                  </VStack>
                 ) : participants.length === 0 ? (
-                  <VStack gap={4} py={8}><Text fontSize="lg" color="gray.500">No students found</Text></VStack>
+                  <VStack gap={4} py={8}>
+                    <Text fontSize="lg" color="gray.500">
+                      No students found
+                    </Text>
+                  </VStack>
                 ) : (
-                  <InfiniteScroll onLoadMore={loadMore} hasMore={hasMore} isLoading={isLoading}>
+                  <InfiniteScroll
+                    onLoadMore={loadMore}
+                    hasMore={hasMore}
+                    isLoading={isLoading}
+                  >
                     <VStack gap={3} align="stretch">
                       {participants.map((participant) => (
                         <UserManagementCard
                           key={participant.id}
                           participant={participant}
-                          isSelected={selectedParticipant?.id === participant.id}
+                          isSelected={
+                            selectedParticipant?.id === participant.id
+                          }
                           onClick={() => selectParticipant(participant)}
                           userType="student"
                         />
@@ -270,9 +355,21 @@ const StudentPage = ({
 };
 
 const PartnerPage = ({
-  participants, selectedParticipant, filters, hasMore, isLoading,
-  loadMore, updateFilters, resetFilters, selectParticipant,
-  updateSelectedParticipant, clearSelectedParticipant, opportunityId, oppSlug, type, isExpired,
+  participants,
+  selectedParticipant,
+  filters,
+  hasMore,
+  isLoading,
+  loadMore,
+  updateFilters,
+  resetFilters,
+  selectParticipant,
+  updateSelectedParticipant,
+  clearSelectedParticipant,
+  opportunityId,
+  oppSlug,
+  type,
+  isExpired,
 }: PageProps) => {
   const router = useRouter();
   const inviteUrl = `/dashboard/manage/invite?type=${type}${oppSlug ? `&opp=${oppSlug}` : ""}`;
@@ -288,15 +385,38 @@ const PartnerPage = ({
           gap={4}
         >
           <HStack gap={2} align="center">
-            <IconButton aria-label="Back" variant="ghost" size="sm" onClick={() => router.back()}>
+            <IconButton
+              aria-label="Back"
+              variant="ghost"
+              size="sm"
+              onClick={() => router.back()}
+            >
               <ArrowLeft size={20} />
             </IconButton>
-            <Text as="h1" fontSize={{ base: "22px", lg: "28px" }} fontWeight="600" color="#000000">
+            <Text
+              as="h1"
+              fontSize={{ base: "22px", lg: "28px" }}
+              fontWeight="600"
+              color="#000000"
+            >
               Manage Organisations
             </Text>
           </HStack>
-          <Tooltip content="This opportunity has expired" disabled={!isExpired} showArrow>
-            <AppButton variant="partner" onClick={() => !isExpired && router.push(inviteUrl)} fontSize="15px" height="40px" px={5} borderRadius="8px" disabled={isExpired} opacity={isExpired ? 0.5 : 1}>
+          <Tooltip
+            content="This opportunity has expired"
+            disabled={!isExpired}
+            showArrow
+          >
+            <AppButton
+              variant="partner"
+              onClick={() => !isExpired && router.push(inviteUrl)}
+              fontSize="15px"
+              height="40px"
+              px={5}
+              borderRadius="8px"
+              disabled={isExpired}
+              opacity={isExpired ? 0.5 : 1}
+            >
               + Add Organisations to this list
             </AppButton>
           </Tooltip>
@@ -304,7 +424,11 @@ const PartnerPage = ({
 
         <VStack width="100%" gap={6} alignItems="flex-start">
           <Box width="100%" height="fit-content">
-            <ManageFilter filters={filters} onFilterChange={updateFilters} onReset={resetFilters} />
+            <ManageFilter
+              filters={filters}
+              onFilterChange={updateFilters}
+              onReset={resetFilters}
+            />
           </Box>
           <Box
             display="flex"
@@ -328,20 +452,36 @@ const PartnerPage = ({
                 overflowY="auto"
                 px={1}
                 py={1}
-                css={{ "&::-webkit-scrollbar": { display: "none" }, scrollbarWidth: "none", msOverflowStyle: "none" }}
+                css={{
+                  "&::-webkit-scrollbar": { display: "none" },
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                }}
               >
                 {isLoading && participants.length === 0 ? (
-                  <VStack gap={4} py={10}><Loader /></VStack>
+                  <VStack gap={4} py={10}>
+                    <Loader />
+                  </VStack>
                 ) : participants.length === 0 ? (
-                  <VStack gap={4} py={8}><Text fontSize="lg" color="gray.500">No organisations found</Text></VStack>
+                  <VStack gap={4} py={8}>
+                    <Text fontSize="lg" color="gray.500">
+                      No organisations found
+                    </Text>
+                  </VStack>
                 ) : (
-                  <InfiniteScroll onLoadMore={loadMore} hasMore={hasMore} isLoading={isLoading}>
+                  <InfiniteScroll
+                    onLoadMore={loadMore}
+                    hasMore={hasMore}
+                    isLoading={isLoading}
+                  >
                     <VStack gap={3} align="stretch">
                       {participants.map((participant) => (
                         <UserManagementCard
                           key={participant.id}
                           participant={participant}
-                          isSelected={selectedParticipant?.id === participant.id}
+                          isSelected={
+                            selectedParticipant?.id === participant.id
+                          }
                           onClick={() => selectParticipant(participant)}
                           userType="organisation"
                         />
@@ -391,11 +531,22 @@ const ManageDefault = () => {
     return () => clearTimeout(timeout);
   }, [router]);
   return (
-    <Box maxW="1512px" mx="auto" h={{ base: `calc(100vh - 72px)`, lg: "calc(100vh - 126px)" }} display="flex" alignItems="center" justifyContent="center">
+    <Box
+      maxW="1512px"
+      mx="auto"
+      h={{ base: `calc(100vh - 72px)`, lg: "calc(100vh - 126px)" }}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+    >
       <Container maxW="1512px" display="flex" flexDirection="column" gap={12}>
         <VStack gap={4} alignItems="center" justifyContent="center">
-          <Text fontSize="20px" color="#000000" fontWeight="600">No type selected, please select a type</Text>
-          <Text fontSize="20px" color="#000000" textAlign="center">Redirecting to dashboard in {countdown} seconds...</Text>
+          <Text fontSize="20px" color="#000000" fontWeight="600">
+            No type selected, please select a type
+          </Text>
+          <Text fontSize="20px" color="#000000" textAlign="center">
+            Redirecting to dashboard in {countdown} seconds...
+          </Text>
         </VStack>
       </Container>
     </Box>

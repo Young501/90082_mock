@@ -1,7 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, HStack, VStack, Text, IconButton, Tag, Badge } from "@chakra-ui/react";
+import {
+  Box,
+  HStack,
+  VStack,
+  Text,
+  IconButton,
+  Tag,
+  Badge,
+} from "@chakra-ui/react";
 import { MenuPopover } from "@/components/ui/MenuPopover";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { FullProfileCard } from "@/app/(protected)/discover/cards/FullProfileCard";
@@ -23,8 +31,11 @@ export const ConversationHeader = ({
 }: ConversationHeaderProps) => {
   const [showProfile, setShowProfile] = useState(false);
   const otherIsOrg = conversation.otherUserTypes.includes("organisation");
-  const otherIsCoordinator = conversation.otherUserTypes.includes("coordinator");
-  const otherProfileId = otherIsOrg ? conversation.otherOrganisationId : conversation.otherUserId;
+  const otherIsCoordinator =
+    conversation.otherUserTypes.includes("coordinator");
+  const otherProfileId = otherIsOrg
+    ? conversation.otherOrganisationId
+    : conversation.otherUserId;
 
   return (
     <HStack

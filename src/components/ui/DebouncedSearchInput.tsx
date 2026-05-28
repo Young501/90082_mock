@@ -19,7 +19,9 @@ export function DebouncedSearchInput({
   const [inputValue, setInputValue] = useState(externalValue);
   const [committed, setCommitted] = useState(externalValue);
   const onChangeRef = useRef(onChange);
-  useEffect(() => { onChangeRef.current = onChange; });
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  });
 
   useEffect(() => {
     setInputValue(externalValue);

@@ -31,7 +31,9 @@ export const PendingResendPanel: React.FC<PendingResendPanelProps> = ({
   return (
     <VStack align="stretch" gap={4}>
       <Text fontSize="sm" color="#71717A">
-        This {userType === "student" ? "student" : "organisation"} has not accepted their invitation yet. You can resend the invitation with an optional custom message.
+        This {userType === "student" ? "student" : "organisation"} has not
+        accepted their invitation yet. You can resend the invitation with an
+        optional custom message.
       </Text>
       <Button
         variant={buttonVariant}

@@ -1,12 +1,23 @@
 import React, { useState } from "react";
-import { Box, VStack, HStack, Text, Separator, IconButton } from "@chakra-ui/react";
+import {
+  Box,
+  VStack,
+  HStack,
+  Text,
+  Separator,
+  IconButton,
+} from "@chakra-ui/react";
 import { Participant } from "@/types/dashboard";
 import { getInitial } from "@/utils/getInitials";
 import { formatDate, formatDateTimeToReadable } from "@/utils/formatDate";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { EllipsisVertical, Trash2 } from "lucide-react";
-import { useUnmatch, useDeleteParticipant } from "@/services/manage";
+import { EllipsisVertical, Trash2, EyeOff, Eye } from "lucide-react";
+import {
+  useUnmatch,
+  useDeleteParticipant,
+  useToggleParticipantVisibility,
+} from "@/services/manage";
 import { MatchConfirmationModal } from "@/components/ui";
 import { Button } from "@/components/ui/Button";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -42,12 +53,14 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
   );
   const [isUnmatching, setIsUnmatching] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
   const deleteParticipantMutation = useDeleteParticipant(opportunityId);
+  const toggleVisibilityMutation =
+    useToggleParticipantVisibility(opportunityId);
 
   const buttonVariant = userType === "student" ? "student" : "partner";
 
-  const getDotColor = () =>
-    userType === "student" ? "#1679AB" : "#1F7F7B";
+  const getDotColor = () => (userType === "student" ? "#1679AB" : "#1F7F7B");
 
   const getMatchedWithName = () => {
     if (!participant?.match_info?.matched_with) return "";
@@ -80,6 +93,22 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
     });
   };
 
+  const handleToggleVisibility = () => {
+    if (!participant?.id) return;
+    const newHidden = !participant.hidden;
+    toggleVisibilityMutation.mutate(
+      { participantId: participant.id, hidden: newHidden },
+      {
+        onSuccess: () => {
+          setIsTogglingVisibility(false);
+          if (onParticipantUpdate) {
+            onParticipantUpdate({ ...participant, hidden: newHidden });
+          }
+        },
+      }
+    );
+  };
+
   const handleUnmatch = () => {
     if (participant?.match_info?.matched_with) {
       unmatchMutation.mutate(undefined, {
@@ -87,7 +116,11 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
           if (participant && onParticipantUpdate) {
             onParticipantUpdate({
               ...participant,
-              match_info: { ...participant.match_info, is_matched: false, matched_with: null },
+              match_info: {
+                ...participant.match_info,
+                is_matched: false,
+                matched_with: null,
+              },
             });
           }
           setIsUnmatching(false);
@@ -99,7 +132,11 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
   if (!participant) {
     return (
       <Box height="100%">
-        <Text fontSize={{ base: "16px", lg: "20px" }} fontWeight="600" color="#000000">
+        <Text
+          fontSize={{ base: "16px", lg: "20px" }}
+          fontWeight="600"
+          color="#000000"
+        >
           Participant Panel
         </Text>
         <Box
@@ -128,7 +165,11 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
     <Box bg="white" height="fit-content">
       {/* Panel title + three-dot menu */}
       <HStack justify="space-between" align="center" mb={4}>
-        <Text fontSize={{ base: "16px", lg: "20px" }} fontWeight="600" color="#000000">
+        <Text
+          fontSize={{ base: "16px", lg: "20px" }}
+          fontWeight="600"
+          color="#000000"
+        >
           Participant Panel
         </Text>
         <MenuPopover
@@ -145,7 +186,29 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
             </IconButton>
           }
         >
-          <Tooltip content="This opportunity has expired" disabled={!isExpired} showArrow>
+          <Box
+            as="button"
+            display="flex"
+            alignItems="center"
+            gap={2}
+            w="100%"
+            px={2}
+            py={1.5}
+            borderRadius="md"
+            fontSize="sm"
+            color="#52525B"
+            _hover={{ bg: "#F4F4F5" }}
+            cursor="pointer"
+            onClick={() => setIsTogglingVisibility(true)}
+          >
+            {participant.hidden ? <Eye size={14} /> : <EyeOff size={14} />}
+            {participant.hidden ? "Unhide from peers" : "Hide from peers"}
+          </Box>
+          <Tooltip
+            content="This opportunity has expired"
+            disabled={!isExpired}
+            showArrow
+          >
             <Box
               as="button"
               display="flex"
@@ -196,7 +259,8 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
               )}
               {participant.invitation_sent_at && (
                 <Text fontSize="11px" color="#A1A1AA" fontWeight="400">
-                  Invited on {formatDateTimeToReadable(participant.invitation_sent_at)}
+                  Invited on{" "}
+                  {formatDateTimeToReadable(participant.invitation_sent_at)}
                 </Text>
               )}
             </VStack>
@@ -229,10 +293,17 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
         ) : (
           <>
             <VStack align="stretch" gap={3} py={2}>
-              {participant?.messages && participant.messages.length && userType === "student" ? (
+              {participant?.messages &&
+              participant.messages.length &&
+              userType === "student" ? (
                 <VStack align="stretch" gap={3}>
                   {participant.messages.map((message, index) => (
-                    <HStack key={message.id || index} gap={3} alignItems="flex-start" w="100%">
+                    <HStack
+                      key={message.id || index}
+                      gap={3}
+                      alignItems="flex-start"
+                      w="100%"
+                    >
                       <Box
                         w="8px"
                         h="8px"
@@ -242,10 +313,17 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                         flexShrink={0}
                       />
                       <Box>
-                        <Text fontSize={{ base: "13px", lg: "14px" }} fontWeight="600">
+                        <Text
+                          fontSize={{ base: "13px", lg: "14px" }}
+                          fontWeight="600"
+                        >
                           {getMessageText(message)}
                         </Text>
-                        <Text fontSize={{ base: "12px", lg: "13px" }} color="#71717A" fontWeight="400">
+                        <Text
+                          fontSize={{ base: "12px", lg: "13px" }}
+                          color="#71717A"
+                          fontWeight="400"
+                        >
                           {formatDate(message.sent_at || "")}
                         </Text>
                       </Box>
@@ -260,30 +338,32 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                       <Text fontSize="13px" color="#71717A" fontWeight="400">
                         Students matched with this organisation
                       </Text>
-                      {participant.match_info.matched_with.map((matchedWith: any, index: number) => (
-                        <HStack
-                          key={matchedWith.id || index}
-                          border="1px solid #E4E4E7"
-                          px={4}
-                          py={2}
-                          borderRadius="8px"
-                          gap={3}
-                        >
-                          <ProfileAvatar
-                            src={matchedWith.image_url}
-                            fallback={getInitial(matchedWith.name || "")}
-                            size="sm"
+                      {participant.match_info.matched_with.map(
+                        (matchedWith: any, index: number) => (
+                          <HStack
+                            key={matchedWith.id || index}
+                            border="1px solid #E4E4E7"
+                            px={4}
+                            py={2}
                             borderRadius="8px"
-                            alt={matchedWith.name}
-                          />
-                          <Text fontSize="14px" fontWeight="600" flex={1}>
-                            {matchedWith.name}
-                          </Text>
-                          <Text fontSize="12px" color="#71717A">
-                            {formatDate(matchedWith.matched_at || "")}
-                          </Text>
-                        </HStack>
-                      ))}
+                            gap={3}
+                          >
+                            <ProfileAvatar
+                              src={matchedWith.image_url}
+                              fallback={getInitial(matchedWith.name || "")}
+                              size="sm"
+                              borderRadius="8px"
+                              alt={matchedWith.name}
+                            />
+                            <Text fontSize="14px" fontWeight="600" flex={1}>
+                              {matchedWith.name}
+                            </Text>
+                            <Text fontSize="12px" color="#71717A">
+                              {formatDate(matchedWith.matched_at || "")}
+                            </Text>
+                          </HStack>
+                        )
+                      )}
                     </>
                   ) : (
                     <Text fontSize="14px" color="#71717A" fontWeight="400">
@@ -300,7 +380,12 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
 
             {participant.match_info?.is_matched && userType === "student" && (
               <HStack gap={2}>
-                <Image src="/assets/matched.svg" alt="matched" width={18} height={18} />
+                <Image
+                  src="/assets/matched.svg"
+                  alt="matched"
+                  width={18}
+                  height={18}
+                />
                 <Box>
                   <Text fontSize="14px" fontWeight="600" color="#000000">
                     Matched with {getMatchedWithName()}
@@ -308,7 +393,8 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                   <Text fontSize="12px" color="#71717A">
                     {formatDate(
                       Array.isArray(participant.match_info?.matched_with)
-                        ? participant.match_info.matched_with[0]?.matched_at || ""
+                        ? participant.match_info.matched_with[0]?.matched_at ||
+                            ""
                         : participant.match_info?.matched_with?.matched_at || ""
                     )}
                   </Text>
@@ -326,7 +412,11 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                     : "Do you want to match this student?"}
                 </Text>
                 {participant.match_info?.is_matched ? (
-                  <Tooltip content="This opportunity has expired" disabled={!isExpired} showArrow>
+                  <Tooltip
+                    content="This opportunity has expired"
+                    disabled={!isExpired}
+                    showArrow
+                  >
                     <Button
                       variant="secondary"
                       fontSize="14px"
@@ -341,7 +431,11 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                     </Button>
                   </Tooltip>
                 ) : (
-                  <Tooltip content="This opportunity has expired" disabled={!isExpired} showArrow>
+                  <Tooltip
+                    content="This opportunity has expired"
+                    disabled={!isExpired}
+                    showArrow
+                  >
                     <Button
                       variant={buttonVariant}
                       fontSize="14px"
@@ -349,10 +443,14 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
                       height="36px"
                       px={4}
                       borderRadius="8px"
-                      disabled={isExpired || participant.match_info?.is_matched || false}
+                      disabled={
+                        isExpired || participant.match_info?.is_matched || false
+                      }
                       onClick={() => {
                         if (!isExpired && participant?.id && opportunityId) {
-                          router.push(`/dashboard/manage/match/?studentId=${participant.id}&opportunityId=${opportunityId}`);
+                          router.push(
+                            `/dashboard/manage/match/?studentId=${participant.id}&opportunityId=${opportunityId}`
+                          );
                         }
                       }}
                     >
@@ -394,6 +492,20 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
         confirmText="Remove Participant"
         confirmVariant="danger"
         isLoading={deleteParticipantMutation.isPending}
+      />
+
+      <MatchConfirmationModal
+        isOpen={isTogglingVisibility}
+        onClose={() => setIsTogglingVisibility(false)}
+        onConfirm={handleToggleVisibility}
+        title={participant?.hidden ? "Unhide Participant" : "Hide Participant"}
+        message={
+          participant?.hidden
+            ? `Are you sure you want to unhide ${participant?.name ?? "this participant"}? They will appear in search results for other participants.`
+            : `Are you sure you want to hide ${participant?.name ?? "this participant"}? They will no longer appear in search results for other participants.`
+        }
+        confirmText={participant?.hidden ? "Unhide" : "Hide"}
+        isLoading={toggleVisibilityMutation.isPending}
       />
     </Box>
   );

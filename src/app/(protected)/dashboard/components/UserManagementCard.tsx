@@ -3,6 +3,7 @@ import { Box, HStack, VStack, Text, Badge } from "@chakra-ui/react";
 import { Participant } from "@/types/dashboard";
 import { getInitial } from "@/utils/getInitials";
 import Image from "next/image";
+import { EyeOff } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { PROFILE_TINT_COLORS } from "@/theme/theme";
@@ -133,6 +134,12 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
                 height={20}
               />
             )}
+
+            {participant.hidden && (
+              <Tooltip content="Hidden from peers" showArrow>
+                <EyeOff size={14} color="#A1A1AA" />
+              </Tooltip>
+            )}
           </HStack>
 
           {participant.email && (
@@ -142,7 +149,7 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
           )}
 
           {userType === "student" ? (
-            <Box>
+            <HStack gap={1.5} align="center">
               <Text
                 fontSize={{ base: "12px", lg: "12px" }}
                 color="#71717A"
@@ -156,9 +163,21 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
                         : participant.accepted_status || ""
                     )}
               </Text>
-            </Box>
+              {participant.hidden && (
+                <Badge
+                  fontSize="10px"
+                  colorPalette="gray"
+                  variant="subtle"
+                  px={1.5}
+                  py={0.5}
+                  borderRadius="sm"
+                >
+                  Hidden
+                </Badge>
+              )}
+            </HStack>
           ) : (
-            <Box>
+            <HStack gap={1.5} align="center">
               <Text
                 fontSize={{ base: "12px", lg: "12px" }}
                 color="#000000"
@@ -173,7 +192,19 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
                         : participant.accepted_status || ""
                     )}
               </Text>
-            </Box>
+              {participant.hidden && (
+                <Badge
+                  fontSize="10px"
+                  colorPalette="gray"
+                  variant="subtle"
+                  px={1.5}
+                  py={0.5}
+                  borderRadius="sm"
+                >
+                  Hidden
+                </Badge>
+              )}
+            </HStack>
           )}
         </VStack>
       </HStack>

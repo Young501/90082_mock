@@ -11,10 +11,14 @@ const consecutiveCharsRegex = new RegExp(
   "i"
 );
 
-export function getContentValidationMessage(type: "profanity" | "spam"): string {
+export function getContentValidationMessage(
+  type: "profanity" | "spam"
+): string {
   switch (type) {
-    case "profanity": return "Please keep your language appropriate";
-    case "spam": return "Please avoid repeating the same character";
+    case "profanity":
+      return "Please keep your language appropriate";
+    case "spam":
+      return "Please avoid repeating the same character";
   }
 }
 

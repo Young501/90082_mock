@@ -32,8 +32,9 @@ export const useOnboardingLogic = (userType: string) => {
   const { data: studentProfileV2, isLoading: isProfileLoading } =
     useStudentProfileV2(userType === "student");
 
-  const { data: userMeV2, isLoading: isUserMeLoading } =
-    useUserMeV2(userType === "student");
+  const { data: userMeV2, isLoading: isUserMeLoading } = useUserMeV2(
+    userType === "student"
+  );
 
   const {
     data: organisationMember,
@@ -141,7 +142,9 @@ export const useOnboardingLogic = (userType: string) => {
     }
 
     if (userType === "coordinator") {
-      return normalizePages(onboarding.coordinator_onboarding ?? onboarding.user ?? []);
+      return normalizePages(
+        onboarding.coordinator_onboarding ?? onboarding.user ?? []
+      );
     }
 
     return normalizePages(onboarding.user ?? []);

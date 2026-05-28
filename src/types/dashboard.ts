@@ -31,6 +31,7 @@ export interface Participant {
   invitation_sent_at?: string;
   has_profile?: boolean;
   image_url?: string;
+  hidden?: boolean;
   match_info?: {
     is_matched: boolean;
     matched_with: MatchedWith | null;
@@ -65,6 +66,7 @@ export interface ParticipantsFilterParams {
   text?: string;
   accepted_status?: string;
   matched?: string;
+  hidden?: string;
   page?: number;
   page_size?: number;
 }

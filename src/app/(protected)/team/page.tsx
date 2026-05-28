@@ -618,7 +618,11 @@ function TeamMemberCard({
             color="#52525B"
             bg="white"
             cursor="pointer"
-            _hover={{ bg: "#F4F4F5", borderColor: "profile.500", color: "profile.500" }}
+            _hover={{
+              bg: "#F4F4F5",
+              borderColor: "profile.500",
+              color: "profile.500",
+            }}
             transition="all 0.15s"
           >
             <MessageCircle size={13} />
