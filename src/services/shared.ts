@@ -266,6 +266,7 @@ export function useAccessibleOpportunities(enabled = true) {
               access: o.access || null,
               slug: o.slug || "",
               is_default: o.is_default ?? false,
+              is_hidden: o.is_hidden ?? false,
               links: o.links,
               enrollment_preview: o.enrollment_preview ?? null,
               coordinator: o.coordinator ?? null,

@@ -44,12 +44,16 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
     onFilterChange({ accepted_status: newStatus });
   };
 
+  const handleHiddenToggle = () => {
+    onFilterChange({ hidden: filters.hidden === "true" ? undefined : "true" });
+  };
+
   const handleReset = () => {
     setSearchText("");
     onReset();
   };
 
-  const hasSearched = filters.text || filters.accepted_status;
+  const hasSearched = filters.text || filters.accepted_status || filters.hidden;
   const hasSearchTextChange = filters.text !== searchText;
 
   if (searchOnly) {
@@ -239,6 +243,33 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
                       </HStack>
                     </Box>
                   ))}
+                  <Box
+                    bg={filters.hidden === "true" ? "#A2DDF0" : "white"}
+                    borderRadius="md"
+                    p={3}
+                    cursor="pointer"
+                    onClick={handleHiddenToggle}
+                  >
+                    <HStack>
+                      {filters.hidden === "true" ? (
+                        <Image
+                          src="/assets/Check.svg"
+                          width={16}
+                          height={16}
+                          alt="check"
+                        />
+                      ) : (
+                        <Box
+                          w={4}
+                          h={4}
+                          borderRadius="sm"
+                          border="2px solid"
+                          position="relative"
+                        ></Box>
+                      )}
+                      <Text fontSize="sm">Hidden from peers</Text>
+                    </HStack>
+                  </Box>
                 </VStack>
               </VStack>
             </Box>

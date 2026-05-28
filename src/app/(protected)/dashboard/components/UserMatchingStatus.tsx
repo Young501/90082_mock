@@ -5,8 +5,8 @@ import { getInitial } from "@/utils/getInitials";
 import { formatDate, formatDateTimeToReadable } from "@/utils/formatDate";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { EllipsisVertical, Trash2 } from "lucide-react";
-import { useUnmatch, useDeleteParticipant } from "@/services/manage";
+import { EllipsisVertical, Trash2, EyeOff, Eye } from "lucide-react";
+import { useUnmatch, useDeleteParticipant, useToggleParticipantVisibility } from "@/services/manage";
 import { MatchConfirmationModal } from "@/components/ui";
 import { Button } from "@/components/ui/Button";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -42,7 +42,9 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
   );
   const [isUnmatching, setIsUnmatching] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
   const deleteParticipantMutation = useDeleteParticipant(opportunityId);
+  const toggleVisibilityMutation = useToggleParticipantVisibility(opportunityId);
 
   const buttonVariant = userType === "student" ? "student" : "partner";
 
@@ -78,6 +80,22 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
         onDelete?.();
       },
     });
+  };
+
+  const handleToggleVisibility = () => {
+    if (!participant?.id) return;
+    const newHidden = !participant.hidden;
+    toggleVisibilityMutation.mutate(
+      { participantId: participant.id, hidden: newHidden },
+      {
+        onSuccess: () => {
+          setIsTogglingVisibility(false);
+          if (onParticipantUpdate) {
+            onParticipantUpdate({ ...participant, hidden: newHidden });
+          }
+        },
+      }
+    );
   };
 
   const handleUnmatch = () => {
@@ -145,6 +163,24 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
             </IconButton>
           }
         >
+          <Box
+            as="button"
+            display="flex"
+            alignItems="center"
+            gap={2}
+            w="100%"
+            px={2}
+            py={1.5}
+            borderRadius="md"
+            fontSize="sm"
+            color="#52525B"
+            _hover={{ bg: "#F4F4F5" }}
+            cursor="pointer"
+            onClick={() => setIsTogglingVisibility(true)}
+          >
+            {participant.hidden ? <Eye size={14} /> : <EyeOff size={14} />}
+            {participant.hidden ? "Unhide from peers" : "Hide from peers"}
+          </Box>
           <Tooltip content="This opportunity has expired" disabled={!isExpired} showArrow>
             <Box
               as="button"
@@ -394,6 +430,20 @@ const UserMatchingStatus: React.FC<UserMatchingStatusProps> = ({
         confirmText="Remove Participant"
         confirmVariant="danger"
         isLoading={deleteParticipantMutation.isPending}
+      />
+
+      <MatchConfirmationModal
+        isOpen={isTogglingVisibility}
+        onClose={() => setIsTogglingVisibility(false)}
+        onConfirm={handleToggleVisibility}
+        title={participant?.hidden ? "Unhide Participant" : "Hide Participant"}
+        message={
+          participant?.hidden
+            ? `Are you sure you want to unhide ${participant?.name ?? "this participant"}? They will appear in search results for other participants.`
+            : `Are you sure you want to hide ${participant?.name ?? "this participant"}? They will no longer appear in search results for other participants.`
+        }
+        confirmText={participant?.hidden ? "Unhide" : "Hide"}
+        isLoading={toggleVisibilityMutation.isPending}
       />
     </Box>
   );

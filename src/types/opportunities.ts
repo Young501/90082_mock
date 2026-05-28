@@ -35,6 +35,7 @@ export interface Opportunity {
   participant_record?: ParticipantRecord | null;
   enrollment_status?: "enrolled" | "not_enrolled" | string;
   is_default?: boolean;
+  is_hidden?: boolean;
   links?: { url: string; label: string }[];
   enrollment_preview?: EnrollmentPreview | null;
   coordinator?: OpportunityCoordinator | null;

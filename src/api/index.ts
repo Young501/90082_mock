@@ -365,6 +365,10 @@ export const API_ENDPOINTS = {
     method: "DELETE",
     url: `/api/v2/opportunities/coordinator/${opportunityId}/participants/${participantId}/`,
   }),
+  COORDINATOR_TOGGLE_PARTICIPANT_VISIBILITY: (opportunityId: string, participantId: number): ApiEndpoint => ({
+    method: "PATCH",
+    url: `/api/v2/opportunities/coordinator/${opportunityId}/participants/${participantId}/`,
+  }),
   MATCH: (opportunityId: string): ApiEndpoint => ({
     method: "POST",
     url: `/api/v1/opportunities/${opportunityId}/match/`,
