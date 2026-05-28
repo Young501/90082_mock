@@ -9,7 +9,6 @@ export default function RecaptchaProvider({
 }) {
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
-
   if (!siteKey) {
     return <>{children}</>;
   }

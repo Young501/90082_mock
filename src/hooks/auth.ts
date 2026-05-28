@@ -200,7 +200,6 @@ export const useAuth = () => {
 
   const { executeRecaptcha } = useGoogleReCaptcha();
 
-
   const loginMutation = useMutation({
     mutationFn: async (data: LoginData) => {
       return apiRequest({
@@ -232,8 +231,8 @@ export const useAuth = () => {
     },
   });
 
-    const signupMutation = useMutation({
-     mutationFn: async (data: SignupData) => {
+  const signupMutation = useMutation({
+    mutationFn: async (data: SignupData) => {
       return apiRequest({
         endpoint: API_ENDPOINTS.SIGNUP,
         body: {
@@ -395,29 +394,32 @@ export const useAuth = () => {
     }
   };
 
-
   const handleSignup = async (data: {
     email: string;
     password: string;
     user_types: string[];
-    
     callback?: () => void;
   }) => {
     try {
+      if (!executeRecaptcha) {
+        toast.error("reCAPTCHA is not ready. Please try again.");
+        return;
+      }
+
+      const recaptchaToken = await executeRecaptcha("signup");
+
       await signupMutation.mutateAsync({
         email: data.email,
         password: data.password,
         user_types: data.user_types,
-        recaptcha_token: data.recaptcha_token,
+        recaptcha_token: recaptchaToken,
       });
 
       data.callback?.();
     } catch (error: any) {
-      console.error("Signup failed:", error);
       throw error;
     }
   };
-//
 
   const handleForgotPassword = async (data: {
     email: string;
