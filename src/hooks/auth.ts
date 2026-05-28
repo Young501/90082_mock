@@ -11,7 +11,7 @@ import {
 import { User } from "@/types/user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { toast } from "react-toastify";
@@ -243,7 +243,7 @@ export const useAuth = () => {
         },
       });
     },
-    onSuccess: (response) => {},
+    onSuccess: () => {},
     onError: (error: any) => {
       const errorMessage = getErrorMessage(error, "Signup failed");
       toast.error(errorMessage);
@@ -375,12 +375,15 @@ export const useAuth = () => {
     callback?: () => void;
   }) => {
     try {
-      if (!executeRecaptcha) {
-        toast.error("Please try again.");
-        return;
-      }
+      let recaptchaToken = "dev";
 
-      const recaptchaToken = await executeRecaptcha("login");
+      if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
+        if (!executeRecaptcha) {
+          toast.error("Please try again.");
+          return;
+        }
+        recaptchaToken = await executeRecaptcha("login");
+      }
 
       await loginMutation.mutateAsync({
         email: data.email,
@@ -401,12 +404,15 @@ export const useAuth = () => {
     callback?: () => void;
   }) => {
     try {
-      if (!executeRecaptcha) {
-        toast.error("reCAPTCHA is not ready. Please try again.");
-        return;
-      }
+      let recaptchaToken = "dev";
 
-      const recaptchaToken = await executeRecaptcha("signup");
+      if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
+        if (!executeRecaptcha) {
+          toast.error("reCAPTCHA is not ready. Please try again.");
+          return;
+        }
+        recaptchaToken = await executeRecaptcha("signup");
+      }
 
       await signupMutation.mutateAsync({
         email: data.email,
