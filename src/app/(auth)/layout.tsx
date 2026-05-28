@@ -4,7 +4,6 @@ import { Container, useBreakpointValue, Box } from "@chakra-ui/react";
 import { ReactNode, Suspense } from "react";
 import Footer from "@/components/Layouts/Footer";
 import Header from "@/components/Layouts/Header";
-import RecaptchaProvider from "@/components/RecaptchaProvider";
 import { usePathname, useSearchParams } from "next/navigation";
 
 interface AuthLayoutProps {
@@ -83,10 +82,8 @@ function AuthLayoutContent({ children }: AuthLayoutProps) {
 
 export default function Layout({ children }: AuthLayoutProps) {
   return (
-    <RecaptchaProvider>
-      <Suspense fallback={<div>Loading...</div>}>
-        <AuthLayoutContent>{children}</AuthLayoutContent>
-      </Suspense>
-    </RecaptchaProvider>
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthLayoutContent>{children}</AuthLayoutContent>
+    </Suspense>
   );
 }

@@ -38,8 +38,9 @@ export const isProfileComplete = (
   });
 };
 
-export const isOrganisationMemberComplete = (member: Record<string, any> | null) =>
-  isProfileComplete(member, ORGANISATION_MEMBER_REQUIRED_FIELDS);
+export const isOrganisationMemberComplete = (
+  member: Record<string, any> | null
+) => isProfileComplete(member, ORGANISATION_MEMBER_REQUIRED_FIELDS);
 
 export const isOrganisationComplete = (org: Record<string, any> | null) =>
   isProfileComplete(org, ORGANISATION_REQUIRED_FIELDS);
@@ -47,8 +48,9 @@ export const isOrganisationComplete = (org: Record<string, any> | null) =>
 export const isStudentOnboardingComplete = (profile: Record<string, any>) =>
   isProfileComplete(profile, STUDENT_ONBOARDING_REQUIRED_FIELDS);
 
-export const isCoordinatorOnboardingComplete = (user: Record<string, any> | null) =>
-  isProfileComplete(user, COORDINATOR_ONBOARDING_REQUIRED_FIELDS);
+export const isCoordinatorOnboardingComplete = (
+  user: Record<string, any> | null
+) => isProfileComplete(user, COORDINATOR_ONBOARDING_REQUIRED_FIELDS);
 
 export const checkOnboardingStatus = async ({
   user,
@@ -383,6 +385,7 @@ export const useAuth = () => {
           return;
         }
         recaptchaToken = await executeRecaptcha("login");
+        // recaptchaToken = "bogus_token";
       }
 
       await loginMutation.mutateAsync({
