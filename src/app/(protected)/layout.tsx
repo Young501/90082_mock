@@ -8,7 +8,11 @@ import { usePathname } from "next/navigation";
 import Sidebar from "@/components/Layouts/Sidebar";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuthStore } from "@/store/authStore";
-import { useAccessibleOpportunities, useCoordinatorOpportunities, useUserMeV2 } from "@/services/shared";
+import {
+  useAccessibleOpportunities,
+  useCoordinatorOpportunities,
+  useUserMeV2,
+} from "@/services/shared";
 import type { AccessibleOpportunity } from "@/types/opportunities";
 import { useConversationsList } from "@/services/messaging";
 import type { UserDetailsV2 } from "@/types/user";
@@ -22,12 +26,16 @@ function LayoutContent({ children }: { children: ReactNode }) {
   const setUserDetailsV2 = useAuthStore((s) => s.setUserDetailsV2);
 
   const isCoordinator = userType === "coordinator";
-  const setCoordinatorOpportunities = useAuthStore((s) => s.setCoordinatorOpportunities);
+  const setCoordinatorOpportunities = useAuthStore(
+    (s) => s.setCoordinatorOpportunities
+  );
 
   const { data: userDetailsV2Data } = useUserMeV2();
   useProfile(userType);
-  const { data: accessibleOpportunities } = useAccessibleOpportunities(!isCoordinator);
-  const { data: coordinatorOpportunitiesData } = useCoordinatorOpportunities(isCoordinator);
+  const { data: accessibleOpportunities } =
+    useAccessibleOpportunities(!isCoordinator);
+  const { data: coordinatorOpportunitiesData } =
+    useCoordinatorOpportunities(isCoordinator);
 
   useEffect(() => {
     if (userDetailsV2Data) {
@@ -43,16 +51,24 @@ function LayoutContent({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (coordinatorOpportunitiesData) {
-      setCoordinatorOpportunities(coordinatorOpportunitiesData as AccessibleOpportunity[]);
+      setCoordinatorOpportunities(
+        coordinatorOpportunitiesData as AccessibleOpportunity[]
+      );
     }
   }, [coordinatorOpportunitiesData, setCoordinatorOpportunities]);
 
   const setUnreadCount = useAuthStore((s) => s.setUnreadCount);
-  const { data: conversations } = useConversationsList({ archived: false, page_size: 50 });
+  const { data: conversations } = useConversationsList({
+    archived: false,
+    page_size: 50,
+  });
 
   useEffect(() => {
     if (conversations) {
-      const total = conversations.reduce((sum, c) => sum + (c.unreadCount ?? 0), 0);
+      const total = conversations.reduce(
+        (sum, c) => sum + (c.unreadCount ?? 0),
+        0
+      );
       setUnreadCount(total);
     }
   }, [conversations, setUnreadCount]);

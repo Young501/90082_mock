@@ -26,7 +26,9 @@ export function CoordinatorDashboard({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const coordinatorOpportunities = useAuthStore((s) => s.coordinatorOpportunities);
+  const coordinatorOpportunities = useAuthStore(
+    (s) => s.coordinatorOpportunities
+  );
   const currentOpportunity = opportunitySlug
     ? coordinatorOpportunities.find((o) => o.slug === opportunitySlug)
     : coordinatorOpportunities[0];
@@ -88,8 +90,16 @@ export function CoordinatorDashboard({
 
   return (
     <Box maxW="1512px" mx="auto">
-      <Container maxW="1512px" px={0} display="flex" flexDirection="column" gap={12}>
-        {currentOpportunity && <OpportunityHeader opportunity={currentOpportunity} />}
+      <Container
+        maxW="1512px"
+        px={0}
+        display="flex"
+        flexDirection="column"
+        gap={12}
+      >
+        {currentOpportunity && (
+          <OpportunityHeader opportunity={currentOpportunity} />
+        )}
 
         <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
           <MetricsColumn

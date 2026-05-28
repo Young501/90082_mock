@@ -25,7 +25,9 @@ import { DebouncedSearchInput } from "@/components/ui/DebouncedSearchInput";
 
 const Match = () => {
   const router = useRouter();
-  React.useEffect(() => { window.scrollTo(0, 0); }, []);
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const searchParams = useSearchParams();
   const studentId = searchParams.get("studentId");
   const opportunityId = searchParams.get("opportunityId");
@@ -75,8 +77,13 @@ const Match = () => {
     <>
       <PageTitle title={PAGE_TITLES.MATCH} />
       <Box maxW="1512px" mx="auto">
-        <Container maxW="1512px" px={0} display="flex" flexDirection="column" gap={8}>
-
+        <Container
+          maxW="1512px"
+          px={0}
+          display="flex"
+          flexDirection="column"
+          gap={8}
+        >
           {/* Header */}
           <HStack gap={3} align="center">
             <IconButton
@@ -87,14 +94,22 @@ const Match = () => {
             >
               <ArrowLeft size={20} />
             </IconButton>
-            <Text as="h1" fontSize={{ base: "22px", lg: "28px" }} fontWeight="600" color="#000000">
+            <Text
+              as="h1"
+              fontSize={{ base: "22px", lg: "28px" }}
+              fontWeight="600"
+              color="#000000"
+            >
               Select Matching Organisation
             </Text>
           </HStack>
 
           <DebouncedSearchInput
             placeholder="Search by name or email"
-            onChange={(val) => { setSearch(val); setPage(1); }}
+            onChange={(val) => {
+              setSearch(val);
+              setPage(1);
+            }}
           />
 
           {/* Content */}
@@ -103,7 +118,9 @@ const Match = () => {
               <Loader size="lg" />
             </Box>
           ) : error ? (
-            <Text color="red.500" fontSize="sm">Failed to load organisations</Text>
+            <Text color="red.500" fontSize="sm">
+              Failed to load organisations
+            </Text>
           ) : (
             <>
               <SimpleGrid gap={4} w="100%" columns={{ base: 1, lg: 2 }}>
@@ -119,7 +136,10 @@ const Match = () => {
                     onClick={() => handleSelect(org)}
                     cursor="pointer"
                     transition="all 0.2s"
-                    _hover={{ transform: "scale(1.01)", borderColor: "#D3EFEA" }}
+                    _hover={{
+                      transform: "scale(1.01)",
+                      borderColor: "#D3EFEA",
+                    }}
                   >
                     <ProfileAvatar
                       src={org.image_url ?? undefined}
@@ -149,7 +169,9 @@ const Match = () => {
                   p={10}
                   textAlign="center"
                 >
-                  <Text color="#71717A" fontSize="sm">No organisations found</Text>
+                  <Text color="#71717A" fontSize="sm">
+                    No organisations found
+                  </Text>
                 </Box>
               )}
 

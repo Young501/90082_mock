@@ -150,7 +150,10 @@ export const OpportunityDescriptionCard = ({
                     </Badge>
                   )}
                   {enrollment.isHidden && (
-                    <Tooltip content="Your profile is hidden from other participants in this opportunity" showArrow>
+                    <Tooltip
+                      content="Your profile is hidden from other participants in this opportunity"
+                      showArrow
+                    >
                       <Badge
                         bg="#FEF2F2"
                         color="#EF4444"
@@ -340,7 +343,9 @@ export const OpportunityDescriptionCard = ({
                     _hover={{ bg: "#F3F4F6" }}
                     onClick={enrollment.handleHideClick}
                   >
-                    {enrollment.isHidden ? "Show profile to peers" : "Hide profile from peers"}
+                    {enrollment.isHidden
+                      ? "Show profile to peers"
+                      : "Hide profile from peers"}
                   </Box>
                   <Box
                     as="button"
@@ -368,52 +373,60 @@ export const OpportunityDescriptionCard = ({
             )}
           </HStack>
 
-          {(Array.isArray(opportunity.links) && opportunity.links.length > 0) || showCoordinator ? (
-            <Flex w="100%" align={{ base: "flex-start", md: "center" }} justify="space-between" gap={4} flexDirection={{ base: "column", md: "row" }}>
+          {(Array.isArray(opportunity.links) && opportunity.links.length > 0) ||
+          showCoordinator ? (
+            <Flex
+              w="100%"
+              align={{ base: "flex-start", md: "center" }}
+              justify="space-between"
+              gap={4}
+              flexDirection={{ base: "column", md: "row" }}
+            >
               <Flex flexWrap="wrap" gap={4} align="center" rowGap={1.5}>
-                {Array.isArray(opportunity.links) && opportunity.links.map((link, index) => {
-                  const href = link.url?.trim() ?? "";
-                  const label = link.label?.trim() ?? href;
-                  if (!href) return null;
-                  const isHttp =
-                    href.startsWith("https://") || href.startsWith("http://");
-                  const isMailto = href.startsWith("mailto:");
-                  return (
-                    <Link
-                      key={`${href}-${index}`}
-                      href={href}
-                      fontSize="sm"
-                      color="#52525B"
-                      fontWeight="medium"
-                      _hover={{ textDecoration: "underline" }}
-                      {...(isHttp
-                        ? { target: "_blank", rel: "noopener noreferrer" }
-                        : isMailto
-                          ? { target: "_self" }
-                          : {})}
-                    >
-                      <HStack gap={2} align="center">
-                        {label}
-                        {isHttp && (
-                          <ExternalLink
-                            size={12}
-                            strokeWidth={3}
-                            color="#71717A"
-                            aria-hidden
-                          />
-                        )}
-                        {isMailto && (
-                          <Mail
-                            size={12}
-                            strokeWidth={3}
-                            color="#71717A"
-                            aria-hidden
-                          />
-                        )}
-                      </HStack>
-                    </Link>
-                  );
-                })}
+                {Array.isArray(opportunity.links) &&
+                  opportunity.links.map((link, index) => {
+                    const href = link.url?.trim() ?? "";
+                    const label = link.label?.trim() ?? href;
+                    if (!href) return null;
+                    const isHttp =
+                      href.startsWith("https://") || href.startsWith("http://");
+                    const isMailto = href.startsWith("mailto:");
+                    return (
+                      <Link
+                        key={`${href}-${index}`}
+                        href={href}
+                        fontSize="sm"
+                        color="#52525B"
+                        fontWeight="medium"
+                        _hover={{ textDecoration: "underline" }}
+                        {...(isHttp
+                          ? { target: "_blank", rel: "noopener noreferrer" }
+                          : isMailto
+                            ? { target: "_self" }
+                            : {})}
+                      >
+                        <HStack gap={2} align="center">
+                          {label}
+                          {isHttp && (
+                            <ExternalLink
+                              size={12}
+                              strokeWidth={3}
+                              color="#71717A"
+                              aria-hidden
+                            />
+                          )}
+                          {isMailto && (
+                            <Mail
+                              size={12}
+                              strokeWidth={3}
+                              color="#71717A"
+                              aria-hidden
+                            />
+                          )}
+                        </HStack>
+                      </Link>
+                    );
+                  })}
               </Flex>
               {showCoordinator && coordinator && (
                 <HStack
@@ -462,7 +475,6 @@ export const OpportunityDescriptionCard = ({
               )}
             </Flex>
           ) : null}
-
         </VStack>
       </Box>
 
@@ -500,9 +512,7 @@ export const OpportunityDescriptionCard = ({
 
       <HideFromPeersDialog
         open={enrollment.isHideDialogOpen}
-        onOpenChange={(details) =>
-          enrollment.setIsHideDialogOpen(details.open)
-        }
+        onOpenChange={(details) => enrollment.setIsHideDialogOpen(details.open)}
         onConfirm={enrollment.confirmToggleHidden}
         isLoading={enrollment.updateParticipantMutation.isPending}
         isHidden={enrollment.isHidden}

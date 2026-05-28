@@ -151,13 +151,19 @@ const Profile = () => {
   }, [isCoordinator, isOrganisation]);
 
   const displayFormData = useMemo(() => {
-    const p = (fetchedUserProfile ?? userProfile) as Record<string, unknown> | null;
+    const p = (fetchedUserProfile ?? userProfile) as Record<
+      string,
+      unknown
+    > | null;
     if (!p) return {};
     return { ...p };
   }, [fetchedUserProfile, userProfile]);
 
   const profileSummaryDisplay = useMemo(() => {
-    const p = (fetchedUserProfile ?? userProfile) as Record<string, unknown> | null;
+    const p = (fetchedUserProfile ?? userProfile) as Record<
+      string,
+      unknown
+    > | null;
     if (!p) return {};
     return {
       userId: toProfileDisplayString(p.id),
@@ -302,32 +308,40 @@ const Profile = () => {
               <Box mt={6}>
                 {tabs[activeTab]?.title === "My Information" && (
                   <VStack align="stretch" gap={6}>
-                    {(isOrganisation ? orgMemberPages : isCoordinator ? coordinatorPages : infoPages).map(
-                      (page: PageItem) => (
-                        <ProfileSectionCard
-                          key={page.id}
-                          page={{
+                    {(isOrganisation
+                      ? orgMemberPages
+                      : isCoordinator
+                        ? coordinatorPages
+                        : infoPages
+                    ).map((page: PageItem) => (
+                      <ProfileSectionCard
+                        key={page.id}
+                        page={{
+                          id: page.id,
+                          title: page.title,
+                          questions: page.questions,
+                        }}
+                        formData={displayFormData}
+                        onEdit={() =>
+                          setEditingPage({
                             id: page.id,
                             title: page.title,
                             questions: page.questions,
-                          }}
-                          formData={displayFormData}
-                          onEdit={() =>
-                            setEditingPage({
-                              id: page.id,
-                              title: page.title,
-                              questions: page.questions,
-                            })
-                          }
-                          university={
-                            userType === "student"
-                              ? (university ?? undefined)
-                              : undefined
-                          }
-                        />
-                      )
-                    )}
-                    {(isOrganisation ? orgMemberPages : isCoordinator ? coordinatorPages : infoPages).length === 0 && (
+                          })
+                        }
+                        university={
+                          userType === "student"
+                            ? (university ?? undefined)
+                            : undefined
+                        }
+                      />
+                    ))}
+                    {(isOrganisation
+                      ? orgMemberPages
+                      : isCoordinator
+                        ? coordinatorPages
+                        : infoPages
+                    ).length === 0 && (
                       <Text color="#71717A" fontSize="sm">
                         No information to display yet.
                       </Text>

@@ -164,7 +164,14 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
                     )}
               </Text>
               {participant.hidden && (
-                <Badge fontSize="10px" colorPalette="gray" variant="subtle" px={1.5} py={0.5} borderRadius="sm">
+                <Badge
+                  fontSize="10px"
+                  colorPalette="gray"
+                  variant="subtle"
+                  px={1.5}
+                  py={0.5}
+                  borderRadius="sm"
+                >
                   Hidden
                 </Badge>
               )}
@@ -186,7 +193,14 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
                     )}
               </Text>
               {participant.hidden && (
-                <Badge fontSize="10px" colorPalette="gray" variant="subtle" px={1.5} py={0.5} borderRadius="sm">
+                <Badge
+                  fontSize="10px"
+                  colorPalette="gray"
+                  variant="subtle"
+                  px={1.5}
+                  py={0.5}
+                  borderRadius="sm"
+                >
                   Hidden
                 </Badge>
               )}

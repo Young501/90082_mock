@@ -185,7 +185,11 @@ const ManageFilter: React.FC<ManageFilterProps> = ({
                     src="/assets/ArrowDownIcon.svg"
                     width={16}
                     height={16}
-                    style={{ transform: "rotate(180deg)", width: 16, height: 16 }}
+                    style={{
+                      transform: "rotate(180deg)",
+                      width: 16,
+                      height: 16,
+                    }}
                     alt="arrowUp"
                   />
                 ) : (

@@ -1,7 +1,10 @@
 import * as yup from "yup";
 import { Question } from "@/types/onboarding";
 import { isDisallowedDomain } from "@/utils/constants";
-import { validateContent, getContentValidationMessage } from "@/utils/contentValidation";
+import {
+  validateContent,
+  getContentValidationMessage,
+} from "@/utils/contentValidation";
 
 const contentValidationSchema = yup
   .string()
@@ -9,7 +12,9 @@ const contentValidationSchema = yup
     if (!value) return true;
     const result = validateContent(value);
     if (result.status === "error") {
-      return this.createError({ message: getContentValidationMessage(result.type) });
+      return this.createError({
+        message: getContentValidationMessage(result.type),
+      });
     }
     return true;
   });

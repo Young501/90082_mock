@@ -44,7 +44,8 @@ const Inbox = () => {
 
   const { getUserType } = useAuthStore();
   const userType = getUserType();
-  const profileType: "student" | "organisation" = userType === "organisation" ? "organisation" : "student";
+  const profileType: "student" | "organisation" =
+    userType === "organisation" ? "organisation" : "student";
 
   const {
     data: conversationsData,

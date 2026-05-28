@@ -36,7 +36,10 @@ export function CoordinatorContactCard({
           <HStack gap={3} w="100%">
             <Avatar.Root size="sm">
               {coordinator.profile_picture_url ? (
-                <Avatar.Image src={coordinator.profile_picture_url} alt={fullName} />
+                <Avatar.Image
+                  src={coordinator.profile_picture_url}
+                  alt={fullName}
+                />
               ) : null}
               <Avatar.Fallback name={fullName} />
             </Avatar.Root>

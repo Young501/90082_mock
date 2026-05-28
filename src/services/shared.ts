@@ -301,7 +301,9 @@ export function useCoordinatorOpportunities(enabled = true) {
         const response = await apiRequest({
           endpoint: API_ENDPOINTS.COORDINATOR_OPPORTUNITIES,
         });
-        return Array.isArray(response) ? (response as AccessibleOpportunity[]) : [];
+        return Array.isArray(response)
+          ? (response as AccessibleOpportunity[])
+          : [];
       } catch (error: any) {
         console.error("❌ Coordinator opportunities fetch failed:", error);
         throw error;
@@ -339,10 +341,18 @@ export function useInvitePreview(
   userType: "student" | "organisation",
   isResend: boolean = false
 ) {
-  return useQuery<{ subject: string; body: string; rendered_html: string; message: string }>({
+  return useQuery<{
+    subject: string;
+    body: string;
+    rendered_html: string;
+    message: string;
+  }>({
     queryKey: ["invite-preview", opportunityId, userType, isResend],
     queryFn: () =>
-      apiRequest({ endpoint: API_ENDPOINTS.INVITE_PREVIEW(opportunityId, userType), body: { is_resend: isResend } }),
+      apiRequest({
+        endpoint: API_ENDPOINTS.INVITE_PREVIEW(opportunityId, userType),
+        body: { is_resend: isResend },
+      }),
     enabled: !!opportunityId,
     staleTime: 5 * 60 * 1000,
   });
@@ -357,9 +367,21 @@ export function useInvitePreviewRefresh() {
       body: string;
       isResend?: boolean;
     }) => {
-      return apiRequest<{ subject: string; body: string; rendered_html: string; message: string }>({
-        endpoint: API_ENDPOINTS.INVITE_PREVIEW(data.opportunityId, data.userType),
-        body: { subject: data.subject, body: data.body, is_resend: data.isResend ?? false },
+      return apiRequest<{
+        subject: string;
+        body: string;
+        rendered_html: string;
+        message: string;
+      }>({
+        endpoint: API_ENDPOINTS.INVITE_PREVIEW(
+          data.opportunityId,
+          data.userType
+        ),
+        body: {
+          subject: data.subject,
+          body: data.body,
+          is_resend: data.isResend ?? false,
+        },
       });
     },
   });

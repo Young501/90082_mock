@@ -57,7 +57,6 @@ export function OpportunityFilters({
     Record<string, boolean>
   >({});
 
-
   // Use local state, but don't force push unmounted state to parent
   const [useDistanceFilter, setUseDistanceFilter] = useState(() => {
     return currentDistanceKm !== undefined && currentDistanceKm !== null;

@@ -11,7 +11,9 @@ export default function RecaptchaProvider({
 
   if (!siteKey) {
     if (process.env.NODE_ENV === "development") {
-      console.warn("NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not set — reCAPTCHA is disabled.");
+      console.warn(
+        "NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not set — reCAPTCHA is disabled."
+      );
     }
     return <>{children}</>;
   }

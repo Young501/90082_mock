@@ -3,13 +3,7 @@
 import React from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
-import {
-  Box,
-  Container,
-  Text,
-  IconButton,
-  HStack,
-} from "@chakra-ui/react";
+import { Box, Container, Text, IconButton, HStack } from "@chakra-ui/react";
 import { ArrowLeft } from "lucide-react";
 import { InvitationForm } from "./component/InvitationForm";
 import { PageTitle } from "@/components/PageTitle";
@@ -39,11 +33,19 @@ const InvitePage = () => {
 
   if (type === "student") {
     return (
-      <StudentInvitePage opportunityId={opportunityId} onSuccess={handleSuccess} onCancel={handleCancel} />
+      <StudentInvitePage
+        opportunityId={opportunityId}
+        onSuccess={handleSuccess}
+        onCancel={handleCancel}
+      />
     );
   } else if (type === "organisation") {
     return (
-      <PartnerInvitePage opportunityId={opportunityId} onSuccess={handleSuccess} onCancel={handleCancel} />
+      <PartnerInvitePage
+        opportunityId={opportunityId}
+        onSuccess={handleSuccess}
+        onCancel={handleCancel}
+      />
     );
   }
 
@@ -79,13 +81,21 @@ const StudentInvitePage = ({
           <HStack gap={2} align="center">
             <IconButton
               aria-label="Go back"
-              onClick={onCancel || (() => router.push("/dashboard/manage?type=student"))}
+              onClick={
+                onCancel ||
+                (() => router.push("/dashboard/manage?type=student"))
+              }
               variant="ghost"
               size="sm"
             >
               <ArrowLeft size={20} />
             </IconButton>
-            <Text as="h1" fontSize={{ base: "22px", lg: "28px" }} fontWeight="600" color="#000000">
+            <Text
+              as="h1"
+              fontSize={{ base: "22px", lg: "28px" }}
+              fontWeight="600"
+              color="#000000"
+            >
               Invite Students
             </Text>
           </HStack>
@@ -121,13 +131,21 @@ const PartnerInvitePage = ({
           <HStack gap={2} align="center">
             <IconButton
               aria-label="Go back"
-              onClick={onCancel || (() => router.push("/dashboard/manage?type=organisation"))}
+              onClick={
+                onCancel ||
+                (() => router.push("/dashboard/manage?type=organisation"))
+              }
               variant="ghost"
               size="sm"
             >
               <ArrowLeft size={20} />
             </IconButton>
-            <Text as="h1" fontSize={{ base: "22px", lg: "28px" }} fontWeight="600" color="#000000">
+            <Text
+              as="h1"
+              fontSize={{ base: "22px", lg: "28px" }}
+              fontWeight="600"
+              color="#000000"
+            >
               Invite Organisations
             </Text>
           </HStack>

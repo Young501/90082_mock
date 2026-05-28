@@ -15,7 +15,10 @@ import {
 } from "@/types/messaging";
 import { useAuthStore } from "@/store";
 import { Loader, Send } from "lucide-react";
-import { validateContent, getContentValidationMessage } from "@/utils/contentValidation";
+import {
+  validateContent,
+  getContentValidationMessage,
+} from "@/utils/contentValidation";
 interface ConversationViewProps {
   isSinglePane: boolean | undefined;
   conversation: ConversationSummary | null;
@@ -96,7 +99,11 @@ export const ConversationView = ({
 
   const handleOnChange = (value: string) => {
     const result = validateContent(value);
-    setError(result.status === "error" ? getContentValidationMessage(result.type) : null);
+    setError(
+      result.status === "error"
+        ? getContentValidationMessage(result.type)
+        : null
+    );
     onComposerTextChange(value);
   };
 
@@ -342,7 +349,7 @@ export const ConversationView = ({
             iconPosition="end"
             icon={<Send size={18} />}
             isLoading={isSending}
-          // profileType={profileType}
+            // profileType={profileType}
           >
             <Text fontSize="sm" display={{ base: "none", md: "inline-block" }}>
               Send

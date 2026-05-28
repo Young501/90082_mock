@@ -15,7 +15,6 @@ export function useManage(
   userType: "student" | "organisation" = "student",
   opportunityId: string = ""
 ) {
-
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [selectedParticipant, setSelectedParticipant] =
     useState<Participant | null>(null);

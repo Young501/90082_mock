@@ -6,7 +6,13 @@ import Loader from "@/components/ui/Loader";
 import { useAuthStore } from "@/store/authStore";
 
 interface CustomButtonProps extends Omit<ButtonProps, "variant"> {
-  variant?: "primary" | "secondary" | "ghost" | "student" | "partner" | "danger";
+  variant?:
+    | "primary"
+    | "secondary"
+    | "ghost"
+    | "student"
+    | "partner"
+    | "danger";
   isLoading?: boolean;
   iconPosition?: "start" | "end";
   icon?: React.ReactNode;

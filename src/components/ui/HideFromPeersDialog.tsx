@@ -44,7 +44,9 @@ export function HideFromPeersDialog({
             <Dialog.Header>
               <Flex justify="space-between" w="full" align="center">
                 <Dialog.Title fontSize="lg" fontWeight="bold">
-                  {isHidden ? "Show your profile to peers" : "Hide your profile from peers"}
+                  {isHidden
+                    ? "Show your profile to peers"
+                    : "Hide your profile from peers"}
                 </Dialog.Title>
                 <IconButton
                   aria-label="Close"

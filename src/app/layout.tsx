@@ -54,9 +54,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             limit={3}
           />
           <Toaster position="top-right" richColors />
-          <RecaptchaProvider>
-            {children}
-          </RecaptchaProvider>
+          <RecaptchaProvider>{children}</RecaptchaProvider>
         </Providers>
       </body>
       <GoogleAnalytics

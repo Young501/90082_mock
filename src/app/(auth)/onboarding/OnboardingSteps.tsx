@@ -1064,7 +1064,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
 
       if (userType === "coordinator") {
         const allQuestions = pages.flatMap((p) => p.questions);
-        const { setUserProfilePictureUrl: setProfilePic } = useAuthStore.getState();
+        const { setUserProfilePictureUrl: setProfilePic } =
+          useAuthStore.getState();
         await submitCoordinatorOnboarding(
           allData,
           allQuestions,

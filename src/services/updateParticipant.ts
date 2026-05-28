@@ -41,7 +41,8 @@ export function useUpdateOpportunityParticipant() {
       return response;
     },
     onSuccess: (response, variables) => {
-      const { opportunityId, questionnaireAnswers, accepted, hidden } = variables;
+      const { opportunityId, questionnaireAnswers, accepted, hidden } =
+        variables;
 
       if (questionnaireAnswers !== undefined) {
         queryClient.setQueryData(

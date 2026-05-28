@@ -127,7 +127,11 @@ export function useEnrollmentActions({
         opportunityId,
         hidden: !isHidden,
       });
-      toast.success(isHidden ? "Your profile is now visible to peers." : "Your profile is now hidden from peers.");
+      toast.success(
+        isHidden
+          ? "Your profile is now visible to peers."
+          : "Your profile is now hidden from peers."
+      );
       setIsHideDialogOpen(false);
     } catch (err) {
       toast.error(getErrorMessage(err, "Failed to update visibility"));

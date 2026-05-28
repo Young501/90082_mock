@@ -290,7 +290,15 @@ const Header = ({
                         priority
                       />
                     ) : (
-                      <Link href="/" style={{ position: "relative", display: "block", width: "100%", height: "100%" }}>
+                      <Link
+                        href="/"
+                        style={{
+                          position: "relative",
+                          display: "block",
+                          width: "100%",
+                          height: "100%",
+                        }}
+                      >
                         <Image
                           alt="Uniconnected"
                           src="/assets/logo.svg"
@@ -425,11 +433,20 @@ const Header = ({
                     }
                   >
                     <VStack align="stretch" gap={2} p={1}>
-                      <Text fontSize="sm" fontWeight="600" color="#18181B" px={2} pt={1}>
+                      <Text
+                        fontSize="sm"
+                        fontWeight="600"
+                        color="#18181B"
+                        px={2}
+                        pt={1}
+                      >
                         Notifications
                       </Text>
                       {hasUnreadMessages ? (
-                        <Link href="/messaging/" style={{ textDecoration: "none" }}>
+                        <Link
+                          href="/messaging/"
+                          style={{ textDecoration: "none" }}
+                        >
                           <HStack
                             px={2}
                             py={2}
@@ -445,7 +462,8 @@ const Header = ({
                               flexShrink={0}
                             />
                             <Text fontSize="sm" color="#18181B">
-                              {unreadCount} new {unreadCount === 1 ? "message" : "messages"}
+                              {unreadCount} new{" "}
+                              {unreadCount === 1 ? "message" : "messages"}
                             </Text>
                           </HStack>
                         </Link>

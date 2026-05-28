@@ -29,7 +29,10 @@ function renderTextWithLinks(text: string, isMine: boolean) {
       <Link
         key={i}
         href={part}
-        {...(!isLocalUrl(part) && { target: "_blank", rel: "noopener noreferrer" })}
+        {...(!isLocalUrl(part) && {
+          target: "_blank",
+          rel: "noopener noreferrer",
+        })}
         style={{
           textDecoration: "underline",
           color: isMine ? "rgba(255,255,255,0.9)" : "#3182ce",

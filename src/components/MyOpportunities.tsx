@@ -258,7 +258,10 @@ export const OpportunityCard = ({
                 </Badge>
                 {/* )} */}
                 {enrollment.isHidden && (
-                  <Tooltip content="Your profile is hidden from other participants in this opportunity" showArrow>
+                  <Tooltip
+                    content="Your profile is hidden from other participants in this opportunity"
+                    showArrow
+                  >
                     <Badge
                       bg="#FEF2F2"
                       color="#EF4444"
@@ -364,7 +367,9 @@ export const OpportunityCard = ({
                   _hover={{ bg: "#F3F4F6" }}
                   onClick={enrollment.handleHideClick}
                 >
-                  {enrollment.isHidden ? "Show profile to peers" : "Hide profile from peers"}
+                  {enrollment.isHidden
+                    ? "Show profile to peers"
+                    : "Hide profile from peers"}
                 </Box>
                 <Box
                   as="button"
@@ -580,7 +585,9 @@ export const OpportunityCard = ({
                             _hover={{ bg: "#F3F4F6" }}
                             onClick={enrollment.handleHideClick}
                           >
-                            {enrollment.isHidden ? "Show profile to peers" : "Hide profile from peers"}
+                            {enrollment.isHidden
+                              ? "Show profile to peers"
+                              : "Hide profile from peers"}
                           </Box>
                           <Box
                             as="button"
@@ -698,9 +705,7 @@ export const OpportunityCard = ({
 
       <HideFromPeersDialog
         open={enrollment.isHideDialogOpen}
-        onOpenChange={(details) =>
-          enrollment.setIsHideDialogOpen(details.open)
-        }
+        onOpenChange={(details) => enrollment.setIsHideDialogOpen(details.open)}
         onConfirm={enrollment.confirmToggleHidden}
         isLoading={enrollment.updateParticipantMutation.isPending}
         isHidden={enrollment.isHidden}
