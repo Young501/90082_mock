@@ -3,12 +3,14 @@ import type { LucideIcon } from "lucide-react";
 export interface LoginData {
   email: string;
   password: string;
+  recaptcha_token?: string;
 }
 
 export interface SignupData {
   email: string;
   password: string;
   user_types: string[];
+  recaptcha_token?: string;
 }
 
 export interface PasswordResetData {

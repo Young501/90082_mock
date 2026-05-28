@@ -88,11 +88,11 @@ const SignupPage = () => {
   );
 
   const onSubmit = async (data: FormData) => {
-    console.log("Sign up data", data);
     if (!userType) return;
 
     try {
       setIsLoading(true);
+
       await handleSignup({
         email: data.email,
         password: data.password,
