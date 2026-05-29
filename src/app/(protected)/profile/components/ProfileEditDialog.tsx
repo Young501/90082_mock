@@ -32,8 +32,7 @@ import {
   useOrganisationProfileUpdateV2,
   useOrganisationMemberMeV2,
   useOrganisationProfileV2,
-  // useOrganisationLogoUploadV2,
-  useLogoUpload,
+  useOrganisationLogoUploadV2,
 } from "@/services/shared";
 import { useAuthStore } from "@/store/authStore";
 import {
@@ -81,8 +80,7 @@ export function ProfileEditDialog({
   const resumeUpload = useResumeUpload();
   const orgMemberUpdate = useOrganisationMemberUpdateV2();
   const orgProfileUpdate = useOrganisationProfileUpdateV2();
-  // const organisationLogoUpload = useLogoUpload("organisation");
-  const logoUpload = useLogoUpload("organisation");
+  const logoUpload = useOrganisationLogoUploadV2();
 
   const hasStudentProfileFields = useMemo(
     () => page.questions.some((q) => !q.model || q.model === "student_profile"),
