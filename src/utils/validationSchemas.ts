@@ -35,6 +35,7 @@ export const createPageSchema = (
     question: Question,
     parentChain: ParentChainItem[] = []
   ) => {
+    if (!question.field) return; // display-only follow-ups may omit field
     if (!fieldParentChains[question.field]) {
       fieldParentChains[question.field] = { question, chains: [] };
     }
