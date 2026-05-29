@@ -1,5 +1,6 @@
 import { Box, Text, Slider, HStack } from "@chakra-ui/react";
 import { Control, useController } from "react-hook-form";
+import { useEffect } from "react";
 
 const SLIDER_ACTIVE_COLOR = "#2AA8E0";
 const SLIDER_TRACK_COLOR = "#D6EDFB";
@@ -31,8 +32,15 @@ export const SliderField = ({
   } = useController({
     name,
     control,
-    defaultValue: undefined,
+    defaultValue: min,
   });
+
+  // Initialise to min when the form resets with null/undefined (e.g. profile edit).
+  useEffect(() => {
+    if (value === undefined || value === null) {
+      onChange(min);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const currentValue = value !== undefined && value !== null ? value : min;
 

@@ -19,6 +19,7 @@ import {
 } from "@/services/shared";
 import { useOnboardingLogic } from "@/hooks/useOnboardingLogic";
 import { createPageSchema } from "@/utils/validationSchemas";
+import { flattenQuestions } from "@/utils/questionnaireParser";
 import { FieldRenderer } from "./FieldRenderer";
 import { OrgSubmissionProgress } from "./OrgSubmissionProgress";
 import { Button } from "@/components/ui/Button";
@@ -1063,7 +1064,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
       const allData = { ...formData, ...currentValues };
 
       if (userType === "coordinator") {
-        const allQuestions = pages.flatMap((p) => p.questions);
+        const allQuestions = flattenQuestions(pages.flatMap((p) => p.questions));
         const { setUserProfilePictureUrl: setProfilePic } =
           useAuthStore.getState();
         await submitCoordinatorOnboarding(
@@ -1078,7 +1079,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
       }
 
       if (userType === "student") {
-        const allQuestions = pages.flatMap((p) => p.questions);
+        const allQuestions = flattenQuestions(pages.flatMap((p) => p.questions));
         const { setUserProfilePictureUrl: setProfilePic } =
           useAuthStore.getState();
         await submitStudentOnboardingV2(
@@ -1105,7 +1106,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
             : isFromReview
               ? { ...accumulatedOrgMemberData, ...allData }
               : allData;
-        const allQuestions =
+        const allQuestions = flattenQuestions(
           isFromReview && organisationPageStructure
             ? [
                 ...organisationPageStructure.memberPages.flatMap(
@@ -1115,7 +1116,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
                   (p) => p.questions
                 ),
               ]
-            : pages.flatMap((p) => p.questions);
+            : pages.flatMap((p) => p.questions)
+        );
 
         setIsOrgSubmitting(true);
 

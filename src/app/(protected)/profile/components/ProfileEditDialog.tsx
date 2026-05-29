@@ -19,6 +19,7 @@ import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
 import { AbnValidationStatus, Page, Question } from "@/types/onboarding";
 import { createPageSchema } from "@/utils/validationSchemas";
+import { flattenQuestions } from "@/utils/questionnaireParser";
 import { FieldRenderer } from "@/app/(auth)/onboarding/FieldRenderer";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import {
@@ -104,19 +105,16 @@ export function ProfileEditDialog({
 
   const {
     data: freshStudentData,
-    isLoading: isStudentLoading,
     isFetched: isStudentFetched,
   } = useStudentProfileV2(isOpen && hasStudentProfileFields);
 
   const {
     data: freshUserData,
-    isLoading: isUserLoading,
     isFetched: isUserFetched,
   } = useUserMeV2(isOpen && hasUserFields);
 
   const {
     data: freshOrgMemberData,
-    isLoading: isOrgMemberLoading,
     isFetched: isOrgMemberFetched,
   } = useOrganisationMemberMeV2(
     isOpen && hasOrgMemberFields && isOrganisationUser
@@ -124,7 +122,6 @@ export function ProfileEditDialog({
 
   const {
     data: freshOrgProfileData,
-    isLoading: isOrgProfileLoading,
     isFetched: isOrgProfileFetched,
   } = useOrganisationProfileV2(isOpen && hasOrgFields && isOrganisationUser);
 
@@ -376,7 +373,7 @@ export function ProfileEditDialog({
     const orgMemberFields: Record<string, any> = {};
     const orgFields: Record<string, any> = {};
 
-    for (const q of page.questions) {
+    for (const q of flattenQuestions(page.questions)) {
       if (q.type === "display") continue;
       const model = q.model ?? "student_profile";
       const value = data[q.field];
@@ -639,14 +636,6 @@ export function ProfileEditDialog({
 
                   <VStack align="stretch" gap={4}>
                     {questions.map((question: Question) => {
-                      const fieldValue = watch(question.field);
-                      const fieldProps = {
-                        question,
-                        fieldValue,
-                        fieldError: errors[question.field],
-                        isRemoved: removedFiles.has(question.field),
-                        university: university ?? undefined,
-                      };
                       return (
                         <FieldRenderer
                           key={`${fileUploadKey}-${question.field}`}
