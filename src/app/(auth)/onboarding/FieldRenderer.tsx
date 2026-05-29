@@ -118,7 +118,7 @@ export const FieldRenderer = ({
     const fields: string[] = [];
     if (q.followup_question) {
       Object.values(q.followup_question).forEach((followup) => {
-        fields.push(followup.field);
+        if (followup.field) fields.push(followup.field);
         fields.push(...getAllChildFields(followup));
       });
     }
@@ -294,6 +294,32 @@ export const FieldRenderer = ({
     }
 
     if (question.type === "display") {
+      // Informative text display (e.g. follow-up notices) — use description as body
+      if (question.description) {
+        return (
+          <Box
+            display="flex"
+            gap={2}
+            alignItems="flex-start"
+            px={3}
+            py={2}
+            borderLeft="3px solid"
+            borderColor="#2AA8E0"
+            bg="#F8FCFE"
+            borderRadius="0 6px 6px 0"
+          >
+            <Text fontSize="xs" color="#52525B" lineHeight="1.5">
+              {question.label && (
+                <Text as="span" fontWeight="600" color="#1A6E9E" mr={1}>
+                  {question.label}:
+                </Text>
+              )}
+              {question.description}
+            </Text>
+          </Box>
+        );
+      }
+
       const displayValue =
         question.field === "university" && universityName
           ? universityName
@@ -531,8 +557,12 @@ export const FieldRenderer = ({
     <Box mb={4}>
       {fieldContent}
 
-      {followupQuestions.map((followupQuestion) => (
-        <Box key={followupQuestion.field} ml={4} mt={2}>
+      {followupQuestions.map((followupQuestion, i) => (
+        <Box
+          key={followupQuestion.field ?? `followup-${i}`}
+          ml={followupQuestion.type === "display" ? 0 : 4}
+          mt={2}
+        >
           <FieldRenderer
             question={followupQuestion}
             register={register}

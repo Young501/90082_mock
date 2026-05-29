@@ -35,6 +35,7 @@ export const createPageSchema = (
     question: Question,
     parentChain: ParentChainItem[] = []
   ) => {
+    if (!question.field) return; // display-only follow-ups may omit field
     if (!fieldParentChains[question.field]) {
       fieldParentChains[question.field] = { question, chains: [] };
     }
@@ -64,7 +65,12 @@ export const createPageSchema = (
     ([fieldName, { question, chains }]) => {
       let fieldSchema: any;
       if (question.type === "textarea" || question.type === "text") {
-        fieldSchema = contentValidationSchema;
+        fieldSchema = question.max_length
+          ? contentValidationSchema.max(
+              question.max_length,
+              `Maximum ${question.max_length} characters allowed`
+            )
+          : contentValidationSchema;
       } else if (question.type === "abn_lookup") {
         fieldSchema = yup
           .string()
@@ -259,9 +265,19 @@ export const createPageSchema = (
 
         const whenCondition = (...parentValues: any[]) => {
           return chains.some((chain) => {
-            return chain.every((item, index) => {
+            return chain.every((item) => {
               const fieldIndex = whenFields.indexOf(item.field);
-              return parentValues[fieldIndex] === item.value;
+              const parentValue = parentValues[fieldIndex];
+              const targetValue = item.value;
+              // boolean-checkbox stores true/false but followup keys are "true"/"false"
+              if (typeof parentValue === "boolean") {
+                return parentValue.toString() === targetValue;
+              }
+              // multi-select/checkbox-group/taxonomy-multiselect store arrays
+              if (Array.isArray(parentValue)) {
+                return parentValue.includes(targetValue);
+              }
+              return parentValue === targetValue;
             });
           });
         };

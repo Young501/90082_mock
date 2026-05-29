@@ -11,7 +11,7 @@ import { useAuthStore } from "@/store/authStore";
 
 const SKIP_TYPES = ["display"];
 
-function ImagePreview({ src, isFile }: { src: string; isFile: boolean }) {
+function ImagePreview({ src }: { src: string }) {
   return (
     <Box
       w="72px"
@@ -85,7 +85,12 @@ function collectQuestions(
       const raw = parentValues[q.field];
       const values = Array.isArray(raw) ? raw : [raw];
       (values as unknown[]).forEach((val: unknown) => {
-        const key = typeof val === "boolean" ? String(val) : (val as string);
+        const key =
+          typeof val === "boolean"
+            ? String(val)
+            : val !== null && typeof val === "object"
+              ? ((val as any).code ?? (val as any).value ?? String(val))
+              : (val as string);
         const followup = q.followup_question?.[key];
         if (followup) {
           result.push(...collectQuestions([followup], parentValues));
@@ -118,7 +123,7 @@ function renderFieldValue(
   if (question.type === "file-image") {
     const src = getPreviewUrl(value);
     if (src) {
-      return <ImagePreview src={src} isFile={value instanceof File} />;
+      return <ImagePreview src={src} />;
     }
     return <Text color="#A1A1AA">Image uploaded</Text>;
   }
