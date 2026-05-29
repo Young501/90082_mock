@@ -165,14 +165,6 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: `/api/v1/user-types/${userType}/onboarding-pages/`,
   }),
-  ONBOARDING_SUBMISSION: (userType: string): ApiEndpoint => ({
-    method: "POST",
-    url: `/api/v1/${userType}`,
-  }),
-  PROFILE_UPDATE: (userType: string): ApiEndpoint => ({
-    method: "PUT",
-    url: `/api/v1/${userType}`,
-  }),
   // v2 Profiles & User APIs (Schema 2.0.0)
   STUDENT_PROFILE_V2: {
     method: "GET",
@@ -200,7 +192,11 @@ export const API_ENDPOINTS = {
   },
   ORGANISATION_LOGO_UPLOAD_V2: {
     method: "POST",
-    url: "/api/v2/profiles/organisation/me/logo",
+    url: "/api/v2/profiles/organisation/me/logo/",
+  },
+  ORGANISATION_LOGO_DELETE_V2: {
+    method: "DELETE",
+    url: "/api/v2/profiles/organisation/me/logo/",
   },
   ORGANISATION_INVITE: {
     method: "GET",
@@ -246,6 +242,10 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: `/api/v2/profiles/student/me/resume/`,
   },
+  RESUME_DELETE: {
+    method: "DELETE",
+    url: `/api/v2/profiles/student/me/resume/`,
+  },
   USER_ME_V2: {
     method: "GET",
     url: "/api/v2/users/me/",
@@ -258,14 +258,6 @@ export const API_ENDPOINTS = {
     method: "GET",
     url: "/api/v2/taxonomy/",
   },
-  LOGO_UPLOAD: (userType: string): ApiEndpoint => ({
-    method: "POST",
-    url: `/api/v1/${userType}/upload-logo`,
-  }),
-  LOGO_DELETE: (userType: string): ApiEndpoint => ({
-    method: "DELETE",
-    url: `/api/v1/${userType}/upload-logo`,
-  }),
 
   STUDENT_CARD_V2: (studentId: string): ApiEndpoint => ({
     method: "POST",
@@ -278,10 +270,6 @@ export const API_ENDPOINTS = {
   OPPORTUNITY_DETAIL: (opportunityId: string): ApiEndpoint => ({
     method: "GET",
     url: `/api/v1/opportunities/${opportunityId}/`,
-  }),
-  INVITE_ACCEPT: (opportunityId: string): ApiEndpoint => ({
-    method: "POST",
-    url: `/api/v1/opportunities/${opportunityId}/accept/`,
   }),
   // folder endpoints using v2 opportunity-scoped APIs
   FOLDERS: (opportunitySlug: string): ApiEndpoint => ({
@@ -391,10 +379,6 @@ export const API_ENDPOINTS = {
     method: "POST",
     url: "/api/v2/generic/abn/validate/",
   },
-  INVITE_PARTICIPANTS: (opportunityId: string): ApiEndpoint => ({
-    method: "POST",
-    url: `/api/v1/opportunities/${opportunityId}/invite/`,
-  }),
   INVITE_PREVIEW: (
     opportunityId: string,
     userType: "student" | "organisation"
@@ -408,14 +392,6 @@ export const API_ENDPOINTS = {
   ): ApiEndpoint => ({
     method: "POST",
     url: `/api/v2/opportunities/coordinator/${opportunityId}/invite/${userType}/`,
-  }),
-  ORGANISATION_CHECK_DOMAIN: {
-    method: "GET",
-    url: "/api/v1/organisation/check-domain/",
-  },
-  ORGANISATION_DETAIL: (id: string): ApiEndpoint => ({
-    method: "GET",
-    url: `/api/v1/organisation/${id}/`,
   }),
   // Subscription endpoints
   SUBSCRIPTION_CANCEL: {

@@ -9,7 +9,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import {
   useProfilePictureUpload,
   useResumeUpload,
-  useLogoUpload,
+  useOrganisationLogoUploadV2,
   useStudentProfileUpdateV2,
   useUserMeUpdateV2,
   useStudentProfileV2,
@@ -363,8 +363,8 @@ async function submitOrganisationOnboardingV2(
     if (logo instanceof File) {
       try {
         const logoRes = await logoUpload.mutateAsync(logo);
-        if (logoRes?.logo_url) {
-          setLogoUrl(logoRes.logo_url);
+        if (logoRes?.logo) {
+          setLogoUrl(logoRes.logo);
         }
       } catch {
         toast.error("Logo upload failed. You can add it later.");
@@ -424,8 +424,8 @@ async function submitOrganisationOnboardingV2(
     if (logo instanceof File) {
       try {
         const logoRes = await logoUpload.mutateAsync(logo);
-        if (logoRes?.logo_url) {
-          setLogoUrl(logoRes.logo_url);
+        if (logoRes?.logo) {
+          setLogoUrl(logoRes.logo);
         }
       } catch {
         toast.error("Logo upload failed. You can add it later.");
@@ -514,7 +514,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
   );
   const profilePictureUpload = useProfilePictureUpload();
   const resumeUpload = useResumeUpload();
-  const logoUpload = useLogoUpload(userType);
+  const logoUpload = useOrganisationLogoUploadV2();
   const schema = createPageSchema(currentPage?.questions || []);
   const ABN_BLOCK_MESSAGE = "Please verify your ABN before continuing.";
 

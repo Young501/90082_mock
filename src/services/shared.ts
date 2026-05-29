@@ -9,38 +9,22 @@ export {
   useStudentProfileV2,
   useStudentProfileUpdateV2,
   useResumeUpload,
+  useResumeDelete,
   useStudentProfile,
 } from "./student";
 
 // Re-export organisation-specific services
 export {
-  useOrganisationDomainCheck,
-  useOrganisationDetail,
   useOrganisationMemberMeV2,
   useOrganisationProfileV2,
   useOrganisationMemberUpdateV2,
   useOrganisationProfileCreateV2,
   useOrganisationProfileUpdateV2,
   useOrganisationLogoUploadV2,
+  useOrganisationLogoDeleteV2,
   useAbnValidation,
   usePartnerProfile,
 } from "./organisation";
-
-export function useOnboardingSubmission(userType: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (answers: Record<string, any>) => {
-      return apiRequest({
-        endpoint: API_ENDPOINTS.ONBOARDING_SUBMISSION(userType),
-        body: answers,
-      });
-    },
-    onSuccess: (_response: any, _variables, _context) => {
-      queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
-    },
-  });
-}
 
 export function useProfilePictureUpload() {
   const queryClient = useQueryClient();
@@ -79,23 +63,6 @@ export function useProfilePictureDelete() {
   });
 }
 
-export function useProfileUpdate(userType: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (answers: Record<string, any>) => {
-      return apiRequest({
-        endpoint: API_ENDPOINTS.PROFILE_UPDATE(userType),
-        body: answers,
-      });
-    },
-    onSuccess: (_response: any, _variables, _context) => {
-      queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
-      queryClient.invalidateQueries({ queryKey: ["homepage"] });
-    },
-  });
-}
-
 export function useOnboardingPages(userType: string, enabled: boolean = true) {
   return useQuery({
     queryKey: ["onboarding-pages", userType],
@@ -103,44 +70,6 @@ export function useOnboardingPages(userType: string, enabled: boolean = true) {
       apiRequest({ endpoint: API_ENDPOINTS.ONBOARDING_PAGES(userType) }),
     enabled: !!userType && enabled,
     staleTime: 10 * 60 * 1000,
-  });
-}
-
-export function useLogoUpload(userType: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-      return apiRequest({
-        endpoint: API_ENDPOINTS.LOGO_UPLOAD(userType),
-        body: formData,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
-      queryClient.invalidateQueries({ queryKey: ["homepage"] });
-      if (userType === "organisation") {
-        queryClient.invalidateQueries({
-          queryKey: ["organisation-profile-v2"],
-        });
-      }
-    },
-  });
-}
-
-export function useLogoDelete(userType: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async () => {
-      return apiRequest({
-        endpoint: API_ENDPOINTS.LOGO_DELETE(userType),
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-profile", userType] });
-      queryClient.invalidateQueries({ queryKey: ["homepage"] });
-    },
   });
 }
 
@@ -313,25 +242,6 @@ export function useCoordinatorOpportunities(enabled = true) {
     retry: (failureCount, error: any) => {
       if (error?.response?.status === 404) return false;
       return failureCount < 2;
-    },
-  });
-}
-
-export function useInviteParticipants() {
-  return useMutation({
-    mutationFn: async (data: {
-      opportunityId: string;
-      invitations: Array<{
-        email: string;
-        role: "student" | "organisation";
-      }>;
-    }) => {
-      return apiRequest({
-        endpoint: API_ENDPOINTS.INVITE_PARTICIPANTS(data.opportunityId),
-        body: {
-          invitations: data.invitations,
-        },
-      });
     },
   });
 }
