@@ -18,26 +18,6 @@ export async function checkOrganisationInvite<
   return response.data as T;
 }
 
-export function useOrganisationDomainCheck() {
-  return useQuery({
-    queryKey: ["organisation-domain-check"],
-    queryFn: () =>
-      apiRequest({ endpoint: API_ENDPOINTS.ORGANISATION_CHECK_DOMAIN }),
-    enabled: false,
-    retry: false,
-  });
-}
-
-export function useOrganisationDetail(id: string) {
-  return useQuery({
-    queryKey: ["organisation-detail", id],
-    queryFn: () =>
-      apiRequest({ endpoint: API_ENDPOINTS.ORGANISATION_DETAIL(id) }),
-    enabled: !!id,
-    staleTime: 10 * 60 * 1000,
-  });
-}
-
 export function useOrganisationMemberMeV2(enabled: boolean = true) {
   return useQuery({
     queryKey: ["organisation-member-me-v2"],
@@ -138,6 +118,24 @@ export function useOrganisationLogoUploadV2() {
       return apiRequest({
         endpoint: API_ENDPOINTS.ORGANISATION_LOGO_UPLOAD_V2,
         body: formData,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["organisation-profile-v2"] });
+      queryClient.invalidateQueries({
+        queryKey: ["user-profile", "organisation"],
+      });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
+    },
+  });
+}
+
+export function useOrganisationLogoDeleteV2() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.ORGANISATION_LOGO_DELETE_V2,
       });
     },
     onSuccess: () => {

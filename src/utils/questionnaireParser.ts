@@ -49,6 +49,13 @@ export function parseQuestionnaireOptions(
   });
 }
 
+export function flattenQuestions(questions: Question[]): Question[] {
+  return questions.flatMap((q) => [
+    q,
+    ...flattenQuestions(Object.values(q.followup_question ?? {})),
+  ]);
+}
+
 export function getDisplayLabel(
   question: Question | { label: string; filter_label?: string },
   isFilter: boolean = false

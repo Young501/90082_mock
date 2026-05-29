@@ -7,11 +7,11 @@ import {
   useRef,
   useImperativeHandle,
   forwardRef,
-  useCallback,
 } from "react";
 import { createPageSchema } from "@/utils/validationSchemas";
 import { FieldRenderer } from "@/app/(auth)/onboarding/FieldRenderer";
 import { Question } from "@/types/onboarding";
+import { flattenQuestions } from "@/utils/questionnaireParser";
 
 export interface QuestionnaireSection {
   id: number;
@@ -36,19 +36,19 @@ export const QuestionnaireForm = forwardRef<
   QuestionnaireFormRef,
   QuestionnaireFormProps
 >(({ sections, onAnswersChange, initialValues = {}, props }, ref) => {
-  const allQuestions = useMemo(
+  const topLevelQuestions = useMemo(
     () => sections.flatMap((section) => section.questions),
     [sections]
   );
 
   const validationSchema = useMemo(
-    () => createPageSchema(allQuestions),
-    [allQuestions]
+    () => createPageSchema(topLevelQuestions),
+    [topLevelQuestions]
   );
 
   const defaultValues = useMemo(
     () =>
-      allQuestions.reduce(
+      flattenQuestions(topLevelQuestions).reduce(
         (acc, question) => {
           if (initialValues[question.field] !== undefined) {
             acc[question.field] = initialValues[question.field];
@@ -71,7 +71,7 @@ export const QuestionnaireForm = forwardRef<
         },
         {} as Record<string, any>
       ),
-    [allQuestions, initialValues]
+    [topLevelQuestions, initialValues]
   );
 
   const {

@@ -52,6 +52,22 @@ export function useResumeUpload() {
   });
 }
 
+export function useResumeDelete() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      return apiRequest({
+        endpoint: API_ENDPOINTS.RESUME_DELETE,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-profile", "student"] });
+      queryClient.invalidateQueries({ queryKey: ["student-profile-v2"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage"] });
+    },
+  });
+}
+
 export function useStudentProfile(id: string, opportunityId: string) {
   return useQuery({
     queryKey: ["student-profile", id, opportunityId],
