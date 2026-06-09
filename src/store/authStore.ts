@@ -4,6 +4,8 @@ import { User, UserDetailsV2 } from "@/types/user";
 import { UserProfile, Organisation } from "@/types/shared";
 import { AccessibleOpportunity } from "@/types/opportunities";
 import { SubscriptionStatus } from "@/types/subscription";
+import { useUIStore } from "./uiStore";
+import { useOnboardingFlowStore } from "./onboardingFlowStore";
 
 export interface AuthState {
   user: User | null;
@@ -13,9 +15,6 @@ export interface AuthState {
   userProfile: UserProfile | null;
   userProfilePictureUrl: string | null;
   coordinatorOpportunities: AccessibleOpportunity[];
-  isOrganisationMemberOnboarding: boolean;
-  /** Phase to show when redirecting to onboarding: "user" | "organisation" | null (derive from data) */
-  onboardingPhase: "user" | "organisation" | null;
   accessibleOpportunities: AccessibleOpportunity[] | null;
   setAuthData: (token: string, user: User) => void;
   setUserDetailsV2: (details: UserDetailsV2) => void;
@@ -37,19 +36,9 @@ export interface AuthState {
   setUserProfilePictureUrl: (url: string) => void;
   setCoordinatorOpportunities: (opportunities: AccessibleOpportunity[]) => void;
   getCoordinatorOpportunities: () => AccessibleOpportunity[];
-  setIsOrganisationMemberOnboarding: (isMember: boolean) => void;
-  getIsOrganisationMemberOnboarding: () => boolean;
-  setOnboardingPhase: (phase: "user" | "organisation" | null) => void;
-  getOnboardingPhase: () => "user" | "organisation" | null;
   setIsAuthenticated: (isAuthenticated: boolean) => void;
   getIsAuthenticated: () => boolean;
   setAccessibleOpportunities: (opportunities: AccessibleOpportunity[]) => void;
-  hasUnreadMessages: boolean;
-  unreadCount: number;
-  setHasUnreadMessages: (hasUnread: boolean) => void;
-  setUnreadCount: (count: number) => void;
-  isSidebarCollapsed: boolean;
-  toggleSidebar: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -62,12 +51,7 @@ export const useAuthStore = create<AuthState>()(
       userProfile: null,
       userProfilePictureUrl: null,
       coordinatorOpportunities: [],
-      isOrganisationMemberOnboarding: false,
-      onboardingPhase: null,
       accessibleOpportunities: null,
-      hasUnreadMessages: false,
-      unreadCount: 0,
-      isSidebarCollapsed: false,
       setIsAuthenticated: (isAuthenticated: boolean) => {
         set({ isAuthenticated });
       },
@@ -96,11 +80,10 @@ export const useAuthStore = create<AuthState>()(
           userProfile: null,
           userProfilePictureUrl: null,
           coordinatorOpportunities: [],
-          isOrganisationMemberOnboarding: false,
-          onboardingPhase: null,
           accessibleOpportunities: null,
-          hasUnreadMessages: false,
         });
+        useUIStore.getState().resetUnread();
+        useOnboardingFlowStore.getState().reset();
       },
 
       setUserType: (userType: string) => {
@@ -199,32 +182,9 @@ export const useAuthStore = create<AuthState>()(
         return get().coordinatorOpportunities;
       },
 
-      setIsOrganisationMemberOnboarding: (isMember: boolean) => {
-        set({ isOrganisationMemberOnboarding: isMember });
-      },
-      getIsOrganisationMemberOnboarding: () => {
-        return get().isOrganisationMemberOnboarding;
-      },
-      setOnboardingPhase: (phase: "user" | "organisation" | null) => {
-        set({ onboardingPhase: phase });
-      },
-      getOnboardingPhase: () => {
-        return get().onboardingPhase;
-      },
-
       setAccessibleOpportunities: (opportunities: AccessibleOpportunity[]) => {
         set({ accessibleOpportunities: opportunities });
       },
-      setHasUnreadMessages: (hasUnread: boolean) => {
-        if (get().hasUnreadMessages !== hasUnread) {
-          set({ hasUnreadMessages: hasUnread });
-        }
-      },
-      setUnreadCount: (count: number) => {
-        set({ unreadCount: count, hasUnreadMessages: count > 0 });
-      },
-      toggleSidebar: () =>
-        set((s) => ({ isSidebarCollapsed: !s.isSidebarCollapsed })),
     }),
     {
       name: "auth-storage",
@@ -236,10 +196,7 @@ export const useAuthStore = create<AuthState>()(
         userProfile: state.userProfile,
         userProfilePictureUrl: state.userProfilePictureUrl,
         coordinatorOpportunities: state.coordinatorOpportunities,
-        isOrganisationMemberOnboarding: state.isOrganisationMemberOnboarding,
         accessibleOpportunities: state.accessibleOpportunities,
-        hasUnreadMessages: state.hasUnreadMessages,
-        isSidebarCollapsed: state.isSidebarCollapsed,
       }),
     }
   )

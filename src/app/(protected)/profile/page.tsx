@@ -32,9 +32,6 @@ const Profile = () => {
   const userType: string = useAuthStore((s) => s.getUserType()) ?? "";
   const isCoordinator = userType === "coordinator";
   const isOrganisation = userType === "organisation";
-  // const isOrgMember = useAuthStore((s) =>
-  //   s.getIsOrganisationMemberOnboarding()
-  // );
 
   const {
     userProfile: fetchedUserProfile,

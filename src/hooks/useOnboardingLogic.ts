@@ -12,7 +12,7 @@ import {
   isOrganisationMemberComplete,
   isOrganisationComplete,
 } from "@/hooks/auth";
-import { useAuthStore } from "@/store/authStore";
+import { useOnboardingFlowStore } from "@/store/onboardingFlowStore";
 
 const normalizePages = (rawPages: any[]): Page[] => {
   if (!Array.isArray(rawPages) || rawPages.length === 0) return [];
@@ -62,8 +62,10 @@ export const useOnboardingLogic = (userType: string) => {
   const orgComplete = isOrganisationComplete(organisationProfile ?? null);
   const isOrgMember = userType === "organisation" && orgComplete;
 
-  const onboardingPhaseFromStore = useAuthStore((s) => s.onboardingPhase);
-  const setOnboardingPhase = useAuthStore((s) => s.setOnboardingPhase);
+  const onboardingPhaseFromStore = useOnboardingFlowStore(
+    (s) => s.onboardingPhase
+  );
+  const setOnboardingPhase = useOnboardingFlowStore((s) => s.setOnboardingPhase);
 
   const derivedPhase: "user" | "organisation" = useMemo(() => {
     if (userType !== "organisation") return "user";
