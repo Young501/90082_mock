@@ -7,7 +7,7 @@ import { InputField, ButtonV2 } from "@/components/ui";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useAuth } from "@/hooks/auth";
-import { motion, transform } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { Mail } from "lucide-react";
 import { PROFILE_HOVER_COLORS } from "@/theme/theme";
@@ -61,6 +61,8 @@ const SignupPage = () => {
         ? studentAuthValidationSchema
         : baseAuthSchema;
 
+  const emailParam = searchParams.get("email") || "";
+
   const {
     register,
     handleSubmit,
@@ -70,7 +72,7 @@ const SignupPage = () => {
     resolver: yupResolver(validationSchema as any),
     mode: "onChange",
     defaultValues: {
-      email: "",
+      email: emailParam,
       password: "",
       confirm_password: "",
       student_terms_and_conditions: false,
