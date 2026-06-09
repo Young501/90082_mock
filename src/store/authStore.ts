@@ -195,8 +195,6 @@ export const useAuthStore = create<AuthState>()(
         logoUrl: state.logoUrl,
         userProfile: state.userProfile,
         userProfilePictureUrl: state.userProfilePictureUrl,
-        coordinatorOpportunities: state.coordinatorOpportunities,
-        accessibleOpportunities: state.accessibleOpportunities,
       }),
     }
   )
