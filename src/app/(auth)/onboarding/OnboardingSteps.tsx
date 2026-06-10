@@ -61,6 +61,27 @@ const ORGANISATION_STRIP_FIELDS = [
   "location_geocode_lookup",
 ];
 
+/**
+ * Normalize a value coming from the user profile into the shape
+ */
+function normalizeProfileFieldValue(value: any): any {
+  if (value == null) return undefined;
+  if (value instanceof File) return undefined;
+  if (Array.isArray(value)) {
+    const items = value
+      .map((v) =>
+        v && typeof v === "object" ? (v.value ?? v.code ?? v.id) : v
+      )
+      .filter((v) => v != null && v !== "");
+    return items.length > 0 ? items : undefined;
+  }
+  if (typeof value === "object") {
+    return value.value ?? value.code ?? value.id ?? undefined;
+  }
+  if (typeof value === "string" && value.trim() === "") return undefined;
+  return value;
+}
+
 async function submitStudentOnboardingV2(
   allData: Record<string, any>,
   allQuestions: Question[],
@@ -505,6 +526,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     any
   > | null>(null);
   const hasAppliedPrefilledRef = useRef(false);
+  const hasAppliedStudentPrefillRef = useRef(false);
   const studentProfileUpdateV2 = useStudentProfileUpdateV2();
   const userMeUpdateV2 = useUserMeUpdateV2();
   const organisationProfileUpdateV2 = useOrganisationProfileUpdateV2();
@@ -699,6 +721,40 @@ export const OnboardingSteps = ({ userType }: Props) => {
       });
     }
   }, [userType, studentProfileV2, currentPage, setValue]);
+
+  // Prefill editable student fields (faculty, degree, course_stream, etc.) 
+  useEffect(() => {
+    if (
+      userType !== "student" ||
+      !studentProfileV2 ||
+      pages.length === 0 ||
+      hasAppliedStudentPrefillRef.current
+    ) {
+      return;
+    }
+
+    const profile = studentProfileV2 as Record<string, any>;
+    const allQuestions = flattenQuestions(pages.flatMap((p) => p.questions));
+
+    const prefill: Record<string, any> = {};
+    allQuestions.forEach((q) => {
+      // exclude field type display
+      if (q.type === "display") return;
+      if (!(q.field in profile)) return;
+      const normalized = normalizeProfileFieldValue(profile[q.field]);
+      if (normalized !== undefined) {
+        prefill[q.field] = normalized;
+      }
+    });
+
+    if (Object.keys(prefill).length === 0) return;
+
+    hasAppliedStudentPrefillRef.current = true;
+    setFormData((prev) => ({ ...prev, ...prefill }));
+    Object.entries(prefill).forEach(([field, value]) => {
+      setValue(field, value, { shouldValidate: false });
+    });
+  }, [userType, studentProfileV2, pages, setValue]);
 
   // Prefill organisation user phase with existing member if info exists
   useEffect(() => {
