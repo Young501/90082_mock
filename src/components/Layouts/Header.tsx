@@ -25,6 +25,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/hooks/auth";
 import { useAuthStore } from "@/store/authStore";
+import { useUIStore } from "@/store/uiStore";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import { getSubscriptionTrialInfo } from "@/utils/subscriptionPermissions";
@@ -71,15 +72,15 @@ const Header = ({
 }) => {
   const isMobile = useBreakpointValue({ base: true, md: true, lg: false });
   const router = useRouter();
-  const isCollapsed = useAuthStore((s) => s.isSidebarCollapsed);
-  const toggleSidebar = useAuthStore((s) => s.toggleSidebar);
+  const isCollapsed = useUIStore((s) => s.isSidebarCollapsed);
+  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const { handleLogout } = useAuth();
   const { logout, getUserProfilePictureUrl } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const searchParams = useSearchParams();
-  const hasUnreadMessages = useAuthStore((s) => s.hasUnreadMessages);
-  const unreadCount = useAuthStore((s) => s.unreadCount);
+  const hasUnreadMessages = useUIStore((s) => s.hasUnreadMessages);
+  const unreadCount = useUIStore((s) => s.unreadCount);
 
   const profilePictureUrl = getUserProfilePictureUrl?.() ?? null;
 

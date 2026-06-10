@@ -1,7 +1,7 @@
 import { API_ENDPOINTS, apiRequest } from "@/api";
 import { checkOrganisationInvite } from "@/services/organisation";
 import { getErrorMessage, getSuccessMessage } from "@/utils/apiErrorHandling";
-import { useAuthStore } from "@/store";
+import { useAuthStore, useOnboardingFlowStore } from "@/store";
 import {
   LoginData,
   PasswordResetData,
@@ -158,14 +158,14 @@ export const checkOnboardingStatus = async ({
           const phase: "user" | "organisation" = !memberComplete
             ? "user"
             : "organisation";
-          useAuthStore.getState().setOnboardingPhase(phase);
+          useOnboardingFlowStore.getState().setOnboardingPhase(phase);
           router.push("/onboarding/");
         }
         return;
       }
 
       if (redirectOnSuccess) {
-        useAuthStore.getState().setOnboardingPhase(null);
+        useOnboardingFlowStore.getState().setOnboardingPhase(null);
         router.push("/home/");
       }
     } catch (error: any) {
