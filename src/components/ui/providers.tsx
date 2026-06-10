@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { system } from "@/theme/theme";
 import { ProfileThemeProvider } from "@/components/ui/ProfileThemeProvider";
+import { useNotificationSocket } from "@/hooks/useNotificationSocket";
 import "@fortawesome/fontawesome-free/css/all.css";
 
 const queryClient = new QueryClient({
@@ -26,9 +27,17 @@ const queryClient = new QueryClient({
   },
 });
 
+// Mounted once for the lifetime of the tab so the notification websocket is
+// a singleton, independent of route/layout mounts and unmounts.
+function NotificationSocketBridge() {
+  useNotificationSocket();
+  return null;
+}
+
 export default function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
+      <NotificationSocketBridge />
       <ChakraProvider value={system}>
         <ProfileThemeProvider>
           <NextThemeProvider
