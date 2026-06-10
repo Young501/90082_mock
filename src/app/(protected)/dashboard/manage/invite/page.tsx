@@ -21,14 +21,12 @@ const InvitePage = () => {
     : coordinatorOpportunities[0];
   const opportunityId = selected?.id ? String(selected.id) : "";
 
-  const oppParam = oppSlug ? `&opp=${oppSlug}` : "";
-
   const handleSuccess = () => {
-    router.push(`/dashboard/manage?type=${type}${oppParam}`);
+    router.back();
   };
 
   const handleCancel = () => {
-    router.push(`/dashboard/manage?type=${type}${oppParam}`);
+    router.back();
   };
 
   if (type === "student") {
