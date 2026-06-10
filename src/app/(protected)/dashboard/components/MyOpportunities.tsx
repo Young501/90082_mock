@@ -95,6 +95,7 @@ function DashboardOpportunityCard({
                   alt={opp.title}
                   width={45}
                   height={45}
+                  style={{ width: "45px", height: "45px", objectFit: "contain" }}
                 />
               ) : (
                 <Image
@@ -102,7 +103,7 @@ function DashboardOpportunityCard({
                   alt="Placeholder"
                   width={45}
                   height={45}
-                  style={{ objectFit: "contain" }}
+                  style={{ width: "45px", height: "45px", objectFit: "contain" }}
                 />
               )}
             </Box>

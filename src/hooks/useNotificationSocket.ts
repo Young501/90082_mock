@@ -29,6 +29,7 @@ export function useNotificationSocket() {
 
     const wsBase = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:8000";
     let destroyed = false;
+    let pingInterval: ReturnType<typeof setInterval> | null = null;
 
     function connect() {
       if (destroyed) return;
@@ -40,6 +41,12 @@ export function useNotificationSocket() {
 
       ws.onopen = () => {
         reconnectDelay.current = 1000; // Reset backoff on successful connect
+
+        pingInterval = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: "ping" }));
+          }
+        }, 30000);
       };
 
       ws.onerror = (event) => {
@@ -49,6 +56,11 @@ export function useNotificationSocket() {
       };
 
       ws.onclose = (event) => {
+        if (pingInterval) {
+          clearInterval(pingInterval);
+          pingInterval = null;
+        }
+
         if (destroyed) return;
         // 4001 means the token is invalid — reconnecting won't help
         if (event.code === 4001) return;
@@ -60,6 +72,7 @@ export function useNotificationSocket() {
       ws.onmessage = (event) => {
         let data: {
           event?: string;
+          type?: string;
           message_id?: number;
           conversation_id?: number;
           sender_id?: number;
@@ -72,6 +85,10 @@ export function useNotificationSocket() {
           if (process.env.NODE_ENV === "development") {
             console.error("WebSocket: failed to parse message", event.data);
           }
+          return;
+        }
+
+        if (data.type === "pong") {
           return;
         }
 
