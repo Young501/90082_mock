@@ -722,7 +722,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   }, [userType, studentProfileV2, currentPage, setValue]);
 
-  // Prefill editable student fields (faculty, degree, course_stream, etc.) 
+  // Prefill editable student fields (faculty, degree, course_stream, etc.)
   useEffect(() => {
     if (
       userType !== "student" ||
@@ -1120,7 +1120,9 @@ export const OnboardingSteps = ({ userType }: Props) => {
       const allData = { ...formData, ...currentValues };
 
       if (userType === "coordinator") {
-        const allQuestions = flattenQuestions(pages.flatMap((p) => p.questions));
+        const allQuestions = flattenQuestions(
+          pages.flatMap((p) => p.questions)
+        );
         const { setUserProfilePictureUrl: setProfilePic } =
           useAuthStore.getState();
         await submitCoordinatorOnboarding(
@@ -1135,7 +1137,9 @@ export const OnboardingSteps = ({ userType }: Props) => {
       }
 
       if (userType === "student") {
-        const allQuestions = flattenQuestions(pages.flatMap((p) => p.questions));
+        const allQuestions = flattenQuestions(
+          pages.flatMap((p) => p.questions)
+        );
         const { setUserProfilePictureUrl: setProfilePic } =
           useAuthStore.getState();
         await submitStudentOnboardingV2(

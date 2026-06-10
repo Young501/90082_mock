@@ -103,27 +103,20 @@ export function ProfileEditDialog({
   const isOrganisationUser =
     useAuthStore((s) => s.getUserType()) === "organisation";
 
-  const {
-    data: freshStudentData,
-    isFetched: isStudentFetched,
-  } = useStudentProfileV2(isOpen && hasStudentProfileFields);
+  const { data: freshStudentData, isFetched: isStudentFetched } =
+    useStudentProfileV2(isOpen && hasStudentProfileFields);
 
-  const {
-    data: freshUserData,
-    isFetched: isUserFetched,
-  } = useUserMeV2(isOpen && hasUserFields);
-
-  const {
-    data: freshOrgMemberData,
-    isFetched: isOrgMemberFetched,
-  } = useOrganisationMemberMeV2(
-    isOpen && hasOrgMemberFields && isOrganisationUser
+  const { data: freshUserData, isFetched: isUserFetched } = useUserMeV2(
+    isOpen && hasUserFields
   );
 
-  const {
-    data: freshOrgProfileData,
-    isFetched: isOrgProfileFetched,
-  } = useOrganisationProfileV2(isOpen && hasOrgFields && isOrganisationUser);
+  const { data: freshOrgMemberData, isFetched: isOrgMemberFetched } =
+    useOrganisationMemberMeV2(
+      isOpen && hasOrgMemberFields && isOrganisationUser
+    );
+
+  const { data: freshOrgProfileData, isFetched: isOrgProfileFetched } =
+    useOrganisationProfileV2(isOpen && hasOrgFields && isOrganisationUser);
 
   const isFreshDataLoading =
     (hasStudentProfileFields && isOpen && !isStudentFetched) ||
