@@ -119,7 +119,7 @@ export const ResendForm: React.FC<ResendFormProps> = ({
           >
             <Mail size={14} color="#71717A" />
             <Text fontSize="sm" color="#18181B">
-              {participantName ? `${participantName} — ` : ""}
+              {participantName && participantName !== email ? `${participantName} — ` : ""}
               {email}
             </Text>
           </HStack>

@@ -34,8 +34,8 @@ const ResendPageContent = () => {
   const oppParam = oppSlug ? `&opp=${oppSlug}` : "";
   const manageUrl = `/dashboard/manage?type=${type}${oppParam}`;
 
-  const handleSuccess = () => router.push(manageUrl);
-  const handleCancel = () => router.push(manageUrl);
+  const handleSuccess = () => router.back();
+  const handleCancel = () => router.back();
 
   if (!type || !email) {
     return (
