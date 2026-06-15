@@ -5,7 +5,7 @@ import { UseMutationResult } from "@tanstack/react-query";
 import { Alert } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   useProfilePictureUpload,
   useResumeUpload,
@@ -1274,13 +1274,22 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   }, [logic.isLoading, logic.pages, router]);
 
-  // Gate the form mount until prefill data resolves so it can seed
-  // useForm({ defaultValues }) once, instead of patching values via setValue.
-  if (logic.isLoading || isPrefillLoading || prefillData === null) {
+  const hasMountedForm = useRef(false);
+  const isInitialGate =
+    !hasMountedForm.current &&
+    (logic.isLoading || isPrefillLoading || prefillData === null);
+
+  if (isInitialGate) {
     return <Loader type="page" />;
   }
 
+  hasMountedForm.current = true;
+
   return (
-    <OnboardingForm userType={userType} logic={logic} prefillData={prefillData} />
+    <OnboardingForm
+      userType={userType}
+      logic={logic}
+      prefillData={prefillData ?? {}}
+    />
   );
 };
