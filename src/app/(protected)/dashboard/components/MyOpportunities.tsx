@@ -88,16 +88,16 @@ function DashboardOpportunityCard({
       >
         <VStack align="stretch" gap={2}>
           <HStack align="flex-start" gap={3} flex={1} minW={0}>
-            <Box flexShrink={0} w="48px" h="48px">
+            <Box flexShrink={0} w="80px" h="80px">
               {opp.logo_url ? (
                 <Image
                   src={opp.logo_url as string}
                   alt={opp.title}
-                  width={45}
-                  height={45}
+                  width={80}
+                  height={80}
                   style={{
-                    width: "45px",
-                    height: "45px",
+                    width: "80px",
+                    height: "80px",
                     objectFit: "contain",
                   }}
                 />
@@ -105,11 +105,11 @@ function DashboardOpportunityCard({
                 <Image
                   src="/assets/opportunityLogoPlaceholder.svg"
                   alt="Placeholder"
-                  width={45}
-                  height={45}
+                  width={80}
+                  height={80}
                   style={{
-                    width: "45px",
-                    height: "45px",
+                    width: "80px",
+                    height: "80px",
                     objectFit: "contain",
                   }}
                 />

@@ -52,9 +52,16 @@ export const RenderOrganisationDetails = ({
   const [showContactModal, setShowContactModal] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
 
+  const getQuestionnaireValue = (field: string): unknown => {
+    const raw = organisation.questionnaire_answers;
+    if (!raw) return undefined;
+    if (Array.isArray(raw)) return raw.find((a) => a.field === field)?.value;
+    return raw[field]?.value;
+  };
+
   const activelyHiring =
-    organisation.questionnaire_answers?.actively_hiring?.value === true ||
-    organisation.questionnaire_answers?.actively_hiring?.value === "true";
+    getQuestionnaireValue("actively_hiring") === true ||
+    getQuestionnaireValue("actively_hiring") === "true";
 
   const getCompanyLogo = () => {
     if (organisation.logo_url) return organisation.logo_url;
@@ -317,9 +324,7 @@ export const RenderOrganisationDetails = ({
                         Actively Hiring
                       </Text>
                       {(() => {
-                        const roles =
-                          organisation.questionnaire_answers?.hiring_roles
-                            ?.value;
+                        const roles = getQuestionnaireValue("hiring_roles");
                         if (!Array.isArray(roles) || roles.length === 0)
                           return null;
                         return (
@@ -329,8 +334,7 @@ export const RenderOrganisationDetails = ({
                         );
                       })()}
                       <Text fontSize="sm" color="#3F3F46">
-                        {organisation.questionnaire_answers
-                          ?.actively_hiring_details?.value ||
+                        {(getQuestionnaireValue("actively_hiring_details") as string) ||
                           "Currently accepting students for placements and employment discussions."}
                       </Text>
                     </VStack>
@@ -634,6 +638,85 @@ export const RenderOrganisationDetails = ({
               </VStack>
             </VStack>
           )}
+
+          {(() => {
+            const raw = organisation.questionnaire_answers;
+            if (!raw) return null;
+            const SPECIAL_FIELDS = new Set([
+              "actively_hiring",
+              "hiring_roles",
+              "actively_hiring_details",
+            ]);
+            const answers = (
+              Array.isArray(raw)
+                ? raw
+                : Object.entries(raw).map(([field, entry]) => ({
+                    field,
+                    ...entry,
+                  }))
+            ).filter((a) => !SPECIAL_FIELDS.has(a.field));
+            if (answers.length === 0) return null;
+            return (
+              <VStack
+                gap={4}
+                align="stretch"
+                borderRadius="12px"
+                border="1px solid #E4E4E7"
+              >
+                <Box>
+                  <Text
+                    fontSize="md"
+                    fontWeight="600"
+                    color="#18181B"
+                    p={5}
+                    borderBottom="1px solid #E4E4E7"
+                  >
+                    Enrollment Answers
+                  </Text>
+                  <VStack align="stretch" gap={4} p={5}>
+                    {answers.map(({ field, label, value, is_follow_up }) => {
+                      if (!label) return null;
+                      const displayValue = Array.isArray(value)
+                        ? value.join(", ")
+                        : typeof value === "string"
+                          ? value
+                          : String(value ?? "");
+                      if (!displayValue) return null;
+                      return (
+                        <Box
+                          key={field}
+                          ml={is_follow_up ? 4 : 0}
+                          pl={is_follow_up ? 3 : 0}
+                          borderLeft={
+                            is_follow_up ? "2px solid #E4E4E7" : undefined
+                          }
+                        >
+                          <Text
+                            fontSize="xs"
+                            color="#71717A"
+                            mb={1}
+                            fontWeight="500"
+                          >
+                            {label}
+                          </Text>
+                          <Box
+                            px={3}
+                            py={2}
+                            bg="#F4F4F5"
+                            borderRadius="6px"
+                            fontSize="sm"
+                            color="black"
+                          >
+                            {displayValue}
+                          </Box>
+                        </Box>
+                      );
+                    })}
+                  </VStack>
+                </Box>
+              </VStack>
+            );
+          })()}
         </VStack>
       </Box>
 
