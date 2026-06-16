@@ -27,6 +27,13 @@ export interface UniversityLink {
   url: string;
 }
 
+export interface QuestionnaireAnswer {
+  field: string;
+  label: string | null;
+  value: unknown;
+  is_follow_up?: boolean;
+}
+
 export interface StudentProfile {
   id?: number;
   first_name?: string;
@@ -63,7 +70,7 @@ export interface StudentProfile {
   specialisations_other?: string;
   credentials_text?: string;
   opportunity_title?: string;
-  questionnaire_answers?: Record<string, any>;
+  questionnaire_answers?: QuestionnaireAnswer[] | Record<string, any>;
   matched?: boolean;
   match_score?: number;
   folder_member_id?: number;
@@ -104,7 +111,7 @@ export interface OrganisationProfile {
   discovery_pools?: string;
   faculty?: string;
   user?: number;
-  questionnaire_answers?: Record<string, any>;
+  questionnaire_answers?: QuestionnaireAnswer[] | Record<string, any>;
   allow_contact?: boolean;
   contact_email?: string;
   description?: string;

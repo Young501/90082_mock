@@ -1,4 +1,4 @@
-import { useAuthStore } from "@/store";
+import { useAuthStore, useUIStore } from "@/store";
 import { PROFILE_COLORS } from "@/theme/theme";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
@@ -19,7 +19,7 @@ export function useNotificationSocket() {
   const accentColor =
     PROFILE_COLORS[(userType as keyof typeof PROFILE_COLORS) ?? "student"] ??
     PROFILE_COLORS.student;
-  const setHasUnreadMessages = useAuthStore((s) => s.setHasUnreadMessages);
+  const setHasUnreadMessages = useUIStore((s) => s.setHasUnreadMessages);
   const queryClient = useQueryClient();
   const router = useRouter();
   const pathname = usePathname();

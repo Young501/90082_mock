@@ -20,7 +20,7 @@ import {
   messageListItemToMessage,
   conversationListItemToSummary,
 } from "@/types/messaging";
-import { useAuthStore } from "@/store";
+import { useAuthStore, useUIStore } from "@/store";
 
 const Inbox = () => {
   const router = useRouter();
@@ -77,7 +77,7 @@ const Inbox = () => {
     fetchNextConversationsPage,
   ]);
 
-  const setUnreadCount = useAuthStore((s) => s.setUnreadCount);
+  const setUnreadCount = useUIStore((s) => s.setUnreadCount);
 
   useEffect(() => {
     if (!showArchived) {

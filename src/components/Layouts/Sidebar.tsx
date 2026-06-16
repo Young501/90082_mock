@@ -28,6 +28,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
+import { useUIStore } from "@/store/uiStore";
 import type { AccessibleOpportunity } from "@/types/opportunities";
 
 const INACTIVE_COLOR = "#71717A";
@@ -55,7 +56,7 @@ const Sidebar = ({
   isProtected = true,
   setIsMobileMenuOpen = () => {},
 }: SidebarProps) => {
-  const hasUnreadMessages = useAuthStore((s) => s.hasUnreadMessages);
+  const hasUnreadMessages = useUIStore((s) => s.hasUnreadMessages);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();

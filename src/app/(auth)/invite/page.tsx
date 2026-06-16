@@ -87,7 +87,6 @@ export default function InvitePage() {
     try {
       setIsRedirecting(true);
       await acceptMutation.mutateAsync();
-      // useAuthStore.getState().setIsOrganisationMemberOnboarding(true);
       await checkOnboardingStatus({
         user: user!,
         router,

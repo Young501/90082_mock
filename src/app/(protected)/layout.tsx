@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import Sidebar from "@/components/Layouts/Sidebar";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuthStore } from "@/store/authStore";
+import { useUIStore } from "@/store/uiStore";
 import {
   useAccessibleOpportunities,
   useCoordinatorOpportunities,
@@ -56,7 +57,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
     }
   }, [coordinatorOpportunitiesData, setCoordinatorOpportunities]);
 
-  const setUnreadCount = useAuthStore((s) => s.setUnreadCount);
+  const setUnreadCount = useUIStore((s) => s.setUnreadCount);
   const { data: conversations } = useConversationsList({
     archived: false,
     page_size: 50,
@@ -72,7 +73,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
     }
   }, [conversations, setUnreadCount]);
 
-  const isCollapsed = useAuthStore((s) => s.isSidebarCollapsed);
+  const isCollapsed = useUIStore((s) => s.isSidebarCollapsed);
 
   const pathname = usePathname();
   const isOnboardingPage = pathname?.startsWith("/onboarding") ?? false;
