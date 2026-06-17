@@ -185,6 +185,7 @@ export const MessageBox = ({
                         showCopy={showCopy}
                         onMessageClick={onMessageClick}
                         onCloseActions={onCloseActions}
+                        onReply={() => onReply(message)}
                       />
                     )}
                     <Box
