@@ -12,7 +12,6 @@ const EXCLUDED_KEYS = new Set(["location", "university"]);
 const isExcludedKey = (key: string): boolean =>
   EXCLUDED_KEYS.has(key) || key.endsWith("_url");
 
-
 const normalizeValue = (value: any): any => {
   if (value == null) return undefined;
   if (value instanceof File) return undefined;
@@ -71,7 +70,6 @@ interface UsePrefillDataResult {
   prefillData: PrefillData | null;
   isLoading: boolean;
 }
-
 
 export const usePrefillData = (userType: string): UsePrefillDataResult => {
   const isStudent = userType === "student";

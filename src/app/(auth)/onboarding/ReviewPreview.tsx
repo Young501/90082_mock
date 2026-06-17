@@ -29,7 +29,9 @@ function ImagePreview({ value }: { value: any }) {
       setSrc(url);
       return () => URL.revokeObjectURL(url);
     }
-    setSrc(typeof value === "string" && value.startsWith("http") ? value : null);
+    setSrc(
+      typeof value === "string" && value.startsWith("http") ? value : null
+    );
     return undefined;
   }, [value]);
 

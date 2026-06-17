@@ -65,7 +65,9 @@ export const useOnboardingLogic = (userType: string) => {
   const onboardingPhaseFromStore = useOnboardingFlowStore(
     (s) => s.onboardingPhase
   );
-  const setOnboardingPhase = useOnboardingFlowStore((s) => s.setOnboardingPhase);
+  const setOnboardingPhase = useOnboardingFlowStore(
+    (s) => s.setOnboardingPhase
+  );
 
   const derivedPhase: "user" | "organisation" = useMemo(() => {
     if (userType !== "organisation") return "user";
