@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Text,
@@ -20,12 +20,20 @@ import Link from "next/link";
 
 const SKIP_TYPES = ["display"];
 
-function ImagePreview({ src, isFile }: { src: string; isFile: boolean }) {
+function ImagePreview({ value }: { value: any }) {
+  const [src, setSrc] = useState<string | null>(null);
+
   useEffect(() => {
-    if (isFile && src.startsWith("blob:")) {
-      return () => URL.revokeObjectURL(src);
+    if (value instanceof File) {
+      const url = URL.createObjectURL(value);
+      setSrc(url);
+      return () => URL.revokeObjectURL(url);
     }
-  }, [src, isFile]);
+    setSrc(typeof value === "string" && value.startsWith("http") ? value : null);
+    return undefined;
+  }, [value]);
+
+  if (!src) return null;
 
   return (
     <Box
@@ -79,13 +87,6 @@ function TaxonomyLabelsDisplay({
       ))}
     </Flex>
   );
-}
-
-function getPreviewUrl(value: any): string | null {
-  if (!value) return null;
-  if (typeof value === "string" && value.startsWith("http")) return value;
-  if (value instanceof File) return URL.createObjectURL(value);
-  return null;
 }
 
 interface ReviewPreviewProps {
@@ -144,9 +145,11 @@ export function ReviewPreview({
     }
 
     if (question.type === "file-image") {
-      const src = getPreviewUrl(value);
-      if (src) {
-        return <ImagePreview src={src} isFile={value instanceof File} />;
+      const isPreviewable =
+        value instanceof File ||
+        (typeof value === "string" && value.startsWith("http"));
+      if (isPreviewable) {
+        return <ImagePreview value={value} />;
       }
       return <Text color="#A1A1AA">Image uploaded</Text>;
     }
