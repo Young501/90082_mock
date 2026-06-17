@@ -81,6 +81,14 @@ export function OrganisationCard({
       : sectorText || industryText || "";
   const matchScore = organisation.match_score;
   const locationText = formatLocationDisplay(organisation.location);
+
+  const getQuestionnaireValue = (field: string): unknown => {
+    const raw = organisation.questionnaire_answers;
+    if (!raw) return undefined;
+    if (Array.isArray(raw)) return raw.find((a) => a.field === field)?.value;
+    return raw[field]?.value;
+  };
+
   const distanceText =
     organisation.distance_km != null
       ? `${organisation.distance_km % 1 === 0 ? organisation.distance_km : organisation.distance_km.toFixed(1)} km`
@@ -141,16 +149,14 @@ export function OrganisationCard({
                     {organisation.name}
                   </Text>
                 </Tooltip>
-                {organisation.questionnaire_answers?.actively_hiring?.value && (
+                {!!getQuestionnaireValue("actively_hiring") && (
                   <Tooltip
                     content={
-                      organisation.questionnaire_answers
-                        ?.actively_hiring_details?.value
+                      getQuestionnaireValue("actively_hiring_details") as
+                        | string
+                        | undefined
                     }
-                    disabled={
-                      !organisation.questionnaire_answers
-                        ?.actively_hiring_details?.value
-                    }
+                    disabled={!getQuestionnaireValue("actively_hiring_details")}
                   >
                     <Box
                       flexShrink={0}
