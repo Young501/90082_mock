@@ -20,8 +20,8 @@ interface GeocodeAutocompleteInputProps {
   error?: string;
   isProfilePage?: boolean;
   label?: string;
-  name?: string;
-  control?: Control<any>;
+  name: string;
+  control: Control<any>;
   icon?: string;
 }
 
@@ -60,15 +60,12 @@ export const GeocodeAutocompleteInput = memo(
     const inputRef = useRef<HTMLInputElement>(null);
     const isLoadingRef = useRef(false);
 
-    const controller =
-      control && name
-        ? useController({
-            name,
-            control,
-          })
-        : null;
+    const controller = useController({ name, control });
 
-    const fieldError = error || controller?.fieldState?.error?.message;
+    const controllerRef = useRef(controller);
+    controllerRef.current = controller;
+
+    const fieldError = error || controller.fieldState?.error?.message;
 
     const geocodeMutation = useGeocode();
     const debouncedInputValue = useDebounce(inputValue, 1000);
@@ -169,8 +166,8 @@ export const GeocodeAutocompleteInput = memo(
 
         // If the user clears the input, reset the controller so required validation fires.
         // Otherwise leave the controller alone — only handleSelect writes a valid value.
-        if (controller && !newValue.trim()) {
-          controller.field.onChange("");
+        if (!newValue.trim()) {
+          controllerRef.current.field.onChange("");
         }
 
         if (newValue.trim().length >= 2) {
@@ -180,7 +177,7 @@ export const GeocodeAutocompleteInput = memo(
           setResults([]);
         }
       },
-      [onChange, controller]
+      [onChange]
     );
 
     const handleSelect = useCallback(
@@ -194,9 +191,7 @@ export const GeocodeAutocompleteInput = memo(
         onChange(formattedAddress);
         onSelect(mapped);
 
-        if (controller) {
-          controller.field.onChange(mapped);
-        }
+        controllerRef.current.field.onChange(mapped);
 
         if (isProfilePage && onLocationUpdate) {
           onLocationUpdate(mapped);
@@ -204,7 +199,7 @@ export const GeocodeAutocompleteInput = memo(
 
         setIsOpen(false);
       },
-      [onChange, onSelect, isProfilePage, onLocationUpdate, controller]
+      [onChange, onSelect, isProfilePage, onLocationUpdate]
     );
 
     const handleInputBlur = useCallback(() => {
@@ -224,10 +219,11 @@ export const GeocodeAutocompleteInput = memo(
     useEffect(() => {
       const str = normalizeToString(value);
       setInputValue(str);
-      if (controller && controller.field.value !== value) {
-        controller.field.onChange(str);
+      const ctrl = controllerRef.current;
+      if (ctrl.field.value !== value) {
+        ctrl.field.onChange(str);
       }
-    }, [value, controller]);
+    }, [value]);
 
     const startElement = (
       <Box display="flex" alignItems="center">
@@ -270,11 +266,11 @@ export const GeocodeAutocompleteInput = memo(
                 borderColor: "#E4E4E7",
                 boxShadow: "0 0 0 1px #E4E4E7",
               }}
-              {...(controller ? controller.field : {})}
+              {...controller.field}
               value={inputValue ?? ""}
               onChange={handleInputChange}
               onBlur={(e) => {
-                controller?.field.onBlur();
+                controller.field.onBlur();
                 handleInputBlur();
               }}
               ref={inputRef}

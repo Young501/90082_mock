@@ -629,7 +629,10 @@ export const RenderStudentDetails = ({
             if (!raw) return null;
             const answers = Array.isArray(raw)
               ? raw
-              : Object.entries(raw).map(([field, entry]) => ({ field, ...entry }));
+              : Object.entries(raw).map(([field, entry]) => ({
+                  field,
+                  ...entry,
+                }));
             if (answers.length === 0) return null;
             return (
               <VStack

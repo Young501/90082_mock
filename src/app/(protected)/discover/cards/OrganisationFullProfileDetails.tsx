@@ -334,7 +334,9 @@ export const RenderOrganisationDetails = ({
                         );
                       })()}
                       <Text fontSize="sm" color="#3F3F46">
-                        {(getQuestionnaireValue("actively_hiring_details") as string) ||
+                        {(getQuestionnaireValue(
+                          "actively_hiring_details"
+                        ) as string) ||
                           "Currently accepting students for placements and employment discussions."}
                       </Text>
                     </VStack>
