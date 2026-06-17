@@ -20,8 +20,8 @@ interface GeocodeAutocompleteInputProps {
   error?: string;
   isProfilePage?: boolean;
   label?: string;
-  name?: string;
-  control?: Control<any>;
+  name: string;
+  control: Control<any>;
   icon?: string;
 }
 
@@ -60,10 +60,7 @@ export const GeocodeAutocompleteInput = memo(
     const inputRef = useRef<HTMLInputElement>(null);
     const isLoadingRef = useRef(false);
 
-    const controller = useController({
-      name: name ?? "",
-      control: control as Control<any>,
-    });
+    const controller = useController({ name, control });
 
     const controllerRef = useRef(controller);
     controllerRef.current = controller;

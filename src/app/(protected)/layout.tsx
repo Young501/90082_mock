@@ -17,7 +17,6 @@ import {
 import type { AccessibleOpportunity } from "@/types/opportunities";
 import { useConversationsList } from "@/services/messaging";
 import type { UserDetailsV2 } from "@/types/user";
-import { useNotificationSocket } from "@/hooks/useNotificationSocket";
 
 function LayoutContent({ children }: { children: ReactNode }) {
   const userType = useAuthStore((s) => s.getUserType()) ?? "";
@@ -78,8 +77,6 @@ function LayoutContent({ children }: { children: ReactNode }) {
 
   const pathname = usePathname();
   const isOnboardingPage = pathname?.startsWith("/onboarding") ?? false;
-
-  useNotificationSocket();
 
   return (
     <ProtectedRoute>

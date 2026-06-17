@@ -12,7 +12,6 @@ const EXCLUDED_KEYS = new Set(["location", "university"]);
 const isExcludedKey = (key: string): boolean =>
   EXCLUDED_KEYS.has(key) || key.endsWith("_url");
 
-
 const normalizeValue = (value: any): any => {
   if (value == null) return undefined;
   if (value instanceof File) return undefined;
@@ -37,7 +36,7 @@ const normalizeValue = (value: any): any => {
   return value;
 };
 
-/** Build prefill from prodile **/
+/** Build prefill from profile */
 const buildPrefill = (source: PrefillData | undefined | null): PrefillData => {
   if (!source) return {};
   const prefill: PrefillData = {};
@@ -72,7 +71,6 @@ interface UsePrefillDataResult {
   isLoading: boolean;
 }
 
-
 export const usePrefillData = (userType: string): UsePrefillDataResult => {
   const isStudent = userType === "student";
   const isOrganisation = userType === "organisation";
@@ -103,11 +101,15 @@ export const usePrefillData = (userType: string): UsePrefillDataResult => {
 
     if (isOrganisation) {
       // 404 (no org member yet) resolves to undefined, empty prefill.
-      return pickFields(organisationMember, [
+      const picked = pickFields(organisationMember, [
         "first_name",
         "last_name",
         "job_title",
       ]);
+      if (organisationMember?.profile_picture_url) {
+        picked.profile_picture = organisationMember.profile_picture_url;
+      }
+      return picked;
     }
 
     if (isCoordinator) {

@@ -89,22 +89,22 @@ export const OpportunityDescriptionCard = ({
             >
               <Box
                 flexShrink={0}
-                w={{ base: "36px", md: "60px" }}
-                h={{ base: "36px", md: "60px" }}
+                w={{ base: "52px", md: "80px" }}
+                h={{ base: "52px", md: "80px" }}
               >
                 {opportunity.logo_url ? (
                   <Image
                     src={opportunity.logo_url}
                     alt={opportunity.title}
-                    width={56}
-                    height={56}
+                    width={80}
+                    height={80}
                   />
                 ) : (
                   <Image
                     src="/assets/opportunityLogoPlaceholder.svg"
                     alt="Placeholder"
-                    width={56}
-                    height={56}
+                    width={80}
+                    height={80}
                     style={{ objectFit: "contain" }}
                   />
                 )}

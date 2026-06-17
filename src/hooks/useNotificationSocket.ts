@@ -5,6 +5,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
+// Module-level singleton guard. The hook is intended to be mounted once for
+// the lifetime of the tab (at the app root), but this guard ensures that even
+// if it ends up mounted more than once (e.g. duplicate provider instances),
+// only one physical WebSocket connection is ever opened per token.
+let sharedSocket: WebSocket | null = null;
+let sharedSocketToken: string | null = null;
+
 export function useNotificationSocket() {
   const token = useAuthStore((s) => s.token);
   const user = useAuthStore((s) => s.user);
@@ -34,10 +41,24 @@ export function useNotificationSocket() {
     function connect() {
       if (destroyed) return;
 
+      // Reuse an existing live connection for this token instead of opening
+      // a duplicate one.
+      if (
+        sharedSocket &&
+        sharedSocketToken === token &&
+        (sharedSocket.readyState === WebSocket.OPEN ||
+          sharedSocket.readyState === WebSocket.CONNECTING)
+      ) {
+        wsRef.current = sharedSocket;
+        return;
+      }
+
       const ws = new WebSocket(
         `${wsBase}/ws/messaging/notifications/?token=${encodeURIComponent(token!)}`
       );
       wsRef.current = ws;
+      sharedSocket = ws;
+      sharedSocketToken = token;
 
       ws.onopen = () => {
         reconnectDelay.current = 1000; // Reset backoff on successful connect
@@ -59,6 +80,11 @@ export function useNotificationSocket() {
         if (pingInterval) {
           clearInterval(pingInterval);
           pingInterval = null;
+        }
+
+        if (sharedSocket === ws) {
+          sharedSocket = null;
+          sharedSocketToken = null;
         }
 
         if (destroyed) return;
@@ -132,6 +158,10 @@ export function useNotificationSocket() {
 
     return () => {
       destroyed = true;
+      if (sharedSocket === wsRef.current) {
+        sharedSocket = null;
+        sharedSocketToken = null;
+      }
       wsRef.current?.close();
     };
   }, [token, user?.id, accentColor, queryClient, router, setHasUnreadMessages]);

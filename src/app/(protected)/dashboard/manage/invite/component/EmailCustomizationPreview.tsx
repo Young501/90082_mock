@@ -11,7 +11,7 @@ import {
   Flex,
   Spinner,
 } from "@chakra-ui/react";
-import { Eye, MessageSquare } from "lucide-react";
+import { Eye, ExternalLink, MessageSquare } from "lucide-react";
 import { useInvitePreview, useInvitePreviewRefresh } from "@/services/shared";
 import {
   validateContent,
@@ -202,9 +202,30 @@ export const EmailCustomizationPreview: React.FC<
         borderTop={{ base: "1px solid #E4E4E7", lg: "none" }}
         pt={{ base: 6, lg: 0 }}
       >
-        <Text fontSize="sm" fontWeight="600" color="#3F3F46">
-          Preview
-        </Text>
+        <HStack justify="space-between" align="center">
+          <Text fontSize="sm" fontWeight="600" color="#3F3F46">
+            Preview
+          </Text>
+          {renderedHtml && previewTab === "email" && (
+            <Box
+              as="button"
+              display="flex"
+              alignItems="center"
+              gap="4px"
+              fontSize="xs"
+              color="#1679AB"
+              _hover={{ color: "#125f8a" }}
+              onClick={() => {
+                const blob = new Blob([renderedHtml], { type: "text/html" });
+                const url = URL.createObjectURL(blob);
+                window.open(url, "_blank");
+              }}
+            >
+              <ExternalLink size={12} />
+              <span>Open full page</span>
+            </Box>
+          )}
+        </HStack>
 
         <HStack
           gap={0}

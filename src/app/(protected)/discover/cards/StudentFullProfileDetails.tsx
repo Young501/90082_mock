@@ -624,8 +624,17 @@ export const RenderStudentDetails = ({
             )}
           </VStack>
 
-          {student.questionnaire_answers &&
-            Object.keys(student.questionnaire_answers).length > 0 && (
+          {(() => {
+            const raw = student.questionnaire_answers;
+            if (!raw) return null;
+            const answers = Array.isArray(raw)
+              ? raw
+              : Object.entries(raw).map(([field, entry]) => ({
+                  field,
+                  ...entry,
+                }));
+            if (answers.length === 0) return null;
+            return (
               <VStack
                 gap={4}
                 align="stretch"
@@ -645,47 +654,49 @@ export const RenderStudentDetails = ({
                       : "Enrollment Answers"}
                   </Text>
                   <VStack align="stretch" gap={4} p={5}>
-                    {Object.entries(student.questionnaire_answers).map(
-                      ([field, entry]) => {
-                        const { label, value } = entry as {
-                          label: string | null;
-                          value: unknown;
-                        };
-                        if (!label) return null;
-                        const displayValue = Array.isArray(value)
-                          ? value.join(", ")
-                          : typeof value === "string"
-                            ? value
-                            : String(value ?? "");
-                        if (!displayValue) return null;
-                        return (
-                          <Box key={field}>
-                            <Text
-                              fontSize="xs"
-                              color="#71717A"
-                              mb={1}
-                              fontWeight="500"
-                            >
-                              {label}
-                            </Text>
-                            <Box
-                              px={3}
-                              py={2}
-                              bg="#F4F4F5"
-                              borderRadius="6px"
-                              fontSize="sm"
-                              color="black"
-                            >
-                              {displayValue}
-                            </Box>
+                    {answers.map(({ field, label, value, is_follow_up }) => {
+                      if (!label) return null;
+                      const displayValue = Array.isArray(value)
+                        ? value.join(", ")
+                        : typeof value === "string"
+                          ? value
+                          : String(value ?? "");
+                      if (!displayValue) return null;
+                      return (
+                        <Box
+                          key={field}
+                          ml={is_follow_up ? 4 : 0}
+                          pl={is_follow_up ? 3 : 0}
+                          borderLeft={
+                            is_follow_up ? "2px solid #E4E4E7" : undefined
+                          }
+                        >
+                          <Text
+                            fontSize="xs"
+                            color="#71717A"
+                            mb={1}
+                            fontWeight="500"
+                          >
+                            {label}
+                          </Text>
+                          <Box
+                            px={3}
+                            py={2}
+                            bg="#F4F4F5"
+                            borderRadius="6px"
+                            fontSize="sm"
+                            color="black"
+                          >
+                            {displayValue}
                           </Box>
-                        );
-                      }
-                    )}
+                        </Box>
+                      );
+                    })}
                   </VStack>
                 </Box>
               </VStack>
-            )}
+            );
+          })()}
 
           <VStack
             gap={4}
