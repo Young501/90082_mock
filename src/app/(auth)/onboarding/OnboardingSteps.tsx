@@ -12,12 +12,12 @@ import {
   useOrganisationLogoUploadV2,
   useStudentProfileUpdateV2,
   useUserMeUpdateV2,
-  useStudentProfileV2,
   useOrganisationMemberUpdateV2,
   useOrganisationProfileUpdateV2,
   useOrganisationProfileCreateV2,
 } from "@/services/shared";
 import { useOnboardingLogic } from "@/hooks/useOnboardingLogic";
+import { usePrefillData } from "@/hooks/usePrefillData";
 import { createPageSchema } from "@/utils/validationSchemas";
 import { flattenQuestions } from "@/utils/questionnaireParser";
 import { FieldRenderer } from "./FieldRenderer";
@@ -60,27 +60,6 @@ const ORGANISATION_STRIP_FIELDS = [
   "logo",
   "location_geocode_lookup",
 ];
-
-/**
- * Normalize a value coming from the user profile into the shape
- */
-function normalizeProfileFieldValue(value: any): any {
-  if (value == null) return undefined;
-  if (value instanceof File) return undefined;
-  if (Array.isArray(value)) {
-    const items = value
-      .map((v) =>
-        v && typeof v === "object" ? (v.value ?? v.code ?? v.id) : v
-      )
-      .filter((v) => v != null && v !== "");
-    return items.length > 0 ? items : undefined;
-  }
-  if (typeof value === "object") {
-    return value.value ?? value.code ?? value.id ?? undefined;
-  }
-  if (typeof value === "string" && value.trim() === "") return undefined;
-  return value;
-}
 
 async function submitStudentOnboardingV2(
   allData: Record<string, any>,
@@ -458,7 +437,19 @@ async function submitOrganisationOnboardingV2(
   }
 }
 
-export const OnboardingSteps = ({ userType }: Props) => {
+type OnboardingLogic = ReturnType<typeof useOnboardingLogic>;
+
+interface OnboardingFormProps {
+  userType: string;
+  logic: OnboardingLogic;
+  prefillData: Record<string, any>;
+}
+
+const OnboardingForm = ({
+  userType,
+  logic,
+  prefillData,
+}: OnboardingFormProps) => {
   const router = useRouter();
   const {
     pages,
@@ -480,19 +471,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
     canGoBackToUserPhase,
     totalSteps,
     currentStep,
-    prefilledData,
     shouldCreateOrganisationProfile,
-  } = useOnboardingLogic(userType);
-
-  useEffect(() => {
-    if (!isLoading && pages) {
-      if (!pages || pages.length === 0) {
-        toast.info("No onboarding required. Redirecting to Home");
-        router.push("/home/");
-        return;
-      }
-    }
-  }, [isLoading, pages, router]);
+  } = logic;
 
   useEffect(() => {
     setAbnStatus("idle");
@@ -510,31 +490,13 @@ export const OnboardingSteps = ({ userType }: Props) => {
     useState<boolean>(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false);
   const [isOrgSubmitting, setIsOrgSubmitting] = useState<boolean>(false);
-  const [formData, setFormData] = useState<Record<string, any>>({});
-  const [formKey, setFormKey] = useState<number>(0);
-  const [parentValues, setParentValues] = useState<Record<string, any>>({});
   const [showReviewPreview, setShowReviewPreview] = useState<boolean>(false);
   const [abnStatus, setAbnStatus] = useState<AbnValidationStatus>("idle");
-  const [accumulatedOrgMemberData, setAccumulatedOrgMemberData] = useState<
-    Record<string, any>
-  >({});
-  const [accumulatedOrgData, setAccumulatedOrgData] = useState<
-    Record<string, any>
-  >({});
-  const [reviewFormDataSnapshot, setReviewFormDataSnapshot] = useState<Record<
-    string,
-    any
-  > | null>(null);
-  const hasAppliedPrefilledRef = useRef(false);
-  const hasAppliedStudentPrefillRef = useRef(false);
   const studentProfileUpdateV2 = useStudentProfileUpdateV2();
   const userMeUpdateV2 = useUserMeUpdateV2();
   const organisationProfileUpdateV2 = useOrganisationProfileUpdateV2();
   const organisationProfileCreateV2 = useOrganisationProfileCreateV2();
   const organisationMemberUpdateV2 = useOrganisationMemberUpdateV2();
-  const { data: studentProfileV2 } = useStudentProfileV2(
-    userType === "student"
-  );
   const profilePictureUpload = useProfilePictureUpload();
   const resumeUpload = useResumeUpload();
   const logoUpload = useOrganisationLogoUploadV2();
@@ -552,13 +514,13 @@ export const OnboardingSteps = ({ userType }: Props) => {
     setError,
     clearErrors,
     unregister,
-    reset,
     watch,
   } = useForm({
     resolver: yupResolver(schema),
     mode: "onChange",
     reValidateMode: "onChange",
     shouldUnregister: false,
+    defaultValues: prefillData,
   });
 
   const { setLogoUrl, userProfile } = useAuthStore();
@@ -606,17 +568,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
     return fields;
   };
 
-  const getChildFields = useCallback((question: Question): string[] => {
-    const fields: string[] = [];
-    if (question.followup_question) {
-      Object.values(question.followup_question).forEach((followup) => {
-        fields.push(followup.field);
-        fields.push(...getChildFields(followup));
-      });
-    }
-    return fields;
-  }, []);
-
   const cleanupInvisibleFields = async (): Promise<void> => {
     if (!currentPage) return;
 
@@ -660,10 +611,8 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   };
 
+  // Reset transient validation UI and clear stale errors when the page changes.
   useEffect(() => {
-    const currentValues = getValues();
-    setFormData((prev) => ({ ...prev, ...currentValues }));
-
     setShowValidationError(false);
     setHasAttemptedSubmit(false);
     setSubmitError("");
@@ -678,116 +627,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
         }
       }, 50);
     }
-  }, [
-    currentPage?.id,
-    getValues,
-    currentPage,
-    clearErrors,
-    getAllPossibleFields,
-  ]);
-
-  useEffect(() => {
-    if (currentPage && Object.keys(formData).length > 0) {
-      const timeoutId = setTimeout(() => {
-        Object.entries(formData).forEach(([field, value]) => {
-          if (value !== undefined) {
-            setValue(field, value, { shouldValidate: false });
-          }
-        });
-      }, 150);
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [setValue, formData, currentPage]);
-
-  // Pre-populate display fields (e.g. university) from student profile v2
-  useEffect(() => {
-    if (
-      userType === "student" &&
-      studentProfileV2 &&
-      currentPage?.questions.some((q) => q.type === "display")
-    ) {
-      currentPage.questions.forEach((q) => {
-        if (q.type === "display" && q.model === "student_profile") {
-          const val = (studentProfileV2 as Record<string, any>)[q.field];
-          if (val != null) {
-            const displayVal =
-              typeof val === "object" && val?.label != null
-                ? val.label
-                : String(val);
-            setValue(q.field, displayVal, { shouldValidate: false });
-          }
-        }
-      });
-    }
-  }, [userType, studentProfileV2, currentPage, setValue]);
-
-  // Prefill editable student fields (faculty, degree, course_stream, etc.)
-  useEffect(() => {
-    if (
-      userType !== "student" ||
-      !studentProfileV2 ||
-      pages.length === 0 ||
-      hasAppliedStudentPrefillRef.current
-    ) {
-      return;
-    }
-
-    const profile = studentProfileV2 as Record<string, any>;
-    const allQuestions = flattenQuestions(pages.flatMap((p) => p.questions));
-
-    const prefill: Record<string, any> = {};
-    allQuestions.forEach((q) => {
-      // exclude field type display
-      if (q.type === "display") return;
-      if (!(q.field in profile)) return;
-      const normalized = normalizeProfileFieldValue(profile[q.field]);
-      if (normalized !== undefined) {
-        prefill[q.field] = normalized;
-      }
-    });
-
-    if (Object.keys(prefill).length === 0) return;
-
-    hasAppliedStudentPrefillRef.current = true;
-    setFormData((prev) => ({ ...prev, ...prefill }));
-    Object.entries(prefill).forEach(([field, value]) => {
-      setValue(field, value, { shouldValidate: false });
-    });
-  }, [userType, studentProfileV2, pages, setValue]);
-
-  // Prefill organisation user phase with existing member if info exists
-  useEffect(() => {
-    if (
-      userType === "organisation" &&
-      currentPhase === "user" &&
-      prefilledData &&
-      Object.keys(prefilledData).length > 0 &&
-      !hasAppliedPrefilledRef.current
-    ) {
-      hasAppliedPrefilledRef.current = true;
-      setFormData((prev) => ({ ...prefilledData, ...prev }));
-      Object.entries(prefilledData).forEach(([field, value]) => {
-        if (value !== undefined && value !== null) {
-          setValue(field, value, { shouldValidate: false });
-        }
-      });
-    }
-  }, [userType, currentPhase, prefilledData, setValue]);
-
-  useEffect(() => {
-    if (formKey > 0 && Object.keys(formData).length > 0) {
-      const timeoutId = setTimeout(() => {
-        Object.entries(formData).forEach(([field, value]) => {
-          if (value !== undefined) {
-            setValue(field, value, { shouldValidate: false });
-          }
-        });
-      }, 50);
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [formKey, setValue, formData]);
+  }, [currentPage?.id, currentPage, clearErrors, getAllPossibleFields]);
 
   useEffect(() => {
     if (hasAttemptedSubmit) {
@@ -813,71 +653,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
     }
   }, [watch, trigger, currentPage]);
 
-  const isFollowupOf = useCallback(
-    (
-      fieldName: string,
-      parentField: string,
-      questions: Question[]
-    ): boolean => {
-      for (const question of questions) {
-        if (question.field === parentField && question.followup_question) {
-          for (const followup of Object.values(question.followup_question)) {
-            if (followup.field === fieldName) {
-              return true;
-            }
-            if (followup.followup_question) {
-              for (const nestedFollowup of Object.values(
-                followup.followup_question
-              )) {
-                if (nestedFollowup.field === fieldName) {
-                  return true;
-                }
-              }
-            }
-          }
-        }
-        if (question.followup_question) {
-          for (const followup of Object.values(question.followup_question)) {
-            if (isFollowupOf(fieldName, parentField, [followup])) {
-              return true;
-            }
-          }
-        }
-      }
-      return false;
-    },
-    []
-  );
-
-  const getFollowupFields = useCallback(
-    (parentField: string, questions: Question[]): string[] => {
-      const fields: string[] = [];
-
-      for (const question of questions) {
-        if (question.field === parentField && question.followup_question) {
-          for (const followup of Object.values(question.followup_question)) {
-            fields.push(followup.field);
-            if (followup.followup_question) {
-              for (const nestedFollowup of Object.values(
-                followup.followup_question
-              )) {
-                fields.push(nestedFollowup.field);
-              }
-            }
-          }
-        }
-        if (question.followup_question) {
-          for (const followup of Object.values(question.followup_question)) {
-            fields.push(...getFollowupFields(parentField, [followup]));
-          }
-        }
-      }
-
-      return fields;
-    },
-    []
-  );
-
   const handleFieldUnregistered = useCallback(
     (fieldName: string) => {
       setTimeout(() => {
@@ -897,15 +672,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
       const memberPages = organisationPageStructure.memberPages;
       const lastMemberPage = memberPages[memberPages.length - 1];
       if (lastMemberPage) {
-        const currentOrgData = { ...formData, ...getValues() };
-        setAccumulatedOrgData(currentOrgData);
-        const memberDataToRestore =
-          Object.keys(accumulatedOrgMemberData).length > 0
-            ? accumulatedOrgMemberData
-            : { ...formData, ...getValues() };
         goToPhaseAndPage("user", lastMemberPage.id);
-        setFormData(memberDataToRestore);
-        reset(memberDataToRestore, { keepDefaultValues: false });
       }
     } else {
       goToPreviousPage();
@@ -913,67 +680,9 @@ export const OnboardingSteps = ({ userType }: Props) => {
   }, [
     canGoBackToUserPhase,
     organisationPageStructure,
-    accumulatedOrgMemberData,
-    formData,
-    getValues,
     goToPhaseAndPage,
     goToPreviousPage,
-    reset,
-    setAccumulatedOrgData,
   ]);
-
-  const handleParentValueChange = useCallback(
-    (fieldName: string, newValue: any) => {
-      const currentParentValue = parentValues[fieldName];
-      if (currentParentValue !== newValue) {
-        setParentValues((prev) => ({ ...prev, [fieldName]: newValue }));
-
-        const currentValues = getValues();
-        const newFormData: Record<string, any> = {};
-
-        Object.entries(currentValues).forEach(([key, value]) => {
-          if (
-            key !== fieldName &&
-            !isFollowupOf(key, fieldName, currentPage?.questions || [])
-          ) {
-            newFormData[key] = value;
-          }
-        });
-
-        newFormData[fieldName] = newValue;
-
-        setFormData(newFormData);
-
-        if (currentPage) {
-          const fieldsToClear = getFollowupFields(
-            fieldName,
-            currentPage.questions
-          );
-          setTimeout(() => {
-            fieldsToClear.forEach((field) => {
-              unregister(field);
-              clearErrors(field);
-            });
-          }, 50);
-        }
-
-        setTimeout(() => {
-          setFormKey((prev) => prev + 1);
-          reset();
-        }, 100);
-      }
-    },
-    [
-      parentValues,
-      getValues,
-      currentPage,
-      unregister,
-      clearErrors,
-      reset,
-      getFollowupFields,
-      isFollowupOf,
-    ]
-  );
 
   const onNext = async () => {
     setHasAttemptedSubmit(true);
@@ -1024,21 +733,10 @@ export const OnboardingSteps = ({ userType }: Props) => {
       if (isValid && !abnBlocked) {
         setShowValidationError(false);
         setSubmitError("");
-        const currentValues = getValues();
-        const memberData = { ...formData, ...currentValues };
-        setAccumulatedOrgMemberData(memberData);
         setShowReviewPreview(false);
-        setReviewFormDataSnapshot(null);
+        // Member-phase answers persist in the form state (shouldUnregister: false),
+        // so getValues() still carries them once we advance to the org phase.
         startOrganisationPhase();
-        if (Object.keys(accumulatedOrgData).length > 0) {
-          setFormData(accumulatedOrgData);
-          reset(accumulatedOrgData, { keepDefaultValues: false });
-          setAccumulatedOrgData({});
-        } else {
-          setFormData({});
-          reset();
-        }
-        setFormKey(0);
       } else {
         if (abnBlocked) {
           setSubmitError(ABN_BLOCK_MESSAGE);
@@ -1067,17 +765,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
       if (isValid && !abnBlocked) {
         setShowValidationError(false);
         setSubmitError("");
-        const currentValues = getValues();
-        const snapshot =
-          userType === "organisation" && organisationPageStructure
-            ? {
-                ...accumulatedOrgMemberData,
-                ...accumulatedOrgData,
-                ...formData,
-                ...currentValues,
-              }
-            : { ...formData, ...currentValues };
-        setReviewFormDataSnapshot(snapshot);
         setShowReviewPreview(true);
       } else {
         if (abnBlocked) {
@@ -1116,8 +803,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
         return;
       }
 
-      const currentValues = getValues();
-      const allData = { ...formData, ...currentValues };
+      const allData = getValues();
 
       if (userType === "coordinator") {
         const allQuestions = flattenQuestions(
@@ -1160,12 +846,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
           useAuthStore.getState();
 
         const isFromReview = showReviewPreview;
-        const mergedData =
-          isFromReview && reviewFormDataSnapshot
-            ? { ...accumulatedOrgData, ...reviewFormDataSnapshot }
-            : isFromReview
-              ? { ...accumulatedOrgMemberData, ...allData }
-              : allData;
         const allQuestions = flattenQuestions(
           isFromReview && organisationPageStructure
             ? [
@@ -1184,7 +864,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
         const MIN_DISPLAY_MS = 5 * 1100 + 400;
         await Promise.all([
           submitOrganisationOnboardingV2(
-            mergedData,
+            allData,
             allQuestions,
             {
               isFinalSubmit: isFromReview,
@@ -1260,16 +940,9 @@ export const OnboardingSteps = ({ userType }: Props) => {
   }
 
   if (showReviewPreview && isLastPage) {
-    const reviewFormData =
-      reviewFormDataSnapshot ??
-      (userType === "organisation" && organisationPageStructure
-        ? {
-            ...accumulatedOrgMemberData,
-            ...accumulatedOrgData,
-            ...formData,
-            ...getValues(),
-          }
-        : { ...formData, ...getValues() });
+    // The single form instance retains every page's answers (shouldUnregister:
+    // false), so getValues() is the source of truth for the review.
+    const reviewFormData = getValues();
 
     const reviewPages =
       userType === "organisation" && organisationPageStructure
@@ -1283,26 +956,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
         : pages;
 
     const handleReviewGoToPage = (pageId: number) => {
-      const snapshot = reviewFormDataSnapshot;
-      if (
-        userType === "organisation" &&
-        organisationPageStructure &&
-        pageId < ORG_PAGE_ID_OFFSET &&
-        snapshot
-      ) {
-        const orgFields = new Set(
-          organisationPageStructure.orgPages.flatMap((p) =>
-            getAllPossibleFields(p.questions)
-          )
-        );
-        const orgData: Record<string, any> = {};
-        Object.entries(snapshot).forEach(([field, value]) => {
-          if (orgFields.has(field)) orgData[field] = value;
-        });
-        setAccumulatedOrgData(orgData);
-      }
       setShowReviewPreview(false);
-      setReviewFormDataSnapshot(null);
       if (
         userType === "organisation" &&
         organisationPageStructure &&
@@ -1314,26 +968,7 @@ export const OnboardingSteps = ({ userType }: Props) => {
         organisationPageStructure &&
         pageId < ORG_PAGE_ID_OFFSET
       ) {
-        const memberDataToRestore =
-          Object.keys(accumulatedOrgMemberData).length > 0
-            ? accumulatedOrgMemberData
-            : snapshot
-              ? (() => {
-                  const memberFields = new Set(
-                    organisationPageStructure.memberPages.flatMap((p) =>
-                      getAllPossibleFields(p.questions)
-                    )
-                  );
-                  const data: Record<string, any> = {};
-                  Object.entries(snapshot).forEach(([field, value]) => {
-                    if (memberFields.has(field)) data[field] = value;
-                  });
-                  return data;
-                })()
-              : { ...formData, ...getValues() };
         goToPhaseAndPage("user", pageId);
-        setFormData(memberDataToRestore);
-        reset(memberDataToRestore, { keepDefaultValues: false });
       } else {
         goToPage(pageId);
       }
@@ -1356,7 +991,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
             onSubmit={onSubmit}
             onBack={() => {
               setShowReviewPreview(false);
-              setReviewFormDataSnapshot(null);
             }}
             userType={userType}
             isLoading={loadingStates}
@@ -1490,14 +1124,13 @@ export const OnboardingSteps = ({ userType }: Props) => {
         as="form"
         onSubmit={handleFormSubmit}
         w="100%"
-        key={formKey}
         border="1px solid #E4E4E7"
         rounded="3xl"
         p={{ base: 4, md: 8 }}
       >
         {currentPage.questions.map((question) => (
           <FieldRenderer
-            key={`${formKey}-${question.field}`}
+            key={question.field}
             question={question}
             register={register}
             control={control}
@@ -1507,7 +1140,6 @@ export const OnboardingSteps = ({ userType }: Props) => {
             clearErrors={clearErrors}
             unregister={unregister}
             onFieldUnregistered={handleFieldUnregistered}
-            onParentValueChange={handleParentValueChange}
             organisationName={organisationName}
             university={userProfile?.university}
             onAbnValidationChange={handleAbnValidationChange}
@@ -1627,5 +1259,37 @@ export const OnboardingSteps = ({ userType }: Props) => {
         </Box>
       </Box>
     </Box>
+  );
+};
+
+export const OnboardingSteps = ({ userType }: Props) => {
+  const router = useRouter();
+  const logic = useOnboardingLogic(userType);
+  const { prefillData, isLoading: isPrefillLoading } = usePrefillData(userType);
+
+  useEffect(() => {
+    if (!logic.isLoading && logic.pages && logic.pages.length === 0) {
+      toast.info("No onboarding required. Redirecting to Home");
+      router.push("/home/");
+    }
+  }, [logic.isLoading, logic.pages, router]);
+
+  const hasMountedForm = useRef(false);
+  const isInitialGate =
+    !hasMountedForm.current &&
+    (logic.isLoading || isPrefillLoading || prefillData === null);
+
+  if (isInitialGate) {
+    return <Loader type="page" />;
+  }
+
+  hasMountedForm.current = true;
+
+  return (
+    <OnboardingForm
+      userType={userType}
+      logic={logic}
+      prefillData={prefillData ?? {}}
+    />
   );
 };

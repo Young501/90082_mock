@@ -39,7 +39,6 @@ interface FieldRendererProps {
   clearErrors?: (name: string) => void;
   unregister?: (name: string) => void;
   onFieldUnregistered?: (fieldName: string) => void;
-  onParentValueChange?: (fieldName: string, newValue: any) => void;
   fileUploadKey?: number;
   organisationName?: string;
   onAbnValidationChange?: (status: AbnValidationStatus) => void;
@@ -69,7 +68,6 @@ export const FieldRenderer = ({
   clearErrors,
   unregister,
   onFieldUnregistered,
-  onParentValueChange,
   fileUploadKey,
   organisationName,
   onAbnValidationChange,
@@ -187,13 +185,6 @@ export const FieldRenderer = ({
         (val) => !currentValues.includes(val)
       );
 
-      if (removedValues.length > 0 && onParentValueChange) {
-        setTimeout(() => {
-          onParentValueChange(question.field, currentValue);
-        }, 50);
-        return;
-      }
-
       const fieldsToRemove: string[] = [];
       removedValues.forEach((val) => {
         const followup = question.followup_question![val as string];
@@ -227,7 +218,6 @@ export const FieldRenderer = ({
     unregister,
     getAllChildFields,
     onFieldUnregistered,
-    onParentValueChange,
   ]);
 
   const renderField = () => {
@@ -573,7 +563,6 @@ export const FieldRenderer = ({
             clearErrors={clearErrors}
             unregister={unregister}
             onFieldUnregistered={onFieldUnregistered}
-            onParentValueChange={onParentValueChange}
             fileUploadKey={fileUploadKey}
             organisationName={organisationName}
             onAbnValidationChange={onAbnValidationChange}

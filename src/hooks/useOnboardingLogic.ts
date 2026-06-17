@@ -65,7 +65,9 @@ export const useOnboardingLogic = (userType: string) => {
   const onboardingPhaseFromStore = useOnboardingFlowStore(
     (s) => s.onboardingPhase
   );
-  const setOnboardingPhase = useOnboardingFlowStore((s) => s.setOnboardingPhase);
+  const setOnboardingPhase = useOnboardingFlowStore(
+    (s) => s.setOnboardingPhase
+  );
 
   const derivedPhase: "user" | "organisation" = useMemo(() => {
     if (userType !== "organisation") return "user";
@@ -286,33 +288,6 @@ export const useOnboardingLogic = (userType: string) => {
     return currentPhase === "organisation";
   }, [userType, currentPhase, isOrgMember]);
 
-  /** Prefilled form data from existing org member for user phase */
-  const prefilledData = useMemo(() => {
-    if (userType !== "organisation" || !organisationMember) return null;
-    const member = organisationMember as Record<string, any>;
-    const data: Record<string, any> = {};
-
-    // User / organisation_member fields from member
-    const memberFields = [
-      "first_name",
-      "last_name",
-      "profile_picture_url",
-      "profile_picture",
-      "job_title",
-    ] as const;
-    memberFields.forEach((field) => {
-      const val = member[field];
-      if (val != null && (typeof val !== "string" || val.trim() !== "")) {
-        data[field] = val;
-      }
-    });
-    if (member.profile_picture_url && !data.profile_picture) {
-      data.profile_picture = member.profile_picture_url;
-    }
-
-    return Object.keys(data).length > 0 ? data : null;
-  }, [userType, organisationMember]);
-
   return {
     pages,
     currentPage,
@@ -334,6 +309,5 @@ export const useOnboardingLogic = (userType: string) => {
     goToPage,
     goToPhaseAndPage,
     startOrganisationPhase,
-    prefilledData,
   };
 };
