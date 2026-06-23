@@ -56,13 +56,20 @@ export function useEnrollmentActions({
   const handleOpenEditEnrollment = useCallback(async () => {
     const rawAnswers = participantRecord?.data?.questionnaire_answers ?? {};
 
-    // Backend returns { label, value } objects — unwrap to flat { field: value } for the form
+    // Backend returns an array of { field, label, value } entries, or
+    // (in older shapes) an object keyed by field — unwrap to flat { field: value } for the form
+    const entries = Array.isArray(rawAnswers)
+      ? rawAnswers.map((entry: any) => [entry?.field, entry])
+      : Object.entries(rawAnswers);
+
     const flatAnswers = Object.fromEntries(
-      Object.entries(rawAnswers).map(([key, entry]) => {
-        const isEntryObject =
-          entry && typeof entry === "object" && "value" in entry;
-        return [key, isEntryObject ? (entry as any).value : entry];
-      })
+      entries
+        .filter(([key]) => key != null)
+        .map(([key, entry]) => {
+          const isEntryObject =
+            entry && typeof entry === "object" && "value" in entry;
+          return [key, isEntryObject ? (entry as any).value : entry];
+        })
     );
 
     try {
