@@ -47,7 +47,8 @@ interface FieldRendererProps {
   university?: {
     slug?: string;
     name?: string;
-  };
+  } | null;
+  knownFieldNames?: Set<string>;
 }
 
 const EMPTY_OPTION_FIELD_TYPES = [
@@ -74,16 +75,34 @@ export const FieldRenderer = ({
   onFileRemove,
   removedFiles,
   university,
+  knownFieldNames,
 }: FieldRendererProps) => {
   const universitySlug = university?.slug;
   const universityName = university?.name;
 
   const error = errors[question.field]?.message as string | undefined;
-  const taxonomyParentField = question.taxonomy_query?.parent ?? "__none__";
+  // taxonomy_query.parent is either the name of another question field
+  // (dynamic hierarchy — use its current value) or a fixed taxonomy code
+  // constant used to scope options (e.g. "teaching_secondary_internship").
+  // When knownFieldNames isn't supplied, preserve prior behaviour and treat
+  // it as a field reference.
+  const taxonomyParentRaw = question.taxonomy_query?.parent ?? "__none__";
+  const isTaxonomyParentFieldRef =
+    taxonomyParentRaw !== "__none__" &&
+    (!knownFieldNames || knownFieldNames.has(taxonomyParentRaw));
+  const taxonomyParentField = isTaxonomyParentFieldRef
+    ? taxonomyParentRaw
+    : "__none__";
   const taxonomyParentValue = useWatch({
     control,
     name: taxonomyParentField,
   });
+  const resolvedTaxonomyParentValue =
+    taxonomyParentRaw === "__none__"
+      ? null
+      : isTaxonomyParentFieldRef
+        ? taxonomyParentValue
+        : taxonomyParentRaw;
   const rawFieldOptions = question.options || question.option || [];
   const fieldOptions = parseQuestionnaireOptions(rawFieldOptions).map(
     (opt) => ({
@@ -345,9 +364,7 @@ export const FieldRenderer = ({
           label={question.label}
           control={control}
           taxonomyQuery={question.taxonomy_query}
-          parentValue={
-            taxonomyParentField !== "__none__" ? taxonomyParentValue : null
-          }
+          parentValue={resolvedTaxonomyParentValue}
           universitySlug={universitySlug}
           error={error}
           required={question.required}
@@ -363,9 +380,7 @@ export const FieldRenderer = ({
           label={question.label}
           control={control}
           taxonomyQuery={question.taxonomy_query}
-          parentValue={
-            taxonomyParentField !== "__none__" ? taxonomyParentValue : null
-          }
+          parentValue={resolvedTaxonomyParentValue}
           universitySlug={universitySlug}
           error={error}
           required={question.required}
@@ -569,6 +584,7 @@ export const FieldRenderer = ({
             onFileRemove={onFileRemove}
             removedFiles={removedFiles}
             university={university}
+            knownFieldNames={knownFieldNames}
           />
         </Box>
       ))}

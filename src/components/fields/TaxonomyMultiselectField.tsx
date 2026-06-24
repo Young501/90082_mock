@@ -1,13 +1,12 @@
 "use client";
 
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef, useId } from "react";
 import {
   Box,
   Field,
   Flex,
   HStack,
   Input,
-  Popover,
   Tag,
   Text,
   VStack,
@@ -48,6 +47,28 @@ export const TaxonomyMultiselectField = ({
 }: TaxonomyMultiselectFieldProps) => {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const listboxId = useId();
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  const closeAndFocusTrigger = () => {
+    setOpen(false);
+    triggerRef.current?.focus();
+  };
 
   const params = useMemo(() => {
     const university =
@@ -170,72 +191,83 @@ export const TaxonomyMultiselectField = ({
 
           return (
             <VStack align="stretch" gap={2} w="100%">
-              <Popover.Root
-                positioning={{ placement: "bottom-start", sameWidth: true }}
-                open={open}
-                onOpenChange={(e) => setOpen(e.open)}
-              >
-                <Popover.Trigger asChild>
-                  <button
-                    type="button"
+              <Box position="relative" ref={containerRef}>
+                <button
+                  type="button"
+                  ref={triggerRef}
+                  aria-haspopup="listbox"
+                  aria-expanded={open}
+                  aria-controls={listboxId}
+                  onClick={() => setOpen((prev) => !prev)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape" && open) {
+                      e.preventDefault();
+                      closeAndFocusTrigger();
+                    }
+                  }}
+                  style={{
+                    width: "100%",
+                    height: "48px",
+                    padding: "0 16px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 8,
+                    borderRadius: "4px",
+                    border: "1px solid #E4E4E7",
+                    background: "white",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    font: "inherit",
+                  }}
+                >
+                  <span
                     style={{
-                      width: "100%",
-                      height: "48px",
-                      padding: "0 16px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      gap: 8,
-                      borderRadius: "4px",
-                      border: "1px solid #E4E4E7",
-                      background: "white",
-                      cursor: "pointer",
-                      textAlign: "left",
-                      font: "inherit",
+                      flex: 1,
+                      fontSize: "14px",
+                      color: selectedValues.length > 0 ? "#27272A" : "#9CA3AF",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
                     }}
                   >
-                    <span
-                      style={{
-                        flex: 1,
-                        fontSize: "14px",
-                        color:
-                          selectedValues.length > 0 ? "#27272A" : "#9CA3AF",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {selectedValues.length > 0
-                        ? selectedValues
-                            .map(
-                              (val) =>
-                                options.find((o) => o.value === val)?.label ??
-                                val
-                            )
-                            .join(", ")
-                        : placeholder}
-                    </span>
-                    <ChevronDown
-                      size={20}
-                      style={{
-                        flexShrink: 0,
-                        color: "#71717A",
-                        transition: "transform 0.2s",
-                        transform: open ? "rotate(180deg)" : "none",
-                      }}
-                    />
-                  </button>
-                </Popover.Trigger>
-                <Popover.Positioner>
-                  <Popover.Content
-                    w="var(--reference-width)"
+                    {selectedValues.length > 0
+                      ? selectedValues
+                          .map(
+                            (val) =>
+                              options.find((o) => o.value === val)?.label ?? val
+                          )
+                          .join(", ")
+                      : placeholder}
+                  </span>
+                  <ChevronDown
+                    size={20}
+                    style={{
+                      flexShrink: 0,
+                      color: "#71717A",
+                      transition: "transform 0.2s",
+                      transform: open ? "rotate(180deg)" : "none",
+                    }}
+                  />
+                </button>
+                {open && (
+                  <Box
+                    id={listboxId}
+                    role="listbox"
+                    aria-multiselectable="true"
+                    mt={1}
                     borderRadius="md"
                     border="1px solid"
                     borderColor="#E4E4E7"
                     boxShadow="md"
                     bg="white"
-                    p={0}
                     overflow="hidden"
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") {
+                        e.preventDefault();
+                        closeAndFocusTrigger();
+                      }
+                    }}
                   >
                     <Box p={2} borderBottomWidth="1px" borderColor="#E4E4E7">
                       <Input
@@ -280,7 +312,9 @@ export const TaxonomyMultiselectField = ({
                             return (
                               <HStack
                                 key={String(opt.key ?? opt.value)}
-                                role="button"
+                                role="option"
+                                aria-selected={isChecked}
+                                aria-disabled={isDisabled}
                                 tabIndex={0}
                                 py={2}
                                 px={2}
@@ -351,9 +385,9 @@ export const TaxonomyMultiselectField = ({
                         </VStack>
                       )}
                     </Box>
-                  </Popover.Content>
-                </Popover.Positioner>
-              </Popover.Root>
+                  </Box>
+                )}
+              </Box>
 
               {maxSelection && (
                 <Text fontSize="xs" color="#71717A">

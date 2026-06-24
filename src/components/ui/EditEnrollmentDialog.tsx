@@ -26,6 +26,7 @@ interface EditEnrollmentDialogProps {
   onSave: () => void | Promise<void>;
   isSaving: boolean;
   formRef: React.RefObject<QuestionnaireFormRef | null>;
+  university?: { slug?: string; name?: string } | null;
 }
 
 export function EditEnrollmentDialog({
@@ -37,6 +38,7 @@ export function EditEnrollmentDialog({
   onSave,
   isSaving,
   formRef,
+  university,
 }: EditEnrollmentDialogProps) {
   const hasQuestionnaire = sections.length > 0;
   const handleClose = () => onOpenChange({ open: false });
@@ -81,6 +83,7 @@ export function EditEnrollmentDialog({
                   sections={sections}
                   initialValues={initialValues}
                   onAnswersChange={onAnswersChange}
+                  university={university}
                   props={{ p: 0, border: "none" }}
                 />
               ) : (

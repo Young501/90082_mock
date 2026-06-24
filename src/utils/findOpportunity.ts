@@ -35,5 +35,6 @@ export function toBaseOpportunity(
     is_default: current.is_default,
     links: current.links,
     enrollment_preview: current.enrollment_preview,
+    university: current.university,
   };
 }

@@ -32,6 +32,14 @@ export interface HomepageOpportunityLink {
   label: string;
 }
 
+export interface HomepageOpportunityUniversity {
+  id?: number;
+  name?: string;
+  slug?: string;
+  logo_url?: string;
+  links?: HomepageOpportunityLink[];
+}
+
 export interface HomepageOpportunity {
   id: number;
   title: string;
@@ -48,6 +56,7 @@ export interface HomepageOpportunity {
   is_default?: boolean;
   is_hidden?: boolean;
   links?: HomepageOpportunityLink[];
+  university?: HomepageOpportunityUniversity | null;
   [key: string]: unknown;
 }
 

@@ -30,6 +30,7 @@ import { toast } from "react-toastify";
 import { PROFILE_TINT_COLORS, PROFILE_HOVER_COLORS } from "@/theme/theme";
 import { ExternalLink, Mail, EyeOff } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
+import { useAuthStore } from "@/store";
 
 interface MyOpportunitiesProps {
   opportunities: HomepageOpportunity[];
@@ -68,12 +69,19 @@ function DashboardOpportunityCard({
   const clearDefaultMutation = useClearDefaultOpportunity();
   const isDefault = opp.is_default ?? false;
 
+  const { user } = useAuthStore();
+  // Org questionnaires resolve "dynamic" taxonomy fields against the
+  // opportunity's university, not the (university-less) organisation user
+  const university =
+    userType === "organisation" ? opp.university : user?.university;
+
   const enrollment = useEnrollmentActions({
     opportunityId: opp.id,
     questionnaire: (opp as { questionnaire?: unknown }).questionnaire,
     userType,
     isEnrolled: enrolled,
     isHidden: opp.is_hidden ?? false,
+    university,
   });
 
   return (
@@ -461,6 +469,7 @@ function DashboardOpportunityCard({
         onSave={enrollment.handleSaveEnrollmentAnswers}
         isSaving={enrollment.updateParticipantMutation.isPending}
         formRef={enrollment.editFormRef}
+        university={university}
       />
 
       <UnenrollDialog

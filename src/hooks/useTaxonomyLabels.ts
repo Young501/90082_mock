@@ -7,7 +7,8 @@ export function useTaxonomyLabels(
   question: Question,
   value: string | string[] | undefined,
   formData: Record<string, any>,
-  university?: { slug?: string; name?: string } | null
+  university?: { slug?: string; name?: string } | null,
+  knownFieldNames?: Set<string>
 ): string[] {
   const taxonomyQuery = question.taxonomy_query;
 
@@ -25,14 +26,19 @@ export function useTaxonomyLabels(
   const params = useMemo((): TaxonomyQueryParams | null => {
     if (!taxonomyQuery?.type) return null;
     const parentField = taxonomyQuery.parent ?? "__none__";
-    const parentValue =
-      parentField === "__none__" ? null : (formData[parentField] ?? null);
-    const parentCode =
-      typeof parentValue === "object" && parentValue?.code != null
+    const isParentFieldRef =
+      parentField !== "__none__" &&
+      (!knownFieldNames || knownFieldNames.has(parentField));
+    const parentCode = (() => {
+      if (parentField === "__none__") return null;
+      if (!isParentFieldRef) return parentField;
+      const parentValue = formData[parentField] ?? null;
+      return typeof parentValue === "object" && parentValue?.code != null
         ? parentValue.code
         : typeof parentValue === "string"
           ? parentValue
           : null;
+    })();
     const universitySlug =
       taxonomyQuery.university === "dynamic"
         ? university?.slug
@@ -43,7 +49,7 @@ export function useTaxonomyLabels(
       parent: parentCode,
       university: universitySlug,
     };
-  }, [taxonomyQuery, formData, university?.slug]);
+  }, [taxonomyQuery, formData, university?.slug, knownFieldNames]);
 
   const { data: nodes = [] } = useTaxonomy(params);
 

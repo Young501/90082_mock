@@ -6,7 +6,13 @@ import { FullProfileCard } from "./FullProfileCard";
 import { AddToFolderModal } from "@/app/(protected)/folders/modals/AddToFolderModal";
 import { DeleteModal } from "../../folders/modals/DeleteModal";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
-import { MapPin, MessageCircle, FolderHeart, Building2 } from "lucide-react";
+import {
+  MapPin,
+  MessageCircle,
+  FolderHeart,
+  Building2,
+  Navigation,
+} from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { ContactPage } from "@/components/ContactPage";
 import { usePartnerProfile } from "@/services/shared";
@@ -152,11 +158,10 @@ export function OrganisationCard({
                 {!!getQuestionnaireValue("actively_hiring") && (
                   <Tooltip
                     content={
-                      getQuestionnaireValue("actively_hiring_details") as
+                      (getQuestionnaireValue("actively_hiring_details") as
                         | string
-                        | undefined
+                        | undefined) || "This organisation is actively hiring"
                     }
-                    disabled={!getQuestionnaireValue("actively_hiring_details")}
                   >
                     <Box
                       flexShrink={0}
@@ -168,6 +173,8 @@ export function OrganisationCard({
                       fontWeight="500"
                       color="#173DA6"
                       boxShadow="0px 0px 1px 0px #C7D2FE inset"
+                      cursor="default"
+                      userSelect="none"
                     >
                       Actively Hiring
                     </Box>
@@ -175,7 +182,7 @@ export function OrganisationCard({
                 )}
               </HStack>
 
-              {(locationText || distanceText) && (
+              {locationText && (
                 <HStack
                   gap={1.5}
                   color="#71717A"
@@ -185,23 +192,9 @@ export function OrganisationCard({
                   <Box flexShrink={0} pt="1px">
                     <MapPin size={14} strokeWidth={2} color="#A1A1AA" />
                   </Box>
-                  <HStack alignItems="center" gap={1} flexWrap="wrap">
-                    {locationText && (
-                      <Tooltip content={locationText}>
-                        <Text lineClamp={2}>{locationText}</Text>
-                      </Tooltip>
-                    )}
-                    {locationText && distanceText && (
-                      <Text color="#A1A1AA" fontWeight="600">
-                        ·
-                      </Text>
-                    )}
-                    {distanceText && (
-                      <Text flexShrink={0} fontWeight="600" color="#52525B">
-                        {distanceText}
-                      </Text>
-                    )}
-                  </HStack>
+                  <Tooltip content={locationText}>
+                    <Text lineClamp={2}>{locationText}</Text>
+                  </Tooltip>
                 </HStack>
               )}
             </VStack>
@@ -219,21 +212,50 @@ export function OrganisationCard({
                   </Tooltip>
                 </HStack>
               )}
-              {matchScore != null && matchScore > 0 && (
-                <Box
-                  alignSelf="flex-start"
-                  px={1.5}
-                  py={0.5}
-                  bg="#DCFCE7"
-                  borderRadius="md"
-                  fontSize="xs"
-                  fontWeight="500"
-                  color="#116932"
-                  boxShadow="0px 0px 1px 0px #D4D4D8 inset"
-                >
-                  {matchScore}% Match
-                </Box>
-              )}
+              {(matchScore != null && matchScore > 0) || distanceText ? (
+                <HStack gap={1.5} flexWrap="wrap">
+                  {matchScore != null && matchScore > 0 && (
+                    <Tooltip content="How closely this organisation matches your profile and opportunity answers">
+                      <Box
+                        alignSelf="flex-start"
+                        px={1.5}
+                        py={0.5}
+                        bg="#DCFCE7"
+                        borderRadius="md"
+                        fontSize="xs"
+                        fontWeight="500"
+                        color="#116932"
+                        boxShadow="0px 0px 1px 0px #D4D4D8 inset"
+                        cursor="default"
+                        userSelect="none"
+                      >
+                        {matchScore}% Match
+                      </Box>
+                    </Tooltip>
+                  )}
+                  {distanceText && (
+                    <Tooltip content="Distance from your location">
+                      <HStack
+                        alignSelf="flex-start"
+                        gap={1}
+                        px={1.5}
+                        py={0.5}
+                        bg="#F4F4F5"
+                        borderRadius="md"
+                        fontSize="xs"
+                        fontWeight="500"
+                        color="#52525B"
+                        boxShadow="0px 0px 1px 0px #D4D4D8 inset"
+                        cursor="default"
+                        userSelect="none"
+                      >
+                        <Navigation size={11} strokeWidth={2} />
+                        <Text>{distanceText}</Text>
+                      </HStack>
+                    </Tooltip>
+                  )}
+                </HStack>
+              ) : null}
             </VStack>
           </VStack>
           {!disableAddToFolder && (

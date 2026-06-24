@@ -11,6 +11,7 @@ import {
   Link,
   Flex,
   IconButton,
+  Wrap,
 } from "@chakra-ui/react";
 import { OrganisationProfile } from "@/types/discovery";
 
@@ -333,6 +334,35 @@ export const RenderOrganisationDetails = ({
                           </Text>
                         );
                       })()}
+                      {(() => {
+                        const employmentType =
+                          getQuestionnaireValue("employment_type");
+                        const types = Array.isArray(employmentType)
+                          ? employmentType
+                          : typeof employmentType === "string" && employmentType
+                            ? [employmentType]
+                            : [];
+                        if (types.length === 0) return null;
+                        return (
+                          <Wrap gap={2}>
+                            {types.map((type) => (
+                              <Box
+                                key={type}
+                                px={3}
+                                py={1}
+                                borderRadius="full"
+                                bg="white"
+                                border="1px solid #BFDBFE"
+                                fontSize="xs"
+                                fontWeight="500"
+                                color="#173DA6"
+                              >
+                                {type}
+                              </Box>
+                            ))}
+                          </Wrap>
+                        );
+                      })()}
                       <Text fontSize="sm" color="#3F3F46">
                         {(getQuestionnaireValue(
                           "actively_hiring_details"
@@ -648,6 +678,7 @@ export const RenderOrganisationDetails = ({
               "actively_hiring",
               "hiring_roles",
               "actively_hiring_details",
+              "employment_type",
             ]);
             const answers = (
               Array.isArray(raw)
