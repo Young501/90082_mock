@@ -7,7 +7,6 @@ import {
   Flex,
   HStack,
   Input,
-  Popover,
   Tag,
   Text,
   VStack,
@@ -48,6 +47,21 @@ export const TaxonomyMultiselectField = ({
 }: TaxonomyMultiselectFieldProps) => {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
 
   const params = useMemo(() => {
     const university =
@@ -170,71 +184,63 @@ export const TaxonomyMultiselectField = ({
 
           return (
             <VStack align="stretch" gap={2} w="100%">
-              <Popover.Root
-                positioning={{ placement: "bottom-start", sameWidth: true }}
-                open={open}
-                onOpenChange={(e) => setOpen(e.open)}
-              >
-                <Popover.Trigger asChild>
-                  <button
-                    type="button"
+              <Box position="relative" ref={containerRef}>
+                <button
+                  type="button"
+                  onClick={() => setOpen((prev) => !prev)}
+                  style={{
+                    width: "100%",
+                    height: "48px",
+                    padding: "0 16px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 8,
+                    borderRadius: "4px",
+                    border: "1px solid #E4E4E7",
+                    background: "white",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    font: "inherit",
+                  }}
+                >
+                  <span
                     style={{
-                      width: "100%",
-                      height: "48px",
-                      padding: "0 16px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      gap: 8,
-                      borderRadius: "4px",
-                      border: "1px solid #E4E4E7",
-                      background: "white",
-                      cursor: "pointer",
-                      textAlign: "left",
-                      font: "inherit",
+                      flex: 1,
+                      fontSize: "14px",
+                      color: selectedValues.length > 0 ? "#27272A" : "#9CA3AF",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
                     }}
                   >
-                    <span
-                      style={{
-                        flex: 1,
-                        fontSize: "14px",
-                        color:
-                          selectedValues.length > 0 ? "#27272A" : "#9CA3AF",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {selectedValues.length > 0
-                        ? selectedValues
-                            .map(
-                              (val) =>
-                                options.find((o) => o.value === val)?.label ??
-                                val
-                            )
-                            .join(", ")
-                        : placeholder}
-                    </span>
-                    <ChevronDown
-                      size={20}
-                      style={{
-                        flexShrink: 0,
-                        color: "#71717A",
-                        transition: "transform 0.2s",
-                        transform: open ? "rotate(180deg)" : "none",
-                      }}
-                    />
-                  </button>
-                </Popover.Trigger>
-                <Popover.Positioner>
-                  <Popover.Content
-                    w="var(--reference-width)"
+                    {selectedValues.length > 0
+                      ? selectedValues
+                          .map(
+                            (val) =>
+                              options.find((o) => o.value === val)?.label ?? val
+                          )
+                          .join(", ")
+                      : placeholder}
+                  </span>
+                  <ChevronDown
+                    size={20}
+                    style={{
+                      flexShrink: 0,
+                      color: "#71717A",
+                      transition: "transform 0.2s",
+                      transform: open ? "rotate(180deg)" : "none",
+                    }}
+                  />
+                </button>
+                {open && (
+                  <Box
+                    mt={1}
                     borderRadius="md"
                     border="1px solid"
                     borderColor="#E4E4E7"
                     boxShadow="md"
                     bg="white"
-                    p={0}
                     overflow="hidden"
                   >
                     <Box p={2} borderBottomWidth="1px" borderColor="#E4E4E7">
@@ -351,9 +357,9 @@ export const TaxonomyMultiselectField = ({
                         </VStack>
                       )}
                     </Box>
-                  </Popover.Content>
-                </Popover.Positioner>
-              </Popover.Root>
+                  </Box>
+                )}
+              </Box>
 
               {maxSelection && (
                 <Text fontSize="xs" color="#71717A">

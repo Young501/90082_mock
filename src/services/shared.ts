@@ -199,6 +199,7 @@ export function useAccessibleOpportunities(enabled = true) {
               links: o.links,
               enrollment_preview: o.enrollment_preview ?? null,
               coordinator: o.coordinator ?? null,
+              university: o.university ?? null,
             };
           }
         );

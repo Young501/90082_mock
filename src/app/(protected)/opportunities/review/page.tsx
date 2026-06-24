@@ -82,9 +82,25 @@ export default function OpportunityReviewPage() {
 
   const userType = user?.user_types?.[0] || "student";
 
+  // Org questionnaires resolve "dynamic" taxonomy fields against the
+  // opportunity's university, not the (university-less) organisation user
+  const university =
+    userType === "organisation" ? opportunity?.university : user?.university;
+
   const sections: QuestionnaireSection[] = useMemo(
     () => getQuestionnaireSections(opportunity?.questionnaire, userType),
     [opportunity?.questionnaire, userType]
+  );
+
+  // taxonomy_query.parent can be a literal taxonomy code constant (e.g.
+  // "teaching_secondary_internship") rather than a reference to another
+  // question field — only treat it as a field reference if it matches one.
+  const knownFieldNames = useMemo(
+    () =>
+      new Set(
+        sections.flatMap((section) => section.questions).map((q) => q.field)
+      ),
+    [sections]
   );
 
   const handleBack = () => {
@@ -163,7 +179,8 @@ export default function OpportunityReviewPage() {
       question,
       value,
       answers,
-      user?.university
+      university,
+      knownFieldNames
     );
     if (labels.length === 0) return <Text color="#A1A1AA">—</Text>;
     return (

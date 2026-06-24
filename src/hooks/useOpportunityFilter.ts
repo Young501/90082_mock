@@ -81,6 +81,10 @@ export const useOpportunityFilter = (
     }
   }, [targetParticipantType]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [opportunityId]);
+
   const requestBody = useMemo(() => {
     if (!participantType || !isEnrollmentReady || !isEnrolled) {
       return null;

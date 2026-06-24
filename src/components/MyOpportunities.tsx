@@ -72,12 +72,18 @@ export const OpportunityCard = ({
     (type === "enrolled" && !isCancelled) ||
     (type === "closed" && opportunityIsEnrolled);
 
+  // Org questionnaires resolve "dynamic" taxonomy fields against the
+  // opportunity's university, not the (university-less) organisation user
+  const university =
+    userType === "organisation" ? opportunity.university : user?.university;
+
   const enrollment = useEnrollmentActions({
     opportunityId: opportunity.id,
     questionnaire: opportunity.questionnaire,
     userType,
     isEnrolled: enrollmentFetchEnabled,
     isHidden: opportunity.is_hidden ?? false,
+    university,
     onUnenrollSuccess: () => {
       setIsCancelled(true);
       setIsExpanded(false);
@@ -786,6 +792,7 @@ export const OpportunityCard = ({
         sections={enrollment.questionnaireSections}
         initialValues={enrollment.editAnswers}
         onAnswersChange={enrollment.handleAnswersChange}
+        university={university}
         onSave={enrollment.handleSaveEnrollmentAnswers}
         isSaving={enrollment.updateParticipantMutation.isPending}
         formRef={enrollment.editFormRef}

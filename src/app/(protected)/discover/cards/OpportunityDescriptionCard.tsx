@@ -31,6 +31,7 @@ import { toast } from "react-toastify";
 import { ExternalLink, Mail, MessageCircle, EyeOff } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { ContactPage } from "@/components/ContactPage";
+import { useAuthStore } from "@/store";
 
 interface OpportunityDescriptionCardProps {
   opportunity: Opportunity | AccessibleOpportunity;
@@ -55,12 +56,19 @@ export const OpportunityDescriptionCard = ({
   const coordinator = accessibleOpportunity?.coordinator ?? null;
   const showCoordinator = visibilityDisplay === "Private" && !!coordinator;
 
+  const { user } = useAuthStore();
+  // Org questionnaires resolve "dynamic" taxonomy fields against the
+  // opportunity's university, not the (university-less) organisation user
+  const university =
+    userType === "organisation" ? opportunity.university : user?.university;
+
   const enrollment = useEnrollmentActions({
     opportunityId: opportunity.id,
     questionnaire: opportunity.questionnaire,
     userType,
     isEnrolled,
     isHidden: currentOpportunity?.is_hidden ?? false,
+    university,
   });
   const setDefaultMutation = useSetDefaultOpportunity();
   const clearDefaultMutation = useClearDefaultOpportunity();
@@ -499,6 +507,7 @@ export const OpportunityDescriptionCard = ({
         onSave={enrollment.handleSaveEnrollmentAnswers}
         isSaving={enrollment.updateParticipantMutation.isPending}
         formRef={enrollment.editFormRef}
+        university={university}
       />
 
       <UnenrollDialog

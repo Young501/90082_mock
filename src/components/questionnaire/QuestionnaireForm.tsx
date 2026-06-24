@@ -24,6 +24,7 @@ export interface QuestionnaireFormProps {
   sections: QuestionnaireSection[];
   onAnswersChange: (answers: Record<string, any>) => void;
   initialValues?: Record<string, any>;
+  university?: { slug?: string; name?: string } | null;
   props?: BoxProps;
 }
 
@@ -35,160 +36,176 @@ export interface QuestionnaireFormRef {
 export const QuestionnaireForm = forwardRef<
   QuestionnaireFormRef,
   QuestionnaireFormProps
->(({ sections, onAnswersChange, initialValues = {}, props }, ref) => {
-  const topLevelQuestions = useMemo(
-    () => sections.flatMap((section) => section.questions),
-    [sections]
-  );
+>(
+  (
+    { sections, onAnswersChange, initialValues = {}, university, props },
+    ref
+  ) => {
+    const topLevelQuestions = useMemo(
+      () => sections.flatMap((section) => section.questions),
+      [sections]
+    );
 
-  const validationSchema = useMemo(
-    () => createPageSchema(topLevelQuestions),
-    [topLevelQuestions]
-  );
+    // taxonomy_query.parent can be either the name of another question field
+    // (dynamic hierarchy, e.g. a previously-selected taxonomy code) or a fixed
+    // taxonomy code constant used to scope options (e.g. "teaching_secondary_internship").
+    // Only treat it as a field reference if it actually matches a question in this form.
+    const knownFieldNames = useMemo(
+      () => new Set(flattenQuestions(topLevelQuestions).map((q) => q.field)),
+      [topLevelQuestions]
+    );
 
-  const defaultValues = useMemo(
-    () =>
-      flattenQuestions(topLevelQuestions).reduce(
-        (acc, question) => {
-          if (initialValues[question.field] !== undefined) {
-            acc[question.field] = initialValues[question.field];
-          } else {
-            switch (question.type) {
-              case "taxonomy-multiselect":
-                acc[question.field] = [];
-                break;
-              case "taxonomy-select":
-                acc[question.field] = "";
-                break;
-              case "textarea":
-                acc[question.field] = "";
-                break;
-              default:
-                acc[question.field] = undefined;
+    const validationSchema = useMemo(
+      () => createPageSchema(topLevelQuestions),
+      [topLevelQuestions]
+    );
+
+    const defaultValues = useMemo(
+      () =>
+        flattenQuestions(topLevelQuestions).reduce(
+          (acc, question) => {
+            if (initialValues[question.field] !== undefined) {
+              acc[question.field] = initialValues[question.field];
+            } else {
+              switch (question.type) {
+                case "taxonomy-multiselect":
+                  acc[question.field] = [];
+                  break;
+                case "taxonomy-select":
+                  acc[question.field] = "";
+                  break;
+                case "textarea":
+                  acc[question.field] = "";
+                  break;
+                default:
+                  acc[question.field] = undefined;
+              }
             }
-          }
-          return acc;
-        },
-        {} as Record<string, any>
-      ),
-    [topLevelQuestions, initialValues]
-  );
+            return acc;
+          },
+          {} as Record<string, any>
+        ),
+      [topLevelQuestions, initialValues]
+    );
 
-  const {
-    register,
-    control,
-    watch,
-    formState: { errors },
-    trigger,
-    getValues,
-    clearErrors,
-    unregister,
-    reset,
-    setError,
-  } = useForm({
-    resolver: yupResolver(validationSchema),
-    defaultValues,
-    mode: "onChange",
-  });
+    const {
+      register,
+      control,
+      watch,
+      formState: { errors },
+      trigger,
+      getValues,
+      clearErrors,
+      unregister,
+      reset,
+      setError,
+    } = useForm({
+      resolver: yupResolver(validationSchema),
+      defaultValues,
+      mode: "onChange",
+    });
 
-  const previousValuesRef = useRef<string>("");
-  const isInitialRender = useRef(true);
+    const previousValuesRef = useRef<string>("");
+    const isInitialRender = useRef(true);
 
-  // Reset form when initialValues change (e.g., when navigating back from review with saved answers)
-  useEffect(() => {
-    if (Object.keys(initialValues).length === 0) {
-      return;
-    }
-    const currentValues = getValues();
-    const currentValuesString = JSON.stringify(currentValues);
-    const defaultValuesString = JSON.stringify(defaultValues);
-    if (currentValuesString !== defaultValuesString) {
-      reset(defaultValues);
-    }
-  }, [initialValues, defaultValues, reset, getValues]);
-
-  useEffect(() => {
-    const subscription = watch((values) => {
-      const currentValuesString = JSON.stringify(values);
-      if (isInitialRender.current) {
-        isInitialRender.current = false;
-        previousValuesRef.current = currentValuesString;
+    // Reset form when initialValues change (e.g., when navigating back from review with saved answers)
+    useEffect(() => {
+      if (Object.keys(initialValues).length === 0) {
         return;
       }
-      if (currentValuesString !== previousValuesRef.current) {
-        previousValuesRef.current = currentValuesString;
-        onAnswersChange(values);
+      const currentValues = getValues();
+      const currentValuesString = JSON.stringify(currentValues);
+      const defaultValuesString = JSON.stringify(defaultValues);
+      if (currentValuesString !== defaultValuesString) {
+        reset(defaultValues);
       }
+    }, [initialValues, defaultValues, reset, getValues]);
+
+    useEffect(() => {
+      const subscription = watch((values) => {
+        const currentValuesString = JSON.stringify(values);
+        if (isInitialRender.current) {
+          isInitialRender.current = false;
+          previousValuesRef.current = currentValuesString;
+          return;
+        }
+        if (currentValuesString !== previousValuesRef.current) {
+          previousValuesRef.current = currentValuesString;
+          onAnswersChange(values);
+        }
+      });
+      return () => subscription.unsubscribe();
+    }, [watch, onAnswersChange]);
+
+    const organisationName = useWatch({
+      control,
+      name: "name",
     });
-    return () => subscription.unsubscribe();
-  }, [watch, onAnswersChange]);
 
-  const organisationName = useWatch({
-    control,
-    name: "name",
-  });
+    useImperativeHandle(ref, () => ({
+      validate: async () => {
+        const result = await trigger();
+        return result;
+      },
+      getValues: () => {
+        return getValues();
+      },
+    }));
 
-  useImperativeHandle(ref, () => ({
-    validate: async () => {
-      const result = await trigger();
-      return result;
-    },
-    getValues: () => {
-      return getValues();
-    },
-  }));
+    const handleFieldUnregistered = (fieldName: string) => {
+      const currentValues = getValues();
+      const { [fieldName]: _, ...restValues } = currentValues;
+      onAnswersChange(restValues);
+    };
 
-  const handleFieldUnregistered = (fieldName: string) => {
-    const currentValues = getValues();
-    const { [fieldName]: _, ...restValues } = currentValues;
-    onAnswersChange(restValues);
-  };
-
-  return (
-    <Box
-      border="1px solid #E4E4E7"
-      borderRadius="3xl"
-      p={{ base: 4, md: 8 }}
-      bg="white"
-      {...props}
-    >
-      <VStack gap={4} align="stretch">
-        {sections.map((section) => (
-          <Box key={section.id}>
-            <Box mb={4}>
-              <HStack gap={2}>
-                {section.title_icon && (
-                  <Text fontSize="lg">
-                    <i className={section.title_icon} />
-                  </Text>
-                )}
-                <Heading fontSize="lg" fontWeight="600" color="#18181B">
-                  {section.title}
-                </Heading>
-              </HStack>
+    return (
+      <Box
+        border="1px solid #E4E4E7"
+        borderRadius="3xl"
+        p={{ base: 4, md: 8 }}
+        bg="white"
+        {...props}
+      >
+        <VStack gap={4} align="stretch">
+          {sections.map((section) => (
+            <Box key={section.id}>
+              <Box mb={4}>
+                <HStack gap={2}>
+                  {section.title_icon && (
+                    <Text fontSize="lg">
+                      <i className={section.title_icon} />
+                    </Text>
+                  )}
+                  <Heading fontSize="lg" fontWeight="600" color="#18181B">
+                    {section.title}
+                  </Heading>
+                </HStack>
+              </Box>
+              <VStack gap={2} align="stretch">
+                {section.questions.map((question, index) => (
+                  <Box key={`${question.field}-${index}`}>
+                    <FieldRenderer
+                      question={question}
+                      register={register}
+                      control={control}
+                      errors={errors}
+                      setError={setError}
+                      clearErrors={clearErrors}
+                      unregister={unregister}
+                      onFieldUnregistered={handleFieldUnregistered}
+                      organisationName={organisationName}
+                      university={university}
+                      knownFieldNames={knownFieldNames}
+                    />
+                  </Box>
+                ))}
+              </VStack>
             </Box>
-            <VStack gap={2} align="stretch">
-              {section.questions.map((question, index) => (
-                <Box key={`${question.field}-${index}`}>
-                  <FieldRenderer
-                    question={question}
-                    register={register}
-                    control={control}
-                    errors={errors}
-                    setError={setError}
-                    clearErrors={clearErrors}
-                    unregister={unregister}
-                    onFieldUnregistered={handleFieldUnregistered}
-                    organisationName={organisationName}
-                  />
-                </Box>
-              ))}
-            </VStack>
-          </Box>
-        ))}
-      </VStack>
-    </Box>
-  );
-});
+          ))}
+        </VStack>
+      </Box>
+    );
+  }
+);
 
 QuestionnaireForm.displayName = "QuestionnaireForm";

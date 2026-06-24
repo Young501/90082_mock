@@ -70,6 +70,11 @@ function OpportunityFillContent() {
 
   const userType = user?.user_types?.[0] || "student";
 
+  // Org questionnaires resolve "dynamic" taxonomy fields against the
+  // opportunity's university, not the (university-less) organisation user
+  const university =
+    userType === "organisation" ? opportunity?.university : user?.university;
+
   const sections: QuestionnaireSection[] = useMemo(
     () => getQuestionnaireSections(opportunity?.questionnaire, userType),
     [opportunity?.questionnaire, userType]
@@ -211,6 +216,7 @@ function OpportunityFillContent() {
             sections={sections}
             onAnswersChange={handleAnswersChange}
             initialValues={answers}
+            university={university}
           />
         ) : (
           <Alert.Root status="info">

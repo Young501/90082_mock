@@ -367,17 +367,23 @@ function FolderSelectCard({
             {folder.member_avatars.slice(0, 3).map((avatar, i) => (
               <Avatar.Root
                 key={`${avatar.avatar_url}-${i}`}
-                w="26px"
-                h="26px"
-                minW="26px"
+                w="40px"
+                h="40px"
+                minW="40px"
                 borderRadius="full"
                 overflow="hidden"
                 border="2px solid white"
-                ml={i > 0 ? "-8px" : "0"}
+                ml={i > 0 ? "-10px" : "0"}
                 zIndex={3 - i}
               >
-                <Avatar.Image src={avatar.avatar_url} alt={avatar.type} />
-                <Avatar.Fallback color="white" fontSize="9px" fontWeight="500">
+                <Avatar.Image
+                  src={avatar.avatar_url}
+                  alt={avatar.type}
+                  w="100%"
+                  h="100%"
+                  objectFit="cover"
+                />
+                <Avatar.Fallback color="white" fontSize="14px" fontWeight="500">
                   {avatar.type === "student" ? "S" : "O"}
                 </Avatar.Fallback>
               </Avatar.Root>

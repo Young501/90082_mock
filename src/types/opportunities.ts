@@ -17,6 +17,14 @@ export interface EnrollmentPreview {
   organisation?: EnrollmentPreviewContent;
 }
 
+export interface OpportunityUniversity {
+  id?: number;
+  name?: string;
+  slug?: string;
+  logo_url?: string;
+  links?: { url: string; label: string }[];
+}
+
 export interface Opportunity {
   id: number;
   public_id?: string;
@@ -39,6 +47,7 @@ export interface Opportunity {
   links?: { url: string; label: string }[];
   enrollment_preview?: EnrollmentPreview | null;
   coordinator?: OpportunityCoordinator | null;
+  university?: OpportunityUniversity | null;
 }
 
 export interface ParticipantRecord {

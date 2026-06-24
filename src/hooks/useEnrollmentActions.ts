@@ -15,6 +15,7 @@ export interface UseEnrollmentActionsParams {
   userType?: string;
   isEnrolled: boolean;
   isHidden?: boolean;
+  university?: { slug?: string; name?: string } | null;
   onUnenrollSuccess?: () => void;
 }
 
@@ -24,6 +25,7 @@ export function useEnrollmentActions({
   userType,
   isEnrolled,
   isHidden = false,
+  university,
   onUnenrollSuccess,
 }: UseEnrollmentActionsParams) {
   const [isEditEnrollmentOpen, setIsEditEnrollmentOpen] = useState(false);
@@ -76,7 +78,7 @@ export function useEnrollmentActions({
       const resolved = await resolveTaxonomyLabelsToCodes(
         questionnaireSections,
         flatAnswers,
-        null
+        university?.slug
       );
       setEditAnswers(resolved);
     } catch {
@@ -87,6 +89,7 @@ export function useEnrollmentActions({
     participantRecord?.data?.questionnaire_answers,
     questionnaireSections,
     resolveTaxonomyLabelsToCodes,
+    university?.slug,
   ]);
 
   const handleSaveEnrollmentAnswers = useCallback(async () => {

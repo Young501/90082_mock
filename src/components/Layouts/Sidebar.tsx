@@ -531,8 +531,10 @@ const Sidebar = ({
           _hover={{ bg: active ? "profile.500" : "secondary.100" }}
           transition="background 0.15s"
           onClick={() => {
-            const target = defaultOpp ?? opps[0];
-            router.push(`/discover/?opp=${target.slug}`);
+            if (!active) {
+              const target = defaultOpp ?? opps[0];
+              router.push(`/discover/?opp=${target.slug}`);
+            }
             onDiscoverToggle();
           }}
         >
