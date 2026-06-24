@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef, useId } from "react";
 import {
   Box,
   Field,
@@ -48,6 +48,8 @@ export const TaxonomyMultiselectField = ({
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const listboxId = useId();
 
   useEffect(() => {
     if (!open) return;
@@ -62,6 +64,11 @@ export const TaxonomyMultiselectField = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
+
+  const closeAndFocusTrigger = () => {
+    setOpen(false);
+    triggerRef.current?.focus();
+  };
 
   const params = useMemo(() => {
     const university =
@@ -187,7 +194,17 @@ export const TaxonomyMultiselectField = ({
               <Box position="relative" ref={containerRef}>
                 <button
                   type="button"
+                  ref={triggerRef}
+                  aria-haspopup="listbox"
+                  aria-expanded={open}
+                  aria-controls={listboxId}
                   onClick={() => setOpen((prev) => !prev)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape" && open) {
+                      e.preventDefault();
+                      closeAndFocusTrigger();
+                    }
+                  }}
                   style={{
                     width: "100%",
                     height: "48px",
@@ -235,6 +252,9 @@ export const TaxonomyMultiselectField = ({
                 </button>
                 {open && (
                   <Box
+                    id={listboxId}
+                    role="listbox"
+                    aria-multiselectable="true"
                     mt={1}
                     borderRadius="md"
                     border="1px solid"
@@ -242,6 +262,12 @@ export const TaxonomyMultiselectField = ({
                     boxShadow="md"
                     bg="white"
                     overflow="hidden"
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") {
+                        e.preventDefault();
+                        closeAndFocusTrigger();
+                      }
+                    }}
                   >
                     <Box p={2} borderBottomWidth="1px" borderColor="#E4E4E7">
                       <Input
@@ -286,7 +312,9 @@ export const TaxonomyMultiselectField = ({
                             return (
                               <HStack
                                 key={String(opt.key ?? opt.value)}
-                                role="button"
+                                role="option"
+                                aria-selected={isChecked}
+                                aria-disabled={isDisabled}
                                 tabIndex={0}
                                 py={2}
                                 px={2}
