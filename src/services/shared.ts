@@ -305,7 +305,12 @@ export function useInviteV2() {
       opportunityId: string;
       userType: "student" | "organisation";
       emails: string[];
-      customEmail?: { subject: string; body: string };
+      customEmail?: {
+        subject: string;
+        body: string;
+        cc?: string[];
+        bcc?: string[];
+      };
     }) => {
       const body: Record<string, unknown> = { emails: data.emails };
       if (data.customEmail) body.custom_email = data.customEmail;

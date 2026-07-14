@@ -11,7 +11,14 @@ import {
   Flex,
   Spinner,
 } from "@chakra-ui/react";
-import { Eye, ExternalLink, MessageSquare } from "lucide-react";
+import {
+  Eye,
+  ExternalLink,
+  MessageSquare,
+  ChevronDown,
+  ChevronRight,
+  Info,
+} from "lucide-react";
 import { useInvitePreview, useInvitePreviewRefresh } from "@/services/shared";
 import {
   validateContent,
@@ -27,6 +34,10 @@ interface EmailCustomizationPreviewProps {
   onSubjectChange: (value: string) => void;
   body: string;
   onBodyChange: (value: string) => void;
+  cc?: string;
+  onCcChange?: (value: string) => void;
+  bcc?: string;
+  onBccChange?: (value: string) => void;
   isResend?: boolean;
 }
 
@@ -39,10 +50,15 @@ export const EmailCustomizationPreview: React.FC<
   onSubjectChange,
   body,
   onBodyChange,
+  cc = "",
+  onCcChange,
+  bcc = "",
+  onBccChange,
   isResend = false,
 }) => {
   const [subjectError, setSubjectError] = useState("");
   const [bodyError, setBodyError] = useState("");
+  const [showCcBcc, setShowCcBcc] = useState(false);
   const [previewTab, setPreviewTab] = useState<PreviewTab>("email");
   const [renderedHtml, setRenderedHtml] = useState("");
   const [previewMessage, setPreviewMessage] = useState("");
@@ -154,6 +170,78 @@ export const EmailCustomizationPreview: React.FC<
                 </Text>
               )}
             </VStack>
+
+            <Box>
+              <HStack
+                as="button"
+                gap={1}
+                onClick={() => setShowCcBcc((v) => !v)}
+                color="#1679AB"
+                _hover={{ color: "#125f8a" }}
+              >
+                {showCcBcc ? (
+                  <ChevronDown size={13} />
+                ) : (
+                  <ChevronRight size={13} />
+                )}
+                <Text fontSize="xs" fontWeight="500">
+                  Cc / Bcc
+                </Text>
+              </HStack>
+
+              {showCcBcc && (
+                <VStack align="stretch" gap={3} mt={2}>
+                  <HStack gap={1.5} align="flex-start">
+                    <Info size={12} color="#A1A1AA" style={{ marginTop: 3 }} />
+                    <Text fontSize="xs" color="#A1A1AA">
+                      Cc/Bcc only apply when the invite is sent as an email
+                      (new users). Invitees who already have an account
+                      receive an in-app message instead, which ignores
+                      Cc/Bcc.
+                    </Text>
+                  </HStack>
+                  <VStack align="stretch" gap={1}>
+                    <Text fontSize="xs" fontWeight="500" color="#71717A">
+                      Cc
+                    </Text>
+                    <Input
+                      value={cc}
+                      onChange={(e) => onCcChange?.(e.target.value)}
+                      placeholder="e.g. advisor@school.edu"
+                      borderRadius="8px"
+                      {...fieldBorder}
+                      _focus={{
+                        borderColor: "#1679AB",
+                        boxShadow: "0 0 0 1px #1679AB",
+                      }}
+                      fontSize="sm"
+                      bg="#F4F4F5"
+                      h="36px"
+                    />
+                  </VStack>
+                  <VStack align="stretch" gap={1}>
+                    <Text fontSize="xs" fontWeight="500" color="#71717A">
+                      Bcc
+                    </Text>
+                    <Input
+                      value={bcc}
+                      onChange={(e) => onBccChange?.(e.target.value)}
+                      placeholder="e.g. records@school.edu"
+                      borderRadius="8px"
+                      {...fieldBorder}
+                      _focus={{
+                        borderColor: "#1679AB",
+                        boxShadow: "0 0 0 1px #1679AB",
+                      }}
+                      fontSize="sm"
+                      bg="#F4F4F5"
+                      h="36px"
+                    />
+                  </VStack>
+                </VStack>
+              )}
+            </Box>
+
             <VStack align="stretch" gap={1}>
               <Text fontSize="xs" fontWeight="500" color="#71717A">
                 Message body

@@ -47,12 +47,20 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
+  const [cc, setCc] = useState("");
+  const [bcc, setBcc] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const inviteV2 = useInviteV2();
 
   const validateEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+  const parseEmailList = (value: string) =>
+    value
+      .split(/[\n,;]/)
+      .map((e) => e.trim())
+      .filter((e) => e && validateEmail(e));
 
   const removeEmail = (emailToRemove: string) =>
     setEmails(emails.filter((e) => e !== emailToRemove));
@@ -138,11 +146,21 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
 
     setIsSubmitting(true);
     try {
+      const ccList = parseEmailList(cc);
+      const bccList = parseEmailList(bcc);
       const response = await inviteV2.mutateAsync({
         opportunityId,
         userType,
         emails,
-        customEmail: subject || body ? { subject, body } : undefined,
+        customEmail:
+          subject || body
+            ? {
+                subject,
+                body,
+                ...(ccList.length ? { cc: ccList } : {}),
+                ...(bccList.length ? { bcc: bccList } : {}),
+              }
+            : undefined,
       });
       const sent = response.invitations_sent || 0;
       const failed: Array<{ email: string; reason: string }> =
@@ -340,6 +358,10 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({
           onSubjectChange={setSubject}
           body={body}
           onBodyChange={setBody}
+          cc={cc}
+          onCcChange={setCc}
+          bcc={bcc}
+          onBccChange={setBcc}
         />
 
         {/* Footer actions */}
