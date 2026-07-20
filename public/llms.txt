@@ -358,6 +358,17 @@ Check your spam or junk folder. If it's not there, contact support at contactus@
 **Q: How do I change my email or password?**
 Go to **Account** → **Change Password** section. Email changes should be directed to support.
 
+**Q: I get "You cannot do this action at the moment, please try again later." when trying to sign up or log in. What do I do?**
+This message means our bot-protection check (reCAPTCHA) failed to verify the request, so the backend blocked it as a precaution — it is not related to the account's email or password. It is almost always caused by network or browser conditions that interfere with reCAPTCHA, not an account problem. Ask the user to try the following, in order:
+
+1. **Turn off any VPN or proxy** and try again. VPNs and proxies are the most common cause — reCAPTCHA frequently flags their IP ranges as suspicious.
+2. **Switch networks** — try a different Wi-Fi network or switch to mobile data. This is especially useful if the user is on a corporate, university, or public network with shared/flagged IPs.
+3. **Disable ad blockers, privacy extensions, or script blockers** (e.g. uBlock Origin, Privacy Badger, Brave Shields) for the site, since these can silently block the reCAPTCHA script from loading.
+4. **Clear cache/cookies or try an incognito/private window**, or try a different browser.
+5. **Refresh the page and try again** — reCAPTCHA tokens expire after a short time, so a slow or interrupted sign-up attempt can trigger this.
+6. **Disable browser extensions** generally, especially VPN browser extensions, as a follow-up if the above doesn't help.
+7. If the issue persists after trying the above, contact support at contactus@uniconnected.com with the approximate time of the attempt and, if possible, whether they were using a VPN, so the team can check server-side logs.
+
 ---
 
 ### Profile
