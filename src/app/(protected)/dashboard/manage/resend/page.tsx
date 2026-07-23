@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import {
@@ -15,6 +15,28 @@ import { ArrowLeft } from "lucide-react";
 import { ResendForm } from "./component/ResendForm";
 import { PageTitle } from "@/components/PageTitle";
 import { PAGE_TITLES } from "@/utils/pageTitles";
+import { getParticipants } from "@/services/manage";
+
+async function fetchAllPendingEmails(
+  opportunityId: string,
+  userType: "student" | "organisation"
+): Promise<string[]> {
+  const pageSize = 100;
+  let page = 1;
+  const all: string[] = [];
+  while (true) {
+    const res = await getParticipants(opportunityId, {
+      user_type: userType,
+      accepted_status: "pending",
+      page,
+      page_size: pageSize,
+    });
+    all.push(...res.results.filter((p) => !!p.email).map((p) => p.email!));
+    if (!res.next) break;
+    page += 1;
+  }
+  return all;
+}
 
 const ResendPageContent = () => {
   const searchParams = useSearchParams();
@@ -23,6 +45,7 @@ const ResendPageContent = () => {
   const oppSlug = searchParams.get("opp") ?? undefined;
   const email = searchParams.get("email") ?? "";
   const participantName = searchParams.get("name") ?? undefined;
+  const bulk = searchParams.get("bulk") === "true";
 
   const { getCoordinatorOpportunities } = useAuthStore();
   const coordinatorOpportunities = getCoordinatorOpportunities();
@@ -31,13 +54,29 @@ const ResendPageContent = () => {
     : coordinatorOpportunities[0];
   const opportunityId = selected?.id ? String(selected.id) : "";
 
-  const oppParam = oppSlug ? `&opp=${oppSlug}` : "";
-  const manageUrl = `/dashboard/manage?type=${type}${oppParam}`;
+  const [pendingEmails, setPendingEmails] = useState<string[]>([]);
+  const [isLoadingPending, setIsLoadingPending] = useState(bulk);
+
+  useEffect(() => {
+    if (!bulk || !type || !opportunityId) return;
+    let cancelled = false;
+    setIsLoadingPending(true);
+    fetchAllPendingEmails(opportunityId, type)
+      .then((emails) => {
+        if (!cancelled) setPendingEmails(emails);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingPending(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [bulk, type, opportunityId]);
 
   const handleSuccess = () => router.back();
   const handleCancel = () => router.back();
 
-  if (!type || !email) {
+  if (!type || (!bulk && !email)) {
     return (
       <Box maxW="1512px" mx="auto">
         <Container maxW="1512px">
@@ -49,8 +88,49 @@ const ResendPageContent = () => {
     );
   }
 
-  const title =
-    type === "student"
+  if (bulk && isLoadingPending) {
+    return (
+      <Box
+        maxW="1512px"
+        mx="auto"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minH="50vh"
+      >
+        <Spinner size="xl" />
+      </Box>
+    );
+  }
+
+  if (bulk && pendingEmails.length === 0) {
+    return (
+      <Box maxW="1512px" mx="auto">
+        <Container maxW="1512px" display="flex" flexDirection="column" gap={4}>
+          <HStack gap={2} align="center">
+            <IconButton
+              aria-label="Go back"
+              onClick={handleCancel}
+              variant="ghost"
+              size="sm"
+            >
+              <ArrowLeft size={20} />
+            </IconButton>
+          </HStack>
+          <Text fontSize="lg" color="gray.500">
+            No pending participants found — everyone invited has already
+            responded.
+          </Text>
+        </Container>
+      </Box>
+    );
+  }
+
+  const title = bulk
+    ? type === "student"
+      ? "Remind All Pending Students"
+      : "Remind All Pending Organisations"
+    : type === "student"
       ? "Resend Student Invitation"
       : "Resend Organisation Invitation";
 
@@ -79,8 +159,8 @@ const ResendPageContent = () => {
           </HStack>
 
           <ResendForm
-            email={email}
-            participantName={participantName}
+            emails={bulk ? pendingEmails : [email]}
+            participantName={bulk ? undefined : participantName}
             userType={type}
             opportunityId={opportunityId}
             onSuccess={handleSuccess}

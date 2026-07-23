@@ -17,7 +17,12 @@ import UserManagementCard from "../components/UserManagementCard";
 import UserMatchingStatus from "../components/UserMatchingStatus";
 import { useManage } from "@/hooks/useManage";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Send, Bell } from "lucide-react";
+import {
+  PROFILE_DARK_COLORS,
+  PROFILE_SECONDARY_COLORS,
+  PROFILE_TINT_COLORS,
+} from "@/theme/theme";
 import { useAuthStore } from "@/store/authStore";
 import Loader from "@/components/ui/Loader";
 import { PageTitle } from "@/components/PageTitle";
@@ -208,6 +213,7 @@ const StudentPage = ({
 }: PageProps) => {
   const router = useRouter();
   const inviteUrl = `/dashboard/manage/invite?type=${type}${oppSlug ? `&opp=${oppSlug}` : ""}`;
+  const bulkResendUrl = `/dashboard/manage/resend?type=${type}&bulk=true${oppSlug ? `&opp=${oppSlug}` : ""}`;
 
   return (
     <Box maxW="1512px" mx="auto">
@@ -237,24 +243,56 @@ const StudentPage = ({
               Manage Students
             </Text>
           </HStack>
-          <Tooltip
-            content="This opportunity has expired"
-            disabled={!isExpired}
-            showArrow
-          >
-            <AppButton
-              variant="student"
-              onClick={() => !isExpired && router.push(inviteUrl)}
-              fontSize="15px"
-              height="40px"
-              px={5}
-              borderRadius="8px"
-              disabled={isExpired}
-              opacity={isExpired ? 0.5 : 1}
+          <HStack gap={3} flexWrap="wrap">
+            <Tooltip
+              content="This opportunity has expired"
+              disabled={!isExpired}
+              showArrow
             >
-              + Add Students to this list
-            </AppButton>
-          </Tooltip>
+              <AppButton
+                variant="student"
+                onClick={() => !isExpired && router.push(bulkResendUrl)}
+                fontSize="15px"
+                fontWeight="600"
+                height="40px"
+                px={5}
+                borderRadius="8px"
+                disabled={isExpired}
+                opacity={isExpired ? 0.5 : 1}
+                bg={PROFILE_SECONDARY_COLORS.student}
+                color={PROFILE_DARK_COLORS.student}
+                border="1px solid"
+                borderColor={PROFILE_TINT_COLORS.student}
+                _hover={{ bg: PROFILE_TINT_COLORS.student }}
+              >
+                <HStack gap={2}>
+                  <Bell size={16} />
+                  <span>Send Reminder to All Pending</span>
+                </HStack>
+              </AppButton>
+            </Tooltip>
+            <Tooltip
+              content="This opportunity has expired"
+              disabled={!isExpired}
+              showArrow
+            >
+              <AppButton
+                variant="student"
+                onClick={() => !isExpired && router.push(inviteUrl)}
+                fontSize="15px"
+                height="40px"
+                px={5}
+                borderRadius="8px"
+                disabled={isExpired}
+                opacity={isExpired ? 0.5 : 1}
+              >
+                <HStack gap={2}>
+                  <Send size={16} />
+                  <span>Invite Students</span>
+                </HStack>
+              </AppButton>
+            </Tooltip>
+          </HStack>
         </Box>
 
         <VStack width="100%" gap={6} alignItems="flex-start">
@@ -373,6 +411,7 @@ const PartnerPage = ({
 }: PageProps) => {
   const router = useRouter();
   const inviteUrl = `/dashboard/manage/invite?type=${type}${oppSlug ? `&opp=${oppSlug}` : ""}`;
+  const bulkResendUrl = `/dashboard/manage/resend?type=${type}&bulk=true${oppSlug ? `&opp=${oppSlug}` : ""}`;
 
   return (
     <Box maxW="1512px" mx="auto">
@@ -402,24 +441,56 @@ const PartnerPage = ({
               Manage Organisations
             </Text>
           </HStack>
-          <Tooltip
-            content="This opportunity has expired"
-            disabled={!isExpired}
-            showArrow
-          >
-            <AppButton
-              variant="partner"
-              onClick={() => !isExpired && router.push(inviteUrl)}
-              fontSize="15px"
-              height="40px"
-              px={5}
-              borderRadius="8px"
-              disabled={isExpired}
-              opacity={isExpired ? 0.5 : 1}
+          <HStack gap={3} flexWrap="wrap">
+            <Tooltip
+              content="This opportunity has expired"
+              disabled={!isExpired}
+              showArrow
             >
-              + Add Organisations to this list
-            </AppButton>
-          </Tooltip>
+              <AppButton
+                variant="partner"
+                onClick={() => !isExpired && router.push(bulkResendUrl)}
+                fontSize="15px"
+                fontWeight="600"
+                height="40px"
+                px={5}
+                borderRadius="8px"
+                disabled={isExpired}
+                opacity={isExpired ? 0.5 : 1}
+                bg={PROFILE_SECONDARY_COLORS.organisation}
+                color={PROFILE_DARK_COLORS.organisation}
+                border="1px solid"
+                borderColor={PROFILE_TINT_COLORS.organisation}
+                _hover={{ bg: PROFILE_TINT_COLORS.organisation }}
+              >
+                <HStack gap={2}>
+                  <Bell size={16} />
+                  <span>Send Reminder to All Pending</span>
+                </HStack>
+              </AppButton>
+            </Tooltip>
+            <Tooltip
+              content="This opportunity has expired"
+              disabled={!isExpired}
+              showArrow
+            >
+              <AppButton
+                variant="partner"
+                onClick={() => !isExpired && router.push(inviteUrl)}
+                fontSize="15px"
+                height="40px"
+                px={5}
+                borderRadius="8px"
+                disabled={isExpired}
+                opacity={isExpired ? 0.5 : 1}
+              >
+                <HStack gap={2}>
+                  <Send size={16} />
+                  <span>Invite Organisations</span>
+                </HStack>
+              </AppButton>
+            </Tooltip>
+          </HStack>
         </Box>
 
         <VStack width="100%" gap={6} alignItems="flex-start">
