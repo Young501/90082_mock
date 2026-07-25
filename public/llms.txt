@@ -497,6 +497,14 @@ UniConnected checks messages for prohibited content (profanity, spam, and suspic
 **Q: Can I message my own organisation teammates?**
 Yes. Organisation team members can message each other directly. Go to the **Team** page and click **Message** next to a teammate's name to start a conversation.
 
+**Q: I'm an organisation and I'm getting spammed by students / receiving too many unwanted messages from students. How do I stop this?**
+There are two ways to reduce or stop unwanted student messages:
+
+1. **Turn off student contact entirely:** Go to **Account** → **Organisation** tab and set **"Allow students to contact your organisation?"** to **No**. This prevents students from messaging your organisation altogether.
+2. **Hide your profile from a specific opportunity:** If the messages are coming from students in a particular opportunity, go to **Home** or **Account → My Opportunities**, find the opportunity, open the three-dot menu (⋯), and select **Hide profile from peers**. This removes your organisation from that opportunity's peer search results while keeping full access to the opportunity itself (see Section 7 and Section 15 "Opportunities" above).
+
+If the unwanted messages continue after applying these settings, contact support at contactus@uniconnected.com.
+
 ---
 
 ### Can't Find the Setting? — General Guidance
