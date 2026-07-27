@@ -32,14 +32,19 @@ export function useManage(
 
   useEffect(() => {
     if (data) {
-      if (filters.page === 1) {
-        setParticipants(data.results);
-      } else {
-        setParticipants((prev) => [...prev, ...data.results]);
-      }
+      setParticipants((prev) => {
+        if (filters.page === 1) {
+          return data.results;
+        }
+        const existingIds = new Set(prev.map((p) => p.id));
+        const newResults = data.results.filter((p) => !existingIds.has(p.id));
+        return [...prev, ...newResults];
+      });
       setHasMore(!!data.next);
+    } else if (error) {
+      setHasMore(false);
     }
-  }, [data, filters.page]);
+  }, [data, error, filters.page]);
 
   const loadMore = useCallback(() => {
     if (hasMore && !isLoading) {

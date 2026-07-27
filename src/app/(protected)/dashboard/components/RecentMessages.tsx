@@ -177,7 +177,7 @@ export function RecentMessages({ messages, userType }: RecentMessagesProps) {
                         fontWeight={msg.unread_count > 0 ? 600 : 400}
                         lineHeight="1.4"
                       >
-                        {truncateToWords(msg.last_message.content)}
+                        {truncateToWords(msg.last_message?.content ?? "")}
                       </Text>
                     </VStack>
                     {msg.unread_count > 0 && (
@@ -203,7 +203,9 @@ export function RecentMessages({ messages, userType }: RecentMessagesProps) {
                     )}
                   </HStack>
                   <Text fontSize="2xs" color="#A1A1AA">
-                    {formatRelativeTime(msg.last_message_at)}
+                    {msg.last_message_at
+                      ? formatRelativeTime(msg.last_message_at)
+                      : ""}
                   </Text>
                 </VStack>
               </HStack>

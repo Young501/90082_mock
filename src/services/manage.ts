@@ -34,6 +34,7 @@ export function useParticipants(
     enabled: !!opportunityId,
     staleTime: 2 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
+    retry: false,
   });
 }
 
