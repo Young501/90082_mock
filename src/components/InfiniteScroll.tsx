@@ -16,36 +16,49 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
   children,
 }) => {
   const observerRef = useRef<IntersectionObserver | null>(null);
-  const loadingRef = useRef<HTMLDivElement>(null);
-
-  const handleObserver = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
-      const target = entries[0];
-      if (target.isIntersecting && hasMore && !isLoading) {
-        onLoadMore();
-      }
-    },
-    [hasMore, isLoading, onLoadMore]
-  );
+  const hasMoreRef = useRef(hasMore);
+  const isLoadingRef = useRef(isLoading);
+  const onLoadMoreRef = useRef(onLoadMore);
 
   useEffect(() => {
-    const element = loadingRef.current;
-    if (!element) return;
+    hasMoreRef.current = hasMore;
+  }, [hasMore]);
 
-    observerRef.current = new IntersectionObserver(handleObserver, {
-      root: null,
-      rootMargin: "20px",
-      threshold: 0.1,
-    });
+  useEffect(() => {
+    isLoadingRef.current = isLoading;
+  }, [isLoading]);
 
-    observerRef.current.observe(element);
+  useEffect(() => {
+    onLoadMoreRef.current = onLoadMore;
+  }, [onLoadMore]);
 
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
+  // Attached via callback ref rather than a useEffect keyed on hasMore/isLoading so the
+  // observer is only (re)created when the sentinel node itself mounts/unmounts, not on
+  // every loading-state change. Recreating it mid-scroll causes an immediate re-trigger
+  // for an already-intersecting sentinel, which can fire onLoadMore faster than real
+  // scroll input and race page requests past the last available page.
+  const sentinelRef = useCallback((node: HTMLDivElement | null) => {
+    observerRef.current?.disconnect();
+    observerRef.current = null;
+
+    if (!node) return;
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        const target = entries[0];
+        if (target.isIntersecting && hasMoreRef.current && !isLoadingRef.current) {
+          onLoadMoreRef.current();
+        }
+      },
+      {
+        root: null,
+        rootMargin: "20px",
+        threshold: 0.1,
       }
-    };
-  }, [handleObserver]);
+    );
+
+    observerRef.current.observe(node);
+  }, []);
 
   return (
     <VStack align="stretch" gap={4}>
@@ -53,7 +66,7 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
 
       {hasMore && (
         <Box
-          ref={loadingRef}
+          ref={sentinelRef}
           display="flex"
           justifyContent="center"
           alignItems="center"
