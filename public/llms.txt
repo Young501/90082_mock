@@ -138,12 +138,20 @@ Organisations can have multiple users under one account, managed via the **Team*
 
 ## 7. Opportunities
 
-Opportunities are the core unit of engagement on UniConnected — they represent a program, placement, internship, or project that students can apply for or enrol in.
+Opportunities are the core unit of engagement on UniConnected — they represent a program, placement, internship, project, or employment pathway that students can apply for or enrol in.
+
+**Important — "opportunities" does not mean job listings.** An opportunity is a container/program that a student enrols into, not an individual job posting. Once enrolled in an opportunity, a student gains access to that program's features (e.g. being discoverable by organisations, messaging, browsing employers within it) — it is not a feed of job ads to browse. Do not describe opportunities as if they were individual job listings that get "posted" like a job board, and do not tell a student to wait for more job listings to appear.
 
 **Visibility:**
 
-- **Public:** Any eligible student can see and enrol.
-- **Invite Only:** Only students with a direct invitation or specific access can see it.
+- **Public:** Any eligible student can see and enrol without needing an invitation. Currently, **Employment** is the only public opportunity — it lets any eligible student (e.g. University of Melbourne students) enrol to become discoverable by organisations for part-time, casual, freelance, or full-time work. There may be additional public opportunities added in future, but Employment is currently the only one.
+- **Invite Only (private):** Only students with a direct invitation from a university coordinator can see and access it. These are typically managed directly by a university to connect specific cohorts of students with specific organisations or programs — e.g. "Masters of Teaching Secondary Internship Opportunity" or "Entrepreneurship Internship Opportunity". A student cannot browse or discover these on their own; they must be invited by their coordinator.
+
+**Why a student might see no opportunities:**
+
+- If a student's Discover/Home page shows no opportunities, it most commonly means they have not been invited to any invite-only opportunity by their university, and/or they haven't enrolled in the public Employment opportunity (if eligible).
+- It does **not** mean organisations haven't "posted" enough job listings — opportunities aren't a job board feed that fills up with new postings over time. New opportunities are only added when a university coordinator sets one up, or when UniConnected launches a new public opportunity.
+- If a student asks "when will more opportunities be advertised" or "why is nothing listed", explain the public/invite-only distinction above rather than suggesting they wait for job postings or tweak profile-matching filters.
 
 **Enrolment flow (4 steps):**
 
@@ -391,6 +399,14 @@ Go to **Account → Edit Profile** and update the **Preferred work locations** a
 ---
 
 ### Opportunities
+
+**Q: When will more opportunities be advertised / posted? There are currently none listed for me.**
+Opportunities on UniConnected aren't job listings that get posted to a feed like a job board — they're programs/pathways students enrol into. There are two kinds:
+
+- **Invite-only (private) opportunities** — managed directly by a university coordinator to connect specific students with specific organisations or programs (e.g. "Masters of Teaching Secondary Internship Opportunity"). You can only access these if a coordinator invites you — you cannot browse or search for them yourself.
+- **Public opportunities** — open to any eligible student without an invitation. Currently, **Employment** is the only public opportunity, letting eligible students enrol to become discoverable by organisations for part-time, casual, freelance, or full-time work.
+
+If you see nothing available, it usually means you haven't yet been invited to a private opportunity by your university, and/or you haven't enrolled in the public Employment opportunity (if you're eligible). This isn't something that resolves by waiting for more "listings" — check with your university coordinator about invite-only opportunities, or check the Discover/Home page for the Employment opportunity to enrol.
 
 **Q: How do I enrol in an opportunity?**
 Go to the **Discover** page, find the opportunity, and click **Enrol**. You'll be guided through the enrolment steps (pricing if required, questionnaire, review, and confirmation).
