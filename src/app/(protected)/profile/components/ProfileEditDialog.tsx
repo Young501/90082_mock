@@ -646,7 +646,8 @@ export function ProfileEditDialog({
                           university={university ?? undefined}
                           organisationName={
                             question.type !== "abn_lookup" ||
-                            !!dirtyFields[question.field]
+                            !!dirtyFields[question.field] ||
+                            !!dirtyFields.name
                               ? organisationNameValue
                               : undefined
                           }
