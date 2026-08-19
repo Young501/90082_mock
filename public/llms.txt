@@ -366,6 +366,13 @@ Check your spam or junk folder. If it's not there, contact support at contactus@
 **Q: How do I change my email or password?**
 Go to **Account** → **Change Password** section. Email changes should be directed to support.
 
+**Q: Can I sign up with my personal email, or does it have to be the email address I was invited on?**
+This depends on how the person is signing up:
+
+- **If they received an invitation to a specific invite-only opportunity:** They **must** sign up using the exact email address the invitation was sent to — this is non-negotiable, since the invite-only enrolment is tied to that specific email address. A personal email or any other address will not work, even if the person is otherwise a valid university student. If they want the invitation sent to a different email address, they must ask their university coordinator to update it, or contact us at contactus@uniconnected.com and we can fix it for them. Do not tell an invited user to just sign up with a different email.
+- **If they are a student signing up without a specific invitation (e.g. via a university-wide link):** They must use their university student email address (e.g. a `student.unimelb.edu.au`-style domain). Personal email addresses are not accepted for student accounts.
+- **If they are signing up as an organisation representative:** Organisations are not restricted to a university email domain — a work/personal email can generally be used. If unsure, ask whether they're signing up as a student or an organisation representative.
+
 **Q: I get "You cannot do this action at the moment, please try again later." when trying to sign up or log in. What do I do?**
 This message means our bot-protection check (reCAPTCHA) failed to verify the request, so the backend blocked it as a precaution — it is not related to the account's email or password. It is almost always caused by network or browser conditions that interfere with reCAPTCHA, not an account problem. Ask the user to try the following, in order:
 
