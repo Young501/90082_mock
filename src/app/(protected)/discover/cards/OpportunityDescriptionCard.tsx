@@ -54,7 +54,7 @@ export const OpportunityDescriptionCard = ({
     accessibleOpportunity?.visibility_display || "Public Opportunity";
   const isEnrolled = enrollmentStatus === "enrolled";
   const coordinator = accessibleOpportunity?.coordinator ?? null;
-  const showCoordinator = visibilityDisplay === "Private" && !!coordinator;
+  const showCoordinator = !!coordinator;
 
   const { user } = useAuthStore();
   // Org questionnaires resolve "dynamic" taxonomy fields against the
