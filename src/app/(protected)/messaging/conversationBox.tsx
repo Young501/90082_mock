@@ -133,6 +133,7 @@ export const ConversationBox = ({
                     Coordinator
                   </Badge>
                 )}
+                {extraBadges}
               </HStack>
               <Text fontSize="xs" color="#2563EB" w="100%">
                 {otherIsOrg
@@ -198,11 +199,6 @@ export const ConversationBox = ({
               )}
             </VStack>
           </HStack>
-          {extraBadges && (
-            <HStack mt={2} gap={1.5} flexWrap="wrap">
-              {extraBadges}
-            </HStack>
-          )}
           <HStack
             mt={1}
             gap={isHovered ? 2 : 0}

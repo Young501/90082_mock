@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { type ReactNode, useState } from "react";
 import { Box, VStack, HStack, Text } from "@chakra-ui/react";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { OrganisationProfile } from "@/types/discovery";
@@ -28,6 +28,7 @@ interface OrganisationCardProps {
   disableAddToFolder?: boolean;
   opportunityId?: string;
   opportunitySlug?: string;
+  extraAction?: ReactNode;
 }
 
 export function OrganisationCard({
@@ -39,6 +40,7 @@ export function OrganisationCard({
   disableAddToFolder = false,
   opportunityId,
   opportunitySlug,
+  extraAction,
 }: OrganisationCardProps) {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
@@ -314,6 +316,7 @@ export function OrganisationCard({
               Contact
             </ButtonV2>
           )}
+          {extraAction}
         </HStack>
         {/* </Box> */}
       </Box>

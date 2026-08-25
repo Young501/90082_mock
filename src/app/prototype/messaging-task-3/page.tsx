@@ -26,6 +26,7 @@ import {
   Clock3,
   Edit3,
   Flag,
+  Layers2,
   Megaphone,
   MessageSquareText,
   RotateCcw,
@@ -35,11 +36,20 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { ConversationList } from "@/app/(protected)/messaging/ConversationList";
 import { ConversationView } from "@/app/(protected)/messaging/ConversationView";
+import {
+  mockOpportunities,
+  mockStudentProfile,
+  mockUserDetailsByType,
+  mockUsersByType,
+  setActiveUserType,
+} from "@/mocks/mockData";
+import { useAuthStore } from "@/store";
 import type {
   ConversationSummary,
   Message,
   MessagingUser,
 } from "@/types/messaging";
+import type { UserProfile } from "@/types/shared";
 
 type CaseKey = "read" | "mute" | "block" | "report" | "edit-delete" | "admin";
 
@@ -420,6 +430,10 @@ function MessagingTask3PrototypeContent() {
     router.push("/prototype/messaging-task-3/", { scroll: false });
   }
 
+  function backToPrototypeIndex() {
+    router.push("/prototype/", { scroll: false });
+  }
+
   return (
     <Box minH="100vh" bg="#F6F8F8" color="#18181B">
       {selectedCase ? (
@@ -429,7 +443,10 @@ function MessagingTask3PrototypeContent() {
           onSwitchCase={selectCase}
         />
       ) : (
-        <CaseLauncher onSelectCase={selectCase} />
+        <CaseLauncher
+          onSelectCase={selectCase}
+          onBackToPrototype={backToPrototypeIndex}
+        />
       )}
     </Box>
   );
@@ -437,13 +454,29 @@ function MessagingTask3PrototypeContent() {
 
 function CaseLauncher({
   onSelectCase,
+  onBackToPrototype,
 }: {
   onSelectCase: (key: CaseKey) => void;
+  onBackToPrototype: () => void;
 }) {
   return (
     <Container maxW="1180px" py={{ base: 6, md: 10 }} px={{ base: 4, md: 6 }}>
       <Stack gap={6}>
         <Box>
+          <Button
+            size="sm"
+            variant="outline"
+            borderColor="#D4D4D8"
+            color="#18181B"
+            bg="white"
+            mb={5}
+            onClick={onBackToPrototype}
+          >
+            <HStack gap={2}>
+              <ChevronLeft size={15} />
+              <Text>Prototype</Text>
+            </HStack>
+          </Button>
           <HStack gap={2} color="#1679AB" fontWeight="semibold" mb={3}>
             <MessageSquareText size={18} />
             <Text fontSize="sm">Sprint 1 prototype</Text>
@@ -516,6 +549,17 @@ function GuidedMessagingCase({
   onBack: () => void;
   onSwitchCase: (key: CaseKey) => void;
 }) {
+  const router = useRouter();
+  const setAuthData = useAuthStore((state) => state.setAuthData);
+  const setUserDetailsV2 = useAuthStore((state) => state.setUserDetailsV2);
+  const setUserProfile = useAuthStore((state) => state.setUserProfile);
+  const setAccessibleOpportunities = useAuthStore(
+    (state) => state.setAccessibleOpportunities
+  );
+  const setCoordinatorOpportunities = useAuthStore(
+    (state) => state.setCoordinatorOpportunities
+  );
+  const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
   const [stepIndex, setStepIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [showArchived, setShowArchived] = useState(false);
@@ -660,6 +704,17 @@ function GuidedMessagingCase({
 
   function openConversationActions() {
     completeTarget("conversation-options");
+  }
+
+  function openCurrentProjectPage() {
+    setActiveUserType("student");
+    setAuthData("mock-token-student", mockUsersByType.student);
+    setUserDetailsV2(mockUserDetailsByType.student);
+    setUserProfile(mockStudentProfile as UserProfile);
+    setAccessibleOpportunities(mockOpportunities);
+    setCoordinatorOpportunities(mockOpportunities);
+    setIsAuthenticated(true);
+    router.push("/messaging/");
   }
 
   function handleReadStateAction() {
@@ -1013,13 +1068,29 @@ function GuidedMessagingCase({
             <Text fontSize="12px" color="#71717A" fontWeight="semibold">
               Task 3 prototype on current messaging UI
             </Text>
-            <Heading
-              as="h1"
-              fontSize={{ base: "24px", md: "30px" }}
-              fontWeight="semibold"
-            >
-              {caseDefinition.title}
-            </Heading>
+            <HStack gap={2} align="center">
+              <Heading
+                as="h1"
+                fontSize={{ base: "24px", md: "30px" }}
+                fontWeight="semibold"
+              >
+                {caseDefinition.title}
+              </Heading>
+              <IconButton
+                aria-label="Open current messaging page"
+                title="Open current messaging page"
+                size="sm"
+                h="30px"
+                minW="30px"
+                borderRadius="md"
+                variant="ghost"
+                color="#71717A"
+                _hover={{ bg: "#F4F4F5", color: "#1679AB" }}
+                onClick={openCurrentProjectPage}
+              >
+                <Layers2 size={16} />
+              </IconButton>
+            </HStack>
           </Box>
         </HStack>
 
@@ -1052,7 +1123,7 @@ function GuidedMessagingCase({
         borderWidth="1px"
         borderColor="#E4E4E7"
         bg="white"
-        h={{ base: "760px", xl: "calc(100vh - 132px)" }}
+        h={{ base: "760px", xl: "calc(100vh - 172px)" }}
         minH="680px"
       >
         <Box

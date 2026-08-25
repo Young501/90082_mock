@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { type ReactNode, useCallback, useEffect, useState } from "react";
 import { useUIStore } from "@/store/uiStore";
 import {
   Box,
@@ -58,6 +58,7 @@ interface DiscoveryResultBoxProps {
   onQueryChange?: (query: string) => void;
   sortBy?: OpportunitySortBy | null;
   onSortChange?: (value: OpportunitySortBy | null) => void;
+  renderOrganisationAction?: (organisation: UserProfile) => ReactNode;
 }
 
 export function DiscoveryResultBox({
@@ -77,10 +78,11 @@ export function DiscoveryResultBox({
   onQueryChange,
   sortBy,
   onSortChange,
+  renderOrganisationAction,
 }: DiscoveryResultBoxProps) {
   const removeMemberFromFolder = useRemoveMemberFromFolder();
   const isCollapsed = useUIStore((s) => s.isSidebarCollapsed);
-  const count = pagination?.count ?? 0;
+  const count = pagination?.count ?? results.length;
 
   // Keep previous results visible while loading so card DOM nodes (and their
   // images) stay mounted. Only swap to new results once loading is done.
@@ -329,6 +331,7 @@ export function DiscoveryResultBox({
                     opportunitySlug={opportunitySlug}
                     isInFolder={isInFolder}
                     onRemoveFromFolder={onRemoveFromFolder}
+                    extraAction={renderOrganisationAction?.(user)}
                   />
                 );
               })}
