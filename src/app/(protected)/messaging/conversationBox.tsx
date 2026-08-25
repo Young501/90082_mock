@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { type CSSProperties, type ReactNode, useState } from "react";
 import { Box, HStack, Text, Badge, IconButton, VStack } from "@chakra-ui/react";
-import { Star, MoreHorizontal } from "lucide-react";
+import { Ban, BellOff, MoreHorizontal } from "lucide-react";
 import { ConversationId, ConversationSummary } from "@/types/messaging";
 import { formatRelativeTime } from "@/utils/formatDate";
 
@@ -14,6 +14,12 @@ interface ConversationBoxProps {
   isActive: boolean;
   onSelect: (id: ConversationId) => void;
   onToggleArchive: (id: ConversationId) => void;
+  highlightStyle?: CSSProperties;
+  extraBadges?: ReactNode;
+  onContextMenu?: (
+    id: ConversationId,
+    event: React.MouseEvent<HTMLDivElement>
+  ) => void;
 }
 
 export const ConversationBox = ({
@@ -21,6 +27,9 @@ export const ConversationBox = ({
   isActive,
   onSelect,
   onToggleArchive,
+  highlightStyle,
+  extraBadges,
+  onContextMenu,
 }: ConversationBoxProps) => {
   const otherIsOrg = conversation.otherUserTypes.includes("organisation");
   const otherIsCoordinator =
@@ -38,7 +47,14 @@ export const ConversationBox = ({
       onClick={() => onSelect(conversation.id)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onContextMenu={(event) => {
+        if (!onContextMenu) return;
+        event.preventDefault();
+        onContextMenu(conversation.id, event);
+      }}
       w="100%"
+      transition="background 0.15s ease, box-shadow 0.18s ease, transform 0.18s ease"
+      style={highlightStyle}
     >
       <HStack align="flex-start" gap={3} w="100%">
         <Box position="relative" flexShrink={0}>
@@ -128,26 +144,65 @@ export const ConversationBox = ({
               <Text fontSize="xs" color="#52525B" whiteSpace="nowrap">
                 {formatRelativeTime(conversation.lastActivityAt)}
               </Text>
-              {conversation.hasUnread && conversation.unreadCount > 0 && (
-                <Badge
-                  borderRadius="6px"
-                  bg={otherIsOrg ? "#1F7F7B" : "#1679AB"}
-                  color="white"
-                  fontSize="10px"
-                  textAlign="center"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  px={1}
-                  py={0.5}
-                  flexShrink={0}
-                  w="20px"
-                >
-                  {conversation.unreadCount}
-                </Badge>
+              {((conversation.hasUnread && conversation.unreadCount > 0) ||
+                conversation.isMuted ||
+                conversation.isBlocked) && (
+                <HStack gap={1.5} justify="flex-end" minH="18px">
+                  {conversation.hasUnread && conversation.unreadCount > 0 && (
+                    <Badge
+                      borderRadius="6px"
+                      bg={otherIsOrg ? "#1F7F7B" : "#1679AB"}
+                      color="white"
+                      fontSize="10px"
+                      textAlign="center"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      px={1}
+                      py={0.5}
+                      flexShrink={0}
+                      w="20px"
+                    >
+                      {conversation.unreadCount}
+                    </Badge>
+                  )}
+                  {conversation.isMuted && (
+                    <Box
+                      as="span"
+                      aria-label="Muted conversation"
+                      title="Muted conversation"
+                      color="#A1A1AA"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      flexShrink={0}
+                    >
+                      <BellOff size={15} strokeWidth={1.8} />
+                    </Box>
+                  )}
+                  {conversation.isBlocked && (
+                    <Box
+                      as="span"
+                      aria-label="Blocked conversation"
+                      title="Blocked conversation"
+                      color="#A1A1AA"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      flexShrink={0}
+                    >
+                      <Ban size={15} strokeWidth={1.8} />
+                    </Box>
+                  )}
+                </HStack>
               )}
             </VStack>
           </HStack>
+          {extraBadges && (
+            <HStack mt={2} gap={1.5} flexWrap="wrap">
+              {extraBadges}
+            </HStack>
+          )}
           <HStack
             mt={1}
             gap={isHovered ? 2 : 0}

@@ -4,6 +4,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 import { useAuthStore } from "@/store";
+import { setupMockApi } from "@/mocks/setupMockApi";
 import { ApiEndpoint, ApiRequestParams } from "@/types/api";
 import { User } from "@/types/user";
 
@@ -39,6 +40,10 @@ export const apiClient = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,
 });
+
+if (process.env.NEXT_PUBLIC_USE_MOCK_API === "true") {
+  setupMockApi(apiClient);
+}
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {

@@ -1,10 +1,25 @@
 "use client";
 
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Box, Flex, VStack, HStack, Text, Spinner } from "@chakra-ui/react";
+import React, {
+  type CSSProperties,
+  type ReactNode,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import {
+  Box,
+  Flex,
+  VStack,
+  HStack,
+  Text,
+  Spinner,
+  IconButton,
+} from "@chakra-ui/react";
 import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { MessageComposerInput } from "@/components/ui/MessageComposerInput";
-import { MessageBox } from "./MessageBox";
+import { MessageBox, type MessageBoxPrototypeProps } from "./MessageBox";
 import { ConversationHeader } from "./ConversationHeader";
 import { EmptyConversationState } from "./EmptyConversationState";
 import { ConversationReplyPreview } from "./ConversationReplyPreview";
@@ -34,6 +49,20 @@ interface ConversationViewProps {
   onLoadMoreMessages?: () => void;
   isLoadingMoreMessages?: boolean;
   isSending?: boolean;
+  headerActionSlot?: ReactNode;
+  headerNoticeSlot?: ReactNode;
+  headerMenuSlot?: ReactNode;
+  headerOptionsButtonStyle?: CSSProperties;
+  headerOptionsButtonIndicator?: ReactNode;
+  onHeaderOptionsOpen?: () => void;
+  afterHeaderSlot?: ReactNode;
+  workspaceHintSlot?: ReactNode;
+  timelineSlotAfterMessageId?: string;
+  timelineSlot?: ReactNode;
+  overlaySlot?: ReactNode;
+  composerLockedReason?: ReactNode;
+  composerSendMode?: "external" | "inlineIcon";
+  messagePrototype?: (message: Message) => MessageBoxPrototypeProps | undefined;
 }
 
 export const ConversationView = ({
@@ -51,6 +80,20 @@ export const ConversationView = ({
   onLoadMoreMessages,
   isLoadingMoreMessages = false,
   isSending = false,
+  headerActionSlot,
+  headerNoticeSlot,
+  headerMenuSlot,
+  headerOptionsButtonStyle,
+  headerOptionsButtonIndicator,
+  onHeaderOptionsOpen,
+  afterHeaderSlot,
+  workspaceHintSlot,
+  timelineSlotAfterMessageId,
+  timelineSlot,
+  overlaySlot,
+  composerLockedReason,
+  composerSendMode = "external",
+  messagePrototype,
 }: ConversationViewProps) => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
@@ -72,6 +115,7 @@ export const ConversationView = ({
   );
 
   const lastMessageId = orderedMessages[orderedMessages.length - 1]?.id;
+  const hasTimelineSlot = Boolean(timelineSlot);
 
   useEffect(() => {
     if (!conversation?.avatar) return;
@@ -83,10 +127,27 @@ export const ConversationView = ({
     if (messagesLoading) return;
     const container = messagesContainerRef.current;
     if (!container) return;
-    container.scrollTop = container.scrollHeight;
-  }, [conversation?.id, lastMessageId, messagesLoading]);
+
+    const frame = window.requestAnimationFrame(() => {
+      container.scrollTop = container.scrollHeight;
+      messagesEndRef.current?.scrollIntoView({ block: "end" });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [
+    conversation?.id,
+    hasTimelineSlot,
+    lastMessageId,
+    messagesLoading,
+    timelineSlotAfterMessageId,
+  ]);
 
   const isEmptyThread = orderedMessages.length === 0;
+  const isSendDisabled =
+    !!composerLockedReason ||
+    isSending ||
+    (!composerText.trim() && selectedFiles.length === 0 && !replyToMessage) ||
+    error !== null;
 
   const handleFilesSelected = (files: File[]) => {
     setSelectedFiles((prev) => [...prev, ...files]);
@@ -161,13 +222,21 @@ export const ConversationView = ({
       flexDirection="column"
       h="100%"
       maxH={{ base: "calc(100vh - 90px)", lg: "calc(100vh - 188px)" }}
+      position="relative"
     >
       <ConversationHeader
         conversation={conversation}
         isSinglePane={isSinglePane}
         onBackToList={onBackToList}
         onToggleArchive={onToggleArchive}
+        actionSlot={headerActionSlot}
+        noticeSlot={headerNoticeSlot}
+        menuSlot={headerMenuSlot}
+        optionsButtonStyle={headerOptionsButtonStyle}
+        optionsButtonIndicator={headerOptionsButtonIndicator}
+        onOptionsOpen={onHeaderOptionsOpen}
       />
+      {afterHeaderSlot}
 
       <Box
         ref={messagesContainerRef}
@@ -178,6 +247,7 @@ export const ConversationView = ({
         px={4}
         py={4}
       >
+        {workspaceHintSlot}
         {messagesLoading ? (
           <Flex w="100%" h="100%" minH="200px" align="center" justify="center">
             <Spinner size="md" />
@@ -196,7 +266,7 @@ export const ConversationView = ({
             </Text>
           </VStack>
         ) : (
-          <VStack align="stretch" gap={{ base: 3, md: 6 }}>
+          <VStack align="stretch" gap={{ base: 3, md: 6 }} pb={3}>
             {hasMoreMessages && onLoadMoreMessages && (
               <Box
                 display="flex"
@@ -230,6 +300,7 @@ export const ConversationView = ({
             {orderedMessages.map((message) => {
               const isMine = message.sender === "me";
               const showActions = activeMessageActionsId === message.id;
+              const prototype = messagePrototype?.(message);
 
               const handleHoverIn = () => {
                 if (!isSinglePane) {
@@ -254,39 +325,42 @@ export const ConversationView = ({
               };
 
               return (
-                <MessageBox
-                  key={message.id}
-                  message={message}
-                  isMine={isMine}
-                  profileType={profileType}
-                  showActions={showActions}
-                  isSinglePane={isSinglePane}
-                  numericUserId={numericUserId}
-                  opportunityId={conversation?.opportunityId}
-                  onHoverIn={handleHoverIn}
-                  onHoverOut={handleHoverOut}
-                  onMessageClick={handleMessageClick}
-                  onCloseActions={() => setActiveMessageActionsId(null)}
-                  onReply={handleReplyToMessage}
-                  onScrollToMessage={scrollToMessage}
-                  messageRef={(el) => {
-                    if (el) {
-                      messageRefs.current.set(message.id, el);
-                    } else {
-                      messageRefs.current.delete(message.id);
-                    }
-                  }}
-                  isCopied={isCopied}
-                  onCopy={() => {
-                    if (message.text) {
-                      navigator.clipboard
-                        ?.writeText(message.text)
-                        .catch(() => undefined);
-                      setIsCopied(true);
-                      setTimeout(() => setIsCopied(false), 2000);
-                    }
-                  }}
-                />
+                <React.Fragment key={message.id}>
+                  <MessageBox
+                    message={message}
+                    isMine={isMine}
+                    profileType={profileType}
+                    showActions={showActions}
+                    isSinglePane={isSinglePane}
+                    numericUserId={numericUserId}
+                    opportunityId={conversation?.opportunityId}
+                    onHoverIn={handleHoverIn}
+                    onHoverOut={handleHoverOut}
+                    onMessageClick={handleMessageClick}
+                    onCloseActions={() => setActiveMessageActionsId(null)}
+                    onReply={handleReplyToMessage}
+                    onScrollToMessage={scrollToMessage}
+                    messageRef={(el) => {
+                      if (el) {
+                        messageRefs.current.set(message.id, el);
+                      } else {
+                        messageRefs.current.delete(message.id);
+                      }
+                    }}
+                    isCopied={isCopied}
+                    onCopy={() => {
+                      if (message.text) {
+                        navigator.clipboard
+                          ?.writeText(message.text)
+                          .catch(() => undefined);
+                        setIsCopied(true);
+                        setTimeout(() => setIsCopied(false), 2000);
+                      }
+                    }}
+                    prototype={prototype}
+                  />
+                  {timelineSlotAfterMessageId === message.id && timelineSlot}
+                </React.Fragment>
               );
             })}
             <div ref={messagesEndRef} />
@@ -312,13 +386,34 @@ export const ConversationView = ({
         borderColor="#E4E4E7"
         h="fit-content"
       >
-        <HStack gap={2} align="flex-end">
+        {composerLockedReason && (
+          <Box
+            mb={3}
+            px={3}
+            py={2}
+            borderRadius="lg"
+            borderWidth="1px"
+            borderColor="#FECACA"
+            bg="#FEF2F2"
+          >
+            <Text fontSize="sm" color="#991B1B" fontWeight="medium">
+              {composerLockedReason}
+            </Text>
+          </Box>
+        )}
+        <HStack gap={2} align="center">
           <MessageComposerInput
             value={composerText}
             onChange={handleOnChange}
             error={error}
-            placeholder="Type your message..."
+            placeholder={
+              composerLockedReason
+                ? "This conversation is blocked"
+                : "Type your message..."
+            }
+            inputProps={{ disabled: !!composerLockedReason }}
             onKeyDown={(e) => {
+              if (composerLockedReason) return;
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 handleSendWithFiles();
@@ -328,35 +423,60 @@ export const ConversationView = ({
             attachmentOpen={isAttachmentOpen}
             onAttachmentOpenChange={setIsAttachmentOpen}
             onFilesSelected={handleFilesSelected}
+            actionAlign={
+              composerSendMode === "inlineIcon" ? "center" : "flex-end"
+            }
+            sendControl={
+              composerSendMode === "inlineIcon" ? (
+                <IconButton
+                  aria-label="Send message"
+                  flexShrink={0}
+                  h="36px"
+                  minW="40px"
+                  borderRadius="10px"
+                  bg="profile.500"
+                  color="white"
+                  disabled={isSendDisabled}
+                  _hover={{ bg: "profile.dark" }}
+                  _active={{ transform: "scale(0.98)" }}
+                  onClick={handleSendWithFiles}
+                >
+                  <Send
+                    size={18}
+                    style={{ transform: "translate(-1px, 1px)" }}
+                  />
+                </IconButton>
+              ) : null
+            }
           />
 
-          <ButtonV2
-            variant="primary"
-            aria-label="Send message"
-            colorScheme="blue"
-            disabled={
-              isSending ||
-              (!composerText.trim() &&
-                selectedFiles.length === 0 &&
-                !replyToMessage) ||
-              error !== null
-            }
-            onClick={handleSendWithFiles}
-            flexShrink={0}
-            h="40px"
-            fontSize="sm"
-            px={{ base: 2.5, md: 4 }}
-            iconPosition="end"
-            icon={<Send size={18} />}
-            isLoading={isSending}
-            // profileType={profileType}
-          >
-            <Text fontSize="sm" display={{ base: "none", md: "inline-block" }}>
-              Send
-            </Text>
-          </ButtonV2>
+          {composerSendMode === "external" && (
+            <ButtonV2
+              variant="primary"
+              aria-label="Send message"
+              colorScheme="blue"
+              disabled={isSendDisabled}
+              onClick={handleSendWithFiles}
+              flexShrink={0}
+              h="40px"
+              fontSize="sm"
+              px={{ base: 2.5, md: 4 }}
+              iconPosition="end"
+              icon={<Send size={18} />}
+              isLoading={isSending}
+              // profileType={profileType}
+            >
+              <Text
+                fontSize="sm"
+                display={{ base: "none", md: "inline-block" }}
+              >
+                Send
+              </Text>
+            </ButtonV2>
+          )}
         </HStack>
       </Box>
+      {overlaySlot}
     </Box>
   );
 };

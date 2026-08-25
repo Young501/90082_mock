@@ -28,6 +28,7 @@ export interface MenuPopoverProps {
   minW?: string | number;
   contentProps?: Record<string, unknown>;
   maxW?: string | number;
+  closeOnSelect?: boolean;
 }
 
 const defaultContentStyles = {
@@ -57,7 +58,10 @@ export function MenuPopover({
   minW,
   contentProps = {},
   maxW = "250px",
+  closeOnSelect = false,
 }: MenuPopoverProps) {
+  const [internalOpen, setInternalOpen] = React.useState(false);
+
   if (variant === "drawer") {
     const isOpen = open ?? false;
     const setIsOpen = onOpenChange ?? (() => {});
@@ -84,6 +88,9 @@ export function MenuPopover({
               zIndex={9999}
               bg="white"
               {...drawerContentStyles}
+              onClickCapture={() => {
+                if (closeOnSelect) setIsOpen(false);
+              }}
               onClick={(e: React.MouseEvent) => e.stopPropagation()}
               {...contentProps}
             >
@@ -103,13 +110,21 @@ export function MenuPopover({
   }
 
   const isControlled = onOpenChange != null;
-  const popoverProps = isControlled
-    ? {
-        open: open ?? false,
-        onOpenChange: (details: { open: boolean }) =>
-          onOpenChange(details.open),
-      }
-    : {};
+  const actualOpen = isControlled ? (open ?? false) : internalOpen;
+  const setOpen = (nextOpen: boolean) => {
+    if (isControlled) {
+      onOpenChange?.(nextOpen);
+    } else {
+      setInternalOpen(nextOpen);
+    }
+  };
+  const popoverProps =
+    isControlled || closeOnSelect
+      ? {
+          open: actualOpen,
+          onOpenChange: (details: { open: boolean }) => setOpen(details.open),
+        }
+      : {};
 
   return (
     <Popover.Root positioning={{ placement }} {...popoverProps}>
@@ -120,6 +135,13 @@ export function MenuPopover({
           minW={minW}
           {...contentProps}
           maxW={maxW}
+          onClickCapture={(event: React.MouseEvent) => {
+            if (closeOnSelect) setOpen(false);
+            const existingHandler = contentProps.onClickCapture as
+              | ((event: React.MouseEvent) => void)
+              | undefined;
+            existingHandler?.(event);
+          }}
         >
           <VStack align="stretch" gap={1}>
             {title && (

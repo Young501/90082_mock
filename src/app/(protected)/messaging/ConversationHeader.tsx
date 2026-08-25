@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { type CSSProperties, type ReactNode, useState } from "react";
 import {
   Box,
   HStack,
@@ -21,6 +21,12 @@ export interface ConversationHeaderProps {
   isSinglePane: boolean | undefined;
   onBackToList: () => void;
   onToggleArchive: (id: ConversationId) => void;
+  actionSlot?: ReactNode;
+  noticeSlot?: ReactNode;
+  menuSlot?: ReactNode;
+  optionsButtonStyle?: CSSProperties;
+  optionsButtonIndicator?: ReactNode;
+  onOptionsOpen?: () => void;
 }
 
 export const ConversationHeader = ({
@@ -28,6 +34,12 @@ export const ConversationHeader = ({
   isSinglePane,
   onBackToList,
   onToggleArchive,
+  actionSlot,
+  noticeSlot,
+  menuSlot,
+  optionsButtonStyle,
+  optionsButtonIndicator,
+  onOptionsOpen,
 }: ConversationHeaderProps) => {
   const [showProfile, setShowProfile] = useState(false);
   const otherIsOrg = conversation.otherUserTypes.includes("organisation");
@@ -126,6 +138,7 @@ export const ConversationHeader = ({
               ? conversation?.organisationTitle
               : conversation?.otherUserName}
           </Text>
+          {noticeSlot}
           {otherIsCoordinator && (
             <Badge
               bg="#E9F7F6"
@@ -165,7 +178,8 @@ export const ConversationHeader = ({
         </HStack>
       </VStack>
 
-      <HStack>
+      <HStack gap={1} flexShrink={0}>
+        {actionSlot}
         <IconButton
           aria-label="Search"
           variant="ghost"
@@ -176,19 +190,27 @@ export const ConversationHeader = ({
         </IconButton>
 
         <MenuPopover
+          closeOnSelect
           trigger={
-            <IconButton
-              variant="ghost"
-              minW="fit-content"
-              aria-label="Conversation options"
-              h="fit-content"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <EllipsisVertical size={20} color="#71717A" />
-            </IconButton>
+            <Box position="relative" display="inline-flex">
+              <IconButton
+                variant="ghost"
+                minW="fit-content"
+                aria-label="Conversation options"
+                h="fit-content"
+                onClick={(e) => {
+                  onOptionsOpen?.();
+                }}
+                style={optionsButtonStyle}
+              >
+                <EllipsisVertical size={20} color="#71717A" />
+              </IconButton>
+              {optionsButtonIndicator}
+            </Box>
           }
           placement="bottom-start"
         >
+          {menuSlot}
           <HStack
             gap={2}
             cursor="pointer"

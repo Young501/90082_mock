@@ -13,6 +13,7 @@ let sharedSocket: WebSocket | null = null;
 let sharedSocketToken: string | null = null;
 
 export function useNotificationSocket() {
+  const mockApiEnabled = process.env.NEXT_PUBLIC_USE_MOCK_API === "true";
   const token = useAuthStore((s) => s.token);
   const user = useAuthStore((s) => s.user);
   const userType = useAuthStore((s) => s.getUserType());
@@ -32,6 +33,7 @@ export function useNotificationSocket() {
   }, [pathname]);
 
   useEffect(() => {
+    if (mockApiEnabled) return;
     if (!token) return;
 
     const wsBase = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:8000";
@@ -164,7 +166,15 @@ export function useNotificationSocket() {
       }
       wsRef.current?.close();
     };
-  }, [token, user?.id, accentColor, queryClient, router, setHasUnreadMessages]);
+  }, [
+    mockApiEnabled,
+    token,
+    user?.id,
+    accentColor,
+    queryClient,
+    router,
+    setHasUnreadMessages,
+  ]);
 
   return;
 }

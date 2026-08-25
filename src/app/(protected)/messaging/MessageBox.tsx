@@ -1,7 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
-import { Box, HStack, VStack, Text, IconButton } from "@chakra-ui/react";
+import React, { type ReactNode, useState } from "react";
+import {
+  Box,
+  HStack,
+  VStack,
+  Text,
+  IconButton,
+  Textarea,
+} from "@chakra-ui/react";
 import { MenuPopover } from "@/components/ui/MenuPopover";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { FullProfileCard } from "@/app/(protected)/discover/cards/FullProfileCard";
@@ -64,6 +71,28 @@ export interface MessageBoxProps {
   messageRef: (el: HTMLDivElement | null) => void;
   isCopied: boolean;
   onCopy: () => void;
+  prototype?: MessageBoxPrototypeProps;
+}
+
+export interface MessageBoxPrototypeProps {
+  forceActions?: boolean;
+  triggerIndicator?: ReactNode;
+  reportIndicator?: ReactNode;
+  editIndicator?: ReactNode;
+  deleteIndicator?: ReactNode;
+  saveEditIndicator?: ReactNode;
+  onOpenActions?: () => void;
+  onReport?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  editing?: boolean;
+  editDraft?: string;
+  onEditDraftChange?: (value: string) => void;
+  onCancelEdit?: () => void;
+  onSaveEdit?: () => void;
+  isReported?: boolean;
+  isEdited?: boolean;
+  isDeleted?: boolean;
 }
 
 export const MessageBox = ({
@@ -83,6 +112,7 @@ export const MessageBox = ({
   messageRef,
   isCopied,
   onCopy,
+  prototype,
 }: MessageBoxProps) => {
   const bubbleBg = isMine ? "profile.500" : "#F4F4F5";
   const bubbleBorder = isMine ? "profile.500" : "#E4E4E7";
@@ -109,6 +139,9 @@ export const MessageBox = ({
       : message.messanger?.id;
   const TRUNCATE_LENGTH = 500;
   const text = message.text ?? "";
+  const isDeleted = prototype?.isDeleted || message.isSoftDeleted;
+  const isEdited = prototype?.isEdited || message.isEdited;
+  const isReported = prototype?.isReported;
   const shouldTruncate = text.length > TRUNCATE_LENGTH;
   const displayText =
     shouldTruncate && !isTextExpanded
@@ -175,10 +208,10 @@ export const MessageBox = ({
                     </Text>
                   )}
                   <HStack gap={1}>
-                    {!isMine && (
+                    {!isMine && !prototype?.editing && (
                       <MessageActionsMenu
                         isMine={isMine}
-                        showActions={showActions}
+                        showActions={showActions || !!prototype?.forceActions}
                         isSinglePane={isSinglePane}
                         onCopy={onCopy}
                         isCopied={isCopied}
@@ -186,6 +219,14 @@ export const MessageBox = ({
                         onMessageClick={onMessageClick}
                         onCloseActions={onCloseActions}
                         onReply={() => onReply(message)}
+                        triggerIndicator={prototype?.triggerIndicator}
+                        onOpenActions={prototype?.onOpenActions}
+                        onReport={prototype?.onReport}
+                        reportIndicator={prototype?.reportIndicator}
+                        onEdit={prototype?.onEdit}
+                        editIndicator={prototype?.editIndicator}
+                        onDelete={prototype?.onDelete}
+                        deleteIndicator={prototype?.deleteIndicator}
                       />
                     )}
                     <Box
@@ -206,7 +247,7 @@ export const MessageBox = ({
                       cursor={isSinglePane ? "pointer" : "default"}
                       onClick={isSinglePane ? onMessageClick : undefined}
                     >
-                      {message.replyToPreview && (
+                      {message.replyToPreview && !isDeleted && (
                         <ReplyPreview
                           message={message}
                           isMine={isMine}
@@ -214,7 +255,103 @@ export const MessageBox = ({
                           onScrollToMessage={onScrollToMessage}
                         />
                       )}
-                      {text && (
+                      {isDeleted ? (
+                        <HStack gap={2} opacity={0.8}>
+                          <Text fontSize="sm" fontStyle="italic">
+                            Message deleted
+                          </Text>
+                        </HStack>
+                      ) : prototype?.editing ? (
+                        <VStack
+                          align="stretch"
+                          gap={2.5}
+                          minW={{ base: "280px", md: "360px" }}
+                          maxW={{ base: "100%", md: "460px" }}
+                        >
+                          <Text
+                            fontSize="10px"
+                            fontWeight="semibold"
+                            color={
+                              isMine ? "rgba(255,255,255,0.72)" : "#71717A"
+                            }
+                          >
+                            Editing message
+                          </Text>
+                          <Textarea
+                            value={prototype.editDraft ?? text}
+                            onChange={(e) =>
+                              prototype.onEditDraftChange?.(e.target.value)
+                            }
+                            minH="92px"
+                            resize="none"
+                            bg={isMine ? "rgba(255,255,255,0.14)" : "#F8FAFC"}
+                            color={isMine ? "white" : "#111827"}
+                            borderColor={
+                              isMine ? "rgba(255,255,255,0.28)" : "#D4D4D8"
+                            }
+                            borderRadius="lg"
+                            fontSize="sm"
+                            lineHeight="1.55"
+                            _placeholder={{
+                              color: isMine
+                                ? "rgba(255,255,255,0.58)"
+                                : "#A1A1AA",
+                            }}
+                            _focusVisible={{
+                              borderColor: isMine
+                                ? "rgba(255,255,255,0.72)"
+                                : "profile.500",
+                              boxShadow: "none",
+                            }}
+                          />
+                          <HStack justify="flex-end" gap={2}>
+                            <ButtonV2
+                              variant="ghost"
+                              h="fit-content"
+                              py={1.5}
+                              px={3}
+                              bg="transparent"
+                              color={isMine ? "white" : "#52525B"}
+                              borderRadius="lg"
+                              fontSize="xs"
+                              fontWeight="semibold"
+                              _hover={{
+                                bg: isMine
+                                  ? "rgba(255,255,255,0.12)"
+                                  : "#F4F4F5",
+                                textDecoration: "none",
+                              }}
+                              onClick={prototype.onCancelEdit}
+                            >
+                              Cancel
+                            </ButtonV2>
+                            <ButtonV2
+                              variant="ghost"
+                              h="fit-content"
+                              py={1.5}
+                              px={3.5}
+                              bg={isMine ? "white" : "profile.500"}
+                              color={isMine ? "profile.500" : "white"}
+                              borderRadius="lg"
+                              fontSize="xs"
+                              fontWeight="semibold"
+                              position="relative"
+                              _hover={{
+                                bg: isMine
+                                  ? "rgba(255,255,255,0.9)"
+                                  : "profile.dark",
+                                textDecoration: "none",
+                              }}
+                              onClick={prototype.onSaveEdit}
+                            >
+                              <HStack gap={2}>
+                                <Text>Save</Text>
+                                {prototype.saveEditIndicator}
+                              </HStack>
+                            </ButtonV2>
+                          </HStack>
+                        </VStack>
+                      ) : text ? (
                         <VStack align="flex-start" gap={0}>
                           <Text fontSize="sm" whiteSpace="pre-wrap">
                             {renderTextWithLinks(displayText, isMine)}
@@ -248,19 +385,43 @@ export const MessageBox = ({
                               {isTextExpanded ? "Show less" : "Read more"}
                             </Box>
                           )}
+                          {(isEdited || isReported) && (
+                            <HStack mt={2} gap={2} flexWrap="wrap">
+                              {isEdited && (
+                                <Text
+                                  as="span"
+                                  fontSize="10px"
+                                  opacity={0.8}
+                                  fontWeight="semibold"
+                                >
+                                  edited
+                                </Text>
+                              )}
+                              {isReported && (
+                                <Text
+                                  as="span"
+                                  fontSize="10px"
+                                  color={isMine ? "white" : "#B91C1C"}
+                                  fontWeight="semibold"
+                                >
+                                  reported
+                                </Text>
+                              )}
+                            </HStack>
+                          )}
                         </VStack>
-                      )}
-                      {hasAttachments && message.attachments && (
+                      ) : null}
+                      {!isDeleted && hasAttachments && message.attachments && (
                         <MessageAttachments
                           attachments={message.attachments}
                           isMine={isMine}
                         />
                       )}
                     </Box>
-                    {isMine && (
+                    {isMine && !prototype?.editing && (
                       <MessageActionsMenu
                         isMine={isMine}
-                        showActions={showActions}
+                        showActions={showActions || !!prototype?.forceActions}
                         isSinglePane={isSinglePane}
                         onCopy={onCopy}
                         isCopied={isCopied}
@@ -268,6 +429,14 @@ export const MessageBox = ({
                         onMessageClick={onMessageClick}
                         onCloseActions={onCloseActions}
                         onReply={() => onReply(message)}
+                        triggerIndicator={prototype?.triggerIndicator}
+                        onOpenActions={prototype?.onOpenActions}
+                        onReport={prototype?.onReport}
+                        reportIndicator={prototype?.reportIndicator}
+                        onEdit={prototype?.onEdit}
+                        editIndicator={prototype?.editIndicator}
+                        onDelete={prototype?.onDelete}
+                        deleteIndicator={prototype?.deleteIndicator}
                       />
                     )}
                   </HStack>
@@ -557,6 +726,14 @@ interface MessageActionsMenuProps {
   onMessageClick: () => void;
   onCloseActions: () => void;
   onReply?: () => void;
+  triggerIndicator?: ReactNode;
+  onOpenActions?: () => void;
+  onReport?: () => void;
+  reportIndicator?: ReactNode;
+  onEdit?: () => void;
+  editIndicator?: ReactNode;
+  onDelete?: () => void;
+  deleteIndicator?: ReactNode;
 }
 
 function MessageActionsMenu({
@@ -569,7 +746,22 @@ function MessageActionsMenu({
   onMessageClick,
   onCloseActions,
   onReply,
+  triggerIndicator,
+  onOpenActions,
+  onReport,
+  reportIndicator,
+  onEdit,
+  editIndicator,
+  onDelete,
+  deleteIndicator,
 }: MessageActionsMenuProps) {
+  const handleTriggerClick = () => {
+    onOpenActions?.();
+    if (isSinglePane) {
+      onMessageClick();
+    }
+  };
+
   return (
     <HStack
       justifyContent={isMine ? "flex-end" : "flex-start"}
@@ -579,75 +771,103 @@ function MessageActionsMenu({
     >
       <MenuPopover
         variant={isSinglePane ? "drawer" : "popover"}
-        title="Message actions"
+        title={isSinglePane ? "Message actions" : undefined}
+        closeOnSelect
+        minW="176px"
+        maxW="220px"
+        contentProps={{ p: 1 }}
         open={isSinglePane ? showActions : undefined}
         placement={isMine ? "left-start" : "right-start"}
         onOpenChange={isSinglePane ? (v) => !v && onCloseActions() : undefined}
         trigger={
-          <IconButton
-            variant="ghost"
-            minW="fit-content"
-            h="fit-content"
-            aria-label="Message actions"
-            onClick={isSinglePane ? onMessageClick : undefined}
-          >
-            <MoreHorizontal size={16} color={isMine ? "#1679AB" : "#4B5563"} />
-          </IconButton>
+          <Box position="relative" display="inline-flex">
+            <IconButton
+              variant="ghost"
+              minW="fit-content"
+              h="fit-content"
+              aria-label="Message actions"
+              onClick={handleTriggerClick}
+            >
+              <MoreHorizontal
+                size={16}
+                color={isMine ? "#1679AB" : "#4B5563"}
+              />
+            </IconButton>
+            {triggerIndicator}
+          </Box>
         }
       >
-        {onReply && (
-          <ButtonV2
-            variant="ghost"
-            minW="fit-content"
-            h="fit-content"
-            display="flex"
-            alignItems="start"
-            justifyContent="start"
-            aria-label="Reply to message"
-            px={2}
-            py={0}
-            color="black"
-            textDecoration="none"
-            _hover={{ textDecoration: "none" }}
-            gap={2}
-            cursor="pointer"
-            onClick={onReply}
-          >
-            <Text fontSize="sm">Reply</Text>
-          </ButtonV2>
-        )}
+        {onReply && <MessageActionItem label="Reply" onClick={onReply} />}
         {showCopy && (
-          <ButtonV2
-            variant="ghost"
-            minW="fit-content"
-            h="fit-content"
-            display="flex"
-            alignItems="start"
-            justifyContent="start"
-            aria-label="Copy message"
-            px={2}
-            py={0}
-            color="black"
-            textDecoration="none"
-            _hover={{ textDecoration: "none" }}
+          <MessageActionItem
+            label={isCopied ? "Copied" : "Copy"}
+            tone={isCopied ? "success" : "default"}
             onClick={onCopy}
-          >
-            {isCopied ? (
-              <Text fontSize="sm" fontWeight="semibold" color="profile.500">
-                Copied
-              </Text>
-            ) : (
-              <Text fontSize="sm">Copy</Text>
-            )}
-          </ButtonV2>
+          />
         )}
-        <Box mt={1} borderTopWidth="1px" borderTopColor="#E4E4E7" />
-        <HStack gap={2} cursor="pointer" px={2} py={1}>
-          <Text fontSize="sm" color="red.500">
-            Delete message
-          </Text>
-        </HStack>
+        {onReport && (
+          <MessageActionItem
+            label="Report message"
+            tone="danger"
+            indicator={reportIndicator}
+            onClick={onReport}
+          />
+        )}
+        {onEdit && (
+          <MessageActionItem
+            label="Edit"
+            indicator={editIndicator}
+            onClick={onEdit}
+          />
+        )}
+        <MessageActionItem
+          label="Delete message"
+          tone="danger"
+          indicator={deleteIndicator}
+          onClick={onDelete}
+        />
       </MenuPopover>
+    </HStack>
+  );
+}
+
+function MessageActionItem({
+  label,
+  tone = "default",
+  indicator,
+  onClick,
+}: {
+  label: string;
+  tone?: "default" | "danger" | "success";
+  indicator?: ReactNode;
+  onClick?: () => void;
+}) {
+  const color =
+    tone === "danger"
+      ? "#EF4444"
+      : tone === "success"
+        ? "profile.500"
+        : "#18181B";
+
+  return (
+    <HStack
+      as="button"
+      w="100%"
+      minH="34px"
+      px={2.5}
+      py={1.5}
+      gap={2}
+      justify="space-between"
+      borderRadius="md"
+      cursor="pointer"
+      position="relative"
+      _hover={{ bg: tone === "danger" ? "#FEF2F2" : "#F4F4F5" }}
+      onClick={onClick}
+    >
+      <Text fontSize="sm" color={color} fontWeight="400">
+        {label}
+      </Text>
+      {indicator}
     </HStack>
   );
 }

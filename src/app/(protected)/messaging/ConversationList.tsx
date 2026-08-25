@@ -1,6 +1,11 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, {
+  type CSSProperties,
+  type ReactNode,
+  useRef,
+  useEffect,
+} from "react";
 import { Box, VStack, HStack, Spinner } from "@chakra-ui/react";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { ConversationId, ConversationSummary } from "@/types/messaging";
@@ -21,6 +26,14 @@ interface ConversationListProps {
   onLoadMoreConversations?: () => void;
   hasMoreConversations?: boolean;
   isLoadingMoreConversations?: boolean;
+  getConversationHighlightStyle?: (
+    conversation: ConversationSummary
+  ) => CSSProperties | undefined;
+  getConversationBadges?: (conversation: ConversationSummary) => ReactNode;
+  onConversationContextMenu?: (
+    conversation: ConversationSummary,
+    event: React.MouseEvent<HTMLDivElement>
+  ) => void;
 }
 
 export const ConversationList = ({
@@ -36,6 +49,9 @@ export const ConversationList = ({
   onLoadMoreConversations,
   hasMoreConversations,
   isLoadingMoreConversations,
+  getConversationHighlightStyle,
+  getConversationBadges,
+  onConversationContextMenu,
 }: ConversationListProps) => {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -130,6 +146,21 @@ export const ConversationList = ({
                     isActive={isActive}
                     onSelect={onSelectConversation}
                     onToggleArchive={onToggleArchive}
+                    highlightStyle={getConversationHighlightStyle?.(
+                      conversation
+                    )}
+                    extraBadges={getConversationBadges?.(conversation)}
+                    onContextMenu={
+                      onConversationContextMenu
+                        ? (id, event) => {
+                            const target = conversations.find(
+                              (item) => item.id === id
+                            );
+                            if (target)
+                              onConversationContextMenu(target, event);
+                          }
+                        : undefined
+                    }
                   />
                 );
               })}

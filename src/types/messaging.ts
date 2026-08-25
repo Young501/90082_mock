@@ -95,6 +95,8 @@ export interface ConversationSummary {
   organisationLogo?: string | null;
   organisationMemberName?: string | null;
   opportunityTitle?: string | null;
+  isMuted?: boolean;
+  isBlocked?: boolean;
 }
 
 export interface MessageAttachment {
@@ -123,6 +125,9 @@ export interface Message {
   createdAt: string;
   replyToPreview?: ReplyToPreview | null;
   messanger?: MessagingUser | null;
+  isEdited?: boolean;
+  editedAt?: string | null;
+  isSoftDeleted?: boolean;
 }
 
 export type MessagesByConversation = Record<ConversationId, Message[]>;

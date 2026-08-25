@@ -10,7 +10,7 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { Paperclip, FileText, Images, AlertCircle } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { MenuPopover } from "./MenuPopover";
 import { Tooltip } from "./tooltip";
 
@@ -30,6 +30,8 @@ export interface MessageComposerInputProps {
   >;
   paddingX?: number;
   paddingY?: number;
+  sendControl?: ReactNode;
+  actionAlign?: "center" | "flex-end";
 }
 
 const defaultAttachmentOptions = (
@@ -117,6 +119,8 @@ export function MessageComposerInput({
   inputProps,
   paddingX = 4,
   paddingY = 2,
+  sendControl,
+  actionAlign = "flex-end",
 }: MessageComposerInputProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -213,7 +217,7 @@ export function MessageComposerInput({
             aria-label="Attach file"
             variant="ghost"
             size="sm"
-            alignSelf="flex-end"
+            alignSelf={actionAlign}
             flexShrink={0}
             onClick={() =>
               attachmentDrawer ? onAttachmentOpenChange?.(true) : undefined
@@ -230,6 +234,7 @@ export function MessageComposerInput({
           fileInputRef
         )}
       </MenuPopover>
+      {sendControl}
     </Box>
   );
 }
