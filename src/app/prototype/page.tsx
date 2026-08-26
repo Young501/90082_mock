@@ -17,6 +17,7 @@ import {
   ArrowRight,
   CheckCircle2,
   Handshake,
+  Home,
   MessageSquareText,
   ShieldCheck,
 } from "lucide-react";
@@ -79,6 +80,21 @@ const prototypeTasks: PrototypeTask[] = [
       "Deactivated account recovery message",
     ],
   },
+  {
+    task: "Task 8",
+    title: "Improve Student and Organisation Home Pages",
+    description:
+      "Smart recommendations, pending actions, and organisation team members added to the current home dashboard.",
+    href: "/prototype/home-task-8/",
+    accent: "#1F7F7B",
+    soft: "#E9F7F6",
+    icon: Home,
+    workflows: [
+      "Student home pending actions",
+      "Rules-based smart recommendations",
+      "Organisation home team members",
+    ],
+  },
 ];
 
 export default function PrototypePage() {
@@ -126,7 +142,7 @@ export default function PrototypePage() {
               py={1.5}
               fontSize="sm"
             >
-              3 prototypes ready
+              4 prototypes ready
             </Badge>
           </Flex>
 

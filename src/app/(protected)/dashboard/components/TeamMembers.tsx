@@ -7,6 +7,7 @@ import type { HomepageTeamMember } from "@/types/homepage";
 
 interface TeamMembersProps {
   members?: HomepageTeamMember[];
+  surface?: "card" | "plain";
 }
 
 function formatMemberSince(dateStr?: string): string {
@@ -19,16 +20,18 @@ function formatMemberSince(dateStr?: string): string {
   })}`;
 }
 
-export function TeamMembers({ members = [] }: TeamMembersProps) {
+export function TeamMembers({
+  members = [],
+  surface = "card",
+}: TeamMembersProps) {
   return (
     <Box
       bg="white"
-      borderRadius="12px"
-      p={{ base: 4, md: 5 }}
-      border="1px solid #E4E4E7"
+      borderRadius={surface === "card" ? "12px" : 0}
+      p={surface === "card" ? { base: 4, md: 5 } : 0}
+      border={surface === "card" ? "1px solid #E4E4E7" : "none"}
       width="100%"
-      h="100%"
-      overflow="auto"
+      h="fit-content"
       display="flex"
       flexDirection="column"
       gap={4}

@@ -10,15 +10,22 @@ import { ButtonV2 } from "@/components/ui/ButtonV2";
 import { useAuthStore } from "@/store/authStore";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { PROFILE_TINT_COLORS, PROFILE_HOVER_COLORS } from "@/theme/theme";
+import { PendingActions } from "./PendingActions";
+import type { HomepagePendingAction } from "@/types/homepage";
 
 interface ProfileOverviewProps {
   profile: HomepageProfile;
-  userType: string;
+  userType: "organisation" | "student";
+  pendingActions?: HomepagePendingAction[];
 }
 
 // TODO: Add STUDENT PROFILE NAME TO API RESPONSE
 
-export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
+export function ProfileOverview({
+  profile,
+  userType,
+  pendingActions = [],
+}: ProfileOverviewProps) {
   const router = useRouter();
   const { userProfile, user } = useAuthStore();
   const allItemsCompleted = profile.completion_items?.every(
@@ -28,7 +35,7 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
   const studentName =
     userProfile?.first_name && userProfile?.last_name
       ? `${userProfile?.first_name} ${userProfile?.last_name}`
-      : user?.email || "";
+      : profile.name || user?.email || "";
 
   return (
     <Box
@@ -38,9 +45,7 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
       border="1px solid #E4E4E7"
       width="100%"
       minW={0}
-      flex={1}
-      minH={0}
-      overflowY="auto"
+      h="fit-content"
       overflowX="hidden"
       display="flex"
       flexDirection="column"
@@ -241,6 +246,10 @@ export function ProfileOverview({ profile, userType }: ProfileOverviewProps) {
           </HStack>
         )}
       </VStack>
+
+      {pendingActions.length > 0 && (
+        <PendingActions actions={pendingActions} userType={userType} embedded />
+      )}
 
       <ButtonV2
         width="100%"

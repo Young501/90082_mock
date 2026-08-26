@@ -109,10 +109,35 @@ export interface HomepageTeamMember {
   member_since?: string;
 }
 
+export interface HomepagePendingAction {
+  id: string;
+  title: string;
+  description: string;
+  action_label: string;
+  href: string;
+  category: "match" | "profile" | "message" | "team" | "opportunity";
+  priority?: "high" | "medium" | "low";
+  meta?: string;
+}
+
+export interface HomepageSmartRecommendation {
+  id: string;
+  title: string;
+  description: string;
+  reason: string;
+  action_label: string;
+  href: string;
+  kind: "opportunity" | "profile" | "match" | "team";
+  score?: string;
+  image_url?: string | null;
+}
+
 export interface HomepageStats {
   user_type: "organisation" | "student";
   profile: HomepageProfile;
   opportunities: HomepageOpportunity[];
   recent_messages: HomepageRecentMessage[];
   team_members?: HomepageTeamMember[];
+  pending_actions?: HomepagePendingAction[];
+  smart_recommendations?: HomepageSmartRecommendation[];
 }
