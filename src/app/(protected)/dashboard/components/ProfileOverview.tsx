@@ -245,57 +245,56 @@ export function ProfileOverview({
             </Text>
           </HStack>
         )}
+
+        <ButtonV2
+          width="100%"
+          bg={
+            userType === "organisation"
+              ? allItemsCompleted
+                ? "#E9F7F6"
+                : "#3AADA8"
+              : allItemsCompleted
+                ? "#EAF6FD"
+                : "#2AA8E0"
+          }
+          color={
+            userType === "organisation"
+              ? allItemsCompleted
+                ? "#1F7F7B"
+                : "#FFFFFF"
+              : allItemsCompleted
+                ? "#1679AB"
+                : "#FFFFFF"
+          }
+          h="36px"
+          border={
+            userType === "organisation"
+              ? allItemsCompleted
+                ? `1px solid ${PROFILE_TINT_COLORS.organisation}`
+                : "1px solid #3AADA8"
+              : allItemsCompleted
+                ? `1px solid ${PROFILE_TINT_COLORS.student}`
+                : "1px solid #2AA8E0"
+          }
+          size="sm"
+          _hover={{
+            bg: allItemsCompleted
+              ? (PROFILE_TINT_COLORS[
+                  userType as keyof typeof PROFILE_TINT_COLORS
+                ] ?? PROFILE_TINT_COLORS.student)
+              : (PROFILE_HOVER_COLORS[
+                  userType as keyof typeof PROFILE_HOVER_COLORS
+                ] ?? PROFILE_HOVER_COLORS.student),
+          }}
+          onClick={() => router.push("/profile/")}
+        >
+          {allItemsCompleted ? "Edit Profile" : "Complete Profile"}
+        </ButtonV2>
       </VStack>
 
       {pendingActions.length > 0 && (
         <PendingActions actions={pendingActions} userType={userType} embedded />
       )}
-
-      <ButtonV2
-        width="100%"
-        mt="auto"
-        bg={
-          userType === "organisation"
-            ? allItemsCompleted
-              ? "#E9F7F6"
-              : "#3AADA8"
-            : allItemsCompleted
-              ? "#EAF6FD"
-              : "#2AA8E0"
-        }
-        color={
-          userType === "organisation"
-            ? allItemsCompleted
-              ? "#1F7F7B"
-              : "#FFFFFF"
-            : allItemsCompleted
-              ? "#1679AB"
-              : "#FFFFFF"
-        }
-        h="36px"
-        border={
-          userType === "organisation"
-            ? allItemsCompleted
-              ? `1px solid ${PROFILE_TINT_COLORS.organisation}`
-              : "1px solid #3AADA8"
-            : allItemsCompleted
-              ? `1px solid ${PROFILE_TINT_COLORS.student}`
-              : "1px solid #2AA8E0"
-        }
-        size="sm"
-        _hover={{
-          bg: allItemsCompleted
-            ? (PROFILE_TINT_COLORS[
-                userType as keyof typeof PROFILE_TINT_COLORS
-              ] ?? PROFILE_TINT_COLORS.student)
-            : (PROFILE_HOVER_COLORS[
-                userType as keyof typeof PROFILE_HOVER_COLORS
-              ] ?? PROFILE_HOVER_COLORS.student),
-        }}
-        onClick={() => router.push("/profile/")}
-      >
-        {allItemsCompleted ? "Edit Profile" : "Complete Profile"}
-      </ButtonV2>
     </Box>
   );
 }
